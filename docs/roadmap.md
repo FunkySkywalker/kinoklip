@@ -141,6 +141,7 @@ Shipped in 1.4 ([release notes](releases/v1.4.0.md)):
 
 - [ ] Audio: noise reduction with a local, open model (RNNoise / DeepFilterNet, spectral gate fallback)
 - [ ] Audio: Effects Library and Inspector on the Audio page, effect slots on mixer tracks
+- [ ] Audio: Normalize a whole track or bus / the main mix to a loudness target in one step
 - [ ] Background Removal: Keep / Remove brush to correct the model by hand
 - [ ] Media: New Fusion Clip, and Fusion / compound clips as Media Pool entries you can drag to the timeline
 - [ ] Edit: several edit points selected and trimmed together
