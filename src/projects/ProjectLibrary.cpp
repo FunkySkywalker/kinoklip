@@ -338,10 +338,13 @@ void ProjectLibrary::loadCache()
     m_meta.reserve(entries.size());
     for (auto it = entries.begin(); it != entries.end(); ++it) {
         const QJsonObject o = it.value().toObject();
+        ProjectMetadata meta = metaFromJson(o.value(QLatin1String("meta")).toObject());
+        if (!meta.error.isEmpty())
+            continue; // damaged: read again, a newer Kinoklip may repair it (owner report 1.8.1)
         m_meta.insert(it.key(),
             {o.value(QLatin1String("mtime")).toInteger(),
                 o.value(QLatin1String("size")).toInteger(),
-                metaFromJson(o.value(QLatin1String("meta")).toObject())});
+                std::move(meta)});
     }
 }
 
