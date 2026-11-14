@@ -74,9 +74,10 @@ private slots:
         t.c.setLinkedSelection(false);
         t.f.selection.setClips({v});
         t.action("edit.ripple_delete")->trigger();
-        // Only the video part; A1 has a clip in the range, so it keeps its place; A2 is locked.
+        // Only the video part is selected; A1 (sync lock on) loses the same frames and closes up
+        // (changed from "keeps its place": spec 97.11); A2 is locked.
         QCOMPARE(layout(t.f.view(), kV1), QStringLiteral("0:10"));
-        QCOMPARE(layout(t.f.view(), kA1), QStringLiteral("0:10 10:10"));
+        QCOMPARE(layout(t.f.view(), kA1), QStringLiteral("0:10"));
         QCOMPARE(layout(t.f.view(), kA2), QStringLiteral("30:10"));
     }
 

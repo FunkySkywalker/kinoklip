@@ -93,9 +93,9 @@ QVector<quint64> insertClips(TimelineData& data, const QVector<PlacedClip>& clip
 /// Returns the number of clips removed.
 int liftClips(TimelineData& data, const QVector<quint64>& clipIds);
 /// Ripple delete: removes the clips and shifts later clips on the same track left to close the
-/// gaps. With RippleScope::AllTracks every other unlocked sync-locked track shifts by the same
-/// amount for each removed time range in which it is empty (spec 10.4: keeps sync; a track
-/// with content inside the range stays where it is). Include linked clips to keep them in
+/// gaps. With RippleScope::AllTracks every other unlocked sync-locked track loses the same
+/// frames for each removed time range (spanning clips are trimmed or cut, clips inside go) and
+/// shifts left, like ripple trim shortening (spec 97.11). Include linked clips to keep them in
 /// sync. Locked tracks never change. Returns the number of clips removed.
 int rippleDeleteClips(TimelineData& data, const QVector<quint64>& clipIds,
     RippleScope scope = RippleScope::TargetTracks);
@@ -132,8 +132,9 @@ int64_t trimHead(TimelineData& data, quint64 clipId, int64_t delta, bool ripple)
 /// Moves the tail (out point) of clip @p clipId by @p delta frames. Returns the applied delta.
 int64_t trimTail(TimelineData& data, quint64 clipId, int64_t delta, bool ripple);
 /// Ripple sync (spec 8.18 / 97, Resolve 20.2 model): after a ripple trim changed the length of
-/// the trimmed clip by @p change frames at @p point (the primary clip's end before the trim),
-/// every other unlocked track with sync lock on follows. Lengthened: a clip spanning @p point is
+/// the trimmed clip by @p change frames at @p point (tail trim: the primary clip's end before
+/// the trim; head trim: its old start when lengthening, old start + n when shortening by n, as
+/// the clip keeps its start), every other unlocked track with sync lock on follows. Lengthened: a clip spanning @p point is
 /// cut there and the clips from @p point on move right by @p change (a gap opens). Shortened: the
 /// frames [point + change, point) leave those tracks (spanning clips are trimmed or cut, clips
 /// inside go) and the later clips move left. Tracks holding a trimmed clip are left to the trims.
@@ -288,8 +289,8 @@ bool shuffleClip(TimelineData& data, quint64 clipId, int64_t frame);
 /// Ripple overwrite (spec 4.11): replaces [@p rangeStart, @p rangeEnd) on the clips' tracks
 /// with @p clips (all starting at rangeStart) and ripples everything after the range by the
 /// length difference, on the receiving tracks and (scope AllTracks) the other unlocked
-/// sync-locked tracks; when the new material is shorter, another track only follows if the
-/// room it gives up is empty. Returns the new ids in input order (empty on invalid input).
+/// sync-locked tracks; when the new material is shorter, another track loses the same frames
+/// (spec 97.11). Returns the new ids in input order (empty on invalid input).
 QVector<quint64> rippleOverwriteClips(TimelineData& data, const QVector<PlacedClip>& clips,
     int64_t rangeStart, int64_t rangeEnd, RippleScope scope = RippleScope::AllTracks);
 

@@ -9,6 +9,11 @@
 #include "ui/timeline/TimelineController.h"
 
 #include <QJsonArray>
+#include <QMap>
+#include <QSet>
+#include <algorithm>
+#include <functional>
+#include <optional>
 #include <QRandomGenerator>
 #include <QTest>
 #include <QUndoStack>
@@ -188,6 +193,180 @@ QString randomOp(QRandomGenerator& rng, TimelineData& d)
         return QStringLiteral("copyPaste");
     }
     }
+}
+
+// ---- Sync property (spec 97.4, 97.11) ----
+// Every frame of content is labelled (media id, source frame). After a ripple edit, each other
+// unlocked sync-locked track must hold exactly its old frames moved by the edit's time map
+// (frames removed by the edit are gone, the rest keep their offset to the edited content);
+// locked tracks and tracks with sync lock off must not change at all.
+
+using FrameMap = QMap<int64_t, QString>;
+using TimeMap = std::function<std::optional<int64_t>(int64_t)>;
+
+FrameMap framesOf(const TrackData& t)
+{
+    FrameMap m;
+    for (const ClipData& c : t.clips)
+        for (int64_t p = c.start; p < c.end(); ++p)
+            m.insert(p, QStringLiteral("%1@%2").arg(c.mediaId).arg(c.sourceInUs / 40000 + (p - c.start)));
+    return m;
+}
+
+TimeMap identityMap()
+{
+    return [](int64_t p) { return std::optional<int64_t>(p); };
+}
+
+/// Lengthening by @p n at @p point: later frames move right.
+TimeMap lengthenMap(int64_t point, int64_t n)
+{
+    return [=](int64_t p) { return std::optional<int64_t>(p < point ? p : p + n); };
+}
+
+/// Shortening by @p n at @p point: frames [point - n, point) go, later ones move left.
+TimeMap shortenMap(int64_t point, int64_t n)
+{
+    return [=](int64_t p) -> std::optional<int64_t> {
+        if (p < point - n)
+            return p;
+        if (p < point)
+            return std::nullopt;
+        return p - n;
+    };
+}
+
+TimeMap rangesMap(std::vector<std::pair<int64_t, int64_t>> ranges)
+{
+    std::sort(ranges.begin(), ranges.end());
+    return [=](int64_t p) -> std::optional<int64_t> {
+        int64_t shift = 0;
+        int64_t end = -1; // merged coverage so far
+        for (const auto& r : ranges) {
+            const int64_t s = std::max(r.first, end);
+            if (r.second <= s)
+                continue;
+            if (p >= s && p < r.second)
+                return std::nullopt;
+            if (r.second <= p)
+                shift += r.second - s;
+            end = std::max(end, r.second);
+        }
+        return p - shift;
+    };
+}
+
+using TrackKey = std::pair<int, int>;
+
+TrackKey keyOf(TrackRef r)
+{
+    return {int(r.type), r.index};
+}
+
+/// Empty string when the property holds, else what broke.
+QString syncProblem(const TimelineData& before, const TimelineData& after, const TimeMap& map,
+    const QSet<TrackKey>& excluded)
+{
+    for (TrackType type : {TrackType::Video, TrackType::Audio}) {
+        const auto& oldList = before.tracks(type);
+        const auto& newList = after.tracks(type);
+        if (newList.size() < oldList.size())
+            return QStringLiteral("tracks lost");
+        for (size_t i = 0; i < oldList.size(); ++i) {
+            if (excluded.contains(keyOf(TrackRef {type, int(i)})))
+                continue;
+            const TrackData& o = oldList[i];
+            const FrameMap now = framesOf(newList[i]);
+            FrameMap want;
+            const bool follows = !o.locked && o.syncLock;
+            const FrameMap old = framesOf(o);
+            for (auto it = old.cbegin(); it != old.cend(); ++it) {
+                const auto to = follows ? map(it.key()) : std::optional<int64_t>(it.key());
+                if (to)
+                    want.insert(*to, it.value());
+            }
+            if (now != want) {
+                QString diff;
+                for (auto it = want.cbegin(); it != want.cend(); ++it)
+                    if (now.value(it.key()) != it.value()) {
+                        diff = QStringLiteral(" first diff at %1: want %2 got %3").arg(it.key()).arg(it.value(), now.value(it.key()));
+                        break;
+                    }
+                if (diff.isEmpty())
+                    diff = QStringLiteral(" extra frames (%1 vs %2)").arg(now.size()).arg(want.size());
+                return QStringLiteral("%1 track %2 (%3) is out of sync").arg(type == TrackType::Video ? "video" : "audio").arg(i + 1)
+                    .arg(o.locked ? "locked" : o.syncLock ? "sync lock on" : "sync lock off") + diff;
+            }
+            if (false)
+                return QStringLiteral("%1 track %2 (%3) is out of sync")
+                    .arg(type == TrackType::Video ? "video" : "audio").arg(i + 1)
+                    .arg(o.locked ? "locked" : o.syncLock ? "sync lock on" : "sync lock off");
+        }
+    }
+    return {};
+}
+
+QSet<TrackKey> tracksOf(const TimelineData& d, const QVector<quint64>& ids)
+{
+    QSet<TrackKey> set;
+    for (quint64 id : ids)
+        if (const auto loc = ops::findClip(d, id))
+            set.insert(keyOf(loc->track));
+    return set;
+}
+
+/// Six tracks, unique media per clip, some linked V+A pairs, random sync locks, maybe a lock.
+TimelineData syncTimeline(QRandomGenerator& rng, int& mediaCounter)
+{
+    TimelineData d = makeDefaultTimeline(QStringLiteral("Sync"), Rational {25, 1}, 1920, 1080, 3, 3);
+    auto free = [](const TrackData& t, int64_t s, int64_t e) {
+        for (const ClipData& c : t.clips)
+            if (c.start < e && c.end() > s)
+                return false;
+        return true;
+    };
+    auto media = [&](int64_t s, int64_t len) {
+        ClipData c = mediaClip(s, len, rng.bounded(5), 0);
+        c.mediaId = QStringLiteral("m%1").arg(mediaCounter++);
+        return c;
+    };
+    for (int i = 0; i < 14; ++i) {
+        const int64_t s = rng.bounded(90);
+        const int64_t len = 3 + rng.bounded(25);
+        const int vt = rng.bounded(3);
+        const int at = rng.bounded(3);
+        const bool pair = rng.bounded(3) == 0;
+        TrackData& v = d.videoTracks[size_t(vt)];
+        TrackData& a = d.audioTracks[size_t(at)];
+        if (pair && free(v, s, s + len) && free(a, s, s + len)) {
+            const quint64 x = ops::overwriteClip(d, TrackRef {TrackType::Video, vt}, media(s, len));
+            ClipData ac = media(s, len);
+            ac.mediaId = QStringLiteral("a%1").arg(ac.mediaId);
+            const quint64 y = ops::overwriteClip(d, TrackRef {TrackType::Audio, at}, ac);
+            ops::linkClips(d, {x, y});
+        } else if (rng.bounded(2) && free(v, s, s + len)) {
+            ops::overwriteClip(d, TrackRef {TrackType::Video, vt}, media(s, len));
+        } else if (free(a, s, s + len)) {
+            ops::overwriteClip(d, TrackRef {TrackType::Audio, at}, media(s, len));
+        }
+    }
+    for (TrackType type : {TrackType::Video, TrackType::Audio})
+        for (TrackData& t : d.tracks(type))
+            t.syncLock = rng.bounded(4) != 0;
+    if (rng.bounded(3) == 0)
+        d.tracks(rng.bounded(2) ? TrackType::Video : TrackType::Audio)[size_t(rng.bounded(3))].locked = true;
+    return d;
+}
+
+QVector<quint64> pickSome(QRandomGenerator& rng, const TimelineData& d, int most)
+{
+    QVector<quint64> out;
+    const QVector<quint64> ids = allIds(d);
+    if (ids.isEmpty())
+        return out;
+    for (int i = 0, n = 1 + rng.bounded(most); i < n; ++i)
+        out.append(ids[rng.bounded(int(ids.size()))]);
+    return out;
 }
 
 } // namespace
@@ -390,6 +569,209 @@ private slots:
                     KK_VERIFY_INVARIANTS(f.view());
                 }
             }
+        }
+    }
+
+    // Property (owner reports 1.8.2): every ripple edit keeps the other sync-locked tracks in
+    // sync at the core level; locked and sync-off tracks never change.
+    void rippleEditsKeepSyncLockedTracksInSync()
+    {
+        QRandomGenerator rng(971);
+        int media = 0;
+        for (int run = 0; run < 1500; ++run) {
+            const TimelineData before = syncTimeline(rng, media);
+            TimelineData d = before;
+            QString op;
+            TimeMap map = identityMap();
+            QSet<TrackKey> excluded;
+            switch (rng.bounded(6)) {
+            case 0: { // ripple delete of any clips (audio only, video only, mixed, linked or not)
+                op = QStringLiteral("rippleDelete");
+                QVector<quint64> ids = pickSome(rng, d, 3);
+                if (rng.bounded(2))
+                    ids = ops::withLinkedClips(d, ids);
+                std::vector<std::pair<int64_t, int64_t>> ranges;
+                for (quint64 id : ids) {
+                    const auto loc = ops::findClip(d, id);
+                    if (!loc || d.track(loc->track)->locked)
+                        continue;
+                    const ClipData* c = ops::clipById(d, id);
+                    ranges.emplace_back(c->start, c->end());
+                    excluded.insert(keyOf(loc->track));
+                }
+                map = rangesMap(ranges);
+                ops::rippleDeleteClips(d, ids, ops::RippleScope::AllTracks);
+                break;
+            }
+            case 1:
+            case 2: { // ripple trim, head or tail, both directions
+                op = QStringLiteral("rippleTrim");
+                const quint64 id = pick(rng, d);
+                const ClipData* c = ops::clipById(d, id);
+                if (!c)
+                    continue;
+                const bool head = rng.bounded(2) == 0;
+                QVector<quint64> group {id};
+                for (quint64 l : ops::linkedClips(d, id))
+                    if (l != id && (head ? ops::clipById(d, l)->start == c->start
+                                         : ops::clipById(d, l)->end() == c->end()))
+                        group.append(l);
+                excluded = tracksOf(d, group);
+                const int64_t oldStart = c->start;
+                const int64_t oldEnd = c->end();
+                const int64_t applied = ops::rippleTrimSynced(d, group, head, int64_t(rng.bounded(31)) - 15);
+                const int64_t n = head ? -applied : applied; // change in length
+                if (n > 0)
+                    map = lengthenMap(head ? oldStart : oldEnd, n);
+                else if (n < 0)
+                    map = shortenMap(head ? oldStart - n : oldEnd, -n);
+                break;
+            }
+            case 3: { // insert
+                op = QStringLiteral("insert");
+                const TrackType type = rng.bounded(2) ? TrackType::Video : TrackType::Audio;
+                const TrackRef ref {type, int(rng.bounded(3))};
+                ClipData c = mediaClip(rng.bounded(100), 1 + rng.bounded(20));
+                c.mediaId = QStringLiteral("ins");
+                const int64_t at = c.start;
+                const int64_t len = c.duration;
+                if (ops::insertClip(d, ref, c, ops::RippleScope::AllTracks)) {
+                    excluded.insert(keyOf(ref));
+                    map = lengthenMap(at, len);
+                }
+                break;
+            }
+            case 4: { // ripple overwrite, shorter and longer
+                op = QStringLiteral("rippleOverwrite");
+                const TrackType type = rng.bounded(2) ? TrackType::Video : TrackType::Audio;
+                const TrackRef ref {type, int(rng.bounded(3))};
+                const int64_t a = rng.bounded(80);
+                const int64_t b = a + 1 + rng.bounded(30);
+                ClipData c = mediaClip(a, 1 + rng.bounded(40));
+                c.mediaId = QStringLiteral("ovr");
+                const int64_t len = c.duration;
+                if (!ops::rippleOverwriteClips(d, {ops::PlacedClip {ref, c}}, a, b,
+                        ops::RippleScope::AllTracks).isEmpty()) {
+                    excluded.insert(keyOf(ref));
+                    const int64_t delta = len - (b - a);
+                    if (delta > 0)
+                        map = lengthenMap(b, delta);
+                    else if (delta < 0)
+                        map = shortenMap(b, -delta);
+                }
+                break;
+            }
+            default: { // ripple delete of a range: unlocked tracks (sync lock off is auto select's call)
+                op = QStringLiteral("extractRange");
+                const int64_t a = rng.bounded(80);
+                const int64_t b = a + 1 + rng.bounded(30);
+                for (TrackType type : {TrackType::Video, TrackType::Audio})
+                    for (size_t i = 0; i < before.tracks(type).size(); ++i)
+                        if (!before.tracks(type)[i].syncLock)
+                            excluded.insert(keyOf(TrackRef {type, int(i)}));
+                map = rangesMap({{a, b}});
+                ops::extractRange(d, a, b);
+                break;
+            }
+            }
+            QString why;
+            QVERIFY2(ops::checkInvariants(d, &why), qPrintable(op + QStringLiteral(": ") + why));
+            const QString problem = syncProblem(before, d, map, excluded);
+            QVERIFY2(problem.isEmpty(),
+                qPrintable(QStringLiteral("run %1 %2: %3").arg(run).arg(op, problem)));
+        }
+    }
+
+    // The same through the controller commands the UI calls (one selected clip).
+    void controllerRippleCommandsKeepSyncLockedTracksInSync()
+    {
+        QRandomGenerator rng(972);
+        int media = 0;
+        for (int run = 0; run < 1200; ++run) {
+            TimelineFixture f;
+            TimelineController c(f.ctx);
+            f.project.beginEdit(QStringLiteral("setup"));
+            f.data() = syncTimeline(rng, media);
+            f.project.endEdit();
+            f.project.undoStack()->clear();
+            const TimelineData before = f.view();
+            const quint64 id = pick(rng, before);
+            const ClipData* p = ops::clipById(before, id);
+            if (!p)
+                continue;
+            const int which0 = rng.bounded(6);
+            QVector<quint64> picked {id};
+            if (const int more = rng.bounded(3); which0 < 2 && more > 0)
+                picked += pickSome(rng, before, more); // several clips, audio only or not
+            const QVector<quint64> group = ops::withLinkedClips(before, picked);
+            const QSet<TrackKey> excluded = tracksOf(before, group);
+            const int64_t oldStart = p->start;
+            const int64_t oldEnd = p->end();
+            const int64_t oldDur = p->duration;
+            f.selection.setClips(picked);
+            f.project.timeline()->setPlayhead(oldStart + 1 + rng.bounded(int(oldDur)));
+            const int which = which0;
+            const bool head = which == 3;
+            TimeMap map = identityMap();
+            switch (which) {
+            case 0:
+            case 1: {
+                std::vector<std::pair<int64_t, int64_t>> ranges;
+                for (quint64 g : group) {
+                    const auto loc = ops::findClip(before, g);
+                    if (loc && !before.track(loc->track)->locked)
+                        ranges.emplace_back(ops::clipById(before, g)->start, ops::clipById(before, g)->end());
+                }
+                map = rangesMap(ranges);
+                which == 0 ? c.rippleDeleteSelection() : c.rippleCut();
+                break;
+            }
+            case 2:
+                c.rippleTrimEndToPlayhead();
+                break;
+            case 3:
+                c.rippleTrimStartToPlayhead();
+                break;
+            default:
+                c.setSelectionDuration(1 + rng.bounded(40));
+                break;
+            }
+            const TimelineData& after = f.view();
+            QString why;
+            QVERIFY2(ops::checkInvariants(after, &why), qPrintable(why));
+            if (which >= 2) {
+                // The selected clip may sit on a locked track while its linked partner is trimmed.
+                for (quint64 g : group) {
+                    const ClipData* o = ops::clipById(before, g);
+                    const ClipData* q = ops::clipById(after, g);
+                    QVERIFY(o && q);
+                    const int64_t n = q->duration - o->duration;
+                    if (n > 0)
+                        map = lengthenMap(head ? o->start : o->end(), n);
+                    else if (n < 0)
+                        map = shortenMap(head ? o->start - n : o->end(), -n);
+                    if (n != 0)
+                        break;
+                }
+            }
+            const QString problem = syncProblem(before, after, map, excluded);
+            QString dump;
+            if (!problem.isEmpty()) {
+                for (TrackType type : {TrackType::Video, TrackType::Audio})
+                    for (size_t i = 0; i < before.tracks(type).size(); ++i)
+                        dump += QStringLiteral("\n  %1%2 lock=%3 sync=%4: %5 -> %6")
+                                    .arg(type == TrackType::Video ? "V" : "A").arg(i + 1)
+                                    .arg(before.tracks(type)[i].locked).arg(before.tracks(type)[i].syncLock)
+                                    .arg(layout(before, TrackRef {type, int(i)}), layout(after, TrackRef {type, int(i)}));
+                for (const ClipData& c : before.videoTracks[1].clips)
+                    dump += QStringLiteral("\n  B %1 %2:%3 in=%4 spd=%5 id=%6").arg(c.mediaId).arg(c.start).arg(c.duration).arg(c.sourceInUs).arg(c.speed).arg(c.id);
+                for (const ClipData& c : after.videoTracks[1].clips)
+                    dump += QStringLiteral("\n  A %1 %2:%3 in=%4 spd=%5 id=%6").arg(c.mediaId).arg(c.start).arg(c.duration).arg(c.sourceInUs).arg(c.speed).arg(c.id);
+                dump += QStringLiteral("\n  selected clip %1 at %2:%3, playhead %4")
+                            .arg(id).arg(oldStart).arg(oldDur).arg(f.project.timeline()->playhead());
+            }
+            QVERIFY2(problem.isEmpty(),
+                qPrintable(QStringLiteral("run %1 command %2: %3%4").arg(run).arg(which).arg(problem, dump)));
         }
     }
 };

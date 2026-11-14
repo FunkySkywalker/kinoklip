@@ -106,6 +106,7 @@ int rippleDeleteClips(TimelineData& data, const QVector<quint64>& clipIds, Rippl
     const std::vector<Range> merged = mergeRanges(std::move(removedRanges));
 
     int removed = 0;
+    GroupRemap remap;
     forEachTrack(data, [&](TrackRef ref, TrackData& track) {
         if (track.locked)
             return;
@@ -129,11 +130,14 @@ int rippleDeleteClips(TimelineData& data, const QVector<quint64>& clipIds, Rippl
         }
         if (scope != RippleScope::AllTracks || !track.syncLock)
             return;
-        // Another sync-locked track follows every removed range it has room for. Right to left,
-        // so the earlier ranges keep their coordinates.
+        // Another sync-locked track loses the same frames as ripple trim shortening does
+        // (spec 97.11): clips spanning a removed range are trimmed or cut, clips inside it go,
+        // everything after moves left. Right to left, so the earlier ranges keep their
+        // coordinates.
         for (auto it = merged.crbegin(); it != merged.crend(); ++it) {
-            if (rangeFree(track, it->first, it->second))
-                shiftFrom(track, it->second, -(it->second - it->first));
+            if (!rangeFree(track, it->first, it->second))
+                clearRangeImpl(data, track, it->first, it->second, remap);
+            shiftFrom(track, it->second, -(it->second - it->first));
         }
     });
     return removed;
@@ -470,7 +474,8 @@ QVector<quint64> rippleOverwriteClips(TimelineData& data, const QVector<PlacedCl
                 }
             }
         } else if (delta < 0 && !rangeFree(track, rangeEnd + delta, rangeEnd)) {
-            return; // no room to follow a shorter replacement
+            // A shorter replacement removes the same frames here as ripple trim shortening.
+            clearRangeImpl(data, track, rangeEnd + delta, rangeEnd, remap);
         }
         if (delta != 0)
             shiftFrom(track, rangeEnd, delta);

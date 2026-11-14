@@ -961,8 +961,10 @@ void TimelineWidget::updateTrim(QPointF pos)
                         : ops::trimTail(data, id, d, m_drag.ripple);
         };
         // Ripple: the other sync-locked tracks follow (spec 8.18, 97).
-        const int64_t point = m_drag.primaryEnd;
         const int64_t applied = trim(m_drag.primary, delta);
+        const int64_t point = !head ? m_drag.primaryEnd
+            : applied > 0       ? m_drag.primaryStart + applied
+                                : m_drag.primaryStart;
         bool consistent = true;
         for (int i = 1; i < m_drag.clips.size(); ++i) {
             const int64_t b = trim(m_drag.clips[i], applied);

@@ -714,36 +714,37 @@ void TimelineController::trimToPlayhead(bool head, bool ripple)
                : (head ? tr("Trim Start") : tr("Trim End")),
         [&](TimelineData& data) {
             bool any = false;
-            // Ripple: the other sync-locked tracks follow the first clip's change (spec 8.18, 97).
+            // Ripple: the other sync-locked tracks follow the change of the first clip that
+            // actually changed (a locked first clip does not trim; spec 8.18, 97).
             int64_t syncPoint = -1;
             int64_t syncShift = 0;
-            if (ripple) {
-                if (const ClipData* first = ops::clipById(data, ids.first())) {
-                    syncPoint = first->end();
-                }
-            }
             for (quint64 id : ids) {
                 const ClipData* c = ops::clipById(data, id);
                 if (!c)
                     continue;
+                const bool driver = syncPoint < 0;
                 if (head) {
                     // The playhead frame becomes the first frame of the clip.
                     const int64_t start = c->start;
                     const int64_t got = ops::trimHead(data, id, f - start, ripple);
                     any |= got != 0;
-                    if (id == ids.first()) {
+                    if (driver && got != 0) {
                         syncShift = -got;
-                        // The same picture is now at the first clip's old start. Only that
-                        // clip decides: a clip on another track starts elsewhere (spec 8.10).
-                        if (ripple && got != 0)
+                        syncPoint = got > 0 ? start + got : start; // spec 97.4
+                        // The same picture is now at the clip's old start. Only that clip
+                        // decides: a clip on another track starts elsewhere (spec 8.10).
+                        if (ripple)
                             newPlayhead = start;
                     }
                 } else {
                     // The playhead frame is the first frame removed.
-                    const int64_t got = ops::trimTail(data, id, f - c->end(), ripple);
+                    const int64_t end = c->end();
+                    const int64_t got = ops::trimTail(data, id, f - end, ripple);
                     any |= got != 0;
-                    if (id == ids.first())
+                    if (driver && got != 0) {
                         syncShift = got;
+                        syncPoint = end;
+                    }
                 }
             }
             if (ripple && syncPoint >= 0)

@@ -585,6 +585,43 @@ private slots:
         QCOMPARE(layout(t.f.view(), kV2), QStringLiteral("0:80"));
     }
 
+    void spec97_rippleStartToPlayheadKeepsTracksOverTheClipInSync()
+    {
+        // Owner report 1.8.2: Ctrl+Shift+[ left V2 behind and cut V2 before the old end.
+        Ctl t;
+        t.put(kV1, mediaClip(10, 40));
+        t.put(kV1, mediaClip(50, 10));
+        t.put(kV2, mediaClip(12, 4)); // over the removed head: goes
+        t.put(kV2, mediaClip(40, 5)); // over the kept part: moves with its picture
+        t.put(kA1, mediaClip(36, 12));
+        t.tl()->setPlayhead(30);
+        const int before = t.undoCount();
+        t.action("trim.ripple_trim_start")->trigger();
+        QCOMPARE(layout(t.f.view(), kV1), QStringLiteral("10:20 30:10"));
+        QCOMPARE(layout(t.f.view(), kV2), QStringLiteral("20:5"));
+        QCOMPARE(layout(t.f.view(), kA1), QStringLiteral("16:12"));
+        QCOMPARE(t.undoCount(), before + 1);
+    }
+
+    void spec97_rippleDeleteAndRippleCutKeepSpanningTracksInSync()
+    {
+        // Owner report 1.8.2: V2 spanned the deleted range and was left behind while V3 moved.
+        for (const char* action : {"edit.ripple_delete", "edit.ripple_cut"}) {
+            Ctl t;
+            const quint64 a = t.put(kV1, mediaClip(10, 10));
+            t.put(kV1, mediaClip(20, 10));
+            t.put(kV2, mediaClip(0, 40));
+            t.f.selection.setClips({a});
+            const int before = t.undoCount();
+            t.action(action)->trigger();
+            QCOMPARE(layout(t.f.view(), kV1), QStringLiteral("10:10"));
+            QCOMPARE(layout(t.f.view(), kV2), QStringLiteral("0:10 10:20"));
+            QCOMPARE(t.undoCount(), before + 1);
+            t.f.project.undoStack()->undo();
+            QCOMPARE(layout(t.f.view(), kV2), QStringLiteral("0:40"));
+        }
+    }
+
     void spec97_syncLockDefaultOnAndSaved()
     {
         TimelineData d = makeDefaultTimeline(QStringLiteral("t"), Rational {25, 1}, 1920, 1080, 2, 2);

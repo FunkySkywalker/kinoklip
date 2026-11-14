@@ -36,15 +36,62 @@ private slots:
         const quint64 a = ops::overwriteClip(d, kV1, mediaClip(10, 10));
         ops::overwriteClip(d, kV1, mediaClip(20, 10));
         ops::overwriteClip(d, kV2, mediaClip(25, 10)); // later, room in [10,20): follows
-        ops::overwriteClip(d, kA1, mediaClip(5, 20)); // spans the range: stays
-        ops::overwriteClip(d, kA1, mediaClip(40, 5)); // after a non-free range: stays
+        ops::overwriteClip(d, kA1, mediaClip(5, 20)); // spans the range: loses frames 10..20
+        ops::overwriteClip(d, kA1, mediaClip(40, 5));
         ops::overwriteClip(d, kA2, mediaClip(30, 5));
         d.audioTracks[1].syncLock = false; // sync lock off: stays
         QCOMPARE(ops::rippleDeleteClips(d, {a}, ops::RippleScope::AllTracks), 1);
         QCOMPARE(layout(d, kV1), QStringLiteral("10:10"));
         QCOMPARE(layout(d, kV2), QStringLiteral("15:10"));
-        QCOMPARE(layout(d, kA1), QStringLiteral("5:20 40:5"));
+        // Changed from "5:20 40:5" (a track with content in the range stayed, out of sync):
+        // spanning clips lose the same frames as with ripple trim (spec 97.11).
+        QCOMPARE(layout(d, kA1), QStringLiteral("5:5 10:5 30:5"));
         QCOMPARE(layout(d, kA2), QStringLiteral("30:5"));
+        KK_VERIFY_INVARIANTS(d);
+    }
+
+    // Owner report (spec 97.11): V2 spanned the deleted range, V3 moved, V2 was left behind.
+    void rippleDeleteCutsSpanningInnerAndStartingClipsOnOtherTracks()
+    {
+        TimelineData d = timeline();
+        const TrackRef kV3 {TrackType::Video, ops::addTrack(d, TrackType::Video)};
+        const quint64 a = ops::overwriteClip(d, kV1, mediaClip(10, 10));
+        ops::overwriteClip(d, kV1, mediaClip(20, 10));
+        ops::overwriteClip(d, kV2, mediaClip(0, 40, 0, 100)); // spans
+        ops::overwriteClip(d, kV3, mediaClip(30, 5));
+        ops::overwriteClip(d, kA1, mediaClip(12, 4)); // inside: goes
+        ops::overwriteClip(d, kA1, mediaClip(18, 10)); // starts inside, ends after
+        QCOMPARE(ops::rippleDeleteClips(d, {a}, ops::RippleScope::AllTracks), 1);
+        QCOMPARE(layout(d, kV1), QStringLiteral("10:10"));
+        QCOMPARE(layout(d, kV2), QStringLiteral("0:10 10:20"));
+        QCOMPARE(layout(d, kV3), QStringLiteral("20:5"));
+        QCOMPARE(layout(d, kA1), QStringLiteral("10:8"));
+        QCOMPARE(d.videoTracks[1].clips[1].sourceInUs, 20 * kUsPerFrame25);
+        KK_VERIFY_INVARIANTS(d);
+    }
+
+    void rippleDeleteLeavesLockedAndSyncOffTracksAlone()
+    {
+        TimelineData d = timeline();
+        const TrackRef kV3 {TrackType::Video, ops::addTrack(d, TrackType::Video)};
+        const quint64 a = ops::overwriteClip(d, kV1, mediaClip(10, 10));
+        ops::overwriteClip(d, kV2, mediaClip(0, 40));
+        ops::overwriteClip(d, kV3, mediaClip(0, 40));
+        d.videoTracks[1].locked = true;
+        d.videoTracks[2].syncLock = false;
+        QCOMPARE(ops::rippleDeleteClips(d, {a}, ops::RippleScope::AllTracks), 1);
+        QCOMPARE(layout(d, kV2), QStringLiteral("0:40"));
+        QCOMPARE(layout(d, kV3), QStringLiteral("0:40"));
+    }
+
+    void rippleOverwriteShorterRemovesFramesFromSpanningClips()
+    {
+        TimelineData d = timeline();
+        ops::overwriteClip(d, kV1, mediaClip(0, 20));
+        ops::overwriteClip(d, kV2, mediaClip(0, 30));
+        ops::rippleOverwriteClips(d, {ops::PlacedClip {kV1, mediaClip(0, 12)}}, 0, 20);
+        QCOMPARE(layout(d, kV1), QStringLiteral("0:12"));
+        QCOMPARE(layout(d, kV2), QStringLiteral("0:12 12:10")); // frames 12..20 left V2
         KK_VERIFY_INVARIANTS(d);
     }
 
@@ -408,6 +455,60 @@ private slots:
         QCOMPARE(layout(d, kA1), QStringLiteral("6:10"));
         QCOMPARE(layout(d, kA2), QStringLiteral("12:4"));
         KK_VERIFY_INVARIANTS(d);
+    }
+
+    // Owner report 1.8.2 (spec 97.4): a head trim changes the other tracks at the HEAD, not at
+    // the old end. Clips on V2 inside the trimmed clip must stay over the same V1 picture.
+    void rippleTrimHeadShorteningRemovesTheHeadFramesFromOtherTracks()
+    {
+        TimelineData d = timeline();
+        const quint64 a = ops::overwriteClip(d, kV1, mediaClip(10, 40, 0, 100));
+        ops::overwriteClip(d, kV1, mediaClip(50, 10));
+        ops::overwriteClip(d, kV2, mediaClip(5, 6)); // loses frame 10
+        ops::overwriteClip(d, kV2, mediaClip(12, 4)); // inside the removed head: goes
+        ops::overwriteClip(d, kV2, mediaClip(25, 5)); // over kept picture: moves 10 left
+        ops::overwriteClip(d, kV2, mediaClip(40, 3));
+        ops::overwriteClip(d, kA1, mediaClip(45, 10)); // reaches past the old end
+        QCOMPARE(ops::rippleTrimSynced(d, {a}, true, 10), 10);
+        QCOMPARE(layout(d, kV1), QStringLiteral("10:30 40:10"));
+        QCOMPARE(layout(d, kV2), QStringLiteral("5:5 15:5 30:3"));
+        QCOMPARE(layout(d, kA1), QStringLiteral("35:10"));
+        KK_VERIFY_INVARIANTS(d);
+    }
+
+    void rippleTrimHeadLengtheningCutsAtTheHeadAndMovesTheRest()
+    {
+        TimelineData d = timeline();
+        const quint64 a = ops::overwriteClip(d, kV1, mediaClip(10, 40, 20, 200));
+        ops::overwriteClip(d, kV1, mediaClip(50, 10));
+        ops::overwriteClip(d, kV2, mediaClip(0, 20)); // spans the head: cut at 10
+        ops::overwriteClip(d, kV2, mediaClip(30, 5)); // over the clip: moves 6 right
+        QCOMPARE(ops::rippleTrimSynced(d, {a}, true, -6), -6);
+        QCOMPARE(layout(d, kV1), QStringLiteral("10:46 56:10"));
+        QCOMPARE(layout(d, kV2), QStringLiteral("0:10 16:10 36:5"));
+        KK_VERIFY_INVARIANTS(d);
+    }
+
+    void rippleTrimTailKeepsClipsInsideTheTrimmedClipInSync()
+    {
+        TimelineData d = timeline();
+        const quint64 a = ops::overwriteClip(d, kV1, mediaClip(10, 40, 0, 100));
+        ops::overwriteClip(d, kV1, mediaClip(50, 10));
+        ops::overwriteClip(d, kV2, mediaClip(20, 5)); // before the edit: untouched
+        ops::overwriteClip(d, kV2, mediaClip(30, 15)); // loses 40..45
+        ops::overwriteClip(d, kV2, mediaClip(46, 3)); // inside the removed tail: goes
+        ops::overwriteClip(d, kV2, mediaClip(55, 5));
+        QCOMPARE(ops::rippleTrimSynced(d, {a}, false, -10), -10);
+        QCOMPARE(layout(d, kV1), QStringLiteral("10:30 40:10"));
+        QCOMPARE(layout(d, kV2), QStringLiteral("20:5 30:10 45:5"));
+        KK_VERIFY_INVARIANTS(d);
+        // Lengthening by 6 at the old end: a clip spanning it is cut, the rest moves.
+        TimelineData e = timeline();
+        const quint64 b = ops::overwriteClip(e, kV1, mediaClip(10, 40, 0, 100));
+        ops::overwriteClip(e, kV1, mediaClip(50, 10));
+        ops::overwriteClip(e, kV2, mediaClip(30, 30));
+        QCOMPARE(ops::rippleTrimSynced(e, {b}, false, 6), 6);
+        QCOMPARE(layout(e, kV2), QStringLiteral("30:20 56:10"));
     }
 
     void rippleTrimShorteningRemovesTheSameFramesFromOtherTracks()

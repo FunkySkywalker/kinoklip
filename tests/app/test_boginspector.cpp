@@ -321,10 +321,12 @@ private slots:
         QCOMPARE(layout(t.f.view(), kV1), QStringLiteral("0:10 10:10"));
         QCOMPARE(layout(t.f.view(), kA1), QStringLiteral("0:10"));
         QCOMPARE(t.undoCount(), before + 1);
-        // A track with its auto select off keeps its clip (and keeps sync: nothing moves).
+        // A track with its sync lock off keeps its clip (Auto Select no longer decides, 97.2;
+        // changed from auto select off: with sync lock on the track loses the same frames).
         t.f.project.undoStack()->undo();
-        t.f.project.beginEdit(QStringLiteral("auto select off"));
+        t.f.project.beginEdit(QStringLiteral("sync lock off"));
         t.f.data().audioTracks[0].autoSelect = false;
+        t.f.data().audioTracks[0].syncLock = false;
         t.f.project.endEdit();
         t.action("edit.ripple_delete")->trigger();
         QCOMPARE(layout(t.f.view(), kV1), QStringLiteral("0:10 10:10"));

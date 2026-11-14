@@ -430,14 +430,25 @@ void rippleSyncApply(
     });
 }
 
-int64_t rippleTrimSynced(TimelineData& data, const QVector<quint64>& ids, bool head, int64_t delta)
+int64_t rippleTrimSynced(
+    TimelineData& data, const QVector<quint64>& allIds, bool head, int64_t delta)
 {
+    // A clip on a locked track does not trim; it must not stop its linked partners either.
+    QVector<quint64> ids;
+    for (quint64 id : allIds) {
+        if (const auto loc = findClip(data, id); loc && !data.track(loc->track)->locked)
+            ids.append(id);
+    }
     if (ids.isEmpty())
         return 0;
     const ClipData* primary = clipById(data, ids.first());
     if (!primary)
         return 0;
-    const int64_t point = primary->end();
+    // Tail: the edit point is the old end. Head: the clip keeps its start and the picture after
+    // the removed head moves left, so the other tracks change at the head (point = old start
+    // + n when shortening by n, old start when lengthening).
+    const int64_t oldStart = primary->start;
+    const int64_t oldEnd = primary->end();
     const auto trim = [&](quint64 id, int64_t d) {
         return head ? trimHead(data, id, d, true) : trimTail(data, id, d, true);
     };
@@ -446,6 +457,7 @@ int64_t rippleTrimSynced(TimelineData& data, const QVector<quint64>& ids, bool h
         return 0;
     for (int i = 1; i < ids.size(); ++i)
         trim(ids[i], applied);
+    const int64_t point = head ? (applied > 0 ? oldStart + applied : oldStart) : oldEnd;
     rippleSyncApply(data, ids, point, head ? -applied : applied);
     return applied;
 }
