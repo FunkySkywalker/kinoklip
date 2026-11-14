@@ -134,7 +134,7 @@ private slots:
             QCOMPARE(serialization::variantFromJson(serialization::variantToJson(v)), v);
     }
 
-    void invalidTimelineIsRejected()
+    void overlappingClipsAreRepairedOnLoad()
     {
         TimelineData d = richTimeline();
         QJsonObject json = serialization::timelineToJson(d);
@@ -150,8 +150,12 @@ private slots:
         json[QLatin1String("videoTracks")] = video;
         TimelineData out;
         QString error;
-        QVERIFY(!serialization::timelineFromJson(json, out, &error));
-        QVERIFY(error.contains(QLatin1String("overlap")));
+        QStringList repairs;
+        // Owner report 1.8.1 damaged timeline: a readable timeline is repaired, never refused.
+        QVERIFY2(serialization::timelineFromJson(json, out, &error, &repairs), qPrintable(error));
+        QVERIFY(!repairs.isEmpty());
+        KK_VERIFY_INVARIANTS(out);
+        QCOMPARE(out.videoTracks.size(), d.videoTracks.size() + 1); // the moved clip's track
     }
 
     void projectSaveLoad()

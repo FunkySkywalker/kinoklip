@@ -5,6 +5,7 @@
 
 #include "core/AudioTransitions.h"
 #include "core/EditBehaviour.h"
+#include "core/EditOps.h"
 #include "core/EffectRegistry.h"
 #include "core/FileParams.h"
 #include "core/Logging.h"
@@ -459,6 +460,7 @@ bool Project::fromJson(const QJsonObject& root, int version, const QDir& project
 {
     std::vector<TimelineSlot> timelineSlots;
     QVector<TimelineData> timelines;
+    m_loadRepairs.clear();
     if (version < 3) {
         // Versions 1 and 2: a single "timeline" object. It becomes timeline uid 1; its media
         // pool item is created by syncDerived() below (in the root bin, like Resolve's
@@ -466,7 +468,7 @@ bool Project::fromJson(const QJsonObject& root, int version, const QDir& project
         TimelineData t;
         QString why;
         if (!serialization::timelineFromJson(
-                root.value(QLatin1String("timeline")).toObject(), t, &why)) {
+                root.value(QLatin1String("timeline")).toObject(), t, &why, &m_loadRepairs)) {
             *error = why;
             return false;
         }
@@ -476,7 +478,7 @@ bool Project::fromJson(const QJsonObject& root, int version, const QDir& project
         for (const QJsonValue& v : root.value(QLatin1String("timelines")).toArray()) {
             TimelineData t;
             QString why;
-            if (!serialization::timelineFromJson(v.toObject(), t, &why)) {
+            if (!serialization::timelineFromJson(v.toObject(), t, &why, &m_loadRepairs)) {
                 *error = why;
                 return false;
             }
@@ -729,6 +731,12 @@ bool Project::loadBytes(
     emit nameChanged(m_name);
     emit cacheSettingsChanged();
     emit projectReset();
+    if (!m_loadRepairs.isEmpty()) {
+        // The repaired project differs from the file: it counts as modified so it is saved
+        // (and autosaved) in its repaired form.
+        setSettingsDirty(true);
+        emit loadRepaired(m_loadRepairs);
+    }
     return true;
 }
 
@@ -774,6 +782,8 @@ void Project::endEdit()
     m_timeline->notifyChanged();
     TimelineSet after = currentSet();
     const bool timelinesChanged = !sameSet(before, after);
+    if (timelinesChanged)
+        checkEditResult(before, after);
     const bool poolChanged = !(poolBefore == m_mediaPool->state());
     const bool formatChanged = !(m_editFormatBefore == m_format);
     if (!timelinesChanged && !poolChanged && !formatChanged)
@@ -787,6 +797,27 @@ void Project::endEdit()
     m_undoStack->push(new SnapshotCommand(this, m_editLabel, m_editPrimary, before, after,
         belowCommand, std::move(poolBefore), m_mediaPool->state(), m_editFormatBefore, m_format));
     emit editCommitted(m_editKeepsPlaying);
+}
+
+void Project::checkEditResult(const TimelineSet& before, const TimelineSet& after) const
+{
+    for (size_t i = 0; i < after.size(); ++i) {
+        if (!after[i] || (i < before.size() && before[i] == after[i]))
+            continue; // untouched
+        QString why;
+        if (editops::checkInvariants(*after[i], &why))
+            continue;
+        // Release: the log of a user report shows which edit broke the timeline (owner report
+        // 1.8.1 damaged timeline). Debug builds and tests (KK_STRICT_EDITS=1) stop at once.
+        qCWarning(lcCore).noquote() << "edit" << m_editLabel << "left timeline" << after[i]->name
+                                    << "invalid:" << why;
+#ifdef QT_DEBUG
+        qFatal("edit \"%s\" broke the timeline: %s", qPrintable(m_editLabel), qPrintable(why));
+#else
+        if (qEnvironmentVariableIntValue("KK_STRICT_EDITS") != 0)
+            qFatal("edit \"%s\" broke the timeline: %s", qPrintable(m_editLabel), qPrintable(why));
+#endif
+    }
 }
 
 QString Project::closeStaleEdit()

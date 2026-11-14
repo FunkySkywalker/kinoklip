@@ -465,8 +465,15 @@ signals:
     void inactivePlayheadChanged(quint64 uid, int64_t frame);
     /// cacheSettings() changed (also after new/load).
     void cacheSettingsChanged();
+    /// A load had to repair the file (overlapping clips, duplicate ids ...): @p notes describes
+    /// what was done, one sentence each. Emitted once after projectReset() (ProjectController
+    /// tells the user).
+    void loadRepaired(const QStringList& notes);
 
 private:
+    /// Logs (and in debug builds / with KK_STRICT_EDITS=1 aborts on) a timeline an edit left
+    /// breaking editops::checkInvariants().
+    void checkEditResult(const TimelineSet& before, const TimelineSet& after) const;
     /// One timeline of the project. `data` is null for the active timeline (its data lives
     /// in m_timeline).
     struct TimelineSlot
@@ -525,6 +532,7 @@ private:
     QUndoStack* m_undoStack = nullptr;
     QString m_name;
     QString m_filePath;
+    QStringList m_loadRepairs; ///< what the last load repaired (see loadRepaired())
     bool m_settingsDirty = false; ///< non-undoable changes (rename) since the last save
     bool m_lastDirty = false;
 
