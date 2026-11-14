@@ -392,6 +392,12 @@ inline constexpr int kSnapDistancePx = 8;
 /// speed > 0, unique non-zero ids below nextId, track types matching their list).
 /// Returns false and describes the first violation in @p why.
 [[nodiscard]] bool checkInvariants(const TimelineData& data, QString* why = nullptr);
+/// Makes @p data satisfy checkInvariants() without refusing it (used when a project loads, so a
+/// damaged timeline never locks the user out): drops clips without length, trims the part
+/// before frame 0, moves overlapping / wrong-kind clips to new "Repaired N" tracks, renumbers
+/// duplicate ids, resets invalid values. Describes what it did, one sentence each, appended to
+/// @p log. Returns whether anything was repaired.
+bool repairTimeline(TimelineData& data, QStringList* log = nullptr);
 /// Raises nextId above every id used in @p data (repairs files edited by hand).
 void normalizeIds(TimelineData& data);
 /// Keeps the fade handles inside the clip: 0 <= fadeIn, 0 <= fadeOut and

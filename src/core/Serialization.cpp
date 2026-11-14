@@ -5,12 +5,14 @@
 #include "core/ClipColors.h"
 #include "core/EditOps.h"
 #include "core/FileParams.h"
+#include "core/Logging.h"
 #include "core/MixerJson.h"
 #include "core/Retime.h"
 #include "core/SmartBins.h"
 #include "core/ViewerGuides.h"
 #include "media/MediaSource.h"
 
+#include <QCoreApplication>
 #include <QFileInfo>
 #include <QJsonArray>
 
@@ -36,7 +38,7 @@ constexpr double kMaxSpeed = 1.0e6; ///< fit-to-fill of hours into a frame stays
 /// Why @p c is unusable, or empty.
 QString clipLimitError(const ClipData& c)
 {
-    if (c.start < 0 || c.start > kMaxFrames || c.duration > kMaxFrames)
+    if (c.start < -kMaxFrames || c.start > kMaxFrames || c.duration > kMaxFrames)
         return QStringLiteral("clip %1 position out of range").arg(c.id);
     if (!std::isfinite(c.speed) || std::abs(c.speed) > kMaxSpeed)
         return QStringLiteral("clip %1 speed out of range").arg(c.id);
@@ -812,7 +814,8 @@ QJsonObject timelineToJson(const TimelineData& data)
     return o;
 }
 
-bool timelineFromJson(const QJsonObject& o, TimelineData& out, QString* error)
+bool timelineFromJson(
+    const QJsonObject& o, TimelineData& out, QString* error, QStringList* repairs)
 {
     TimelineData data;
     data.uid = quint64(o.value(QLatin1String("uid")).toInteger());
@@ -863,11 +866,20 @@ bool timelineFromJson(const QJsonObject& o, TimelineData& out, QString* error)
     if (o.contains(QLatin1String("grade")))
         data.grade = gradeFromJson(o.value(QLatin1String("grade")).toObject());
 
+    QStringList notes;
     for (TrackType type : {TrackType::Video, TrackType::Audio, TrackType::Subtitle}) {
         for (TrackData& track : data.tracks(type)) {
+            // A clip with absurd values cannot be shown: it is dropped, the project still opens.
+            const auto bad = std::remove_if(track.clips.begin(), track.clips.end(),
+                [&](const ClipData& c) {
+                    const QString why = clipLimitError(c);
+                    if (!why.isEmpty())
+                        notes.append(QCoreApplication::translate(
+                            "TimelineRepair", "A clip was removed: %1.").arg(why));
+                    return !why.isEmpty();
+                });
+            track.clips.erase(bad, track.clips.end());
             for (ClipData& c : track.clips) {
-                if (const QString why = clipLimitError(c); !why.isEmpty())
-                    return fail(why);
                 clampTransition(c.transitionIn, c.duration);
                 clampTransition(c.transitionOut, c.duration);
                 editops::clampFades(c); // a fade longer than its clip (hand-edited, old bug)
@@ -875,12 +887,19 @@ bool timelineFromJson(const QJsonObject& o, TimelineData& out, QString* error)
         }
     }
 
-    editops::normalizeIds(data);
+    // Never refuse a readable timeline: repair what breaks the invariants (EditOps.h) and say so.
+    editops::repairTimeline(data, &notes);
     QString why;
-    if (!editops::checkInvariants(data, &why)) {
+    if (!editops::checkInvariants(data, &why)) { // not reachable unless repairTimeline() has a gap
         if (error)
             *error = QStringLiteral("invalid timeline: %1").arg(why);
         return false;
+    }
+    if (!notes.isEmpty()) {
+        qCWarning(lcCore).noquote() << "timeline" << data.name << "repaired on load:"
+                                    << notes.join(QLatin1Char(' '));
+        if (repairs)
+            *repairs += notes;
     }
     out = std::move(data);
     return true;

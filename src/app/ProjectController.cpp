@@ -66,6 +66,18 @@ ProjectController::ProjectController(AppContext& ctx, QWidget* window)
     , m_ctx(ctx)
     , m_window(window)
 {
+    // A project that had to be repaired on load: tell the user once, without blocking.
+    connect(ctx.project, &Project::loadRepaired, this, [this](const QStringList& notes) {
+        auto* box = new QMessageBox(QMessageBox::Information, tr("Project Repaired"),
+            tr("This project had a damaged timeline. It was repaired so you can keep working; "
+               "nothing was lost unless noted:\n\n%1\n\nSave the project to keep the repaired "
+               "version.")
+                .arg(notes.join(QLatin1Char('\n'))),
+            QMessageBox::Ok, m_window);
+        box->setAttribute(Qt::WA_DeleteOnClose);
+        box->setWindowModality(Qt::NonModal);
+        box->show();
+    });
     ActionRegistry& actions = *ctx.actions;
     connect(actions.action(QStringLiteral("file.project_manager")), &QAction::triggered, this,
         &ProjectController::showProjectManager);

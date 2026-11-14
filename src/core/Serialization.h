@@ -181,9 +181,12 @@ void animatedPathFromJson(const QJsonObject& o, AnimatedPath& path);
 
 /// Encodes a complete timeline.
 [[nodiscard]] QJsonObject timelineToJson(const TimelineData& data);
-/// Decodes a timeline, repairs ids/sort order and validates the invariants.
-/// Returns false with a message in @p error if the data is unusable.
-[[nodiscard]] bool timelineFromJson(const QJsonObject& json, TimelineData& out, QString* error);
+/// Decodes a timeline and repairs whatever breaks the invariants (editops::repairTimeline():
+/// overlaps, duplicate ids, clips without length ...) instead of refusing it; each repair is
+/// described in @p repairs (appended) and logged. Returns false with a message in @p error only
+/// if the data is unusable (resolution / frame rate out of range).
+[[nodiscard]] bool timelineFromJson(const QJsonObject& json, TimelineData& out, QString* error,
+    QStringList* repairs = nullptr);
 
 /// Encodes a media probe result.
 [[nodiscard]] QJsonObject mediaInfoToJson(const media::MediaInfo& info);

@@ -11,6 +11,8 @@
 #include "ui/timeline/TimelineController.h"
 #include "ui/timeline/TimelineEditUtil.h"
 
+#include <QSet>
+
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -482,10 +484,25 @@ bool TimelineController::setSelectionDuration(int64_t frames)
         return false;
     return runEdit(project(), tr("Change Clip Duration"), [&](TimelineData& data) {
         bool any = false;
+        QSet<quint64> done;
         for (quint64 id : ids) {
             const ClipData* c = ops::clipById(data, id);
-            if (c) // ripple: the other sync-locked tracks follow (spec 8.18, 97)
-                any |= ops::rippleTrimSynced(data, {id}, false, frames - c->duration) != 0;
+            if (!c || done.contains(id))
+                continue;
+            // A clip and its linked partners with the same edge and length change together in
+            // ONE ripple, as the Trim tool does: trimmed one by one, each would ripple the other
+            // sync-locked tracks again (shifted twice, a gap left; owner report 1.8.1).
+            QVector<quint64> group {id};
+            for (quint64 other : ops::linkedClips(data, id)) {
+                const ClipData* o = ops::clipById(data, other);
+                if (other != id && o && o->end() == c->end() && o->duration == c->duration
+                    && !done.contains(other))
+                    group.append(other);
+            }
+            for (quint64 g : std::as_const(group))
+                done.insert(g);
+            // ripple: the other sync-locked tracks follow (spec 8.18, 97)
+            any |= ops::rippleTrimSynced(data, group, false, frames - c->duration) != 0;
         }
         return any;
     });
