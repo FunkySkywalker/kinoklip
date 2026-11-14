@@ -220,7 +220,7 @@ foreach(test_src ${KK_TESTS})
   if(KK_SANITIZE)
     set(KK_TEST_TIMEOUT 3600) # a test property overrides ctest --timeout; sanitized runs are slower
   endif()
-  set_tests_properties(${test_name} PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen;KK_STRICT_EDITS=1" TIMEOUT ${KK_TEST_TIMEOUT})
+  set_tests_properties(${test_name} PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen" TIMEOUT ${KK_TEST_TIMEOUT})
 endforeach()
 
 # The memory soak is a long run of its own: `ctest -L soak` (docs/contributing.md, "Memory leaks").

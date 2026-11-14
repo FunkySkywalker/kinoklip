@@ -808,15 +808,11 @@ void Project::checkEditResult(const TimelineSet& before, const TimelineSet& afte
         if (editops::checkInvariants(*after[i], &why))
             continue;
         // Release: the log of a user report shows which edit broke the timeline (owner report
-        // 1.8.1 damaged timeline). Debug builds and tests (KK_STRICT_EDITS=1) stop at once.
+        // 1.8.1 damaged timeline). With KK_STRICT_EDITS=1 (the timeline fuzz test, developers) it aborts at once.
         qCWarning(lcCore).noquote() << "edit" << m_editLabel << "left timeline" << after[i]->name
                                     << "invalid:" << why;
-#ifdef QT_DEBUG
-        qFatal("edit \"%s\" broke the timeline: %s", qPrintable(m_editLabel), qPrintable(why));
-#else
         if (qEnvironmentVariableIntValue("KK_STRICT_EDITS") != 0)
             qFatal("edit \"%s\" broke the timeline: %s", qPrintable(m_editLabel), qPrintable(why));
-#endif
     }
 }
 

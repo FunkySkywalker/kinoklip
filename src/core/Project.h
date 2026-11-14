@@ -471,7 +471,7 @@ signals:
     void loadRepaired(const QStringList& notes);
 
 private:
-    /// Logs (and in debug builds / with KK_STRICT_EDITS=1 aborts on) a timeline an edit left
+    /// Logs (and with KK_STRICT_EDITS=1 aborts on) a timeline an edit left
     /// breaking editops::checkInvariants().
     void checkEditResult(const TimelineSet& before, const TimelineSet& after) const;
     /// One timeline of the project. `data` is null for the active timeline (its data lives

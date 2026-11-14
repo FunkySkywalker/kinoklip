@@ -2,6 +2,7 @@
 // Owner report 1.8.1 "damaged timeline" (clip 458 on V1 effect id 314 is not unique): random
 // edit sequences must never break editops::checkInvariants(); a damaged file loads repaired.
 // Spec: docs/behavior-spec.md, project load (repair) and section 97 (Sync Lock).
+#include "../core/CoreTestUtils.h"
 #include "TimelineTestUtils.h"
 #include "core/Serialization.h"
 #include "ui/effects/EffectActions.h"
@@ -195,7 +196,11 @@ class TestTimelineFuzz : public QObject
 {
     Q_OBJECT
 private slots:
-    void initTestCase() { initTimelineTestCase("test_timelinefuzz"); }
+    void initTestCase()
+    {
+        initTimelineTestCase("test_timelinefuzz");
+        qputenv("KK_STRICT_EDITS", "1"); // an edit that breaks the invariants aborts the test
+    }
 
     // The owner's file: cutting a clip that carries an effect copied the effect id.
     void splitGivesTheRightHalfItsOwnEffectIds()
@@ -329,7 +334,7 @@ private slots:
     }
 
     // The same through the controller: every command is one undo step; Project::endEdit()
-    // aborts (KK_STRICT_EDITS=1, set by CTest) if an edit leaves the timeline invalid.
+    // aborts (KK_STRICT_EDITS=1, set in initTestCase) if an edit leaves the timeline invalid.
     void randomControllerEditsKeepInvariants()
     {
         QRandomGenerator rng(1114);
