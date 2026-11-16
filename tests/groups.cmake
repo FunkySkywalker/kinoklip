@@ -33,7 +33,7 @@ set(KK_TESTS_QUICK
   test_audionormalize test_audiopitch test_audiorouting test_audiotransitions
   test_backgroundremoval test_bins test_birefnet test_boginspector test_bogplayback
   test_bogtimeline test_bughunt test_bughunt10 test_bughunt2 test_bughunt3 test_bughunt4
-  test_bughunt5 test_bughunt6 test_bughunt6edit test_bughunt7 test_bughunt7edit test_bughunt8
+  test_bughunt5 test_bughunt6 test_bughunt6edit test_bughunt7 test_bughunt7edit test_bughunt8 test_multiedit
   test_bughunt9 test_bughuntkeys test_bugreport test_childprocessenv test_clipattributes
   test_clipeqeditor test_colorpage test_colorpageui test_commoncontrols test_compexport
   test_compositemode test_composition test_compositor test_compound test_comprender

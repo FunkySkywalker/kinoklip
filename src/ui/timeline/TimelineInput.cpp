@@ -216,16 +216,31 @@ void TimelineWidget::mousePressEvent(QMouseEvent* event)
             const bool centre = std::abs(pos.x() - cutX) <= kRollZonePx;
             roll = centre && (tool == TimelineTool::Trim || behaviour.selectToolRollsAtCut);
         }
-        if (roll) {
-            m_controller->setSelectedEdit({hit.cutLeft, hit.cutRight});
+        const bool head = hit.part == ClipPart::Head;
+        const EditPointSelection sel = roll ? EditPointSelection {hit.cutLeft, hit.cutRight}
+            : head                          ? EditPointSelection {0, hit.clipId}
+                                            : EditPointSelection {hit.clipId, 0};
+        // Ctrl+click adds the edit point to the selection (or takes it out, spec 104.1); a
+        // press on one that is selected already keeps the selection, so that dragging trims
+        // them all (a click without drag then selects just that one).
+        if (m_drag.modifiers & Qt::ControlModifier) {
+            m_controller->toggleSelectedEdit(sel);
+            if (!m_controller->isEditSelected(sel))
+                return;
+        } else if (m_controller->isEditSelected(sel) && m_controller->selectedEdits().size() > 1) {
+            m_drag.editOnRelease = std::pair {sel.tailClip, sel.headClip};
+        } else {
+            m_controller->setSelectedEdit(sel);
+        }
+        m_drag.multiLead = {sel.tailClip, sel.headClip};
+        // The Cut page's timeline ripples with the selection tool too.
+        m_drag.ripple = tool == TimelineTool::Trim || m_options.rippleEdgeTrims;
+        if (m_controller->selectedEdits().size() > 1) {
+            m_drag.pending = DragMode::TrimMulti;
+        } else if (roll) {
             m_drag.pending = DragMode::Roll;
         } else {
-            const bool head = hit.part == ClipPart::Head;
-            m_controller->setSelectedEdit(
-                head ? EditPointSelection {0, hit.clipId} : EditPointSelection {hit.clipId, 0});
             m_drag.pending = head ? DragMode::TrimHead : DragMode::TrimTail;
-            // The Cut page's timeline ripples with the selection tool too.
-            m_drag.ripple = tool == TimelineTool::Trim || m_options.rippleEdgeTrims;
         }
         m_drag.mode = DragMode::Pending;
         return;
@@ -275,7 +290,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent* event)
     m_drag.live = event->modifiers();
     if (m_drag.mode == DragMode::Pending) {
         const bool trim = m_drag.pending == DragMode::TrimHead
-            || m_drag.pending == DragMode::TrimTail || m_drag.pending == DragMode::Roll
+            || m_drag.pending == DragMode::TrimTail || m_drag.pending == DragMode::TrimMulti || m_drag.pending == DragMode::Roll
             || m_drag.pending == DragMode::TransitionEdge || m_drag.pending == DragMode::RetimePoint
             || m_drag.pending == DragMode::Fade || m_drag.pending == DragMode::FadeCurve
             || m_drag.pending == DragMode::LevelLine || m_drag.pending == DragMode::LevelKey;
@@ -337,6 +352,9 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent* event)
             m_ctx.selection->setClips({m_drag.hit.clipId});
         else if (m_drag.selectOnRelease)
             m_ctx.selection->setClips(clickedWithLinks(m_drag.hit.clipId));
+        else if (m_drag.editOnRelease)
+            m_controller->setSelectedEdit(
+                {m_drag.editOnRelease->first, m_drag.editOnRelease->second});
         m_drag = Drag {};
         return;
     }
@@ -574,6 +592,26 @@ void TimelineWidget::startDrag(DragMode mode)
         openEdit(tr("Roll Edit"));
         break;
     }
+    case DragMode::TrimMulti: {
+        const EditPointSelection lead {m_drag.multiLead.first, m_drag.multiLead.second};
+        m_drag.multi = m_controller->trimPlan(data, lead);
+        m_drag.multiApplied = 0;
+        m_drag.primary = lead.tailClip ? lead.tailClip : lead.headClip;
+        m_drag.clips.clear();
+        for (const auto& g : std::as_const(m_drag.multi.trims)) {
+            for (const auto& e : g.edges)
+                m_drag.clips.append(e.clipId);
+        }
+        for (const auto& g : std::as_const(m_drag.multi.rolls)) {
+            for (const auto& [l, r] : g.pairs) {
+                m_drag.rolls.append({l, r});
+            }
+        }
+        openEdit(m_drag.multi.rolls.isEmpty()
+                ? (m_drag.ripple ? tr("Ripple Trim Edits") : tr("Trim Edits"))
+                : tr("Roll Edits"));
+        break;
+    }
     case DragMode::Slip:
     case DragMode::Slide:
         m_drag.primary = hit.clipId;
@@ -616,6 +654,9 @@ void TimelineWidget::updateDrag(QPointF pos)
         break;
     case DragMode::Roll:
         updateRoll(pos);
+        break;
+    case DragMode::TrimMulti:
+        updateTrimMulti(pos);
         break;
     case DragMode::Slip:
     case DragMode::Slide:
@@ -988,6 +1029,35 @@ void TimelineWidget::updateTrim(QPointF pos)
             break;
         }
     }
+    m_ctx.project->timeline()->notifyChanged();
+}
+
+void TimelineWidget::updateTrimMulti(QPointF pos)
+{
+    // The pressed edit point follows the pointer; the others move with it (the same frames, or
+    // the opposite way for the other kind of edge, spec 104.2) and the whole set stops at the
+    // first limit. Ripple: a total handed out one frame at a time, left to right, unless Ctrl
+    // is held, then every edit trims by the same amount (spec 104.4).
+    const bool head = m_drag.multiLead.first == 0;
+    const bool roll = m_drag.multiLead.first && m_drag.multiLead.second;
+    const int64_t edge0 = head ? m_drag.primaryStart : m_drag.primaryEnd;
+    if (!m_drag.trimGrab)
+        m_drag.trimGrab = m_layout.xToFrame(m_drag.pressPos.x()) - double(edge0);
+    int64_t target = roll ? m_layout.nearestFrameAtX(pos.x())
+                          : int64_t(std::llround(m_layout.xToFrame(pos.x()) - *m_drag.trimGrab));
+    m_overlay.snapFrame.reset();
+    if (const auto s = snapFrame(target)) {
+        target = *s;
+        m_overlay.snapFrame = *s;
+    }
+    const int64_t delta = target - edge0;
+    restoreOrigin();
+    TimelineData& data = m_ctx.project->timeline()->mutableData();
+    const bool sameAmount = (m_drag.live & Qt::ControlModifier) || !m_drag.ripple;
+    m_drag.multiApplied = ops::multiTrimTogether(data, m_drag.multi, delta, m_drag.ripple,
+        sameAmount ? ops::TrimShare::SameAmount : ops::TrimShare::RoundRobin);
+    if (m_drag.multiApplied != delta)
+        m_overlay.snapFrame.reset(); // clamped: the indicator would lie
     m_ctx.project->timeline()->notifyChanged();
 }
 

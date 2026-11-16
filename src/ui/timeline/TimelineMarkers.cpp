@@ -14,9 +14,12 @@
 #include "ui/timeline/TimelineEditUtil.h"
 
 #include <QAction>
+#include <QHash>
+#include <QSet>
 #include <QSettings>
 
 #include <algorithm>
+#include <vector>
 
 namespace kk {
 
@@ -226,6 +229,22 @@ bool TimelineController::pasteAttributes(const PasteAttributeSet& attributes)
     }
     return runEdit(project(), tr("Paste Attributes"), [&](TimelineData& data) {
         bool changed = false;
+        // Speed: each clip's own track ripples with it; the other sync-locked tracks follow
+        // once per group of linked clips with the same end and length change (spec 97.15).
+        struct LengthChange
+        {
+            quint64 id;
+            int64_t point; ///< the clip's end before anything moved
+            int64_t change;
+        };
+        std::vector<LengthChange> lengthChanges;
+        QHash<quint64, int64_t> originalEnd;
+        if (attributes.speed) {
+            for (quint64 id : ids) {
+                if (const ClipData* c = ops::clipById(data, id))
+                    originalEnd.insert(id, c->end());
+            }
+        }
         for (quint64 id : ids) {
             const auto loc = ops::findClip(data, id);
             if (!loc || data.track(loc->track)->locked)
@@ -260,8 +279,33 @@ bool TimelineController::pasteAttributes(const PasteAttributeSet& attributes)
                 }
             }
             changed |= !(c == before);
-            if (attributes.speed)
+            if (attributes.speed) {
                 changed |= timelineedit::applyClipRetime(data, id, *src);
+                const ClipData* after = ops::clipById(data, id);
+                if (after && after->duration != before.duration)
+                    lengthChanges.push_back(
+                        {id, originalEnd.value(id), after->duration - before.duration});
+            }
+        }
+        if (!lengthChanges.empty()) {
+            QVector<quint64> changedIds;
+            for (const LengthChange& l : lengthChanges)
+                changedIds.append(l.id);
+            QSet<quint64> done;
+            std::stable_sort(lengthChanges.begin(), lengthChanges.end(),
+                [](const LengthChange& a, const LengthChange& b) { return a.point > b.point; });
+            for (const LengthChange& l : lengthChanges) {
+                if (done.contains(l.id))
+                    continue;
+                // Linked partners with the same end and change are one edit (not shifted twice).
+                const QVector<quint64> partners = ops::linkedClips(data, l.id);
+                for (const LengthChange& o : lengthChanges) {
+                    if (o.point == l.point && o.change == l.change
+                        && (o.id == l.id || partners.contains(o.id)))
+                        done.insert(o.id);
+                }
+                ops::rippleSyncApply(data, changedIds, l.point, l.change);
+            }
         }
         return changed;
     });
@@ -311,8 +355,7 @@ void TimelineController::onPlayheadMoved(int64_t frame)
     }
     if (!m_selectedEdit.isEmpty()) {
         // The edit point follows the playhead: a roll, or a ripple trim in the trim tool.
-        applyEditTrim(
-            timeline()->mutableData(), m_selectedEdit, delta, m_tool == TimelineTool::Trim);
+        applySelectedEditsTrim(timeline()->mutableData(), delta, m_tool == TimelineTool::Trim);
     } else {
         // Selected clips: the selection tool slides them, the trim tool slips them (slides
         // them when they were picked by the name band), as a drag following the playhead.

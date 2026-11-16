@@ -114,6 +114,8 @@ struct TimelinePaintInput
     /// selected (both = a roll); 0 = that side not selected.
     quint64 editTailClip = 0;
     quint64 editHeadClip = 0;
+    /// The other selected edit points (spec 104.1): (tail clip, head clip) as above.
+    QVector<std::pair<quint64, quint64>> moreEdits;
     /// Selected gap (spec 10.5): row and frame range; row -1 = none.
     int gapRow = -1;
     int64_t gapStart = 0;

@@ -144,6 +144,56 @@ void rippleSyncApply(
 /// clips of @p ids (linked edges) by the same applied amount, and shifts the other sync-locked
 /// tracks along (rippleSyncApply). Returns the applied delta.
 int64_t rippleTrimSynced(TimelineData& data, const QVector<quint64>& ids, bool head, int64_t delta);
+// ---- Trimming several edit points at once (spec 104) ----
+
+/// One clip edge to trim: the head (in point) or the tail (out point) of clip @p clipId.
+struct TrimEdge
+{
+    quint64 clipId = 0;
+    bool head = false;
+};
+/// The edges of ONE selected edit point: the clicked edge and its linked partners on the same
+/// frame. They trim by the same amount and count once for the sync pass. The first edge leads.
+struct TrimGroup
+{
+    QVector<TrimEdge> edges;
+};
+/// One selected roll: (left, right) clip pairs touching at a cut (the first pair leads, the
+/// others are linked pairs cut at the same frame).
+struct RollGroup
+{
+    QVector<std::pair<quint64, quint64>> pairs;
+};
+/// A set of selected edit points, each trimmed or rolled as one unit.
+struct MultiTrim
+{
+    QVector<TrimGroup> trims;
+    QVector<RollGroup> rolls;
+    [[nodiscard]] bool isEmpty() const { return trims.isEmpty() && rolls.isEmpty(); }
+};
+/// How a total delta is shared by several rippled edits (spec 104.4).
+enum class TrimShare {
+    SameAmount, ///< every edit moves by the delta (keys, typed values, Ctrl+drag)
+    RoundRobin ///< the delta is the total, handed out one frame at a time, left to right
+};
+/// Trims group i of @p multi.trims by @p trimDeltas[i] and roll group j by @p rollDeltas[j]
+/// (frames the edit point moves on the timeline), each limited on its own. Ripple: each track
+/// holding trimmed edits shifts by its own trims only; every other sync-locked track by the sum
+/// of all trims at or before each frame, one rippleSyncApply() per group (so a track is never
+/// shifted twice for one edit). Ripple with rolls in the set does nothing (Resolve: ripple and
+/// roll cannot be combined). Locked clips are skipped. Returns the applied delta of each trim
+/// group followed by each roll group.
+QVector<int64_t> applyMultiTrim(TimelineData& data, const MultiTrim& multi,
+    const QVector<int64_t>& trimDeltas, const QVector<int64_t>& rollDeltas, bool ripple);
+/// Trims every edit of @p multi together by @p delta, the first trim group's edge as the
+/// reference: trims of the other kind (head against tail) move the opposite way (asymmetric
+/// trim), rolls move with it. The whole set stops at the first limit any edit hits, so the
+/// edits stay in step. @p share chooses between the same amount for each edit and a total
+/// handed out frame by frame (RoundRobin: only for ripple trims of one kind). Returns the
+/// applied delta of the reference edit (the total for RoundRobin), 0 when nothing changed.
+int64_t multiTrimTogether(TimelineData& data, const MultiTrim& multi, int64_t delta, bool ripple,
+    TrimShare share = TrimShare::SameAmount);
+
 /// Slip: changes which part of the source is shown without moving the clip. Positive
 /// @p deltaFrames move the in point later in the source. Clamped to the available media.
 /// Returns the applied delta.

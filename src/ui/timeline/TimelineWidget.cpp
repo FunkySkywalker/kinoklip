@@ -365,6 +365,8 @@ void TimelineWidget::paintEvent(QPaintEvent*)
     in.targetAudio = m_controller->targetAudioTrack();
     in.editTailClip = m_controller->selectedEdit().tailClip;
     in.editHeadClip = m_controller->selectedEdit().headClip;
+    for (const EditPointSelection& e : m_controller->selectedEdits().mid(1))
+        in.moreEdits.append({e.tailClip, e.headClip});
     if (const auto& gap = m_controller->selectedGap()) {
         in.gapRow = m_layout.rowOf(gap->track);
         in.gapStart = gap->start;

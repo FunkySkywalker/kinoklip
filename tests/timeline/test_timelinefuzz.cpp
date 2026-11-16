@@ -759,6 +759,113 @@ private slots:
         }
     }
 
+    // Property (spec 104): several edit points ripple-trimmed together keep every other
+    // sync-locked track in sync, each edit shifting it once (by the sum of the trims at or
+    // before each frame); tracks holding a trimmed clip are left to their own trims.
+    void multiEditRippleKeepsSyncLockedTracksInSync()
+    {
+        QRandomGenerator rng(104);
+        int media = 0;
+        int trimmed = 0;
+        for (int run = 0; run < 1500; ++run) {
+            const TimelineData before = syncTimeline(rng, media);
+            TimelineData d = before;
+            // 2-4 edit points: a random clip's head or tail, its linked same-edge partners
+            // trimming with it; no edge twice.
+            ops::MultiTrim multi;
+            QSet<std::pair<quint64, bool>> used;
+            QVector<quint64> all;
+            struct Edit
+            {
+                QVector<quint64> ids;
+                bool head;
+            };
+            std::vector<Edit> edits;
+            for (int i = 0, n = 2 + rng.bounded(3); i < n; ++i) {
+                const quint64 id = pick(rng, before);
+                const ClipData* c = ops::clipById(before, id);
+                if (!c)
+                    continue;
+                const bool head = rng.bounded(2) == 0;
+                if (used.contains({id, head}) || used.contains({id, !head}))
+                    continue; // (both edges of one clip: its length change would be ambiguous)
+                ops::TrimGroup g;
+                g.edges.append({id, head});
+                used.insert({id, head});
+                for (quint64 l : ops::linkedClips(before, id)) {
+                    const ClipData* o = ops::clipById(before, l);
+                    if (l != id && o && (head ? o->start == c->start : o->end() == c->end())
+                        && !used.contains({l, head}) && !used.contains({l, !head})) {
+                        g.edges.append({l, head});
+                        used.insert({l, head});
+                    }
+                }
+                for (const ops::TrimEdge& e : g.edges)
+                    all.append(e.clipId);
+                multi.trims.append(g);
+                Edit e {{}, head};
+                for (const ops::TrimEdge& te : g.edges)
+                    e.ids.append(te.clipId);
+                edits.push_back(e);
+            }
+            if (multi.trims.size() < 2)
+                continue;
+            const int64_t delta = int64_t(rng.bounded(31)) - 15;
+            const bool roundRobin = rng.bounded(3) == 0;
+            const int64_t got = ops::multiTrimTogether(d, multi, delta, true,
+                roundRobin ? ops::TrimShare::RoundRobin : ops::TrimShare::SameAmount);
+            QString why;
+            QVERIFY2(ops::checkInvariants(d, &why), qPrintable(why));
+            if (got != 0)
+                ++trimmed;
+            // The time map of every edit that changed its clip, applied right to left.
+            std::vector<std::pair<int64_t, TimeMap>> maps;
+            QString mapDump;
+            for (const Edit& e : edits) {
+                // A partner on a locked track does not trim; the first that did decides.
+                for (quint64 id : e.ids) {
+                    const ClipData* old = ops::clipById(before, id);
+                    const int64_t n = ops::clipById(d, id)->duration - old->duration;
+                    if (n == 0)
+                        continue;
+                    const int64_t at = e.head ? (n < 0 ? old->start - n : old->start) : old->end();
+                    maps.emplace_back(at, n > 0 ? lengthenMap(at, n) : shortenMap(at, -n));
+                    mapDump += QStringLiteral(" [at %1 n %2]").arg(at).arg(n);
+                    break;
+                }
+            }
+            std::stable_sort(maps.begin(), maps.end(),
+                [](const auto& a, const auto& b) { return a.first > b.first; });
+            const TimeMap map = [maps](int64_t p) -> std::optional<int64_t> {
+                std::optional<int64_t> q = p;
+                for (const auto& m : maps) {
+                    if (!q)
+                        break;
+                    q = m.second(*q);
+                }
+                return q;
+            };
+            const QString problem = syncProblem(before, d, map, tracksOf(before, all));
+            QString dump;
+            if (!problem.isEmpty()) {
+                for (const auto& g : multi.trims) {
+                    dump += QStringLiteral("\n  edit");
+                    for (const auto& e : g.edges)
+                        dump += QStringLiteral(" %1%2").arg(e.head ? "head " : "tail ").arg(e.clipId);
+                }
+                dump += QStringLiteral("\n  delta %1 got %2 rr=%3 maps%4").arg(delta).arg(got).arg(roundRobin).arg(mapDump);
+                for (TrackType type : {TrackType::Video, TrackType::Audio})
+                    for (size_t i = 0; i < before.tracks(type).size(); ++i)
+                        dump += QStringLiteral("\n  %1%2 lock=%3 sync=%4: %5 -> %6")
+                                    .arg(type == TrackType::Video ? "V" : "A").arg(i + 1)
+                                    .arg(before.tracks(type)[i].locked).arg(before.tracks(type)[i].syncLock)
+                                    .arg(layout(before, TrackRef {type, int(i)}), layout(d, TrackRef {type, int(i)}));
+            }
+            QVERIFY2(problem.isEmpty(), qPrintable(QStringLiteral("run %1: %2%3").arg(run).arg(problem, dump)));
+        }
+        QVERIFY(trimmed > 200); // the property was exercised, not vacuous
+    }
+
     // The same through the controller commands the UI calls (one selected clip).
     void controllerRippleCommandsKeepSyncLockedTracksInSync()
     {

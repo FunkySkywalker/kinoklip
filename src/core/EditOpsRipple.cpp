@@ -490,4 +490,217 @@ QVector<quint64> rippleOverwriteClips(TimelineData& data, const QVector<PlacedCl
     return ids;
 }
 
+
+// ---- Trimming several edit points at once ----
+
+namespace {
+
+struct MultiOutcome
+{
+    std::vector<int64_t> applied; ///< trim groups, then roll groups
+    std::vector<bool> uniform; ///< every edge / pair of the group got the leader's amount
+};
+
+int64_t trimEdgeBy(TimelineData& data, const TrimEdge& e, int64_t delta, bool ripple)
+{
+    return e.head ? trimHead(data, e.clipId, delta, ripple) : trimTail(data, e.clipId, delta, ripple);
+}
+
+/// The groups of @p multi without edges on locked tracks or missing clips; empty groups stay
+/// (as empty) so indices still match.
+MultiTrim usableEdges(const TimelineData& data, const MultiTrim& multi)
+{
+    MultiTrim out;
+    for (const TrimGroup& g : multi.trims) {
+        TrimGroup n;
+        for (const TrimEdge& e : g.edges) {
+            const auto loc = findClip(data, e.clipId);
+            if (loc && !data.track(loc->track)->locked)
+                n.edges.append(e);
+        }
+        out.trims.append(n);
+    }
+    out.rolls = multi.rolls;
+    return out;
+}
+
+MultiOutcome applyMultiImpl(TimelineData& data, const MultiTrim& multi,
+    const QVector<int64_t>& trimDeltas, const QVector<int64_t>& rollDeltas, bool ripple)
+{
+    const size_t nt = size_t(multi.trims.size());
+    const size_t nr = size_t(multi.rolls.size());
+    MultiOutcome out;
+    out.applied.assign(nt + nr, 0);
+    out.uniform.assign(nt + nr, true);
+    if (ripple && nr > 0 && nt > 0)
+        return out; // ripple and roll cannot be combined
+    const MultiTrim use = usableEdges(data, multi);
+
+    // Original edge positions (the frame the edit point sat on before anything moved).
+    struct Plan
+    {
+        size_t group;
+        int64_t oldStart;
+        int64_t oldEnd;
+        int64_t at;
+    };
+    std::vector<Plan> order;
+    QVector<quint64> trimmedIds;
+    for (size_t g = 0; g < nt; ++g) {
+        if (use.trims[int(g)].edges.isEmpty())
+            continue;
+        const TrimEdge& lead = use.trims[int(g)].edges.first();
+        const ClipData* c = clipById(data, lead.clipId);
+        order.push_back({g, c->start, c->end(), lead.head ? c->start : c->end()});
+        for (const TrimEdge& e : use.trims[int(g)].edges)
+            trimmedIds.append(e.clipId);
+    }
+    // Right to left: a ripple only moves what follows its edit on the track, so the clips still
+    // to be trimmed (further left) are where the selection saw them.
+    std::stable_sort(order.begin(), order.end(),
+        [](const Plan& a, const Plan& b) { return a.at > b.at; });
+
+    struct Sync
+    {
+        int64_t point;
+        int64_t change;
+    };
+    std::vector<Sync> syncs;
+    for (const Plan& p : order) {
+        const TrimGroup& g = use.trims[int(p.group)];
+        const int64_t applied = trimEdgeBy(data, g.edges.first(), trimDeltas.value(int(p.group)), ripple);
+        out.applied[p.group] = applied;
+        for (int i = 1; i < g.edges.size(); ++i) {
+            if (trimEdgeBy(data, g.edges[i], applied, ripple) != applied)
+                out.uniform[p.group] = false;
+        }
+        if (ripple && applied != 0) {
+            const bool head = g.edges.first().head;
+            syncs.push_back({head ? (applied > 0 ? p.oldStart + applied : p.oldStart) : p.oldEnd,
+                head ? -applied : applied});
+        }
+    }
+    // Other tracks: right to left in the original frames, each edit once.
+    std::stable_sort(syncs.begin(), syncs.end(),
+        [](const Sync& a, const Sync& b) { return a.point > b.point; });
+    for (const Sync& s : syncs)
+        rippleSyncApply(data, trimmedIds, s.point, s.change);
+
+    for (size_t j = 0; j < nr; ++j) {
+        const auto& pairs = use.rolls[int(j)].pairs;
+        if (pairs.isEmpty())
+            continue;
+        const int64_t applied
+            = rollEdit(data, pairs.first().first, pairs.first().second, rollDeltas.value(int(j)));
+        out.applied[nt + j] = applied;
+        for (int i = 1; i < pairs.size(); ++i) {
+            if (applied != 0 && rollEdit(data, pairs[i].first, pairs[i].second, applied) != applied)
+                out.uniform[nt + j] = false;
+        }
+    }
+    return out;
+}
+
+} // namespace
+
+QVector<int64_t> applyMultiTrim(TimelineData& data, const MultiTrim& multi,
+    const QVector<int64_t>& trimDeltas, const QVector<int64_t>& rollDeltas, bool ripple)
+{
+    const MultiOutcome o = applyMultiImpl(data, multi, trimDeltas, rollDeltas, ripple);
+    QVector<int64_t> result;
+    for (const int64_t a : o.applied)
+        result.append(a);
+    return result;
+}
+
+int64_t multiTrimTogether(
+    TimelineData& data, const MultiTrim& multi, int64_t delta, bool ripple, TrimShare share)
+{
+    const size_t nt = size_t(multi.trims.size());
+    const size_t nr = size_t(multi.rolls.size());
+    if (delta == 0 || (nt + nr) == 0 || (ripple && nt > 0 && nr > 0))
+        return 0;
+    const bool refHead = nt > 0 && !multi.trims[0].edges.isEmpty() && multi.trims[0].edges[0].head;
+    std::vector<int> dir(nt, 1);
+    bool sameKind = true;
+    for (size_t g = 0; g < nt; ++g) {
+        if (multi.trims[int(g)].edges.isEmpty())
+            continue;
+        const bool head = multi.trims[int(g)].edges[0].head;
+        dir[g] = head == refHead ? 1 : -1;
+        sameKind &= head == refHead;
+    }
+    if (share == TrimShare::RoundRobin && (!ripple || nr > 0 || !sameKind || nt < 2))
+        share = TrimShare::SameAmount;
+    // Left-to-right rank of every group, for the round robin.
+    std::vector<size_t> rank(nt, 0);
+    if (share == TrimShare::RoundRobin) {
+        std::vector<std::pair<int64_t, size_t>> at;
+        for (size_t g = 0; g < nt; ++g) {
+            int64_t pos = 0;
+            if (!multi.trims[int(g)].edges.isEmpty()) {
+                const TrimEdge& e = multi.trims[int(g)].edges[0];
+                if (const ClipData* c = clipById(data, e.clipId))
+                    pos = e.head ? c->start : c->end();
+            }
+            at.emplace_back(pos, g);
+        }
+        std::stable_sort(at.begin(), at.end(),
+            [](const auto& a, const auto& b) { return a.first < b.first; });
+        for (size_t i = 0; i < at.size(); ++i)
+            rank[at[i].second] = i;
+    }
+    const int64_t sign = delta < 0 ? -1 : 1;
+    const TimelineData backup = data;
+    const auto attempt = [&](int64_t n) {
+        QVector<int64_t> td;
+        QVector<int64_t> rd;
+        for (size_t g = 0; g < nt; ++g) {
+            int64_t share_n = n;
+            if (share == TrimShare::RoundRobin) {
+                const int64_t k = int64_t(nt);
+                share_n = n / k + (int64_t(rank[g]) < n % k ? 1 : 0);
+            }
+            td.append(sign * share_n * dir[g]);
+        }
+        for (size_t j = 0; j < nr; ++j)
+            rd.append(sign * n);
+        data = backup;
+        const MultiOutcome o = applyMultiImpl(data, multi, td, rd, ripple);
+        // Edits that cannot trim at all (locked tracks) do not hold the others back.
+        const MultiTrim use = usableEdges(backup, multi);
+        for (size_t g = 0; g < nt; ++g) {
+            if (use.trims[int(g)].edges.isEmpty())
+                continue;
+            if (o.applied[g] != td[int(g)] || !o.uniform[g])
+                return false;
+        }
+        for (size_t j = 0; j < nr; ++j) {
+            if (multi.rolls[int(j)].pairs.isEmpty())
+                continue;
+            if (o.applied[nt + j] != rd[int(j)] || !o.uniform[nt + j])
+                return false;
+        }
+        return true;
+    };
+    const int64_t nMax = delta < 0 ? -delta : delta;
+    if (attempt(nMax))
+        return delta;
+    int64_t lo = 0;
+    int64_t hi = nMax; // lo works (nothing moves), hi does not
+    while (hi - lo > 1) {
+        const int64_t mid = lo + (hi - lo) / 2;
+        if (attempt(mid))
+            lo = mid;
+        else
+            hi = mid;
+    }
+    if (lo == 0) {
+        data = backup;
+        return 0;
+    }
+    attempt(lo);
+    return sign * lo;
+}
+
 } // namespace kk::editops

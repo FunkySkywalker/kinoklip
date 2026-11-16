@@ -123,7 +123,8 @@ between editors are read from `EditBehaviour` (src/core), never inline constants
 
 Besides the clip selection (SelectionModel) the controller owns two exclusive selections:
 the **edit point** (`selectedEdit()`: tail and/or head of touching clips; nudging trims or
-rolls it, E extends it, Ctrl+T puts the transition there) and the **gap**
+rolls it, E extends it, Ctrl+T puts the transition there; Ctrl+click adds more, `selectedEdits()`:
+trimmed together by `editops::multiTrimTogether()`, spec 104) and the **gap**
 (`selectedGap()`: Backspace/Delete close it). Selecting clips clears both. A **transition**
 is selected in `SelectionModel::transition()` (so the Inspector follows it):
 `selectTransition()` clears everything else, Backspace/Delete call `deleteTransition()`.

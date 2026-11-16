@@ -148,8 +148,25 @@ public:
     /// The name a new marker in @p existing gets: "Marker N" with N one more than the highest
     /// number any "Marker N" in the list has, so names never repeat after a deletion.
     [[nodiscard]] static QString newMarkerName(const QVector<Marker>& existing);
+    /// The first selected edit point (empty = none); see selectedEdits() for all of them.
     [[nodiscard]] const EditPointSelection& selectedEdit() const { return m_selectedEdit; }
     void setSelectedEdit(const EditPointSelection& edit);
+    /// Every selected edit point, the first one first (Ctrl+click adds more, spec 104.1).
+    [[nodiscard]] QVector<EditPointSelection> selectedEdits() const;
+    void setSelectedEdits(const QVector<EditPointSelection>& edits);
+    /// Ctrl+click on an edge: adds @p edit to the selected edit points, or removes it when it
+    /// is selected already. Clears the clip and gap selection.
+    void toggleSelectedEdit(const EditPointSelection& edit);
+    [[nodiscard]] bool isEditSelected(const EditPointSelection& edit) const;
+    /// The selected edit points as units for editops::multiTrimTogether(): linked clips on the
+    /// same frame join their edit's group (when Linked Selection is on), no edge is in two
+    /// groups. @p primary (a selected edit point) leads when given.
+    [[nodiscard]] editops::MultiTrim trimPlan(
+        const TimelineData& data, const EditPointSelection& primary = {}) const;
+    /// Trims every selected edit point by @p frames on @p data (one edit point: applyEditTrim()).
+    /// Returns the applied delta of the leading edit.
+    int64_t applySelectedEditsTrim(TimelineData& data, int64_t frames, bool ripple,
+        editops::TrimShare share = editops::TrimShare::SameAmount) const;
     /// Selected gap, if any (cleared by selecting clips or an edit point).
     [[nodiscard]] const std::optional<GapSelection>& selectedGap() const { return m_selectedGap; }
     void setSelectedGap(const std::optional<GapSelection>& gap);
@@ -710,6 +727,7 @@ private:
     std::optional<TransitionBoard> m_transitionBoard; ///< the last copy was a transition
     VimOverlay m_vimOverlay;
     EditPointSelection m_selectedEdit;
+    QVector<EditPointSelection> m_moreEdits; ///< selected after the first (empty if none is)
     std::optional<GapSelection> m_selectedGap;
     std::function<std::optional<SourceSelection>()> m_sourceProvider;
     SourceEditHandler m_sourceEditHandler;

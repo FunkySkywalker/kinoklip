@@ -1156,18 +1156,22 @@ void TimelinePainter::paintOverlays(QPainter& p, const TimelinePaintInput& in)
     const double bracketW = 3.0 + 1.5 * pulse;
     const QColor bracket
         = pulse > 0.0 ? mixColors(sc().snap, sc().highlight, 0.6 * pulse) : sc().snap;
-    for (const quint64 id : {in.editTailClip, in.editHeadClip}) {
-        if (!id)
-            continue;
-        const auto loc = editops::findClip(*in.data, id);
-        if (!loc)
-            continue;
-        const int row = L.rowOf(loc->track);
-        const ClipData& c = in.data->track(loc->track)->clips[size_t(loc->clipIndex)];
-        const QRectF cr = shownRect(in, c.id, L.clipRect(row, c));
-        const bool tail = id == in.editTailClip;
-        const double x = tail ? cr.right() - bracketW : cr.left();
-        p.fillRect(QRectF(x, cr.top(), bracketW, cr.height()), bracket);
+    QVector<std::pair<quint64, quint64>> edits {{in.editTailClip, in.editHeadClip}};
+    edits += in.moreEdits;
+    for (const auto& [tailClip, headClip] : std::as_const(edits)) {
+        for (const quint64 id : {tailClip, headClip}) {
+            if (!id)
+                continue;
+            const auto loc = editops::findClip(*in.data, id);
+            if (!loc)
+                continue;
+            const int row = L.rowOf(loc->track);
+            const ClipData& c = in.data->track(loc->track)->clips[size_t(loc->clipIndex)];
+            const QRectF cr = shownRect(in, c.id, L.clipRect(row, c));
+            const bool tail = id == tailClip;
+            const double x = tail ? cr.right() - bracketW : cr.left();
+            p.fillRect(QRectF(x, cr.top(), bracketW, cr.height()), bracket);
+        }
     }
     if (o.bladeFrame && o.bladeRow >= 0) {
         const QRect rr = L.rowRect(o.bladeRow);

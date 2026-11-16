@@ -81,26 +81,67 @@ void TimelineController::onClipSelectionChanged()
     if (m_selectedEdit.isEmpty() && !m_selectedGap)
         return;
     m_selectedEdit = {};
+    m_moreEdits.clear();
     m_selectedGap.reset();
     emit stateChanged();
 }
 
 void TimelineController::setSelectedEdit(const EditPointSelection& edit)
 {
-    if (!edit.isEmpty()) {
+    setSelectedEdits(edit.isEmpty() ? QVector<EditPointSelection> {}
+                                    : QVector<EditPointSelection> {edit});
+}
+
+QVector<EditPointSelection> TimelineController::selectedEdits() const
+{
+    QVector<EditPointSelection> all;
+    if (!m_selectedEdit.isEmpty()) {
+        all.append(m_selectedEdit);
+        all += m_moreEdits;
+    }
+    return all;
+}
+
+void TimelineController::setSelectedEdits(const QVector<EditPointSelection>& edits)
+{
+    QVector<EditPointSelection> list;
+    for (const EditPointSelection& e : edits) {
+        if (!e.isEmpty() && !list.contains(e))
+            list.append(e);
+    }
+    if (!list.isEmpty()) {
         m_selectedGap.reset();
         m_ctx.selection->clear();
     }
-    if (m_selectedEdit == edit)
+    if (selectedEdits() == list)
         return;
-    m_selectedEdit = edit;
+    m_selectedEdit = list.isEmpty() ? EditPointSelection {} : list.first();
+    m_moreEdits = list.size() > 1 ? list.mid(1) : QVector<EditPointSelection> {};
     emit stateChanged();
+}
+
+void TimelineController::toggleSelectedEdit(const EditPointSelection& edit)
+{
+    if (edit.isEmpty())
+        return;
+    QVector<EditPointSelection> all = selectedEdits();
+    if (const int i = int(all.indexOf(edit)); i >= 0)
+        all.removeAt(i);
+    else
+        all.append(edit);
+    setSelectedEdits(all);
+}
+
+bool TimelineController::isEditSelected(const EditPointSelection& edit) const
+{
+    return selectedEdits().contains(edit);
 }
 
 void TimelineController::setSelectedGap(const std::optional<GapSelection>& gap)
 {
     if (gap) {
         m_selectedEdit = {};
+        m_moreEdits.clear();
         m_ctx.selection->clear();
     }
     if (m_selectedGap == gap)
@@ -607,6 +648,61 @@ int64_t TimelineController::applyEditTrim(
     return applied;
 }
 
+editops::MultiTrim TimelineController::trimPlan(
+    const TimelineData& data, const EditPointSelection& primary) const
+{
+    QVector<EditPointSelection> edits = selectedEdits();
+    if (const int i = int(edits.indexOf(primary)); i > 0)
+        edits.move(i, 0);
+    ops::MultiTrim plan;
+    QSet<std::pair<quint64, bool>> used;
+    QSet<quint64> usedLeft;
+    for (const EditPointSelection& e : std::as_const(edits)) {
+        if (e.tailClip && e.headClip) {
+            if (usedLeft.contains(e.tailClip))
+                continue;
+            ops::RollGroup g;
+            g.pairs.append({e.tailClip, e.headClip});
+            if (m_linked) {
+                // Linked pairs cut at the same frame roll along (spec 8.12).
+                const QVector<quint64> rights = ops::linkedClips(data, e.headClip);
+                for (quint64 l : ops::linkedClips(data, e.tailClip)) {
+                    const ClipData* lc = ops::clipById(data, l);
+                    for (quint64 r : rights) {
+                        const ClipData* rc = ops::clipById(data, r);
+                        if (l != e.tailClip && r != e.headClip && lc && rc && lc->end() == rc->start)
+                            g.pairs.append({l, r});
+                    }
+                }
+            }
+            for (const auto& [l, r] : std::as_const(g.pairs))
+                usedLeft.insert(l);
+            plan.rolls.append(g);
+            continue;
+        }
+        const bool head = e.headClip != 0;
+        const quint64 primaryId = head ? e.headClip : e.tailClip;
+        ops::TrimGroup g;
+        for (quint64 id : sameEdgeLinks(data, primaryId, head, m_linked)) {
+            if (!used.contains({id, head})) {
+                used.insert({id, head});
+                g.edges.append({id, head});
+            }
+        }
+        if (!g.edges.isEmpty() && g.edges.first().clipId == primaryId)
+            plan.trims.append(g);
+    }
+    return plan;
+}
+
+int64_t TimelineController::applySelectedEditsTrim(
+    TimelineData& data, int64_t frames, bool ripple, ops::TrimShare share) const
+{
+    if (m_moreEdits.isEmpty())
+        return applyEditTrim(data, m_selectedEdit, frames, ripple);
+    return ops::multiTrimTogether(data, trimPlan(data), frames, ripple, share);
+}
+
 int64_t TimelineController::trimSelectedEdit(int64_t frames)
 {
     const EditPointSelection edit = m_selectedEdit;
@@ -615,12 +711,14 @@ int64_t TimelineController::trimSelectedEdit(int64_t frames)
     const bool ripple = m_tool == TimelineTool::Trim;
     const bool roll = edit.tailClip && edit.headClip;
     int64_t applied = 0;
+    const bool several = !m_moreEdits.isEmpty();
     runEdit(project(),
-        roll         ? tr("Roll Edit")
+        several  ? (ripple ? tr("Ripple Trim Edits") : tr("Trim Edits"))
+            : roll   ? tr("Roll Edit")
             : ripple ? tr("Ripple Trim")
                      : tr("Trim Clip"),
         [&](TimelineData& data) {
-            applied = applyEditTrim(data, edit, frames, ripple);
+            applied = applySelectedEditsTrim(data, frames, ripple);
             return applied != 0;
         });
     return applied;
@@ -629,6 +727,30 @@ int64_t TimelineController::trimSelectedEdit(int64_t frames)
 void TimelineController::extendEditToPlayhead()
 {
     const TimelineData& d = timeline()->data();
+    if (!m_moreEdits.isEmpty()) {
+        // Every selected edit point goes to the playhead on its own (spec 104.6).
+        const ops::MultiTrim plan = trimPlan(d);
+        const int64_t playhead = timeline()->playhead();
+        QVector<int64_t> trims;
+        QVector<int64_t> rolls;
+        for (const ops::TrimGroup& g : plan.trims) {
+            const ClipData* c = ops::clipById(d, g.edges.first().clipId);
+            trims.append(c ? playhead - (g.edges.first().head ? c->start : c->end()) : 0);
+        }
+        for (const ops::RollGroup& g : plan.rolls) {
+            const ClipData* c = ops::clipById(d, g.pairs.first().first);
+            rolls.append(c ? playhead - c->end() : 0);
+        }
+        const bool ripple = m_tool == TimelineTool::Trim;
+        runEdit(project(), ripple ? tr("Ripple Trim Edits") : tr("Trim Edits"),
+            [&](TimelineData& data) {
+                bool any = false;
+                for (const int64_t a : ops::applyMultiTrim(data, plan, trims, rolls, ripple))
+                    any |= a != 0;
+                return any;
+            });
+        return;
+    }
     const ClipData* clip = ops::clipById(
         d, m_selectedEdit.headClip ? m_selectedEdit.headClip : m_selectedEdit.tailClip);
     if (!clip)
@@ -640,31 +762,35 @@ void TimelineController::extendEditToPlayhead()
 void TimelineController::cycleEditPoint()
 {
     const TimelineData& d = timeline()->data();
-    const EditPointSelection e = m_selectedEdit;
-    if (e.isEmpty())
-        return;
-    // The clips on both sides of the cut, if they touch.
-    quint64 left = e.tailClip;
-    quint64 right = e.headClip;
-    const quint64 known = left ? left : right;
-    const auto loc = ops::findClip(d, known);
-    if (!loc)
-        return;
-    const auto& clips = d.track(loc->track)->clips;
-    const size_t i = size_t(loc->clipIndex);
-    if (!right && i + 1 < clips.size() && clips[i + 1].start == clips[i].end())
-        right = clips[i + 1].id;
-    if (!left && i > 0 && clips[i - 1].end() == clips[i].start)
-        left = clips[i - 1].id;
-    if (!left || !right)
-        return; // a free edge has only one side
-    // tail -> roll -> head -> tail
-    if (e.tailClip && !e.headClip)
-        setSelectedEdit({left, right});
-    else if (e.tailClip && e.headClip)
-        setSelectedEdit({0, right});
-    else
-        setSelectedEdit({left, 0});
+    QVector<EditPointSelection> next;
+    for (const EditPointSelection& e : selectedEdits()) {
+        // The clips on both sides of the cut, if they touch.
+        quint64 left = e.tailClip;
+        quint64 right = e.headClip;
+        const auto loc = ops::findClip(d, left ? left : right);
+        if (!loc) {
+            next.append(e);
+            continue;
+        }
+        const auto& clips = d.track(loc->track)->clips;
+        const size_t i = size_t(loc->clipIndex);
+        if (!right && i + 1 < clips.size() && clips[i + 1].start == clips[i].end())
+            right = clips[i + 1].id;
+        if (!left && i > 0 && clips[i - 1].end() == clips[i].start)
+            left = clips[i - 1].id;
+        if (!left || !right) {
+            next.append(e); // a free edge has only one side
+            continue;
+        }
+        // tail -> roll -> head -> tail
+        if (e.tailClip && !e.headClip)
+            next.append({left, right});
+        else if (e.tailClip && e.headClip)
+            next.append({0, right});
+        else
+            next.append({left, 0});
+    }
+    setSelectedEdits(next);
 }
 
 void TimelineController::soloAutoSelect(TrackRef ref)
@@ -797,8 +923,8 @@ void TimelineController::setPlayheadClamped(int64_t frame)
 bool TimelineController::moveSelectedEdit(bool forward)
 {
     const EditPointSelection e = m_selectedEdit;
-    if (e.isEmpty())
-        return false;
+    if (e.isEmpty() || !m_moreEdits.isEmpty())
+        return false; // with several edit points Up / Down move the playhead
     const TimelineData& d = timeline()->data();
     const quint64 known = e.headClip ? e.headClip : e.tailClip;
     const auto loc = ops::findClip(d, known);

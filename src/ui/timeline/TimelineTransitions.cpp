@@ -291,6 +291,7 @@ void TimelineController::selectTransition(const TransitionRef& ref)
 {
     const bool hadEdit = !m_selectedEdit.isEmpty() || m_selectedGap;
     m_selectedEdit = {};
+    m_moreEdits.clear();
     m_selectedGap.reset();
     m_ctx.selection->selectTransition(ref);
     if (hadEdit)

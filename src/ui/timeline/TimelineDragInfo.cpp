@@ -113,6 +113,10 @@ void TimelineWidget::refreshDragInfo()
         }
         break;
     }
+    case DragMode::TrimMulti:
+        label.lines << draginfo::formatOffset(m_drag.multiApplied, fps)
+                    << tr("%1 edit points").arg(m_drag.multi.trims.size() + m_drag.multi.rolls.size());
+        break;
     case DragMode::Roll: {
         const ClipData* left
             = m_drag.rolls.isEmpty() ? nullptr : ops::clipById(data, m_drag.rolls[0].first);

@@ -248,6 +248,7 @@ private:
         TrimHead,
         TrimTail,
         Roll,
+        TrimMulti, ///< several selected edit points trimmed together (spec 104)
         Slip,
         Slide,
         ResizeTrack,
@@ -283,6 +284,12 @@ private:
         bool editOpen = false;
         bool selectOnRelease = false; ///< click on a selected clip without dragging
         bool altOneSideOnRelease = false; ///< Alt-click without dragging: only the clicked side
+        /// A click without drag on an edit point of a multi-selection: select just that one.
+        std::optional<std::pair<quint64, quint64>> editOnRelease;
+        /// TrimMulti: the selected edit points as trim units, led by the pressed one.
+        editops::MultiTrim multi;
+        std::pair<quint64, quint64> multiLead; ///< TrimMulti: (tail clip, head clip) pressed
+        int64_t multiApplied = 0; ///< TrimMulti: the leading edit point's move so far
         TimelineData origin; ///< state at drag start; restored before every live update
         QVector<quint64> clips; ///< affected clips (primary first)
         QVector<std::pair<quint64, quint64>> rolls; ///< roll: (left, right) pairs
@@ -338,6 +345,7 @@ private:
     void updateMove(QPointF pos);
     void updateTrim(QPointF pos);
     void updateRoll(QPointF pos);
+    void updateTrimMulti(QPointF pos);
     void updateSlipSlide(QPointF pos);
     void updateRubberBand(QPointF pos);
     void updateTransitionEdge(QPointF pos);
