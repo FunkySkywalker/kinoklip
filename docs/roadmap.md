@@ -144,6 +144,7 @@ Shipped in 1.4 ([release notes](releases/v1.4.0.md)):
 - [ ] Platform: AppImage for ARM64 (user request)
 - [ ] Playback: 10-bit HEVC (4K drone footage) decodes on Intel graphics without copying each frame to system memory
 - [ ] Edit: several edit points selected and trimmed together
+- [ ] Performance: Kinoklip uses less memory (measure what holds RAM and VRAM while editing and playing: frame caches, decoders, thumbnails, waveforms, undo history), so it runs well on low-end computers
 
 ## The version after that
 
