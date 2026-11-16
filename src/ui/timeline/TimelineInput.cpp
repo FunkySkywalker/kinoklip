@@ -893,8 +893,14 @@ void TimelineWidget::updateMove(QPointF pos)
     }
     if (m_drag.duplicate) {
         // Linked halves move by the same track offset (V1->V2 takes A1->A2), like Resolve.
-        const int vBase = m_drag.board.baseVideoTrack + dy;
-        const int aBase = m_drag.board.baseAudioTrack + dy;
+        // A type the copy has no clips of (a video clip without audio) has no base to move:
+        // it must not veto the drop, e.g. a base of 0 + dy < 0 when moving down.
+        bool hasType[2] = {false, false};
+        for (const auto& entry : m_drag.board.clips)
+            if (entry.type != TrackType::Subtitle)
+                hasType[entry.type == TrackType::Video ? 0 : 1] = true;
+        const int vBase = hasType[0] ? m_drag.board.baseVideoTrack + dy : 0;
+        const int aBase = hasType[1] ? m_drag.board.baseAudioTrack + dy : 0;
         m_drag.resultIds = vBase >= 0 && aBase >= 0
             ? ops::pasteClips(data, m_drag.board, m_drag.minStart + dx, vBase, aBase)
             : QVector<quint64> {};

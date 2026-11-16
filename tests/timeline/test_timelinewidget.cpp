@@ -80,6 +80,18 @@ struct View
         }
         QTest::mouseRelease(vp(), Qt::LeftButton, mods, to);
     }
+    /// Like drag(), but every step carries the modifiers (a real mouse move does).
+    void dragWithModifiers(QPoint from, QPoint to, Qt::KeyboardModifiers mods)
+    {
+        QTest::mousePress(vp(), Qt::LeftButton, mods, from);
+        for (int i = 1; i <= 4; ++i) {
+            const QPointF p = from + (to - from) * i / 4;
+            QMouseEvent move(QEvent::MouseMove, p, vp()->mapToGlobal(p), Qt::NoButton,
+                Qt::LeftButton, mods);
+            QApplication::sendEvent(vp(), &move);
+        }
+        QTest::mouseRelease(vp(), Qt::LeftButton, mods, to);
+    }
     int undoCount() const { return f.project.undoStack()->count(); }
 };
 
@@ -256,6 +268,90 @@ private slots:
         QVERIFY(!v.f.selection.isSelected(a)); // the copy is selected
         QCOMPARE(v.f.selection.clips().size(), 1);
         KK_VERIFY_TIMELINE(v.f.view());
+    }
+
+    // Owner bug: an Alt-drag onto another track showed no copy there (only on the same track).
+    // Resolve: Alt-drag copies; the copy overwrites what lies under it on the target track.
+    void altDragVideoOnlyToAnotherTrack_data()
+    {
+        QTest::addColumn<bool>("up");
+        QTest::addColumn<bool>("occupied");
+        QTest::newRow("up empty") << true << false;
+        QTest::newRow("up occupied") << true << true;
+        QTest::newRow("down empty") << false << false;
+        QTest::newRow("down occupied") << false << true;
+    }
+    void altDragVideoOnlyToAnotherTrack()
+    {
+        QFETCH(bool, up);
+        QFETCH(bool, occupied);
+        View v;
+        const TrackRef from = up ? kV1 : kV2;
+        const TrackRef to = up ? kV2 : kV1;
+        const quint64 a = v.put(from, solidClip(10, 20));
+        if (occupied)
+            v.put(to, solidClip(0, 50));
+        v.dragWithModifiers(v.at(20, from), v.at(30, to), Qt::AltModifier);
+        QCOMPARE(layout(v.f.view(), from), QStringLiteral("10:20")); // the original stays
+        QVERIFY(ops::clipById(v.f.view(), a));
+        QCOMPARE(layout(v.f.view(), to),
+            occupied ? QStringLiteral("0:20 20:20 40:10") : QStringLiteral("20:20"));
+        QCOMPARE(v.f.selection.clips().size(), 1);
+        QVERIFY(v.f.selection.clips().first() != a); // the copy is selected
+        const auto loc = ops::findClip(v.f.view(), v.f.selection.clips().first());
+        QVERIFY(loc && loc->track == to);
+        KK_VERIFY_TIMELINE(v.f.view());
+        v.f.project.undo();
+        QCOMPARE(layout(v.f.view(), to), occupied ? QStringLiteral("0:50") : QString());
+    }
+
+    void altDragLinkedPairToAnotherTrack()
+    {
+        for (const bool up : {true, false}) {
+            View v;
+            const TrackRef vf = up ? kV1 : kV2, vt = up ? kV2 : kV1;
+            const TrackRef af = up ? kA1 : kA2, at = up ? kA2 : kA1;
+            const quint64 a = v.put(vf, solidClip(10, 20));
+            const quint64 b = v.put(af, solidClip(10, 20));
+            ops::linkClips(v.f.data(), {a, b});
+            v.put(vt, solidClip(0, 15)); // video target occupied, audio target empty
+            v.dragWithModifiers(v.at(20, vf), v.at(30, vt), Qt::AltModifier);
+            QCOMPARE(layout(v.f.view(), vf), QStringLiteral("10:20"));
+            QCOMPARE(layout(v.f.view(), af), QStringLiteral("10:20"));
+            QCOMPARE(layout(v.f.view(), vt), QStringLiteral("0:15 20:20"));
+            QCOMPARE(layout(v.f.view(), at), QStringLiteral("20:20"));
+            QCOMPARE(v.f.selection.clips().size(), 2);
+            KK_VERIFY_TIMELINE(v.f.view());
+        }
+    }
+
+    void altDragSeveralClipsToAnotherTrack()
+    {
+        for (const bool up : {true, false}) {
+            View v;
+            const TrackRef from = up ? kV1 : kV2, to = up ? kV2 : kV1;
+            const quint64 a = v.put(from, solidClip(10, 10));
+            const quint64 b = v.put(from, solidClip(30, 10));
+            v.f.selection.setClips({a, b});
+            v.dragWithModifiers(v.at(15, from), v.at(15, to), Qt::AltModifier);
+            QCOMPARE(layout(v.f.view(), from), QStringLiteral("10:10 30:10"));
+            QCOMPARE(layout(v.f.view(), to), QStringLiteral("10:10 30:10"));
+            QCOMPARE(v.f.selection.clips().size(), 2);
+            KK_VERIFY_TIMELINE(v.f.view());
+        }
+    }
+
+    void altDragAudioOnlyToAnotherTrack()
+    {
+        for (const bool up : {true, false}) {
+            View v;
+            const TrackRef from = up ? kA1 : kA2, to = up ? kA2 : kA1;
+            v.put(from, solidClip(10, 20));
+            v.dragWithModifiers(v.at(20, from), v.at(30, to), Qt::AltModifier);
+            QCOMPARE(layout(v.f.view(), from), QStringLiteral("10:20"));
+            QCOMPARE(layout(v.f.view(), to), QStringLiteral("20:20"));
+            KK_VERIFY_TIMELINE(v.f.view());
+        }
     }
 
     void moveSnapsToEdges()
