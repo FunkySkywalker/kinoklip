@@ -10,6 +10,9 @@ name: ARM64 release
 # Base image: Debian 13 (trixie), see packaging/linux/readme.md, "ARM64".
 
 on:
+  push: # TEMPORARY test trigger on this branch (a workflow can only be dispatched once it is on main); remove before merging
+    branches: [arm64-release]
+    paths: [".github/workflows/arm64-release.yml", "scripts/package_linux.sh", "scripts/check_bundle.sh", "packaging/linux/**"]
   workflow_dispatch:
     inputs:
       tag:
