@@ -14,7 +14,9 @@
    Edit, Color, Deliver, Media are fine; "Fusion", "Fairlight" are not). Every new asset gets a row
    in [attribution.md](../attribution.md) with its author and licence.
 5. Write tests for logic (`tests/<area>/test_*.cpp`) and run them before committing; see
-   [building.md](building.md).
+   [building.md](building.md); give each new test a group in `tests/groups.cmake`
+   (`scripts/test.sh quick|full|release`, see "Test groups" in building.md). Before a release run
+   `scripts/test.sh release` on a quiet machine.
    After changing [roadmap.md](roadmap.md) or [effects-library-status.md](effects-library-status.md),
    run `python3 scripts/status.py`: it redraws the status picture and the table in the readme
    (`--check` runs as the ctest `check_status`).

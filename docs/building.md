@@ -17,6 +17,26 @@ podman exec -w "$PWD" kk-arch ./build-arch/kinoklip [project.kkproj]     # needs
 CMake reports `KDE Frameworks 6 (Breeze colour schemes + icons): ON`. Release AppImage
 (`dist/Kinoklip-x86_64.AppImage`) from the container: see [packaging/linux/readme.md](../packaging/linux/readme.md).
 
+## Test groups
+
+Every test has exactly one ctest label, set from the lists in `tests/groups.cmake`:
+
+| Group | Contents | Command | Target time (-j2) |
+| --- | --- | --- | --- |
+| `quick` | seconds-long logic and UI tests: core, editops, timeline, serialization, parity, vim, panels | `scripts/test.sh quick` (`ctest -L quick`) | about 4 minutes |
+| `full` | quick plus slower tests that are not real-time (whole-window pages, stabilizer, process-level, render) | `scripts/test.sh full` (`ctest -LE release`) | about 15 minutes |
+| `release` | everything, including real-time playback, speed and timing tests (test_cutperf, test_keyframecut, test_pageturnplayback, test_cutlookahead, test_editplaying, soak, anything over a minute) | `scripts/test.sh release` (plain `ctest`) | about 25 minutes, quiet machine |
+
+Day to day: `scripts/test.sh quick`. Before a commit that touches shared code: `full`. Before a
+release: `release` on a quiet machine (the timing tests fail under load), plus the leak checks in
+[contributing.md](contributing.md). `scripts/test.sh` takes more ctest arguments
+(`scripts/test.sh quick -R timeline`); `KK_JOBS` sets the job count (default 2).
+
+A new test must be added to one of the three lists in `tests/groups.cmake`; the ctest
+`check_test_groups` fails for a test in no list or in two. Put a test in `release` when it plays
+video in real time or asserts on speed or timing; in `full` when it runs longer than about 5 s;
+otherwise in `quick`.
+
 ## Fallback: host toolchain without KF6 (e.g. Linux Mint 22: Qt 6.4.2, FFmpeg 6.1)
 
 Requirements: CMake >= 3.24, Ninja, a C++20 compiler, Qt 6.4+ (Core, Gui, Widgets, Multimedia,

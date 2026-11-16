@@ -67,8 +67,9 @@ Free models make plausible mistakes. These rules exist to catch them.
    old one was wrong. If an existing test fails, your change is wrong until proven otherwise.
 3. Run the tests related to your change, plus the neighbouring tests of the same area:
    `KK_NO_AUDIO=1 ctest --test-dir build -R '<pattern>' --output-on-failure`.
-   Before saying you are done, run the whole suite once:
-   `KK_NO_AUDIO=1 ctest --test-dir build -j3 -E '^test_cutperf$'`.
+   Before saying you are done, run `scripts/test.sh quick` (day to day) or `scripts/test.sh full`
+   (shared code); the groups are described in docs/building.md, "Test groups". New tests go into
+   a group in `tests/groups.cmake`.
    Changed playback, render, media or viewer code: also run `scripts/check_leaks.sh` (in the
    container) and `ctest -L soak` (docs/contributing.md, "Memory leaks").
    Quote the exact failure text in your report; a rerun overwrites the log.

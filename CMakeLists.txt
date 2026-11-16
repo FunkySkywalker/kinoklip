@@ -223,9 +223,9 @@ foreach(test_src ${KK_TESTS})
   set_tests_properties(${test_name} PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen" TIMEOUT ${KK_TEST_TIMEOUT})
 endforeach()
 
-# The memory soak is a long run of its own: `ctest -L soak` (docs/contributing.md, "Memory leaks").
+# The memory soak (also labelled release below) is a long run of its own: `ctest -L soak` (docs/contributing.md, "Memory leaks").
 if(TARGET test_memorysoak)
-  set_tests_properties(test_memorysoak PROPERTIES LABELS soak TIMEOUT 900)
+  set_tests_properties(test_memorysoak PROPERTIES TIMEOUT 900)
 endif()
 
 # test_cli runs the built application as a process.
@@ -274,6 +274,31 @@ if(KK_WESTON AND KK_XVFB AND KK_XDOTOOL)
   set_tests_properties(test_wayland_session PROPERTIES
     ENVIRONMENT "KK_NO_AUDIO=1;KK_XDISPLAY=:88;KK_WESTON_LOG=${CMAKE_BINARY_DIR}/weston-test.log"
     TIMEOUT 300 RUN_SERIAL TRUE)
+endif()
+
+# Test groups: every test gets exactly one of quick / full / release (tests/groups.cmake,
+# docs/building.md "Test groups"). A test in no list gets the label "ungrouped" and
+# check_test_groups fails.
+include(${CMAKE_SOURCE_DIR}/tests/groups.cmake)
+get_property(KK_ALL_TESTS DIRECTORY PROPERTY TESTS)
+foreach(t ${KK_ALL_TESTS})
+  set(KK_GROUP ungrouped)
+  if(t IN_LIST KK_TESTS_RELEASE)
+    set(KK_GROUP release)
+  elseif(t IN_LIST KK_TESTS_FULL)
+    set(KK_GROUP full)
+  elseif(t IN_LIST KK_TESTS_QUICK)
+    set(KK_GROUP quick)
+  endif()
+  if(t STREQUAL "test_memorysoak")
+    set(KK_GROUP "${KK_GROUP};soak")
+  endif()
+  set_tests_properties(${t} PROPERTIES LABELS "${KK_GROUP}")
+endforeach()
+if(Python3_Interpreter_FOUND)
+  add_test(NAME check_test_groups
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/scripts/check_test_groups.py ${CMAKE_BINARY_DIR})
+  set_tests_properties(check_test_groups PROPERTIES LABELS quick)
 endif()
 
 # Helper for the nested Wayland session checks (scripts/wayland_dnd_check.sh): an external drag
