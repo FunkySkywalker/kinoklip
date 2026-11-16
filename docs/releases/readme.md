@@ -14,6 +14,10 @@ Run the memory checks first ([contributing.md](../contributing.md#memory-leaks))
 - `Kinoklip-x86_64.AppImage.zsync` (Gear Lever and [AppImageUpdate](https://github.com/AppImageCommunity/AppImageUpdate) find updates through it;
   without it the update check fails)
 - `SHA256SUMS.txt` (`sha256sum Kinoklip-x86_64.AppImage > SHA256SUMS.txt`)
+- `Kinoklip-aarch64.AppImage` and `Kinoklip-aarch64.AppImage.zsync` (ARM64): not made locally.
+  `scripts/publish_release.sh` starts the GitHub workflow `arm64-release.yml` after publishing; it
+  builds on GitHub's ARM runner, adds both files to the release and appends their lines to
+  `SHA256SUMS.txt`. Check the run finished (`gh run list --workflow arm64-release.yml`) before announcing.
 
 Both made by `scripts/package_linux.sh` in the container, see
 [packaging/linux/readme.md](../../packaging/linux/readme.md). Keep the file names without the
@@ -35,6 +39,8 @@ not need that, but it skips pre-releases, and every release is a pre-release for
 3. Run it: from the menu, by double-clicking the file, or `./Kinoklip-x86_64.AppImage`.
 
 Needs: x86_64 Linux, OpenGL 3.3, FUSE (on almost every desktop system). **If double-clicking shows nothing, FUSE is missing** (the AppImage runtime then only prints to a terminal): install `fuse3` (Debian/Ubuntu: `sudo apt install fuse3`), or run `./Kinoklip-x86_64.AppImage --appimage-extract-and-run` in a terminal. Wayland and X11. `SHA256SUMS.txt` has checksums.
+
+ARM64 (aarch64) computers: download `Kinoklip-aarch64.AppImage` from the same release instead (it appears a few hours after the x86_64 file) and use it the same way. Add this line to the block once the ARM64 file is attached.
 
 Coming from 0.4.0 or older (the `.run` file): the old menu entry still points at it. Remove it with `./Kinoklip-x86_64.run --uninstall-desktop-entry` (or delete `~/.local/share/applications/org.kinoklip.Kinoklip.desktop`); `./Kinoklip-x86_64.run --uninstall-cache` frees the unpacked copies in `~/.cache/kinoklip`.
 ```

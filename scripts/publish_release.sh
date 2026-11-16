@@ -3,6 +3,8 @@
 # points at the releases page, so it needs no update.) Run from the repository root after packaging:
 #   scripts/publish_release.sh v1.1.0-beta.1 "Kinoklip 1.1.0 Beta"
 # Before it: scripts/test.sh release (quiet machine), scripts/check_leaks.sh and `ctest -L soak` pass (docs/contributing.md, "Memory leaks").
+# Afterwards it starts the ARM64 build (.github/workflows/arm64-release.yml, GitHub's ARM runner),
+# which adds Kinoklip-aarch64.AppImage(.zsync) to the release; it needs the workflow on main.
 # Needs: gh (logged in), dist/Kinoklip-x86_64.AppImage(.zsync), dist/SHA256SUMS.txt and
 # docs/releases/<tag>.md.
 set -eu
@@ -23,5 +25,11 @@ echo "Tag $tag -> $(git rev-list -n1 "$tag")"
 git push origin "$tag"
 gh release create "$tag" --latest --title "$title" --notes-file "$notes" \
     dist/Kinoklip-x86_64.AppImage dist/Kinoklip-x86_64.AppImage.zsync dist/SHA256SUMS.txt
+
+# ARM64: only the release file is built on GitHub (free ARM runner); it is added to this release
+# (with its .zsync and a line in SHA256SUMS.txt) when the workflow finishes, about an hour.
+# Not an error if it cannot be started: run the same command later.
+gh workflow run arm64-release.yml --ref main -f tag="$tag" ||
+    echo "Could not start the ARM64 build; run: gh workflow run arm64-release.yml --ref main -f tag=$tag" >&2
 
 echo "Published $title: https://github.com/SeniorMatt/kinoklip/releases/tag/$tag"
