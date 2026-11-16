@@ -23,8 +23,8 @@ Every test has exactly one ctest label, set from the lists in `tests/groups.cmak
 
 | Group | Contents | Command | Target time (-j2) |
 | --- | --- | --- | --- |
-| `quick` | seconds-long logic and UI tests: core, editops, timeline, serialization, parity, vim, panels | `scripts/test.sh quick` (`ctest -L quick`) | about 4 minutes |
-| `full` | quick plus slower tests that are not real-time (whole-window pages, stabilizer, process-level, render) | `scripts/test.sh full` (`ctest -LE release`) | about 15 minutes |
+| `quick` | seconds-long logic and UI tests: core, editops, timeline, serialization, parity, vim, panels | `scripts/test.sh quick` (`ctest -L quick`) | about 3 minutes |
+| `full` | quick plus slower tests that are not real-time (whole-window pages, stabilizer, process-level, render) | `scripts/test.sh full` (`ctest -LE release`) | about 7 minutes |
 | `release` | everything, including real-time playback, speed and timing tests (test_cutperf, test_keyframecut, test_pageturnplayback, test_cutlookahead, test_editplaying, soak, anything over a minute) | `scripts/test.sh release` (plain `ctest`) | about 25 minutes, quiet machine |
 
 Day to day: `scripts/test.sh quick`. Before a commit that touches shared code: `full`. Before a

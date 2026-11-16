@@ -409,6 +409,58 @@ private slots:
         QCOMPARE(layout(v.f.view(), kV1), QStringLiteral("10:15 35:20"));
     }
 
+    // Owner reports 1.8.2: a ripple trim by mouse moves every sync-locked track the same way
+    // (Trim tool, Selection tool with ripple edge trims as on the Cut page), the locked and the
+    // sync-off tracks stay; no gap or overlap appears.
+    void rippleTrimByMouseKeepsSyncLockedTracksInSync_data()
+    {
+        QTest::addColumn<bool>("trimTool");
+        QTest::addColumn<bool>("head");
+        QTest::addColumn<int>("frames");
+        QTest::newRow("trim tool tail shorter") << true << false << -6;
+        QTest::newRow("trim tool tail longer") << true << false << 7;
+        QTest::newRow("trim tool head shorter") << true << true << 5;
+        QTest::newRow("selection tool tail shorter") << false << false << -6;
+        QTest::newRow("selection tool head shorter") << false << true << 5;
+    }
+    void rippleTrimByMouseKeepsSyncLockedTracksInSync()
+    {
+        QFETCH(bool, trimTool);
+        QFETCH(bool, head);
+        QFETCH(int, frames);
+        View v;
+        TimelineViewOptions options;
+        options.rippleEdgeTrims = true;
+        v.w.setViewOptions(options);
+        const quint64 a = v.put(kV1, solidClip(20, 30));
+        const quint64 b = v.put(kA1, solidClip(20, 30));
+        ops::linkClips(v.f.data(), {a, b});
+        v.put(kV1, solidClip(60, 10));
+        v.put(kV2, solidClip(10, 70)); // spans the whole edit
+        v.put(kA2, solidClip(55, 20)); // starts after the edit point
+        v.f.data().audioTracks[1].syncLock = false; // A2 holds its place
+        v.f.data().videoTracks[1].syncLock = true;
+        if (trimTool)
+            v.c.setTool(TimelineTool::Trim);
+        const QPoint edge = head ? v.at(20, kV1) + QPoint(2, 0) : v.at(50, kV1) - QPoint(2, 0);
+        v.drag(edge, edge + QPoint(frames * 10, 0));
+        const TimelineData& d = v.f.view();
+        KK_VERIFY_TIMELINE(d);
+        QCOMPARE(layout(d, kA2), QStringLiteral("55:20")); // sync lock off: untouched
+        // The linked pair trims together and V1's next clip follows by the same amount.
+        const int64_t shift = head ? -frames : frames;
+        QCOMPARE(d.videoTracks[0].clips.back().start, int64_t(60 + shift));
+        // V2 (sync lock on): shorter = the same frames leave it; longer = it is cut at the edit
+        // point and the later half moves right, a gap opens.
+        int64_t total = 0;
+        for (const ClipData& c : d.videoTracks[1].clips)
+            total += c.duration;
+        QCOMPARE(total, shift < 0 ? int64_t(70 + shift) : int64_t(70));
+        if (shift > 0)
+            QCOMPARE(d.videoTracks[1].clips.back().start, int64_t(50 + shift));
+        QCOMPARE(d.videoTracks[1].clips.front().start, int64_t(10));
+    }
+
     void rollAtEditPointInTrimTool()
     {
         View v;

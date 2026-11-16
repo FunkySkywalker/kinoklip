@@ -518,8 +518,8 @@ CommandResult runSet(CommandContext& ctx, const CommandArgs& args)
     runEdit(&project, QStringLiteral("Set Clip"), [&](TimelineData& data) {
         ClipData* clip = ops::clipById(data, id);
         if (args.has(QStringLiteral("speed"))) {
-            for (quint64 other : speedIds)
-                timelineedit::applyClipSpeed(data, other, args.number(QStringLiteral("speed")));
+            const double speed = args.number(QStringLiteral("speed"));
+            timelineedit::applyClipSpeedsSynced(data, speedIds, [speed](const ClipData&) { return speed; });
             clip = ops::clipById(data, id);
         }
         if (args.has(QStringLiteral("volume")))

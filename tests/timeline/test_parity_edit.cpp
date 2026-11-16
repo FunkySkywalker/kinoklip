@@ -201,7 +201,9 @@ private slots:
         QCOMPARE(layout(t.f.view(), kV1), QStringLiteral("0:10 10:20"));
         QCOMPARE(layout(t.f.view(), kA1), QStringLiteral("20:10"));
         QCOMPARE(t.f.view().markIn, int64_t(-1));
-        QCOMPARE(t.tl()->playhead(), int64_t(10));
+        // Changed on purpose (owner: "ripple cut jumps me to a random place"): a playhead after
+        // the range stays on its picture (35 - 10 = 25), it does not jump to the in point.
+        QCOMPARE(t.tl()->playhead(), int64_t(25));
         QCOMPARE(t.undoCount(), before + 1);
         // A selection wins over the marks.
         t.setMarks(0, 5);
@@ -209,6 +211,21 @@ private slots:
         t.f.selection.setClips({last});
         t.action("edit.ripple_delete")->trigger();
         QCOMPARE(layout(t.f.view(), kV1), QStringLiteral("0:10"));
+    }
+
+    void spec10_8_playheadAfterRangeDelete()
+    {
+        // Inside the range the playhead goes to the cut, before it it stays, after it it moves
+        // with its picture; never anywhere else (owner: ripple cut "jumps to a random place").
+        for (const auto& [playhead, expected] : {std::pair<int64_t, int64_t> {12, 10}, {2, 2},
+                 {10, 10}, {20, 10}, {30, 20}}) {
+            Ctl t;
+            t.put(kV1, solidClip(0, 40));
+            t.setMarks(10, 20);
+            t.tl()->setPlayhead(playhead);
+            t.action("edit.ripple_cut")->trigger();
+            QCOMPARE(t.tl()->playhead(), expected);
+        }
     }
 
     void spec10_9_rippleCutClipsAndPasteBack()
@@ -240,7 +257,7 @@ private slots:
         t.action("edit.ripple_cut")->trigger();
         QCOMPARE(layout(t.f.view(), kV1), QStringLiteral("0:10 10:20"));
         QCOMPARE(t.c.clipboard().duration, int64_t(10));
-        QCOMPARE(t.tl()->playhead(), int64_t(10));
+        QCOMPARE(t.tl()->playhead(), int64_t(0)); // it was before the range: stays
         // Nothing selected, no marks: nothing happens and no undo step.
         const int before = t.undoCount();
         t.action("edit.ripple_cut")->trigger();

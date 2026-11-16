@@ -8,7 +8,9 @@
 #include "core/Retime.h"
 #include "core/Timeline.h"
 
+#include <QSet>
 #include <QString>
+#include <QVector>
 
 #include <algorithm>
 #include <cmath>
@@ -37,7 +39,10 @@ bool runEdit(Project* project, const QString& label, Fn&& fn)
 /// Plays clip @p clipId at @p speed (1.0 = normal): the same source material, so the duration
 /// scales by old / new speed, limited by the media; later clips on its track ripple.
 /// Returns whether anything changed (false for a locked track or an unchanged speed).
-inline bool applyClipSpeed(TimelineData& data, quint64 clipId, double speed)
+/// @p lengthChange, when given, receives the change of the clip's length (the ripple of its own
+/// track is done here; the other sync-locked tracks are applyClipSpeedsSynced()'s job).
+inline bool applyClipSpeed(
+    TimelineData& data, quint64 clipId, double speed, int64_t* lengthChange = nullptr)
 {
     const ClipData* c = editops::clipById(data, clipId);
     const auto loc = editops::findClip(data, clipId);
@@ -51,6 +56,8 @@ inline bool applyClipSpeed(TimelineData& data, quint64 clipId, double speed)
         frames = std::clamp<int64_t>(available, 1, frames);
     }
     const int64_t delta = frames - c->duration;
+    if (lengthChange)
+        *lengthChange = delta;
     // Shrink at the old speed first / grow at the new one, so the clip never shows media past
     // its end.
     if (delta < 0)
@@ -59,6 +66,47 @@ inline bool applyClipSpeed(TimelineData& data, quint64 clipId, double speed)
     if (delta > 0)
         editops::trimTail(data, clipId, delta, true);
     return true;
+}
+
+/// Gives every clip of @p ids the speed @p speedFor(clip) (<= 0: skipped) like applyClipSpeed(),
+/// and lets the other sync-locked tracks follow the length change (spec 97.13): a clip and its
+/// linked partners in @p ids with the same end and length change together in ONE ripple (one by
+/// one, each would shift the other tracks again). Returns whether anything changed.
+template <class SpeedFor>
+inline bool applyClipSpeedsSynced(
+    TimelineData& data, const QVector<quint64>& ids, SpeedFor&& speedFor)
+{
+    bool any = false;
+    QSet<quint64> done;
+    for (quint64 id : ids) {
+        const ClipData* c = editops::clipById(data, id);
+        if (!c || done.contains(id))
+            continue;
+        QVector<quint64> group {id};
+        for (quint64 other : editops::linkedClips(data, id)) {
+            const ClipData* o = editops::clipById(data, other);
+            if (other != id && ids.contains(other) && o && o->end() == c->end()
+                && o->duration == c->duration && !done.contains(other))
+                group.append(other);
+        }
+        for (quint64 g : std::as_const(group))
+            done.insert(g);
+        const int64_t point = c->end();
+        int64_t shift = 0;
+        for (quint64 g : std::as_const(group)) {
+            const ClipData* gc = editops::clipById(data, g);
+            const double speed = gc ? speedFor(*gc) : 0.0;
+            int64_t change = 0;
+            if (speed > 0.0 && applyClipSpeed(data, g, speed, &change)) {
+                any = true;
+                if (shift == 0)
+                    shift = change;
+            }
+        }
+        if (shift != 0)
+            editops::rippleSyncApply(data, group, point, shift);
+    }
+    return any;
 }
 
 /// Paste attributes > Speed: gives clip @p clipId the retime of @p source (constant speed via

@@ -45,6 +45,18 @@ bool TimelineController::hasMarkedRange() const
 
 // ---- Delete, ripple delete, ripple cut ----
 
+namespace {
+/// Where the playhead goes when [in, out) is ripple deleted with nothing selected: it stays on
+/// the same picture (earlier: unchanged; later: moves left with it; inside: the cut point), so
+/// a stale In/Out range somewhere else does not throw it across the timeline.
+int64_t playheadAfterRangeRemoval(int64_t playhead, int64_t in, int64_t out)
+{
+    if (playhead < in)
+        return playhead;
+    return playhead < out ? in : playhead - (out - in);
+}
+} // namespace
+
 void TimelineController::deleteSelection()
 {
     // Keys selected on their own (a volume key on a level line, spec 31.2): delete them.
@@ -111,6 +123,7 @@ void TimelineController::rippleDeleteSelection()
         const TimelineData& d = timeline()->data();
         const int64_t in = d.markIn;
         const int64_t out = d.markOut;
+        const int64_t playhead = timeline()->playhead();
         const bool changed = runEdit(project(), tr("Ripple Delete Range"), [&](TimelineData& data) {
             if (!ops::extractRange(data, in, out, ops::autoSelectTracks()))
                 return false;
@@ -119,7 +132,7 @@ void TimelineController::rippleDeleteSelection()
             return true;
         });
         if (changed)
-            setPlayheadAfterEdit(in);
+            setPlayheadAfterEdit(playheadAfterRangeRemoval(playhead, in, out));
         return;
     }
     // Nothing selected: optionally (EditBehaviour) ripple delete the clips under the playhead
@@ -171,6 +184,7 @@ void TimelineController::rippleCut()
     const TimelineData& d = timeline()->data();
     const int64_t in = d.markIn;
     const int64_t out = d.markOut;
+    const int64_t playhead = timeline()->playhead();
     const ops::Clipboard board = ops::copyRange(d, in, out, ops::autoSelectTracks());
     if (board.isEmpty())
         return; // nothing to cut (an empty range is not put on the clipboard)
@@ -183,7 +197,7 @@ void TimelineController::rippleCut()
     });
     if (changed) {
         m_clipboard = board;
-        setPlayheadAfterEdit(in);
+        setPlayheadAfterEdit(playheadAfterRangeRemoval(playhead, in, out));
     }
 }
 
@@ -231,6 +245,7 @@ void TimelineController::cut()
     const TimelineData& d = timeline()->data();
     const int64_t in = d.markIn;
     const int64_t out = d.markOut;
+    const int64_t playhead = timeline()->playhead();
     const ops::Clipboard board = ops::copyRange(d, in, out, ops::autoSelectTracks());
     if (board.isEmpty())
         return;
@@ -493,10 +508,11 @@ bool TimelineController::setSelectionDuration(int64_t frames)
             // ONE ripple, as the Trim tool does: trimmed one by one, each would ripple the other
             // sync-locked tracks again (shifted twice, a gap left; owner report 1.8.1).
             QVector<quint64> group {id};
+            // (Linked Selection off: the partners are other tracks like any, no group.)
             for (quint64 other : ops::linkedClips(data, id)) {
                 const ClipData* o = ops::clipById(data, other);
-                if (other != id && o && o->end() == c->end() && o->duration == c->duration
-                    && !done.contains(other))
+                if (m_linked && other != id && o && o->end() == c->end()
+                    && o->duration == c->duration && !done.contains(other))
                     group.append(other);
             }
             for (quint64 g : std::as_const(group))
@@ -517,18 +533,13 @@ bool TimelineController::nudgeSelectionSpeed(int deltaPercent)
         return false;
     const QString label = deltaPercent > 0 ? tr("Increase Clip Speed") : tr("Decrease Clip Speed");
     return runEdit(project(), label, [&](TimelineData& data) {
-        bool any = false;
-        for (quint64 id : ids) {
-            const ClipData* c = ops::clipById(data, id);
-            if (!c || !(c->speed > 0.0) || retime::hasCurve(*c))
-                continue;
+        return timelineedit::applyClipSpeedsSynced(data, ids, [&](const ClipData& c) {
+            if (!(c.speed > 0.0) || retime::hasCurve(c))
+                return 0.0;
             // Whole tenths of a percent, so repeated nudges do not drift (1.1 + 0.1 ...).
-            const double speed
-                = std::clamp(std::round(c->speed * 1000.0 + deltaPercent * 10.0) / 1000.0,
-                    kMinNudgedSpeed, kMaxNudgedSpeed);
-            any |= timelineedit::applyClipSpeed(data, id, speed);
-        }
-        return any;
+            return std::clamp(std::round(c.speed * 1000.0 + deltaPercent * 10.0) / 1000.0,
+                kMinNudgedSpeed, kMaxNudgedSpeed);
+        });
     });
 }
 
@@ -538,10 +549,8 @@ bool TimelineController::setSelectionSpeed(double speed)
     if (ids.isEmpty() || !(speed > 0.0))
         return false;
     return runEdit(project(), tr("Change Clip Speed"), [&](TimelineData& data) {
-        bool any = false;
-        for (quint64 id : ids)
-            any |= timelineedit::applyClipSpeed(data, id, speed);
-        return any;
+        return timelineedit::applyClipSpeedsSynced(
+            data, ids, [speed](const ClipData&) { return speed; });
     });
 }
 

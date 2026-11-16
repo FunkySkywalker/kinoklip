@@ -53,6 +53,10 @@ bool applyToGroup(TimelineData& data, quint64 clipId, const ClipEdit& edit)
     if (ids.isEmpty())
         return false;
     bool changed = false;
+    // The other sync-locked tracks follow the length change once, at the first edited clip's
+    // old end (the partners have the same edge and length; spec 97.4, 97.13).
+    int64_t syncPoint = 0;
+    int64_t syncShift = 0;
     for (quint64 id : ids) {
         const auto loc = editops::findClip(data, id);
         TrackData& track = *data.track(loc->track);
@@ -70,8 +74,14 @@ bool applyToGroup(TimelineData& data, quint64 clipId, const ClipEdit& edit)
         const int64_t applied = *delta;
         for (size_t i = size_t(loc->clipIndex) + 1; i < track.clips.size(); ++i)
             track.clips[i].start += applied;
+        if (applied != 0 && syncShift == 0) {
+            syncPoint = before.end();
+            syncShift = applied;
+        }
         changed |= clip != before || applied != 0;
     }
+    if (syncShift != 0)
+        editops::rippleSyncApply(data, ids, syncPoint, syncShift);
     return changed;
 }
 
