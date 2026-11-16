@@ -197,11 +197,19 @@ fi
 if [ -n "$IMAGE" ]; then
     upd="$("$IMAGE" --appimage-updateinformation 2>/dev/null || true)"
     echo "update information: ${upd:-none}"
-    case "$upd" in
-    gh-releases-zsync\|*) ;;
-    *) appdir_fail "no gh-releases-zsync update information embedded" ;;
+    case "$(basename "$IMAGE")" in
+    Kinoklip-dev-*) # a local dev build (scripts/dev_build.sh) must not update from or to the release
+        [ -z "$upd" ] || appdir_fail "a dev AppImage must have no update information"
+        [ ! -f "$IMAGE.zsync" ] || appdir_fail "a dev AppImage must have no .zsync"
+        ;;
+    *)
+        case "$upd" in
+        gh-releases-zsync\|*) ;;
+        *) appdir_fail "no gh-releases-zsync update information embedded" ;;
+        esac
+        [ -f "$IMAGE.zsync" ] || appdir_fail "no $(basename "$IMAGE").zsync next to the AppImage"
+        ;;
     esac
-    [ -f "$IMAGE.zsync" ] || appdir_fail "no $(basename "$IMAGE").zsync next to the AppImage"
 fi
 
 echo "checking ${#ELFS[@]} ELF files in $B"

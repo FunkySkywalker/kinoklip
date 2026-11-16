@@ -19,6 +19,11 @@
 #   KK_JOBS           parallel build jobs (default: 4)
 #   KK_TOOLS_CACHE    where the pinned appimagetool + runtime are cached (default: .cache/appimage-tools)
 #   KK_UPDATE_INFO    update information embedded in the AppImage ("" = none)
+#   KK_DEV_BUILD      short commit: makes a local dev package (scripts/dev_build.sh). Stamps the
+#                     app (--version, About: "<version> dev (<commit>)"), writes no update
+#                     information and no .zsync, names the file Kinoklip-dev-<version>-<commit>-
+#                     x86_64.AppImage. Unset (the default) = the release package, unchanged.
+#   KK_DIST_DIR       output directory (default: dist; dev_build.sh uses dist/dev)
 #   KK_COMPRESSION    zstd | xz | gzip for --run / --tarball (default: zstd if present)
 #   KK_ZSTD_LEVEL     zstd level of the AppImage squashfs and --run / --tarball (default: 19)
 #   KK_QT_PLUGINS     host Qt plugin dir (default: from qtpaths6)
@@ -36,7 +41,8 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PKG="$ROOT/packaging/linux"
 BUILD_DIR="${KK_BUILD_DIR:-$ROOT/build}"
-DIST="$ROOT/dist"
+DIST="${KK_DIST_DIR:-$ROOT/dist}"
+DEV_COMMIT="${KK_DEV_BUILD:-}"
 APPDIR="$DIST/kinoklip-x86_64"
 APP_ID="org.kinoklip.Kinoklip"
 
@@ -455,6 +461,10 @@ PRERELEASE="$(sed -n 's/.*prerelease = "\([^"]*\)".*/\1/p' "$ROOT/src/app/AppInf
 TAG="v$VERSION${PRERELEASE:+-$PRERELEASE}"
 FULL_VERSION="${TAG#v}" # as the app shows it, e.g. 0.4.1-alpha.1
 install -m 755 "$PKG/apprun.sh" "$APPDIR/AppRun"
+if [ -n "$DEV_COMMIT" ]; then # read by appinfo::devBuildCommit()
+    mkdir -p "$APPDIR/usr/share/kinoklip"
+    echo "$DEV_COMMIT" >"$APPDIR/usr/share/kinoklip/dev-build"
+fi
 # X-AppImage-Version: the version Gear Lever / appimaged show (after [Desktop Entry]'s keys).
 {
     cat "$PKG/$APP_ID.desktop"
@@ -615,6 +625,10 @@ RUNTIME_SHA256=2fca8b443c92510f1483a883f60061ad09b46b978b2631c807cd873a47ec260d
 # pre-releases; "latest-all" takes the newest release, pre-release or not.
 UPDATE_INFO="${KK_UPDATE_INFO-gh-releases-zsync|SeniorMatt|kinoklip|latest-all|Kinoklip-*x86_64.AppImage.zsync}"
 APPIMAGE="$DIST/Kinoklip-x86_64.AppImage"
+if [ -n "$DEV_COMMIT" ]; then # a dev build never updates itself to or from the release channel
+    UPDATE_INFO=""
+    APPIMAGE="$DIST/Kinoklip-dev-$FULL_VERSION-$DEV_COMMIT-x86_64.AppImage"
+fi
 TOOLS="${KK_TOOLS_CACHE:-$ROOT/.cache/appimage-tools}"
 
 # fetch <url> <sha256> <dest>: download once, verify every time.

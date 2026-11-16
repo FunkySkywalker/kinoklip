@@ -32,6 +32,27 @@ release: `release` on a quiet machine (the timing tests fail under load), plus t
 [contributing.md](contributing.md). `scripts/test.sh` takes more ctest arguments
 (`scripts/test.sh quick -R timeline`); `KK_JOBS` sets the job count (default 2).
 
+## Local dev builds
+
+`scripts/dev_build.sh` makes a test AppImage on this computer, for trying new work before a
+release (nothing goes to GitHub): it builds `build-arch-release` in the container, runs a test
+group, packages and checks the bundle, and prints the path and size of
+`dist/dev/Kinoklip-dev-<version>-<commit>-x86_64.AppImage`. The newest 3 are kept.
+
+| Option | Effect |
+| --- | --- |
+| (none) | build, `full` tests, package |
+| `--quick` | `quick` tests instead of `full` |
+| `--no-tests` | skip the tests |
+| `--force` | package even if tests fail |
+
+A dev AppImage carries no update information and no `.zsync`, so it never updates itself to or
+from the release channel. `--version` and Help > About show `<version> dev (<commit>)`
+(`-dirty` after the commit when tracked files have uncommitted changes). The stamp is a file in
+the bundle (`usr/share/kinoklip/dev-build`, written when `package_linux.sh` runs with
+`KK_DEV_BUILD=<commit>`), so the release build directory is never reconfigured and
+`scripts/package_linux.sh` without it makes the release package as before.
+
 A new test must be added to one of the three lists in `tests/groups.cmake`; the ctest
 `check_test_groups` fails for a test in no list or in two. Put a test in `release` when it plays
 video in real time or asserts on speed or timing; in `full` when it runs longer than about 5 s;
