@@ -385,7 +385,8 @@ bool VimTimelineHost::operate(const VimOperation& operation)
     const bool ripple = operation.op == VimOp::Delete;
     const bool changed
         = timelineedit::runEdit(project, QObject::tr("Vim command"), [&](TimelineData& d) {
-              return ripple ? ops::extractRange(d, range.start, range.end, filter)
+              // A ripple also moves every other unlocked sync-locked track (spec 97.16)
+              return ripple ? ops::extractRangeSynced(d, range.start, range.end, filter)
                             : ops::liftRange(d, range.start, range.end, filter);
           });
     if (!changed) {

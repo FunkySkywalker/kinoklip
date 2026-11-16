@@ -295,6 +295,10 @@ bool liftRange(TimelineData& data, int64_t in, int64_t out, const TrackFilter& f
 /// Extract (ripple delete of a range): like liftRange(), then every later clip on the same
 /// tracks moves left by out - in. Returns whether anything changed.
 bool extractRange(TimelineData& data, int64_t in, int64_t out, const TrackFilter& filter = {});
+/// extractRange() on the tracks accepted by @p filter, and on every other unlocked track whose
+/// Sync Lock is on: those lose the same frames, so they stay in sync (spec 97.11, 97.16).
+/// Locked tracks and tracks with Sync Lock off that @p filter does not accept stay.
+bool extractRangeSynced(TimelineData& data, int64_t in, int64_t out, const TrackFilter& filter);
 /// Clipboard holding the parts of the clips inside [@p in, @p out) on the tracks accepted by
 /// @p filter (clips straddling the edges are cut at them). Its origin is @p in, so pasting
 /// keeps empty room at the start of the range; duration = out - in.

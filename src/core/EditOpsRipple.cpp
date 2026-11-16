@@ -183,6 +183,15 @@ bool extractRange(TimelineData& data, int64_t in, int64_t out, const TrackFilter
     return changed;
 }
 
+bool extractRangeSynced(TimelineData& data, int64_t in, int64_t out, const TrackFilter& filter)
+{
+    if (!filter)
+        return extractRange(data, in, out);
+    return extractRange(data, in, out, [filter](TrackRef ref, const TrackData& t) {
+        return t.syncLock || filter(ref, t);
+    });
+}
+
 Clipboard copyRange(const TimelineData& data, int64_t in, int64_t out, const TrackFilter& filter)
 {
     if (in < 0 || out <= in)

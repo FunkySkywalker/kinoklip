@@ -963,18 +963,50 @@ private slots:
         r.type(QStringLiteral("dw")); // frames 10..40 of V1
         QCOMPARE(r.layout(Rig::kV1), QStringLiteral("0:10 10:40 50:40"));
         QCOMPARE(r.layout(Rig::kA1), QStringLiteral("0:10 10:40 50:40")); // linked: same frames
-        QCOMPARE(r.layout(Rig::kV2), QStringLiteral("20:40")); // not touched
+        // sync-locked V2 (20..60) loses the same frames 20..40 and moves left (spec 97.16, 97.11)
+        QCOMPARE(r.layout(Rig::kV2), QStringLiteral("10:20"));
         QCOMPARE(r.steps(), 1);
         QCOMPARE(r.f.project.timeline()->playhead(), int64_t(10));
         r.undo();
         QCOMPARE(r.layout(Rig::kV1), QStringLiteral("0:40 40:40 80:40"));
         QCOMPARE(r.layout(Rig::kA1), QStringLiteral("0:40 40:40 80:40"));
-        // without linked selection only the cursor track changes
+        // without linked selection the partner is not part of the range, but sync-locked A1
+        // follows like any other track (spec 97.16, 97.11)
         r.controller.setLinkedSelection(false);
         r.at(10);
         r.type(QStringLiteral("dw"));
         QCOMPARE(r.layout(Rig::kV1), QStringLiteral("0:10 10:40 50:40"));
+        QCOMPARE(r.layout(Rig::kA1), QStringLiteral("0:10 10:40 50:40"));
+        r.undo();
+        // Sync Lock off: A1 stays (97.11)
+        r.f.data().audioTracks[0].syncLock = false;
+        r.type(QStringLiteral("dw"));
+        QCOMPARE(r.layout(Rig::kV1), QStringLiteral("0:10 10:40 50:40"));
         QCOMPARE(r.layout(Rig::kA1), QStringLiteral("0:40 40:40 80:40"));
+        r.undo();
+        // a locked track stays whatever its Sync Lock
+        r.f.data().audioTracks[0].syncLock = true;
+        r.f.data().audioTracks[0].locked = true;
+        r.type(QStringLiteral("dw"));
+        QCOMPARE(r.layout(Rig::kA1), QStringLiteral("0:40 40:40 80:40"));
+    }
+
+    void rangeDeleteKeepsSyncLockedTracksNotInTheRangeInSync()
+    {
+        // `d` with a motion and a visual delete are one range ripple (spec 97.16)
+        Rig r;
+        r.controller.setLinkedSelection(false);
+        r.at(10);
+        r.type(QStringLiteral("dl")); // frame 10 of V1 only; V2 starts at 20 and moves left
+        QCOMPARE(r.layout(Rig::kV2), QStringLiteral("19:40"));
+        QCOMPARE(r.layout(Rig::kA1), r.layout(Rig::kV1));
+        r.undo();
+        r.at(10);
+        r.type(QStringLiteral("vl")); // visual: frames 10..11
+        r.type(QStringLiteral("d"));
+        QCOMPARE(r.layout(Rig::kV2), QStringLiteral("18:40"));
+        QCOMPARE(r.layout(Rig::kA1), r.layout(Rig::kV1));
+        r.undo();
     }
 
     void changeLeavesAGapAndEntersInsert()
@@ -1163,8 +1195,16 @@ private slots:
         // an auto-select off track is left alone
         r.f.data().videoTracks[1].autoSelect = false; // V2
         r.at(30);
+        r.f.data().videoTracks[1].syncLock = false;
         r.type(QStringLiteral("dim"));
         QCOMPARE(r.layout(Rig::kV2), QStringLiteral("20:40"));
+        r.undo();
+        // Auto Select off but Sync Lock on: the track follows the ripple, like the In / Out
+        // range delete (spec 97.16)
+        r.f.data().videoTracks[1].syncLock = true;
+        r.at(30);
+        r.type(QStringLiteral("dim"));
+        QCOMPARE(r.layout(Rig::kV2), QString());
         r.undo();
         // the In / Out range
         r.f.data().videoTracks[1].autoSelect = true;
@@ -1235,7 +1275,8 @@ private slots:
         r.type(QStringLiteral("d"));
         QCOMPARE(r.layout(Rig::kV1), QStringLiteral("0:10 10:28 38:40 78:40"));
         QCOMPARE(r.layout(Rig::kA1), QStringLiteral("0:10 10:28 38:40 78:40"));
-        QCOMPARE(r.layout(Rig::kV2), QStringLiteral("20:40"));
+        // sync-locked V2 loses the same two frames and moves left (spec 97.16)
+        QCOMPARE(r.layout(Rig::kV2), QStringLiteral("18:40"));
         QCOMPARE(r.steps(), 1);
     }
 

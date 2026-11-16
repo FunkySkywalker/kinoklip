@@ -65,7 +65,7 @@ def build():
         "`operator` + text object, for example `\"a3dw`, `d]]`, `yiw`, `cip`. An operator key typed twice",
         "(`dd`, `yy`, `cc`) works on the clip under the cursor. The operators are `d` (ripple delete), `c`",
         "(delete leaving a gap, then INSERT) and `y` (copy). The rows marked *after an operator* are the",
-        "motions and text objects an operator accepts. `.` repeats the last change.",
+        "motions and text objects an operator accepts. A ripple delete keeps every other unlocked track with Sync Lock on in sync, as Ripple Delete does: it loses the same frames. `.` repeats the last change.",
         "",
         "Panels are the windows: `<C-h/j/k/l>` and `<C-w>` + `h j k l w W p o = c` move the focus between them,",
         "`<leader>w` + a letter focuses a named panel, `gt` / `gT` / `{n}gt` change the page. In a list, tree or",

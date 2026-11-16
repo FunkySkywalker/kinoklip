@@ -159,6 +159,25 @@ private slots:
         QVERIFY(!ops::extractRange(d, 20, 10));
     }
 
+    void extractRangeSyncedMovesEverySyncLockedTrack()
+    {
+        // Spec 97.16: the filter's tracks and every other unlocked sync-locked track lose the
+        // range; locked and Sync Lock off tracks outside the filter stay.
+        TimelineData d = timeline();
+        ops::overwriteClip(d, kV1, mediaClip(0, 40, 0, 100));
+        ops::overwriteClip(d, kV2, mediaClip(5, 30)); // spans 10..20, sync on
+        ops::overwriteClip(d, kA1, mediaClip(30, 10)); // after the range, sync off
+        ops::overwriteClip(d, kA2, mediaClip(0, 50)); // locked
+        d.audioTracks[0].syncLock = false;
+        d.audioTracks[1].locked = true;
+        QVERIFY(ops::extractRangeSynced(d, 10, 20, ops::trackSetFilter({kV1})));
+        QCOMPARE(layout(d, kV1), QStringLiteral("0:10 10:20"));
+        QCOMPARE(layout(d, kV2), QStringLiteral("5:5 10:15"));
+        QCOMPARE(layout(d, kA1), QStringLiteral("30:10"));
+        QCOMPARE(layout(d, kA2), QStringLiteral("0:50"));
+        KK_VERIFY_INVARIANTS(d);
+    }
+
     void copyRangeKeepsLeadingRoom()
     {
         TimelineData d = timeline();

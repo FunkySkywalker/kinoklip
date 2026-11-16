@@ -8,6 +8,7 @@
 #include "ui/effects/EffectActions.h"
 #include "core/RetimeOps.h"
 #include "ui/timeline/TimelineController.h"
+#include "ui/timeline/VimTimelineHost.h"
 
 #include <QJsonArray>
 #include <QMap>
@@ -883,7 +884,7 @@ private slots:
             const ClipData* p = ops::clipById(before, id);
             if (!p)
                 continue;
-            const int which0 = rng.bounded(11);
+            const int which0 = rng.bounded(12);
             QVector<quint64> picked {id};
             if (const int more = rng.bounded(3); which0 < 2 && more > 0)
                 picked += pickSome(rng, before, more); // several clips, audio only or not
@@ -892,7 +893,7 @@ private slots:
             const bool linked = rng.bounded(4) != 0;
             c.setLinkedSelection(linked);
             const QVector<quint64> group = linked ? ops::withLinkedClips(before, picked) : picked;
-            const QSet<TrackKey> excluded = tracksOf(before, group);
+            QSet<TrackKey> excluded = tracksOf(before, group);
             const int64_t oldStart = p->start;
             const int64_t oldEnd = p->end();
             const int64_t oldDur = p->duration;
@@ -949,6 +950,26 @@ private slots:
                 }
                 break;
             }
+            case 11: { // Vim `d` on a frame range of the cursor track(s): every sync-locked track follows
+                excluded.clear();
+                c.connectActions();
+                VimTimelineHost host(f.ctx, &c);
+                VimOperation op;
+                op.op = VimOp::Delete;
+                op.range.start = rng.bounded(80);
+                op.range.end = op.range.start + 1 + rng.bounded(30);
+                op.range.trackFirst = rng.bounded(host.trackCount());
+                op.range.trackLast = op.range.trackFirst;
+                map = rangesMap({{op.range.start, op.range.end}});
+                // Tracks with Sync Lock off may or may not be in the range: not checked here
+                for (TrackType type : {TrackType::Video, TrackType::Audio})
+                    for (size_t i = 0; i < before.tracks(type).size(); ++i)
+                        if (!before.tracks(type)[i].syncLock)
+                            excluded.insert(keyOf(TrackRef {type, int(i)}));
+                if (!host.operate(op)) // a locked cursor track: the command is refused, nothing moves
+                    map = identityMap();
+                break;
+            }
             default: { // Alt+drag-free ripple delete of the clips under the playhead (no selection)
                 f.selection.clear();
                 f.project.timeline()->setPlayhead(oldStart + 1);
@@ -965,7 +986,7 @@ private slots:
             }
             if (which == 9 && pastedAt >= 0)
                 map = lengthenMap(pastedAt, pastedLength);
-            if (which >= 2 && which != 9 && which != 10) {
+            if (which >= 2 && which != 9 && which != 10 && which != 11) {
                 // The selected clip may sit on a locked track while its linked partner is trimmed.
                 for (quint64 g : group) {
                     const ClipData* o = ops::clipById(before, g);

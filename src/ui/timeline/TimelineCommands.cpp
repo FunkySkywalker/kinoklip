@@ -125,7 +125,7 @@ void TimelineController::rippleDeleteSelection()
         const int64_t out = d.markOut;
         const int64_t playhead = timeline()->playhead();
         const bool changed = runEdit(project(), tr("Ripple Delete Range"), [&](TimelineData& data) {
-            if (!ops::extractRange(data, in, out, ops::autoSelectTracks()))
+            if (!ops::extractRangeSynced(data, in, out, ops::autoSelectTracks()))
                 return false;
             data.markIn = -1; // the range no longer exists
             data.markOut = -1;
@@ -189,7 +189,7 @@ void TimelineController::rippleCut()
     if (board.isEmpty())
         return; // nothing to cut (an empty range is not put on the clipboard)
     const bool changed = runEdit(project(), tr("Ripple Cut"), [&](TimelineData& data) {
-        if (!ops::extractRange(data, in, out, ops::autoSelectTracks()))
+        if (!ops::extractRangeSynced(data, in, out, ops::autoSelectTracks()))
             return false;
         data.markIn = -1;
         data.markOut = -1;
