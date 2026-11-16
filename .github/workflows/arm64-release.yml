@@ -46,6 +46,7 @@ jobs:
       CMAKE_C_COMPILER_LAUNCHER: ccache
       KK_BUILD_DIR: ${{ github.workspace }}/build-arm64
       KK_JOBS: 4
+      CMAKE_PREFIX_PATH: /opt/onnxruntime
     steps:
       - name: Install build tools and libraries
         run: |
@@ -60,8 +61,15 @@ jobs:
             libkf6colorscheme-dev libkf6iconthemes-dev breeze breeze-icon-theme \
             libavformat-dev libavcodec-dev libavutil-dev libswscale-dev libswresample-dev \
             libavfilter-dev libheif-dev libraw-dev
-          apt-get install -y --no-install-recommends libonnxruntime-dev \
-            || echo "no libonnxruntime-dev: Background Removal is built unavailable"
+          # ONNX Runtime (Background Removal): Microsoft's release (MIT, CPU), pinned and checked.
+          # Debian's libonnxruntime-dev loads onnx twice (libonnx.so + its own copy) and aborts at
+          # start with a protobuf descriptor error, so it is not used.
+          ORT=1.22.0
+          ORT_SHA256=bb76395092d150b52c7092dc6b8f2fe4d80f0f3bf0416d2f269193e347e24702
+          curl -fsSL --retry 3 -o /tmp/ort.tgz \
+            "https://github.com/microsoft/onnxruntime/releases/download/v$ORT/onnxruntime-linux-aarch64-$ORT.tgz"
+          echo "$ORT_SHA256  /tmp/ort.tgz" | sha256sum -c -
+          mkdir -p /opt/onnxruntime && tar -xzf /tmp/ort.tgz -C /opt/onnxruntime --strip-components=1
           gcc --version | head -1; cmake --version | head -1; qtpaths6 --version || true
           pkg-config --modversion libavcodec libheif libraw_r
 
