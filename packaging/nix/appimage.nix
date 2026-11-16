@@ -28,6 +28,9 @@ appimageTools.wrapType2 {
   inherit pname version src;
 
   # The AppImage carries its own libraries; the host GPU drivers must be visible inside the sandbox.
+  # The package brings its own menu entry: the AppImage's launcher must not install another.
+  profile = "export KINOKLIP_NO_DESKTOP_ENTRY=1";
+
   extraPkgs = pkgs: [ pkgs.libva pkgs.libglvnd pkgs.mesa ];
 
   extraInstallCommands = ''
