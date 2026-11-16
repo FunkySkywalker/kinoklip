@@ -50,6 +50,28 @@ a few real advantages there:
 - **Free and open source (GPL-3.0)**
 - **The same layout and shortcuts as Resolve**
 
+## Nix / NixOS
+
+The repository is a Nix flake (x86_64 and aarch64 Linux), built from source with nixpkgs libraries:
+
+```sh
+nix run github:SeniorMatt/kinoklip                  # try it
+nix profile install github:SeniorMatt/kinoklip      # install it
+nix run github:SeniorMatt/kinoklip#appimage         # the release AppImage instead
+```
+
+On NixOS, add it as a flake input and install it system-wide (`hardware.graphics.enable = true;`
+gives it OpenGL and VAAPI):
+
+```nix
+{
+  inputs.kinoklip.url = "github:SeniorMatt/kinoklip";
+  # in the module list: ({ pkgs, ... }: {
+  #   environment.systemPackages = [ inputs.kinoklip.packages.${pkgs.system}.default ];
+  # })
+}
+```
+
 ## Screenshots
 
 <details>

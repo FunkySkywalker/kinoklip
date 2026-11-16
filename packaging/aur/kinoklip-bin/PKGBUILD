@@ -1,0 +1,64 @@
+# Maintainer: SeniorMatt <https://github.com/SeniorMatt>
+pkgname=kinoklip-bin
+_name=kinoklip
+pkgver=1.9.0
+pkgrel=1
+pkgdesc='Video editor with the layout and shortcuts of DaVinci Resolve (release AppImage, extracted)'
+arch=('x86_64' 'aarch64')
+url='https://github.com/SeniorMatt/kinoklip'
+license=('GPL-3.0-or-later')
+# The AppImage carries Qt, FFmpeg and every other library; only the C library and the host's
+# GPU drivers are used from the system. The AppImage is extracted, so FUSE is not needed.
+depends=('glibc')
+optdepends=('mesa: OpenGL and VAAPI on AMD and Intel GPUs'
+            'libva-mesa-driver: VAAPI hardware decoding on AMD'
+            'intel-media-driver: VAAPI hardware decoding on recent Intel GPUs'
+            'xdg-desktop-portal: native file dialogs on Wayland')
+provides=('kinoklip')
+conflicts=('kinoklip')
+options=('!strip' '!debug')
+source_x86_64=("${_name}-${pkgver}-x86_64.AppImage::${url}/releases/download/v${pkgver}/Kinoklip-x86_64.AppImage")
+source_aarch64=("${_name}-${pkgver}-aarch64.AppImage::${url}/releases/download/v${pkgver}/Kinoklip-aarch64.AppImage")
+# From the release's SHA256SUMS.txt
+sha256sums_x86_64=('5c4b3f182b225216640fa61094d00eb72f839f88deb3592cb7a32df177eed5b6')
+sha256sums_aarch64=('2dbd507dce30477db285cf6a1eb50197db72a76cf8701ef4280396ce0ca185de')
+
+prepare() {
+    # --appimage-extract needs no FUSE; it writes squashfs-root/ in the current directory.
+    chmod +x "${_name}-${pkgver}-${CARCH}.AppImage"
+    "./${_name}-${pkgver}-${CARCH}.AppImage" --appimage-extract >/dev/null
+}
+
+package() {
+    cd "$srcdir/squashfs-root"
+
+    install -d "$pkgdir/opt/$_name"
+    cp -a --no-preserve=ownership . "$pkgdir/opt/$_name/"
+    chmod -R u+rwX,go+rX,go-w "$pkgdir/opt/$_name"
+    # the root-level copies are symlinks/duplicates of usr/share files installed below
+    rm -f "$pkgdir/opt/$_name/org.kinoklip.Kinoklip.desktop" "$pkgdir/opt/$_name/org.kinoklip.Kinoklip.png"
+
+    # Launcher. The package installs the menu entry itself, so the AppRun's own is switched off.
+    install -d "$pkgdir/usr/bin"
+    cat >"$pkgdir/usr/bin/$_name" <<'EOF'
+#!/bin/sh
+export KINOKLIP_NO_DESKTOP_ENTRY=1
+exec /opt/kinoklip/AppRun "$@"
+EOF
+    chmod 755 "$pkgdir/usr/bin/$_name"
+
+    install -Dm644 usr/share/applications/org.kinoklip.Kinoklip.desktop \
+        "$pkgdir/usr/share/applications/org.kinoklip.Kinoklip.desktop"
+    install -Dm644 usr/share/mime/packages/org.kinoklip.Kinoklip.xml \
+        "$pkgdir/usr/share/mime/packages/org.kinoklip.Kinoklip.xml"
+    install -Dm644 usr/share/metainfo/org.kinoklip.Kinoklip.appdata.xml \
+        "$pkgdir/usr/share/metainfo/org.kinoklip.Kinoklip.metainfo.xml"
+
+    local size
+    for size in 16 24 32 48 64 128 256 512; do
+        install -Dm644 "usr/share/icons/hicolor/${size}x${size}/apps/org.kinoklip.Kinoklip.png" \
+            "$pkgdir/usr/share/icons/hicolor/${size}x${size}/apps/org.kinoklip.Kinoklip.png"
+    done
+
+    install -Dm644 usr/share/doc/kinoklip/license.md "$pkgdir/usr/share/licenses/$pkgname/license.md"
+}
