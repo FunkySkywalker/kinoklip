@@ -23,7 +23,9 @@
 let
   # The version is read from project(... VERSION x.y.z) in CMakeLists.txt, the single source.
   cmakeText = builtins.readFile (src + "/CMakeLists.txt");
-  version = builtins.head (builtins.match "[\\s\\S]*project\\(\\$\\{APP_NAME\\} VERSION ([0-9.]+) [\\s\\S]*" cmakeText);
+  versionLine = lib.findFirst (l: builtins.match "project\\(.* VERSION [0-9.]+ .*" l != null) null
+    (lib.splitString "\n" cmakeText);
+  version = builtins.head (builtins.match ".* VERSION ([0-9.]+) .*" versionLine);
 in
 stdenv.mkDerivation {
   pname = "kinoklip";
