@@ -85,7 +85,7 @@ public:
     /// Spline tools (Step In, Reverse, Time Stretch, Loop, Sel / All / None, Time and Value boxes)
     /// are shown. Edits are the Edit page's (paths "node/<id>/<key>", one undo step each).
     void attachComposition(CompSession* session, View view);
-    [[nodiscard]] bool isCompositionPanel() const { return m_session != nullptr; }
+    [[nodiscard]] bool isCompositionPanel() const { return !m_session.isNull(); }
 
     /// The timeline view shows frames [@p firstFrame, @p lastFrame] (Follow Timeline mode).
     void setTimelineView(double firstFrame, double lastFrame);
