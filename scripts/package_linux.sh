@@ -526,14 +526,19 @@ LICENSES="$APPDIR/usr/share/doc/kinoklip/licenses"
 pkg_of() {
     local f
     f="$(readlink -f "$1")"
+    # Microsoft's ONNX Runtime release unpacked to /opt/onnxruntime (the ARM64 workflow; Debian's
+    # own package loads onnx twice and aborts at start): not a distribution package.
+    case "$f" in /opt/onnxruntime/*) echo onnxruntime-official; return 0 ;; esac
     if command -v pacman >/dev/null; then
         pacman -Qqo "$f" 2>/dev/null | head -n1
     elif command -v dpkg >/dev/null; then
-        dpkg -S "$f" 2>/dev/null | head -n1 | cut -d: -f1
+        dpkg -S "$f" 2>/dev/null | head -n1 | cut -d: -f1 || true
     fi
 }
 pkg_version() {
-    if command -v pacman >/dev/null; then
+    if [ "$1" = onnxruntime-official ]; then
+        cat /opt/onnxruntime/VERSION_NUMBER
+    elif command -v pacman >/dev/null; then
         pacman -Q "$1" 2>/dev/null | cut -d' ' -f2
     else
         dpkg-query -W -f='${Version}' "$1" 2>/dev/null
@@ -584,6 +589,9 @@ copy_licence() {
             log "note: $pkg ships no licence text, using packaging/linux/licenses/$pkg"
         fi
         have_text "$LICENSES/$pkg" || die "no licence text for bundled package $pkg"
+    elif [ "$pkg" = onnxruntime-official ]; then
+        mkdir -p "$LICENSES/$pkg"
+        cp -L /opt/onnxruntime/LICENSE /opt/onnxruntime/ThirdPartyNotices.txt "$LICENSES/$pkg/"
     elif [ -s "/usr/share/doc/$pkg/copyright" ]; then
         cp -L "/usr/share/doc/$pkg/copyright" "$LICENSES/$pkg.copyright"
     else
