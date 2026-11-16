@@ -141,16 +141,18 @@ Shipped in 1.4 ([release notes](releases/v1.4.0.md)):
 
 - [ ] Edit: ripple audit: every ripple delete, ripple cut and ripple trim entry point (Edit and Cut page, mouse, keys, menus) keeps all sync-locked tracks in sync
 - [ ] Edit: Alt-drag copy of a clip to another track shows up there
-- [ ] Color: Blur / Sharpen / Mist palette on the Color page, so a window can blur part of the picture
-- [ ] Color: AgX colour management (user request)
 - [ ] Platform: AppImage for ARM64 (user request)
 - [ ] Playback: 10-bit HEVC (4K drone footage) decodes on Intel graphics without copying each frame to system memory
+- [ ] Edit: several edit points selected and trimmed together
+
+## The version after that
+
+- [ ] Color: Blur / Sharpen / Mist palette on the Color page, so a window can blur part of the picture
 - [ ] Audio: noise reduction with a local, open model (RNNoise / DeepFilterNet, spectral gate fallback)
 - [ ] Audio: Effects Library and Inspector on the Audio page, effect slots on mixer tracks
 - [ ] Audio: Normalize a whole track or bus / the main mix to a loudness target in one step
 - [ ] Background Removal: Keep / Remove brush to correct the model by hand
 - [ ] Media: New Fusion Clip, and Fusion / compound clips as Media Pool entries you can drag to the timeline
-- [ ] Edit: several edit points selected and trimmed together
 - [ ] Platform: nightly builds on GitHub (a Nightly pre-release once a day)
 - [ ] Titles: underline and strikethrough
 
@@ -170,6 +172,7 @@ Rule for every AI-assisted tool: optional, clearly labelled, downloaded only whe
 Planned, not started. Compare each page with Resolve and add most of what is missing, starting
 when the owner asks for it.
 
+- [ ] Color: AgX colour management (user request; undecided whether to add it)
 - [x] Website on GitHub Pages (starts when the owner says): home page with a Download button for the latest AppImage, the guide as searchable pages built from docs/guide, new screenshots in Breeze Dark with real (not generated) people in the sample footage, and a simple bug report form that opens a GitHub issue for people who have no GitHub account
 
 - [ ] Audio: Bounce Mix to Track and Bounce Selected Tracks (Timeline menu): render the whole mix, or each selected track with its effects, into a new audio track as one clip
