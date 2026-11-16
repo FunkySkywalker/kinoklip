@@ -146,6 +146,7 @@ Shipped in 1.4 ([release notes](releases/v1.4.0.md)):
 - [ ] Edit: several edit points selected and trimmed together
 - [ ] Performance: Kinoklip uses less memory (measure what holds RAM and VRAM while editing and playing: frame caches, decoders, thumbnails, waveforms, undo history), so it runs well on low-end computers
 - [ ] Tests: quick, full and release test groups, so day-to-day builds run only the quick tests
+- [ ] Platform: dev builds: a test AppImage built on our own computer (not on GitHub servers) with the quick and full tests, for trying new work before a release
 
 ## The version after that
 
@@ -173,7 +174,6 @@ Rule for every AI-assisted tool: optional, clearly labelled, downloaded only whe
 Planned, not started. Compare each page with Resolve and add most of what is missing, starting
 when the owner asks for it.
 
-- [ ] Platform: nightly builds on GitHub (not needed for now)
 - [ ] Color: AgX colour management (user request; undecided whether to add it)
 - [x] Website on GitHub Pages (starts when the owner says): home page with a Download button for the latest AppImage, the guide as searchable pages built from docs/guide, new screenshots in Breeze Dark with real (not generated) people in the sample footage, and a simple bug report form that opens a GitHub issue for people who have no GitHub account
 
