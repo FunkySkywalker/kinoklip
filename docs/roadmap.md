@@ -139,6 +139,12 @@ Shipped in 1.4 ([release notes](releases/v1.4.0.md)):
 
 ## Next version (after 1.8.x)
 
+- [ ] Edit: ripple audit: every ripple delete, ripple cut and ripple trim entry point (Edit and Cut page, mouse, keys, menus) keeps all sync-locked tracks in sync
+- [ ] Edit: Alt-drag copy of a clip to another track shows up there
+- [ ] Color: Blur / Sharpen / Mist palette on the Color page, so a window can blur part of the picture
+- [ ] Color: AgX colour management (user request)
+- [ ] Platform: AppImage for ARM64 (user request)
+- [ ] Playback: 10-bit HEVC (4K drone footage) decodes on Intel graphics without copying each frame to system memory
 - [ ] Audio: noise reduction with a local, open model (RNNoise / DeepFilterNet, spectral gate fallback)
 - [ ] Audio: Effects Library and Inspector on the Audio page, effect slots on mixer tracks
 - [ ] Audio: Normalize a whole track or bus / the main mix to a loudness target in one step
