@@ -210,7 +210,8 @@ int VideoFrameFactory::copyMapped(AVFrame* dst, const AVFrame* hwFrame)
     // without DIRECT - copies the surface into a VAImage (vaCreateImage + vaGetImage) and maps
     // that. `mapped` holds a reference to the hardware frame until it is freed below, so the
     // surface cannot return to the decoder's pool while we copy; the caller (VideoDecoder)
-    // holds the device's call lock (HwDeviceManager::callLock) around the whole download.
+    // holds the device's call lock (HwDeviceManager::callLock) around the download; the copy
+    // below runs with it released (see setHeldLock()), mapping and unmapping with it held.
     static const bool disabled
         = qEnvironmentVariable("KINOKLIP_VAAPI_COPY") == QLatin1String("transfer");
     if (m_mapFailed || disabled) {
@@ -234,6 +235,13 @@ int VideoFrameFactory::copyMapped(AVFrame* dst, const AVFrame* hwFrame)
         m_mapFailed = true; // do not retry every frame
         return AVERROR(ENOSYS);
     }
+    // The mapping is a private buffer of the VAImage: no libva call is needed to read it, so
+    // the other decoders of this device may use it meanwhile (idea: mpv's vaapi hwdec copies
+    // outside its display lock, hwdec_vaapi.c / hwdec_vaapi_mapper).
+    const bool relock = m_heldLock && m_heldLock->owns_lock();
+    if (relock) {
+        m_heldLock->unlock();
+    }
     ptrdiff_t dstLines[4] = {};
     ptrdiff_t srcLines[4] = {};
     for (int i = 0; i < 4; ++i) {
@@ -242,6 +250,10 @@ int VideoFrameFactory::copyMapped(AVFrame* dst, const AVFrame* hwFrame)
     }
     av_image_copy_uc_from(dst->data, dstLines, const_cast<const uint8_t**>(mapped->data), srcLines,
         AVPixelFormat(dst->format), dst->width, dst->height);
+    if (relock) {
+        m_heldLock->lock(); // unmapping (vaUnmapBuffer, vaDestroyImage) is a libva call
+    }
+    mapped.reset();
     return 0;
 }
 
@@ -336,6 +348,30 @@ void logExportFailure(const QString& why)
 }
 } // namespace
 
+namespace {
+/// What the driver exported, once per distinct layout and process (info level): the next bug
+/// report about a decoder that downloads says which tiling / compression the GPU got.
+void logExportLayout(const AVDRMFrameDescriptor& desc, bool is10, uint64_t modifier, int aux)
+{
+    static std::mutex mutex;
+    static QSet<QString> seen;
+    const QString text = QStringLiteral("%1, %2 layers, %3 objects, modifier 0x%4%5")
+                             .arg(is10 ? QStringLiteral("P010") : QStringLiteral("NV12"))
+                             .arg(desc.nb_layers)
+                             .arg(desc.nb_objects)
+                             .arg(modifier, 0, 16)
+                             .arg(aux > 0 ? QStringLiteral(" + %1 metadata plane(s)").arg(aux)
+                                          : QString());
+    {
+        const std::lock_guard lock(mutex);
+        if (seen.contains(text))
+            return;
+        seen.insert(text);
+    }
+    qCInfo(lcMedia).noquote() << "zero-copy decoding: DMA-BUF layout of the decoder surfaces:" << text;
+}
+} // namespace
+
 std::shared_ptr<const VideoFrame> VideoFrameFactory::makeDmaBuf(
     const AVFrame* hwFrame, const FrameMeta& meta)
 {
@@ -385,12 +421,31 @@ std::shared_ptr<const VideoFrame> VideoFrameFactory::makeDmaBuf(
     // Flatten layers -> planes: separate layers (one plane each) or one layer with two planes.
     auto dmabuf = std::make_shared<DmaBufFrame>();
     const uint32_t formats[2] = {is10 ? kDrmR16 : kDrmR8, is10 ? kDrmGr1616 : kDrmGr88};
+    // With one layer per plane (what FFmpeg asks the driver for) a second memory plane inside a
+    // layer is the compression metadata of that image; with one layer for the whole picture the
+    // two planes are luma and chroma.
+    const bool separate = desc->nb_layers >= 2;
     for (int l = 0; l < desc->nb_layers; ++l) {
         for (int p = 0; p < desc->layers[l].nb_planes; ++p) {
             const AVDRMPlaneDescriptor& plane = desc->layers[l].planes[p];
-            if (dmabuf->planeCount >= 2 || plane.object_index < 0
-                || plane.object_index >= desc->nb_objects) {
-                return fail(QStringLiteral("unexpected layout"));
+            if (plane.object_index < 0 || plane.object_index >= desc->nb_objects) {
+                return fail(QStringLiteral("unexpected layout (plane %1 of layer %2 names object "
+                                           "%3 of %4)")
+                                .arg(p).arg(l).arg(plane.object_index).arg(desc->nb_objects));
+            }
+            if (separate && p > 0 && dmabuf->planeCount > 0) {
+                DmaBufFrame::Plane& main = dmabuf->planes[size_t(dmabuf->planeCount - 1)];
+                if (main.auxCount >= 2) {
+                    return fail(QStringLiteral("unexpected layout (%1 memory planes in layer %2)")
+                                    .arg(desc->layers[l].nb_planes).arg(l));
+                }
+                main.aux[size_t(main.auxCount++)] = {desc->objects[plane.object_index].fd,
+                    uint32_t(plane.offset), uint32_t(plane.pitch)};
+                continue;
+            }
+            if (dmabuf->planeCount >= 2) {
+                return fail(QStringLiteral("unexpected layout (more than 2 planes: %1 layers)")
+                                .arg(desc->nb_layers));
             }
             const AVDRMObjectDescriptor& object = desc->objects[plane.object_index];
             DmaBufFrame::Plane& out = dmabuf->planes[size_t(dmabuf->planeCount)];
@@ -405,8 +460,9 @@ std::shared_ptr<const VideoFrame> VideoFrameFactory::makeDmaBuf(
         }
     }
     if (dmabuf->planeCount != 2) {
-        return fail(QStringLiteral("%1 planes").arg(dmabuf->planeCount));
+        return fail(QStringLiteral("%1 planes in %2 layers").arg(dmabuf->planeCount).arg(desc->nb_layers));
     }
+    logExportLayout(*desc, is10, dmabuf->planes[0].modifier, dmabuf->planes[0].auxCount);
     std::shared_ptr<AVFrame> owner(drm.release(), [](AVFrame* f) { av_frame_free(&f); });
     dmabuf->owner = owner;
     // Fallback for a GPU that cannot import the buffers: the plain download of the same surface.
@@ -456,7 +512,9 @@ std::shared_ptr<const VideoFrame> VideoFrameFactory::make(
     if (!owned) {
         return nullptr;
     }
-    if (hardware) {
+    if (m_preview) {
+        countPreviewFrame();
+    } else if (hardware) {
         countDownloadedFrame(timer.nsecsElapsed() / 1000);
     } else {
         countSoftwareFrame();

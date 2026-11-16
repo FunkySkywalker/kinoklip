@@ -55,6 +55,22 @@ std::vector<int32_t> dmaBufImageAttributes(
         a.insert(a.end(),
             {kEglPlane0ModifierLo, EglInt(uint32_t(plane.modifier & 0xffffffffu)),
                 kEglPlane0ModifierHi, EglInt(uint32_t(plane.modifier >> 32))});
+        // Compression metadata planes (CCS) go in as planes 1 and 2 of the same image, each
+        // with the image's modifier (EGL_EXT_image_dma_buf_import_modifiers; mpv does the same
+        // in its dmabuf import for multi-plane layers).
+        struct PlaneKeys
+        {
+            EglInt fd, offset, pitch, modLo, modHi;
+        };
+        static constexpr PlaneKeys keys[2] = {{0x3275, 0x3276, 0x3277, 0x3445, 0x3446},
+            {0x3278, 0x3279, 0x327A, 0x3447, 0x3448}};
+        for (int i = 0; i < plane.auxCount && i < 2; ++i) {
+            const auto& aux = plane.aux[size_t(i)];
+            a.insert(a.end(),
+                {keys[i].fd, aux.fd, keys[i].offset, EglInt(aux.offset), keys[i].pitch,
+                    EglInt(aux.pitch), keys[i].modLo, EglInt(uint32_t(plane.modifier & 0xffffffffu)),
+                    keys[i].modHi, EglInt(uint32_t(plane.modifier >> 32))});
+        }
     }
     a.push_back(kEglNone);
     return a;

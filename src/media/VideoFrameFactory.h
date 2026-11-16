@@ -10,6 +10,7 @@
 
 #include <atomic>
 #include <memory>
+#include <mutex>
 
 namespace kk::media::detail {
 
@@ -55,6 +56,14 @@ public:
         return m_zeroCopy && !m_exportFailed && (!m_gate || m_gate->load());
     }
 
+    /// Frames of this factory are thumbnails, not playback (counted apart, DecodeStats.h).
+    void setPreview(bool preview) { m_preview = preview; }
+    /// The device call lock the caller holds around make(). The VAAPI download releases it while
+    /// it copies the mapped picture (10-25 ms for 4K: the other decoders of the device must not
+    /// wait for a memcpy that makes no libva call) and takes it again before unmapping. Null
+    /// (default): the lock is not touched.
+    void setHeldLock(std::unique_lock<std::mutex>* lock) { m_heldLock = lock; }
+
     /// Wraps/downloads/converts `decoded`. @return nullptr on failure (a failed hardware
     /// download means the caller should fall back to software decoding).
     std::shared_ptr<const VideoFrame> make(const AVFrame* decoded, const FrameMeta& meta);
@@ -82,6 +91,8 @@ private:
     std::shared_ptr<const VideoFrame> makeDmaBuf(const AVFrame* hwFrame, const FrameMeta& meta);
 
     bool m_zeroCopy = false;
+    bool m_preview = false;
+    std::unique_lock<std::mutex>* m_heldLock = nullptr; ///< see setHeldLock()
     std::shared_ptr<const std::atomic<bool>> m_gate;
     bool m_exportFailed = false; ///< export impossible for this stream: always download
     AVBufferPool* m_pool = nullptr;

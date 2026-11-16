@@ -442,7 +442,8 @@ std::shared_ptr<const VideoFrame> VideoDecoder::Impl::currentVideoFrame()
         meta.rotation = info.rotation;
         const bool hwFrame = cur.av->hw_frames_ctx != nullptr;
         {
-            const auto lock = hwFrame ? lockHw() : std::unique_lock<std::mutex>();
+            auto lock = hwFrame ? lockHw() : std::unique_lock<std::mutex>();
+            factory.setHeldLock(&lock);
             cur.video = factory.make(cur.av.get(), meta);
             if (!cur.video && hwFrame) {
                 // One retry: a transient failure (driver busy) succeeds now; a broken surface
@@ -454,6 +455,7 @@ std::shared_ptr<const VideoFrame> VideoDecoder::Impl::currentVideoFrame()
                         << "hardware frame download succeeded on retry after:" << first;
                 }
             }
+            factory.setHeldLock(nullptr);
         }
         if (!cur.video && activeHw != HwAccelMode::Off) {
             hwFailed = true; // download failed twice
@@ -530,6 +532,7 @@ VideoDecoder::~VideoDecoder() = default;
 void VideoDecoder::setThreadCount(int threads)
 {
     m_impl->threadCount = std::max(0, threads);
+    m_impl->factory.setPreview(threads == 1); // one codec thread = a thumbnail decoder
 }
 
 void VideoDecoder::setHwAccel(HwAccelMode mode)
@@ -602,6 +605,7 @@ void VideoDecoder::close()
     const std::optional<HwAccelMode> hw = m_impl->hwOverride;
     m_impl = std::make_unique<Impl>();
     m_impl->threadCount = threads;
+    m_impl->factory.setPreview(threads == 1);
     m_impl->hwOverride = hw;
 }
 

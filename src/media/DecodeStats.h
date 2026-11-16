@@ -19,6 +19,7 @@ struct DecodeCounters
     int64_t downloadUs = 0; ///< time spent copying them (incl. waiting for the GPU)
     int64_t softwareFrames = 0; ///< frames of software decoders returned to the compositor
     int64_t importFailures = 0; ///< DMA-BUF imports that failed on the GPU side (fell back)
+    int64_t previewFrames = 0; ///< frames of thumbnail / filmstrip decoders (any route; not playback)
 };
 
 /// Called by the decoder / renderer. Thread-safe and wait-free.
@@ -26,6 +27,9 @@ void countZeroCopyFrame(int64_t exportUs);
 void countDownloadedFrame(int64_t downloadUs);
 void countSoftwareFrame();
 void countImportFailure();
+/// A frame of a thumbnail decoder (one codec thread, see MediaCache): counted here instead of
+/// above, so the statistics of a playing clip are not mixed with the filmstrip jobs behind it.
+void countPreviewFrame();
 
 /// Current counters. Thread-safe.
 DecodeCounters decodeCounters();

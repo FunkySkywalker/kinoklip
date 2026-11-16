@@ -382,3 +382,6 @@ assert the exact frame.
 `AudioDecoder::setChannelMapping(ClipAttributes)`: Stereo / Mono routing of chosen source
 channels through an explicit 2 x N swresample matrix (`channelMatrix()` in core); Auto keeps the
 default layout. Changing it invalidates the buffered samples (the next read seeks exactly).
+
+## Zero-copy layout log and thumbnail counting
+The DMA-BUF layout the driver exports (format, layers, objects, modifier, compression metadata planes) is logged once per distinct layout (`logExportLayout`, VideoFrame.cpp). Metadata planes of a layer go to EGL as planes 1 and 2 with the same modifier (`DmaBufFrame::Plane::aux`). Frames of thumbnail decoders (one codec thread) are counted apart as `previewFrames` in DecodeStats, so playback statistics show only playback frames. The VAAPI download copy runs with the device call lock released (`VideoFrameFactory::setHeldLock`).

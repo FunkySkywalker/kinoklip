@@ -83,6 +83,17 @@ struct DmaBufFrame
         uint64_t modifier = 0; ///< DRM format modifier of the object (0 = linear)
         int width = 0; ///< plane size in samples
         int height = 0;
+        /// Extra memory planes of the same image: the compression metadata (CCS) of a tiled,
+        /// media-compressed surface (Intel Xe2 / Lunar Lake decoders export these). EGL wants them
+        /// as PLANE1 / PLANE2 of the image, with the same modifier (as mpv's dmabuf import does).
+        struct Aux
+        {
+            int fd = -1;
+            uint32_t offset = 0;
+            uint32_t pitch = 0;
+        };
+        std::array<Aux, 2> aux {};
+        int auxCount = 0;
     };
     int planeCount = 0;
     std::array<Plane, 3> planes {};

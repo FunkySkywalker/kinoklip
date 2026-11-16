@@ -15,6 +15,7 @@ struct Atomics
     std::atomic<int64_t> downloadUs {0};
     std::atomic<int64_t> softwareFrames {0};
     std::atomic<int64_t> importFailures {0};
+    std::atomic<int64_t> previewFrames {0};
 };
 
 Atomics& counters()
@@ -47,6 +48,11 @@ void countImportFailure()
     counters().importFailures.fetch_add(1, std::memory_order_relaxed);
 }
 
+void countPreviewFrame()
+{
+    counters().previewFrames.fetch_add(1, std::memory_order_relaxed);
+}
+
 DecodeCounters decodeCounters()
 {
     const Atomics& a = counters();
@@ -57,6 +63,7 @@ DecodeCounters decodeCounters()
     c.downloadUs = a.downloadUs.load(std::memory_order_relaxed);
     c.softwareFrames = a.softwareFrames.load(std::memory_order_relaxed);
     c.importFailures = a.importFailures.load(std::memory_order_relaxed);
+    c.previewFrames = a.previewFrames.load(std::memory_order_relaxed);
     return c;
 }
 
@@ -78,6 +85,9 @@ QString describeDecodeWindow(const DecodeCounters& from, const DecodeCounters& t
                        .arg(sw);
     if (const int64_t failed = to.importFailures - from.importFailures; failed > 0) {
         text += QStringLiteral(", %1 GPU imports failed").arg(failed);
+    }
+    if (const int64_t preview = to.previewFrames - from.previewFrames; preview > 0) {
+        text += QStringLiteral(", %1 thumbnail frames").arg(preview);
     }
     return text;
 }

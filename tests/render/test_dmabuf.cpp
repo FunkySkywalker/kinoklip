@@ -131,6 +131,23 @@ private slots:
         QCOMPARE(dmaBufImageAttributes(plane, true).back(), 0x3038);
     }
 
+    void compressionMetadataPlanesGoInAsPlanesOneAndTwo()
+    {
+        // Intel Xe2 (Lunar Lake) decode surfaces: tiled + media-compressed, the metadata
+        // plane is a second memory plane of the same image.
+        media::DmaBufFrame::Plane plane {
+            0x20363152, 17, 0, 8192, 0x0100000000000009ULL, 3840, 2160};
+        plane.aux[0] = {17, 33554432, 128};
+        plane.auxCount = 1;
+        const std::vector<int32_t> a = dmaBufImageAttributes(plane, true);
+        const std::vector<int32_t> expected = {0x3057, 3840, 0x3056, 2160, 0x3271, 0x20363152,
+            0x3272, 17, 0x3273, 0, 0x3274, 8192, 0x3443, 9, 0x3444, 0x01000000,
+            0x3275, 17, 0x3276, 33554432, 0x3277, 128, 0x3445, 9, 0x3446, 0x01000000, 0x3038};
+        QCOMPARE(a, expected);
+        // Without modifier support the metadata cannot be described: it is left out too.
+        QCOMPARE(dmaBufImageAttributes(plane, false).size(), size_t(13));
+    }
+
     void extensionNamesMatchWholeWords()
     {
         const QString list = QStringLiteral(
