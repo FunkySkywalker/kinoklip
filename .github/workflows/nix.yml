@@ -41,8 +41,9 @@ jobs:
         run: nix build .#appimage --print-build-logs -o result-appimage
 
       - name: Smoke test, AppImage wrapper
-        continue-on-error: true # needs user namespaces, which GitHub's Ubuntu may restrict
         run: |
+          # the AppImage runs in a bubblewrap sandbox; Ubuntu 24.04 restricts user namespaces by default
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
           result-appimage/bin/kinoklip --version
 
       - name: Show the flake lock
