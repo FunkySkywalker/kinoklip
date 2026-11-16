@@ -3,8 +3,6 @@ name: Nix
 # Checks the Nix flake (flake.nix): source build, release AppImage wrapper, smoke test.
 on:
   workflow_dispatch:
-  push:
-    branches: [nix-flake] # TEMPORARY: removed when the flake is merged
 
 permissions:
   contents: read
