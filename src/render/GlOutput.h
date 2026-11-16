@@ -58,6 +58,8 @@ public:
     static constexpr int kMaxSlots = 32;
     static constexpr int kMinSlots = 8;
     static constexpr int64_t kMaxSlotBytes = 640ll << 20;
+    /// kMaxSlotBytes scaled to the memory budget (core/MemoryBudget.h), at least 96 MiB.
+    [[nodiscard]] static int64_t maxSlotBytes();
 
 private:
     struct Slot

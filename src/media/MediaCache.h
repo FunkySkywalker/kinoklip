@@ -5,6 +5,7 @@
 #include "media/WaveformData.h"
 
 #include <QCache>
+#include <QTimer>
 #include <QHash>
 #include <QImage>
 #include <QMutex>
@@ -133,9 +134,15 @@ public:
     /// asked for again and rendered exact (thumbnailReady() tells the views to draw).
     void setPlaybackActive(bool active);
     [[nodiscard]] bool playbackActive() const { return m_playbackActive; }
+    /// Closes the decoders kept open between jobs (also done after a quiet spell) and returns
+    /// freed heap pages to the system.
+    void closeIdleDecoders();
     /// Decoders kept open for reuse, and tiles / waveforms held in memory (tests, leak checks).
     [[nodiscard]] int idleDecoderCount();
     [[nodiscard]] int cachedImageCount();
+    /// Bytes held by the tile cache and by the waveform cache (memory profile, tests).
+    [[nodiscard]] int64_t cachedImageBytes();
+    [[nodiscard]] int64_t cachedWaveformBytes();
     /// Number of parked jobs (tests).
     [[nodiscard]] int deferredJobCount() const;
     /// Number of image jobs asked for and not yet delivered (queued, parked or running; tests).
@@ -224,6 +231,7 @@ private:
     std::mutex m_decoderMutex;
     std::list<std::pair<QString, std::unique_ptr<VideoDecoder>>> m_idleDecoders; ///< MRU first
     std::atomic<PreviewDecoding> m_previewDecoding {PreviewDecoding::BySize};
+    QTimer m_idleDecoderTimer; ///< closes the idle decoders after a quiet spell
 };
 
 } // namespace kk::media

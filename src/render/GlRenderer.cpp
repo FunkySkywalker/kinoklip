@@ -327,6 +327,20 @@ ResourceStats GlRenderer::resources() const
         s.outputSlotBytes = o.bytes;
         s.outputSlotsStolen = o.stolen;
     }
+    // Video memory use (GL_NVX_gpu_memory_info: NVIDIA; other drivers do not say, see MemoryReport for DRM fdinfo).
+    if (m_context && QOpenGLContext::currentContext() == m_context.get()) {
+        constexpr GLenum kNvxAvailable = 0x9049, kNvxCurrentAvailable = 0x904A;
+        while (m_gl->glGetError() != GL_NO_ERROR) { }
+        GLint total = 0, now = 0;
+        if (m_context->hasExtension("GL_NVX_gpu_memory_info")) {
+            m_gl->glGetIntegerv(kNvxAvailable, &total);
+            m_gl->glGetIntegerv(kNvxCurrentAvailable, &now);
+            if (m_gl->glGetError() == GL_NO_ERROR && total > 0) {
+                s.gpuTotalMiB = total / 1024;
+                s.gpuUsedMiB = (total - now) / 1024;
+            }
+        }
+    }
     return s;
 }
 

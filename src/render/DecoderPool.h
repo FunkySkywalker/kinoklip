@@ -76,6 +76,9 @@ public:
     /// Open decoders at most (idle ones are closed, least recently used first, to open a new
     /// one; decoders in use or reserved are never closed, so a frame needing more still works).
     static constexpr int kMaxOpen = 8;
+    /// kMaxOpen on a machine with 8 GB or more, fewer below (a 4K decoder with its frame pool is
+    /// hundreds of MB in software); never fewer than 3, so a cut between two clips still works.
+    [[nodiscard]] static int openLimit();
     /// Preparations running at the same time at most (leave threads for the visible clips).
     static constexpr int kMaxPrepareRunning = 2;
     /// Wishes waiting for a free reservation at most.
@@ -234,7 +237,7 @@ private:
     AtomicStats m_stats;
     QHash<QString, qint64> m_failedAtMs; ///< path → pool clock of the last failed open()
     QElapsedTimer m_clock;
-    qint64 m_idleCloseMs = 10000;
+    qint64 m_idleCloseMs = 10000; ///< shorter below 8 GB: see the constructor
     CloseHook m_closeHook;
     std::shared_ptr<const std::atomic<bool>> m_zeroCopyGate;
 };

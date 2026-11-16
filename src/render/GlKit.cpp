@@ -2,6 +2,7 @@
 // GlKit — shader building, unit quad, render-target pool, blit/fill/blur passes.
 #include "render/GlKit.h"
 
+#include "core/MemoryBudget.h"
 #include "render/RenderLog.h"
 
 #include <algorithm>
@@ -184,6 +185,16 @@ PooledTarget::~PooledTarget()
 {
     if (m_pool && m_target)
         m_pool->release(m_target);
+}
+
+int64_t TargetPool::defaultByteLimit()
+{
+    return membudget::scaledBytes(1024LL << 20, 256LL << 20);
+}
+
+int64_t TargetPool::defaultProcessByteLimit()
+{
+    return membudget::scaledBytes(2048LL << 20, 384LL << 20);
 }
 
 TargetPool::~TargetPool() = default; // GL objects are deleted by destroyAll()

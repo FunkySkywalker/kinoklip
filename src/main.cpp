@@ -10,6 +10,7 @@
 #include "app/SettingsTransferDialog.h"
 #include "app/Theme.h"
 #include "core/EditBehaviour.h"
+#include "core/MemoryBudget.h"
 #include "core/MemoryGuard.h"
 #include "core/Translations.h"
 #include "core/PowerBins.h"
@@ -163,6 +164,7 @@ int main(int argc, char** argv)
     // First of all: keep this session's messages for Help > Export Log File (in memory only;
     // stderr is unchanged because the previous handler still gets every message).
     kk::sessionlog::installMessageHandler();
+    kk::membudget::tuneAllocator(); // before the first big allocation (core/MemoryBudget.h)
     QStringList commandArguments;
     if (wantsCommandLine(argc, argv, &commandArguments))
         return runCommandLine(argc, argv, commandArguments);

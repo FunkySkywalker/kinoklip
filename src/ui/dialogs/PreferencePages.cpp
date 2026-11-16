@@ -3,11 +3,13 @@
 // the code that applies stored preferences to the running application.
 #include "core/Animation.h"
 #include "core/EditBehaviour.h"
+#include "core/MemoryBudget.h"
 #include "core/Translations.h"
 #include "media/HwAccel.h"
 #include "media/ImageLoader.h"
 #include "media/MediaCache.h"
 #include "platform/FileDialogs.h"
+#include "render/GlKit.h"
 #include "playback/AudioDeviceMonitor.h"
 #include "playback/AudioInput.h"
 #include "playback/PlaybackEngine.h"
@@ -55,6 +57,7 @@ namespace {
 constexpr int kMaxAutosaveMinutes = 120;
 constexpr int kMinStillCacheMiB = 64;
 constexpr int kMaxStillCacheMiB = 16384;
+constexpr int kMaxMemoryLimitGiB = 256;
 constexpr int kStillCacheStepMiB = 64;
 constexpr double kMaxDefaultSeconds = 600.0; ///< longest default still / title / transition
 constexpr int kMaxNudgeFrames = 100;
@@ -181,6 +184,20 @@ public:
                                     "Least recently used images are dropped first."));
         form->addRow(tr("Still image cache"), m_stillCache);
 
+        // Resolve: Preferences > System > Memory and GPU > "Limit Resolve memory usage to".
+        m_memoryLimit = new QSpinBox;
+        m_memoryLimit->setObjectName(QStringLiteral("MemoryLimitGiB"));
+        m_memoryLimit->setRange(0, kMaxMemoryLimitGiB);
+        m_memoryLimit->setSpecialValueText(tr("Auto"));
+        m_memoryLimit->setSuffix(tr(" GB"));
+        m_memoryLimit->setValue(prefs::memoryLimitGiB());
+        m_memoryLimit->setToolTip(tr("The memory Kinoklip plans for: its caches (thumbnails, "
+                                     "frames, waveforms, open decoders) are made smaller on "
+                                     "machines with less than 8 GB. Auto uses the computer's "
+                                     "memory (%1 GB here).")
+                                      .arg(double(membudget::totalRamBytes()) / (1 << 30), 0, 'f', 1));
+        form->addRow(tr("Limit Kinoklip memory usage to"), m_memoryLimit);
+
         m_gpu = new QComboBox;
         m_gpu->setObjectName(QStringLiteral("GpuProcessing"));
         m_gpu->addItem(tr("Auto (OpenGL)"), QStringLiteral("auto"));
@@ -194,6 +211,9 @@ public:
     {
         QSettings settings;
         settings.setValue(QLatin1String(prefs::kStillCacheMiB), m_stillCache->value());
+        if (settings.value(QLatin1String(prefs::kMemoryLimitGiB), 0).toInt() != m_memoryLimit->value())
+            PreferencesDialog::restartNeededFor(tr("Limit Kinoklip memory usage to"));
+        settings.setValue(QLatin1String(prefs::kMemoryLimitGiB), m_memoryLimit->value());
         if (settings.value(QLatin1String(prefs::kRenderBackend), QStringLiteral("auto"))
                 != m_gpu->currentData())
             PreferencesDialog::restartNeededFor(tr("GPU processing mode"));
@@ -202,6 +222,7 @@ public:
 
 private:
     QSpinBox* m_stillCache = nullptr;
+    QSpinBox* m_memoryLimit = nullptr;
     QComboBox* m_gpu = nullptr;
 };
 
@@ -1124,6 +1145,10 @@ void applyStartupPreferences()
     // variable (debugging) still wins over the stored choice.
     if (prefs::forceCpuRendering() && !qEnvironmentVariableIsSet("KINOKLIP_RENDER"))
         qputenv("KINOKLIP_RENDER", "cpu");
+    // The caches are sized from the memory budget when they are created.
+    membudget::setLimitGiB(prefs::memoryLimitGiB());
+    render::TargetPool::setProcessByteLimit(render::TargetPool::defaultProcessByteLimit());
+    qInfo().noquote() << membudget::describe();
 }
 
 void applyRuntimePreferences(PlaybackEngine* playback)

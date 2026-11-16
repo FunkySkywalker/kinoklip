@@ -11,7 +11,7 @@ set(KK_TESTS_RELEASE
   test_memorysoak test_renderperf test_mediaperf test_proxyperf test_hevc4kperf test_compperf
   test_exportperf test_audioperf test_pageturnplayback test_cutlookahead test_editplaying
   test_firstplay test_timelinebench test_rendermemory test_playbackstats test_playbackstatslog
-  test_livepreview test_pasteaudiolive
+  test_livepreview test_pasteaudiolive test_memoryprofile
 )
 
 # Slower than about 5 s: whole-window pages, vim suites, stabilizer, process-level and render tests.
@@ -49,7 +49,7 @@ set(KK_TESTS_QUICK
   test_keyframeeditor test_keyframeops test_keyframespanel test_keypresets test_largeproject
   test_levellines test_levelops test_logexport test_looks test_maskrender test_masks
   test_masksui test_mattemodel test_matteservice test_mcp test_mediacache test_mediahover
-  test_medialinks test_mediaorganize test_mediapool test_mediapoolpanel test_memoryguard
+  test_medialinks test_mediaorganize test_mediapool test_mediapoolpanel test_membudget test_memoryguard
   test_memoryreport test_mergecontrols test_mixerdata test_mixerdsp test_mixergraph
   test_multicam test_multicamrender test_multicamui test_nested test_nodeeditor test_otio
   test_panelscreens test_parity test_parity_edit test_pasteaudio test_planartracker

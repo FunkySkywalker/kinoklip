@@ -3,6 +3,7 @@
 #include "ui/mediapool/MediaPoolModel.h"
 
 #include "core/ClipColors.h"
+#include "core/MemoryBudget.h"
 #include "core/MediaPool.h"
 #include "core/Plural.h"
 #include "core/Project.h"
@@ -132,7 +133,7 @@ MediaPoolModel::MediaPoolModel(Project* project, QObject* parent)
     : QAbstractTableModel(parent)
     , m_project(project)
 {
-    m_posters.setMaxCost(kPosterCacheKiB);
+    m_posters.setMaxCost(int(membudget::scaledBytes(kPosterCacheKiB, 8 * 1024)));
     connectPool(project->mediaPool(), false);
     connect(project->mediaPool(), &MediaPool::binsChanged, this, &MediaPoolModel::rebuildFolders);
 

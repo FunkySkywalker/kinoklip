@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Typed accessors for preference keys stored in QSettings.
+#include "core/MemoryBudget.h"
 #include "core/Preferences.h"
 
 #include <QSettings>
@@ -119,8 +120,15 @@ void setStartupShowsProjectManager(bool show)
 
 int stillCacheMiB()
 {
+    const int scaledDefault
+        = int(membudget::scaledBytes(int64_t(kDefaultStillCacheMiB) << 20, 32LL << 20) >> 20);
     return qMax(kMinStillCacheMiB,
-        QSettings().value(QLatin1String(kStillCacheMiB), kDefaultStillCacheMiB).toInt());
+        QSettings().value(QLatin1String(kStillCacheMiB), scaledDefault).toInt());
+}
+
+int memoryLimitGiB()
+{
+    return qMax(0, QSettings().value(QLatin1String(kMemoryLimitGiB), 0).toInt());
 }
 
 bool forceCpuRendering()

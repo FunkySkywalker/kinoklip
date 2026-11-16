@@ -130,7 +130,7 @@ inline double highFrequencyEnergy(const QImage& image)
 /// OpenGL; in that case — if xvfb-run is installed and KK_NO_XVFB is unset — the test re-runs
 /// itself as `xvfb-run -a` with QT_QPA_PLATFORM=xcb and returns that exit code. Without
 /// xvfb-run the GL test cases skip (the Compositor falls back to the CPU backend).
-template<typename TestObject>
+template<typename TestObject, typename App = QGuiApplication>
 int glTestMain(int argc, char** argv)
 {
     const QByteArray platform = qgetenv("QT_QPA_PLATFORM");
@@ -157,7 +157,7 @@ int glTestMain(int argc, char** argv)
     format.setVersion(3, 3);
     format.setProfile(QSurfaceFormat::CoreProfile);
     QSurfaceFormat::setDefaultFormat(format);
-    QGuiApplication app(argc, argv);
+    App app(argc, argv); // QApplication for tests that open widgets
     TestObject test;
     return QTest::qExec(&test, argc, argv);
 }

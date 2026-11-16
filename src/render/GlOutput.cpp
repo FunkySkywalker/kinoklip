@@ -2,6 +2,7 @@
 // GlOutput — output slots (zero-copy textures for the viewer) and PBO readback (export).
 #include "render/GlOutput.h"
 
+#include "core/MemoryBudget.h"
 #include "render/RenderLog.h"
 
 #include <cstring>
@@ -68,6 +69,12 @@ GlOutput::SlotStats GlOutput::slotStats() const
     return s;
 }
 
+int64_t GlOutput::maxSlotBytes()
+{
+    static const int64_t limit = membudget::scaledBytes(kMaxSlotBytes, 96ll << 20);
+    return limit;
+}
+
 int GlOutput::acquireSlot(QSize size, uint64_t* owner)
 {
     GlFunctions* gl = m_kit.gl();
@@ -103,7 +110,7 @@ int GlOutput::acquireSlot(QSize size, uint64_t* owner)
             needsStorage = true;
             const int64_t add = int64_t(size.width()) * size.height() * 4;
             const bool atCap = count >= kMaxSlots
-                || (count >= kMinSlots && bytes + add > kMaxSlotBytes);
+                || (count >= kMinSlots && bytes + add > maxSlotBytes());
             if (anyFree >= 0) {
                 index = anyFree;
             } else if (!atCap) {

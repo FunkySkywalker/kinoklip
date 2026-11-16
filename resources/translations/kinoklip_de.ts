@@ -398,6 +398,13 @@ Das Programm wurde wahrscheinlich vom System beendet, weil der Arbeitsspeicher d
     </message>
 </context>
 <context>
+    <name>TimelineRepair</name>
+    <message>
+        <source>A clip was removed: %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>kk</name>
     <message>
         <source>Timeline</source>
@@ -12711,6 +12718,22 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
         <translation>Standbild-Cache</translation>
     </message>
     <message>
+        <source>Auto</source>
+        <translation>Auto</translation>
+    </message>
+    <message>
+        <source> GB</source>
+        <translation> GB</translation>
+    </message>
+    <message>
+        <source>The memory Kinoklip plans for: its caches (thumbnails, frames, waveforms, open decoders) are made smaller on machines with less than 8 GB. Auto uses the computer&apos;s memory (%1 GB here).</source>
+        <translation>Der Speicher, mit dem Kinoklip plant: Die Caches (Vorschaubilder, Bilder, Wellenformen, geöffnete Decoder) werden auf Rechnern mit weniger als 8 GB kleiner. Auto nutzt den Speicher des Computers (hier %1 GB).</translation>
+    </message>
+    <message>
+        <source>Limit Kinoklip memory usage to</source>
+        <translation>Arbeitsspeichernutzung von Kinoklip begrenzen auf</translation>
+    </message>
+    <message>
         <source>Auto (OpenGL)</source>
         <translation>Auto (OpenGL)</translation>
     </message>
@@ -14570,6 +14593,18 @@ Auto: Voll, wechselt nur zu Halb, solange die Wiedergabe nicht mithält (pausier
 </context>
 <context>
     <name>kk::ProjectController</name>
+    <message>
+        <source>Project Repaired</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This project had a damaged timeline. It was repaired so you can keep working; nothing was lost unless noted:
+
+%1
+
+Save the project to keep the repaired version.</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <source>Unsaved Changes</source>
         <translation>Ungespeicherte Änderungen</translation>
@@ -18553,6 +18588,14 @@ Kinoklip neu starten, um sie anzuwenden.</translation>
         <translation>Clip verschieben</translation>
     </message>
     <message>
+        <source>Ripple Trim Edits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Trim Edits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Roll Edit</source>
         <translation>Roll Edit</translation>
     </message>
@@ -19043,6 +19086,10 @@ Die Clips trimmen, damit die Medien den Übergang abdecken?</translation>
         <translation>Dauer %1</translation>
     </message>
     <message>
+        <source>%1 edit points</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Edit %1</source>
         <translation>Edit %1</translation>
     </message>
@@ -19189,6 +19236,18 @@ Die Clips trimmen, damit die Medien den Übergang abdecken?</translation>
     <message>
         <source>Roll Edit</source>
         <translation>Roll Edit</translation>
+    </message>
+    <message>
+        <source>Ripple Trim Edits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Trim Edits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Roll Edits</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Slip Clip</source>

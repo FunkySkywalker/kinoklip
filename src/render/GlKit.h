@@ -129,14 +129,21 @@ public:
     static void setProcessByteLimit(int64_t bytes) { s_processLimit = bytes; }
 
 private:
+    /// 1 GiB per pool and 2 GiB for the process on a machine with 8 GB or more (core/
+    /// MemoryBudget.h); less below, never under 256 / 384 MiB.
+public:
+    static int64_t defaultByteLimit();
+    static int64_t defaultProcessByteLimit();
+
+private:
     static constexpr int kTrimFrames = 120; ///< ~5 s of playback at 25 fps
     GlFunctions* m_gl;
     std::vector<std::unique_ptr<RenderTarget>> m_all;
     std::vector<RenderTarget*> m_free;
     int64_t m_bytes = 0;
-    int64_t m_limit = 1024LL << 20;
+    int64_t m_limit = defaultByteLimit(); ///< scaled to the memory budget
     static inline std::atomic<int64_t> s_processBytes {0};
-    static inline std::atomic<int64_t> s_processLimit {2048LL << 20};
+    static inline std::atomic<int64_t> s_processLimit {2048LL << 20}; // applyStartupPreferences() sets the scaled value
     void deleteTarget(RenderTarget* t);
     void evictFor(int64_t incoming);
 };

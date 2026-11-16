@@ -149,9 +149,9 @@ Shipped in 1.4 ([release notes](releases/v1.4.0.md)):
 - [ ] Edit: ripple audit: every ripple delete, ripple cut and ripple trim entry point (Edit and Cut page, mouse, keys, menus) keeps all sync-locked tracks in sync
 - [ ] Edit: Alt-drag copy of a clip to another track shows up there
 - [ ] Platform: AppImage for ARM64 (user request)
-- [ ] Playback: 10-bit HEVC (4K drone footage) decodes on Intel graphics without copying each frame to system memory
+- [ ] Playback: 10-bit HEVC (4K drone footage) decodes on Intel graphics without copying each frame to system memory (code and unit tests done: P010 import, compression metadata planes for Xe2, layout log; open until a Lunar Lake owner confirms, the build container has no readable render node)
 - [ ] Edit: several edit points selected and trimmed together
-- [ ] Performance: Kinoklip uses less memory (measure what holds RAM and VRAM while editing and playing: frame caches, decoders, thumbnails, waveforms, undo history), so it runs well on low-end computers
+- [x] Performance: Kinoklip uses less memory (measure what holds RAM and VRAM while editing and playing: frame caches, decoders, thumbnails, waveforms, undo history), so it runs well on low-end computers (memory profile test; caches scale below 8 GB, Preferences > System > Memory and GPU > Limit Kinoklip memory usage to; same session on llvmpipe: 1601 MiB resident after 16 s idle before, 574 MiB after; peak 1597 before, 1476 after)
 - [ ] Tests: quick, full and release test groups, so day-to-day builds run only the quick tests
 - [ ] Platform: dev builds: a test AppImage built on our own computer (not on GitHub servers) with the quick and full tests, for trying new work before a release
 

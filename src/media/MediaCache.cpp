@@ -2,6 +2,7 @@
 // MediaCache — thread-pool jobs, memory LRU and disk cache for thumbnails/posters/waveforms.
 #include "media/MediaCache.h"
 
+#include "core/MemoryBudget.h"
 #include "media/FFmpegUtil.h"
 #include "media/MediaLog.h"
 #include "media/MediaSource.h"
@@ -31,8 +32,14 @@ namespace kk::media {
 namespace {
 
 /// Memory budgets of the LRU caches, in KiB (QCache cost unit used below).
+/// Full size on a machine with 8 GB or more; smaller machines get less (core/MemoryBudget.h).
 constexpr int kImageMemoryBudgetKb = 256 * 1024;
 constexpr int kWaveformMemoryBudgetKb = 64 * 1024;
+constexpr int kMinImageMemoryBudgetKb = 24 * 1024;
+constexpr int kMinWaveformMemoryBudgetKb = 8 * 1024;
+/// Decoders kept open between thumbnail jobs close after this long without a job: an idle 4K
+/// decoder holds its frame pool (tens of MB) for nothing.
+constexpr int kIdleDecoderCloseMs = 15000;
 
 /// Thumbnail snapping (see MediaCache::snapThumbnailTimeUs / snapThumbnailHeight).
 constexpr int kThumbnailHeightStep = 8;
@@ -47,7 +54,7 @@ constexpr int kPosterPositionDivisor = 10;
 
 /// Decoders kept open between thumbnail jobs (sequential thumbnails of one file then decode
 /// forward instead of re-opening and seeking). Each costs tens of MB for HD video.
-constexpr size_t kMaxIdleDecoders = 4;
+constexpr int kMaxIdleDecodersFull = 4;
 /// PreviewDecoding::BySize: pictures up to this many pixels (1920x1200) decode in software.
 /// Measured with test_mediaperf filmstripLatency (20 cold 64 px thumbnails): 1080p60 H.264
 /// software 0.6 s vs hardware 2.4 s, 2160p30 HEVC software 2.9 s vs hardware 1.3 s.
@@ -128,12 +135,15 @@ MediaCache& MediaCache::instance()
 
 MediaCache::MediaCache(QObject* parent)
     : QObject(parent)
-    , m_images(kImageMemoryBudgetKb)
-    , m_waveforms(kWaveformMemoryBudgetKb)
+    , m_images(int(membudget::scaledBytes(kImageMemoryBudgetKb, kMinImageMemoryBudgetKb)))
+    , m_waveforms(int(membudget::scaledBytes(kWaveformMemoryBudgetKb, kMinWaveformMemoryBudgetKb)))
     , m_cacheDirectory(
           QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + QLatin1String("/media"))
 {
     detail::initFfmpeg();
+    m_idleDecoderTimer.setSingleShot(true);
+    m_idleDecoderTimer.setInterval(kIdleDecoderCloseMs);
+    connect(&m_idleDecoderTimer, &QTimer::timeout, this, &MediaCache::closeIdleDecoders);
     m_imagePool.setMaxThreadCount(std::max(2, QThread::idealThreadCount() / 2));
     m_waveformPool.setMaxThreadCount(kWaveformThreads);
 }
@@ -472,6 +482,18 @@ int MediaCache::cachedImageCount()
     return int(m_images.size());
 }
 
+int64_t MediaCache::cachedImageBytes()
+{
+    const QMutexLocker lock(&m_mutex);
+    return int64_t(m_images.totalCost()) * 1024;
+}
+
+int64_t MediaCache::cachedWaveformBytes()
+{
+    const QMutexLocker lock(&m_mutex);
+    return int64_t(m_waveforms.totalCost()) * 1024;
+}
+
 void MediaCache::runImageJob(const ImageRequest& jobRequest)
 {
     ImageRequest request = jobRequest;
@@ -606,9 +628,22 @@ void MediaCache::releaseDecoder(const QString& path, std::unique_ptr<VideoDecode
         return;
     }
     m_idleDecoders.emplace_front(path, std::move(decoder));
-    while (m_idleDecoders.size() > kMaxIdleDecoders) {
+    const size_t most = size_t(membudget::scaledCount(kMaxIdleDecodersFull, 1));
+    while (m_idleDecoders.size() > most) {
         m_idleDecoders.pop_back();
     }
+    // Close them (and give the heap back) once no job has come for a while. Started from
+    // the thread that owns the cache: this runs on the job threads.
+    QMetaObject::invokeMethod(this, [this] { m_idleDecoderTimer.start(); }, Qt::QueuedConnection);
+}
+
+void MediaCache::closeIdleDecoders()
+{
+    {
+        const std::lock_guard lock(m_decoderMutex);
+        m_idleDecoders.clear();
+    }
+    membudget::trimHeap();
 }
 
 // ---- Waveform jobs --------------------------------------------------------------------------

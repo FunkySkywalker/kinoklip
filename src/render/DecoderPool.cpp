@@ -2,6 +2,7 @@
 // DecoderPool — video decoder reuse by path and position.
 #include "render/DecoderPool.h"
 
+#include "core/MemoryBudget.h"
 #include "render/RenderLog.h"
 
 #include <QThreadPool>
@@ -45,6 +46,12 @@ bool workerRunning(const DecoderPool::Entry& entry)
 
 } // namespace
 
+int DecoderPool::openLimit()
+{
+    static const int limit = membudget::scaledCount(kMaxOpen, 3);
+    return limit;
+}
+
 void DecoderPool::setReadAheadFrames(int frames)
 {
     s_readAheadFrames.store(frames, std::memory_order_relaxed);
@@ -58,6 +65,8 @@ void DecoderPool::setOpenDelayMs(int ms)
 DecoderPool::DecoderPool()
 {
     m_clock.start();
+    if (membudget::scale() < 1.0)
+        m_idleCloseMs = 4000; // a low-memory machine gives idle decoders back sooner
 }
 
 DecoderPool::~DecoderPool()
@@ -200,7 +209,7 @@ void DecoderPool::makeRoom()
 {
     // Every open decoder holds a pool of frames (hardware surfaces: shared GPU memory that no
     // process meter shows, 100+ MB for 4K), so the number of idle ones is bounded.
-    while (int(m_entries.size()) >= kMaxOpen) {
+    while (int(m_entries.size()) >= openLimit()) {
         int oldest = -1;
         for (size_t i = 0; i < m_entries.size(); ++i) {
             const Entry& e = *m_entries[i];

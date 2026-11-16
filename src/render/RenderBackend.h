@@ -35,6 +35,9 @@ struct ResourceStats
     int outputSlotsInUse = 0; ///< of those, frames still referenced somewhere
     int64_t outputSlotBytes = 0;
     int outputSlotsStolen = 0; ///< slots taken back from a consumer holding too many frames
+    /// Video memory the driver reports as used / in total (GL_NVX_gpu_memory_info), MiB; -1 where the driver does not say (Mesa: see DRM fdinfo in MemoryReport).
+    int gpuUsedMiB = -1;
+    int gpuTotalMiB = -1;
 };
 
 /// Produces frames on the render thread. Every method is called on that one thread.

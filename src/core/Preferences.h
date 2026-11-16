@@ -23,6 +23,9 @@ inline constexpr char kProjectLibraryDirectory[] = "project/libraryDirectory";
 inline constexpr char kStartupAction[] = "project/startupAction";
 /// int MiB, memory budget of the decoded still image cache (media::ImageLoader), default 256.
 inline constexpr char kStillCacheMiB[] = "system/stillCacheMiB";
+/// int GiB, "Limit Kinoklip memory usage to" (Preferences > System > Memory and GPU); 0 = Auto
+/// (the machine's RAM). The caches are scaled to it (core/MemoryBudget.h); read at start.
+inline constexpr char kMemoryLimitGiB[] = "system/memoryLimitGiB";
 /// "auto" (OpenGL compositor when available) or "cpu" (QPainter compositor); start-up only.
 inline constexpr char kRenderBackend[] = "system/renderBackend";
 /// Folder of the thumbnail / waveform cache ("" = the platform cache folder + "/media").
@@ -134,8 +137,10 @@ void setProjectLibraryDirectory(const QString& dir);
 /// Stores the start-up choice (see kStartupAction).
 void setStartupShowsProjectManager(bool show);
 
-/// Still image cache budget in MiB (default 256, at least 16).
+/// Still image cache budget in MiB (default 256, scaled down on machines under 8 GB; at least 16).
 [[nodiscard]] int stillCacheMiB();
+/// The memory limit in GiB (0 = Auto).
+[[nodiscard]] int memoryLimitGiB();
 /// True if the user asked for the CPU compositor (takes effect at the next start).
 [[nodiscard]] bool forceCpuRendering();
 /// Configured cache folder, or empty for the default.

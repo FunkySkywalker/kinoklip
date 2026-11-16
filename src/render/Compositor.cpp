@@ -2,6 +2,7 @@
 // Compositor — request queue + render thread around a RenderBackend (GPU or CPU).
 #include "render/Compositor.h"
 
+#include "core/MemoryBudget.h"
 #include "core/ThreadNice.h"
 #include "render/DecodeTargets.h"
 #include "render/RenderBackend.h"
@@ -57,6 +58,8 @@ struct Compositor::Impl
     std::atomic<int> statSlotsInUse {0};
     std::atomic<int64_t> statSlotBytes {0};
     std::atomic<int> statSlotsStolen {0};
+    std::atomic<int> statGpuUsed {-1};
+    std::atomic<int> statGpuTotal {-1};
     void publishStats()
     {
         const render::ResourceStats s = backend->resources();
@@ -67,6 +70,8 @@ struct Compositor::Impl
         statSlotsInUse = s.outputSlotsInUse;
         statSlotBytes = s.outputSlotBytes;
         statSlotsStolen = s.outputSlotsStolen;
+        statGpuUsed = s.gpuUsedMiB;
+        statGpuTotal = s.gpuTotalMiB;
     }
     std::chrono::milliseconds idleRelease {15000}; ///< see Options::idleReleaseMs
     std::shared_ptr<const MediaPathMap> defaultMedia;
@@ -151,6 +156,7 @@ struct Compositor::Impl
                     // Nothing to do for a while: give the GPU memory back (see releaseIdle()).
                     lock.unlock();
                     backend->releaseIdle();
+                    membudget::trimHeap(); // decoders and targets are freed: return the pages
                     publishStats();
                     released = true;
                     continue;
@@ -266,7 +272,8 @@ QStringList Compositor::liveStats()
 render::ResourceStats Compositor::resourceStats() const
 {
     return {m_impl->statDecoders, m_impl->statTitles, m_impl->statTargetBytes, m_impl->statSlots,
-        m_impl->statSlotsInUse, m_impl->statSlotBytes, m_impl->statSlotsStolen};
+        m_impl->statSlotsInUse, m_impl->statSlotBytes, m_impl->statSlotsStolen, m_impl->statGpuUsed,
+        m_impl->statGpuTotal};
 }
 
 bool Compositor::isGpu() const
