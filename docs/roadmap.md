@@ -145,6 +145,7 @@ Shipped in 1.4 ([release notes](releases/v1.4.0.md)):
 - [ ] Playback: 10-bit HEVC (4K drone footage) decodes on Intel graphics without copying each frame to system memory
 - [ ] Edit: several edit points selected and trimmed together
 - [ ] Performance: Kinoklip uses less memory (measure what holds RAM and VRAM while editing and playing: frame caches, decoders, thumbnails, waveforms, undo history), so it runs well on low-end computers
+- [ ] Tests: quick, full and release test groups, so day-to-day builds run only the quick tests
 
 ## The version after that
 
@@ -154,7 +155,6 @@ Shipped in 1.4 ([release notes](releases/v1.4.0.md)):
 - [ ] Audio: Normalize a whole track or bus / the main mix to a loudness target in one step
 - [ ] Background Removal: Keep / Remove brush to correct the model by hand
 - [ ] Media: New Fusion Clip, and Fusion / compound clips as Media Pool entries you can drag to the timeline
-- [ ] Platform: nightly builds on GitHub (a Nightly pre-release once a day)
 - [ ] Titles: underline and strikethrough
 
 ## Next big release
@@ -173,6 +173,7 @@ Rule for every AI-assisted tool: optional, clearly labelled, downloaded only whe
 Planned, not started. Compare each page with Resolve and add most of what is missing, starting
 when the owner asks for it.
 
+- [ ] Platform: nightly builds on GitHub (not needed for now)
 - [ ] Color: AgX colour management (user request; undecided whether to add it)
 - [x] Website on GitHub Pages (starts when the owner says): home page with a Download button for the latest AppImage, the guide as searchable pages built from docs/guide, new screenshots in Breeze Dark with real (not generated) people in the sample footage, and a simple bug report form that opens a GitHub issue for people who have no GitHub account
 
