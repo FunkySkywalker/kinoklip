@@ -124,6 +124,13 @@ Shipped in 1.4 ([release notes](releases/v1.4.0.md)):
 - [ ] Background Removal: a newer video model if one fits our licence
 - [ ] Bug hunt for 1.7: look for bugs like the ones the owner found on 2026-11-12 and fix them. Look for: the viewer not following what was clicked; mouse buttons and keys that do nothing where Resolve acts; panels and tool rows overlapping or cutting off names on small screens; keys that take over other keys; missing search or defaults that differ from Resolve; effects and niche controls Resolve has that are missing or behave differently
 
+## 1.8.2 (released 2026-11-16)
+
+- [x] Projects with duplicate effect ids open again; cut, pasted and multicam clips get their own effect ids
+- [x] A damaged timeline always opens: it is repaired on load and a message lists what changed
+- [x] Ripple Delete, Ripple Cut and Ripple Overwrite keep every sync-locked track in sync
+- [x] Ripple trims on a clip's start keep the other tracks over the same picture
+
 ## 1.8.1 (released 2026-11-14)
 
 - [x] Playback: memory stays bounded in slow-motion playback ([#8](https://github.com/SeniorMatt/kinoklip/issues/8))
