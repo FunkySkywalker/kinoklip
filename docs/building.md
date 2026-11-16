@@ -108,6 +108,36 @@ assistant (MCP) on stdin / stdout, see [docs/guide/control-kinoklip-from-an-ai-a
 (`--render`, `--render-frame`, `--screenshot`, ...) are unchanged. Tests: `test_commands` (the
 layer), `test_cli` (the built binary as a process) and `test_livecontrol` (the open window).
 
+## Nix / NixOS
+
+`flake.nix` builds the application from source with nixpkgs' Qt 6, KDE Frameworks 6, FFmpeg,
+ONNX Runtime, libheif and LibRaw (`packaging/nix/package.nix`; the version is read from
+`CMakeLists.txt`). Only the application is built, not the tests.
+
+```sh
+nix build .#default                 # ./result/bin/kinoklip
+nix build .#appimage                # the release AppImage in an FHS sandbox (packaging/nix/appimage.nix)
+nix run . -- --version
+nix develop                         # shell with cmake, ninja, Qt, FFmpeg, ONNX Runtime, ...
+#   then: cmake -S . -B build -G Ninja && cmake --build build && ctest --test-dir build -L quick
+```
+
+Use it from a NixOS configuration:
+
+```nix
+{
+  inputs.kinoklip.url = "github:SeniorMatt/kinoklip";
+  # ...
+  environment.systemPackages = [ inputs.kinoklip.packages.${pkgs.system}.default ];
+  # or: nixpkgs.overlays = [ inputs.kinoklip.overlays.default ];  then pkgs.kinoklip
+  hardware.graphics.enable = true;   # OpenGL and VAAPI drivers (/run/opengl-driver)
+}
+```
+
+On each release, update the version and the two hashes in `packaging/nix/appimage.nix`
+(`nix hash convert --hash-algo sha256 --to sri <sha256 from SHA256SUMS.txt>`). The workflow
+`.github/workflows/nix.yml` checks the flake on x86_64 and ARM64 runners.
+
 ## Build the website locally
 The website (GitHub Pages) is plain HTML made from `website/`, `docs/guide/` and `docs/releases/`.
 It needs Python 3 and the `markdown` module.

@@ -1,0 +1,23 @@
+pkgbase = kinoklip-bin
+	pkgdesc = Video editor with the layout and shortcuts of DaVinci Resolve (release AppImage, extracted)
+	pkgver = 1.9.0
+	pkgrel = 1
+	url = https://github.com/SeniorMatt/kinoklip
+	arch = x86_64
+	arch = aarch64
+	license = GPL-3.0-or-later
+	depends = glibc
+	optdepends = mesa: OpenGL and VAAPI on AMD and Intel GPUs
+	optdepends = libva-mesa-driver: VAAPI hardware decoding on AMD
+	optdepends = intel-media-driver: VAAPI hardware decoding on recent Intel GPUs
+	optdepends = xdg-desktop-portal: native file dialogs on Wayland
+	provides = kinoklip
+	conflicts = kinoklip
+	options = !strip
+	options = !debug
+	source_x86_64 = kinoklip-1.9.0-x86_64.AppImage::https://github.com/SeniorMatt/kinoklip/releases/download/v1.9.0/Kinoklip-x86_64.AppImage
+	sha256sums_x86_64 = 5c4b3f182b225216640fa61094d00eb72f839f88deb3592cb7a32df177eed5b6
+	source_aarch64 = kinoklip-1.9.0-aarch64.AppImage::https://github.com/SeniorMatt/kinoklip/releases/download/v1.9.0/Kinoklip-aarch64.AppImage
+	sha256sums_aarch64 = 2dbd507dce30477db285cf6a1eb50197db72a76cf8701ef4280396ce0ca185de
+
+pkgname = kinoklip-bin
