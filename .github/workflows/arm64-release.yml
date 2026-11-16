@@ -71,7 +71,7 @@ jobs:
           fetch-depth: 1
 
       - name: Restore ccache
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: .ccache
           key: ccache-arm64-${{ github.sha }}
@@ -84,6 +84,13 @@ jobs:
           scripts/package_linux.sh
           ccache -s | head -8
           ls -l dist
+
+      - name: Save ccache
+        if: ${{ always() }}
+        uses: actions/cache/save@v4
+        with:
+          path: .ccache
+          key: ccache-arm64-${{ github.sha }}
 
       - name: Check the bundle
         run: scripts/check_bundle.sh
@@ -99,6 +106,12 @@ jobs:
             ./Kinoklip-aarch64.AppImage --appimage-extract-and-run --screenshot edit "$PWD/smoke-edit.png"
           file smoke-edit.png | grep -q 'PNG image data, 1920 x 1080'
           ls -l smoke-edit.png
+
+      - name: Diagnostics after a failed smoke test
+        if: ${{ failure() }}
+        run: |
+          ls dist/kinoklip-aarch64/usr/lib dist/kinoklip-aarch64/usr/lib/qt dist/kinoklip-aarch64/usr/lib/fallback | grep -i 'proto\|onnx\|abseil\|absl' || true
+          ldd dist/kinoklip-aarch64/usr/bin/kinoklip | grep -i 'proto\|onnx' || true
 
       - name: Quick tests
         if: ${{ inputs.run_tests }}
