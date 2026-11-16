@@ -534,8 +534,8 @@ bool TimelineController::nudgeSelectionSpeed(int deltaPercent)
     const QString label = deltaPercent > 0 ? tr("Increase Clip Speed") : tr("Decrease Clip Speed");
     return runEdit(project(), label, [&](TimelineData& data) {
         return timelineedit::applyClipSpeedsSynced(data, ids, [&](const ClipData& c) {
-            if (!(c.speed > 0.0) || retime::hasCurve(c))
-                return 0.0;
+            if (!(c.speed > 0.0) || retime::hasCurve(c) || c.speed > kMaxNudgedSpeed)
+                return 0.0; // (above the limit, e.g. fit to fill: a nudge must not cut it down)
             // Whole tenths of a percent, so repeated nudges do not drift (1.1 + 0.1 ...).
             return std::clamp(std::round(c.speed * 1000.0 + deltaPercent * 10.0) / 1000.0,
                 kMinNudgedSpeed, kMaxNudgedSpeed);

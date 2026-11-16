@@ -34,7 +34,7 @@ namespace {
 namespace rops = retimeops;
 
 constexpr double kMinPercent = 1.0; ///< the Change Clip Speed dialog's range
-constexpr double kMaxPercent = 100000.0;
+constexpr double kMaxPercent = 1.0e8; ///< 1,000,000x, the load limit (fit to fill makes 5000x)
 
 void setIfIdle(QDoubleSpinBox* box, double value)
 {

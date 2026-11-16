@@ -179,6 +179,44 @@ private slots:
         QCOMPARE(ops::clipById(d, id)->speed, 1.0);
     }
 
+    // Owner report 1.9.0: a 5000x clip (fit to fill) was cut to 1000x by a speed edit that did
+    // not set its speed (direction, freeze off, pitch...), growing 5x and rippling the tracks.
+    void fastClipKeepsItsSpeedOnRetimeEdits()
+    {
+        TimelineData d = timeline();
+        ClipData c = mediaClip(10, 6, 0, 100000); // 6 frames showing 30000 frames: 5000x
+        c.speed = 5000.0;
+        const auto [v, a] = placePair(d, c);
+        ops::overwriteClip(d, kV2, mediaClip(0, 100));
+        ops::overwriteClip(d, kA2, mediaClip(0, 100));
+        ops::overwriteClip(d, kV1, mediaClip(16, 20));
+        rops::SpeedChange ch;
+        ch.speed = rops::speedState(*ops::clipById(d, v)).speed;
+        QCOMPARE(ch.speed, 5000.0);
+        ch.ripple = true;
+        ch.pitchCorrection = true;
+        rops::changeClipSpeed(d, v, ch);
+        QCOMPARE(ops::clipById(d, v)->speed, 5000.0);
+        QCOMPARE(ops::clipById(d, v)->duration, 6);
+        QCOMPARE(ops::clipById(d, a)->duration, 6);
+        QCOMPARE(layout(d, kV1), QStringLiteral("10:6 16:20"));
+        QCOMPARE(layout(d, kV2), QStringLiteral("0:100"));
+        KK_VERIFY_INVARIANTS(d);
+    }
+
+    void fastClipSurvivesSerialization()
+    {
+        TimelineData d = timeline();
+        ClipData c = mediaClip(10, 6, 0, 100000);
+        c.speed = 5000.0;
+        const quint64 id = ops::overwriteClip(d, kV1, c);
+        const QJsonObject json = serialization::timelineToJson(d);
+        TimelineData back;
+        QVERIFY(serialization::timelineFromJson(json, back, nullptr));
+        QCOMPARE(ops::clipById(back, id)->speed, 5000.0);
+        QCOMPARE(ops::clipById(back, id)->duration, 6);
+    }
+
     void linkedAudioFollows()
     {
         TimelineData d = timeline();

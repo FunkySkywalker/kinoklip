@@ -15,8 +15,9 @@ namespace kk::retimeops {
 
 namespace {
 
-/// Largest speed an edit produces (100000 %): keeps frame counts and µs products finite.
-constexpr double kMaxSpeed = 1000.0;
+/// Largest speed an edit produces: the load limit (Serialization). Fit to Fill makes clips of
+/// 5000x; a lower cap would cut them down (and ripple the tracks) on any speed edit.
+constexpr double kMaxSpeed = 1.0e6;
 /// Two chord slopes closer than this are "the same speed" (simplifyCurve()).
 constexpr double kSameSpeed = 1e-9;
 
