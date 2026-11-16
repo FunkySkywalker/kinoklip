@@ -2,6 +2,7 @@
 <p align="center"><img src="docs/images/logo/kinoklip-text-horizontal.png" width="480" height="104" alt="Kino Klip"></p>
 
 <h1 align="center"><a href="https://github.com/SeniorMatt/kinoklip/releases">Download here</a></h1>
+<p align="center">x86_64 and ARM64 (<code>Kinoklip-aarch64.AppImage</code>) on every release</p>
 <p align="center"><a href="docs/guide/readme.md">How to use Kinoklip</a></p>
 <p align="center"><a href="https://discord.gg/pCeHnvDn3x"><img src="https://cdn.simpleicons.org/discord/5865F2" height="16" alt="" valign="middle"> Join our Discord</a></p>
 

@@ -56,6 +56,18 @@ HERE="$(dirname "$(readlink -f "$0")")"
 APP_ID=org.kinoklip.Kinoklip
 LIB="$HERE/usr/lib"
 QTDIR="$LIB/qt"
+# CPU architecture of this bundle, from the loader package_linux.sh shipped (no process started).
+if [ -e "$LIB/glibc/ld-linux-aarch64.so.1" ]; then
+    ARCH_TRIPLET=aarch64-linux-gnu
+    ARCH_CACHE_TAG=AArch64 # the ld.so cache's name for the ABI
+    ARCH_LDSO_NAME=ld-linux-aarch64.so.1
+    ARCH_LDSO_HOST=/lib/ld-linux-aarch64.so.1
+else
+    ARCH_TRIPLET=x86_64-linux-gnu
+    ARCH_CACHE_TAG=x86-64
+    ARCH_LDSO_NAME=ld-linux-x86-64.so.2
+    ARCH_LDSO_HOST=/lib64/ld-linux-x86-64.so.2 # the x86-64 ABI's fixed path, on every distribution
+fi
 
 log() {
     [ "${KINOKLIP_QUIET:-0}" = 1 ] || printf 'kinoklip-launcher: %s\n' "$*" >&2
@@ -142,7 +154,7 @@ load_host_cache() {
         cache_key "$_n"
         eval "[ -n \"\${HOST_CACHE_$KEY+x}\" ]" || eval "HOST_CACHE_$KEY=\"\${_rest##*=> }\""
     done <<EOF
-$( (ldconfig -p || /sbin/ldconfig -p || /usr/sbin/ldconfig -p) 2>/dev/null | grep -F "$_pats" | grep -F 'x86-64')
+$( (ldconfig -p || /sbin/ldconfig -p || /usr/sbin/ldconfig -p) 2>/dev/null | grep -F "$_pats" | grep -F "$ARCH_CACHE_TAG")
 EOF
 }
 
@@ -153,8 +165,8 @@ EOF
 #   native glibc:  Debian multiarch, or Fedora/openSUSE lib64, or Arch's plain /usr/lib
 if [ "$BUNDLED_GLIBC" = 1 ]; then
     HOST_DEFAULT_DIRS="/usr/lib"
-elif [ -d /usr/lib/x86_64-linux-gnu ]; then
-    HOST_DEFAULT_DIRS="/lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu /lib /usr/lib"
+elif [ -d "/usr/lib/$ARCH_TRIPLET" ]; then
+    HOST_DEFAULT_DIRS="/lib/$ARCH_TRIPLET /usr/lib/$ARCH_TRIPLET /lib /usr/lib"
 elif [ -d /usr/lib64 ] && [ ! -L /usr/lib64 ]; then
     HOST_DEFAULT_DIRS="/lib64 /usr/lib64"
 else
@@ -290,7 +302,7 @@ fallback_libva_drivers() {
     *" libva.so.2 "*)
         if [ -z "${LIBVA_DRIVERS_PATH:-}" ]; then
             _dri=""
-            for _d in /usr/lib/x86_64-linux-gnu/dri /usr/lib64/dri /usr/lib/dri /usr/local/lib/dri; do
+            for _d in /usr/lib/$ARCH_TRIPLET/dri /usr/lib64/dri /usr/lib/dri /usr/local/lib/dri; do
                 [ -d "$_d" ] && _dri="${_dri:+$_dri:}$_d"
             done
             [ -n "$_dri" ] && set_var LIBVA_DRIVERS_PATH "$_dri"
@@ -410,7 +422,7 @@ host_qt_ok() {
     done <"$QTDIR/host-qt-requirements.txt"
     # a platform plugin next to the host Qt (Arch: /usr/lib/qt6/plugins)
     _qtlib="$(dirname "$_real")"
-    for _pd in "$_qtlib/qt6/plugins" /usr/lib/qt6/plugins /usr/lib64/qt6/plugins /usr/lib/x86_64-linux-gnu/qt6/plugins; do
+    for _pd in "$_qtlib/qt6/plugins" /usr/lib/qt6/plugins /usr/lib64/qt6/plugins "/usr/lib/$ARCH_TRIPLET/qt6/plugins"; do
         for _pp in "$_pd"/platforms/libqwayland*.so "$_pd"/platforms/libqxcb.so; do
             [ -e "$_pp" ] && return 0
         done
@@ -635,10 +647,10 @@ export KINOKLIP_APPDIR KINOKLIP_ORIG_VARS
 BIN="$HERE/usr/bin/kinoklip"
 if [ "$BUNDLED_GLIBC" = 1 ]; then
     log "using the bundled glibc (host: ${_glibc_have:-forced}, bundle needs: ${_glibc_need:-forced})"
-    LDSO="$LIB/glibc/ld-linux-x86-64.so.2"
+    LDSO="$LIB/glibc/$ARCH_LDSO_NAME"
     LDSO_PATH="$LIB/glibc${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 else
-    LDSO=/lib64/ld-linux-x86-64.so.2 # the x86-64 ABI's fixed path, on every distribution
+    LDSO="$ARCH_LDSO_HOST"
 fi
 
 # start_app <args...>: becomes the app; called in a background subshell (the supervised path

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: GPL-3.0-or-later
-# package_linux.sh -- builds the Kinoklip AppImage: dist/Kinoklip-x86_64.AppImage (+ .zsync).
+# package_linux.sh -- builds the Kinoklip AppImage: dist/Kinoklip-x86_64.AppImage (+ .zsync);
+# on an ARM64 machine (or KK_ARCH=aarch64) dist/Kinoklip-aarch64.AppImage, same bundle layout.
 #
 # Usage: scripts/package_linux.sh [--no-build] [--no-appimage] [--run] [--tarball]
 #
@@ -39,11 +40,19 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# Target architecture: x86_64 (the default on the Arch container) or aarch64 (GitHub's ARM runner,
+# .github/workflows/arm64-release.yml). KK_ARCH overrides; the x86_64 output is the same as ever.
+ARCH="${KK_ARCH:-$(uname -m)}"
+case "$ARCH" in
+x86_64) TRIPLET=x86_64-linux-gnu LDSO_NAME=ld-linux-x86-64.so.2 ;;
+aarch64 | arm64) ARCH=aarch64 TRIPLET=aarch64-linux-gnu LDSO_NAME=ld-linux-aarch64.so.1 ;;
+*) echo "unsupported architecture: $ARCH" >&2; exit 2 ;;
+esac
 PKG="$ROOT/packaging/linux"
 BUILD_DIR="${KK_BUILD_DIR:-$ROOT/build}"
 DIST="${KK_DIST_DIR:-$ROOT/dist}"
 DEV_COMMIT="${KK_DEV_BUILD:-}"
-APPDIR="$DIST/kinoklip-x86_64"
+APPDIR="$DIST/kinoklip-$ARCH"
 APP_ID="org.kinoklip.Kinoklip"
 
 DO_BUILD=1
@@ -92,7 +101,7 @@ VERSION="${VERSION:-0.0.0}"
 
 QT_PLUGINS="${KK_QT_PLUGINS:-$(qtpaths6 --query QT_INSTALL_PLUGINS 2>/dev/null || true)}"
 [ -d "$QT_PLUGINS" ] || QT_PLUGINS=/usr/lib/qt6/plugins # Arch
-[ -d "$QT_PLUGINS" ] || QT_PLUGINS=/usr/lib/x86_64-linux-gnu/qt6/plugins # Debian/Ubuntu
+[ -d "$QT_PLUGINS" ] || QT_PLUGINS=/usr/lib/$TRIPLET/qt6/plugins # Debian/Ubuntu
 [ -d "$QT_PLUGINS" ] || die "Qt plugin dir not found (set KK_QT_PLUGINS)"
 
 # ---------------------------------------------------------------------------------------
@@ -159,7 +168,7 @@ PLUGIN_GLOBS=(
 # from LIBHEIF_PLUGIN_PATH (set by AppRun to usr/lib/libheif/plugins). Arch keeps them in
 # /usr/lib/libheif, Debian/Ubuntu in /usr/lib/<triplet>/libheif/plugins.
 HEIF_PLUGIN_DIR=""
-for d in /usr/lib/libheif/plugins /usr/lib/libheif /usr/lib/x86_64-linux-gnu/libheif/plugins; do
+for d in /usr/lib/libheif/plugins /usr/lib/libheif /usr/lib/$TRIPLET/libheif/plugins /usr/lib64/libheif/plugins; do
     if compgen -G "$d/*.so" >/dev/null; then
         HEIF_PLUGIN_DIR="$d"
         break
@@ -319,12 +328,12 @@ if [ "${#HEIF_PLUGINS[@]}" -gt 0 ]; then
 fi
 # glibc of the build host, for hosts with an OLDER glibc (e.g. an Arch build on Ubuntu 24.04:
 # libm 2.43/2.44 symbol versions). It is not on any RUNPATH: AppRun starts the binary through
-# usr/lib/glibc/ld-linux-x86-64.so.2 --library-path usr/lib/glibc only when the host glibc is
+# usr/lib/glibc/$LDSO_NAME --library-path usr/lib/glibc only when the host glibc is
 # older than glibc-required.txt, so on current hosts the system glibc is used as before and
 # child processes never inherit the bundled one (ld.so options are not inherited).
 GLIBC_DIR="$(dirname "$(readlink -f "$(ldd "$BIN" | sed -n 's/.*libc\.so\.6 => \([^ ]*\).*/\1/p')")")"
 mkdir -p "$APPDIR/usr/lib/glibc"
-for name in ld-linux-x86-64.so.2 libc.so.6 libm.so.6 libmvec.so.1 libpthread.so.0 libdl.so.2 \
+for name in "$LDSO_NAME" libc.so.6 libm.so.6 libmvec.so.1 libpthread.so.0 libdl.so.2 \
     librt.so.1 libresolv.so.2 libutil.so.1 libanl.so.1; do
     [ -e "$GLIBC_DIR/$name" ] && cp -L "$GLIBC_DIR/$name" "$APPDIR/usr/lib/glibc/$name"
 done
@@ -517,14 +526,19 @@ LICENSES="$APPDIR/usr/share/doc/kinoklip/licenses"
 pkg_of() {
     local f
     f="$(readlink -f "$1")"
+    # Microsoft's ONNX Runtime release unpacked to /opt/onnxruntime (the ARM64 workflow; Debian's
+    # own package loads onnx twice and aborts at start): not a distribution package.
+    case "$f" in /opt/onnxruntime/*) echo onnxruntime-official; return 0 ;; esac
     if command -v pacman >/dev/null; then
         pacman -Qqo "$f" 2>/dev/null | head -n1
     elif command -v dpkg >/dev/null; then
-        dpkg -S "$f" 2>/dev/null | head -n1 | cut -d: -f1
+        dpkg -S "$f" 2>/dev/null | head -n1 | cut -d: -f1 || true
     fi
 }
 pkg_version() {
-    if command -v pacman >/dev/null; then
+    if [ "$1" = onnxruntime-official ]; then
+        cat /opt/onnxruntime/VERSION_NUMBER
+    elif command -v pacman >/dev/null; then
         pacman -Q "$1" 2>/dev/null | cut -d' ' -f2
     else
         dpkg-query -W -f='${Version}' "$1" 2>/dev/null
@@ -575,6 +589,9 @@ copy_licence() {
             log "note: $pkg ships no licence text, using packaging/linux/licenses/$pkg"
         fi
         have_text "$LICENSES/$pkg" || die "no licence text for bundled package $pkg"
+    elif [ "$pkg" = onnxruntime-official ]; then
+        mkdir -p "$LICENSES/$pkg"
+        cp -L /opt/onnxruntime/LICENSE /opt/onnxruntime/ThirdPartyNotices.txt "$LICENSES/$pkg/"
     elif [ -s "/usr/share/doc/$pkg/copyright" ]; then
         cp -L "/usr/share/doc/$pkg/copyright" "$LICENSES/$pkg.copyright"
     else
@@ -616,18 +633,24 @@ done
 # ---------------------------------------------------------------------------------------
 # Update with the release page's sha256 digests (gh api repos/AppImage/appimagetool/releases).
 APPIMAGETOOL_VERSION=1.9.1
-APPIMAGETOOL_SHA256=ed4ce84f0d9caff66f50bcca6ff6f35aae54ce8135408b3fa33abfc3cb384eb0
+APPIMAGETOOL_SHA256=ed4ce84f0d9caff66f50bcca6ff6f35aae54ce8135408b3fa33abfc3cb384eb0 # x86_64
+APPIMAGETOOL_SHA256_AARCH64=f0837e7448a0c1e4e650a93bb3e85802546e60654ef287576f46c71c126a9158
 RUNTIME_VERSION=20251108 # github.com/AppImage/type2-runtime: static, needs no libfuse on the host
-RUNTIME_SHA256=2fca8b443c92510f1483a883f60061ad09b46b978b2631c807cd873a47ec260d
+RUNTIME_SHA256=2fca8b443c92510f1483a883f60061ad09b46b978b2631c807cd873a47ec260d # x86_64
+RUNTIME_SHA256_AARCH64=00cbdfcf917cc6c0ff6d3347d59e0ca1f7f45a6df1a428a0d6d8a78664d87444
+if [ "$ARCH" = aarch64 ]; then
+    APPIMAGETOOL_SHA256="$APPIMAGETOOL_SHA256_AARCH64"
+    RUNTIME_SHA256="$RUNTIME_SHA256_AARCH64"
+fi
 # gh-releases-zsync: Gear Lever and AppImageUpdate look up the GitHub release and compare the
 # .zsync's SHA-1 with the installed file. "latest-all" instead of "latest": every Kinoklip
 # release is a GitHub pre-release, and "latest" (GitHub's /releases/latest) never returns
 # pre-releases; "latest-all" takes the newest release, pre-release or not.
-UPDATE_INFO="${KK_UPDATE_INFO-gh-releases-zsync|SeniorMatt|kinoklip|latest-all|Kinoklip-*x86_64.AppImage.zsync}"
-APPIMAGE="$DIST/Kinoklip-x86_64.AppImage"
+UPDATE_INFO="${KK_UPDATE_INFO-gh-releases-zsync|SeniorMatt|kinoklip|latest-all|Kinoklip-*$ARCH.AppImage.zsync}"
+APPIMAGE="$DIST/Kinoklip-$ARCH.AppImage"
 if [ -n "$DEV_COMMIT" ]; then # a dev build never updates itself to or from the release channel
     UPDATE_INFO=""
-    APPIMAGE="$DIST/Kinoklip-dev-$FULL_VERSION-$DEV_COMMIT-x86_64.AppImage"
+    APPIMAGE="$DIST/Kinoklip-dev-$FULL_VERSION-$DEV_COMMIT-$ARCH.AppImage"
 fi
 TOOLS="${KK_TOOLS_CACHE:-$ROOT/.cache/appimage-tools}"
 
@@ -646,11 +669,11 @@ fetch() {
 
 rm -f "$APPIMAGE" "$APPIMAGE.zsync"
 if [ "$DO_APPIMAGE" = 1 ]; then
-    TOOL="$TOOLS/appimagetool-$APPIMAGETOOL_VERSION-x86_64.AppImage"
-    RUNTIME="$TOOLS/runtime-$RUNTIME_VERSION-x86_64"
-    fetch "https://github.com/AppImage/appimagetool/releases/download/$APPIMAGETOOL_VERSION/appimagetool-x86_64.AppImage" \
+    TOOL="$TOOLS/appimagetool-$APPIMAGETOOL_VERSION-$ARCH.AppImage"
+    RUNTIME="$TOOLS/runtime-$RUNTIME_VERSION-$ARCH"
+    fetch "https://github.com/AppImage/appimagetool/releases/download/$APPIMAGETOOL_VERSION/appimagetool-$ARCH.AppImage" \
         "$APPIMAGETOOL_SHA256" "$TOOL"
-    fetch "https://github.com/AppImage/type2-runtime/releases/download/$RUNTIME_VERSION/runtime-x86_64" \
+    fetch "https://github.com/AppImage/type2-runtime/releases/download/$RUNTIME_VERSION/runtime-$ARCH" \
         "$RUNTIME_SHA256" "$RUNTIME"
     log "making $APPIMAGE"
     # APPIMAGE_EXTRACT_AND_RUN: appimagetool is itself an AppImage and containers have no FUSE.
@@ -665,7 +688,7 @@ if [ "$DO_APPIMAGE" = 1 ]; then
     [ -n "$UPDATE_INFO" ] && UPDATE_ARGS=(-u "$UPDATE_INFO")
     (
         cd "$DIST"
-        ARCH=x86_64 APPIMAGE_EXTRACT_AND_RUN=1 "$TOOL" --no-appstream \
+        ARCH="$ARCH" APPIMAGE_EXTRACT_AND_RUN=1 "$TOOL" --no-appstream \
             --runtime-file "$RUNTIME" --comp zstd --mksquashfs-opt -b --mksquashfs-opt 1M \
             --mksquashfs-opt -Xcompression-level --mksquashfs-opt "${KK_ZSTD_LEVEL:-19}" \
             "${UPDATE_ARGS[@]}" "$APPDIR" "$APPIMAGE" >&2
@@ -692,18 +715,19 @@ gzip) EXT=gz COMPRESS=(gzip -9 -n -c) ;;
 esac
 
 # stale outputs of earlier runs must not end up in a release
-rm -f "$DIST"/kinoklip-x86_64.tar.* "$DIST/Kinoklip-x86_64.run"
+rm -f "$DIST"/kinoklip-"$ARCH".tar.* "$DIST/Kinoklip-$ARCH.run"
+[ "$DO_RUN" = 0 ] || [ "$ARCH" = x86_64 ] || die "--run (the legacy self-extracting file) is x86_64 only"
 if [ "$DO_TARBALL" = 1 ] || [ "$DO_RUN" = 1 ]; then
-    TARBALL="$DIST/kinoklip-x86_64.tar.$EXT"
+    TARBALL="$DIST/kinoklip-$ARCH.tar.$EXT"
     log "compressing ($COMP) -> $TARBALL"
     # Reproducible archive: sorted entries, fixed owner and mtime, so identical contents give
     # an identical hash (and the .run reuses its existing cache directory).
     tar -C "$DIST" --sort=name --owner=0 --group=0 --numeric-owner \
-        --mtime='2026-01-01 00:00:00Z' -cf - kinoklip-x86_64 | "${COMPRESS[@]}" >"$TARBALL"
+        --mtime='2026-01-01 00:00:00Z' -cf - "kinoklip-$ARCH" | "${COMPRESS[@]}" >"$TARBALL"
 fi
 
 if [ "$DO_RUN" = 1 ]; then
-    RUN="$DIST/Kinoklip-x86_64.run"
+    RUN="$DIST/Kinoklip-$ARCH.run"
     HASH="$(sha256sum "$TARBALL" | cut -c1-16)"
     HEADER="$(mktemp)"
     # Fill in the template. @OFFSET@ is replaced by a fixed-width (12 digit) number so that
@@ -726,7 +750,7 @@ fi
 log "AppDir: $(du -sh "$APPDIR" | cut -f1) in $APPDIR"
 log "  usr/lib: $(ls "$APPDIR/usr/lib" | grep -c '\.so') libs, usr/lib/qt: $(ls "$APPDIR/usr/lib/qt" | grep -c '\.so') libs," \
     "fallback: $(ls "$APPDIR/usr/lib/fallback" | grep -c '\.so') libs, plugins: ${#PLUGIN_FILES[@]} Qt + ${#HEIF_PLUGINS[@]} libheif"
-for f in "$APPIMAGE" "$APPIMAGE.zsync" "$DIST"/kinoklip-x86_64.tar.* "$DIST"/Kinoklip-x86_64.run; do
+for f in "$APPIMAGE" "$APPIMAGE.zsync" "$DIST"/kinoklip-"$ARCH".tar.* "$DIST/Kinoklip-$ARCH.run"; do
     [ -f "$f" ] && log "$(du -h "$f" | cut -f1)	$f"
 done
 [ -z "$UPDATE_INFO" ] || [ "$DO_APPIMAGE" = 0 ] || log "update information: $UPDATE_INFO"

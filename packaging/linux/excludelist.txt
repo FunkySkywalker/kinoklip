@@ -41,6 +41,7 @@
 # ships the build host's glibc separately in usr/lib/glibc/, which AppRun only uses (via its
 # own ld.so) when the host glibc is older than the bundle needs ----
 host ld-linux-x86-64.so.2 # glibc: the loader itself, see usr/lib/glibc
+host ld-linux-aarch64.so.1 # glibc: the loader itself on ARM64, see usr/lib/glibc
 host linux-vdso.so.1 # glibc: provided by the kernel, not a file
 host libc.so.6 # glibc: one per process, see usr/lib/glibc
 host libm.so.6 # glibc: one per process, see usr/lib/glibc

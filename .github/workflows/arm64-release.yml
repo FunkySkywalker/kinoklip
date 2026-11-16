@@ -1,0 +1,178 @@
+name: ARM64 release
+
+# Builds Kinoklip-aarch64.AppImage on GitHub's free ARM runners. Only the release ARM64 file is
+# built here; x86_64 releases and all dev builds are made on the maintainer's machine.
+#
+#   gh workflow run arm64-release.yml -f tag=v1.8.3     build that tag, upload to its release
+#   gh workflow run arm64-release.yml --ref <branch>    test run: workflow artifact only
+#
+# scripts/publish_release.sh starts the first form after publishing the x86_64 release.
+# Base image: Debian 13 (trixie), see packaging/linux/readme.md, "ARM64".
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to build and upload to (empty = test run, artifact only)"
+        required: false
+        default: ""
+      run_tests:
+        description: "Also build everything and run ctest -L quick"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: arm64-release-${{ inputs.tag || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 150
+    container:
+      image: debian:trixie
+      env:
+        DEBIAN_FRONTEND: noninteractive
+    env:
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+      CCACHE_MAXSIZE: 1G
+      CMAKE_CXX_COMPILER_LAUNCHER: ccache
+      CMAKE_C_COMPILER_LAUNCHER: ccache
+      KK_BUILD_DIR: ${{ github.workspace }}/build-arm64
+      KK_JOBS: 4
+      CMAKE_PREFIX_PATH: /opt/onnxruntime
+    steps:
+      - name: Install build tools and libraries
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential cmake ninja-build pkg-config git ca-certificates curl file patchelf \
+            zstd xz-utils ccache binutils bsdextrautils appstream xvfb xauth \
+            qt6-base-dev qt6-base-dev-tools qt6-base-private-dev qt6-multimedia-dev qt6-svg-dev \
+            qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools qt6-wayland libqt6opengl6-dev \
+            libqt6svg6 qt6-image-formats-plugins qt6-translations-l10n fonts-noto-color-emoji \
+            libgl-dev libegl-dev libxkbcommon-dev libwayland-dev libva-dev \
+            libkf6colorscheme-dev libkf6iconthemes-dev breeze breeze-icon-theme \
+            libavformat-dev libavcodec-dev libavutil-dev libswscale-dev libswresample-dev \
+            libavfilter-dev libheif-dev libraw-dev
+          # ONNX Runtime (Background Removal): Microsoft's release (MIT, CPU), pinned and checked.
+          # Debian's libonnxruntime-dev loads onnx twice (libonnx.so + its own copy) and aborts at
+          # start with a protobuf descriptor error, so it is not used.
+          ORT=1.22.0
+          ORT_SHA256=bb76395092d150b52c7092dc6b8f2fe4d80f0f3bf0416d2f269193e347e24702
+          curl -fsSL --retry 3 -o /tmp/ort.tgz \
+            "https://github.com/microsoft/onnxruntime/releases/download/v$ORT/onnxruntime-linux-aarch64-$ORT.tgz"
+          echo "$ORT_SHA256  /tmp/ort.tgz" | sha256sum -c -
+          mkdir -p /opt/onnxruntime && tar -xzf /tmp/ort.tgz -C /opt/onnxruntime --strip-components=1
+          gcc --version | head -1; cmake --version | head -1; qtpaths6 --version || true
+          pkg-config --modversion libavcodec libheif libraw_r
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+          fetch-depth: 1
+
+      - name: Restore ccache
+        uses: actions/cache/restore@v4
+        with:
+          path: .ccache
+          key: ccache-arm64-${{ github.sha }}
+          restore-keys: ccache-arm64-
+
+      - name: Build and package
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          ccache -z
+          scripts/package_linux.sh
+          ccache -s | head -8
+          ls -l dist
+
+      - name: Save ccache
+        if: ${{ always() }}
+        uses: actions/cache/save@v4
+        with:
+          path: .ccache
+          key: ccache-arm64-${{ github.sha }}
+
+      - name: Check the bundle
+        run: scripts/check_bundle.sh
+
+      - name: Smoke test
+        run: |
+          set -eu
+          cd dist
+          ./Kinoklip-aarch64.AppImage --appimage-extract-and-run --version | tee version.txt
+          grep -q '[0-9]' version.txt
+          ./Kinoklip-aarch64.AppImage --appimage-updateinformation
+          xvfb-run -a -s '-screen 0 1920x1080x24' \
+            ./Kinoklip-aarch64.AppImage --appimage-extract-and-run --screenshot edit "$PWD/smoke-edit.png"
+          file smoke-edit.png | grep -q 'PNG image data, 1920 x 1080'
+          ls -l smoke-edit.png
+
+      - name: Diagnostics after a failed smoke test
+        if: ${{ failure() }}
+        run: |
+          ls dist/kinoklip-aarch64/usr/lib dist/kinoklip-aarch64/usr/lib/qt dist/kinoklip-aarch64/usr/lib/fallback | grep -i 'proto\|onnx\|abseil\|absl' || true
+          ldd dist/kinoklip-aarch64/usr/bin/kinoklip | grep -i 'proto\|onnx' || true
+
+      - name: Quick tests
+        if: ${{ inputs.run_tests }}
+        run: |
+          cmake --build "$KK_BUILD_DIR" -j"$KK_JOBS"
+          QT_QPA_PLATFORM=offscreen ctest --test-dir "$KK_BUILD_DIR" -L quick -j2 --output-on-failure
+
+      - name: Checksum
+        run: |
+          cd dist
+          sha256sum Kinoklip-aarch64.AppImage | tee Kinoklip-aarch64.sha256
+          ls -l Kinoklip-aarch64.AppImage Kinoklip-aarch64.AppImage.zsync
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Kinoklip-aarch64
+          path: |
+            dist/Kinoklip-aarch64.AppImage
+            dist/Kinoklip-aarch64.AppImage.zsync
+            dist/Kinoklip-aarch64.sha256
+            dist/version.txt
+            dist/smoke-edit.png
+          if-no-files-found: error
+          retention-days: 14
+
+  upload:
+    # Only with a tag: adds the ARM64 files to that release. Never touches the x86_64 assets.
+    if: ${{ inputs.tag != '' }}
+    needs: build
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      TAG: ${{ inputs.tag }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: Kinoklip-aarch64
+          path: out
+      - name: Upload to the release
+        run: |
+          set -eu
+          gh release view "$TAG" >/dev/null
+          cd out
+          # SHA256SUMS.txt: the release's own file plus the ARM64 line (waits for it if the
+          # x86_64 upload is still running).
+          for i in $(seq 1 60); do
+              gh release download "$TAG" -p SHA256SUMS.txt -D . --clobber 2>/dev/null && break
+              echo "waiting for SHA256SUMS.txt in $TAG"
+              sleep 30
+          done
+          [ -f SHA256SUMS.txt ] || { echo "release $TAG has no SHA256SUMS.txt" >&2; exit 1; }
+          grep -v 'Kinoklip-aarch64' SHA256SUMS.txt > sums.new || true
+          sha256sum Kinoklip-aarch64.AppImage Kinoklip-aarch64.AppImage.zsync >> sums.new
+          mv sums.new SHA256SUMS.txt
+          cat SHA256SUMS.txt
+          gh release upload "$TAG" --clobber Kinoklip-aarch64.AppImage Kinoklip-aarch64.AppImage.zsync SHA256SUMS.txt

@@ -295,6 +295,34 @@ Wayland platform plugin because Qt 6.10 renamed it). Manual Wayland check in the
 Test hooks: `KINOKLIP_FORCE_FALLBACK=1` (use every fallback), `KINOKLIP_HOST_LIBDIRS=dir:dir`
 (search only these dirs for host libraries, e.g. an empty dir to simulate a bare host).
 
+## ARM64 (aarch64)
+
+Every release also has `Kinoklip-aarch64.AppImage` (+ `.zsync`), for ARM64 computers (Raspberry Pi 5,
+Ampere, Apple-silicon Linux VMs, Snapdragon laptops). It is the only file built on GitHub; the
+x86_64 release and every dev build stay local.
+
+- **Workflow:** `.github/workflows/arm64-release.yml`, runner `ubuntu-24.04-arm` (free for public
+  repositories). `scripts/publish_release.sh` starts it after publishing:
+  `gh workflow run arm64-release.yml --ref main -f tag=v<version>` (run it by hand to redo it).
+  It builds that tag, runs `check_bundle.sh` and a smoke test (`--version`, an offscreen-in-Xvfb
+  `--screenshot edit`), then adds `Kinoklip-aarch64.AppImage`, its `.zsync` and a line in
+  `SHA256SUMS.txt` to the release. Existing x86_64 assets are never touched. Without a `tag` input
+  (a test run on a branch) it only uploads a workflow artifact. Input `run_tests` also builds
+  everything and runs `ctest -L quick`.
+- **Base image: Debian 13 (trixie)** in a container on the runner. Official image with arm64
+  builds; Qt 6.8 and KDE Frameworks 6.x (KColorScheme, IconThemes, Breeze style and icons, colour
+  schemes) so the bundle has the Breeze look like the Arch one; FFmpeg 7.1 with libx264, libx265,
+  OpenH264 and the rest in the main archive (Fedora's `ffmpeg-free` has no H.264/H.265 encoders and
+  Ubuntu 24.04 has Qt 6.4 without KF6). glibc 2.41 is older than the Arch build host's, so the
+  bundle needs less from the user's system.
+- **Same script:** `scripts/package_linux.sh` and `scripts/check_bundle.sh` pick the architecture from
+  `uname -m` (override `KK_ARCH=aarch64`); the pinned appimagetool 1.9.1 and runtime 20251108 have
+  their own aarch64 SHA-256 in the script. The x86_64 path is unchanged. `AppRun` finds the
+  bundled loader (`ld-linux-aarch64.so.1`), the multiarch directory and the ld.so cache tag
+  (`AArch64`) from the bundle itself. `--run` (the legacy self-extracting file) is x86_64 only.
+- **Update information:** `gh-releases-zsync|SeniorMatt|kinoklip|latest-all|Kinoklip-*aarch64.AppImage.zsync`.
+- **Caching:** ccache in `actions/cache`, so a release after the first one rebuilds only what changed.
+
 ## The AppImage
 
 `package_linux.sh` runs **appimagetool 1.9.1** with the **type 2 static runtime 20251108**

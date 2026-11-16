@@ -7,7 +7,7 @@
 # when a package listed in bundled-libraries.txt has no non-empty licence text of its own
 # (licenses/<pkg>/ with a file, or licenses/<pkg>.copyright). Read-only.
 set -u
-APPDIR="${1:-dist/kinoklip-x86_64}"
+APPDIR="${1:-dist/kinoklip-$(uname -m)}"
 DOC="$APPDIR/usr/share/doc/kinoklip"
 LIC="$DOC/licenses"
 [ -d "$LIC" ] || { echo "check_licenses: no $LIC" >&2; exit 1; }
