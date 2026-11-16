@@ -212,7 +212,8 @@ private slots:
         QVERIFY(loaded > 0);
     }
 
-    /// Hand-written damaged files: each must fail cleanly or load sanely.
+    /// Hand-written damaged files: each must fail cleanly or load sanely (repairable damage is
+    /// repaired on load, spec 28.14; only unreadable files and out-of-range formats fail).
     void hostileProjectFiles_data()
     {
         QTest::addColumn<QByteArray>("json");
@@ -225,7 +226,7 @@ private slots:
         QTest::newRow("version only") << QByteArray(R"({"formatVersion":1})") << true;
         QTest::newRow("zero fps") << QByteArray(
             R"({"formatVersion":1,"timeline":{"fps":{"num":0,"den":0}}})")
-                                  << false;
+                                  << true; // repaired on load (spec 28.14)
         QTest::newRow("absurd fps")
             << QByteArray(R"({"formatVersion":1,"timeline":{"fps":{"num":2000000000,"den":1}}})")
             << false;
@@ -233,15 +234,15 @@ private slots:
             << QByteArray(R"({"formatVersion":1,"timeline":{"width":100000,"height":100000}})")
             << false;
         QTest::newRow("negative size")
-            << QByteArray(R"({"formatVersion":1,"timeline":{"width":-5,"height":1080}})") << false;
+            << QByteArray(R"({"formatVersion":1,"timeline":{"width":-5,"height":1080}})") << true; // repaired on load (spec 28.14)
         QTest::newRow("clip far away")
             << QByteArray(R"({"formatVersion":1,"timeline":{"nextId":10,"videoTracks":[{"id":1,
                 "clips":[{"id":2,"kind":"solid","start":9000000000000000000,"duration":5}]}]}})")
-            << false;
+            << true; // repaired on load (spec 28.14)
         QTest::newRow("absurd speed")
             << QByteArray(R"({"formatVersion":1,"timeline":{"nextId":10,"videoTracks":[{"id":1,
                 "clips":[{"id":2,"kind":"solid","start":0,"duration":5,"speed":1e300}]}]}})")
-            << false;
+            << true; // repaired on load (spec 28.14)
         QTest::newRow("transition longer than clip")
             << QByteArray(R"({"formatVersion":1,"timeline":{"nextId":10,"videoTracks":[{"id":1,
                 "clips":[{"id":2,"kind":"solid","start":0,"duration":5,

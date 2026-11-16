@@ -940,13 +940,19 @@ private slots:
         QCOMPARE(r.layout(Rig::kV1), QStringLiteral("0:40 40:40 80:40"));
     }
 
-    void unlinkedSelectionLeavesThePartnerAlone()
+    void unlinkedSelectionStillKeepsSyncLockedTracksInSync()
     {
         Rig r;
         r.controller.setLinkedSelection(false);
         r.at(50);
         r.type(QStringLiteral("dd"));
         QCOMPARE(r.layout(Rig::kV1), QStringLiteral("0:40 40:40"));
+        // the partner is not selected, but sync-locked A1 loses the same frames (spec 97.11)
+        QCOMPARE(r.layout(Rig::kA1), QStringLiteral("0:40 40:40"));
+        r.undo();
+        r.f.data().audioTracks[0].syncLock = false; // sync lock off: A1 stays
+        r.at(50);
+        r.type(QStringLiteral("dd"));
         QCOMPARE(r.layout(Rig::kA1), QStringLiteral("0:40 40:40 80:40"));
     }
 
@@ -1139,7 +1145,8 @@ private slots:
         r.at(10);
         r.type(QStringLiteral("dit")); // the stack at frame 10: V1 and A1 (V2 starts at 20)
         QCOMPARE(r.layout(Rig::kV1), QStringLiteral("0:40 40:40"));
-        QCOMPARE(r.layout(Rig::kV2), QStringLiteral("20:40"));
+        // V2 (20..60) loses the deleted frames 20..40 and moves left with V1 (spec 97.11)
+        QCOMPARE(r.layout(Rig::kV2), QStringLiteral("0:20"));
         r.undo();
     }
 
