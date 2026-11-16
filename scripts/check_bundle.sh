@@ -5,7 +5,7 @@
 # and the AppImage parts (desktop entry, icon, .DirIcon, AppRun, AppStream) are in place.
 #
 # Usage: scripts/check_bundle.sh [AppDir | .AppImage]
-#   default: dist/kinoklip-x86_64, then dist/Kinoklip-x86_64.AppImage if it exists.
+#   default: dist/kinoklip-<arch>, then dist/Kinoklip-<arch>.AppImage if it exists (arch: uname -m).
 #   An .AppImage is unpacked (--appimage-extract, no FUSE needed) into a temporary directory
 #   and checked like an AppDir, plus its embedded update information.
 #
@@ -24,13 +24,15 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 APP_ID=org.kinoklip.Kinoklip
+ARCH="${KK_ARCH:-$(uname -m)}"
+case "$ARCH" in arm64) ARCH=aarch64 ;; esac
 
 # Without an argument: the AppDir and then the AppImage made from it.
 if [ $# -eq 0 ]; then
-    "$0" "$ROOT/dist/kinoklip-x86_64" || exit 1
-    if [ -f "$ROOT/dist/Kinoklip-x86_64.AppImage" ]; then
+    "$0" "$ROOT/dist/kinoklip-$ARCH" || exit 1
+    if [ -f "$ROOT/dist/Kinoklip-$ARCH.AppImage" ]; then
         echo
-        exec "$0" "$ROOT/dist/Kinoklip-x86_64.AppImage"
+        exec "$0" "$ROOT/dist/Kinoklip-$ARCH.AppImage"
     fi
     exit 0
 fi
