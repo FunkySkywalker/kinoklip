@@ -33,6 +33,14 @@
         <file>icons/app/kinoklip-128.png</file>
         <file>icons/app/kinoklip-256.png</file>
         <file>icons/app/kinoklip-512.png</file>
+        <file>icons/app/kinoklip-dev-16.png</file>
+        <file>icons/app/kinoklip-dev-24.png</file>
+        <file>icons/app/kinoklip-dev-32.png</file>
+        <file>icons/app/kinoklip-dev-48.png</file>
+        <file>icons/app/kinoklip-dev-64.png</file>
+        <file>icons/app/kinoklip-dev-128.png</file>
+        <file>icons/app/kinoklip-dev-256.png</file>
+        <file>icons/app/kinoklip-dev-512.png</file>
         <file>icons/audio_file.svg</file>
         <file>icons/subtitle.svg</file>
         <file>icons/compound_clip.svg</file>

@@ -518,7 +518,7 @@ QVector<MenuCategory> standardMenus()
 {
     return {
         // Resolve's first menu carries the application's name (About, Preferences, Quit).
-        {QStringLiteral("app"), QCoreApplication::applicationName()},
+        {QStringLiteral("app"), QGuiApplication::applicationDisplayName()},
         {QStringLiteral("file"), lookup(QT_TRANSLATE_NOOP("kk::StandardActions", "&File"))},
         {QStringLiteral("edit"), lookup(QT_TRANSLATE_NOOP("kk::StandardActions", "&Edit"))},
         {QStringLiteral("trim"), lookup(QT_TRANSLATE_NOOP("kk::StandardActions", "&Trim"))},
@@ -563,9 +563,9 @@ void registerStandardActions(ActionRegistry& registry)
 
     // Initial states and groupings that are part of the command's definition.
     QAction* about = registry.action(QStringLiteral("help.about"));
-    about->setText(about->text().arg(QCoreApplication::applicationName()));
+    about->setText(about->text().arg(QGuiApplication::applicationDisplayName()));
     QAction* quit = registry.action(QStringLiteral("file.quit"));
-    quit->setText(quit->text().arg(QCoreApplication::applicationName()));
+    quit->setText(quit->text().arg(QGuiApplication::applicationDisplayName()));
     about->setMenuRole(QAction::AboutRole);
     registry.action(QStringLiteral("help.about_qt"))->setMenuRole(QAction::AboutQtRole);
     registry.action(QStringLiteral("file.quit"))->setMenuRole(QAction::QuitRole);

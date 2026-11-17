@@ -477,8 +477,13 @@ if [ -n "$DEV_COMMIT" ]; then # read by appinfo::devBuildCommit()
     echo "$DEV_COMMIT" >"$APPDIR/usr/share/kinoklip/dev-build"
 fi
 # X-AppImage-Version: the version Gear Lever / appimaged show (after [Desktop Entry]'s keys).
+# A dev build is "Kinoklip Dev" in the launcher (the app shows the same name: appinfo::displayName).
 {
-    cat "$PKG/$APP_ID.desktop"
+    if [ -n "$DEV_COMMIT" ]; then
+        sed 's/^Name=Kinoklip$/Name=Kinoklip Dev/' "$PKG/$APP_ID.desktop"
+    else
+        cat "$PKG/$APP_ID.desktop"
+    fi
     echo "X-AppImage-Version=$FULL_VERSION"
 } >"$APPDIR/$APP_ID.desktop"
 chmod 644 "$APPDIR/$APP_ID.desktop"
@@ -499,13 +504,18 @@ if command -v desktop-file-validate >/dev/null; then
     desktop-file-validate "$APPDIR/$APP_ID.desktop" >&2 || die "desktop entry does not validate"
 fi
 # The icon: the owner's pixel art, one PNG per size (resources/icons/app, scripts/make_app_icons.py).
+# A dev build uses kinoklip-dev-<size>.png (the owner's dev icon, kinoklip-dev.aseprite) where it
+# exists, else the release icon.
+icon() {
+    local dev="$ROOT/resources/icons/app/kinoklip-dev-$1.png"
+    if [ -n "$DEV_COMMIT" ] && [ -f "$dev" ]; then echo "$dev"; else echo "$ROOT/resources/icons/app/kinoklip-$1.png"; fi
+}
 for size in 16 24 32 48 64 128 256 512; do
-    install -D -m 644 "$ROOT/resources/icons/app/kinoklip-$size.png" \
-        "$APPDIR/usr/share/icons/hicolor/${size}x${size}/apps/$APP_ID.png"
+    install -D -m 644 "$(icon $size)" "$APPDIR/usr/share/icons/hicolor/${size}x${size}/apps/$APP_ID.png"
 done
-install -m 644 "$ROOT/resources/icons/app/kinoklip-256.png" "$APPDIR/$APP_ID.png"
+install -m 644 "$(icon 256)" "$APPDIR/$APP_ID.png"
 # a real file, not a symlink: some AppImage extractors (7-Zip in Gear Lever) handle links badly
-install -m 644 "$ROOT/resources/icons/app/kinoklip-256.png" "$APPDIR/.DirIcon"
+install -m 644 "$(icon 256)" "$APPDIR/.DirIcon"
 install -m 644 "$PKG/$APP_ID.xml" "$APPDIR/usr/share/mime/packages/$APP_ID.xml"
 echo "$VERSION" >"$APPDIR/usr/share/doc/kinoklip/version"
 # Kinoklip's own licence, the name/logo terms, the asset list and where the source code is.

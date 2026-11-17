@@ -132,6 +132,7 @@ void setApplicationIdentity()
     QCoreApplication::setOrganizationName(QLatin1String(kk::appinfo::id));
     QCoreApplication::setApplicationName(QLatin1String(kk::appinfo::name));
     QCoreApplication::setApplicationVersion(kk::appinfo::displayVersion());
+    QGuiApplication::setApplicationDisplayName(kk::appinfo::displayName()); // "Kinoklip Dev"
 }
 
 /// `kinoklip <command> ...` (app/CliRunner.h): runs one command of the command layer without a

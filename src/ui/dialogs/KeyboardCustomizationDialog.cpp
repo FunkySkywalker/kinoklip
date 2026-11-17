@@ -14,6 +14,7 @@
 #include <QComboBox>
 #include <QCoreApplication>
 #include <QDialogButtonBox>
+#include <QGuiApplication>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QInputDialog>
@@ -270,7 +271,7 @@ QString KeyboardCustomizationDialog::commandName(const QString& id) const
     const QAction* action = m_registry.action(id);
     QString name = action ? stripMnemonic(action->text()) : id;
     // Some titles carry a %1 placeholder for the application name.
-    return name.replace(QStringLiteral("%1"), QCoreApplication::applicationName());
+    return name.replace(QStringLiteral("%1"), QGuiApplication::applicationDisplayName());
 }
 
 void KeyboardCustomizationDialog::populate()

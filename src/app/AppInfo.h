@@ -34,6 +34,14 @@ inline QString devBuildCommit()
     }();
     return commit;
 }
+/// The name as shown to the user: "Kinoklip", or "Kinoklip Dev" in a dev build, so the two are
+/// told apart in window titles, menus and the launcher. Settings and data keep `name`, so a dev
+/// copy shares them with the release.
+inline QString displayName()
+{
+    return devBuildCommit().isEmpty() ? QLatin1String(name) : QLatin1String(name) + QStringLiteral(" Dev");
+}
+
 /// Version as shown to the user: "0.1.0-alpha.1" (base version + "-" + prerelease if set);
 /// a local dev build shows "1.8.2 dev (abc1234)".
 inline QString displayVersion()
