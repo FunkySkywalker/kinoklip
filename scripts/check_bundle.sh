@@ -200,12 +200,16 @@ if [ -n "$IMAGE" ]; then
     upd="$("$IMAGE" --appimage-updateinformation 2>/dev/null || true)"
     echo "update information: ${upd:-none}"
     case "$(basename "$IMAGE")" in
-    Kinoklip-dev-*) # a local dev build (scripts/dev_build.sh) must not update from or to the release
-        [ -z "$upd" ] || appdir_fail "a dev AppImage must have no update information"
-        [ ! -f "$IMAGE.zsync" ] || appdir_fail "a dev AppImage must have no .zsync"
+    KinoklipDev-*) # a dev build (scripts/dev_build.sh) updates only from the dev channel
+        case "$upd" in
+        gh-releases-zsync\|*\|KinoklipDev-*) ;;
+        *) appdir_fail "a dev AppImage must update from the dev channel (KinoklipDev-*)" ;;
+        esac
+        [ -f "$IMAGE.zsync" ] || appdir_fail "no $(basename "$IMAGE").zsync next to the AppImage"
         ;;
     *)
         case "$upd" in
+        *KinoklipDev-*) appdir_fail "a release AppImage must not update from the dev channel" ;;
         gh-releases-zsync\|*) ;;
         *) appdir_fail "no gh-releases-zsync update information embedded" ;;
         esac

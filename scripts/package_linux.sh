@@ -20,10 +20,12 @@
 #   KK_JOBS           parallel build jobs (default: 4)
 #   KK_TOOLS_CACHE    where the pinned appimagetool + runtime are cached (default: .cache/appimage-tools)
 #   KK_UPDATE_INFO    update information embedded in the AppImage ("" = none)
-#   KK_DEV_BUILD      short commit: makes a local dev package (scripts/dev_build.sh). Stamps the
-#                     app (--version, About: "<version> dev (<commit>)"), writes no update
-#                     information and no .zsync, names the file Kinoklip-dev-<version>-<commit>-
-#                     x86_64.AppImage. Unset (the default) = the release package, unchanged.
+#   KK_DEV_BUILD      short commit: makes a dev package (scripts/dev_build.sh). Stamps the app
+#                     (--version, About: "<version> dev (<commit>)"), names the file
+#                     KinoklipDev-<arch>.AppImage (+ .zsync) and embeds the dev channel's update
+#                     information (KinoklipDev-*): Gear Lever updates a dev copy from the rolling
+#                     "dev" pre-release, and release copies (Kinoklip-*) never see dev files.
+#                     Unset (the default) = the release package, unchanged.
 #   KK_DIST_DIR       output directory (default: dist; dev_build.sh uses dist/dev)
 #   KK_COMPRESSION    zstd | xz | gzip for --run / --tarball (default: zstd if present)
 #   KK_ZSTD_LEVEL     zstd level of the AppImage squashfs and --run / --tarball (default: 19)
@@ -648,9 +650,11 @@ fi
 # pre-releases; "latest-all" takes the newest release, pre-release or not.
 UPDATE_INFO="${KK_UPDATE_INFO-gh-releases-zsync|SeniorMatt|kinoklip|latest-all|Kinoklip-*$ARCH.AppImage.zsync}"
 APPIMAGE="$DIST/Kinoklip-$ARCH.AppImage"
-if [ -n "$DEV_COMMIT" ]; then # a dev build never updates itself to or from the release channel
-    UPDATE_INFO=""
-    APPIMAGE="$DIST/Kinoklip-dev-$FULL_VERSION-$DEV_COMMIT-$ARCH.AppImage"
+if [ -n "$DEV_COMMIT" ]; then
+    # The dev channel: its own file name, so the release pattern (Kinoklip-*) never matches a dev
+    # file and a dev copy only updates to newer dev builds (scripts/publish_dev.sh).
+    UPDATE_INFO="${KK_UPDATE_INFO-gh-releases-zsync|SeniorMatt|kinoklip|latest-all|KinoklipDev-*$ARCH.AppImage.zsync}"
+    APPIMAGE="$DIST/KinoklipDev-$ARCH.AppImage"
 fi
 TOOLS="${KK_TOOLS_CACHE:-$ROOT/.cache/appimage-tools}"
 
