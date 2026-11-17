@@ -118,7 +118,13 @@ namespace kk::serialization {
 ///   "linear"; absent = "constant") and a key may carry "stepIn". Files of versions 1 - 18 have
 ///   none and play exactly as before; older builds refuse version 19 instead of silently
 ///   showing held values where the animation loops.
-inline constexpr int kFormatVersion = 19;
+/// - 20 (matte branch): qualifier modes and Matte Finesse. A node's "qualifier" may carry
+///   "mode" ("rgb", "luma", "threeD"), the RGB ranges ("useRed" ... "blueSoft"), the 3D
+///   "colors" ([[r, g, b, subtract 0 | 1], ...]) with "colorRange" / "colorSoft", and the Matte
+///   Finesse values ("cleanBlack", "cleanWhite", "shrinkGrow", "blurRadius", "inOutRatio",
+///   "denoise"). Files of versions 1 - 19 have none and select exactly as before; older builds
+///   refuse version 20 instead of silently showing an unfinished matte.
+inline constexpr int kFormatVersion = 20;
 
 /// Encodes one keyframe: {"frame", "value"} plus "in" / "out" / "hold" when not default.
 [[nodiscard]] QJsonObject keyframeToJson(const Keyframe& key);

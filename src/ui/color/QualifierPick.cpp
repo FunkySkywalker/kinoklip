@@ -23,6 +23,38 @@ double hueDelta(double a, double b)
     return d;
 }
 
+/// Edits one range after picking @p values (0..1): Pick sets it around them, Add widens it,
+/// Remove moves the nearer end past each value that is inside.
+void pickRange(double& low, double& high, double soft, const QVector<double>& values, Mode mode)
+{
+    double lo = 1, hi = 0;
+    for (const double v : values) {
+        lo = std::min(lo, v);
+        hi = std::max(hi, v);
+    }
+    switch (mode) {
+    case Mode::Pick:
+        low = std::max(0.0, lo - kRangeMargin);
+        high = std::min(1.0, hi + kRangeMargin);
+        break;
+    case Mode::Add:
+        low = std::max(0.0, std::min(low, lo - kRangeMargin));
+        high = std::min(1.0, std::max(high, hi + kRangeMargin));
+        break;
+    case Mode::Remove:
+        for (const double v : values) {
+            if (v < low || v > high)
+                continue;
+            const double gap = kRangeMargin / 2 + soft;
+            if (v - low < high - v)
+                low = std::min(high, v + gap);
+            else
+                high = std::max(low, v - gap);
+        }
+        break;
+    }
+}
+
 } // namespace
 
 Hsl toHsl(const float rgb[3])
@@ -154,6 +186,79 @@ GradeQualifier apply(const GradeQualifier& current, const QVector<Hsl>& samples,
     }
     }
     return q;
+}
+
+GradeQualifier applyRgb(const GradeQualifier& current, const QVector<Rgb>& samples, Mode mode)
+{
+    if (samples.isEmpty())
+        return current;
+    GradeQualifier q = current;
+    q.enabled = true;
+    QVector<double> v[3];
+    for (const Rgb& s : samples) {
+        for (int c = 0; c < 3; ++c)
+            v[c].append(std::clamp(s[size_t(c)], 0.0f, 1.0f));
+    }
+    pickRange(q.redLow, q.redHigh, q.redSoft, v[0], mode);
+    pickRange(q.greenLow, q.greenHigh, q.greenSoft, v[1], mode);
+    pickRange(q.blueLow, q.blueHigh, q.blueSoft, v[2], mode);
+    return q;
+}
+
+GradeQualifier applyLuma(const GradeQualifier& current, const QVector<Rgb>& samples, Mode mode)
+{
+    if (samples.isEmpty())
+        return current;
+    GradeQualifier q = current;
+    q.enabled = true;
+    QVector<double> luma;
+    for (const Rgb& s : samples)
+        luma.append(grademath::luma(s.data()));
+    pickRange(q.lumLow, q.lumHigh, q.lumSoft, luma, mode);
+    return q;
+}
+
+GradeQualifier apply3d(const GradeQualifier& current, const QVector<Rgb>& samples, Mode mode)
+{
+    if (samples.isEmpty())
+        return current;
+    GradeQualifier q = current;
+    q.enabled = true;
+    if (mode == Mode::Pick)
+        q.colors.clear();
+    constexpr float same = 0.04f; // RGB distance under which two picks are one colour
+    for (const Rgb& s : samples) {
+        GradeQualifierColor c {std::clamp(s[0], 0.0f, 1.0f), std::clamp(s[1], 0.0f, 1.0f),
+            std::clamp(s[2], 0.0f, 1.0f), mode == Mode::Remove};
+        const bool known = std::any_of(q.colors.cbegin(), q.colors.cend(),
+            [&](const GradeQualifierColor& o) {
+                return o.subtract == c.subtract
+                    && std::hypot(o.r - c.r, o.g - c.g, o.b - c.b) < same;
+            });
+        if (!known)
+            q.colors.append(c);
+    }
+    while (q.colors.size() > kMaxQualifierColors)
+        q.colors.removeFirst();
+    return q;
+}
+
+GradeQualifier applyForMode(const GradeQualifier& current, const QVector<Rgb>& samples, Mode mode)
+{
+    switch (current.mode) {
+    case QualifierMode::Rgb:
+        return applyRgb(current, samples, mode);
+    case QualifierMode::Luma:
+        return applyLuma(current, samples, mode);
+    case QualifierMode::ThreeD:
+        return apply3d(current, samples, mode);
+    case QualifierMode::Hsl:
+        break;
+    }
+    QVector<Hsl> hsl;
+    for (const Rgb& s : samples)
+        hsl.append(toHsl(s.data()));
+    return apply(current, hsl, mode);
 }
 
 } // namespace kk::qualifierpick

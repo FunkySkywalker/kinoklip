@@ -42,6 +42,10 @@ struct PreparedGradeNode
     /// colour corrections to the whole picture and then limited by the key like them.
     grademath::BlurValues blur;
     bool blurs = false; ///< blur.active() and the node mix > 0
+    /// The qualifier's Matte Finesse in pixels of the prepared grid; `finesses` when the
+    /// qualifier is on and cleans its matte (the key then needs whole-picture buffers).
+    grademath::MatteFinesse finesse;
+    bool finesses = false;
 };
 
 /// A grade ready to render at one frame.
@@ -63,6 +67,11 @@ struct PreparedGrade
 /// graph for one pixel. @p scratch holds one rgb triple + key per node (resized as needed).
 void gradePixel(
     const PreparedGrade& grade, float rgb[3], float px, float py, std::vector<float>& scratch);
+
+/// The qualifier matte of node input @p rgb (w x h x 3 straight floats): qualifierKey() per
+/// pixel, then the Matte Finesse @p finesse. The Highlight view and the CPU grade use it.
+[[nodiscard]] std::vector<float> qualifierMatte(const GradeQualifier& q,
+    const grademath::MatteFinesse& finesse, const std::vector<float>& rgb, int w, int h);
 
 /// Gaussian blur of the premultiplied RGBA float image @p src (width @p w, height @p h, four
 /// floats per pixel, edges clamped) into @p dst: separable, @p sigmaH / @p sigmaV pixels (0 =

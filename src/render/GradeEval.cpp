@@ -82,6 +82,8 @@ PreparedGrade prepareGrade(const ClipGrade& grade, int64_t frame, const PictureG
                 p.qualifier = n.qualifier;
                 p.windows = evaluateWindows(n, frame, geometry);
                 p.keyed = n.qualifier.enabled || !p.windows.empty();
+                p.finesse = MatteFinesse::at(n.qualifier, geometry.height);
+                p.finesses = n.qualifier.enabled && p.finesse.active();
             }
         }
         out.nodes.push_back(std::move(p));
@@ -95,6 +97,9 @@ PreparedGrade prepareGrade(const ClipGrade& grade, int64_t frame, const PictureG
                 out.nodes[size_t(p.inputs[i])].keyNeeded = true;
         }
     }
+    // A matte nobody reads (identity node, no Layer mixer above) is not cleaned.
+    for (PreparedGradeNode& p : out.nodes)
+        p.finesses = p.finesses && (p.corrects || p.keyNeeded || p.blurs);
     out.output = int(out.nodes.size()) - 1;
     out.identity
         = std::all_of(out.nodes.cbegin(), out.nodes.cend(), [](const PreparedGradeNode& p) {
@@ -213,6 +218,18 @@ void forRowBands(int w, int h, Fn&& fn)
 
 } // namespace
 
+std::vector<float> qualifierMatte(const GradeQualifier& q, const MatteFinesse& finesse,
+    const std::vector<float>& rgb, int w, int h)
+{
+    std::vector<float> matte(size_t(w) * size_t(h));
+    forRowBands(w, h, [&](int y0, int y1) {
+        for (size_t i = size_t(y0) * size_t(w); i < size_t(y1) * size_t(w); ++i)
+            matte[i] = qualifierKey(q, &rgb[i * 3]);
+    });
+    applyMatteFinesse(finesse, matte, w, h);
+    return matte;
+}
+
 void gaussianBlurRgba(const std::vector<float>& src, std::vector<float>& dst, int w, int h,
     float sigmaH, float sigmaV)
 {
@@ -326,8 +343,14 @@ void applyGradeBlurred(const PreparedGrade& g, QImage& image)
     for (size_t i = 0; i < nodes; ++i) {
         const PreparedGradeNode& n = g.nodes[i];
         out[i].assign(count * 4, 0.0f);
-        if (n.type == GradeNodeType::Corrector && n.blurs && !n.bypassed) {
-            std::vector<float> graded(count * 3), key(count, 0.0f);
+        if (n.type == GradeNodeType::Corrector && (n.blurs || n.finesses) && !n.bypassed) {
+            std::vector<float> graded(count * 3), key(count, 0.0f), matte;
+            if (n.finesses) {
+                std::vector<float> in(count * 3);
+                for (size_t p = 0; p < count; ++p)
+                    std::copy_n(inputColour(n.inputs[0], p), 3, &in[p * 3]);
+                matte = qualifierMatte(n.qualifier, n.finesse, in, w, h);
+            }
             forRowBands(w, h, [&](int y0, int y1) {
                 for (int y = y0; y < y1; ++y) {
                     for (int x = 0; x < w; ++x) {
@@ -337,7 +360,7 @@ void applyGradeBlurred(const PreparedGrade& g, QImage& image)
                         const float* in = inputColour(n.inputs[0], p);
                         float k = n.mix;
                         if (n.keyed) {
-                            k *= qualifierKey(n.qualifier, in);
+                            k *= n.finesses ? matte[p] : qualifierKey(n.qualifier, in);
                             k *= windowsMatte(n.windows, float(x) + 0.5f, float(y) + 0.5f);
                         }
                         key[p] = k;
@@ -424,7 +447,7 @@ void applyGrade(const PreparedGrade& grade, QImage& image)
     const int h = image.height();
     image.detach();
     if (std::any_of(grade.nodes.cbegin(), grade.nodes.cend(),
-            [](const PreparedGradeNode& n) { return n.blurs; })) {
+            [](const PreparedGradeNode& n) { return n.blurs || n.finesses; })) {
         applyGradeBlurred(grade, image);
         return;
     }

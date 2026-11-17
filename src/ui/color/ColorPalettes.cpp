@@ -274,6 +274,15 @@ QualifierPanel::QualifierPanel(ColorSession* session, QWidget* parent)
         emit pickModeChanged();
     });
     tools->addSpacing(10);
+    m_mode = new QComboBox(this);
+    m_mode->setObjectName(QStringLiteral("QualifierMode"));
+    m_mode->setToolTip(tr("What the qualifier selects by: hue / saturation / luminance, red / "
+                          "green / blue, luma only, or picked colours in 3D"));
+    m_mode->addItem(tr("HSL"), int(QualifierMode::Hsl));
+    m_mode->addItem(tr("RGB"), int(QualifierMode::Rgb));
+    m_mode->addItem(tr("Luma"), int(QualifierMode::Luma));
+    m_mode->addItem(tr("3D"), int(QualifierMode::ThreeD));
+    tools->addWidget(m_mode);
     m_enable = new QCheckBox(tr("Qualify"), this);
     m_enable->setObjectName(QStringLiteral("QualifierEnable"));
     m_invert = new QCheckBox(tr("Invert"), this);
@@ -294,8 +303,12 @@ QualifierPanel::QualifierPanel(ColorSession* session, QWidget* parent)
     tools->addWidget(m_highlightMode);
     layout->addLayout(tools);
 
-    // ---- The three channels ----
-    auto* grid = new QGridLayout;
+    // ---- The ranges: HSL (Luma shows the Lum row only), RGB, 3D ----
+    m_ranges = new QStackedWidget(this);
+    m_ranges->setObjectName(QStringLiteral("QualifierRanges"));
+    auto* hslBox = new QWidget(m_ranges);
+    auto* grid = new QGridLayout(hslBox);
+    grid->setContentsMargins(0, 0, 0, 0);
     grid->setHorizontalSpacing(6);
     grid->setVerticalSpacing(3);
     const QString names[] = {tr("Hue"), tr("Sat"), tr("Lum")};
@@ -306,23 +319,123 @@ QualifierPanel::QualifierPanel(ColorSession* session, QWidget* parent)
     const QString fieldLabels[3][3] = {{tr("Center"), tr("Width"), tr("Soft")},
         {tr("Low"), tr("High"), tr("Soft")}, {tr("Low"), tr("High"), tr("Soft")}};
     for (int c = 0; c < 3; ++c) {
-        m_use[c] = new QCheckBox(names[c], this);
+        m_use[c] = new QCheckBox(names[c], hslBox);
         m_use[c]->setObjectName(QStringLiteral("QualifierUse_") + names[c]);
         grid->addWidget(m_use[c], c, 0);
-        m_bars[c] = new QualifierRangeBar(QualifierRangeBar::Channel(c), this);
+        m_rowWidgets[c].append(m_use[c]);
+        m_bars[c] = new QualifierRangeBar(QualifierRangeBar::Channel(c), hslBox);
         grid->addWidget(m_bars[c], c, 1);
+        m_rowWidgets[c].append(m_bars[c]);
         for (int k = 0; k < 3; ++k) {
-            auto* label = new QLabel(fieldLabels[c][k], this);
-            ValueField* f = makeField(this, 0.0, 1.0, 0.002, 3);
+            auto* label = new QLabel(fieldLabels[c][k], hslBox);
+            ValueField* f = makeField(hslBox, 0.0, 1.0, 0.002, 3);
             f->setObjectName(QStringLiteral("Qualifier_") + fieldNames[c][k]);
             grid->addWidget(label, c, 2 + k * 2, Qt::AlignRight | Qt::AlignVCenter);
             grid->addWidget(f, c, 3 + k * 2);
+            m_rowWidgets[c].append(label);
+            m_rowWidgets[c].append(f);
             m_fields.append({fieldNames[c][k], f});
         }
     }
     grid->setColumnStretch(1, 1);
     grid->setHorizontalSpacing(8);
-    layout->addLayout(grid);
+    m_ranges->addWidget(hslBox);
+
+    // RGB: a Low / High / Soft row per channel.
+    auto* rgbBox = new QWidget(m_ranges);
+    auto* rgbGrid = new QGridLayout(rgbBox);
+    rgbGrid->setContentsMargins(0, 0, 0, 0);
+    rgbGrid->setHorizontalSpacing(8);
+    rgbGrid->setVerticalSpacing(3);
+    const QString rgbNames[] = {tr("Red"), tr("Green"), tr("Blue")};
+    const QString rgbKeys[] = {QStringLiteral("red"), QStringLiteral("green"), QStringLiteral("blue")};
+    const QString rgbLabels[] = {tr("Low"), tr("High"), tr("Soft")};
+    const QString rgbSuffix[] = {QStringLiteral("Low"), QStringLiteral("High"), QStringLiteral("Soft")};
+    for (int c = 0; c < 3; ++c) {
+        m_useRgb[c] = new QCheckBox(rgbNames[c], rgbBox);
+        m_useRgb[c]->setObjectName(QStringLiteral("QualifierUse_") + rgbNames[c]);
+        rgbGrid->addWidget(m_useRgb[c], c, 0);
+        for (int k = 0; k < 3; ++k) {
+            auto* label = new QLabel(rgbLabels[k], rgbBox);
+            ValueField* f = makeField(rgbBox, 0.0, 1.0, 0.002, 3);
+            f->setObjectName(QStringLiteral("Qualifier_") + rgbKeys[c] + rgbSuffix[k]);
+            rgbGrid->addWidget(label, c, 1 + k * 2, Qt::AlignRight | Qt::AlignVCenter);
+            rgbGrid->addWidget(f, c, 2 + k * 2);
+            m_fields.append({rgbKeys[c] + rgbSuffix[k], f});
+        }
+    }
+    rgbGrid->setColumnStretch(7, 1);
+    m_ranges->addWidget(rgbBox);
+
+    // 3D: the picked colours and how far around them the selection reaches.
+    auto* boxes3d = new QWidget(m_ranges);
+    auto* row3d = new QHBoxLayout(boxes3d);
+    row3d->setContentsMargins(0, 0, 0, 0);
+    row3d->setSpacing(8);
+    m_colourCount = new QLabel(boxes3d);
+    m_colourCount->setObjectName(QStringLiteral("QualifierColourCount"));
+    m_colourCount->setToolTip(tr("Pick, Pick + and Pick - in the viewer add the colours to "
+                                 "select (or, with Pick -, to leave out)"));
+    row3d->addWidget(m_colourCount);
+    m_clearColours = toolButton(tr("Clear"), boxes3d);
+    m_clearColours->setObjectName(QStringLiteral("QualifierClearColors"));
+    m_clearColours->setToolTip(tr("Forget the picked colours"));
+    row3d->addWidget(m_clearColours);
+    row3d->addSpacing(12);
+    for (const auto& [key, text] : {std::pair {QStringLiteral("colorRange"), tr("Range")},
+             std::pair {QStringLiteral("colorSoft"), tr("Soft")}}) {
+        auto* label = new QLabel(text, boxes3d);
+        ValueField* f = makeField(boxes3d, 0.0, 1.0, 0.002, 3);
+        f->setObjectName(QStringLiteral("Qualifier_") + key);
+        row3d->addWidget(label);
+        row3d->addWidget(f);
+        m_fields.append({key, f});
+    }
+    row3d->addStretch(1);
+    m_ranges->addWidget(boxes3d);
+    layout->addWidget(m_ranges);
+
+    // ---- Matte Finesse: cleans the picture of the qualifier's key ----
+    auto* finesse = new QGridLayout;
+    finesse->setHorizontalSpacing(8);
+    finesse->setVerticalSpacing(3);
+    auto* finesseTitle = new QLabel(tr("Matte Finesse"), this);
+    finesseTitle->setObjectName(QStringLiteral("QualifierFinesseTitle"));
+    QFont bold = finesseTitle->font();
+    bold.setBold(true);
+    finesseTitle->setFont(bold);
+    finesse->addWidget(finesseTitle, 0, 0, 2, 1, Qt::AlignTop);
+    struct FinesseSpec
+    {
+        const char* key;
+        QString label;
+        QString tip;
+        double lo;
+    };
+    const FinesseSpec finesseSpecs[] = {
+        {"cleanBlack", tr("Clean Black"),
+            tr("Removes small white specks from the black area of the matte"), 0.0},
+        {"cleanWhite", tr("Clean White"),
+            tr("Fills small black holes in the white area of the matte"), 0.0},
+        {"shrinkGrow", tr("Shrink / Grow"),
+            tr("Below 0 the matte shrinks, above 0 it grows"), -1.0},
+        {"blurRadius", tr("Blur Radius"), tr("Softens the edge of the matte"), 0.0},
+        {"inOutRatio", tr("In / Out Ratio"),
+            tr("Above 0 the blur reaches into the matte, below 0 out of it"), -1.0},
+        {"denoise", tr("Denoise"), tr("Smooths grain and noise in the matte"), 0.0}};
+    for (int i = 0; i < 6; ++i) {
+        const FinesseSpec& spec = finesseSpecs[i];
+        auto* label = new QLabel(spec.label, this);
+        label->setToolTip(spec.tip);
+        ValueField* f = makeField(this, spec.lo, 1.0, 0.01, 2);
+        f->setObjectName(QStringLiteral("Qualifier_") + QLatin1String(spec.key));
+        f->setToolTip(spec.tip);
+        finesse->addWidget(label, i / 3, 1 + (i % 3) * 2, Qt::AlignRight | Qt::AlignVCenter);
+        finesse->addWidget(f, i / 3, 2 + (i % 3) * 2);
+        m_fields.append({QLatin1String(spec.key), f});
+    }
+    finesse->setColumnStretch(7, 1);
+    layout->addLayout(finesse);
     layout->addStretch(1);
 
     // ---- Wiring ----
@@ -346,7 +459,50 @@ QualifierPanel::QualifierPanel(ColorSession* session, QWidget* parent)
                 q.lumHigh = std::max(v, q.lumLow);
             else if (name == QLatin1String("lumSoft"))
                 q.lumSoft = v;
-            q.enabled = true;
+            else if (name == QLatin1String("redLow"))
+                q.redLow = std::min(v, q.redHigh);
+            else if (name == QLatin1String("redHigh"))
+                q.redHigh = std::max(v, q.redLow);
+            else if (name == QLatin1String("redSoft"))
+                q.redSoft = v;
+            else if (name == QLatin1String("greenLow"))
+                q.greenLow = std::min(v, q.greenHigh);
+            else if (name == QLatin1String("greenHigh"))
+                q.greenHigh = std::max(v, q.greenLow);
+            else if (name == QLatin1String("greenSoft"))
+                q.greenSoft = v;
+            else if (name == QLatin1String("blueLow"))
+                q.blueLow = std::min(v, q.blueHigh);
+            else if (name == QLatin1String("blueHigh"))
+                q.blueHigh = std::max(v, q.blueLow);
+            else if (name == QLatin1String("blueSoft"))
+                q.blueSoft = v;
+            else if (name == QLatin1String("colorRange"))
+                q.colorRange = v;
+            else if (name == QLatin1String("colorSoft"))
+                q.colorSoft = v;
+            else if (name == QLatin1String("cleanBlack"))
+                q.cleanBlack = v;
+            else if (name == QLatin1String("cleanWhite"))
+                q.cleanWhite = v;
+            else if (name == QLatin1String("shrinkGrow"))
+                q.shrinkGrow = v;
+            else if (name == QLatin1String("blurRadius"))
+                q.blurRadius = v;
+            else if (name == QLatin1String("inOutRatio"))
+                q.inOutRatio = v;
+            else if (name == QLatin1String("denoise"))
+                q.denoise = v;
+            else
+                return;
+            // The Matte Finesse values clean whatever the qualifier selects: they do not
+            // switch it on by themselves.
+            static const QStringList finesseNames {QStringLiteral("cleanBlack"),
+                QStringLiteral("cleanWhite"), QStringLiteral("shrinkGrow"),
+                QStringLiteral("blurRadius"), QStringLiteral("inOutRatio"),
+                QStringLiteral("denoise")};
+            if (!finesseNames.contains(name))
+                q.enabled = true;
         };
     };
     for (const auto& [name, f] : std::as_const(m_fields)) {
@@ -398,6 +554,25 @@ QualifierPanel::QualifierPanel(ColorSession* session, QWidget* parent)
             });
         });
     }
+    for (int c = 0; c < 3; ++c) {
+        connect(m_useRgb[c], &QCheckBox::toggled, this, [this, c](bool on) {
+            if (m_refreshing)
+                return;
+            edit(tr("Qualifier"), [&](GradeQualifier& q) {
+                (c == 0 ? q.useRed : c == 1 ? q.useGreen : q.useBlue) = on;
+            });
+        });
+    }
+    connect(m_mode, &QComboBox::activated, this, [this](int index) {
+        if (m_refreshing)
+            return;
+        edit(tr("Qualifier Mode"), [&](GradeQualifier& q) {
+            q.mode = QualifierMode(m_mode->itemData(index).toInt());
+        });
+    });
+    connect(m_clearColours, &QToolButton::clicked, this, [this] {
+        edit(tr("Clear Qualifier Colors"), [&](GradeQualifier& q) { q.colors.clear(); });
+    });
     connect(m_enable, &QCheckBox::toggled, this, [this](bool on) {
         if (!m_refreshing)
             edit(tr("Qualifier"), [&](GradeQualifier& q) { q.enabled = on; });
@@ -476,6 +651,21 @@ void QualifierPanel::refresh()
     const GradeQualifier q = n ? n->qualifier : GradeQualifier {};
     m_enable->setChecked(q.enabled);
     m_invert->setChecked(q.invert);
+    m_mode->setCurrentIndex(m_mode->findData(int(q.mode)));
+    m_ranges->setCurrentIndex(q.mode == QualifierMode::Rgb ? 1 : q.mode == QualifierMode::ThreeD ? 2 : 0);
+    for (int c = 0; c < 2; ++c) { // Luma keeps only the Lum row
+        for (QWidget* w : std::as_const(m_rowWidgets[c]))
+            w->setVisible(q.mode != QualifierMode::Luma);
+    }
+    m_useRgb[0]->setChecked(q.useRed);
+    m_useRgb[1]->setChecked(q.useGreen);
+    m_useRgb[2]->setChecked(q.useBlue);
+    const int picked = int(std::count_if(q.colors.cbegin(), q.colors.cend(),
+        [](const GradeQualifierColor& c) { return !c.subtract; }));
+    m_colourCount->setText(tr("%1 colors, %2 taken out")
+                               .arg(picked)
+                               .arg(int(q.colors.size()) - picked));
+    m_clearColours->setEnabled(!q.colors.isEmpty());
     m_use[0]->setChecked(q.useHue);
     m_use[1]->setChecked(q.useSat);
     m_use[2]->setChecked(q.useLum);
@@ -487,7 +677,14 @@ void QualifierPanel::refresh()
     const std::pair<const char*, double> values[]
         = {{"hueCenter", q.hueCenter}, {"hueWidth", q.hueWidth}, {"hueSoft", q.hueSoft},
             {"satLow", q.satLow}, {"satHigh", q.satHigh}, {"satSoft", q.satSoft},
-            {"lumLow", q.lumLow}, {"lumHigh", q.lumHigh}, {"lumSoft", q.lumSoft}};
+            {"lumLow", q.lumLow}, {"lumHigh", q.lumHigh}, {"lumSoft", q.lumSoft},
+            {"redLow", q.redLow}, {"redHigh", q.redHigh}, {"redSoft", q.redSoft},
+            {"greenLow", q.greenLow}, {"greenHigh", q.greenHigh}, {"greenSoft", q.greenSoft},
+            {"blueLow", q.blueLow}, {"blueHigh", q.blueHigh}, {"blueSoft", q.blueSoft},
+            {"colorRange", q.colorRange}, {"colorSoft", q.colorSoft},
+            {"cleanBlack", q.cleanBlack}, {"cleanWhite", q.cleanWhite},
+            {"shrinkGrow", q.shrinkGrow}, {"blurRadius", q.blurRadius},
+            {"inOutRatio", q.inOutRatio}, {"denoise", q.denoise}};
     for (const auto& [name, v] : values) {
         if (ValueField* f = field(QLatin1String(name)); f && !f->isScrubbing())
             f->setValue(v);

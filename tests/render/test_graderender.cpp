@@ -162,6 +162,60 @@ class TestGradeRender : public QObject
             out.append({QStringLiteral("qualifier"), g});
             q.invert = true;
             out.append({QStringLiteral("qualifier_inverted"), g});
+            // Qualifier Matte Finesse (spec 108): every control alone, then all together.
+            auto finesse = [&](const char* name, auto&& set) {
+                ClipGrade f = g;
+                f.nodes[0].qualifier.invert = false;
+                f.nodes[0].qualifier.hueWidth = 0.4;
+                set(f.nodes[0].qualifier);
+                out.append({QStringLiteral("matte_") + QLatin1String(name), f});
+            };
+            finesse("clean_black", [](GradeQualifier& q) { q.cleanBlack = 1.0; });
+            finesse("clean_white", [](GradeQualifier& q) { q.cleanWhite = 1.0; });
+            finesse("shrink", [](GradeQualifier& q) { q.shrinkGrow = -1.0; });
+            finesse("grow", [](GradeQualifier& q) { q.shrinkGrow = 1.0; });
+            finesse("denoise", [](GradeQualifier& q) { q.denoise = 1.0; });
+            finesse("blur", [](GradeQualifier& q) { q.blurRadius = 1.0; });
+            finesse("blur_in", [](GradeQualifier& q) { q.blurRadius = 1.0; q.inOutRatio = 0.8; });
+            finesse("blur_out", [](GradeQualifier& q) { q.blurRadius = 1.0; q.inOutRatio = -0.8; });
+            finesse("all", [](GradeQualifier& q) {
+                q.cleanBlack = 1.0;
+                q.cleanWhite = 1.0;
+                q.denoise = 0.6;
+                q.shrinkGrow = 0.5;
+                q.blurRadius = 0.8;
+                q.inOutRatio = 0.3;
+            });
+        }
+        {
+            // The RGB, Luma and 3D qualifier modes (spec 108).
+            ClipGrade g = primariesGrade({{gk::Saturation, 0.0}, {gk::GainY, 1.2}});
+            GradeQualifier& q = g.nodes[0].qualifier;
+            q.enabled = true;
+            q.mode = QualifierMode::Rgb;
+            q.redLow = 0.5;
+            q.blueHigh = 0.7;
+            q.greenSoft = 0.2;
+            out.append({QStringLiteral("qualifier_rgb"), g});
+            q.useGreen = false;
+            q.blurRadius = 0.5;
+            out.append({QStringLiteral("qualifier_rgb_blurred"), g});
+            q = GradeQualifier {};
+            q.enabled = true;
+            q.mode = QualifierMode::Luma;
+            q.lumLow = 0.35;
+            q.lumHigh = 0.8;
+            out.append({QStringLiteral("qualifier_luma"), g});
+            q = GradeQualifier {};
+            q.enabled = true;
+            q.mode = QualifierMode::ThreeD;
+            q.colors = {{0.9f, 0.3f, 0.2f, false}, {0.2f, 0.4f, 0.9f, false}, {0.9f, 0.5f, 0.5f, true}};
+            q.colorRange = 0.25;
+            q.colorSoft = 0.2;
+            out.append({QStringLiteral("qualifier_3d"), g});
+            q.denoise = 0.4;
+            q.shrinkGrow = 0.5;
+            out.append({QStringLiteral("qualifier_3d_finesse"), g});
         }
         {
             ClipGrade g = primariesGrade({{gk::GainR, 0.3}, {gk::GainB, 1.6}});
@@ -334,6 +388,35 @@ private slots:
             QVERIFY2(d <= 2, qPrintable(name));
             QVERIFY2(changed >= 10, qPrintable(name)); // the case really grades something
         }
+    }
+
+    void matteFinesseChangesThePicture()
+    {
+        // Spec 108: the finesse cases above really differ from the plain qualifier (on the
+        // GPU path as well as on the CPU reference), so the match is not two ignored values.
+        if (!gpuReady())
+            QSKIP("no OpenGL");
+        ClipGrade base;
+        QHash<QString, ClipGrade> byName;
+        for (const auto& [name, grade] : cases())
+            byName.insert(name, grade);
+        const QImage plain = render(*m_gpu, timelineWith(byName.value(QStringLiteral("qualifier"))));
+        for (const QString& name : {QStringLiteral("matte_blur"), QStringLiteral("matte_shrink"),
+                 QStringLiteral("matte_grow"), QStringLiteral("matte_all"),
+                 QStringLiteral("matte_blur_in")}) {
+            QVERIFY2(byName.contains(name), qPrintable(name));
+            ClipGrade g = byName.value(name);
+            // Same qualifier as "qualifier" but for the finesse: compare to the unfinessed twin.
+            GradeQualifier twin = g.nodes[0].qualifier;
+            twin.cleanBlack = twin.cleanWhite = twin.shrinkGrow = twin.blurRadius = 0.0;
+            twin.inOutRatio = twin.denoise = 0.0;
+            ClipGrade untouched = g;
+            untouched.nodes[0].qualifier = twin;
+            const int d = maxDiff(render(*m_gpu, timelineWith(g)), render(*m_gpu, timelineWith(untouched)));
+            qInfo("%s: finesse changes the GPU picture by up to %d", qPrintable(name), d);
+            QVERIFY2(d >= 8, qPrintable(name));
+        }
+        Q_UNUSED(plain)
     }
 
     void cpuBackendMatchesReference()

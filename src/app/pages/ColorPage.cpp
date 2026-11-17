@@ -638,7 +638,7 @@ void ColorPage::pickQualifier(const QRectF& frameRect)
         return;
     const quint64 node = current ? current->id : 0;
     const GradeQualifier base = current ? current->qualifier : GradeQualifier {};
-    QVector<qualifierpick::Hsl> samples;
+    QVector<qualifierpick::Rgb> samples;
     const int steps = frameRect.isEmpty() ? 1 : 6;
     for (int iy = 0; iy < steps; ++iy) {
         for (int ix = 0; ix < steps; ++ix) {
@@ -648,13 +648,13 @@ void ColorPage::pickQualifier(const QRectF& frameRect)
                       frameRect.top() + frameRect.height() * (iy + 0.5) / steps);
             float rgb[3];
             if (m_frames->sampleNodeInput(node, uv, rgb))
-                samples.append(qualifierpick::toHsl(rgb));
+                samples.append({rgb[0], rgb[1], rgb[2]});
         }
     }
     if (samples.isEmpty())
         return;
     const qualifierpick::Mode mode = m_qualifier->pickMode().value_or(qualifierpick::Mode::Pick);
-    const GradeQualifier q = qualifierpick::apply(base, samples, mode);
+    const GradeQualifier q = qualifierpick::applyForMode(base, samples, mode);
     m_session->setQualifier(0, q,
         mode == qualifierpick::Mode::Pick      ? tr("Qualifier Pick")
             : mode == qualifierpick::Mode::Add ? tr("Qualifier Add")

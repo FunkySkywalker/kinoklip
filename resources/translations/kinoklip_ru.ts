@@ -16146,6 +16146,26 @@ The timelines that use the project settings are converted: clips, markers and ef
         <translation>Убрать цвета, по которым вы щёлкнули, из диапазона</translation>
     </message>
     <message>
+        <source>What the qualifier selects by: hue / saturation / luminance, red / green / blue, luma only, or picked colours in 3D</source>
+        <translation>По чему квалификатор выделяет: тон / насыщенность / яркость, красный / зелёный / синий, только яркость (Luma) или выбранные цвета в 3D</translation>
+    </message>
+    <message>
+        <source>HSL</source>
+        <translation>HSL</translation>
+    </message>
+    <message>
+        <source>RGB</source>
+        <translation>RGB</translation>
+    </message>
+    <message>
+        <source>Luma</source>
+        <translation>Luma</translation>
+    </message>
+    <message>
+        <source>3D</source>
+        <translation>3D</translation>
+    </message>
+    <message>
         <source>Qualify</source>
         <translation>Выделение по цвету</translation>
     </message>
@@ -16198,12 +16218,104 @@ The timelines that use the project settings are converted: clips, markers and ef
         <translation>Высокий</translation>
     </message>
     <message>
+        <source>Red</source>
+        <translation>Красный</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Зелёный</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Синий</translation>
+    </message>
+    <message>
+        <source>Pick, Pick + and Pick - in the viewer add the colours to select (or, with Pick -, to leave out)</source>
+        <translation>Пипетки Выбрать, Выбрать + и Выбрать - во вьюере добавляют цвета, которые нужно выделить (или, с Выбрать -, исключить)</translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <translation>Очистить</translation>
+    </message>
+    <message>
+        <source>Forget the picked colours</source>
+        <translation>Забыть выбранные цвета</translation>
+    </message>
+    <message>
+        <source>Range</source>
+        <translation>Диапазон</translation>
+    </message>
+    <message>
+        <source>Matte Finesse</source>
+        <translation>Доводка маски</translation>
+    </message>
+    <message>
+        <source>Clean Black</source>
+        <translation>Очистить чёрное</translation>
+    </message>
+    <message>
+        <source>Removes small white specks from the black area of the matte</source>
+        <translation>Убирает мелкие белые точки из чёрной области маски</translation>
+    </message>
+    <message>
+        <source>Clean White</source>
+        <translation>Очистить белое</translation>
+    </message>
+    <message>
+        <source>Fills small black holes in the white area of the matte</source>
+        <translation>Заполняет мелкие чёрные дыры в белой области маски</translation>
+    </message>
+    <message>
+        <source>Shrink / Grow</source>
+        <translation>Сжать / Расширить</translation>
+    </message>
+    <message>
+        <source>Below 0 the matte shrinks, above 0 it grows</source>
+        <translation>Ниже 0 маска сжимается, выше 0 расширяется</translation>
+    </message>
+    <message>
+        <source>Blur Radius</source>
+        <translation>Радиус размытия</translation>
+    </message>
+    <message>
+        <source>Softens the edge of the matte</source>
+        <translation>Смягчает край маски</translation>
+    </message>
+    <message>
+        <source>In / Out Ratio</source>
+        <translation>Соотношение внутри / снаружи</translation>
+    </message>
+    <message>
+        <source>Above 0 the blur reaches into the matte, below 0 out of it</source>
+        <translation>Выше 0 размытие уходит внутрь маски, ниже 0 — наружу</translation>
+    </message>
+    <message>
+        <source>Denoise</source>
+        <translation>Шумоподавление</translation>
+    </message>
+    <message>
+        <source>Smooths grain and noise in the matte</source>
+        <translation>Сглаживает зерно и шум в маске</translation>
+    </message>
+    <message>
         <source>Qualifier</source>
         <translation>Квалификатор</translation>
     </message>
     <message>
+        <source>Qualifier Mode</source>
+        <translation>Режим квалификатора</translation>
+    </message>
+    <message>
+        <source>Clear Qualifier Colors</source>
+        <translation>Очистить цвета квалификатора</translation>
+    </message>
+    <message>
         <source>Invert Qualifier</source>
         <translation>Инвертировать выделение</translation>
+    </message>
+    <message>
+        <source>%1 colors, %2 taken out</source>
+        <translation>Цветов: %1, исключено: %2</translation>
     </message>
 </context>
 <context>

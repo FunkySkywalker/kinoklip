@@ -238,4 +238,35 @@ struct BlurValues
 /// mix(result, graded, alpha) when o = mix(in, graded, alpha), with no division by alpha.
 void layerOver(float result[3], const float in[3], const float o[3], float alpha);
 
+/// Matte Finesse sizes (fractions of the picture height at value 1, so the look is the same
+/// at every resolution): Clean Black / White and Shrink / Grow reach about 16 px on a 1080
+/// line picture, Blur Radius a Gaussian sigma of about 22 px; Denoise is a median of up to
+/// 7 x 7 pixels.
+inline constexpr float kMatteMaxRadius = 0.015f;
+inline constexpr float kMatteMaxSigma = 0.02f;
+inline constexpr int kMatteMaxDenoise = 3;
+inline constexpr int kMatteMaxTaps = 48;
+
+/// The Matte Finesse values of a qualifier in pixels of one picture grid.
+struct MatteFinesse
+{
+    int cleanBlack = 0; ///< opening radius
+    int cleanWhite = 0; ///< closing radius
+    int shrinkGrow = 0; ///< < 0 erodes, > 0 dilates by that many pixels
+    int denoise = 0; ///< median radius
+    float blurSigma = 0.0f;
+    float ratio = 0.0f; ///< In / Out Ratio, -1..1
+    [[nodiscard]] bool active() const;
+    [[nodiscard]] static MatteFinesse at(const GradeQualifier& q, double pictureHeight);
+};
+
+/// In / Out Ratio: moves the soft edge of a blurred matte value @p blurred (0..1) inside
+/// (@p ratio > 0) or outside (< 0) the original edge.
+[[nodiscard]] float matteRatio(float blurred, float ratio);
+/// Median of the (2 radius + 1)^2 window of the w x h matte @p src into @p dst (edges clamped).
+void matteMedian(const std::vector<float>& src, std::vector<float>& dst, int w, int h, int radius);
+/// Cleans the w x h matte @p m (0..1) in place, in the order: Clean Black, Clean White,
+/// Denoise, Shrink / Grow, Blur Radius with In / Out Ratio. The GPU pass runs the same steps.
+void applyMatteFinesse(const MatteFinesse& f, std::vector<float>& m, int w, int h);
+
 } // namespace kk::grademath

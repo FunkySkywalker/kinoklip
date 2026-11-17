@@ -401,7 +401,7 @@ The program was probably closed by the system because the computer ran out of me
     </message>
     <message>
         <source>a gradient window has no subject to follow</source>
-        <translation>у градієнтного вікна немає об'єкта для стеження</translation>
+        <translation>у градієнтного вікна немає об&apos;єкта для стеження</translation>
     </message>
     <message>
         <source>the picture has no size</source>
@@ -4047,7 +4047,7 @@ The program was probably closed by the system because the computer ran out of me
     </message>
     <message>
         <source>Track a window so it follows the subject, or stabilize the clip.</source>
-        <translation>Стеження за вікном, щоб воно йшло за об'єктом, або стабілізація кліпу.</translation>
+        <translation>Стеження за вікном, щоб воно йшло за об&apos;єктом, або стабілізація кліпу.</translation>
     </message>
     <message>
         <source>Reset</source>
@@ -4219,7 +4219,7 @@ The program was probably closed by the system because the computer ran out of me
     </message>
     <message>
         <source>The windows follow the subject sideways</source>
-        <translation>Вікна йдуть за об'єктом по горизонталі</translation>
+        <translation>Вікна йдуть за об&apos;єктом по горизонталі</translation>
     </message>
     <message>
         <source>Tilt</source>
@@ -4227,7 +4227,7 @@ The program was probably closed by the system because the computer ran out of me
     </message>
     <message>
         <source>The windows follow the subject up and down</source>
-        <translation>Вікна йдуть за об'єктом по вертикалі</translation>
+        <translation>Вікна йдуть за об&apos;єктом по вертикалі</translation>
     </message>
     <message>
         <source>Zoom</source>
@@ -4235,7 +4235,7 @@ The program was probably closed by the system because the computer ran out of me
     </message>
     <message>
         <source>The windows grow and shrink with the subject (track again after switching on)</source>
-        <translation>Вікна збільшуються й зменшуються разом з об'єктом (після ввімкнення відстежте знову)</translation>
+        <translation>Вікна збільшуються й зменшуються разом з об&apos;єктом (після ввімкнення відстежте знову)</translation>
     </message>
     <message>
         <source>Rotate</source>
@@ -4243,7 +4243,7 @@ The program was probably closed by the system because the computer ran out of me
     </message>
     <message>
         <source>The windows turn with the subject (track again after switching on)</source>
-        <translation>Вікна обертаються разом з об'єктом (після ввімкнення відстежте знову)</translation>
+        <translation>Вікна обертаються разом з об&apos;єктом (після ввімкнення відстежте знову)</translation>
     </message>
     <message>
         <source>3D</source>
@@ -4251,7 +4251,7 @@ The program was probably closed by the system because the computer ran out of me
     </message>
     <message>
         <source>Width and height follow the subject on their own (track again after switching on)</source>
-        <translation>Ширина й висота йдуть за об'єктом окремо (після ввімкнення відстежте знову)</translation>
+        <translation>Ширина й висота йдуть за об&apos;єктом окремо (після ввімкнення відстежте знову)</translation>
     </message>
     <message>
         <source>Clip</source>
@@ -16146,6 +16146,26 @@ The timelines that use the project settings are converted: clips, markers and ef
         <translation>Вилучати кольори, на які ви клацаєте, з діапазону</translation>
     </message>
     <message>
+        <source>What the qualifier selects by: hue / saturation / luminance, red / green / blue, luma only, or picked colours in 3D</source>
+        <translation>За чим кваліфікатор виділяє: тон / насиченість / яскравість, червоний / зелений / синій, лише яскравість (Luma) або вибрані кольори в 3D</translation>
+    </message>
+    <message>
+        <source>HSL</source>
+        <translation>HSL</translation>
+    </message>
+    <message>
+        <source>RGB</source>
+        <translation>RGB</translation>
+    </message>
+    <message>
+        <source>Luma</source>
+        <translation>Luma</translation>
+    </message>
+    <message>
+        <source>3D</source>
+        <translation>3D</translation>
+    </message>
+    <message>
         <source>Qualify</source>
         <translation>Кваліфікація</translation>
     </message>
@@ -16198,12 +16218,104 @@ The timelines that use the project settings are converted: clips, markers and ef
         <translation>Висока</translation>
     </message>
     <message>
+        <source>Red</source>
+        <translation>Червоний</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Зелений</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Синій</translation>
+    </message>
+    <message>
+        <source>Pick, Pick + and Pick - in the viewer add the colours to select (or, with Pick -, to leave out)</source>
+        <translation>Піпетки Вибрати, Вибрати + і Вибрати - у вʼюері додають кольори, які потрібно виділити (або, з Вибрати -, виключити)</translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <translation>Очистити</translation>
+    </message>
+    <message>
+        <source>Forget the picked colours</source>
+        <translation>Забути вибрані кольори</translation>
+    </message>
+    <message>
+        <source>Range</source>
+        <translation>Діапазон</translation>
+    </message>
+    <message>
+        <source>Matte Finesse</source>
+        <translation>Доведення маски</translation>
+    </message>
+    <message>
+        <source>Clean Black</source>
+        <translation>Очистити чорне</translation>
+    </message>
+    <message>
+        <source>Removes small white specks from the black area of the matte</source>
+        <translation>Прибирає дрібні білі цятки з чорної області маски</translation>
+    </message>
+    <message>
+        <source>Clean White</source>
+        <translation>Очистити біле</translation>
+    </message>
+    <message>
+        <source>Fills small black holes in the white area of the matte</source>
+        <translation>Заповнює дрібні чорні дірки в білій області маски</translation>
+    </message>
+    <message>
+        <source>Shrink / Grow</source>
+        <translation>Стиснути / Розширити</translation>
+    </message>
+    <message>
+        <source>Below 0 the matte shrinks, above 0 it grows</source>
+        <translation>Нижче 0 маска стискається, вище 0 розширюється</translation>
+    </message>
+    <message>
+        <source>Blur Radius</source>
+        <translation>Радіус розмиття</translation>
+    </message>
+    <message>
+        <source>Softens the edge of the matte</source>
+        <translation>Пом’якшує край маски</translation>
+    </message>
+    <message>
+        <source>In / Out Ratio</source>
+        <translation>Співвідношення всередину / назовні</translation>
+    </message>
+    <message>
+        <source>Above 0 the blur reaches into the matte, below 0 out of it</source>
+        <translation>Вище 0 розмиття йде всередину маски, нижче 0 — назовні</translation>
+    </message>
+    <message>
+        <source>Denoise</source>
+        <translation>Шумозаглушення</translation>
+    </message>
+    <message>
+        <source>Smooths grain and noise in the matte</source>
+        <translation>Згладжує зерно та шум у масці</translation>
+    </message>
+    <message>
         <source>Qualifier</source>
         <translation>Кваліфікатор</translation>
     </message>
     <message>
+        <source>Qualifier Mode</source>
+        <translation>Режим кваліфікатора</translation>
+    </message>
+    <message>
+        <source>Clear Qualifier Colors</source>
+        <translation>Очистити кольори кваліфікатора</translation>
+    </message>
+    <message>
         <source>Invert Qualifier</source>
         <translation>Інвертувати кваліфікатор</translation>
+    </message>
+    <message>
+        <source>%1 colors, %2 taken out</source>
+        <translation>Кольорів: %1, виключено: %2</translation>
     </message>
 </context>
 <context>

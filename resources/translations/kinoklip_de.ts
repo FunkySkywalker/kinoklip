@@ -16133,6 +16133,26 @@ Die Timelines, die die Projekteinstellungen verwenden, werden umgerechnet: Clips
         <translation>Die angeklickten Farben aus dem Bereich entfernen</translation>
     </message>
     <message>
+        <source>What the qualifier selects by: hue / saturation / luminance, red / green / blue, luma only, or picked colours in 3D</source>
+        <translation>Wonach der Qualifizierer auswählt: Farbton / Sättigung / Helligkeit, Rot / Grün / Blau, nur Luma oder gewählte Farben in 3D</translation>
+    </message>
+    <message>
+        <source>HSL</source>
+        <translation>HSL</translation>
+    </message>
+    <message>
+        <source>RGB</source>
+        <translation>RGB</translation>
+    </message>
+    <message>
+        <source>Luma</source>
+        <translation>Luma</translation>
+    </message>
+    <message>
+        <source>3D</source>
+        <translation>3D</translation>
+    </message>
+    <message>
         <source>Qualify</source>
         <translation>Qualifizieren</translation>
     </message>
@@ -16185,12 +16205,104 @@ Die Timelines, die die Projekteinstellungen verwenden, werden umgerechnet: Clips
         <translation>Hoch</translation>
     </message>
     <message>
+        <source>Red</source>
+        <translation>Rot</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Grün</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Blau</translation>
+    </message>
+    <message>
+        <source>Pick, Pick + and Pick - in the viewer add the colours to select (or, with Pick -, to leave out)</source>
+        <translation>Aufnehmen, Aufnehmen + und Aufnehmen - im Viewer fügen die Farben hinzu, die ausgewählt (oder mit Aufnehmen - ausgenommen) werden</translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <translation>Leeren</translation>
+    </message>
+    <message>
+        <source>Forget the picked colours</source>
+        <translation>Die gewählten Farben vergessen</translation>
+    </message>
+    <message>
+        <source>Range</source>
+        <translation>Bereich</translation>
+    </message>
+    <message>
+        <source>Matte Finesse</source>
+        <translation>Matte-Feinabstimmung</translation>
+    </message>
+    <message>
+        <source>Clean Black</source>
+        <translation>Schwarz bereinigen</translation>
+    </message>
+    <message>
+        <source>Removes small white specks from the black area of the matte</source>
+        <translation>Entfernt kleine weiße Flecken aus dem schwarzen Bereich der Matte</translation>
+    </message>
+    <message>
+        <source>Clean White</source>
+        <translation>Weiß bereinigen</translation>
+    </message>
+    <message>
+        <source>Fills small black holes in the white area of the matte</source>
+        <translation>Füllt kleine schwarze Löcher im weißen Bereich der Matte</translation>
+    </message>
+    <message>
+        <source>Shrink / Grow</source>
+        <translation>Verkleinern / Vergrößern</translation>
+    </message>
+    <message>
+        <source>Below 0 the matte shrinks, above 0 it grows</source>
+        <translation>Unter 0 schrumpft die Matte, über 0 wächst sie</translation>
+    </message>
+    <message>
+        <source>Blur Radius</source>
+        <translation>Weichzeichnerradius</translation>
+    </message>
+    <message>
+        <source>Softens the edge of the matte</source>
+        <translation>Macht den Rand der Matte weicher</translation>
+    </message>
+    <message>
+        <source>In / Out Ratio</source>
+        <translation>Innen / Außen</translation>
+    </message>
+    <message>
+        <source>Above 0 the blur reaches into the matte, below 0 out of it</source>
+        <translation>Über 0 reicht die Unschärfe in die Matte hinein, unter 0 aus ihr heraus</translation>
+    </message>
+    <message>
+        <source>Denoise</source>
+        <translation>Entrauschen</translation>
+    </message>
+    <message>
+        <source>Smooths grain and noise in the matte</source>
+        <translation>Glättet Korn und Rauschen in der Matte</translation>
+    </message>
+    <message>
         <source>Qualifier</source>
         <translation>Qualifier</translation>
     </message>
     <message>
+        <source>Qualifier Mode</source>
+        <translation>Qualifizierer-Modus</translation>
+    </message>
+    <message>
+        <source>Clear Qualifier Colors</source>
+        <translation>Qualifizierer-Farben leeren</translation>
+    </message>
+    <message>
         <source>Invert Qualifier</source>
         <translation>Qualifier invertieren</translation>
+    </message>
+    <message>
+        <source>%1 colors, %2 taken out</source>
+        <translation>%1 Farben, %2 ausgenommen</translation>
     </message>
 </context>
 <context>

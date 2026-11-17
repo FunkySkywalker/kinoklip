@@ -79,9 +79,10 @@ private:
     double m_pressA = 0, m_pressB = 0;
 };
 
-/// The Qualifier palette (HSL): the eyedroppers (pick, add, remove: click or drag over the
-/// viewer), the Hue / Sat / Lum ranges with their bars and fields, invert, and the highlight
-/// toggle with its mode (the palette bar's Reset clears the qualifier).
+/// The Qualifier palette: the eyedroppers (pick, add, remove: click or drag over the viewer),
+/// the mode (HSL, RGB, Luma, 3D) with its ranges, bars and fields, invert, the highlight
+/// toggle with its mode, and the Matte Finesse values that clean the key (the palette bar's
+/// Reset clears the qualifier).
 class QualifierPanel : public QWidget
 {
     Q_OBJECT
@@ -114,6 +115,12 @@ private:
     QCheckBox* m_enable = nullptr;
     QCheckBox* m_invert = nullptr;
     QCheckBox* m_use[3] {};
+    QCheckBox* m_useRgb[3] {};
+    QComboBox* m_mode = nullptr;
+    QStackedWidget* m_ranges = nullptr;
+    QList<QWidget*> m_rowWidgets[3]; ///< the widgets of each HSL row (Luma hides Hue and Sat)
+    QLabel* m_colourCount = nullptr;
+    QToolButton* m_clearColours = nullptr;
     QualifierRangeBar* m_bars[3] {};
     QVector<std::pair<QString, ValueField*>> m_fields;
     bool m_refreshing = false;

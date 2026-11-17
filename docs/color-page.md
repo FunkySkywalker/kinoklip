@@ -58,7 +58,9 @@ Decisions:
   opacity / key output gain).
 - **Curves**: Custom Y, R, G, B; Hue vs Hue, Hue vs Sat, Hue vs Lum, Lum vs Sat, Sat vs Sat.
   Monotone cubic (no overshoot); hue curves wrap. Soft clip: later.
-- **Qualifier**: HSL ranges with soft edges, per-channel enable, invert. Static (not keyed).
+- **Qualifier**: HSL, RGB, Luma or 3D mode (`QualifierMode`) with soft edges, per-channel
+  enable, invert, and Matte Finesse (Clean Black / White, Shrink / Grow, Denoise, Blur Radius,
+  In / Out Ratio; spec 108). Static (not keyed).
 - **Power windows**: Circle, Linear (rectangle), Polygon, Gradient; centre, size, rotation,
   inside / outside softness and opacity keyframeable (`gradewindowkeys`), invert per window.
   Several windows combine as a union. Coordinates are fractions of the graded picture.
@@ -185,7 +187,11 @@ engine's API, replacing the minimal page (node list, curve picker, gallery strip
 - **Qualifier**: Pick / Pick + / Pick - eyedroppers (click or drag a rectangle over the viewer;
   the colours come from the node's input picture through `grademath::rgbToHsl()`,
   `ui/color/QualifierPick`), the Hue / Sat / Lum bars (drag the range or its ends) and fields,
-  Qualify / Invert / per-channel enables; Highlight (Shift+H) shows the node's key (qualifier
+  Qualify / Invert / per-channel enables; the mode menu (HSL, RGB, Luma, 3D) switches the ranges
+  (Luma keeps the Lum row, RGB has Red / Green / Blue ranges, 3D lists the picked colours with
+  Range and Soft) and the eyedroppers pick in that mode; the Matte Finesse fields clean the key.
+  The matte is a whole-picture buffer (`grademath::applyMatteFinesse()` on the CPU, the matte
+  passes of `GlGrade::matteFinesse()` on the GPU, same steps in the same order). Highlight (Shift+H) shows the node's key (qualifier
   x windows x Mix) over a flat grey or as a black and white matte.
 - **Windows**: Circle / Linear / Polygon / Gradient buttons add windows to the current node
   (several per node), the list (enable check boxes), Invert, Delete and the fields. In the
@@ -260,6 +266,6 @@ Decisions (colorui):
 Tracking of windows, polygon shape keyframes and Bezier windows, Midtone Detail, soft clip,
 HDR / log wheels, key mixer / splitter / outside nodes, node presets and versions, ColorTrace
 and grade groups, keyframe strip on the Color page, Sizing palette, node labels typed in the
-editor, the qualifier's 3D / RGB / Luma modes, the lightbox, split-screen modes other than the
+editor, the lightbox, split-screen modes other than the
 split wipe, relative LUT paths and packing LUTs into single-file projects, thumbnails of the
 clip itself when a higher track covers it.

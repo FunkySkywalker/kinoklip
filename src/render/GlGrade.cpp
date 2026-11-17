@@ -21,6 +21,7 @@ constexpr int kUnitCurves = 1;
 constexpr int kUnitLut3d = 2;
 constexpr int kUnitLut1d = 3;
 constexpr int kUnitPoints = 4;
+constexpr int kUnitMatte = 5;
 
 const std::string kCorrectorSource = std::string(R"(
 uniform sampler2D uInput;
@@ -28,7 +29,10 @@ uniform sampler2D uCurves;
 uniform sampler3D uLut3d;
 uniform sampler2D uLut1d;
 uniform sampler2D uPoints;
-uniform int uMode;        // 0 = graded picture, 1 = the key (alpha for a Layer mixer), 2 = ungated
+uniform sampler2D uMatte;  // the qualifier matte after Matte Finesse (when uUseMatte)
+uniform int uUseMatte;
+uniform int uMode;        // 0 = graded picture, 1 = the key (alpha for a Layer mixer), 2 = ungated,
+                          // 3 = the raw qualifier matte
 uniform int uCorrects;
 uniform int uPrimaries;
 uniform vec4 uLift, uGamma, uGain, uOffset;
@@ -40,7 +44,12 @@ uniform float uLutN;
 uniform vec3 uLutMin, uLutMax;
 uniform int uKeyed;
 uniform float uMix;
-uniform int uQual, uQualInvert, uQualUse;   // use: 1 hue, 2 sat, 4 lum
+uniform int uQual, uQualInvert, uQualUse;   // use: 1 hue, 2 sat, 4 lum, 8 red, 16 green, 32 blue
+uniform int uQualMode;    // 0 HSL, 1 RGB, 2 Luma, 3 3D
+uniform vec3 uQualR, uQualG, uQualB;   // low, high, softness
+uniform int uQ3Count;
+uniform vec4 uQ3[32];     // picked colour, subtract flag
+uniform vec2 uQ3Range;    // range, softness
 uniform vec3 uQualHue;    // centre, half width, softness (turns)
 uniform vec3 uQualSat;    // low, high, softness
 uniform vec3 uQualLum;
@@ -239,18 +248,41 @@ float qualifierKey(vec3 c)
 {
     if (uQual == 0)
         return 1.0;
-    vec3 hsl = rgbToHsl(clamp(c, 0.0, 1.0));
+    c = clamp(c, 0.0, 1.0);
     float key = 1.0;
-    if ((uQualUse & 1) != 0) {
-        float rel = hsl.x - uQualHue.x + 0.5;
-        float dist = abs(rel - floor(rel) - 0.5);
-        float soft = max(uQualHue.z, kMinSoft);
-        key *= 1.0 - smoothstep(uQualHue.y, uQualHue.y + soft, dist);
+    if (uQualMode == 0) {
+        vec3 hsl = rgbToHsl(c);
+        if ((uQualUse & 1) != 0) {
+            float rel = hsl.x - uQualHue.x + 0.5;
+            float dist = abs(rel - floor(rel) - 0.5);
+            float soft = max(uQualHue.z, kMinSoft);
+            key *= 1.0 - smoothstep(uQualHue.y, uQualHue.y + soft, dist);
+        }
+        if ((uQualUse & 2) != 0)
+            key *= rangeKey(hsl.y, uQualSat);
+        if ((uQualUse & 4) != 0)
+            key *= rangeKey(hsl.z, uQualLum);
+    } else if (uQualMode == 2) {
+        key = rangeKey(luma(c), uQualLum);
+    } else if (uQualMode == 1) {
+        if ((uQualUse & 8) != 0)
+            key *= rangeKey(c.r, uQualR);
+        if ((uQualUse & 16) != 0)
+            key *= rangeKey(c.g, uQualG);
+        if ((uQualUse & 32) != 0)
+            key *= rangeKey(c.b, uQualB);
+    } else {
+        float inK = 0.0, outK = 0.0;
+        for (int i = 0; i < uQ3Count; ++i) {
+            float k = 1.0 - smoothstep(uQ3Range.x, uQ3Range.x + max(uQ3Range.y, kMinSoft),
+                              distance(c, uQ3[i].rgb));
+            if (uQ3[i].a > 0.5)
+                outK = max(outK, k);
+            else
+                inK = max(inK, k);
+        }
+        key = inK * (1.0 - outK);
     }
-    if ((uQualUse & 2) != 0)
-        key *= rangeKey(hsl.y, uQualSat);
-    if ((uQualUse & 4) != 0)
-        key *= rangeKey(hsl.z, uQualLum);
     return uQualInvert != 0 ? 1.0 - key : key;
 }
 
@@ -333,9 +365,16 @@ void main()
         fragColor = vec4(correct(c) * src.a, src.a);
         return;
     }
+    if (uMode == 3) {
+        float k = qualifierKey(c);
+        fragColor = vec4(k, k, k, 1.0);
+        return;
+    }
     float key = uMix;
-    if (uKeyed != 0)
-        key *= qualifierKey(c) * windowsMatte(gl_FragCoord.xy);
+    if (uKeyed != 0) {
+        float q = uUseMatte != 0 ? texelFetch(uMatte, ivec2(gl_FragCoord.xy), 0).r : qualifierKey(c);
+        key *= q * windowsMatte(gl_FragCoord.xy);
+    }
     if (uMode == 1) {
         fragColor = vec4(key, key, key, 1.0);
         return;
@@ -460,6 +499,73 @@ void main()
 }
 )";
 
+// Matte Finesse (grademath::applyMatteFinesse()). The matte lives in the red channel (grey
+// picture, alpha 1). Erode / dilate: min / max over 2 radius + 1 texels along uDir.
+const char* const kMatteMorphSource = R"(
+uniform sampler2D uSrc;
+uniform ivec2 uDir;
+uniform int uRadius;
+uniform int uDilate;
+void main()
+{
+    ivec2 p = ivec2(gl_FragCoord.xy);
+    ivec2 hi = textureSize(uSrc, 0) - ivec2(1);
+    float best = uDilate != 0 ? 0.0 : 1.0;
+    for (int k = -uRadius; k <= uRadius; ++k) {
+        float v = texelFetch(uSrc, clamp(p + uDir * k, ivec2(0), hi), 0).r;
+        best = uDilate != 0 ? max(best, v) : min(best, v);
+    }
+    fragColor = vec4(best, best, best, 1.0);
+}
+)";
+
+// Denoise: the median of the (2 radius + 1)^2 window (at most 7 x 7), by partial selection.
+const char* const kMatteMedianSource = R"(
+uniform sampler2D uSrc;
+uniform int uRadius;
+void main()
+{
+    ivec2 p = ivec2(gl_FragCoord.xy);
+    ivec2 hi = textureSize(uSrc, 0) - ivec2(1);
+    float v[49];
+    int n = 0;
+    for (int j = -uRadius; j <= uRadius; ++j)
+        for (int i = -uRadius; i <= uRadius; ++i)
+            v[n++] = texelFetch(uSrc, clamp(p + ivec2(i, j), ivec2(0), hi), 0).r;
+    int mid = n / 2;
+    for (int i = 0; i <= mid; ++i) {
+        int m = i;
+        for (int k = i + 1; k < n; ++k)
+            if (v[k] < v[m])
+                m = k;
+        float t = v[i];
+        v[i] = v[m];
+        v[m] = t;
+    }
+    float r = v[mid];
+    fragColor = vec4(r, r, r, 1.0);
+}
+)";
+
+// In / Out Ratio (grademath::matteRatio()).
+const char* const kMatteRatioSource = R"(
+uniform sampler2D uSrc;
+uniform float uRatio;
+void main()
+{
+    float b = texelFetch(uSrc, ivec2(gl_FragCoord.xy), 0).r;
+    float r = b;
+    if (uRatio > 0.0) {
+        float t = 0.5 * uRatio;
+        r = clamp((b - t) / (1.0 - t), 0.0, 1.0);
+    } else if (uRatio < 0.0) {
+        float t = -0.5 * uRatio;
+        r = clamp(b / (1.0 - t), 0.0, 1.0);
+    }
+    fragColor = vec4(r, r, r, 1.0);
+}
+)";
+
 GLuint makeTexture(GlFunctions* gl, GLenum target)
 {
     GLuint tex = 0;
@@ -486,7 +592,10 @@ bool GlGrade::initialize(GlKit& kit, QString* why)
         || !m_layer.build(gl, "grade_layer", kLayerSource, &log)
         || !m_blur.build(gl, "grade_blur", kBlurSource, &log)
         || !m_blurCombine.build(gl, "grade_blur_combine", kBlurCombineSource.c_str(), &log)
-        || !m_blurMix.build(gl, "grade_blur_mix", kBlurMixSource, &log)) {
+        || !m_blurMix.build(gl, "grade_blur_mix", kBlurMixSource, &log)
+        || !m_matteMorph.build(gl, "grade_matte_morph", kMatteMorphSource, &log)
+        || !m_matteMedian.build(gl, "grade_matte_median", kMatteMedianSource, &log)
+        || !m_matteRatio.build(gl, "grade_matte_ratio", kMatteRatioSource, &log)) {
         *why = log;
         return false;
     }
@@ -518,6 +627,14 @@ bool GlGrade::initialize(GlKit& kit, QString* why)
     m_u.qualHue = u("uQualHue");
     m_u.qualSat = u("uQualSat");
     m_u.qualLum = u("uQualLum");
+    m_u.qualMode = u("uQualMode");
+    m_u.qualR = u("uQualR");
+    m_u.qualG = u("uQualG");
+    m_u.qualB = u("uQualB");
+    m_u.q3Count = u("uQ3Count");
+    m_u.q3 = u("uQ3");
+    m_u.q3Range = u("uQ3Range");
+    m_u.useMatte = u("uUseMatte");
     m_u.winCount = u("uWinCount");
     m_u.winShape = u("uWinShape");
     m_u.winInvert = u("uWinInvert");
@@ -531,6 +648,7 @@ bool GlGrade::initialize(GlKit& kit, QString* why)
     gl->glUniform1i(u("uLut3d"), kUnitLut3d);
     gl->glUniform1i(u("uLut1d"), kUnitLut1d);
     gl->glUniform1i(u("uPoints"), kUnitPoints);
+    gl->glUniform1i(u("uMatte"), kUnitMatte);
 
     m_parallelCount = m_parallel.uniform(gl, "uCount");
     gl->glUseProgram(m_parallel.id);
@@ -563,6 +681,17 @@ bool GlGrade::initialize(GlKit& kit, QString* why)
     gl->glUniform1i(m_blurMix.uniform(gl, "uIn"), 0);
     gl->glUniform1i(m_blurMix.uniform(gl, "uGraded"), 1);
     gl->glUniform1i(m_blurMix.uniform(gl, "uKey"), 2);
+    gl->glUseProgram(m_matteMorph.id);
+    gl->glUniform1i(m_matteMorph.uniform(gl, "uSrc"), 0);
+    m_morphDir = m_matteMorph.uniform(gl, "uDir");
+    m_morphRadius = m_matteMorph.uniform(gl, "uRadius");
+    m_morphDilate = m_matteMorph.uniform(gl, "uDilate");
+    gl->glUseProgram(m_matteMedian.id);
+    gl->glUniform1i(m_matteMedian.uniform(gl, "uSrc"), 0);
+    m_medianRadius = m_matteMedian.uniform(gl, "uRadius");
+    gl->glUseProgram(m_matteRatio.id);
+    gl->glUniform1i(m_matteRatio.uniform(gl, "uSrc"), 0);
+    m_ratioValue = m_matteRatio.uniform(gl, "uRatio");
     gl->glUseProgram(0);
 
     m_curveTex = makeTexture(gl, GL_TEXTURE_2D);
@@ -585,6 +714,9 @@ void GlGrade::destroy(GlKit& kit)
     m_blur.destroy(gl);
     m_blurCombine.destroy(gl);
     m_blurMix.destroy(gl);
+    m_matteMorph.destroy(gl);
+    m_matteMedian.destroy(gl);
+    m_matteRatio.destroy(gl);
     for (GLuint* tex : {&m_curveTex, &m_lut3d, &m_lut1d, &m_pointsTex}) {
         if (*tex)
             gl->glDeleteTextures(1, tex);
@@ -649,15 +781,16 @@ void GlGrade::uploadPoints(GlFunctions* gl, const PreparedGradeNode& node, std::
     gl->glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void GlGrade::drawCorrector(GlKit& kit, const PreparedGradeNode& n, GLuint input, int mode)
+void GlGrade::drawCorrector(
+    GlKit& kit, const PreparedGradeNode& n, GLuint input, int mode, GLuint matte)
 {
     GlFunctions* gl = kit.gl();
     const PrimaryValues& p = n.primaries;
     std::vector<int> ranges;
     uploadPoints(gl, n, ranges);
-    if (n.curves && mode != 1)
+    if (n.curves && (mode == 0 || mode == 2))
         uploadCurves(gl, *n.curves);
-    if (n.lut && mode != 1)
+    if (n.lut && (mode == 0 || mode == 2))
         uploadLut(gl, n.lut);
     gl->glUseProgram(m_corrector.id);
     kit.setFullscreen(m_corrector);
@@ -692,7 +825,27 @@ void GlGrade::drawCorrector(GlKit& kit, const PreparedGradeNode& n, GLuint input
     const GradeQualifier& q = n.qualifier;
     gl->glUniform1i(m_u.qual, q.enabled ? 1 : 0);
     gl->glUniform1i(m_u.qualInvert, q.invert ? 1 : 0);
-    gl->glUniform1i(m_u.qualUse, (q.useHue ? 1 : 0) | (q.useSat ? 2 : 0) | (q.useLum ? 4 : 0));
+    gl->glUniform1i(m_u.qualUse,
+        (q.useHue ? 1 : 0) | (q.useSat ? 2 : 0) | (q.useLum ? 4 : 0) | (q.useRed ? 8 : 0)
+            | (q.useGreen ? 16 : 0) | (q.useBlue ? 32 : 0));
+    gl->glUniform1i(m_u.qualMode, int(q.mode));
+    gl->glUniform3f(m_u.qualR, float(q.redLow), float(q.redHigh), float(q.redSoft));
+    gl->glUniform3f(m_u.qualG, float(q.greenLow), float(q.greenHigh), float(q.greenSoft));
+    gl->glUniform3f(m_u.qualB, float(q.blueLow), float(q.blueHigh), float(q.blueSoft));
+    {
+        const int colours = std::min(int(q.colors.size()), kMaxQualifierColors);
+        float packed[kMaxQualifierColors * 4] = {};
+        for (int i = 0; i < colours; ++i) {
+            const GradeQualifierColor& c = q.colors[i];
+            const float v[4] = {c.r, c.g, c.b, c.subtract ? 1.0f : 0.0f};
+            std::copy(v, v + 4, packed + i * 4);
+        }
+        gl->glUniform1i(m_u.q3Count, colours);
+        if (colours > 0)
+            gl->glUniform4fv(m_u.q3, colours, packed);
+        gl->glUniform2f(m_u.q3Range, float(q.colorRange), float(q.colorSoft));
+    }
+    gl->glUniform1i(m_u.useMatte, matte ? 1 : 0);
     gl->glUniform3f(m_u.qualHue, float(q.hueCenter), float(q.hueWidth) * 0.5f, float(q.hueSoft));
     gl->glUniform3f(m_u.qualSat, float(q.satLow), float(q.satHigh), float(q.satSoft));
     gl->glUniform3f(m_u.qualLum, float(q.lumLow), float(q.lumHigh), float(q.lumSoft));
@@ -728,6 +881,7 @@ void GlGrade::drawCorrector(GlKit& kit, const PreparedGradeNode& n, GLuint input
     gl->glBindTexture(GL_TEXTURE_3D, m_lut3d);
     kit.bindTexture(kUnitLut1d, m_lut1d);
     kit.bindTexture(kUnitPoints, m_pointsTex);
+    kit.bindTexture(kUnitMatte, matte ? matte : input);
     kit.setBlendOver(false);
     kit.drawQuad();
     gl->glActiveTexture(GL_TEXTURE0 + kUnitLut3d);
@@ -774,6 +928,59 @@ PooledTarget GlGrade::blurStage(
     return out;
 }
 
+PooledTarget GlGrade::matteFinesse(
+    GlKit& kit, const PreparedGradeNode& n, GLuint input, const QSize& size)
+{
+    GlFunctions* gl = kit.gl();
+    const MatteFinesse& f = n.finesse;
+    PooledTarget cur = kit.acquire(size);
+    kit.bindTarget(*cur);
+    drawCorrector(kit, n, input, 3, 0);
+    // One pass of @p program over the current matte; @p setup sets its uniforms.
+    auto pass = [&](GlProgram& program, auto&& setup) {
+        PooledTarget next = kit.acquire(size);
+        kit.bindTarget(*next);
+        gl->glUseProgram(program.id);
+        kit.setFullscreen(program);
+        setup();
+        kit.bindTexture(0, cur->texture);
+        kit.setBlendOver(false);
+        kit.drawQuad();
+        cur = std::move(next);
+    };
+    auto morph = [&](int radius, bool dilate) {
+        if (radius <= 0)
+            return;
+        for (const bool horizontal : {true, false}) {
+            pass(m_matteMorph, [&] {
+                gl->glUniform2i(m_morphDir, horizontal ? 1 : 0, horizontal ? 0 : 1);
+                gl->glUniform1i(m_morphRadius, radius);
+                gl->glUniform1i(m_morphDilate, dilate ? 1 : 0);
+            });
+        }
+    };
+    morph(f.cleanBlack, false);
+    morph(f.cleanBlack, true);
+    morph(f.cleanWhite, true);
+    morph(f.cleanWhite, false);
+    if (f.denoise > 0)
+        pass(m_matteMedian, [&] { gl->glUniform1i(m_medianRadius, f.denoise); });
+    morph(std::abs(f.shrinkGrow), f.shrinkGrow > 0);
+    if (f.blurSigma > 0.0f) {
+        for (const bool horizontal : {true, false}) {
+            pass(m_blur, [&] {
+                gl->glUniform2i(m_blurDir, horizontal ? 1 : 0, horizontal ? 0 : 1);
+                gl->glUniform1i(m_blurRadius, blurTapRadius(f.blurSigma));
+                gl->glUniform1f(m_blurSigma, f.blurSigma);
+            });
+        }
+    }
+    if (f.ratio != 0.0f)
+        pass(m_matteRatio, [&] { gl->glUniform1f(m_ratioValue, f.ratio); });
+    gl->glActiveTexture(GL_TEXTURE0);
+    return cur;
+}
+
 PooledTarget GlGrade::apply(GlKit& kit, const RenderTarget& input, const PreparedGrade& grade)
 {
     if (grade.identity || grade.output < 0)
@@ -800,10 +1007,14 @@ PooledTarget GlGrade::apply(GlKit& kit, const RenderTarget& input, const Prepare
                 break;
             }
             constAlpha[i] = n.mix;
+            PooledTarget matte; // the qualifier matte after Matte Finesse
+            if (n.finesses)
+                matte = matteFinesse(kit, n, in, size);
+            const GLuint matteTex = matte ? matte->texture : 0;
             if ((n.keyed && n.keyNeeded) || n.blurs) {
                 keyTargets[i] = kit.acquire(size);
                 kit.bindTarget(*keyTargets[i]);
-                drawCorrector(kit, n, in, 1);
+                drawCorrector(kit, n, in, 1, matteTex);
             }
             if (n.blurs) {
                 // Colour corrections on the whole picture, the blur stages, then the key
@@ -840,7 +1051,7 @@ PooledTarget GlGrade::apply(GlKit& kit, const RenderTarget& input, const Prepare
                 break;
             owned[i] = kit.acquire(size);
             kit.bindTarget(*owned[i]);
-            drawCorrector(kit, n, in, 0);
+            drawCorrector(kit, n, in, 0, matteTex);
             texture[i] = owned[i]->texture;
             break;
         }

@@ -42,12 +42,20 @@ private:
         GLint qual = -1, qualInvert = -1, qualUse = -1, qualHue = -1, qualSat = -1, qualLum = -1;
         GLint winCount = -1, winShape = -1, winInvert = -1, winOpacity = -1, winGeom = -1;
         GLint winRotSoft = -1, winPoints = -1;
+        GLint qualMode = -1, qualR = -1, qualG = -1, qualB = -1, q3Count = -1, q3 = -1, q3Range = -1;
+        GLint useMatte = -1;
     };
 
     /// One Blur palette stage on @p source (premultiplied picture): a new target.
     PooledTarget blurStage(
         GlKit& kit, GLuint source, const grademath::BlurStage& stage, const QSize& size);
-    void drawCorrector(GlKit& kit, const PreparedGradeNode& node, GLuint input, int mode);
+    /// The Matte Finesse chain of @p node's qualifier: the raw matte (corrector mode 3), then the
+    /// clean / denoise / shrink-grow / blur / ratio passes. Returns the finished matte target.
+    PooledTarget matteFinesse(
+        GlKit& kit, const PreparedGradeNode& node, GLuint input, const QSize& size);
+    /// @p matte: a finished qualifier matte replacing the node's own qualifier key (0 = none).
+    void drawCorrector(
+        GlKit& kit, const PreparedGradeNode& node, GLuint input, int mode, GLuint matte = 0);
     void uploadCurves(GlFunctions* gl, const grademath::CurveTables& tables);
     void uploadLut(GlFunctions* gl, const std::shared_ptr<const CubeLut>& lut);
     /// Uploads the polygon points of @p node's windows; fills @p ranges (start, count) per window.
@@ -62,6 +70,9 @@ private:
 
     GlProgram m_blur, m_blurCombine, m_blurMix;
     GLint m_blurDir = -1, m_blurRadius = -1, m_blurSigma = -1;
+    GlProgram m_matteMorph, m_matteMedian, m_matteRatio;
+    GLint m_morphDir = -1, m_morphRadius = -1, m_morphDilate = -1, m_medianRadius = -1,
+        m_ratioValue = -1;
     GLint m_combineMix = -1, m_combineSharp = -1, m_combineCoring = -1;
 
     GLuint m_curveTex = 0; ///< kCurveTableSize x kGradeCurveCount, R32F

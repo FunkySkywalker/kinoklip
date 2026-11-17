@@ -48,7 +48,7 @@ set(KK_TESTS_QUICK
   test_guidesrender test_homography test_hwdecode test_inspector test_keyframedcpu
   test_keyframeeditor test_keyframeops test_keyframespanel test_keypresets test_largeproject
   test_levellines test_levelops test_logexport test_looks test_maskrender test_masks
-  test_masksui test_mattemodel test_matteservice test_mcp test_mediacache test_mediahover
+  test_masksui test_mattefinesse test_mattemodel test_matteservice test_mcp test_mediacache test_mediahover
   test_medialinks test_mediaorganize test_mediapool test_mediapoolpanel test_membudget test_memoryguard
   test_memoryreport test_mergecontrols test_mixerdata test_mixerdsp test_mixergraph
   test_multicam test_multicamrender test_multicamui test_nested test_nodeeditor test_otio

@@ -366,36 +366,80 @@ float smoothStep(float edge0, float edge1, float x)
     return t * t * (3.0f - 2.0f * t);
 }
 
+namespace {
+/// A soft range key of @p v: 1 inside [lo, hi], a smoothstep of width @p softness outside.
+float rangeKey(float v, double lo, double hi, double softness)
+{
+    const float soft = std::max(float(softness), kMinSoftness);
+    float k = 1.0f;
+    if (lo > 0.0)
+        k *= smoothStep(float(lo) - soft, float(lo), v);
+    if (hi < 1.0)
+        k *= 1.0f - smoothStep(float(hi), float(hi) + soft, v);
+    return k;
+}
+
+/// 3D mode: how much @p c belongs to the neighbourhood (RGB distance) of one picked colour.
+float colourNear(const GradeQualifierColor& p, const float c[3], float range, float soft)
+{
+    const float dr = c[0] - p.r, dg = c[1] - p.g, db = c[2] - p.b;
+    const float dist = std::sqrt(dr * dr + dg * dg + db * db);
+    return 1.0f - smoothStep(range, range + std::max(soft, kMinSoftness), dist);
+}
+} // namespace
+
 float qualifierKey(const GradeQualifier& q, const float rgb[3])
 {
     if (!q.enabled)
         return 1.0f;
     const float c[3] = {std::clamp(rgb[0], 0.0f, 1.0f), std::clamp(rgb[1], 0.0f, 1.0f),
         std::clamp(rgb[2], 0.0f, 1.0f)};
-    float hsl[3];
-    rgbToHsl(c, hsl);
     float key = 1.0f;
-    if (q.useHue) {
-        // Circular distance to the centre hue, in turns (0..0.5).
-        const float rel = hsl[0] - float(q.hueCenter) + 0.5f;
-        const float dist = std::abs(rel - std::floor(rel) - 0.5f);
-        const float half = float(q.hueWidth) * 0.5f;
-        const float soft = std::max(float(q.hueSoft), kMinSoftness);
-        key *= 1.0f - smoothStep(half, half + soft, dist);
+    switch (q.mode) {
+    case QualifierMode::Hsl: {
+        float hsl[3];
+        rgbToHsl(c, hsl);
+        if (q.useHue) {
+            // Circular distance to the centre hue, in turns (0..0.5).
+            const float rel = hsl[0] - float(q.hueCenter) + 0.5f;
+            const float dist = std::abs(rel - std::floor(rel) - 0.5f);
+            const float half = float(q.hueWidth) * 0.5f;
+            const float soft = std::max(float(q.hueSoft), kMinSoftness);
+            key *= 1.0f - smoothStep(half, half + soft, dist);
+        }
+        if (q.useSat)
+            key *= rangeKey(hsl[1], q.satLow, q.satHigh, q.satSoft);
+        if (q.useLum)
+            key *= rangeKey(hsl[2], q.lumLow, q.lumHigh, q.lumSoft);
+        break;
     }
-    auto range = [](float v, double lo, double hi, double softness) {
-        const float soft = std::max(float(softness), kMinSoftness);
-        float k = 1.0f;
-        if (lo > 0.0)
-            k *= smoothStep(float(lo) - soft, float(lo), v);
-        if (hi < 1.0)
-            k *= 1.0f - smoothStep(float(hi), float(hi) + soft, v);
-        return k;
-    };
-    if (q.useSat)
-        key *= range(hsl[1], q.satLow, q.satHigh, q.satSoft);
-    if (q.useLum)
-        key *= range(hsl[2], q.lumLow, q.lumHigh, q.lumSoft);
+    case QualifierMode::Luma:
+        key = rangeKey(
+            luma(c), q.lumLow, q.lumHigh, q.lumSoft);
+        break;
+    case QualifierMode::Rgb:
+        if (q.useRed)
+            key *= rangeKey(c[0], q.redLow, q.redHigh, q.redSoft);
+        if (q.useGreen)
+            key *= rangeKey(c[1], q.greenLow, q.greenHigh, q.greenSoft);
+        if (q.useBlue)
+            key *= rangeKey(c[2], q.blueLow, q.blueHigh, q.blueSoft);
+        break;
+    case QualifierMode::ThreeD: {
+        // The union of the picked colours' neighbourhoods, minus the subtracted ones'.
+        // (The idea of a soft ellipsoid / box selection in colour space follows the frei0r
+        // select0r plugin, GPL.)
+        float in = 0.0f, out = 0.0f;
+        const int count = std::min(int(q.colors.size()), kMaxQualifierColors);
+        for (int i = 0; i < count; ++i) {
+            const float k = colourNear(q.colors[i], c, float(q.colorRange), float(q.colorSoft));
+            float& best = q.colors[i].subtract ? out : in;
+            best = std::max(best, k);
+        }
+        key = in * (1.0f - out);
+        break;
+    }
+    }
     return q.invert ? 1.0f - key : key;
 }
 
@@ -720,6 +764,158 @@ float blurCombine(float c, float b, float mix, float sharp, float coring)
 {
     const float d = c - b;
     return c + (b - c) * mix + d * sharp * coringFactor(d, coring);
+}
+
+} // namespace kk::grademath
+
+// ---- Matte Finesse ----
+// Cleaning a matte picture: grayscale morphology (a flat square structuring element, run as
+// two 1D passes) for Clean Black / Clean White and Shrink / Grow, a median for Denoise and a
+// Gaussian for Blur Radius. These are the standard operators image tools use for matte
+// clean-up: Natron's Erode / Dilate / Median / Blur nodes and GIMP's / GEGL's value-propagate,
+// median-blur and gaussian-blur filters (both GPL-compatible); the code here is written
+// from the operators' definitions.
+namespace kk::grademath {
+
+namespace {
+
+int radiusFor(double value, double height)
+{
+    const double v = std::clamp(std::abs(value), 0.0, 1.0);
+    if (v <= 0.0)
+        return 0;
+    return std::clamp(int(std::lround(v * kMatteMaxRadius * height)), 1, kMatteMaxTaps);
+}
+
+/// Min (@p dilate false) or max over a 2 radius + 1 window along x (@p horizontal) or y.
+void morphLine(const std::vector<float>& src, std::vector<float>& dst, int w, int h, int radius,
+    bool dilate, bool horizontal)
+{
+    dst.resize(src.size());
+    for (int y = 0; y < h; ++y) {
+        for (int x = 0; x < w; ++x) {
+            float best = dilate ? 0.0f : 1.0f;
+            for (int k = -radius; k <= radius; ++k) {
+                const int sx = horizontal ? std::clamp(x + k, 0, w - 1) : x;
+                const int sy = horizontal ? y : std::clamp(y + k, 0, h - 1);
+                const float v = src[size_t(sy) * size_t(w) + size_t(sx)];
+                best = dilate ? std::max(best, v) : std::min(best, v);
+            }
+            dst[size_t(y) * size_t(w) + size_t(x)] = best;
+        }
+    }
+}
+
+void morph(std::vector<float>& m, int w, int h, int radius, bool dilate)
+{
+    if (radius <= 0)
+        return;
+    std::vector<float> tmp;
+    morphLine(m, tmp, w, h, radius, dilate, true);
+    morphLine(tmp, m, w, h, radius, dilate, false);
+}
+
+} // namespace
+
+bool MatteFinesse::active() const
+{
+    return cleanBlack > 0 || cleanWhite > 0 || shrinkGrow != 0 || denoise > 0 || blurSigma > 0
+        || ratio != 0.0f;
+}
+
+MatteFinesse MatteFinesse::at(const GradeQualifier& q, double pictureHeight)
+{
+    MatteFinesse f;
+    f.cleanBlack = radiusFor(q.cleanBlack, pictureHeight);
+    f.cleanWhite = radiusFor(q.cleanWhite, pictureHeight);
+    f.shrinkGrow = radiusFor(q.shrinkGrow, pictureHeight) * (q.shrinkGrow < 0.0 ? -1 : 1);
+    f.denoise = int(std::lround(std::clamp(q.denoise, 0.0, 1.0) * kMatteMaxDenoise));
+    f.blurSigma
+        = float(std::clamp(q.blurRadius, 0.0, 1.0) * kMatteMaxSigma * pictureHeight);
+    if (f.blurSigma < kMinBlurSigma)
+        f.blurSigma = 0.0f;
+    f.ratio = float(std::clamp(q.inOutRatio, -1.0, 1.0));
+    return f;
+}
+
+float matteRatio(float blurred, float ratio)
+{
+    // Positive: the soft edge moves inside the original matte (the blurred matte is
+    // reached later); negative: outside (it is reached earlier).
+    if (ratio > 0.0f) {
+        const float t = 0.5f * ratio;
+        return std::clamp((blurred - t) / (1.0f - t), 0.0f, 1.0f);
+    }
+    if (ratio < 0.0f) {
+        const float t = -0.5f * ratio;
+        return std::clamp(blurred / (1.0f - t), 0.0f, 1.0f);
+    }
+    return blurred;
+}
+
+void matteMedian(const std::vector<float>& src, std::vector<float>& dst, int w, int h, int radius)
+{
+    dst = src;
+    if (radius <= 0)
+        return;
+    std::vector<float> window;
+    window.reserve(size_t((2 * radius + 1) * (2 * radius + 1)));
+    for (int y = 0; y < h; ++y) {
+        for (int x = 0; x < w; ++x) {
+            window.clear();
+            for (int j = -radius; j <= radius; ++j) {
+                for (int i = -radius; i <= radius; ++i) {
+                    window.push_back(src[size_t(std::clamp(y + j, 0, h - 1)) * size_t(w)
+                        + size_t(std::clamp(x + i, 0, w - 1))]);
+                }
+            }
+            std::nth_element(window.begin(), window.begin() + window.size() / 2, window.end());
+            dst[size_t(y) * size_t(w) + size_t(x)] = window[window.size() / 2];
+        }
+    }
+}
+
+void applyMatteFinesse(const MatteFinesse& f, std::vector<float>& m, int w, int h)
+{
+    if (!f.active() || w <= 0 || h <= 0)
+        return;
+    // Clean Black: opening (an erosion then a dilation) removes white specks from the black.
+    morph(m, w, h, f.cleanBlack, false);
+    morph(m, w, h, f.cleanBlack, true);
+    // Clean White: closing removes black specks from the white.
+    morph(m, w, h, f.cleanWhite, true);
+    morph(m, w, h, f.cleanWhite, false);
+    if (f.denoise > 0) {
+        std::vector<float> out;
+        matteMedian(m, out, w, h, f.denoise);
+        m.swap(out);
+    }
+    morph(m, w, h, std::abs(f.shrinkGrow), f.shrinkGrow > 0);
+    if (f.blurSigma > 0.0f) {
+        const std::vector<float> kernel = blurKernel(f.blurSigma);
+        const int r = int(kernel.size() / 2);
+        std::vector<float> tmp(m.size());
+        for (int y = 0; y < h; ++y) {
+            for (int x = 0; x < w; ++x) {
+                float acc = 0.0f;
+                for (int k = -r; k <= r; ++k)
+                    acc += kernel[size_t(k + r)] * m[size_t(y) * size_t(w) + size_t(std::clamp(x + k, 0, w - 1))];
+                tmp[size_t(y) * size_t(w) + size_t(x)] = acc;
+            }
+        }
+        for (int y = 0; y < h; ++y) {
+            for (int x = 0; x < w; ++x) {
+                float acc = 0.0f;
+                for (int k = -r; k <= r; ++k)
+                    acc += kernel[size_t(k + r)] * tmp[size_t(std::clamp(y + k, 0, h - 1)) * size_t(w) + size_t(x)];
+                m[size_t(y) * size_t(w) + size_t(x)] = acc;
+            }
+        }
+    }
+    if (f.ratio != 0.0f) {
+        for (float& v : m)
+            v = matteRatio(v, f.ratio);
+    }
 }
 
 } // namespace kk::grademath

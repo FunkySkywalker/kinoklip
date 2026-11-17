@@ -42,6 +42,38 @@ QJsonObject qualifierToJson(const GradeQualifier& q)
     num("lumLow", q.lumLow, d.lumLow);
     num("lumHigh", q.lumHigh, d.lumHigh);
     num("lumSoft", q.lumSoft, d.lumSoft);
+    if (q.mode != d.mode) {
+        o[QLatin1String("mode")] = q.mode == QualifierMode::Rgb ? QLatin1String("rgb")
+            : q.mode == QualifierMode::Luma                    ? QLatin1String("luma")
+            : q.mode == QualifierMode::ThreeD                  ? QLatin1String("threeD")
+                                                               : QLatin1String("hsl");
+    }
+    flag("useRed", q.useRed, d.useRed);
+    flag("useGreen", q.useGreen, d.useGreen);
+    flag("useBlue", q.useBlue, d.useBlue);
+    num("redLow", q.redLow, d.redLow);
+    num("redHigh", q.redHigh, d.redHigh);
+    num("redSoft", q.redSoft, d.redSoft);
+    num("greenLow", q.greenLow, d.greenLow);
+    num("greenHigh", q.greenHigh, d.greenHigh);
+    num("greenSoft", q.greenSoft, d.greenSoft);
+    num("blueLow", q.blueLow, d.blueLow);
+    num("blueHigh", q.blueHigh, d.blueHigh);
+    num("blueSoft", q.blueSoft, d.blueSoft);
+    if (!q.colors.isEmpty()) {
+        QJsonArray colors;
+        for (const GradeQualifierColor& c : q.colors)
+            colors.append(QJsonArray {c.r, c.g, c.b, c.subtract ? 1 : 0});
+        o[QLatin1String("colors")] = colors;
+    }
+    num("colorRange", q.colorRange, d.colorRange);
+    num("colorSoft", q.colorSoft, d.colorSoft);
+    num("cleanBlack", q.cleanBlack, d.cleanBlack);
+    num("cleanWhite", q.cleanWhite, d.cleanWhite);
+    num("shrinkGrow", q.shrinkGrow, d.shrinkGrow);
+    num("blurRadius", q.blurRadius, d.blurRadius);
+    num("inOutRatio", q.inOutRatio, d.inOutRatio);
+    num("denoise", q.denoise, d.denoise);
     return o;
 }
 
@@ -64,6 +96,39 @@ GradeQualifier qualifierFromJson(const QJsonObject& o)
     num("lumLow", q.lumLow);
     num("lumHigh", q.lumHigh);
     num("lumSoft", q.lumSoft);
+    const QString mode = o.value(QLatin1String("mode")).toString();
+    q.mode = mode == QLatin1String("rgb") ? QualifierMode::Rgb
+        : mode == QLatin1String("luma")   ? QualifierMode::Luma
+        : mode == QLatin1String("threeD") ? QualifierMode::ThreeD
+                                          : QualifierMode::Hsl;
+    flag("useRed", q.useRed);
+    flag("useGreen", q.useGreen);
+    flag("useBlue", q.useBlue);
+    num("redLow", q.redLow);
+    num("redHigh", q.redHigh);
+    num("redSoft", q.redSoft);
+    num("greenLow", q.greenLow);
+    num("greenHigh", q.greenHigh);
+    num("greenSoft", q.greenSoft);
+    num("blueLow", q.blueLow);
+    num("blueHigh", q.blueHigh);
+    num("blueSoft", q.blueSoft);
+    for (const QJsonValue& v : o.value(QLatin1String("colors")).toArray()) {
+        const QJsonArray a = v.toArray();
+        if (a.size() >= 3 && q.colors.size() < kMaxQualifierColors) {
+            q.colors.append({float(std::clamp(a[0].toDouble(), 0.0, 1.0)),
+                float(std::clamp(a[1].toDouble(), 0.0, 1.0)),
+                float(std::clamp(a[2].toDouble(), 0.0, 1.0)), a.size() > 3 && a[3].toInt() != 0});
+        }
+    }
+    num("colorRange", q.colorRange);
+    num("colorSoft", q.colorSoft);
+    num("cleanBlack", q.cleanBlack);
+    num("cleanWhite", q.cleanWhite);
+    num("shrinkGrow", q.shrinkGrow);
+    num("blurRadius", q.blurRadius);
+    num("inOutRatio", q.inOutRatio);
+    num("denoise", q.denoise);
     return q;
 }
 

@@ -91,10 +91,34 @@ struct GradeCurves
     friend bool operator==(const GradeCurves&, const GradeCurves&) = default;
 };
 
-/// HSL qualifier of a corrector node: a soft key selecting pixels of the node's INPUT by hue,
-/// saturation and lightness (HSL). Ranges are 0..1 (hue in turns, 0 = red, 1/3 = green,
-/// 2/3 = blue). Softness widens each edge by a smooth ramp outside the range. Not
-/// keyframeable (a qualifier follows the picture, not the time).
+/// What the qualifier selects by (the Qualifier palette's mode buttons).
+enum class QualifierMode : quint8 {
+    Hsl, ///< hue, saturation and lightness ranges
+    Rgb, ///< red, green and blue ranges
+    Luma, ///< the luma range only (hue and saturation ignored)
+    ThreeD ///< picked colours: everything near a picked colour in RGB space
+};
+
+/// One colour picked in the 3D qualifier mode: straight RGB (0..1); a subtracted colour
+/// (Pick -) takes its neighbourhood out of the selection again.
+struct GradeQualifierColor
+{
+    float r = 0.0f;
+    float g = 0.0f;
+    float b = 0.0f;
+    bool subtract = false;
+    friend bool operator==(const GradeQualifierColor&, const GradeQualifierColor&) = default;
+};
+
+/// Most colours the 3D qualifier keeps (the GPU pass reads them from a uniform array).
+inline constexpr int kMaxQualifierColors = 32;
+
+/// Qualifier of a corrector node: a soft key selecting pixels of the node's INPUT by hue,
+/// saturation and lightness (HSL mode), by red, green and blue (RGB), by luma only (Luma) or
+/// by picked colours (3D). Ranges are 0..1 (hue in turns, 0 = red, 1/3 = green, 2/3 = blue).
+/// Softness widens each edge by a smooth ramp outside the range. The Matte Finesse values
+/// clean the key picture afterwards (spec 108). Not keyframeable (a qualifier follows the
+/// picture, not the time).
 struct GradeQualifier
 {
     bool enabled = false;
@@ -112,6 +136,37 @@ struct GradeQualifier
     double lumHigh = 1.0;
     double lumSoft = 0.05;
 
+    QualifierMode mode = QualifierMode::Hsl;
+    // RGB mode: a range per channel (low, high, softness), each switchable.
+    bool useRed = true;
+    bool useGreen = true;
+    bool useBlue = true;
+    double redLow = 0.0, redHigh = 1.0, redSoft = 0.05;
+    double greenLow = 0.0, greenHigh = 1.0, greenSoft = 0.05;
+    double blueLow = 0.0, blueHigh = 1.0, blueSoft = 0.05;
+    // 3D mode: the picked colours, how far around each the selection reaches (RGB distance,
+    // 0..1) and how softly it fades out beyond that.
+    QVector<GradeQualifierColor> colors;
+    double colorRange = 0.12;
+    double colorSoft = 0.1;
+
+    // Matte Finesse (all 0 = off). Clean Black / Clean White 0..1 remove specks of the
+    // matte's white from the black area / of black from the white area; Shrink / Grow
+    // -1..1 (negative shrinks); Blur Radius 0..1; In / Out Ratio -1..1 (positive moves
+    // the blur inside the matte, negative outside); Denoise 0..1.
+    double cleanBlack = 0.0;
+    double cleanWhite = 0.0;
+    double shrinkGrow = 0.0;
+    double blurRadius = 0.0;
+    double inOutRatio = 0.0;
+    double denoise = 0.0;
+
+    /// True when any Matte Finesse value is set.
+    [[nodiscard]] bool hasFinesse() const
+    {
+        return cleanBlack != 0.0 || cleanWhite != 0.0 || shrinkGrow != 0.0 || blurRadius != 0.0
+            || inOutRatio != 0.0 || denoise != 0.0;
+    }
     friend bool operator==(const GradeQualifier&, const GradeQualifier&) = default;
 };
 

@@ -280,6 +280,22 @@ QImage ColorFrameSource::highlight(quint64 nodeId, HighlightMode mode) const
     geo.height = in.height();
     const std::vector<grademath::WindowValues> windows = grademath::evaluateWindows(*n, frame, geo);
     const float mix = float(std::clamp(n->value(gradekeys::Mix, frame), 0.0, 1.0));
+    // Matte Finesse cleans the whole qualifier picture, so it is computed up front.
+    std::vector<float> matte;
+    const grademath::MatteFinesse finesse = grademath::MatteFinesse::at(n->qualifier, in.height());
+    if (n->qualifier.enabled && finesse.active()) {
+        std::vector<float> rgbIn(size_t(in.width()) * size_t(in.height()) * 3);
+        for (int y = 0; y < in.height(); ++y) {
+            const auto* row = reinterpret_cast<const QRgb*>(in.constScanLine(y));
+            for (int x = 0; x < in.width(); ++x) {
+                float* o = &rgbIn[(size_t(y) * size_t(in.width()) + size_t(x)) * 3];
+                o[0] = qRed(row[x]) / 255.0f;
+                o[1] = qGreen(row[x]) / 255.0f;
+                o[2] = qBlue(row[x]) / 255.0f;
+            }
+        }
+        matte = render::qualifierMatte(n->qualifier, finesse, rgbIn, in.width(), in.height());
+    }
     QImage out(in.size(), QImage::Format_ARGB32);
     for (int y = 0; y < in.height(); ++y) {
         const auto* src = reinterpret_cast<const QRgb*>(in.constScanLine(y));
@@ -288,7 +304,9 @@ QImage ColorFrameSource::highlight(quint64 nodeId, HighlightMode mode) const
         for (int x = 0; x < in.width(); ++x) {
             const float rgb[3]
                 = {qRed(src[x]) / 255.0f, qGreen(src[x]) / 255.0f, qBlue(src[x]) / 255.0f};
-            float key = mix * grademath::qualifierKey(n->qualifier, rgb);
+            float key = mix
+                * (matte.empty() ? grademath::qualifierKey(n->qualifier, rgb)
+                                 : matte[size_t(y) * size_t(in.width()) + size_t(x)]);
             if (!windows.empty())
                 key *= grademath::windowsMatte(windows, x + 0.5f, y + 0.5f);
             key = std::clamp(key, 0.0f, 1.0f);

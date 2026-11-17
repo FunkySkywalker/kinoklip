@@ -33,6 +33,24 @@ inline constexpr double kRangeMargin = 0.08;
 [[nodiscard]] GradeQualifier apply(
     const GradeQualifier& current, const QVector<Hsl>& samples, Mode mode);
 
+/// One picked colour as straight RGB (0..1), for the RGB, Luma and 3D modes.
+using Rgb = std::array<float, 3>;
+
+/// RGB mode: the red, green and blue ranges after picking @p samples in @p mode (enabled
+/// afterwards; softness, per-channel enables and invert are kept).
+[[nodiscard]] GradeQualifier applyRgb(
+    const GradeQualifier& current, const QVector<Rgb>& samples, Mode mode);
+/// Luma mode: only the luma range (lumLow / lumHigh) changes, from the luma of @p samples.
+[[nodiscard]] GradeQualifier applyLuma(
+    const GradeQualifier& current, const QVector<Rgb>& samples, Mode mode);
+/// 3D mode: Pick replaces the picked colours, Pick + adds colours, Pick - adds colours to
+/// take out. Near-equal samples count once; the newest kMaxQualifierColors are kept.
+[[nodiscard]] GradeQualifier apply3d(
+    const GradeQualifier& current, const QVector<Rgb>& samples, Mode mode);
+/// The qualifier after picking @p samples in the qualifier's own mode (HSL, RGB, Luma, 3D).
+[[nodiscard]] GradeQualifier applyForMode(
+    const GradeQualifier& current, const QVector<Rgb>& samples, Mode mode);
+
 /// The smallest hue arc (centre, full width; turns) containing every hue of @p hues.
 [[nodiscard]] std::pair<double, double> hueArc(QVector<double> hues);
 

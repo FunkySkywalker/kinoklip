@@ -36,6 +36,30 @@ own:
    those colours.
 5. Click **Pick** again when you are done, so a click in the viewer does not pick again.
 
+## Pick by RGB, luma or in 3D
+
+The menu next to the eyedroppers sets what the qualifier selects by. **HSL** is the default.
+**RGB** has a Low / High / Soft range for Red, Green and Blue. **Luma** selects by brightness
+only (a good way to grade just the shadows or the sky's bright part). **3D** keeps the
+colours you pick: **Pick** replaces them, **Pick +** adds colours, **Pick -** takes the
+neighbourhood of a colour out again; **Range** is how far around each colour it selects and
+**Soft** how gently it fades out.
+
+## Clean up the selection (Matte Finesse)
+
+Turn **Highlight** on in black and white to see the selection. If it has specks or a harsh
+edge, use the **Matte Finesse** fields under the ranges:
+
+- **Clean Black** removes small white specks from the black area; **Clean White** fills
+  small black holes in the white area.
+- **Shrink / Grow**: below 0 the selection shrinks, above 0 it grows.
+- **Denoise** smooths grain in the selection.
+- **Blur Radius** softens the edge; **In / Out Ratio** above 0 lets the soft edge reach into
+  the selection, below 0 out of it.
+
+The fields change the matte, never the colours, and the palette's **Reset** clears them with
+the qualifier.
+
 ## See what is selected (Highlight)
 
 Click **Highlight** above the viewer (**Shift+H**, 1 below). The viewer shows only the selected

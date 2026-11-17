@@ -686,6 +686,101 @@ private slots:
         QCOMPARE(int(f.grade(f.clips[0]).nodes.size()), nodes);
     }
 
+    void qualifierMatteFinesse()
+    {
+        // Spec 108: the mode menu, the Matte Finesse fields, the 3D picks, undo and Reset.
+        Fixture f;
+        f.showPage();
+        f.splitInput();
+        ColorPage* page = f.page();
+        QualifierPanel* qp = page->qualifier();
+        page->showPalette(ColorPage::Palette::Qualifier);
+        const float red[3] = {0.86f, 0.16f, 0.16f};
+        f.session()->setQualifier(0,
+            qualifierpick::apply({}, {qualifierpick::toHsl(red)}, qualifierpick::Mode::Pick),
+            QStringLiteral("Q"));
+        auto* mode = qp->findChild<QComboBox*>(QStringLiteral("QualifierMode"));
+        QVERIFY(mode);
+        QCOMPARE(mode->count(), 4);
+        // Each Matte Finesse field is one undo step and lands in the node's qualifier.
+        const std::pair<const char*, double GradeQualifier::*> fields[]
+            = {{"cleanBlack", &GradeQualifier::cleanBlack},
+                {"cleanWhite", &GradeQualifier::cleanWhite},
+                {"shrinkGrow", &GradeQualifier::shrinkGrow},
+                {"blurRadius", &GradeQualifier::blurRadius},
+                {"inOutRatio", &GradeQualifier::inOutRatio},
+                {"denoise", &GradeQualifier::denoise}};
+        for (const auto& [name, member] : fields) {
+            ValueField* field = qp->field(QLatin1String(name));
+            QVERIFY2(field, name);
+            const int before = f.steps();
+            Q_EMIT field->valueCommitted(-0.4 < field->minimum() ? 0.4 : -0.4);
+            QCOMPARE(f.steps(), before + 1);
+            const double v = f.session()->currentNode()->qualifier.*member;
+            QVERIFY2(std::abs(std::abs(v) - 0.4) < 1e-9, name);
+            QCOMPARE(field->value(), v);
+        }
+        QVERIFY(f.session()->currentNode()->qualifier.hasFinesse());
+        // Highlight shows the cleaned matte (the page uses the same function as the export).
+        page->setHighlight(true);
+        QVERIFY(!page->overlay()->highlightImage().isNull());
+        page->setHighlight(false);
+        // The mode menu: one undo step, saved in the node; Luma hides the Hue and Sat rows.
+        const int beforeMode = f.steps();
+        mode->setCurrentIndex(2);
+        Q_EMIT mode->activated(2);
+        QCOMPARE(f.steps(), beforeMode + 1);
+        QCOMPARE(f.session()->currentNode()->qualifier.mode, QualifierMode::Luma);
+        QVERIFY(!qp->findChild<QCheckBox*>(QStringLiteral("QualifierUse_Hue"))->isVisibleTo(qp));
+        QVERIFY(qp->findChild<QCheckBox*>(QStringLiteral("QualifierUse_Lum"))->isVisibleTo(qp));
+        mode->setCurrentIndex(1); // RGB
+        Q_EMIT mode->activated(1);
+        QCOMPARE(f.session()->currentNode()->qualifier.mode, QualifierMode::Rgb);
+        ValueField* redLow = qp->field(QStringLiteral("redLow"));
+        QVERIFY(redLow);
+        Q_EMIT redLow->valueCommitted(0.5);
+        QCOMPARE(f.session()->currentNode()->qualifier.redLow, 0.5);
+        // 3D: the eyedropper adds picked colours (Pick -: colours taken out), Clear forgets them.
+        mode->setCurrentIndex(3);
+        Q_EMIT mode->activated(3);
+        QCOMPARE(f.session()->currentNode()->qualifier.mode, QualifierMode::ThreeD);
+        qp->setPickMode(qualifierpick::Mode::Pick);
+        ColorViewerOverlay* ov = page->overlay();
+        const QRectF pic = ov->pictureRect();
+        QTest::mouseClick(ov, Qt::LeftButton, {},
+            QPoint(int(pic.left() + pic.width() * 0.25), int(pic.center().y())));
+        QCoreApplication::processEvents();
+        QCOMPARE(f.session()->currentNode()->qualifier.colors.size(), 1);
+        const float blue[3] = {0.16f, 0.24f, 0.86f};
+        qp->setPickMode(qualifierpick::Mode::Add);
+        QTest::mouseClick(ov, Qt::LeftButton, {},
+            QPoint(int(pic.left() + pic.width() * 0.75), int(pic.center().y())));
+        QCoreApplication::processEvents();
+        const GradeQualifier q3 = f.session()->currentNode()->qualifier;
+        QCOMPARE(q3.colors.size(), 2);
+        QVERIFY(grademath::qualifierKey(q3, red) > 0.9f);
+        QVERIFY(grademath::qualifierKey(q3, blue) > 0.9f);
+        qp->setPickMode(std::nullopt);
+        auto* clear = qp->findChild<QToolButton*>(QStringLiteral("QualifierClearColors"));
+        QVERIFY(clear && clear->isEnabled());
+        const int beforeClear = f.steps();
+        clear->click();
+        QCOMPARE(f.steps(), beforeClear + 1);
+        QVERIFY(f.session()->currentNode()->qualifier.colors.isEmpty());
+        // The palette bar's Reset clears the mode, the colours and the finesse; undo brings them back.
+        auto* reset = page->findChild<QToolButton*>(QStringLiteral("ColorPaletteReset"));
+        QVERIFY(reset);
+        const int beforeReset = f.steps();
+        reset->click();
+        QCOMPARE(f.steps(), beforeReset + 1);
+        QCOMPARE(f.session()->currentNode()->qualifier, GradeQualifier {});
+        QCOMPARE(qp->field(QStringLiteral("denoise"))->value(), 0.0);
+        QCOMPARE(mode->currentIndex(), 0);
+        f.project.undoStack()->undo();
+        QCOMPARE(f.session()->currentNode()->qualifier.mode, QualifierMode::ThreeD);
+        QVERIFY(f.session()->currentNode()->qualifier.hasFinesse());
+    }
+
     void blurPalette()
     {
         Fixture f;
