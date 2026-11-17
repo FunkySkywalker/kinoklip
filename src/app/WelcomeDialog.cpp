@@ -25,6 +25,7 @@
 #include <QFrame>
 #include <QGuiApplication>
 #include <QHBoxLayout>
+#include <QIcon>
 #include <QLabel>
 #include <QMessageBox>
 #include <QPixmap>
@@ -77,8 +78,7 @@ QLabel* note(const QString& text)
     return label;
 }
 
-/// Adds @p form to @p page as a centred column of fixed width, so the labels and fields sit in
-/// the middle of the window instead of along its left edge.
+/// Adds @p form to @p page at its own width, centred however wide the window is.
 void addCentered(QWidget* page, QFormLayout* form)
 {
     form->setLabelAlignment(Qt::AlignRight | Qt::AlignVCenter);
@@ -89,7 +89,8 @@ void addCentered(QWidget* page, QFormLayout* form)
         if (auto* item = form->itemAt(row, QFormLayout::FieldRole))
             if (auto* hint = qobject_cast<QLabel*>(item->widget()); hint && hint->wordWrap())
                 hint->setMinimumWidth(320);
-    column->setFixedWidth(500);
+    form->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
+    column->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
     auto* row = new QHBoxLayout;
     row->addStretch(1);
     row->addWidget(column);
@@ -142,13 +143,12 @@ WelcomeDialog::WelcomeDialog(ActionRegistry& registry, QWidget* parent)
     QLabel* intro = dim(tr("It works like DaVinci Resolve. These few questions are about what "
                            "is different here. Nothing changes unless you choose it."));
     intro->setAlignment(Qt::AlignHCenter);
-    m_step = new welcomeanim::StepIndicator(4);
+    // Wraps to the window's width instead of widening it (it was cut off in narrow windows).
+    intro->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
     layout->addWidget(m_icon, 0, Qt::AlignHCenter);
     layout->addSpacing(metrics::kSpaceS);
     layout->addWidget(greeting);
     layout->addWidget(intro);
-    layout->addSpacing(metrics::kSpaceS);
-    layout->addWidget(m_step, 0, Qt::AlignHCenter);
 
     auto* card = new welcomeanim::Card;
     card->setObjectName(QStringLiteral("WelcomeCard"));
@@ -172,25 +172,41 @@ WelcomeDialog::WelcomeDialog(ActionRegistry& registry, QWidget* parent)
     rule->setFrameShadow(QFrame::Plain);
     rule->setForegroundRole(QPalette::Mid);
     footerLayout->addWidget(rule);
-    auto* buttons = new QHBoxLayout;
-    auto* skip = new QPushButton(tr("Skip"));
+    // Like KDE's Welcome Center: Skip on the left, the steps in the middle, Back and Next on
+    // the right. The two sides are equally wide, so the steps sit in the true middle.
+    auto* skip = new QPushButton(QIcon::fromTheme(QStringLiteral("dialog-cancel")), tr("Skip"));
     skip->setObjectName(QStringLiteral("WelcomeSkip"));
-    skip->setFlat(true);
     skip->setToolTip(tr("Close this window and change nothing. Help > Welcome opens it again."));
-    m_back = new QPushButton(tr("Back"));
+    m_back = new QPushButton(QIcon::fromTheme(QStringLiteral("go-previous")), tr("Back"));
     m_back->setObjectName(QStringLiteral("WelcomeBack"));
-    m_next = new QPushButton(tr("Next"));
+    m_next = new QPushButton(QIcon::fromTheme(QStringLiteral("go-next")), tr("Next"));
     m_next->setObjectName(QStringLiteral("WelcomeNext"));
+    m_next->setLayoutDirection(Qt::RightToLeft); // the arrow after the text
     m_next->setDefault(true);
-    m_next->setMinimumWidth(110);
-    m_back->setMinimumWidth(110);
-    buttons->addWidget(skip);
-    buttons->addStretch(1);
-    buttons->addWidget(m_back);
-    buttons->addWidget(m_next);
+    m_next->setMinimumWidth(100);
+    m_back->setMinimumWidth(100);
+    auto* left = new QWidget;
+    auto* leftLayout = new QHBoxLayout(left);
+    leftLayout->setContentsMargins(0, 0, 0, 0);
+    leftLayout->addWidget(skip);
+    leftLayout->addStretch(1);
+    auto* right = new QWidget;
+    auto* rightLayout = new QHBoxLayout(right);
+    rightLayout->setContentsMargins(0, 0, 0, 0);
+    rightLayout->addStretch(1);
+    rightLayout->addWidget(m_back);
+    rightLayout->addWidget(m_next);
+    const int side = std::max(left->sizeHint().width(), right->sizeHint().width());
+    left->setMinimumWidth(side);
+    right->setMinimumWidth(side);
+    m_step = new welcomeanim::StepIndicator(4);
+    auto* buttons = new QHBoxLayout;
+    buttons->addWidget(left, 1);
+    buttons->addWidget(m_step, 0, Qt::AlignCenter);
+    buttons->addWidget(right, 1);
     footerLayout->addLayout(buttons);
     layout->addWidget(footer);
-    m_revealed = {greeting, intro, m_step, card, footer};
+    m_revealed = {greeting, intro, card, footer};
     connect(skip, &QPushButton::clicked, this, &WelcomeDialog::skip);
     connect(m_back, &QPushButton::clicked, this, &WelcomeDialog::back);
     connect(m_next, &QPushButton::clicked, this, &WelcomeDialog::next);
@@ -237,7 +253,9 @@ void WelcomeDialog::showPage(int index)
     index = std::clamp(index, 0, m_pages->count() - 1);
     welcomeanim::slideTo(m_pages, index, index > m_pages->currentIndex());
     m_back->setEnabled(currentPage() > 0);
-    m_next->setText(currentPage() == pageCount() - 1 ? tr("Finish") : tr("Next"));
+    const bool last = currentPage() == pageCount() - 1;
+    m_next->setText(last ? tr("Finish") : tr("Next"));
+    m_next->setIcon(QIcon::fromTheme(last ? QStringLiteral("dialog-ok-apply") : QStringLiteral("go-next")));
     m_step->setCurrent(currentPage());
 }
 

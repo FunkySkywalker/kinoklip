@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// WelcomeAnimations -- the moving parts of the welcome window: the step indicator (a pill that
-// glides to the current step), the card the pages sit on, the page slide and the opening reveal.
+// WelcomeAnimations -- the moving parts of the welcome window: the step dots, the card the pages
+// sit on, the page slide and the opening reveal. Calm and a little slow, like KDE's Welcome Center.
 // Everything follows uianim::enabled() and uianim::speed(): with animations off (or offscreen,
 // as in tests and screenshots) each change shows its end state at once.
 #pragma once
@@ -13,13 +13,13 @@ class QVariantAnimation;
 
 namespace kk::welcomeanim {
 
-/// A row of dots, one per step; the current step is a wider accent pill that glides between
-/// dots when the step changes.
+/// A row of quiet dots, one per step; the current one is brighter, and the brightness passes
+/// softly to the next dot when the step changes.
 class StepIndicator : public QWidget
 {
 public:
     explicit StepIndicator(int count, QWidget* parent = nullptr);
-    /// Moves the pill to @p index (animated when animations are on and the widget is visible).
+    /// Makes step @p index the bright one (animated when animations are on and the widget is visible).
     void setCurrent(int index);
     [[nodiscard]] int current() const { return m_current; }
     [[nodiscard]] QSize sizeHint() const override;
@@ -46,7 +46,7 @@ protected:
     void paintEvent(QPaintEvent* event) override;
 };
 
-/// The app icon, drawn with whole art pixels; it scales and fades in when revealed.
+/// The app icon, drawn with whole art pixels; it settles and fades in when revealed.
 class IconBadge : public QWidget
 {
 public:
@@ -67,7 +67,7 @@ private:
 /// from the side the user moves to (@p forward: from the right). Instant when animations are off.
 void slideTo(QStackedWidget* pages, int index, bool forward);
 
-/// The opening: @p icon scales in, then each of @p widgets fades in a little after the one
+/// The opening: @p icon fades in, then each of @p widgets fades in a little after the one
 /// before it. Instant when animations are off.
 void reveal(IconBadge* icon, const QList<QWidget*>& widgets);
 

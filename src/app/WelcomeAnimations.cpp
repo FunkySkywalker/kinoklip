@@ -17,10 +17,15 @@
 namespace kk::welcomeanim {
 namespace {
 
-constexpr int kDot = 7; // inactive dot diameter
-constexpr int kPill = 20; // active pill width
-constexpr int kPitch = 20; // distance between dot centres
-constexpr int kSlideDistance = 48; // how far a page travels while it fades
+// Calm and a little slow, like KDE's Welcome Center: small moves, long soft fades, no bounce.
+constexpr int kDot = 6; // dot diameter
+constexpr int kPitch = 14; // distance between dot centres
+constexpr int kSlideDistance = 18; // how far a page drifts while it fades
+constexpr int kSlideMs = 620;
+constexpr int kStepMs = 480;
+constexpr int kIconMs = 900;
+constexpr int kFadeMs = 760;
+constexpr int kStaggerMs = 130;
 
 /// @p ms at the user's animation speed.
 int scaled(int ms)
@@ -52,12 +57,15 @@ protected:
     {
         QPainter p(this);
         p.fillRect(rect(), Card::fill(palette()));
-        const double out = kSlideDistance * m_t;
-        const double in = kSlideDistance * (1.0 - m_t);
-        p.setOpacity(1.0 - m_t);
-        p.drawPixmap(QPointF(-m_dir * out, 0), m_from);
-        p.setOpacity(m_t);
-        p.drawPixmap(QPointF(m_dir * in, 0), m_to);
+        // The old page drifts away and fades in the first half; the new one drifts in and
+        // fades up in the second half, overlapping a little in the middle.
+        const QEasingCurve soft(QEasingCurve::InOutSine);
+        const double out = soft.valueForProgress(std::clamp(m_t / 0.55, 0.0, 1.0));
+        const double in = soft.valueForProgress(std::clamp((m_t - 0.35) / 0.65, 0.0, 1.0));
+        p.setOpacity(1.0 - out);
+        p.drawPixmap(QPointF(-m_dir * kSlideDistance * out, 0), m_from);
+        p.setOpacity(in);
+        p.drawPixmap(QPointF(m_dir * kSlideDistance * (1.0 - in), 0), m_to);
     }
 
 private:
@@ -78,7 +86,7 @@ StepIndicator::StepIndicator(int count, QWidget* parent)
 {
     setObjectName(QStringLiteral("WelcomeStep"));
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    m_anim->setEasingCurve(QEasingCurve::OutCubic);
+    m_anim->setEasingCurve(QEasingCurve::InOutSine);
     connect(m_anim, &QVariantAnimation::valueChanged, this, [this](const QVariant& value) {
         m_pos = value.toDouble();
         update();
@@ -87,7 +95,7 @@ StepIndicator::StepIndicator(int count, QWidget* parent)
 
 QSize StepIndicator::sizeHint() const
 {
-    return {(m_count - 1) * kPitch + kPill + 2, kDot + 4};
+    return {(m_count - 1) * kPitch + kDot + 4, kDot + 4};
 }
 
 void StepIndicator::setCurrent(int index)
@@ -102,7 +110,7 @@ void StepIndicator::setCurrent(int index)
         update();
         return;
     }
-    m_anim->setDuration(scaled(320));
+    m_anim->setDuration(scaled(kStepMs));
     m_anim->setStartValue(m_pos);
     m_anim->setEndValue(double(index));
     m_anim->start();
@@ -110,22 +118,22 @@ void StepIndicator::setCurrent(int index)
 
 void StepIndicator::paintEvent(QPaintEvent*)
 {
+    // Quiet dots; the current one is brighter. While the step changes the brightness passes
+    // from one dot to the next.
     QPainter p(this);
     p.setRenderHint(QPainter::Antialiasing);
     p.setPen(Qt::NoPen);
     const double cy = height() / 2.0;
-    const double x0 = (width() - ((m_count - 1) * kPitch + kPill)) / 2.0 + kPill / 2.0;
-    QColor dot = palette().color(QPalette::PlaceholderText);
-    dot.setAlphaF(0.55);
-    p.setBrush(dot);
-    for (int i = 0; i < m_count; ++i)
-        p.drawEllipse(QPointF(x0 + i * kPitch, cy), kDot / 2.0, kDot / 2.0);
-    // The pill stretches a little mid-glide, like something pulled between two places.
-    const double frac = m_pos - std::floor(m_pos);
-    const double width = kPill + 10.0 * std::sin(M_PI * frac);
-    const QRectF pill(x0 + m_pos * kPitch - width / 2.0, cy - kDot / 2.0, width, kDot);
-    p.setBrush(palette().color(QPalette::Highlight));
-    p.drawRoundedRect(pill, kDot / 2.0, kDot / 2.0);
+    const double x0 = (width() - (m_count - 1) * kPitch) / 2.0;
+    const QColor text = palette().color(QPalette::WindowText);
+    for (int i = 0; i < m_count; ++i) {
+        const double near = std::max(0.0, 1.0 - std::abs(m_pos - i)); // 1 on the current dot
+        QColor dot = text;
+        dot.setAlphaF(0.22 + 0.63 * near);
+        p.setBrush(dot);
+        const double r = kDot / 2.0 + 0.5 * near;
+        p.drawEllipse(QPointF(x0 + i * kPitch, cy), r, r);
+    }
 }
 
 // --- Card ------------------------------------------------------------------------------------
@@ -171,8 +179,8 @@ void IconBadge::paintEvent(QPaintEvent*)
         return;
     QPainter p(this);
     p.setOpacity(std::clamp(m_t, 0.0, 1.0));
-    // Grows from 70 % with a light overshoot (the easing does it); pixel art stays sharp.
-    const double s = m_size * (0.7 + 0.3 * m_t);
+    // Settles from 94 % while it fades in; pixel art stays sharp.
+    const double s = m_size * (0.94 + 0.06 * m_t);
     const QRectF target((width() - s) / 2.0, (height() - s) / 2.0, s, s);
     p.drawPixmap(target, m_art, QRectF(m_art.rect()));
 }
@@ -207,8 +215,8 @@ void slideTo(QStackedWidget* pages, int index, bool forward)
     overlay->show();
     overlay->raise();
     auto* anim = new QVariantAnimation(overlay);
-    anim->setDuration(scaled(340));
-    anim->setEasingCurve(QEasingCurve::OutCubic);
+    anim->setDuration(scaled(kSlideMs));
+    anim->setEasingCurve(QEasingCurve::Linear); // the overlay eases each half itself
     anim->setStartValue(0.0);
     anim->setEndValue(1.0);
     QObject::connect(anim, &QVariantAnimation::valueChanged, overlay,
@@ -225,15 +233,15 @@ void reveal(IconBadge* icon, const QList<QWidget*>& widgets)
     }
     icon->setProgress(0);
     auto* pop = new QVariantAnimation(icon);
-    pop->setDuration(scaled(520));
-    pop->setEasingCurve(QEasingCurve(QEasingCurve::OutBack));
+    pop->setDuration(scaled(kIconMs));
+    pop->setEasingCurve(QEasingCurve::OutCubic);
     pop->setStartValue(0.0);
     pop->setEndValue(1.0);
     QObject::connect(pop, &QVariantAnimation::valueChanged, icon,
         [icon](const QVariant& v) { icon->setProgress(v.toDouble()); });
     pop->start(QAbstractAnimation::DeleteWhenStopped);
 
-    int delay = 140;
+    int delay = 220;
     for (QWidget* widget : widgets) {
         auto* effect = new QGraphicsOpacityEffect(widget);
         effect->setOpacity(0);
@@ -243,7 +251,7 @@ void reveal(IconBadge* icon, const QList<QWidget*>& widgets)
             if (!guard)
                 return;
             auto* fade = new QPropertyAnimation(effect, "opacity", guard);
-            fade->setDuration(scaled(420));
+            fade->setDuration(scaled(kFadeMs));
             fade->setEasingCurve(QEasingCurve::OutCubic);
             fade->setStartValue(0.0);
             fade->setEndValue(1.0);
@@ -252,7 +260,7 @@ void reveal(IconBadge* icon, const QList<QWidget*>& widgets)
                 [guard] { if (guard) guard->setGraphicsEffect(nullptr); });
             fade->start(QAbstractAnimation::DeleteWhenStopped);
         });
-        delay += 90;
+        delay += kStaggerMs;
     }
 }
 
