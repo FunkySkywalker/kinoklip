@@ -484,7 +484,8 @@ fi
     else
         cat "$PKG/$APP_ID.desktop"
     fi
-    echo "X-AppImage-Version=$FULL_VERSION"
+    # A dev build shows its commit too (1.9.0-2510c03), so builds of one version tell apart.
+    echo "X-AppImage-Version=$FULL_VERSION${DEV_COMMIT:+-$DEV_COMMIT}"
 } >"$APPDIR/$APP_ID.desktop"
 chmod 644 "$APPDIR/$APP_ID.desktop"
 cp "$APPDIR/$APP_ID.desktop" "$APPDIR/usr/share/applications/$APP_ID.desktop"
