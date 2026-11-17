@@ -159,10 +159,14 @@ MainWindow::MainWindow(AppContext& ctx, const MainWindowOptions& options, QWidge
     , m_options(options)
 {
     setMinimumSize(kMinimumWindowSize);
-    // The owner's pixel-art icon (resources/icons/app), one file per size so none is rescaled.
+    // The owner's pixel-art icon (resources/icons/app), one file per size so none is rescaled;
+    // a dev build has its own (kinoklip-dev.aseprite).
     QIcon appIcon;
+    const QString iconName = appinfo::devBuildCommit().isEmpty() ? QStringLiteral("kinoklip")
+                                                                 : QStringLiteral("kinoklip-dev");
     for (const int size : {16, 24, 32, 48, 64, 128, 256, 512}) {
-        appIcon.addFile(QStringLiteral(":/icons/app/kinoklip-%1.png").arg(size), QSize(size, size));
+        appIcon.addFile(
+            QStringLiteral(":/icons/app/%1-%2.png").arg(iconName).arg(size), QSize(size, size));
     }
     setWindowIcon(appIcon);
     // Every registered action works as an application-wide shortcut, menu or not.
@@ -417,7 +421,7 @@ void MainWindow::buildMenus()
         // The second table (src/ui/common/MenuLayouts.cpp): the same actions, arranged by task.
         for (const menulayout::Menu& spec : menulayout::streamlinedMenus()) {
             const QString title = spec.id == QLatin1String("app")
-                ? QCoreApplication::applicationName()
+                ? QGuiApplication::applicationDisplayName()
                 : spec.title;
             QMenu* menu = menuBar()->addMenu(title);
             menu->setObjectName(QStringLiteral("menu:") + spec.id);
@@ -426,6 +430,9 @@ void MainWindow::buildMenus()
         }
         updatePageMenu();
     } else {
+        // Resolve's application menu has no Vim Mode: the switch is in Preferences > Keyboard
+        // and its shortcut still works, as in the Streamlined menus (menulayout::hiddenActions()).
+        static const QStringList kNotInResolveMenus{QStringLiteral("settings.vim_mode")};
         std::function<void(QMenu*, const QString&)> fillMenu;
         fillMenu = [&registry, &fillMenu](QMenu* menu, const QString& category) {
             for (const QString& id : registry.menuEntries(category)) {
@@ -435,7 +442,7 @@ void MainWindow::buildMenus()
                     QMenu* submenu = menu->addMenu(registry.submenuTitle(sub));
                     submenu->setObjectName(QStringLiteral("menu:") + sub);
                     fillMenu(submenu, sub);
-                } else {
+                } else if (!kNotInResolveMenus.contains(id)) {
                     menu->addAction(registry.action(id));
                 }
             }
@@ -647,11 +654,11 @@ void MainWindow::connectAppActions()
 
     // ---- Help ----
     connect(actions.action(QStringLiteral("help.about")), &QAction::triggered, this, [this] {
-        const QString title = tr("About %1").arg(QLatin1String(appinfo::name));
+        const QString title = tr("About %1").arg(appinfo::displayName());
         const QString text
             = tr("<h3>%1 %2</h3><p>A non-linear video editor built with Qt and FFmpeg.</p>"
                  "<p>Licensed under the GNU GPL v3 or later.</p>")
-                  .arg(QLatin1String(appinfo::name), appinfo::displayVersion());
+                  .arg(appinfo::displayName(), appinfo::displayVersion());
         if (m_menuLayout != menulayout::Layout::Streamlined) {
             QMessageBox::about(this, title, text);
             return;
@@ -764,7 +771,7 @@ void MainWindow::updateTitle()
     if (m_projectController->isReadOnly())
         name = tr("%1 (Read-Only)").arg(name);
     setWindowTitle(QStringLiteral("%1[*] — %2 %3")
-                       .arg(name, QLatin1String(appinfo::name), appinfo::displayVersion()));
+                       .arg(name, appinfo::displayName(), appinfo::displayVersion()));
     setWindowModified(m_ctx.project->isDirty());
     m_interfaceBar->setTitle(m_ctx.project->isDirty() ? name + QStringLiteral(" •") : name);
 }

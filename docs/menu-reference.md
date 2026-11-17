@@ -1,4 +1,4 @@
-367 menu entries in 12 menus; 52 panels
+367 menu entries in 13 menus; 53 panels
 
 # Menu and panel reference
 
@@ -13,7 +13,6 @@ Shortcuts are the defaults of the Resolve keymap (Windows); another keyboard pro
 | About Kinoklip |  | Shows the version of Kinoklip, its licence and the libraries it uses. |
 | About Qt |  | Shows which version of the Qt toolkit this build uses. |
 | Keyboard Customization… | Ctrl+Alt+K | Opens the keyboard settings: pick a keyboard profile, change or clear the key of any command. |
-| Vim Mode (toggle) |  | Turns Vim mode on or off: with it on, plain keys are Vim commands (NORMAL mode) and i gives you the usual shortcuts back (INSERT mode). Works with any keyboard profile. |
 | Preferences… | Ctrl+, | Opens the Preferences window (user settings such as editing, playback, interface and local control). |
 | Quit Kinoklip | Ctrl+Q | Closes Kinoklip, asking first whether to save unsaved changes. |
 
@@ -433,6 +432,12 @@ Shortcuts are the defaults of the Resolve keymap (Windows); another keyboard pro
 | Join the Community on Discord |  | Opens the Kinoklip community on Discord in the web browser. |
 | Export Log File… |  | Saves what Kinoklip did in this session (system facts, decoder for each file, playback statistics, warnings) as a text file to attach to a bug report. |
 
+## Keyboard-only commands
+
+| Entry | Shortcut (default Resolve keymap) | What it does |
+|---|---|---|
+| Vim Mode (toggle) |  | Turns Vim mode on or off: with it on, plain keys are Vim commands (NORMAL mode) and i gives you the usual shortcuts back (INSERT mode). Works with any keyboard profile. |
+
 ## Panels
 
 ### Media page
@@ -498,6 +503,7 @@ Shortcuts are the defaults of the Resolve keymap (Windows); another keyboard pro
 | Nodes | The node graph of the grade of the current clip. |
 | Primaries | Primary colour correction of the current node. |
 | Qualifier | Selects part of the picture by hue, saturation and luminance for the current node. |
+| RGB Mixer | Mix the red, green and blue channels of the current node, or make it monochrome. |
 | Scopes | A scope of the picture; choose the type from its menu. |
 | Timeline | The video tracks fitted to the width; click or drag to move the playhead. |
 | Tracker | Track a window so it follows the subject, or stabilize the clip. |
