@@ -4,6 +4,7 @@
 # pre-release: https://github.com/SeniorMatt/kinoklip/releases/tag/dev
 #
 # Usage: scripts/publish_dev.sh [notes-file]
+#        scripts/publish_dev.sh --notes-only   (rewrites the page text of the current dev release)
 #
 # The release keeps one set of files (KinoklipDev-x86_64.AppImage, its .zsync, SHA256SUMS-dev.txt),
 # replaced on every publish, and the "dev" tag moves to the build's commit. A dev copy opened
@@ -19,6 +20,8 @@ IMAGE="$OUT/KinoklipDev-x86_64.AppImage"
 TAG=dev
 
 log() { echo "publish_dev: $*" >&2; }
+NOTES_ONLY=
+if [ "${1:-}" = --notes-only ]; then NOTES_ONLY=1; shift; fi
 [ -f "$IMAGE" ] && [ -f "$IMAGE.zsync" ] || { log "no $IMAGE (+ .zsync): run scripts/dev_build.sh"; exit 1; }
 
 STAMP="$("$IMAGE" --version 2>/dev/null | tail -n1)" # "Kinoklip 1.9.0 dev (abc1234)"
@@ -53,9 +56,15 @@ if [ -z "$NOTES" ]; then
         echo
         echo "### New since ${LAST#v}"
         git log --no-merges --format='%s' "$LAST..$COMMIT" |
-            { grep -vE '^(Docs|Notes|Nix|Readme|Roadmap|Menu reference|Release notes|Status|CI|Tests?|Dev channel|Dev icon|publish_dev|dev_build|package_linux|check_[a-z_]+|scripts?)\b' || true; } |
-            sed -E 's/;.*//' | sed 's/^/- /'
+            { grep -vE '^(Docs|Notes|Nix|Readme|Roadmap|Menu reference|Release notes|Status|CI|Tests?|Dev channel|Dev icon|Dev builds|Dev release page|Release pages?|publish_dev|dev_build|package_linux|check_[a-z_]+|scripts?)\b' || true; } |
+            sed -E 's/;.*//; s/ \([^)]*$//' | sed 's/^/- /'
     } > "$NOTES"
+fi
+
+if [ -n "$NOTES_ONLY" ]; then
+    gh release edit "$TAG" --notes-file "$NOTES" >/dev/null
+    log "page text rewritten"
+    exit 0
 fi
 
 git tag -f "$TAG" "$COMMIT" >/dev/null
