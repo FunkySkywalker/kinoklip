@@ -28,7 +28,7 @@ set(KK_TESTS_FULL
 
 # Fast pure-logic and UI tests.
 set(KK_TESTS_QUICK
-  check_issue_forms check_status check_vim_docs test_actionregistry test_aimodeldialog
+  check_issue_forms check_status check_vim_docs check_translations test_actionregistry test_aimodeldialog
   test_animation test_audioclipeffects test_audioclipeffectsui test_audiodecoder test_audiomixer
   test_audionormalize test_audiopitch test_audiorouting test_audiotransitions
   test_backgroundremoval test_bins test_birefnet test_boginspector test_bogplayback

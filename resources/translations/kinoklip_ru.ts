@@ -420,7 +420,55 @@ The program was probably closed by the system because the computer ran out of me
     <name>TimelineRepair</name>
     <message>
         <source>A clip was removed: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Проекты %1 (*.%2 *.%3);;Все файлы (*)</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n clip(s) started before the timeline and were trimmed.</source>
+        <translation>
+            <numerusform>%n клип начинался до начала таймлайна и был подрезан.</numerusform>
+            <numerusform>%n клипа начинались до начала таймлайна и были подрезаны.</numerusform>
+            <numerusform>%n клипов начинались до начала таймлайна и были подрезаны.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%n clip(s) with no length were removed.</source>
+        <translation>
+            <numerusform>Удалён %n клип без длительности.</numerusform>
+            <numerusform>Удалены %n клипа без длительности.</numerusform>
+            <numerusform>Удалено %n клипов без длительности.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%n duplicate or missing id(s) were renumbered.</source>
+        <translation>
+            <numerusform>Перенумерован %n повторяющийся или отсутствующий идентификатор.</numerusform>
+            <numerusform>Перенумерованы %n повторяющихся или отсутствующих идентификатора.</numerusform>
+            <numerusform>Перенумерованы %n повторяющихся или отсутствующих идентификаторов.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%n invalid value(s) were reset.</source>
+        <translation>
+            <numerusform>Сброшено %n недопустимое значение.</numerusform>
+            <numerusform>Сброшены %n недопустимых значения.</numerusform>
+            <numerusform>Сброшено %n недопустимых значений.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%n overlapping or misplaced clip(s) were moved to new &quot;Repaired&quot; tracks at the same time.</source>
+        <translation>
+            <numerusform>%n перекрывающийся или смещённый клип перенесён на новые дорожки «Repaired» в то же время.</numerusform>
+            <numerusform>%n перекрывающихся или смещённых клипа перенесены на новые дорожки «Repaired» в то же время.</numerusform>
+            <numerusform>%n перекрывающихся или смещённых клипов перенесены на новые дорожки «Repaired» в то же время.</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>The frame rate was invalid and was reset to 25 fps.</source>
+        <translation>Недопустимая частота кадров сброшена на 25 к/с.</translation>
+    </message>
+    <message>
+        <source>The resolution was invalid and was reset to 1920x1080.</source>
+        <translation>Недопустимое разрешение сброшено на 1920x1080.</translation>
     </message>
 </context>
 <context>
@@ -2845,6 +2893,121 @@ The program was probably closed by the system because the computer ran out of me
     </message>
 </context>
 <context>
+    <name>kk::AiModelDialog</name>
+    <message>
+        <source>AI Models</source>
+        <translation>Модели ИИ</translation>
+    </message>
+    <message>
+        <source>AI tool</source>
+        <translation>Инструмент ИИ</translation>
+    </message>
+    <message>
+        <source>AI tool: Background Removal</source>
+        <translation>AI-инструмент: Удаление фона</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
+    </message>
+    <message>
+        <source>Clear Matte Cache</source>
+        <translation>Очистить кэш масок</translation>
+    </message>
+    <message>
+        <source>Cuts a subject out of the footage with a model that runs on this computer. The models are not part of Kinoklip: each is downloaded only when you ask. The people model is for video; the any-subject model is for still pictures.</source>
+        <translation>Вырезает объект из видео с помощью модели, запущенной на этом компьютере. Модели не входят в состав Kinoklip: каждая скачивается только по запросу. Модель для людей предназначена для видео, модель для любых объектов — для статичных изображений.</translation>
+    </message>
+    <message>
+        <source>Download</source>
+        <translation>Скачать</translation>
+    </message>
+    <message>
+        <source>Download %1...</source>
+        <translation>Скачать %1...</translation>
+    </message>
+    <message>
+        <source>Download AI Model</source>
+        <translation>Скачать AI-модель</translation>
+    </message>
+    <message>
+        <source>Download size:</source>
+        <translation>Размер скачивания:</translation>
+    </message>
+    <message>
+        <source>Downloading... %1 of %2</source>
+        <translation>Скачивание... %1 из %2</translation>
+    </message>
+    <message>
+        <source>Licence:</source>
+        <translation>Лицензия:</translation>
+    </message>
+    <message>
+        <source>Matte cache: %1 (kept so a clip is cut out only once)</source>
+        <translation>Кэш масок: %1 (хранится, чтобы клип вырезался только один раз)</translation>
+    </message>
+    <message>
+        <source>Model file:</source>
+        <translation>Файл модели:</translation>
+    </message>
+    <message>
+        <source>Model:</source>
+        <translation>Модель:</translation>
+    </message>
+    <message>
+        <source>Remove %1</source>
+        <translation>Удалить %1</translation>
+    </message>
+    <message>
+        <source>Remove Model</source>
+        <translation>Удалить модель</translation>
+    </message>
+    <message>
+        <source>Remove the downloaded model (%1)? Background Removal with it stops working until it is downloaded again.</source>
+        <translation>Удалить скачанную модель (%1)? Удаление фона с ее помощью перестанет работать, пока она не будет скачана снова.</translation>
+    </message>
+    <message>
+        <source>Runtime:</source>
+        <translation>Среда выполнения:</translation>
+    </message>
+    <message>
+        <source>Size:</source>
+        <translation>Размер:</translation>
+    </message>
+    <message>
+        <source>Source:</source>
+        <translation>Источник:</translation>
+    </message>
+    <message>
+        <source>Starting the download...</source>
+        <translation>Запуск скачивания...</translation>
+    </message>
+    <message>
+        <source>The file is downloaded once, only now because you asked, from the project&apos;s official release page over HTTPS, and checked against a checksum. It is used on this computer only: nothing is uploaded and no account is needed. You can remove it again in Preferences.</source>
+        <translation>Файл скачивается один раз, только сейчас по вашему запросу, с официальной страницы релизов проекта по HTTPS и проверяется по контрольной сумме. Он используется только на этом компьютере: ничего не загружается в сеть, учетная запись не требуется. Вы можете удалить его в Настройках.</translation>
+    </message>
+    <message>
+        <source>Unavailable:</source>
+        <translation>Недоступно:</translation>
+    </message>
+    <message>
+        <source>installed (%1)</source>
+        <translation>установлено (%1)</translation>
+    </message>
+    <message>
+        <source>not installed</source>
+        <translation>не установлено</translation>
+    </message>
+    <message>
+        <source>not part of this build</source>
+        <translation>не входит в эту сборку</translation>
+    </message>
+    <message>
+        <source>optional</source>
+        <translation>необязательно</translation>
+    </message>
+</context>
+<context>
     <name>kk::AiModelsPage</name>
     <message>
         <source>Download %1...</source>
@@ -3118,63 +3281,63 @@ The program was probably closed by the system because the computer ran out of me
     <name>kk::BlurPanel</name>
     <message>
         <source>Blur</source>
-        <translation type="unfinished">Размытие</translation>
+        <translation>Размытие</translation>
     </message>
     <message>
         <source>Sharpen</source>
-        <translation type="unfinished">Резкость</translation>
+        <translation>Резкость</translation>
     </message>
     <message>
         <source>Mist</source>
-        <translation type="unfinished"></translation>
+        <translation>Дымка</translation>
     </message>
     <message>
         <source>Link</source>
-        <translation type="unfinished">Связать</translation>
+        <translation>Связать</translation>
     </message>
     <message>
         <source>Edit Radius R, G and B together</source>
-        <translation type="unfinished"></translation>
+        <translation>Менять радиусы R, G и B вместе</translation>
     </message>
     <message>
         <source>Radius R</source>
-        <translation type="unfinished"></translation>
+        <translation>Радиус R</translation>
     </message>
     <message>
         <source>Radius G</source>
-        <translation type="unfinished"></translation>
+        <translation>Радиус G</translation>
     </message>
     <message>
         <source>Radius B</source>
-        <translation type="unfinished"></translation>
+        <translation>Радиус B</translation>
     </message>
     <message>
         <source>H/V Ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>Соотношение Г/В</translation>
     </message>
     <message>
         <source>Scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>Масштабирование</translation>
     </message>
     <message>
         <source>Coring Softness</source>
-        <translation type="unfinished"></translation>
+        <translation>Мягкость отсечения</translation>
     </message>
     <message>
         <source>Level</source>
-        <translation type="unfinished">Уровень</translation>
+        <translation>Уровень</translation>
     </message>
     <message>
         <source>Radius</source>
-        <translation type="unfinished">Радиус</translation>
+        <translation>Радиус</translation>
     </message>
     <message>
         <source>Mix</source>
-        <translation type="unfinished">Микс</translation>
+        <translation>Микс</translation>
     </message>
     <message>
         <source>Reset Blur</source>
-        <translation type="unfinished"></translation>
+        <translation>Сбросить размытие</translation>
     </message>
 </context>
 <context>
@@ -3238,6 +3401,4438 @@ The program was probably closed by the system because the computer ran out of me
     <message>
         <source>For an idea only the version would be shared:</source>
         <translation>Для идеи будет отправлена только версия:</translation>
+    </message>
+</context>
+<context>
+    <name>kk::BuiltinAudioEffects</name>
+    <message>
+        <source>A simple room: the sound dies away slowly</source>
+        <translation>Простая комната: звук затухает постепенно</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation>Атака</translation>
+    </message>
+    <message>
+        <source>Ceiling</source>
+        <translation>Потолок</translation>
+    </message>
+    <message>
+        <source>Compressor</source>
+        <translation>Компрессор</translation>
+    </message>
+    <message>
+        <source>Damping</source>
+        <translation>Демпфирование</translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation>Задержка</translation>
+    </message>
+    <message>
+        <source>Echoes of the sound</source>
+        <translation>Эффект эха</translation>
+    </message>
+    <message>
+        <source>Equalizer</source>
+        <translation>Эквалайзер</translation>
+    </message>
+    <message>
+        <source>Feedback</source>
+        <translation>Обратная связь</translation>
+    </message>
+    <message>
+        <source>Frequency</source>
+        <translation>Частота</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>Усиление</translation>
+    </message>
+    <message>
+        <source>High Frequency</source>
+        <translation>Высокая частота</translation>
+    </message>
+    <message>
+        <source>High Gain</source>
+        <translation>Усиление ВЧ</translation>
+    </message>
+    <message>
+        <source>High-pass Filter</source>
+        <translation>Фильтр высоких частот</translation>
+    </message>
+    <message>
+        <source>Limiter</source>
+        <translation>Лимитер</translation>
+    </message>
+    <message>
+        <source>Low Frequency</source>
+        <translation>Низкая частота</translation>
+    </message>
+    <message>
+        <source>Low Gain</source>
+        <translation>Усиление НЧ</translation>
+    </message>
+    <message>
+        <source>Low shelf, mid bell and high shelf</source>
+        <translation>НЧ-полка, СЧ-колокол и ВЧ-полка</translation>
+    </message>
+    <message>
+        <source>Low-pass Filter</source>
+        <translation>Фильтр низких частот</translation>
+    </message>
+    <message>
+        <source>Make-up Gain</source>
+        <translation>Компенсация усиления</translation>
+    </message>
+    <message>
+        <source>Mid Frequency</source>
+        <translation>Средняя частота</translation>
+    </message>
+    <message>
+        <source>Mid Gain</source>
+        <translation>Усиление СЧ</translation>
+    </message>
+    <message>
+        <source>Mid Q</source>
+        <translation>Добротность СЧ</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation>Микс</translation>
+    </message>
+    <message>
+        <source>Never let a sample go above the ceiling</source>
+        <translation>Не допускать превышения сигналом порогового уровня</translation>
+    </message>
+    <message>
+        <source>Raise or lower the level of the clip</source>
+        <translation>Повышение или понижение уровня клипа</translation>
+    </message>
+    <message>
+        <source>Ratio</source>
+        <translation>Коэффициент</translation>
+    </message>
+    <message>
+        <source>Reduce the level of loud parts</source>
+        <translation>Снижение уровня громких участков</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Спад</translation>
+    </message>
+    <message>
+        <source>Remove high frequencies</source>
+        <translation>Удаление высоких частот</translation>
+    </message>
+    <message>
+        <source>Remove low frequencies</source>
+        <translation>Удаление низких частот</translation>
+    </message>
+    <message>
+        <source>Reverb</source>
+        <translation>Реверберация</translation>
+    </message>
+    <message>
+        <source>Room Size</source>
+        <translation>Размер комнаты</translation>
+    </message>
+    <message>
+        <source>Threshold</source>
+        <translation>Порог</translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation>Время</translation>
+    </message>
+</context>
+<context>
+    <name>kk::BuiltinEffects</name>
+    <message>
+        <source>100mV Steps</source>
+        <translation>Шаги по 100 мВ</translation>
+    </message>
+    <message>
+        <source>4 Color Gradient</source>
+        <translation>4-цветный градиент</translation>
+    </message>
+    <message>
+        <source>A black to white ramp in steps</source>
+        <translation>Градиент от черного к белому по шагам</translation>
+    </message>
+    <message>
+        <source>A circular blend from an inner to an outer color</source>
+        <translation>Круговой переход от внутреннего цвета к внешнему</translation>
+    </message>
+    <message>
+        <source>A full-frame solid color</source>
+        <translation>Полнокадровый сплошной цвет</translation>
+    </message>
+    <message>
+        <source>A grid of lines over a see-through background, for lining things up</source>
+        <translation>Сетка линий на прозрачном фоне для выравнивания объектов</translation>
+    </message>
+    <message>
+        <source>A leader-style countdown with a sweeping hand</source>
+        <translation>Обратный отсчет со стрелкой</translation>
+    </message>
+    <message>
+        <source>A see-through clip with its own composition: build a node graph on the Compositing page</source>
+        <translation>Прозрачный клип с собственной композицией: создайте граф нод на странице Композитинг</translation>
+    </message>
+    <message>
+        <source>A shape layer of a title</source>
+        <translation>Слой фигуры в титре</translation>
+    </message>
+    <message>
+        <source>A simple text title</source>
+        <translation>Простой текстовый заголовок</translation>
+    </message>
+    <message>
+        <source>A straight blend between two colors</source>
+        <translation>Плавный переход между двумя цветами по прямой</translation>
+    </message>
+    <message>
+        <source>A text on a plain background box</source>
+        <translation>Текст на простом одноцветном фоне</translation>
+    </message>
+    <message>
+        <source>A white rectangle or ellipse on black, for checking the edges of a display</source>
+        <translation>Белый прямоугольник или эллипс на черном для проверки краев дисплея</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Добавить</translation>
+    </message>
+    <message>
+        <source>Adjustment Clip</source>
+        <translation>Клип-корректор</translation>
+    </message>
+    <message>
+        <source>Alignment</source>
+        <translation>Выравнивание</translation>
+    </message>
+    <message>
+        <source>All Three</source>
+        <translation>Все три</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Количество</translation>
+    </message>
+    <message>
+        <source>An adjustment clip that adds a camcorder viewfinder to the picture below it</source>
+        <translation>Клип-корректор, накладывающий видоискатель видеокамеры на изображение под ним</translation>
+    </message>
+    <message>
+        <source>An adjustment clip that adds a drone-camera display to the picture below it</source>
+        <translation>Клип-корректор, накладывающий интерфейс камеры дрона на изображение под ним</translation>
+    </message>
+    <message>
+        <source>An adjustment clip that adds a photo-camera viewfinder to the picture below it</source>
+        <translation>Клип-корректор, накладывающий видоискатель фотоаппарата на изображение под ним</translation>
+    </message>
+    <message>
+        <source>An adjustment clip that blurs a rectangle of the picture below it: move and size its mask in the viewer</source>
+        <translation>Клип-корректор, размывающий прямоугольную область изображения под ним: перемещайте и меняйте размер маски в окне просмотра</translation>
+    </message>
+    <message>
+        <source>An adjustment clip that breaks up the picture below it with digital glitches</source>
+        <translation>Клип-корректор, разбивающий изображение под ним цифровыми помехами</translation>
+    </message>
+    <message>
+        <source>An adjustment clip that frames the picture below it with a colored border</source>
+        <translation>Клип-корректор, обрамляющий изображение под ним цветной рамкой</translation>
+    </message>
+    <message>
+        <source>An adjustment clip that makes the picture below it look like a security camera</source>
+        <translation>Клип-корректор, стилизующий изображение под ним под камеру наблюдения</translation>
+    </message>
+    <message>
+        <source>An adjustment clip that puts the picture below it in a video-call tile</source>
+        <translation>Клип-корректор, помещающий изображение под ним в окно видеозвонка</translation>
+    </message>
+    <message>
+        <source>An adjustment clip that shows the picture below it through two round lenses</source>
+        <translation>Клип-корректор, показывающий изображение под ним через две круглые линзы</translation>
+    </message>
+    <message>
+        <source>An adjustment clip that shrinks the picture below it into a framed box with a shadow</source>
+        <translation>Клип-корректор, уменьшающий изображение под ним в рамку с тенью</translation>
+    </message>
+    <message>
+        <source>An adjustment clip that turns the picture below it into a green night-vision image with grain and scanlines</source>
+        <translation>Клип-корректор, превращающий изображение под ним в зеленое изображение ночного видения с зерном и строчной разверткой</translation>
+    </message>
+    <message>
+        <source>Anchor</source>
+        <translation>Точка привязки</translation>
+    </message>
+    <message>
+        <source>Anchor X</source>
+        <translation>Точка привязки X</translation>
+    </message>
+    <message>
+        <source>Anchor Y</source>
+        <translation>Точка привязки Y</translation>
+    </message>
+    <message>
+        <source>Angle</source>
+        <translation>Угол</translation>
+    </message>
+    <message>
+        <source>Animated</source>
+        <translation>Анимированный</translation>
+    </message>
+    <message>
+        <source>Applies its effects, transform and masks to every track below it</source>
+        <translation>Применяет свои эффекты, трансформацию и маски ко всем дорожкам ниже</translation>
+    </message>
+    <message>
+        <source>Audio</source>
+        <translation>Звук</translation>
+    </message>
+    <message>
+        <source>BT.2111 Color Bar HLG Narrow</source>
+        <translation>Цветовая шкала BT.2111 HLG (Narrow)</translation>
+    </message>
+    <message>
+        <source>BT.2111 Color Bar PQ Full</source>
+        <translation>Цветовая шкала BT.2111 PQ (Full)</translation>
+    </message>
+    <message>
+        <source>BT.2111 Color Bar PQ Narrow</source>
+        <translation>Цветовая шкала BT.2111 PQ (Narrow)</translation>
+    </message>
+    <message>
+        <source>Background</source>
+        <translation>Фон</translation>
+    </message>
+    <message>
+        <source>Background Color</source>
+        <translation>Цвет фона</translation>
+    </message>
+    <message>
+        <source>Background Opacity</source>
+        <translation>Непрозрачность фона</translation>
+    </message>
+    <message>
+        <source>Band %1 Frequency</source>
+        <translation>Частота полосы %1</translation>
+    </message>
+    <message>
+        <source>Band %1 Gain</source>
+        <translation>Усиление полосы %1</translation>
+    </message>
+    <message>
+        <source>Band %1 Q</source>
+        <translation>Q-фактор полосы %1</translation>
+    </message>
+    <message>
+        <source>Basic Title</source>
+        <translation>Простой заголовок</translation>
+    </message>
+    <message>
+        <source>Between linear and equal power</source>
+        <translation>Между линейным и равной мощности</translation>
+    </message>
+    <message>
+        <source>Binoculars</source>
+        <translation>Бинокль</translation>
+    </message>
+    <message>
+        <source>Blend from one clip into the next</source>
+        <translation>Плавный переход от одного клипа к другому</translation>
+    </message>
+    <message>
+        <source>Blends four corner colors across the frame</source>
+        <translation>Смешивает четыре цвета по углам кадра</translation>
+    </message>
+    <message>
+        <source>Block Size</source>
+        <translation>Размер блока</translation>
+    </message>
+    <message>
+        <source>Blur</source>
+        <translation>Размытие</translation>
+    </message>
+    <message>
+        <source>Bold</source>
+        <translation>Полужирный</translation>
+    </message>
+    <message>
+        <source>Bottom</source>
+        <translation>Снизу</translation>
+    </message>
+    <message>
+        <source>Bottom Left</source>
+        <translation>Внизу слева</translation>
+    </message>
+    <message>
+        <source>Bottom Right</source>
+        <translation>Внизу справа</translation>
+    </message>
+    <message>
+        <source>Brightness</source>
+        <translation>Яркость</translation>
+    </message>
+    <message>
+        <source>Brightness / Contrast</source>
+        <translation>Яркость / Контраст</translation>
+    </message>
+    <message>
+        <source>Burns the timeline or clip timecode into the picture</source>
+        <translation>Наложение таймкода таймлайна или клипа на изображение</translation>
+    </message>
+    <message>
+        <source>CCTV</source>
+        <translation>CCTV</translation>
+    </message>
+    <message>
+        <source>Caption</source>
+        <translation>Титр</translation>
+    </message>
+    <message>
+        <source>Cb</source>
+        <translation>Cb</translation>
+    </message>
+    <message>
+        <source>Center</source>
+        <translation>По центру</translation>
+    </message>
+    <message>
+        <source>Center X</source>
+        <translation>Центр X</translation>
+    </message>
+    <message>
+        <source>Center Y</source>
+        <translation>Центр Y</translation>
+    </message>
+    <message>
+        <source>Channel</source>
+        <translation>Канал</translation>
+    </message>
+    <message>
+        <source>Clip</source>
+        <translation>Клип</translation>
+    </message>
+    <message>
+        <source>Clip volume, pan and pitch</source>
+        <translation>Громкость, панорама и питч клипа</translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation>Цвет</translation>
+    </message>
+    <message>
+        <source>Color 1</source>
+        <translation>Цвет 1</translation>
+    </message>
+    <message>
+        <source>Color 2</source>
+        <translation>Цвет 2</translation>
+    </message>
+    <message>
+        <source>Color Bars</source>
+        <translation>Цветовые шкалы</translation>
+    </message>
+    <message>
+        <source>Colored Border</source>
+        <translation>Цветная рамка</translation>
+    </message>
+    <message>
+        <source>Columns</source>
+        <translation>Столбцы</translation>
+    </message>
+    <message>
+        <source>Composite</source>
+        <translation>Композитинг</translation>
+    </message>
+    <message>
+        <source>Composite Mode</source>
+        <translation>Режим наложения</translation>
+    </message>
+    <message>
+        <source>Composite mode and opacity over the tracks below</source>
+        <translation>Режим наложения и непрозрачность поверх нижних дорожек</translation>
+    </message>
+    <message>
+        <source>Composition Clip</source>
+        <translation>Композитный клип</translation>
+    </message>
+    <message>
+        <source>Contrast</source>
+        <translation>Контраст</translation>
+    </message>
+    <message>
+        <source>Corner Radius</source>
+        <translation>Радиус скругления</translation>
+    </message>
+    <message>
+        <source>Countdown</source>
+        <translation>Обратный отсчет</translation>
+    </message>
+    <message>
+        <source>Cr</source>
+        <translation>Cr</translation>
+    </message>
+    <message>
+        <source>Crop Bottom</source>
+        <translation>Кадрирование снизу</translation>
+    </message>
+    <message>
+        <source>Crop Left</source>
+        <translation>Кадрирование слева</translation>
+    </message>
+    <message>
+        <source>Crop Right</source>
+        <translation>Кадрирование справа</translation>
+    </message>
+    <message>
+        <source>Crop Top</source>
+        <translation>Кадрирование сверху</translation>
+    </message>
+    <message>
+        <source>Cropping</source>
+        <translation>Кадрирование</translation>
+    </message>
+    <message>
+        <source>Cross Dissolve</source>
+        <translation>Перекрестный наплыв</translation>
+    </message>
+    <message>
+        <source>Cross Fade +3 dB</source>
+        <translation>Кроссфейд +3 дБ</translation>
+    </message>
+    <message>
+        <source>Cross Fade -3 dB</source>
+        <translation>Кроссфейд -3 дБ</translation>
+    </message>
+    <message>
+        <source>Cross Fade 0 dB</source>
+        <translation>Кроссфейд 0 дБ</translation>
+    </message>
+    <message>
+        <source>Custom Style</source>
+        <translation>Пользовательский стиль</translation>
+    </message>
+    <message>
+        <source>Cut pixels away from the edges of the source</source>
+        <translation>Обрезка пикселей по краям источника</translation>
+    </message>
+    <message>
+        <source>DSLR</source>
+        <translation>DSLR</translation>
+    </message>
+    <message>
+        <source>DVE</source>
+        <translation>DVE</translation>
+    </message>
+    <message>
+        <source>Darken the image corners</source>
+        <translation>Затемнение углов изображения</translation>
+    </message>
+    <message>
+        <source>Detail</source>
+        <translation>Детализация</translation>
+    </message>
+    <message>
+        <source>Difference</source>
+        <translation>Разница</translation>
+    </message>
+    <message>
+        <source>Digital Glitch</source>
+        <translation>Цифровой глитч</translation>
+    </message>
+    <message>
+        <source>Dip to Color</source>
+        <translation>Наплыв через цвет</translation>
+    </message>
+    <message>
+        <source>Direction</source>
+        <translation>Направление</translation>
+    </message>
+    <message>
+        <source>Distance</source>
+        <translation>Дистанция</translation>
+    </message>
+    <message>
+        <source>Down</source>
+        <translation>Вниз</translation>
+    </message>
+    <message>
+        <source>Drone Overlay</source>
+        <translation>Интерфейс дрона</translation>
+    </message>
+    <message>
+        <source>Drop Shadow</source>
+        <translation>Тень</translation>
+    </message>
+    <message>
+        <source>Dynamic Zoom</source>
+        <translation>Динамический зум</translation>
+    </message>
+    <message>
+        <source>Dynamic Zoom Ease</source>
+        <translation>Сглаживание динамического зума</translation>
+    </message>
+    <message>
+        <source>EBU Color Bar</source>
+        <translation>Цветовая шкала EBU</translation>
+    </message>
+    <message>
+        <source>Ellipse</source>
+        <translation>Эллипс</translation>
+    </message>
+    <message>
+        <source>End Color</source>
+        <translation>Конечный цвет</translation>
+    </message>
+    <message>
+        <source>Equal-power crossfade: constant loudness for unrelated sounds (default)</source>
+        <translation>Кроссфейд равной мощности: постоянная громкость для несвязанных звуков (по умолчанию)</translation>
+    </message>
+    <message>
+        <source>Equalizer</source>
+        <translation>Эквалайзер</translation>
+    </message>
+    <message>
+        <source>Evolution</source>
+        <translation>Эволюция</translation>
+    </message>
+    <message>
+        <source>Expand</source>
+        <translation>Расширение</translation>
+    </message>
+    <message>
+        <source>Exponential</source>
+        <translation>Экспоненциальный</translation>
+    </message>
+    <message>
+        <source>Fade through a solid color</source>
+        <translation>Затухание через сплошной цвет</translation>
+    </message>
+    <message>
+        <source>Feather Inside</source>
+        <translation>Растушевка внутри</translation>
+    </message>
+    <message>
+        <source>Feather Outside</source>
+        <translation>Растушевка снаружи</translation>
+    </message>
+    <message>
+        <source>Fill Color</source>
+        <translation>Цвет заливки</translation>
+    </message>
+    <message>
+        <source>Fill Opacity</source>
+        <translation>Непрозрачность заливки</translation>
+    </message>
+    <message>
+        <source>Flip Horizontal</source>
+        <translation>Отразить по горизонтали</translation>
+    </message>
+    <message>
+        <source>Flip Vertical</source>
+        <translation>Отразить по вертикали</translation>
+    </message>
+    <message>
+        <source>Flip the image horizontally and/or vertically</source>
+        <translation>Отражение изображения по горизонтали и/или вертикали</translation>
+    </message>
+    <message>
+        <source>Font</source>
+        <translation>Шрифт</translation>
+    </message>
+    <message>
+        <source>Four-band clip equalizer</source>
+        <translation>Четырехполосный эквалайзер клипа</translation>
+    </message>
+    <message>
+        <source>Full Field (100%)</source>
+        <translation>Полноэкранный (100%)</translation>
+    </message>
+    <message>
+        <source>Gaussian Blur</source>
+        <translation>Размытие по Гауссу</translation>
+    </message>
+    <message>
+        <source>Gentle at both ends, quickest at the middle</source>
+        <translation>Плавное по краям, ускоренное в середине</translation>
+    </message>
+    <message>
+        <source>Grain Size</source>
+        <translation>Размер зерна</translation>
+    </message>
+    <message>
+        <source>Grey Scale</source>
+        <translation>Шкала серого</translation>
+    </message>
+    <message>
+        <source>Grid</source>
+        <translation>Сетка</translation>
+    </message>
+    <message>
+        <source>HDR test pattern of ITU-R BT.2111: </source>
+        <translation>Тестовая таблица HDR ITU-R BT.2111: </translation>
+    </message>
+    <message>
+        <source>Height</source>
+        <translation>Высота</translation>
+    </message>
+    <message>
+        <source>Horizontal</source>
+        <translation>По горизонтали</translation>
+    </message>
+    <message>
+        <source>Horizontal Margin</source>
+        <translation>Горизонтальное поле</translation>
+    </message>
+    <message>
+        <source>How captions look</source>
+        <translation>Внешний вид титров</translation>
+    </message>
+    <message>
+        <source>Inner Color</source>
+        <translation>Внутренний цвет</translation>
+    </message>
+    <message>
+        <source>Intersect</source>
+        <translation>Пересечение</translation>
+    </message>
+    <message>
+        <source>Invert</source>
+        <translation>Инвертировать</translation>
+    </message>
+    <message>
+        <source>Italic</source>
+        <translation>Курсив</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation>Слева</translation>
+    </message>
+    <message>
+        <source>Left Lower Third</source>
+        <translation>Нижняя треть слева</translation>
+    </message>
+    <message>
+        <source>Length</source>
+        <translation>Длина</translation>
+    </message>
+    <message>
+        <source>Line</source>
+        <translation>Линия</translation>
+    </message>
+    <message>
+        <source>Line Color</source>
+        <translation>Цвет линии</translation>
+    </message>
+    <message>
+        <source>Line Spacing</source>
+        <translation>Межстрочный интервал</translation>
+    </message>
+    <message>
+        <source>Line Width</source>
+        <translation>Толщина линии</translation>
+    </message>
+    <message>
+        <source>Linear Gradient</source>
+        <translation>Линейный градиент</translation>
+    </message>
+    <message>
+        <source>Linear crossfade: the level dips at the middle</source>
+        <translation>Линейный кроссфейд: уровень падает в середине</translation>
+    </message>
+    <message>
+        <source>Link Zoom</source>
+        <translation>Связать зум</translation>
+    </message>
+    <message>
+        <source>Logarithmic</source>
+        <translation>Логарифмический</translation>
+    </message>
+    <message>
+        <source>Major Line Every</source>
+        <translation>Основная линия каждые</translation>
+    </message>
+    <message>
+        <source>Major Line Width</source>
+        <translation>Толщина основных линий</translation>
+    </message>
+    <message>
+        <source>Make colors more or less intense (0 = greyscale)</source>
+        <translation>Регулировка интенсивности цвета (0 = оттенки серого)</translation>
+    </message>
+    <message>
+        <source>Masks</source>
+        <translation>Маски</translation>
+    </message>
+    <message>
+        <source>Middle</source>
+        <translation>Посередине</translation>
+    </message>
+    <message>
+        <source>Middle Lower Third</source>
+        <translation>Нижняя треть по центру</translation>
+    </message>
+    <message>
+        <source>Mirror / Flip</source>
+        <translation>Зеркало / Отражение</translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <translation>Режим</translation>
+    </message>
+    <message>
+        <source>Monochrome</source>
+        <translation>Монохром</translation>
+    </message>
+    <message>
+        <source>Mosaic</source>
+        <translation>Мозаика</translation>
+    </message>
+    <message>
+        <source>Move from a start framing to an end framing over the clip (pan and zoom)</source>
+        <translation>Переход от начального кадра к конечному (панорамирование и зум)</translation>
+    </message>
+    <message>
+        <source>Name Surname
+Role or place</source>
+        <translation>Имя Фамилия
+Должность или место</translation>
+    </message>
+    <message>
+        <source>Name and role centred low in the frame</source>
+        <translation>Имя и должность по центру внизу кадра</translation>
+    </message>
+    <message>
+        <source>Name and role in the lower left of the frame</source>
+        <translation>Имя и должность в левом нижнем углу кадра</translation>
+    </message>
+    <message>
+        <source>Name and role in the lower right of the frame</source>
+        <translation>Имя и должность в нижнем правом углу кадра</translation>
+    </message>
+    <message>
+        <source>Night Vision</source>
+        <translation>Ночное видение</translation>
+    </message>
+    <message>
+        <source>Noise</source>
+        <translation>Шум</translation>
+    </message>
+    <message>
+        <source>Noise Gradient</source>
+        <translation>Шумовой градиент</translation>
+    </message>
+    <message>
+        <source>Number Color</source>
+        <translation>Цвет цифр</translation>
+    </message>
+    <message>
+        <source>Opacity</source>
+        <translation>Непрозрачность</translation>
+    </message>
+    <message>
+        <source>Orientation</source>
+        <translation>Ориентация</translation>
+    </message>
+    <message>
+        <source>Outer Color</source>
+        <translation>Внешний цвет</translation>
+    </message>
+    <message>
+        <source>Outline Color</source>
+        <translation>Цвет контура</translation>
+    </message>
+    <message>
+        <source>Outline Width</source>
+        <translation>Ширина контура</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Панорама</translation>
+    </message>
+    <message>
+        <source>Pitch</source>
+        <translation>Питч</translation>
+    </message>
+    <message>
+        <source>Pitch Fine</source>
+        <translation>Точный питч</translation>
+    </message>
+    <message>
+        <source>Pixelate the image into blocks</source>
+        <translation>Пикселизация изображения блоками</translation>
+    </message>
+    <message>
+        <source>Position</source>
+        <translation>Позиция</translation>
+    </message>
+    <message>
+        <source>Position X</source>
+        <translation>Позиция X</translation>
+    </message>
+    <message>
+        <source>Position Y</source>
+        <translation>Позиция Y</translation>
+    </message>
+    <message>
+        <source>Position, zoom, rotation, anchor point and flips</source>
+        <translation>Положение, зум, вращение, точка привязки и отражение</translation>
+    </message>
+    <message>
+        <source>Prefix</source>
+        <translation>Префикс</translation>
+    </message>
+    <message>
+        <source>Push</source>
+        <translation>Выталкивание</translation>
+    </message>
+    <message>
+        <source>Radial Gradient</source>
+        <translation>Радиальный градиент</translation>
+    </message>
+    <message>
+        <source>Radius</source>
+        <translation>Радиус</translation>
+    </message>
+    <message>
+        <source>Random grain, still or animated</source>
+        <translation>Случайное зерно, статичное или анимированное</translation>
+    </message>
+    <message>
+        <source>Rectangle</source>
+        <translation>Прямоугольник</translation>
+    </message>
+    <message>
+        <source>Region Blur</source>
+        <translation>Размытие области</translation>
+    </message>
+    <message>
+        <source>Reveal the next clip with a moving edge</source>
+        <translation>Появление следующего клипа с движущейся границей</translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation>Справа</translation>
+    </message>
+    <message>
+        <source>Right Lower Third</source>
+        <translation>Правая нижняя треть</translation>
+    </message>
+    <message>
+        <source>Rolling credits: the text moves up through the frame over the clip&apos;s length</source>
+        <translation>Титры: текст движется вверх по кадру в течение длительности клипа</translation>
+    </message>
+    <message>
+        <source>Rotation</source>
+        <translation>Вращение</translation>
+    </message>
+    <message>
+        <source>Rounded Rectangle</source>
+        <translation>Прямоугольник со скруглением</translation>
+    </message>
+    <message>
+        <source>Rows</source>
+        <translation>Строки</translation>
+    </message>
+    <message>
+        <source>S-Curve</source>
+        <translation>S-кривая</translation>
+    </message>
+    <message>
+        <source>SMPTE (75%)</source>
+        <translation>SMPTE (75%)</translation>
+    </message>
+    <message>
+        <source>Saturation</source>
+        <translation>Насыщенность</translation>
+    </message>
+    <message>
+        <source>Scale</source>
+        <translation>Масштаб</translation>
+    </message>
+    <message>
+        <source>Scale X</source>
+        <translation>Масштаб X</translation>
+    </message>
+    <message>
+        <source>Scale Y</source>
+        <translation>Масштаб Y</translation>
+    </message>
+    <message>
+        <source>Scroll</source>
+        <translation>Прокрутка</translation>
+    </message>
+    <message>
+        <source>Seed</source>
+        <translation>Зерно</translation>
+    </message>
+    <message>
+        <source>Shadow behind the clip&apos;s alpha (titles, scaled-down overlays)</source>
+        <translation>Тень за альфа-каналом клипа (титры, наложения)</translation>
+    </message>
+    <message>
+        <source>Shape</source>
+        <translation>Фигура</translation>
+    </message>
+    <message>
+        <source>Shape masks cut the clip&apos;s picture before it is composited</source>
+        <translation>Фигурные маски обрезают изображение клипа перед композитингом</translation>
+    </message>
+    <message>
+        <source>Sharpen</source>
+        <translation>Резкость</translation>
+    </message>
+    <message>
+        <source>Simple brightness and contrast adjustment</source>
+        <translation>Простая настройка яркости и контрастности</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>Размер</translation>
+    </message>
+    <message>
+        <source>Smooth cloudy noise blended between two colors; move Evolution to animate it</source>
+        <translation>Гладкий облачный шум, смешанный между двумя цветами; изменяйте «Эволюция» для анимации</translation>
+    </message>
+    <message>
+        <source>Soft blur of the whole image</source>
+        <translation>Мягкое размытие всего изображения</translation>
+    </message>
+    <message>
+        <source>Softness</source>
+        <translation>Мягкость</translation>
+    </message>
+    <message>
+        <source>Solid Color</source>
+        <translation>Сплошной цвет</translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation>Источник</translation>
+    </message>
+    <message>
+        <source>Stabilization</source>
+        <translation>Стабилизация</translation>
+    </message>
+    <message>
+        <source>Start At</source>
+        <translation>Начать с</translation>
+    </message>
+    <message>
+        <source>Start Color</source>
+        <translation>Начальный цвет</translation>
+    </message>
+    <message>
+        <source>Start Frame</source>
+        <translation>Начальный кадр</translation>
+    </message>
+    <message>
+        <source>Steady a shaky clip: measure its camera movement and correct it</source>
+        <translation>Стабилизация дрожащего клипа: анализ и коррекция движения камеры</translation>
+    </message>
+    <message>
+        <source>Steps</source>
+        <translation>Шаги</translation>
+    </message>
+    <message>
+        <source>Stroke Color</source>
+        <translation>Цвет обводки</translation>
+    </message>
+    <message>
+        <source>Stroke Width</source>
+        <translation>Ширина обводки</translation>
+    </message>
+    <message>
+        <source>Style</source>
+        <translation>Стиль</translation>
+    </message>
+    <message>
+        <source>Subtitle text</source>
+        <translation>Текст субтитров</translation>
+    </message>
+    <message>
+        <source>Subtract</source>
+        <translation>Вычесть</translation>
+    </message>
+    <message>
+        <source>Sweep Color</source>
+        <translation>Цвет стрелки</translation>
+    </message>
+    <message>
+        <source>Test pattern: SMPTE-style or full-field color bars</source>
+        <translation>Тестовая таблица: цветовые шкалы в стиле SMPTE или полноэкранные</translation>
+    </message>
+    <message>
+        <source>Test pattern: a grey ramp in eight steps of 100 mV, from 0 to 700 mV</source>
+        <translation>Тестовая таблица: серая шкала из восьми шагов по 100 мВ, от 0 до 700 мВ</translation>
+    </message>
+    <message>
+        <source>Test pattern: ramps of Y&apos;, Cb and Cr (Rec. 709), each from its lowest to its highest value</source>
+        <translation>Тестовая таблица: градиенты Y&apos;, Cb и Cr (Rec. 709), от минимального до максимального значения</translation>
+    </message>
+    <message>
+        <source>Test pattern: the eight EBU bars, 100% white and 75% colors</source>
+        <translation>Тестовая таблица: восемь полос EBU, 100% белый и 75% цвета</translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <translation>Текст</translation>
+    </message>
+    <message>
+        <source>Text Box</source>
+        <translation>Текстовое поле</translation>
+    </message>
+    <message>
+        <source>Text typed on letter by letter in the first second (Write On End 0 to 1)</source>
+        <translation>Текст печатается по буквам в первую секунду (Write On End от 0 до 1)</translation>
+    </message>
+    <message>
+        <source>The End
+
+Directed by
+Name
+
+Edited by
+Name
+
+Music by
+Name
+
+Thank you for watching</source>
+        <translation>Конец
+
+Режиссёр
+Имя
+
+Монтаж
+Имя
+
+Композитор
+Имя
+
+Спасибо за просмотр</translation>
+    </message>
+    <message>
+        <source>The incoming sound rises fast, then slowly</source>
+        <translation>Входящий звук нарастает быстро, затем медленно</translation>
+    </message>
+    <message>
+        <source>The incoming sound rises slowly, then fast</source>
+        <translation>Входящий звук нарастает медленно, затем быстро</translation>
+    </message>
+    <message>
+        <source>The next clip pushes the current one out</source>
+        <translation>Следующий клип выталкивает текущий</translation>
+    </message>
+    <message>
+        <source>Timecode</source>
+        <translation>Тайм-код</translation>
+    </message>
+    <message>
+        <source>Timeline</source>
+        <translation>Таймлайн</translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation>Заголовок</translation>
+    </message>
+    <message>
+        <source>Top</source>
+        <translation>Сверху</translation>
+    </message>
+    <message>
+        <source>Top Left</source>
+        <translation>Вверху слева</translation>
+    </message>
+    <message>
+        <source>Top Right</source>
+        <translation>Вверху справа</translation>
+    </message>
+    <message>
+        <source>Tracking</source>
+        <translation>Трекинг</translation>
+    </message>
+    <message>
+        <source>Transform</source>
+        <translation>Трансформация</translation>
+    </message>
+    <message>
+        <source>Type your text here</source>
+        <translation>Введите текст здесь</translation>
+    </message>
+    <message>
+        <source>Typewriter</source>
+        <translation>Пишущая машинка</translation>
+    </message>
+    <message>
+        <source>Unsharp-mask sharpening</source>
+        <translation>Повышение резкости (нерезкая маска)</translation>
+    </message>
+    <message>
+        <source>Up</source>
+        <translation>Вверх</translation>
+    </message>
+    <message>
+        <source>Vertical</source>
+        <translation>По вертикали</translation>
+    </message>
+    <message>
+        <source>Vertical Margin</source>
+        <translation>Вертикальное поле</translation>
+    </message>
+    <message>
+        <source>Vertical Position</source>
+        <translation>Положение по вертикали</translation>
+    </message>
+    <message>
+        <source>Video Call</source>
+        <translation>Видеозвонок</translation>
+    </message>
+    <message>
+        <source>Video Camera</source>
+        <translation>Видеокамера</translation>
+    </message>
+    <message>
+        <source>Vignette</source>
+        <translation>Виньетирование</translation>
+    </message>
+    <message>
+        <source>Volume</source>
+        <translation>Громкость</translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation>Ширина</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <translation>Окно</translation>
+    </message>
+    <message>
+        <source>Window Color</source>
+        <translation>Цвет окна</translation>
+    </message>
+    <message>
+        <source>Wipe</source>
+        <translation>Шторка</translation>
+    </message>
+    <message>
+        <source>Write On End</source>
+        <translation>Конец появления</translation>
+    </message>
+    <message>
+        <source>Write On Start</source>
+        <translation>Начало появления</translation>
+    </message>
+    <message>
+        <source>Y&apos; (Luma)</source>
+        <translation>Y&apos; (Яркость)</translation>
+    </message>
+    <message>
+        <source>YCbCr Ramp</source>
+        <translation>Градиент YCbCr</translation>
+    </message>
+    <message>
+        <source>Zoom X</source>
+        <translation>Зум X</translation>
+    </message>
+    <message>
+        <source>Zoom Y</source>
+        <translation>Зум Y</translation>
+    </message>
+    <message>
+        <source>hybrid log-gamma, narrow range code values</source>
+        <translation>гибридная лог-гамма, ограниченный диапазон значений</translation>
+    </message>
+    <message>
+        <source>perceptual quantizer, full range code values</source>
+        <translation>перцептивный квантователь, полный диапазон значений</translation>
+    </message>
+    <message>
+        <source>perceptual quantizer, narrow range code values</source>
+        <translation>перцептивный квантователь, ограниченный диапазон значений</translation>
+    </message>
+</context>
+<context>
+    <name>kk::BuiltinTransitions</name>
+    <message>
+        <source>Slide Left</source>
+        <translation>Сдвиг влево</translation>
+    </message>
+    <message>
+        <source>Pan Left</source>
+        <translation>Панорама влево</translation>
+    </message>
+    <message>
+        <source>Slide Right</source>
+        <translation>Сдвиг вправо</translation>
+    </message>
+    <message>
+        <source>Pan Right</source>
+        <translation>Панорама вправо</translation>
+    </message>
+    <message>
+        <source>Slide Up</source>
+        <translation>Сдвиг вверх</translation>
+    </message>
+    <message>
+        <source>Pan Up</source>
+        <translation>Панорама вверх</translation>
+    </message>
+    <message>
+        <source>Slide Down</source>
+        <translation>Сдвиг вниз</translation>
+    </message>
+    <message>
+        <source>Pan Down</source>
+        <translation>Панорама вниз</translation>
+    </message>
+    <message>
+        <source>4-Point</source>
+        <translation>4-конечная</translation>
+    </message>
+    <message>
+        <source>5-Point</source>
+        <translation>5-конечная</translation>
+    </message>
+    <message>
+        <source>6-Point</source>
+        <translation>6-конечная</translation>
+    </message>
+    <message>
+        <source>A box grows from a corner or the middle of an edge</source>
+        <translation>Прямоугольник увеличивается из угла или середины грани</translation>
+    </message>
+    <message>
+        <source>A cross grows from the centre</source>
+        <translation>Крест увеличивается из центра</translation>
+    </message>
+    <message>
+        <source>A diamond grows from the centre</source>
+        <translation>Ромб увеличивается из центра</translation>
+    </message>
+    <message>
+        <source>A fast zoom into the first clip, a fast zoom out of the next one</source>
+        <translation>Быстрое приближение первого клипа и быстрое удаление следующего</translation>
+    </message>
+    <message>
+        <source>A flash of light covers the cut</source>
+        <translation>Вспышка света перекрывает склейку</translation>
+    </message>
+    <message>
+        <source>A hand sweeps half a turn round the bottom centre</source>
+        <translation>Стрелка делает пол-оборота вокруг центра снизу</translation>
+    </message>
+    <message>
+        <source>A hand sweeps round the centre like a clock</source>
+        <translation>Стрелка движется вокруг центра подобно часам</translation>
+    </message>
+    <message>
+        <source>A heart grows from the centre</source>
+        <translation>Сердце увеличивается из центра</translation>
+    </message>
+    <message>
+        <source>A hexagon grows from the centre</source>
+        <translation>Шестиугольник увеличивается из центра</translation>
+    </message>
+    <message>
+        <source>A magnifying column sweeps across and leaves the next clip behind it</source>
+        <translation>Увеличивающая колонка перемещается и оставляет за собой следующий клип</translation>
+    </message>
+    <message>
+        <source>A pentagon grows from the centre</source>
+        <translation>Пятиугольник увеличивается из центра</translation>
+    </message>
+    <message>
+        <source>A quarter turn while dissolving</source>
+        <translation>Четверть оборота с растворением</translation>
+    </message>
+    <message>
+        <source>A ripple spreads from a drop and brings in the next clip</source>
+        <translation>Волна от капли расходится и проявляет следующий клип</translation>
+    </message>
+    <message>
+        <source>A square grows from the centre</source>
+        <translation>Квадрат увеличивается из центра</translation>
+    </message>
+    <message>
+        <source>A star grows from the centre</source>
+        <translation>Звезда увеличивается из центра</translation>
+    </message>
+    <message>
+        <source>A swirl draws the picture into the next one</source>
+        <translation>Вихрь затягивает изображение в следующий клип</translation>
+    </message>
+    <message>
+        <source>A triangle grows from the centre</source>
+        <translation>Треугольник увеличивается из центра</translation>
+    </message>
+    <message>
+        <source>A triangle grows from the left edge towards the right</source>
+        <translation>Треугольник увеличивается от левого края к правому</translation>
+    </message>
+    <message>
+        <source>A triangle grows from the right edge towards the left</source>
+        <translation>Треугольник увеличивается от правого края к левому</translation>
+    </message>
+    <message>
+        <source>Add the two pictures: brighter in the middle, back to normal at both ends</source>
+        <translation>Сложение двух изображений: ярче в середине, возврат к норме по краям</translation>
+    </message>
+    <message>
+        <source>Additive Dissolve</source>
+        <translation>Аддитивное растворение</translation>
+    </message>
+    <message>
+        <source>An arrow grows from the centre</source>
+        <translation>Стрелка увеличивается из центра</translation>
+    </message>
+    <message>
+        <source>An eye opens from the centre</source>
+        <translation>Глаз открывается из центра</translation>
+    </message>
+    <message>
+        <source>An oval grows from the centre</source>
+        <translation>Овал увеличивается из центра</translation>
+    </message>
+    <message>
+        <source>Angle</source>
+        <translation>Угол</translation>
+    </message>
+    <message>
+        <source>Arrow Iris</source>
+        <translation>Диафрагма: стрелка</translation>
+    </message>
+    <message>
+        <source>Aspect Ratio</source>
+        <translation>Соотношение сторон</translation>
+    </message>
+    <message>
+        <source>Band Wipe</source>
+        <translation>Полосная шторка</translation>
+    </message>
+    <message>
+        <source>Bands</source>
+        <translation>Ленты</translation>
+    </message>
+    <message>
+        <source>Barn Door</source>
+        <translation>Двустворчатая шторка</translation>
+    </message>
+    <message>
+        <source>Blur Dissolve</source>
+        <translation>Размытое растворение</translation>
+    </message>
+    <message>
+        <source>Border</source>
+        <translation>Граница</translation>
+    </message>
+    <message>
+        <source>Border Color</source>
+        <translation>Цвет границы</translation>
+    </message>
+    <message>
+        <source>Border Width</source>
+        <translation>Ширина рамки</translation>
+    </message>
+    <message>
+        <source>Both pictures pan %1 with a motion blur</source>
+        <translation>Оба изображения панорамируются %1 с размытием движения</translation>
+    </message>
+    <message>
+        <source>Bottom</source>
+        <translation>Снизу</translation>
+    </message>
+    <message>
+        <source>Bottom Center</source>
+        <translation>Снизу по центру</translation>
+    </message>
+    <message>
+        <source>Box</source>
+        <translation>Прямоугольник</translation>
+    </message>
+    <message>
+        <source>Brightness</source>
+        <translation>Яркость</translation>
+    </message>
+    <message>
+        <source>Brightness Flash</source>
+        <translation>Вспышка яркости</translation>
+    </message>
+    <message>
+        <source>Brush strokes paint the next clip over the current one</source>
+        <translation>Мазки кисти проявляют следующий клип поверх текущего</translation>
+    </message>
+    <message>
+        <source>Burn Away</source>
+        <translation>Сгорание</translation>
+    </message>
+    <message>
+        <source>Camera Shake</source>
+        <translation>Тряска камеры</translation>
+    </message>
+    <message>
+        <source>Center Wipe</source>
+        <translation>Центральная шторка</translation>
+    </message>
+    <message>
+        <source>Char</source>
+        <translation>Обугливание</translation>
+    </message>
+    <message>
+        <source>Circles</source>
+        <translation>Круги</translation>
+    </message>
+    <message>
+        <source>Clock Wipe</source>
+        <translation>Часовая шторка</translation>
+    </message>
+    <message>
+        <source>Clockwise</source>
+        <translation>По часовой стрелке</translation>
+    </message>
+    <message>
+        <source>Crash Zoom</source>
+        <translation>Быстрый зум</translation>
+    </message>
+    <message>
+        <source>Cross Iris</source>
+        <translation>Диафрагма: крест</translation>
+    </message>
+    <message>
+        <source>Curve</source>
+        <translation>Кривая</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>Пользовательские</translation>
+    </message>
+    <message>
+        <source>Custom Curve</source>
+        <translation>Пользовательская кривая</translation>
+    </message>
+    <message>
+        <source>Diamond Iris</source>
+        <translation>Диафрагма: ромб</translation>
+    </message>
+    <message>
+        <source>Direction</source>
+        <translation>Направление</translation>
+    </message>
+    <message>
+        <source>Dissolve that keeps the brighter of the two pictures</source>
+        <translation>Растворение, сохраняющее более яркое из двух изображений</translation>
+    </message>
+    <message>
+        <source>Dissolve through a noise pattern</source>
+        <translation>Растворение через текстуру шума</translation>
+    </message>
+    <message>
+        <source>Dissolve with a blur that peaks in the middle</source>
+        <translation>Растворение с размытием, достигающим максимума в середине</translation>
+    </message>
+    <message>
+        <source>Down</source>
+        <translation>Вниз</translation>
+    </message>
+    <message>
+        <source>Drop Warp</source>
+        <translation>Капельная деформация</translation>
+    </message>
+    <message>
+        <source>Easing</source>
+        <translation>Сглаживание</translation>
+    </message>
+    <message>
+        <source>End Ratio</source>
+        <translation>Конечное соотношение</translation>
+    </message>
+    <message>
+        <source>Eye Iris</source>
+        <translation>Диафрагма: глаз</translation>
+    </message>
+    <message>
+        <source>Fall Angle</source>
+        <translation>Угол падения</translation>
+    </message>
+    <message>
+        <source>Fall and Bounce</source>
+        <translation>Падение и отскок</translation>
+    </message>
+    <message>
+        <source>Feather</source>
+        <translation>Растушевка</translation>
+    </message>
+    <message>
+        <source>Film Color</source>
+        <translation>Цвет плёнки</translation>
+    </message>
+    <message>
+        <source>Film Strip</source>
+        <translation>Киноплёнка</translation>
+    </message>
+    <message>
+        <source>Flat</source>
+        <translation>Плоский</translation>
+    </message>
+    <message>
+        <source>Flip 3D</source>
+        <translation>Переворот 3D</translation>
+    </message>
+    <message>
+        <source>Foreground Wipe</source>
+        <translation>Вытеснение передним планом</translation>
+    </message>
+    <message>
+        <source>Frame Size</source>
+        <translation>Размер кадра</translation>
+    </message>
+    <message>
+        <source>Glitch</source>
+        <translation>Искажение</translation>
+    </message>
+    <message>
+        <source>Glow Brightness</source>
+        <translation>Яркость свечения</translation>
+    </message>
+    <message>
+        <source>Glow Gain</source>
+        <translation>Усиление свечения</translation>
+    </message>
+    <message>
+        <source>Glow Size</source>
+        <translation>Размер свечения</translation>
+    </message>
+    <message>
+        <source>Grain Size</source>
+        <translation>Размер зерна</translation>
+    </message>
+    <message>
+        <source>Half a turn while dissolving</source>
+        <translation>Пол-оборота с растворением</translation>
+    </message>
+    <message>
+        <source>Heart</source>
+        <translation>Сердце</translation>
+    </message>
+    <message>
+        <source>Hexagon</source>
+        <translation>Шестиугольник</translation>
+    </message>
+    <message>
+        <source>Hexagon Iris</source>
+        <translation>Диафрагма: шестиугольник</translation>
+    </message>
+    <message>
+        <source>Hexagon Vertical</source>
+        <translation>Вертикальный шестиугольник</translation>
+    </message>
+    <message>
+        <source>Hide a jump cut by morphing the pictures into each other along their motion (optical flow); use it on a short transition of 2 to 6 frames</source>
+        <translation>Скрытие склейки путем морфинга изображений с учетом их движения (оптический поток); используйте для коротких переходов от 2 до 6 кадров</translation>
+    </message>
+    <message>
+        <source>Horizontal</source>
+        <translation>По горизонтали</translation>
+    </message>
+    <message>
+        <source>Horizontal Bilinear</source>
+        <translation>Горизонтальная билинейная</translation>
+    </message>
+    <message>
+        <source>Horizontal Strength</source>
+        <translation>Сила по горизонтали</translation>
+    </message>
+    <message>
+        <source>Invert Wipe</source>
+        <translation>Инвертировать вытеснение</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation>Слева</translation>
+    </message>
+    <message>
+        <source>Left Center</source>
+        <translation>Слева по центру</translation>
+    </message>
+    <message>
+        <source>Linear</source>
+        <translation>Линейная</translation>
+    </message>
+    <message>
+        <source>Lower Left</source>
+        <translation>Нижний левый</translation>
+    </message>
+    <message>
+        <source>Lower Right</source>
+        <translation>Нижний правый</translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <translation>Режим</translation>
+    </message>
+    <message>
+        <source>Motion Blur</source>
+        <translation>Размытие движения</translation>
+    </message>
+    <message>
+        <source>Noise Dissolve</source>
+        <translation>Шумовое растворение</translation>
+    </message>
+    <message>
+        <source>Non-Additive Dissolve</source>
+        <translation>Неаддитивное растворение</translation>
+    </message>
+    <message>
+        <source>Offset X</source>
+        <translation>Смещение X</translation>
+    </message>
+    <message>
+        <source>Offset Y</source>
+        <translation>Смещение Y</translation>
+    </message>
+    <message>
+        <source>One clip slides over or off the other</source>
+        <translation>Один клип скользит поверх другого или сдвигается с него</translation>
+    </message>
+    <message>
+        <source>Oval Iris</source>
+        <translation>Диафрагма: овал</translation>
+    </message>
+    <message>
+        <source>Oval Ratio</source>
+        <translation>Пропорции овала</translation>
+    </message>
+    <message>
+        <source>Paint On</source>
+        <translation>Рисование кистью</translation>
+    </message>
+    <message>
+        <source>Pentagon Iris</source>
+        <translation>Диафрагма: пятиугольник</translation>
+    </message>
+    <message>
+        <source>Pivot X</source>
+        <translation>Точка опоры X</translation>
+    </message>
+    <message>
+        <source>Pivot Y</source>
+        <translation>Точка опоры Y</translation>
+    </message>
+    <message>
+        <source>Point</source>
+        <translation>Точка</translation>
+    </message>
+    <message>
+        <source>Preset</source>
+        <translation>Пресет</translation>
+    </message>
+    <message>
+        <source>Radial Wipe</source>
+        <translation>Радиальная шторка</translation>
+    </message>
+    <message>
+        <source>Raggedness</source>
+        <translation>Неровность</translation>
+    </message>
+    <message>
+        <source>Repeat</source>
+        <translation>Повтор</translation>
+    </message>
+    <message>
+        <source>Reverse</source>
+        <translation>Обратить</translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation>Справа</translation>
+    </message>
+    <message>
+        <source>Right Center</source>
+        <translation>Справа по центру</translation>
+    </message>
+    <message>
+        <source>Rings</source>
+        <translation>Кольца</translation>
+    </message>
+    <message>
+        <source>Rings open one after another and show the next clip</source>
+        <translation>Кольца раскрываются одно за другим и проявляют следующий клип</translation>
+    </message>
+    <message>
+        <source>Rotate</source>
+        <translation>Поворот</translation>
+    </message>
+    <message>
+        <source>Rotate 90</source>
+        <translation>Поворот на 90</translation>
+    </message>
+    <message>
+        <source>Rotation</source>
+        <translation>Вращение</translation>
+    </message>
+    <message>
+        <source>Round and Down</source>
+        <translation>Вращение вниз</translation>
+    </message>
+    <message>
+        <source>Shadow Blend</source>
+        <translation>Смешивание тени</translation>
+    </message>
+    <message>
+        <source>Shadow Softness</source>
+        <translation>Мягкость тени</translation>
+    </message>
+    <message>
+        <source>Shake Speed</source>
+        <translation>Скорость тряски</translation>
+    </message>
+    <message>
+        <source>Shaking pictures with split colour channels</source>
+        <translation>Тряска изображения с разделением цветовых каналов</translation>
+    </message>
+    <message>
+        <source>Slats open one after another</source>
+        <translation>Планки открываются одна за другой</translation>
+    </message>
+    <message>
+        <source>Slice Push</source>
+        <translation>Выталкивание полосами</translation>
+    </message>
+    <message>
+        <source>Slices</source>
+        <translation>Полосы</translation>
+    </message>
+    <message>
+        <source>Slide</source>
+        <translation>Слайд</translation>
+    </message>
+    <message>
+        <source>Slide In</source>
+        <translation>Задвигание</translation>
+    </message>
+    <message>
+        <source>Slide Out</source>
+        <translation>Выдвигание</translation>
+    </message>
+    <message>
+        <source>Smooth Cut</source>
+        <translation>Плавный переход</translation>
+    </message>
+    <message>
+        <source>Softness</source>
+        <translation>Мягкость</translation>
+    </message>
+    <message>
+        <source>Spiral Wipe</source>
+        <translation>Спиральная шторка</translation>
+    </message>
+    <message>
+        <source>Split</source>
+        <translation>Разделение</translation>
+    </message>
+    <message>
+        <source>Square Iris</source>
+        <translation>Диафрагма: квадрат</translation>
+    </message>
+    <message>
+        <source>Star</source>
+        <translation>Звезда</translation>
+    </message>
+    <message>
+        <source>Start Ratio</source>
+        <translation>Начальное соотношение</translation>
+    </message>
+    <message>
+        <source>Strength</source>
+        <translation>Сила</translation>
+    </message>
+    <message>
+        <source>Strips slide in from alternate sides</source>
+        <translation>Полосы появляются с противоположных сторон</translation>
+    </message>
+    <message>
+        <source>Strips slide out one after another and push the next clip in</source>
+        <translation>Полосы выдвигаются одна за другой и выталкивают следующий клип</translation>
+    </message>
+    <message>
+        <source>Strokes</source>
+        <translation>Мазки</translation>
+    </message>
+    <message>
+        <source>The current clip swings down round a pivot while it fades into the next</source>
+        <translation>Текущий клип поворачивается вниз вокруг точки опоры, плавно переходя в следующий</translation>
+    </message>
+    <message>
+        <source>The first clip burns away from one side and shows the next one</source>
+        <translation>Первый клип сгорает с одной стороны, открывая следующий</translation>
+    </message>
+    <message>
+        <source>The first clip is sucked into a glowing point, the next one grows out of it</source>
+        <translation>Первый клип втягивается в светящуюся точку, следующий появляется из неё</translation>
+    </message>
+    <message>
+        <source>The first clip zooms in while the next one zooms into place</source>
+        <translation>Первый клип приближается, пока следующий занимает его место</translation>
+    </message>
+    <message>
+        <source>The next clip falls in over the current one and bounces to rest</source>
+        <translation>Следующий клип падает на текущий и подпрыгивает при остановке</translation>
+    </message>
+    <message>
+        <source>The next clip opens along the two diagonals</source>
+        <translation>Следующий клип открывается вдоль двух диагоналей</translation>
+    </message>
+    <message>
+        <source>The next clip opens from a line through the centre</source>
+        <translation>Следующий клип открывается от линии в центре</translation>
+    </message>
+    <message>
+        <source>The next clip slides in over the current one, moving %1</source>
+        <translation>Следующий клип надвигается поверх текущего, сдвигаясь %1</translation>
+    </message>
+    <message>
+        <source>The next clip spirals out from the centre</source>
+        <translation>Следующий клип разворачивается по спирали из центра</translation>
+    </message>
+    <message>
+        <source>The picture breaks up in strips and colour channels</source>
+        <translation>Изображение распадается на полосы и цветовые каналы</translation>
+    </message>
+    <message>
+        <source>The picture opens like a barn door from the centre</source>
+        <translation>Изображение раскрывается из центра как двустворчатая дверь</translation>
+    </message>
+    <message>
+        <source>The picture splits and the halves move apart in opposite directions</source>
+        <translation>Изображение разделяется, и половины расходятся в противоположные стороны</translation>
+    </message>
+    <message>
+        <source>The picture turns round like a card</source>
+        <translation>Изображение переворачивается подобно карте</translation>
+    </message>
+    <message>
+        <source>The picture zooms out to a frame of a moving film strip and zooms back in on the next one</source>
+        <translation>Изображение уменьшается до кадра движущейся киноплёнки и увеличивается до следующего</translation>
+    </message>
+    <message>
+        <source>Top Center</source>
+        <translation>Сверху по центру</translation>
+    </message>
+    <message>
+        <source>Triangle Iris</source>
+        <translation>Диафрагма: треугольник</translation>
+    </message>
+    <message>
+        <source>Triangle Left</source>
+        <translation>Треугольник влево</translation>
+    </message>
+    <message>
+        <source>Triangle Right</source>
+        <translation>Треугольник вправо</translation>
+    </message>
+    <message>
+        <source>Tunnel of Light</source>
+        <translation>Световой тоннель</translation>
+    </message>
+    <message>
+        <source>Up</source>
+        <translation>Вверх</translation>
+    </message>
+    <message>
+        <source>Upper Left</source>
+        <translation>Верхний левый</translation>
+    </message>
+    <message>
+        <source>Upper Right</source>
+        <translation>Верхний правый</translation>
+    </message>
+    <message>
+        <source>Venetian Blind Wipe</source>
+        <translation>Жалюзи</translation>
+    </message>
+    <message>
+        <source>Vertical</source>
+        <translation>По вертикали</translation>
+    </message>
+    <message>
+        <source>Vertical Bilinear</source>
+        <translation>Вертикальная билинейная</translation>
+    </message>
+    <message>
+        <source>Vertical Strength</source>
+        <translation>Сила по вертикали</translation>
+    </message>
+    <message>
+        <source>Warp</source>
+        <translation>Деформация</translation>
+    </message>
+    <message>
+        <source>X Wipe</source>
+        <translation>X-образная шторка</translation>
+    </message>
+    <message>
+        <source>Zoom In</source>
+        <translation>Приближение</translation>
+    </message>
+    <message>
+        <source>Zoom In and Out</source>
+        <translation>Приближение и удаление</translation>
+    </message>
+    <message>
+        <source>Zoom Scale</source>
+        <translation>Масштаб зумирования</translation>
+    </message>
+    <message>
+        <source>Zoom in on the first clip, zoom out to the next one</source>
+        <translation>Приближение первого клипа, затем удаление до следующего</translation>
+    </message>
+</context>
+<context>
+    <name>kk::BuiltinVideoEffects</name>
+    <message>
+        <source> X</source>
+        <translation> X</translation>
+    </message>
+    <message>
+        <source> Y</source>
+        <translation> Y</translation>
+    </message>
+    <message>
+        <source>3D Keyer</source>
+        <translation>3D-кеер</translation>
+    </message>
+    <message>
+        <source>A camcorder viewfinder: a blinking recording dot, a running timecode, battery, zoom and card readouts, a focus frame and corner marks</source>
+        <translation>Видоискатель видеокамеры: мигающая точка записи, бегущий тайм-код, показания батареи, зума и карты памяти, рамка фокусировки и угловые метки</translation>
+    </message>
+    <message>
+        <source>A colored border around the clip&apos;s shape (titles, keyed or scaled-down clips)</source>
+        <translation>Цветная граница вокруг формы клипа (титры, клипы с хромакеем или уменьшенным масштабом)</translation>
+    </message>
+    <message>
+        <source>A drawn lens flare: glow, streaks, a halo ring and ghosts along the lens axis</source>
+        <translation>Рисованный блик объектива: свечение, лучи, кольцо ореола и паразитные блики вдоль оси объектива</translation>
+    </message>
+    <message>
+        <source>A drone-camera display: corner framing marks, a compass bar, a horizon line with the gimbal pitch, and readouts of altitude, speed, distance, battery and satellites that can be keyframed</source>
+        <translation>Дисплей дрона: угловые метки кадрирования, шкала компаса, линия горизонта с наклоном подвеса и показания высоты, скорости, расстояния, заряда батареи и спутников с поддержкой ключевых кадров</translation>
+    </message>
+    <message>
+        <source>A photo-camera viewfinder: focus points with a lock, frame lines, a grid, an exposure scale and a readout of shutter speed, aperture and ISO</source>
+        <translation>Видоискатель фотоаппарата: точки фокусировки с блокировкой, линии кадра, сетка, шкала экспозиции и показания выдержки, диафрагмы и ISO</translation>
+    </message>
+    <message>
+        <source>A picture-in-picture box: the picture shrinks into a box that you move, size, turn and tilt, with a border, rounded corners and a drop shadow</source>
+        <translation>Окно «картинка в картинке»: изображение уменьшается в рамку, которую можно перемещать, изменять размер, вращать и наклонять, с границей, скругленными углами и тенью</translation>
+    </message>
+    <message>
+        <source>A security-camera picture: washed colors, noise, scanlines and corner shading, with a camera name, a running date and time, and a blinking recording dot</source>
+        <translation>Изображение камеры наблюдения: блеклые цвета, шум, строки развертки и затемнение по углам, с именем камеры, текущей датой и временем и мигающим индикатором записи</translation>
+    </message>
+    <message>
+        <source>A sharp band with blur growing away from it, like a miniature</source>
+        <translation>Четкая полоса с размытием, увеличивающимся от нее, создавая эффект миниатюры</translation>
+    </message>
+    <message>
+        <source>A video-call tile: the picture in a rounded frame on a dark background, with a name label, a microphone mark, connection bars, a call timer and a ring that lights when the person speaks</source>
+        <translation>Плитка видеовызова: изображение в скругленной рамке на темном фоне с именем, значком микрофона, индикатором связи, таймером вызова и кольцом, светящимся при разговоре</translation>
+    </message>
+    <message>
+        <source>AF-C</source>
+        <translation>AF-C</translation>
+    </message>
+    <message>
+        <source>AF-S</source>
+        <translation>AF-S</translation>
+    </message>
+    <message>
+        <source>AI tool: cuts the subject out of the picture with a model that runs on this computer</source>
+        <translation>Инструмент ИИ: вырезает объект из изображения с помощью модели, выполняемой на этом компьютере</translation>
+    </message>
+    <message>
+        <source>Abstraction</source>
+        <translation>Абстракция</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Добавить</translation>
+    </message>
+    <message>
+        <source>Adds film-like grain</source>
+        <translation>Добавляет эффект плёночного зерна</translation>
+    </message>
+    <message>
+        <source>Ahead</source>
+        <translation>Спереди</translation>
+    </message>
+    <message>
+        <source>All Colors</source>
+        <translation>Все цвета</translation>
+    </message>
+    <message>
+        <source>Alpha Matte Shrink and Grow</source>
+        <translation>Сжатие и расширение маски альфа-канала</translation>
+    </message>
+    <message>
+        <source>Altitude</source>
+        <translation>Высота</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Количество</translation>
+    </message>
+    <message>
+        <source>Amplitude</source>
+        <translation>Амплитуда</translation>
+    </message>
+    <message>
+        <source>Analog Damage</source>
+        <translation>Аналоговое повреждение</translation>
+    </message>
+    <message>
+        <source>Angle</source>
+        <translation>Угол</translation>
+    </message>
+    <message>
+        <source>Animated</source>
+        <translation>Анимированный</translation>
+    </message>
+    <message>
+        <source>Any subject (per frame)</source>
+        <translation>Любой объект (покадрово)</translation>
+    </message>
+    <message>
+        <source>Aperture (f/)</source>
+        <translation>Диафрагма (f/)</translation>
+    </message>
+    <message>
+        <source>Aperture Diffraction</source>
+        <translation>Дифракция диафрагмы</translation>
+    </message>
+    <message>
+        <source>Applies a 1D or 3D look-up table from a .cube file</source>
+        <translation>Применяет 1D или 3D таблицу LUT из файла .cube</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Применить</translation>
+    </message>
+    <message>
+        <source>Apply LUT</source>
+        <translation>Применить LUT</translation>
+    </message>
+    <message>
+        <source>Area Size</source>
+        <translation>Размер области</translation>
+    </message>
+    <message>
+        <source>Automatic</source>
+        <translation>Автоматически</translation>
+    </message>
+    <message>
+        <source>Automatic Dirt Removal</source>
+        <translation>Автоматическое удаление грязи</translation>
+    </message>
+    <message>
+        <source>Average</source>
+        <translation>Средний</translation>
+    </message>
+    <message>
+        <source>Averages the frame with the frames around it: a soft smear along every movement</source>
+        <translation>Усредняет кадр с соседними кадрами: мягкое смазывание вдоль любого движения</translation>
+    </message>
+    <message>
+        <source>Background</source>
+        <translation>Фон</translation>
+    </message>
+    <message>
+        <source>Background Only</source>
+        <translation>Только фон</translation>
+    </message>
+    <message>
+        <source>Background Opacity</source>
+        <translation>Непрозрачность фона</translation>
+    </message>
+    <message>
+        <source>Background Removal</source>
+        <translation>Удаление фона</translation>
+    </message>
+    <message>
+        <source>Band Shift</source>
+        <translation>Сдвиг полос</translation>
+    </message>
+    <message>
+        <source>Barrel (positive) or pincushion (negative) distortion</source>
+        <translation>Бочкообразное (положительное) или подушкообразное (отрицательное) искажение</translation>
+    </message>
+    <message>
+        <source>Battery</source>
+        <translation>Заряд батареи</translation>
+    </message>
+    <message>
+        <source>Beauty</source>
+        <translation>Ретушь</translation>
+    </message>
+    <message>
+        <source>Behind</source>
+        <translation>Сзади</translation>
+    </message>
+    <message>
+        <source>Bends the picture with a grid of points that you move</source>
+        <translation>Искажает изображение с помощью сетки точек, которые вы перемещаете</translation>
+    </message>
+    <message>
+        <source>Black and White</source>
+        <translation>Чёрно-белое</translation>
+    </message>
+    <message>
+        <source>Black on White</source>
+        <translation>Черный на белом</translation>
+    </message>
+    <message>
+        <source>Blend</source>
+        <translation>Смешение</translation>
+    </message>
+    <message>
+        <source>Blend Mode</source>
+        <translation>Режим наложения</translation>
+    </message>
+    <message>
+        <source>Blends earlier frames of the clip over it: trails and ghosting</source>
+        <translation>Накладывает предыдущие кадры клипа: шлейфы и фантомные следы</translation>
+    </message>
+    <message>
+        <source>Blink Recording Dot</source>
+        <translation>Мигающая точка записи</translation>
+    </message>
+    <message>
+        <source>Block Size</source>
+        <translation>Размер блока</translation>
+    </message>
+    <message>
+        <source>Bloom</source>
+        <translation>Bloom</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Синий</translation>
+    </message>
+    <message>
+        <source>Blue Scale</source>
+        <translation>Масштаб синего</translation>
+    </message>
+    <message>
+        <source>Blue Screen</source>
+        <translation>Синий экран</translation>
+    </message>
+    <message>
+        <source>Blue from Blue</source>
+        <translation>Синий из синего</translation>
+    </message>
+    <message>
+        <source>Blue from Green</source>
+        <translation>Синий из зеленого</translation>
+    </message>
+    <message>
+        <source>Blue from Red</source>
+        <translation>Синий из красного</translation>
+    </message>
+    <message>
+        <source>Blues</source>
+        <translation>Синие</translation>
+    </message>
+    <message>
+        <source>Blur</source>
+        <translation>Размытие</translation>
+    </message>
+    <message>
+        <source>Blur streaking out of a centre, like a fast zoom</source>
+        <translation>Размытие лучами из центра, как при быстром масштабировании</translation>
+    </message>
+    <message>
+        <source>Blurs along the motion measured between neighbouring frames, like a camera shutter</source>
+        <translation>Размывает вдоль движения, измеренного между соседними кадрами, подобно затвору камеры</translation>
+    </message>
+    <message>
+        <source>Bokeh Highlights</source>
+        <translation>Блики боке</translation>
+    </message>
+    <message>
+        <source>Border Color</source>
+        <translation>Цвет границы</translation>
+    </message>
+    <message>
+        <source>Border Width</source>
+        <translation>Ширина рамки</translation>
+    </message>
+    <message>
+        <source>Both</source>
+        <translation>Оба</translation>
+    </message>
+    <message>
+        <source>Bottom</source>
+        <translation>Снизу</translation>
+    </message>
+    <message>
+        <source>Bottom Half</source>
+        <translation>Нижняя половина</translation>
+    </message>
+    <message>
+        <source>Bottom Left X</source>
+        <translation>Нижний левый X</translation>
+    </message>
+    <message>
+        <source>Bottom Left Y</source>
+        <translation>Нижний левый Y</translation>
+    </message>
+    <message>
+        <source>Bottom Right X</source>
+        <translation>Нижний правый X</translation>
+    </message>
+    <message>
+        <source>Bottom Right Y</source>
+        <translation>Нижний правый Y</translation>
+    </message>
+    <message>
+        <source>Bows the picture out or in around a point, round, along one direction or square</source>
+        <translation>Выгибает изображение наружу или внутрь вокруг точки: радиально, по направлению или квадратом</translation>
+    </message>
+    <message>
+        <source>Box Blur</source>
+        <translation>Размытие Box</translation>
+    </message>
+    <message>
+        <source>Bright Only</source>
+        <translation>Только светлые</translation>
+    </message>
+    <message>
+        <source>Bright and Dark</source>
+        <translation>Светлые и темные</translation>
+    </message>
+    <message>
+        <source>Bright areas bleed soft light</source>
+        <translation>Яркие области излучают мягкий свет</translation>
+    </message>
+    <message>
+        <source>Bright areas cast rays away from a light centre</source>
+        <translation>Яркие области испускают лучи от центра света</translation>
+    </message>
+    <message>
+        <source>Bright lines where the picture has edges</source>
+        <translation>Яркие линии на границах объектов изображения</translation>
+    </message>
+    <message>
+        <source>Brightens or darkens in camera stops</source>
+        <translation>Осветляет или затемняет в ступенях экспозиции</translation>
+    </message>
+    <message>
+        <source>Brightness Only</source>
+        <translation>Только яркость</translation>
+    </message>
+    <message>
+        <source>Brightness Weight</source>
+        <translation>Вес яркости</translation>
+    </message>
+    <message>
+        <source>Brightness that flickers like an old projector or a failing lamp</source>
+        <translation>Яркость, мерцающая как у старого проектора или неисправной лампы</translation>
+    </message>
+    <message>
+        <source>Brings back the detail hidden in deep shadows and bright highlights</source>
+        <translation>Восстанавливает детали, скрытые в глубоких тенях и ярких светлых тонах</translation>
+    </message>
+    <message>
+        <source>Brush Size</source>
+        <translation>Размер кисти</translation>
+    </message>
+    <message>
+        <source>Builds each output channel from a mix of the red, green and blue input</source>
+        <translation>Создает каждый выходной канал из смеси красного, зеленого и синего входных сигналов</translation>
+    </message>
+    <message>
+        <source>Bulge / Pinch</source>
+        <translation>Выпуклость / Сжатие</translation>
+    </message>
+    <message>
+        <source>CCTV</source>
+        <translation>CCTV</translation>
+    </message>
+    <message>
+        <source>Call Timer</source>
+        <translation>Таймер вызова</translation>
+    </message>
+    <message>
+        <source>Camera Name</source>
+        <translation>Имя камеры</translation>
+    </message>
+    <message>
+        <source>Camera Shake</source>
+        <translation>Тряска камеры</translation>
+    </message>
+    <message>
+        <source>Card Remaining</source>
+        <translation>Остаток места на карте</translation>
+    </message>
+    <message>
+        <source>Cast</source>
+        <translation>Оттенок</translation>
+    </message>
+    <message>
+        <source>Cell Size</source>
+        <translation>Размер ячейки</translation>
+    </message>
+    <message>
+        <source>Center X</source>
+        <translation>Центр X</translation>
+    </message>
+    <message>
+        <source>Center Y</source>
+        <translation>Центр Y</translation>
+    </message>
+    <message>
+        <source>Channel Mixer</source>
+        <translation>Микшер каналов</translation>
+    </message>
+    <message>
+        <source>Chroma Key</source>
+        <translation>Хромакей</translation>
+    </message>
+    <message>
+        <source>Chromatic Aberration</source>
+        <translation>Хроматическая аберрация</translation>
+    </message>
+    <message>
+        <source>Chromatic Aberration Fix</source>
+        <translation>Исправление хроматических аберраций</translation>
+    </message>
+    <message>
+        <source>Circle Dots</source>
+        <translation>Круглые точки</translation>
+    </message>
+    <message>
+        <source>Circular waves from a centre</source>
+        <translation>Круговые волны от центра</translation>
+    </message>
+    <message>
+        <source>Clip</source>
+        <translation>Клип</translation>
+    </message>
+    <message>
+        <source>Clip Black</source>
+        <translation>Срез чёрного</translation>
+    </message>
+    <message>
+        <source>Clip White</source>
+        <translation>Срез белого</translation>
+    </message>
+    <message>
+        <source>Cloudy noise laid over the picture, still or drifting</source>
+        <translation>Облачный шум поверх изображения, неподвижный или плывущий</translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation>Цвет</translation>
+    </message>
+    <message>
+        <source>Color 1</source>
+        <translation>Цвет 1</translation>
+    </message>
+    <message>
+        <source>Color 2</source>
+        <translation>Цвет 2</translation>
+    </message>
+    <message>
+        <source>Color 3</source>
+        <translation>Цвет 3</translation>
+    </message>
+    <message>
+        <source>Color Balance</source>
+        <translation>Цветовой баланс</translation>
+    </message>
+    <message>
+        <source>Color Bleed</source>
+        <translation>Растекание цвета</translation>
+    </message>
+    <message>
+        <source>Color Palette</source>
+        <translation>Палитра цветов</translation>
+    </message>
+    <message>
+        <source>Color Split</source>
+        <translation>Расщепление цвета</translation>
+    </message>
+    <message>
+        <source>Color Stabilizer</source>
+        <translation>Стабилизатор цвета</translation>
+    </message>
+    <message>
+        <source>Colored Border</source>
+        <translation>Цветная рамка</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <translation>Цвета</translation>
+    </message>
+    <message>
+        <source>Columns</source>
+        <translation>Столбцы</translation>
+    </message>
+    <message>
+        <source>Compass Bar</source>
+        <translation>Шкала компаса</translation>
+    </message>
+    <message>
+        <source>Connection Bars</source>
+        <translation>Индикатор связи</translation>
+    </message>
+    <message>
+        <source>Contrast</source>
+        <translation>Контраст</translation>
+    </message>
+    <message>
+        <source>Contrast Pop</source>
+        <translation>Локальный контраст</translation>
+    </message>
+    <message>
+        <source>Corner Marks</source>
+        <translation>Угловые метки</translation>
+    </message>
+    <message>
+        <source>Corner Pin</source>
+        <translation>Привязка по углам</translation>
+    </message>
+    <message>
+        <source>Corner Radius</source>
+        <translation>Радиус скругления</translation>
+    </message>
+    <message>
+        <source>Correct Colour Too</source>
+        <translation>Корректировать также цвет</translation>
+    </message>
+    <message>
+        <source>Corrects color fringes at the edges of a lens image by scaling red and blue</source>
+        <translation>Исправляет цветную кайму по краям изображения объектива путем масштабирования красного и синего</translation>
+    </message>
+    <message>
+        <source>Covers a blemish with a patch copied from another place in the same picture</source>
+        <translation>Перекрывает дефект заплатой, скопированной из другого места того же изображения</translation>
+    </message>
+    <message>
+        <source>Crops the edges with a soft feather (percent of the clip size)</source>
+        <translation>Кадрирует края с мягкой растушёвкой (процент от размера клипа)</translation>
+    </message>
+    <message>
+        <source>Cube LUT files (*.cube)</source>
+        <translation>Файлы Cube LUT (*.cube)</translation>
+    </message>
+    <message>
+        <source>Curves</source>
+        <translation>Кривые</translation>
+    </message>
+    <message>
+        <source>Custom (Key Color)</source>
+        <translation>Пользовательский (ключевой цвет)</translation>
+    </message>
+    <message>
+        <source>Cutout</source>
+        <translation>Вырез</translation>
+    </message>
+    <message>
+        <source>Cyans</source>
+        <translation>Голубые</translation>
+    </message>
+    <message>
+        <source>DCI-P3 D65</source>
+        <translation>DCI-P3 D65</translation>
+    </message>
+    <message>
+        <source>DSLR</source>
+        <translation>DSLR</translation>
+    </message>
+    <message>
+        <source>DVE</source>
+        <translation>DVE</translation>
+    </message>
+    <message>
+        <source>Dark Only</source>
+        <translation>Только темные</translation>
+    </message>
+    <message>
+        <source>Dark horizontal lines like an old monitor, optionally rolling</source>
+        <translation>Темные горизонтальные линии, как на старом мониторе, с возможностью движения</translation>
+    </message>
+    <message>
+        <source>Darkness</source>
+        <translation>Темнота</translation>
+    </message>
+    <message>
+        <source>Dead Pixel Fixer</source>
+        <translation>Исправление битых пикселей</translation>
+    </message>
+    <message>
+        <source>Deband</source>
+        <translation>Удаление полос</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>Распад</translation>
+    </message>
+    <message>
+        <source>Defect Size</source>
+        <translation>Размер дефекта</translation>
+    </message>
+    <message>
+        <source>Deflicker</source>
+        <translation>Устранение мерцания</translation>
+    </message>
+    <message>
+        <source>Dehaze</source>
+        <translation>Удаление дымки</translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation>Задержка</translation>
+    </message>
+    <message>
+        <source>Dent</source>
+        <translation>Вмятина</translation>
+    </message>
+    <message>
+        <source>Desaturate</source>
+        <translation>Обесцвечивание</translation>
+    </message>
+    <message>
+        <source>Desaturation</source>
+        <translation>Обесцвечивание</translation>
+    </message>
+    <message>
+        <source>Despill</source>
+        <translation>Подавление отсвета</translation>
+    </message>
+    <message>
+        <source>Detail</source>
+        <translation>Детализация</translation>
+    </message>
+    <message>
+        <source>Detail Recover</source>
+        <translation>Восстановление деталей</translation>
+    </message>
+    <message>
+        <source>Detail Recovery</source>
+        <translation>Восстановление деталей</translation>
+    </message>
+    <message>
+        <source>Detail Size</source>
+        <translation>Размер деталей</translation>
+    </message>
+    <message>
+        <source>Detect</source>
+        <translation>Обнаружить</translation>
+    </message>
+    <message>
+        <source>Detected Dirt</source>
+        <translation>Обнаруженная грязь</translation>
+    </message>
+    <message>
+        <source>Diamonds</source>
+        <translation>Ромбы</translation>
+    </message>
+    <message>
+        <source>Digital Glitch</source>
+        <translation>Цифровой глитч</translation>
+    </message>
+    <message>
+        <source>Digital Noise</source>
+        <translation>Цифровой шум</translation>
+    </message>
+    <message>
+        <source>Digital damage: bands of the picture slide sideways, blocks jump, the color channels split apart and bright noise flickers</source>
+        <translation>Цифровые повреждения: полосы изображения сдвигаются в сторону, блоки подпрыгивают, цветовые каналы расщепляются и мерцает яркий шум</translation>
+    </message>
+    <message>
+        <source>Direction</source>
+        <translation>Направление</translation>
+    </message>
+    <message>
+        <source>Directional Blur</source>
+        <translation>Направленное размытие</translation>
+    </message>
+    <message>
+        <source>Dirt</source>
+        <translation>Грязь</translation>
+    </message>
+    <message>
+        <source>Dirt Contrast</source>
+        <translation>Контраст грязи</translation>
+    </message>
+    <message>
+        <source>Distance to Home</source>
+        <translation>Расстояние до точки старта</translation>
+    </message>
+    <message>
+        <source>Distortion</source>
+        <translation>Искажение</translation>
+    </message>
+    <message>
+        <source>Dither</source>
+        <translation>Дизеринг</translation>
+    </message>
+    <message>
+        <source>Dot Spacing</source>
+        <translation>Интервал между точками</translation>
+    </message>
+    <message>
+        <source>Drift Speed</source>
+        <translation>Скорость дрейфа</translation>
+    </message>
+    <message>
+        <source>Drone Overlay</source>
+        <translation>Интерфейс дрона</translation>
+    </message>
+    <message>
+        <source>Duotone</source>
+        <translation>Дуотон</translation>
+    </message>
+    <message>
+        <source>Dust Buster</source>
+        <translation>Удаление пыли</translation>
+    </message>
+    <message>
+        <source>Echo</source>
+        <translation>Эхо</translation>
+    </message>
+    <message>
+        <source>Echoes</source>
+        <translation>Количество эхо</translation>
+    </message>
+    <message>
+        <source>Edge Blur</source>
+        <translation>Размытие краёв</translation>
+    </message>
+    <message>
+        <source>Edge Darkening</source>
+        <translation>Затемнение краев</translation>
+    </message>
+    <message>
+        <source>Edge Detect</source>
+        <translation>Определение границ</translation>
+    </message>
+    <message>
+        <source>Edge Sensitivity</source>
+        <translation>Чувствительность краев</translation>
+    </message>
+    <message>
+        <source>Edge Softness</source>
+        <translation>Мягкость краев</translation>
+    </message>
+    <message>
+        <source>Edge Threshold</source>
+        <translation>Порог краев</translation>
+    </message>
+    <message>
+        <source>Edges</source>
+        <translation>Края</translation>
+    </message>
+    <message>
+        <source>Ellipse</source>
+        <translation>Эллипс</translation>
+    </message>
+    <message>
+        <source>Emboss</source>
+        <translation>Тиснение</translation>
+    </message>
+    <message>
+        <source>Even blur over a square area</source>
+        <translation>Равномерное размытие по квадратной области</translation>
+    </message>
+    <message>
+        <source>Evens out brightness that jumps from frame to frame by pulling each frame toward the average of the frames around it</source>
+        <translation>Сглаживает скачки яркости от кадра к кадру, притягивая каждый кадр к среднему значению соседних кадров</translation>
+    </message>
+    <message>
+        <source>Evolution</source>
+        <translation>Эволюция</translation>
+    </message>
+    <message>
+        <source>Exposure</source>
+        <translation>Экспозиция</translation>
+    </message>
+    <message>
+        <source>Exposure Bands</source>
+        <translation>Полосы экспозиции</translation>
+    </message>
+    <message>
+        <source>Exposure Compensation</source>
+        <translation>Компенсация экспозиции</translation>
+    </message>
+    <message>
+        <source>Exposure and White Balance</source>
+        <translation>Экспозиция и баланс белого</translation>
+    </message>
+    <message>
+        <source>Fade</source>
+        <translation>Затухание</translation>
+    </message>
+    <message>
+        <source>Faint colored reflections of the bright lights, mirrored through the lens center</source>
+        <translation>Слабые цветные отражения яркого света, отзеркаленные через центр объектива</translation>
+    </message>
+    <message>
+        <source>Falloff</source>
+        <translation>Спад</translation>
+    </message>
+    <message>
+        <source>False Color</source>
+        <translation>Ложные цвета</translation>
+    </message>
+    <message>
+        <source>Fast Noise</source>
+        <translation>Быстрый шум</translation>
+    </message>
+    <message>
+        <source>Feather</source>
+        <translation>Растушевка</translation>
+    </message>
+    <message>
+        <source>Feathered Crop</source>
+        <translation>Кадрирование с растушёвкой</translation>
+    </message>
+    <message>
+        <source>Fill</source>
+        <translation>Заполнить</translation>
+    </message>
+    <message>
+        <source>Film Damage</source>
+        <translation>Повреждение пленки</translation>
+    </message>
+    <message>
+        <source>Film Grain</source>
+        <translation>Зернистость плёнки</translation>
+    </message>
+    <message>
+        <source>Final</source>
+        <translation>Финал</translation>
+    </message>
+    <message>
+        <source>Final Result</source>
+        <translation>Итоговый результат</translation>
+    </message>
+    <message>
+        <source>Finds the dominant colors of the picture and shows them as a strip of swatches</source>
+        <translation>Определяет преобладающие цвета изображения и показывает их в виде полосы образцов</translation>
+    </message>
+    <message>
+        <source>Fine Grid</source>
+        <translation>Мелкая сетка</translation>
+    </message>
+    <message>
+        <source>Fit</source>
+        <translation>Вписать</translation>
+    </message>
+    <message>
+        <source>Flicker</source>
+        <translation>Мерцание</translation>
+    </message>
+    <message>
+        <source>Focus Frame</source>
+        <translation>Рамка фокусировки</translation>
+    </message>
+    <message>
+        <source>Focus Locked</source>
+        <translation>Фокус заблокирован</translation>
+    </message>
+    <message>
+        <source>Focus Mode</source>
+        <translation>Режим фокусировки</translation>
+    </message>
+    <message>
+        <source>Focus Point X</source>
+        <translation>Точка фокусировки X</translation>
+    </message>
+    <message>
+        <source>Focus Point Y</source>
+        <translation>Точка фокусировки Y</translation>
+    </message>
+    <message>
+        <source>Focus Position</source>
+        <translation>Положение фокуса</translation>
+    </message>
+    <message>
+        <source>Focus Width</source>
+        <translation>Ширина фокуса</translation>
+    </message>
+    <message>
+        <source>Follow the Track</source>
+        <translation>Следовать за трекингом</translation>
+    </message>
+    <message>
+        <source>Follows a point or a region of the picture and moves the clip with it</source>
+        <translation>Отслеживает точку или область изображения и перемещает клип вместе с ней</translation>
+    </message>
+    <message>
+        <source>Font</source>
+        <translation>Шрифт</translation>
+    </message>
+    <message>
+        <source>Footage Below</source>
+        <translation>Материал снизу</translation>
+    </message>
+    <message>
+        <source>Foreground</source>
+        <translation>Передний план</translation>
+    </message>
+    <message>
+        <source>Format Label</source>
+        <translation>Метка формата</translation>
+    </message>
+    <message>
+        <source>Frame Replacer</source>
+        <translation>Замена кадров</translation>
+    </message>
+    <message>
+        <source>Frame Spacing</source>
+        <translation>Интервал между кадрами</translation>
+    </message>
+    <message>
+        <source>Framing Marks</source>
+        <translation>Метки кадрирования</translation>
+    </message>
+    <message>
+        <source>Frequency</source>
+        <translation>Частота</translation>
+    </message>
+    <message>
+        <source>Fringe Removal</source>
+        <translation>Удаление каймы</translation>
+    </message>
+    <message>
+        <source>Full (slow)</source>
+        <translation>Полное качество (медленно)</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>Усиление</translation>
+    </message>
+    <message>
+        <source>Gain Blue</source>
+        <translation>Усиление (синий)</translation>
+    </message>
+    <message>
+        <source>Gain Green</source>
+        <translation>Усиление (зелёный)</translation>
+    </message>
+    <message>
+        <source>Gain Red</source>
+        <translation>Усиление (красный)</translation>
+    </message>
+    <message>
+        <source>Gamma</source>
+        <translation>Гамма</translation>
+    </message>
+    <message>
+        <source>Gamma Blue</source>
+        <translation>Гамма (синий)</translation>
+    </message>
+    <message>
+        <source>Gamma Green</source>
+        <translation>Гамма (зелёный)</translation>
+    </message>
+    <message>
+        <source>Gamma Red</source>
+        <translation>Гамма (красный)</translation>
+    </message>
+    <message>
+        <source>Gamut Limiter</source>
+        <translation>Ограничитель цветового охвата</translation>
+    </message>
+    <message>
+        <source>Gap</source>
+        <translation>Пробел</translation>
+    </message>
+    <message>
+        <source>Gate Weave</source>
+        <translation>Дрожание кадра</translation>
+    </message>
+    <message>
+        <source>Ghosts</source>
+        <translation>Паразитные блики</translation>
+    </message>
+    <message>
+        <source>Gimbal Pitch</source>
+        <translation>Наклон подвеса</translation>
+    </message>
+    <message>
+        <source>Glitches per Second</source>
+        <translation>Глитчей в секунду</translation>
+    </message>
+    <message>
+        <source>Glow</source>
+        <translation>Свечение</translation>
+    </message>
+    <message>
+        <source>Grain Size</source>
+        <translation>Размер зерна</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Зелёный</translation>
+    </message>
+    <message>
+        <source>Green / blue screen: makes the key color transparent</source>
+        <translation>Зелёный/синий экран: делает ключевой цвет прозрачным</translation>
+    </message>
+    <message>
+        <source>Green Screen</source>
+        <translation>Зелёный экран</translation>
+    </message>
+    <message>
+        <source>Green from Blue</source>
+        <translation>Зеленый из синего</translation>
+    </message>
+    <message>
+        <source>Green from Green</source>
+        <translation>Зеленый из зеленого</translation>
+    </message>
+    <message>
+        <source>Green from Red</source>
+        <translation>Зеленый из красного</translation>
+    </message>
+    <message>
+        <source>Greens</source>
+        <translation>Зелёные</translation>
+    </message>
+    <message>
+        <source>Greyscale, optionally tinted (sepia, cyanotype, ...)</source>
+        <translation>Оттенки серого, с возможностью тонирования (сепия, цианотипия, ...)</translation>
+    </message>
+    <message>
+        <source>Grid</source>
+        <translation>Сетка</translation>
+    </message>
+    <message>
+        <source>Grid Density</source>
+        <translation>Плотность сетки</translation>
+    </message>
+    <message>
+        <source>Grow</source>
+        <translation>Расширение</translation>
+    </message>
+    <message>
+        <source>HSL Adjust</source>
+        <translation>Настройка HSL</translation>
+    </message>
+    <message>
+        <source>HSL Key</source>
+        <translation>HSL-кей</translation>
+    </message>
+    <message>
+        <source>Halation</source>
+        <translation>Ореол</translation>
+    </message>
+    <message>
+        <source>Halftone</source>
+        <translation>Полутон</translation>
+    </message>
+    <message>
+        <source>Halo Limit</source>
+        <translation>Лимит ореола</translation>
+    </message>
+    <message>
+        <source>Hand-held or impact shake: smooth random movement, the same on every play</source>
+        <translation>Тряска от рук или удара: плавное случайное движение, одинаковое при каждом воспроизведении</translation>
+    </message>
+    <message>
+        <source>Haze Color</source>
+        <translation>Цвет дымки</translation>
+    </message>
+    <message>
+        <source>Heading</source>
+        <translation>Курс</translation>
+    </message>
+    <message>
+        <source>Height</source>
+        <translation>Высота</translation>
+    </message>
+    <message>
+        <source>Hexagon, dot or diamond cells filled with the picture&apos;s color</source>
+        <translation>Шестиугольные, точечные или ромбовидные ячейки, заполненные цветом изображения</translation>
+    </message>
+    <message>
+        <source>Hexagons</source>
+        <translation>Шестиугольники</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>Высокий</translation>
+    </message>
+    <message>
+        <source>Highlight Protection</source>
+        <translation>Защита светлых тонов</translation>
+    </message>
+    <message>
+        <source>Highlight Threshold</source>
+        <translation>Порог бликов</translation>
+    </message>
+    <message>
+        <source>Highlights</source>
+        <translation>Светлые участки</translation>
+    </message>
+    <message>
+        <source>Hold Frames</source>
+        <translation>Удержание кадров</translation>
+    </message>
+    <message>
+        <source>Hold the Track in Place</source>
+        <translation>Удерживать трекинг на месте</translation>
+    </message>
+    <message>
+        <source>Holds every Nth frame: a choppy, stop-motion look</source>
+        <translation>Удерживает каждый N-й кадр: эффект прерывистого движения (стоп-моушн)</translation>
+    </message>
+    <message>
+        <source>Holds exposure and white balance steady by matching every frame to a reference frame</source>
+        <translation>Стабилизирует экспозицию и баланс белого, сопоставляя каждый кадр с опорным кадром</translation>
+    </message>
+    <message>
+        <source>Horizontal Bow</source>
+        <translation>Горизонтальный изгиб</translation>
+    </message>
+    <message>
+        <source>Hue</source>
+        <translation>Оттенок</translation>
+    </message>
+    <message>
+        <source>Hue Shift</source>
+        <translation>Сдвиг оттенка</translation>
+    </message>
+    <message>
+        <source>Hue Softness</source>
+        <translation>Мягкость оттенка</translation>
+    </message>
+    <message>
+        <source>Hue Width</source>
+        <translation>Ширина оттенка</translation>
+    </message>
+    <message>
+        <source>ISO</source>
+        <translation>ISO</translation>
+    </message>
+    <message>
+        <source>Imperial</source>
+        <translation>Имперские</translation>
+    </message>
+    <message>
+        <source>Ink Outline</source>
+        <translation>Контур тушью</translation>
+    </message>
+    <message>
+        <source>Input Black</source>
+        <translation>Входной чёрный</translation>
+    </message>
+    <message>
+        <source>Input White</source>
+        <translation>Входной белый</translation>
+    </message>
+    <message>
+        <source>Input and output black / white points and gamma</source>
+        <translation>Входные и выходные точки чёрного/белого и гамма</translation>
+    </message>
+    <message>
+        <source>Inside</source>
+        <translation>Внутри</translation>
+    </message>
+    <message>
+        <source>Intensity</source>
+        <translation>Интенсивность</translation>
+    </message>
+    <message>
+        <source>Invert</source>
+        <translation>Инвертировать</translation>
+    </message>
+    <message>
+        <source>JPEG Damage</source>
+        <translation>Артефакты JPEG</translation>
+    </message>
+    <message>
+        <source>Kaleidoscope</source>
+        <translation>Калейдоскоп</translation>
+    </message>
+    <message>
+        <source>Keep</source>
+        <translation>Оставить</translation>
+    </message>
+    <message>
+        <source>Keeps the brightness range between Low and High, the rest becomes transparent</source>
+        <translation>Сохраняет диапазон яркости между «Низкий» и «Высокий», остальное делает прозрачным</translation>
+    </message>
+    <message>
+        <source>Key Color</source>
+        <translation>Цвет ключа</translation>
+    </message>
+    <message>
+        <source>Keys out up to three picked colors in color space, with a tolerance and a soft edge</source>
+        <translation>Удаляет до трех выбранных цветов в цветовом пространстве с допуском и мягким краем</translation>
+    </message>
+    <message>
+        <source>LUT File</source>
+        <translation>Файл LUT</translation>
+    </message>
+    <message>
+        <source>Leaves a fading trail of the clip&apos;s earlier frames behind everything that moves</source>
+        <translation>Оставляет затухающий шлейф из предыдущих кадров клипа за всеми движущимися объектами</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation>Слева</translation>
+    </message>
+    <message>
+        <source>Left Half</source>
+        <translation>Левая половина</translation>
+    </message>
+    <message>
+        <source>Length</source>
+        <translation>Длина</translation>
+    </message>
+    <message>
+        <source>Lens Blur</source>
+        <translation>Размытие объектива</translation>
+    </message>
+    <message>
+        <source>Lens Distortion</source>
+        <translation>Искажение объектива</translation>
+    </message>
+    <message>
+        <source>Lens Flare</source>
+        <translation>Блик объектива</translation>
+    </message>
+    <message>
+        <source>Lens Reflections</source>
+        <translation>Отражения в объективе</translation>
+    </message>
+    <message>
+        <source>Levels</source>
+        <translation>Уровни</translation>
+    </message>
+    <message>
+        <source>Lift</source>
+        <translation>Подъем</translation>
+    </message>
+    <message>
+        <source>Lift (shadows), gamma (midtones) and gain (highlights), overall and per channel</source>
+        <translation>Lift (тени), гамма (полутона) и усиление (светлые участки), общие и по каждому каналу</translation>
+    </message>
+    <message>
+        <source>Lift Blue</source>
+        <translation>Lift (синий)</translation>
+    </message>
+    <message>
+        <source>Lift Green</source>
+        <translation>Lift (зелёный)</translation>
+    </message>
+    <message>
+        <source>Lift Red</source>
+        <translation>Lift (красный)</translation>
+    </message>
+    <message>
+        <source>Light Angle</source>
+        <translation>Угол освещения</translation>
+    </message>
+    <message>
+        <source>Light Rays</source>
+        <translation>Лучи света</translation>
+    </message>
+    <message>
+        <source>Light X</source>
+        <translation>Свет X</translation>
+    </message>
+    <message>
+        <source>Light Y</source>
+        <translation>Свет Y</translation>
+    </message>
+    <message>
+        <source>Lighten</source>
+        <translation>Осветлить</translation>
+    </message>
+    <message>
+        <source>Lightness</source>
+        <translation>Светлота</translation>
+    </message>
+    <message>
+        <source>Limit</source>
+        <translation>Предел</translation>
+    </message>
+    <message>
+        <source>Limit To</source>
+        <translation>Ограничить до</translation>
+    </message>
+    <message>
+        <source>Line Jitter</source>
+        <translation>Дрожание строк</translation>
+    </message>
+    <message>
+        <source>Line Width</source>
+        <translation>Толщина линии</translation>
+    </message>
+    <message>
+        <source>Local contrast: adds punch to the detail of mid-sized shapes without changing the overall tones</source>
+        <translation>Локальный контраст: добавляет выразительности деталям средних размеров без изменения общих тонов</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>Низкий</translation>
+    </message>
+    <message>
+        <source>Luma Key</source>
+        <translation>Люмакей</translation>
+    </message>
+    <message>
+        <source>Luminance High</source>
+        <translation>Высокая яркость</translation>
+    </message>
+    <message>
+        <source>Luminance Low</source>
+        <translation>Низкая яркость</translation>
+    </message>
+    <message>
+        <source>Luminance Softness</source>
+        <translation>Мягкость яркости</translation>
+    </message>
+    <message>
+        <source>MF</source>
+        <translation>MF</translation>
+    </message>
+    <message>
+        <source>Magentas</source>
+        <translation>Пурпурные</translation>
+    </message>
+    <message>
+        <source>Magnifies (bulge, positive) or squeezes (pinch, negative) a round area</source>
+        <translation>Увеличивает (выпуклость, положительные значения) или сжимает (сжатие, отрицательные значения) круглую область</translation>
+    </message>
+    <message>
+        <source>Makes a hue, saturation and luminance range transparent</source>
+        <translation>Делает прозрачным диапазон оттенка, насыщенности и яркости</translation>
+    </message>
+    <message>
+        <source>Makes the fine texture of surfaces stand out, without touching the large tones</source>
+        <translation>Выделяет мелкую текстуру поверхностей, не затрагивая основные тона</translation>
+    </message>
+    <message>
+        <source>Maps the shadows to one color and the highlights to another</source>
+        <translation>Отображает тени одним цветом, а блики — другим</translation>
+    </message>
+    <message>
+        <source>Margin</source>
+        <translation>Поля</translation>
+    </message>
+    <message>
+        <source>Master</source>
+        <translation>Мастер</translation>
+    </message>
+    <message>
+        <source>Match</source>
+        <translation>Сопоставить</translation>
+    </message>
+    <message>
+        <source>Match Move</source>
+        <translation>Сопоставление движения</translation>
+    </message>
+    <message>
+        <source>Matte</source>
+        <translation>Маска</translation>
+    </message>
+    <message>
+        <source>Matte Only</source>
+        <translation>Только маска</translation>
+    </message>
+    <message>
+        <source>Maximum</source>
+        <translation>Максимум</translation>
+    </message>
+    <message>
+        <source>Method</source>
+        <translation>Метод</translation>
+    </message>
+    <message>
+        <source>Metric</source>
+        <translation>Метрические</translation>
+    </message>
+    <message>
+        <source>Mirror Edges</source>
+        <translation>Отражать края</translation>
+    </message>
+    <message>
+        <source>Mirror Split</source>
+        <translation>Зеркальное разделение</translation>
+    </message>
+    <message>
+        <source>Mirror X</source>
+        <translation>Отражение по X</translation>
+    </message>
+    <message>
+        <source>Mirror Y</source>
+        <translation>Отражение по Y</translation>
+    </message>
+    <message>
+        <source>Mirrored</source>
+        <translation>Зеркально</translation>
+    </message>
+    <message>
+        <source>Mirrors one half (or quarter) of the picture onto the other</source>
+        <translation>Отражает одну половину (или четверть) изображения на другую</translation>
+    </message>
+    <message>
+        <source>Mix of Both</source>
+        <translation>Смесь обоих</translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <translation>Режим</translation>
+    </message>
+    <message>
+        <source>Model</source>
+        <translation>Модель</translation>
+    </message>
+    <message>
+        <source>Monochrome</source>
+        <translation>Монохром</translation>
+    </message>
+    <message>
+        <source>Monochrome (Red Row)</source>
+        <translation>Монохромный (красная строка)</translation>
+    </message>
+    <message>
+        <source>Motion Blur</source>
+        <translation>Размытие движения</translation>
+    </message>
+    <message>
+        <source>Motion Tolerance</source>
+        <translation>Допуск движения</translation>
+    </message>
+    <message>
+        <source>Motion Trails</source>
+        <translation>Шлейф движения</translation>
+    </message>
+    <message>
+        <source>Motion blur along one direction</source>
+        <translation>Размытие движения вдоль одного направления</translation>
+    </message>
+    <message>
+        <source>Moves the four corners freely (perspective): offsets from the clip&apos;s corners</source>
+        <translation>Свободно перемещает четыре угла (перспектива): смещения от углов клипа</translation>
+    </message>
+    <message>
+        <source>Moves, scales and rotates the picture, as an effect that can sit anywhere in the stack</source>
+        <translation>Перемещает, масштабирует и поворачивает изображение как эффект в любом месте стека</translation>
+    </message>
+    <message>
+        <source>Multiply</source>
+        <translation>Умножение</translation>
+    </message>
+    <message>
+        <source>Muted</source>
+        <translation>Звук отключен</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Название</translation>
+    </message>
+    <message>
+        <source>Negative image</source>
+        <translation>Негатив</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>Следующий кадр</translation>
+    </message>
+    <message>
+        <source>Noise</source>
+        <translation>Шум</translation>
+    </message>
+    <message>
+        <source>Noise Reduction</source>
+        <translation>Подавление шума</translation>
+    </message>
+    <message>
+        <source>Normal</source>
+        <translation>Обычный</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation>Откл.</translation>
+    </message>
+    <message>
+        <source>Offset X</source>
+        <translation>Смещение X</translation>
+    </message>
+    <message>
+        <source>Offset Y</source>
+        <translation>Смещение Y</translation>
+    </message>
+    <message>
+        <source>Old film: dirt, scratches, a soft dark vignette, gate weave and flicker</source>
+        <translation>Старая пленка: грязь, царапины, мягкая темная виньетка, дрожание кадра и мерцание</translation>
+    </message>
+    <message>
+        <source>Opacity</source>
+        <translation>Непрозрачность</translation>
+    </message>
+    <message>
+        <source>Out-of-focus blur with round bokeh; bright spots become discs</source>
+        <translation>Размытие расфокусировки с круглым боке; яркие пятна становятся дисками</translation>
+    </message>
+    <message>
+        <source>Outlines</source>
+        <translation>Контуры</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>Вывод</translation>
+    </message>
+    <message>
+        <source>Output Black</source>
+        <translation>Выходной чёрный</translation>
+    </message>
+    <message>
+        <source>Output White</source>
+        <translation>Выходной белый</translation>
+    </message>
+    <message>
+        <source>Outside</source>
+        <translation>Снаружи</translation>
+    </message>
+    <message>
+        <source>Overlay</source>
+        <translation>Наложение</translation>
+    </message>
+    <message>
+        <source>Overlay Color</source>
+        <translation>Цвет наложения</translation>
+    </message>
+    <message>
+        <source>Overlay Opacity</source>
+        <translation>Непрозрачность наложения</translation>
+    </message>
+    <message>
+        <source>Painterly look: smooth flat color areas with few tones and dark outlines</source>
+        <translation>Эффект живописи: сглаженные однотонные области с небольшим количеством тонов и темными контурами</translation>
+    </message>
+    <message>
+        <source>Paints a colored frame inside the edges of the picture</source>
+        <translation>Рисует цветную рамку вдоль краев изображения</translation>
+    </message>
+    <message>
+        <source>Paints the picture by brightness: exposure bands, a thermal scale or a rainbow</source>
+        <translation>Раскрашивает изображение по яркости: полосы экспозиции, тепловая шкала или радуга</translation>
+    </message>
+    <message>
+        <source>Paints the picture in flat washes of color with darker pooled edges and paper grain</source>
+        <translation>Рисует изображение плоскими заливками цвета с темными краями подтеков и зернистостью бумаги</translation>
+    </message>
+    <message>
+        <source>Palette</source>
+        <translation>Палитра</translation>
+    </message>
+    <message>
+        <source>Paper Texture</source>
+        <translation>Текстура бумаги</translation>
+    </message>
+    <message>
+        <source>Patch Replacer</source>
+        <translation>Заплата</translation>
+    </message>
+    <message>
+        <source>Patch Shape</source>
+        <translation>Форма заплатки</translation>
+    </message>
+    <message>
+        <source>Pencil Sketch</source>
+        <translation>Рисунок карандашом</translation>
+    </message>
+    <message>
+        <source>People in video (temporal)</source>
+        <translation>Люди на видео (во времени)</translation>
+    </message>
+    <message>
+        <source>Phase</source>
+        <translation>Фаза</translation>
+    </message>
+    <message>
+        <source>Picture Colors</source>
+        <translation>Цвета изображения</translation>
+    </message>
+    <message>
+        <source>Picture Gamut</source>
+        <translation>Цветовой охват изображения</translation>
+    </message>
+    <message>
+        <source>Pin to the Surface</source>
+        <translation>Прикрепить к поверхности</translation>
+    </message>
+    <message>
+        <source>Pivot X</source>
+        <translation>Точка опоры X</translation>
+    </message>
+    <message>
+        <source>Pivot Y</source>
+        <translation>Точка опоры Y</translation>
+    </message>
+    <message>
+        <source>Pixelate</source>
+        <translation>Пикселизация</translation>
+    </message>
+    <message>
+        <source>Point %1, %2</source>
+        <translation>Точка %1, %2</translation>
+    </message>
+    <message>
+        <source>Position</source>
+        <translation>Позиция</translation>
+    </message>
+    <message>
+        <source>Position X</source>
+        <translation>Позиция X</translation>
+    </message>
+    <message>
+        <source>Position Y</source>
+        <translation>Позиция Y</translation>
+    </message>
+    <message>
+        <source>Position, Scale and Rotation</source>
+        <translation>Положение, масштаб и поворот</translation>
+    </message>
+    <message>
+        <source>Posterize</source>
+        <translation>Постеризация</translation>
+    </message>
+    <message>
+        <source>Preview (fast)</source>
+        <translation>Предпросмотр (быстро)</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>Предыдущий кадр</translation>
+    </message>
+    <message>
+        <source>Print-like dots whose size follows the brightness</source>
+        <translation>Точки как при печати, размер которых зависит от яркости</translation>
+    </message>
+    <message>
+        <source>Prism</source>
+        <translation>Призма</translation>
+    </message>
+    <message>
+        <source>Pulls colors outside a smaller gamut back inside it, keeping their brightness</source>
+        <translation>Возвращает цвета, выходящие за пределы меньшего цветового охвата, сохраняя их яркость</translation>
+    </message>
+    <message>
+        <source>Quality</source>
+        <translation>Качество</translation>
+    </message>
+    <message>
+        <source>Radial Blur</source>
+        <translation>Радиальное размытие</translation>
+    </message>
+    <message>
+        <source>Radius</source>
+        <translation>Радиус</translation>
+    </message>
+    <message>
+        <source>Rainbow</source>
+        <translation>Радуга</translation>
+    </message>
+    <message>
+        <source>Random Seed</source>
+        <translation>Случайное зерно</translation>
+    </message>
+    <message>
+        <source>Randomness</source>
+        <translation>Случайность</translation>
+    </message>
+    <message>
+        <source>Range</source>
+        <translation>Диапазон</translation>
+    </message>
+    <message>
+        <source>Range Softness</source>
+        <translation>Мягкость диапазона</translation>
+    </message>
+    <message>
+        <source>Range Width</source>
+        <translation>Ширина диапазона</translation>
+    </message>
+    <message>
+        <source>Rec. 2020</source>
+        <translation>Rec. 2020</translation>
+    </message>
+    <message>
+        <source>Rec. 709</source>
+        <translation>Rec. 709</translation>
+    </message>
+    <message>
+        <source>Recompresses the picture as a badly compressed JPEG: blocks, banding and blotchy color</source>
+        <translation>Эффект плохо сжатого JPEG: блоки, ступенчатые градиенты и пятнистые цвета</translation>
+    </message>
+    <message>
+        <source>Recording</source>
+        <translation>Запись</translation>
+    </message>
+    <message>
+        <source>Recording Dot</source>
+        <translation>Индикатор записи</translation>
+    </message>
+    <message>
+        <source>Rectangle</source>
+        <translation>Прямоугольник</translation>
+    </message>
+    <message>
+        <source>Red</source>
+        <translation>Красный</translation>
+    </message>
+    <message>
+        <source>Red Scale</source>
+        <translation>Масштаб красного</translation>
+    </message>
+    <message>
+        <source>Red and blue fringes towards the edges, like a cheap lens</source>
+        <translation>Красные и синие окантовки по краям, как у недорогого объектива</translation>
+    </message>
+    <message>
+        <source>Red from Blue</source>
+        <translation>Красный из синего</translation>
+    </message>
+    <message>
+        <source>Red from Green</source>
+        <translation>Красный из зеленого</translation>
+    </message>
+    <message>
+        <source>Red from Red</source>
+        <translation>Красный из красного</translation>
+    </message>
+    <message>
+        <source>Reds</source>
+        <translation>Красные</translation>
+    </message>
+    <message>
+        <source>Reduces every color channel to a few levels</source>
+        <translation>Уменьшает количество уровней для каждого цветового канала</translation>
+    </message>
+    <message>
+        <source>Reference Frame</source>
+        <translation>Опорный кадр</translation>
+    </message>
+    <message>
+        <source>Reflections</source>
+        <translation>Отражения</translation>
+    </message>
+    <message>
+        <source>Region Height</source>
+        <translation>Высота области</translation>
+    </message>
+    <message>
+        <source>Region Shape</source>
+        <translation>Форма области</translation>
+    </message>
+    <message>
+        <source>Region Size</source>
+        <translation>Размер области</translation>
+    </message>
+    <message>
+        <source>Region Width</source>
+        <translation>Ширина области</translation>
+    </message>
+    <message>
+        <source>Region X</source>
+        <translation>Область X</translation>
+    </message>
+    <message>
+        <source>Region Y</source>
+        <translation>Область Y</translation>
+    </message>
+    <message>
+        <source>Relief</source>
+        <translation>Рельеф</translation>
+    </message>
+    <message>
+        <source>Relief look lit from one side</source>
+        <translation>Рельефный вид с освещением с одной стороны</translation>
+    </message>
+    <message>
+        <source>Removes a red, green or blue color cast left by a screen</source>
+        <translation>Удаляет красный, зеленый или синий оттенок, оставленный экраном</translation>
+    </message>
+    <message>
+        <source>Removes dust and hairs that show in one frame only, using the frames around it</source>
+        <translation>Удаляет пыль и волоски, появляющиеся только на одном кадре, используя соседние кадры</translation>
+    </message>
+    <message>
+        <source>Removes dust and scratches that show in one frame only, inside a region you place</source>
+        <translation>Удаляет пыль и царапины, появляющиеся только на одном кадре, внутри указанной области</translation>
+    </message>
+    <message>
+        <source>Repair</source>
+        <translation>Восстановить</translation>
+    </message>
+    <message>
+        <source>Repeat</source>
+        <translation>Повтор</translation>
+    </message>
+    <message>
+        <source>Repeat Edge Pixels</source>
+        <translation>Повторять пиксели краев</translation>
+    </message>
+    <message>
+        <source>Repeats one mirrored wedge of the picture around a centre</source>
+        <translation>Повторяет один отраженный сегмент изображения вокруг центра</translation>
+    </message>
+    <message>
+        <source>Repeats the picture in smaller copies, optionally mirrored at the edges</source>
+        <translation>Повторяет изображение уменьшенными копиями, с возможностью зеркального отражения по краям</translation>
+    </message>
+    <message>
+        <source>Replace</source>
+        <translation>Заменить</translation>
+    </message>
+    <message>
+        <source>Replace With</source>
+        <translation>Заменить на</translation>
+    </message>
+    <message>
+        <source>Replaces a damaged frame with the frame before it, the frame after it or a mix of both</source>
+        <translation>Заменяет поврежденный кадр предыдущим, следующим или их смесью</translation>
+    </message>
+    <message>
+        <source>Replaces stuck bright or dark pixels with the average of their surroundings</source>
+        <translation>Заменяет застывшие яркие или темные пиксели средним значением соседних</translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation>Справа</translation>
+    </message>
+    <message>
+        <source>Right Half</source>
+        <translation>Правая половина</translation>
+    </message>
+    <message>
+        <source>Ripple</source>
+        <translation>Рябь</translation>
+    </message>
+    <message>
+        <source>Roll Speed</source>
+        <translation>Скорость движения</translation>
+    </message>
+    <message>
+        <source>Rotation</source>
+        <translation>Вращение</translation>
+    </message>
+    <message>
+        <source>Round Bulge</source>
+        <translation>Круглая выпуклость</translation>
+    </message>
+    <message>
+        <source>Round Pinch</source>
+        <translation>Круглая впадина</translation>
+    </message>
+    <message>
+        <source>Rows</source>
+        <translation>Строки</translation>
+    </message>
+    <message>
+        <source>Rule of Thirds</source>
+        <translation>Правило третей</translation>
+    </message>
+    <message>
+        <source>Satellites</source>
+        <translation>Спутники</translation>
+    </message>
+    <message>
+        <source>Saturates muted colors more than colors that are already strong; skin is spared</source>
+        <translation>Увеличивает насыщенность приглушённых цветов сильнее, чем уже насыщенных; тона кожи не затрагиваются</translation>
+    </message>
+    <message>
+        <source>Saturation</source>
+        <translation>Насыщенность</translation>
+    </message>
+    <message>
+        <source>Saturation High</source>
+        <translation>Высокая насыщенность</translation>
+    </message>
+    <message>
+        <source>Saturation Low</source>
+        <translation>Низкая насыщенность</translation>
+    </message>
+    <message>
+        <source>Saturation Softness</source>
+        <translation>Мягкость насыщенности</translation>
+    </message>
+    <message>
+        <source>Scale</source>
+        <translation>Масштаб</translation>
+    </message>
+    <message>
+        <source>Scanlines</source>
+        <translation>Сканирующие линии</translation>
+    </message>
+    <message>
+        <source>Scratches</source>
+        <translation>Царапины</translation>
+    </message>
+    <message>
+        <source>Screen</source>
+        <translation>Экран</translation>
+    </message>
+    <message>
+        <source>Seed</source>
+        <translation>Зерно</translation>
+    </message>
+    <message>
+        <source>Segments</source>
+        <translation>Сегменты</translation>
+    </message>
+    <message>
+        <source>Shadow</source>
+        <translation>Тень</translation>
+    </message>
+    <message>
+        <source>Shadow Blur</source>
+        <translation>Размытие тени</translation>
+    </message>
+    <message>
+        <source>Shadow Offset X</source>
+        <translation>Смещение тени X</translation>
+    </message>
+    <message>
+        <source>Shadow Offset Y</source>
+        <translation>Смещение тени Y</translation>
+    </message>
+    <message>
+        <source>Shadow Opacity</source>
+        <translation>Непрозрачность тени</translation>
+    </message>
+    <message>
+        <source>Shadows</source>
+        <translation>Тени</translation>
+    </message>
+    <message>
+        <source>Shape</source>
+        <translation>Фигура</translation>
+    </message>
+    <message>
+        <source>Sharpen</source>
+        <translation>Резкость</translation>
+    </message>
+    <message>
+        <source>Sharpen Edges</source>
+        <translation>Резкость краев</translation>
+    </message>
+    <message>
+        <source>Sharpens edges; the threshold leaves flat areas and noise alone</source>
+        <translation>Повышает резкость краев; порог не затрагивает однотонные области и шум</translation>
+    </message>
+    <message>
+        <source>Sharpens only the real edges of the picture and leaves flat areas and fine texture alone</source>
+        <translation>Повышает резкость границ изображения, не затрагивая плоские области и мелкую текстуру</translation>
+    </message>
+    <message>
+        <source>Shifts the hue and changes saturation and lightness, of all colors or one hue range</source>
+        <translation>Сдвигает оттенок и меняет насыщенность и светлоту всех цветов или одного диапазона оттенков</translation>
+    </message>
+    <message>
+        <source>Shots Remaining</source>
+        <translation>Осталось кадров</translation>
+    </message>
+    <message>
+        <source>Shows the picture again and again in a grid of tiles</source>
+        <translation>Показывает изображение многократно в виде сетки плиток</translation>
+    </message>
+    <message>
+        <source>Shrink / Grow</source>
+        <translation>Сжатие / расширение</translation>
+    </message>
+    <message>
+        <source>Shrinks or grows the transparency edge of the picture, with an optional blur</source>
+        <translation>Сжимает или расширяет границы прозрачности изображения с опциональным размытием</translation>
+    </message>
+    <message>
+        <source>Shutter Angle</source>
+        <translation>Угол затвора</translation>
+    </message>
+    <message>
+        <source>Shutter Speed</source>
+        <translation>Выдержка</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>Размер</translation>
+    </message>
+    <message>
+        <source>Skin Tones Only</source>
+        <translation>Только тона кожи</translation>
+    </message>
+    <message>
+        <source>Smear</source>
+        <translation>Смазывание</translation>
+    </message>
+    <message>
+        <source>Smoothing</source>
+        <translation>Сглаживание</translation>
+    </message>
+    <message>
+        <source>Smoothing Size</source>
+        <translation>Размер сглаживания</translation>
+    </message>
+    <message>
+        <source>Smoothness</source>
+        <translation>Сглаживание</translation>
+    </message>
+    <message>
+        <source>Smooths noise in flat areas and keeps edges (spatial, per frame)</source>
+        <translation>Сглаживает шум на однотонных участках и сохраняет края (пространственный, покадровый)</translation>
+    </message>
+    <message>
+        <source>Smooths skin and other blotchy areas but keeps the edges; no face detection</source>
+        <translation>Сглаживает кожу и пятнистые области, сохраняя границы; без распознавания лиц</translation>
+    </message>
+    <message>
+        <source>Smooths the visible steps in skies and gradients and dithers them away</source>
+        <translation>Сглаживает видимые переходы на небе и градиентах, устраняя их дизерингом</translation>
+    </message>
+    <message>
+        <source>Soften</source>
+        <translation>Смягчить</translation>
+    </message>
+    <message>
+        <source>Soften and Sharpen</source>
+        <translation>Смягчение и резкость</translation>
+    </message>
+    <message>
+        <source>Softens fine texture such as skin pores while sharpening the larger edges</source>
+        <translation>Смягчает мелкую текстуру (например, поры кожи), одновременно повышая резкость крупных границ</translation>
+    </message>
+    <message>
+        <source>Softness</source>
+        <translation>Мягкость</translation>
+    </message>
+    <message>
+        <source>Source X</source>
+        <translation>Исходный X</translation>
+    </message>
+    <message>
+        <source>Source Y</source>
+        <translation>Исходный Y</translation>
+    </message>
+    <message>
+        <source>Spacing</source>
+        <translation>Интервал</translation>
+    </message>
+    <message>
+        <source>Speaking</source>
+        <translation>Говорит</translation>
+    </message>
+    <message>
+        <source>Speaking Ring Color</source>
+        <translation>Цвет кольца активности</translation>
+    </message>
+    <message>
+        <source>Speed</source>
+        <translation>Скорость</translation>
+    </message>
+    <message>
+        <source>Spikes</source>
+        <translation>Лучи</translation>
+    </message>
+    <message>
+        <source>Spill Method</source>
+        <translation>Метод подавления засветки</translation>
+    </message>
+    <message>
+        <source>Spill Removal</source>
+        <translation>Подавление засветки</translation>
+    </message>
+    <message>
+        <source>Spin blur around a centre</source>
+        <translation>Вращательное размытие вокруг центра</translation>
+    </message>
+    <message>
+        <source>Splits the picture into a rainbow along one direction</source>
+        <translation>Разделяет изображение на радугу вдоль одного направления</translation>
+    </message>
+    <message>
+        <source>Spread</source>
+        <translation>Разброс</translation>
+    </message>
+    <message>
+        <source>Square Bulge</source>
+        <translation>Квадратная выпуклость</translation>
+    </message>
+    <message>
+        <source>Square Pinch</source>
+        <translation>Квадратная впадина</translation>
+    </message>
+    <message>
+        <source>Starburst spikes from the bright lights of the picture, like a stopped-down lens</source>
+        <translation>Лучи звездного сияния от ярких источников света, как при зажатой диафрагме</translation>
+    </message>
+    <message>
+        <source>Start Date and Time</source>
+        <translation>Начальные дата и время</translation>
+    </message>
+    <message>
+        <source>Start Timecode</source>
+        <translation>Начальный тайм-код</translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation>Статус</translation>
+    </message>
+    <message>
+        <source>Straight waves across the picture</source>
+        <translation>Прямые волны по всему изображению</translation>
+    </message>
+    <message>
+        <source>Streaks</source>
+        <translation>Лучи</translation>
+    </message>
+    <message>
+        <source>Strength</source>
+        <translation>Сила</translation>
+    </message>
+    <message>
+        <source>Stretch</source>
+        <translation>Растянуть</translation>
+    </message>
+    <message>
+        <source>Strip Size</source>
+        <translation>Размер полосы</translation>
+    </message>
+    <message>
+        <source>Strobe</source>
+        <translation>Стробоскоп</translation>
+    </message>
+    <message>
+        <source>Stroke</source>
+        <translation>Обводка</translation>
+    </message>
+    <message>
+        <source>Style</source>
+        <translation>Стиль</translation>
+    </message>
+    <message>
+        <source>Stylize</source>
+        <translation>Стилизация</translation>
+    </message>
+    <message>
+        <source>Surface Tracker</source>
+        <translation>Трекер поверхности</translation>
+    </message>
+    <message>
+        <source>Takes the fog or haze out of the picture, from the darkest colors of each area</source>
+        <translation>Удаляет туман или дымку из изображения, начиная с самых темных цветов каждой области</translation>
+    </message>
+    <message>
+        <source>Target X</source>
+        <translation>Целевой X</translation>
+    </message>
+    <message>
+        <source>Target Y</source>
+        <translation>Целевой Y</translation>
+    </message>
+    <message>
+        <source>Temperature</source>
+        <translation>Температура</translation>
+    </message>
+    <message>
+        <source>Temperature / Tint</source>
+        <translation>Температура / Оттенок</translation>
+    </message>
+    <message>
+        <source>Text Color</source>
+        <translation>Цвет текста</translation>
+    </message>
+    <message>
+        <source>Text Shadow</source>
+        <translation>Тень текста</translation>
+    </message>
+    <message>
+        <source>Text Size</source>
+        <translation>Размер текста</translation>
+    </message>
+    <message>
+        <source>Texture Limit</source>
+        <translation>Лимит текстуры</translation>
+    </message>
+    <message>
+        <source>Texture Pop</source>
+        <translation>Выделение текстуры</translation>
+    </message>
+    <message>
+        <source>Texture Size</source>
+        <translation>Размер текстуры</translation>
+    </message>
+    <message>
+        <source>The reddish halo film shows around bright edges</source>
+        <translation>Красноватый ореол, появляющийся на пленке вокруг ярких краев</translation>
+    </message>
+    <message>
+        <source>Thermal</source>
+        <translation>Тепловая</translation>
+    </message>
+    <message>
+        <source>Thickness</source>
+        <translation>Толщина</translation>
+    </message>
+    <message>
+        <source>This Clip</source>
+        <translation>Этот клип</translation>
+    </message>
+    <message>
+        <source>Threshold</source>
+        <translation>Порог</translation>
+    </message>
+    <message>
+        <source>Tile</source>
+        <translation>Плитка</translation>
+    </message>
+    <message>
+        <source>Tile Fit</source>
+        <translation>Заполнение плитки</translation>
+    </message>
+    <message>
+        <source>Tile Size</source>
+        <translation>Размер плитки</translation>
+    </message>
+    <message>
+        <source>Tilt X</source>
+        <translation>Наклон X</translation>
+    </message>
+    <message>
+        <source>Tilt Y</source>
+        <translation>Наклон Y</translation>
+    </message>
+    <message>
+        <source>Tilt-Shift</source>
+        <translation>Tilt-Shift</translation>
+    </message>
+    <message>
+        <source>Time Format</source>
+        <translation>Формат времени</translation>
+    </message>
+    <message>
+        <source>Time Window</source>
+        <translation>Временное окно</translation>
+    </message>
+    <message>
+        <source>Tint</source>
+        <translation>Оттенок</translation>
+    </message>
+    <message>
+        <source>Tint Amount</source>
+        <translation>Интенсивность тонирования</translation>
+    </message>
+    <message>
+        <source>Tint Color</source>
+        <translation>Цвет тонирования</translation>
+    </message>
+    <message>
+        <source>Tolerance</source>
+        <translation>Допуск</translation>
+    </message>
+    <message>
+        <source>Tone curves: a master curve and one per red, green and blue channel</source>
+        <translation>Тональные кривые: мастер-кривая и по одной для красного, зелёного и синего каналов</translation>
+    </message>
+    <message>
+        <source>Tones</source>
+        <translation>Тоны</translation>
+    </message>
+    <message>
+        <source>Top</source>
+        <translation>Сверху</translation>
+    </message>
+    <message>
+        <source>Top Half</source>
+        <translation>Верхняя половина</translation>
+    </message>
+    <message>
+        <source>Top Left Quarter</source>
+        <translation>Верхняя левая четверть</translation>
+    </message>
+    <message>
+        <source>Top Left X</source>
+        <translation>Верхний левый X</translation>
+    </message>
+    <message>
+        <source>Top Left Y</source>
+        <translation>Верхний левый Y</translation>
+    </message>
+    <message>
+        <source>Top Right X</source>
+        <translation>Верхний правый X</translation>
+    </message>
+    <message>
+        <source>Top Right Y</source>
+        <translation>Верхний правый Y</translation>
+    </message>
+    <message>
+        <source>Track</source>
+        <translation>Дорожка</translation>
+    </message>
+    <message>
+        <source>Tracking</source>
+        <translation>Трекинг</translation>
+    </message>
+    <message>
+        <source>Tracking Error</source>
+        <translation>Ошибка трекинга</translation>
+    </message>
+    <message>
+        <source>Tracks a bending surface with a mesh of points, then pins the clip to it or warps the clip with it</source>
+        <translation>Отслеживает изгибающуюся поверхность с помощью сетки точек, затем прикрепляет к ней клип или деформирует его вместе с ней</translation>
+    </message>
+    <message>
+        <source>Trail Opacity</source>
+        <translation>Непрозрачность шлейфа</translation>
+    </message>
+    <message>
+        <source>Trails</source>
+        <translation>Шлейфы</translation>
+    </message>
+    <message>
+        <source>Transform</source>
+        <translation>Трансформация</translation>
+    </message>
+    <message>
+        <source>Transition</source>
+        <translation>Переход</translation>
+    </message>
+    <message>
+        <source>Transparent</source>
+        <translation>Прозрачный</translation>
+    </message>
+    <message>
+        <source>Turns the picture into a relief, an ink drawing or a flat cutout</source>
+        <translation>Превращает изображение в рельеф, рисунок тушью или плоский вырез</translation>
+    </message>
+    <message>
+        <source>Turns the picture into pencil lines on paper</source>
+        <translation>Превращает изображение в карандашные линии на бумаге</translation>
+    </message>
+    <message>
+        <source>Twirl</source>
+        <translation>Скручивание</translation>
+    </message>
+    <message>
+        <source>Twists the picture around a centre, most at the centre</source>
+        <translation>Закручивает изображение вокруг центра, сильнее всего в центре</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>Тип</translation>
+    </message>
+    <message>
+        <source>Units</source>
+        <translation>Единицы измерения</translation>
+    </message>
+    <message>
+        <source>Unsharp Mask</source>
+        <translation>Контурная резкость</translation>
+    </message>
+    <message>
+        <source>Use Color 2</source>
+        <translation>Использовать цвет 2</translation>
+    </message>
+    <message>
+        <source>Use Color 3</source>
+        <translation>Использовать цвет 3</translation>
+    </message>
+    <message>
+        <source>Vertical Bow</source>
+        <translation>Вертикальный изгиб</translation>
+    </message>
+    <message>
+        <source>Vibrance</source>
+        <translation>Сочность</translation>
+    </message>
+    <message>
+        <source>Video Call</source>
+        <translation>Видеозвонок</translation>
+    </message>
+    <message>
+        <source>Video Camera</source>
+        <translation>Видеокамера</translation>
+    </message>
+    <message>
+        <source>Video Collage</source>
+        <translation>Видеоколлаж</translation>
+    </message>
+    <message>
+        <source>View</source>
+        <translation>Вид</translation>
+    </message>
+    <message>
+        <source>Vignette</source>
+        <translation>Виньетирование</translation>
+    </message>
+    <message>
+        <source>Warmer / cooler (blue - orange) and green - magenta white balance</source>
+        <translation>Баланс белого: теплее / холоднее (синий — оранжевый) и зелёный — пурпурный</translation>
+    </message>
+    <message>
+        <source>Warp with the Surface</source>
+        <translation>Деформировать вместе с поверхностью</translation>
+    </message>
+    <message>
+        <source>Warper</source>
+        <translation>Деформация</translation>
+    </message>
+    <message>
+        <source>Watercolor</source>
+        <translation>Акварель</translation>
+    </message>
+    <message>
+        <source>Wave</source>
+        <translation>Волна</translation>
+    </message>
+    <message>
+        <source>Wavelength</source>
+        <translation>Длина волны</translation>
+    </message>
+    <message>
+        <source>White Balance</source>
+        <translation>Баланс белого</translation>
+    </message>
+    <message>
+        <source>Whole Region</source>
+        <translation>Вся область</translation>
+    </message>
+    <message>
+        <source>Wide, layered soft light around the highlights</source>
+        <translation>Широкий многослойный мягкий свет вокруг бликов</translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation>Ширина</translation>
+    </message>
+    <message>
+        <source>Worn videotape: line jitter, color bleed, noise, a tracking error band and scanlines</source>
+        <translation>Изношенная видеокассета: дрожание строк, растекание цвета, шум, ошибка трекинга и сканирующие линии</translation>
+    </message>
+    <message>
+        <source>Yellows</source>
+        <translation>Жёлтые</translation>
+    </message>
+    <message>
+        <source>Zoom</source>
+        <translation>Зум</translation>
+    </message>
+    <message>
+        <source>Zoom Blur</source>
+        <translation>Размытие масштабирования</translation>
     </message>
 </context>
 <context>
@@ -3548,6 +8143,41 @@ The program was probably closed by the system because the computer ran out of me
     <message>
         <source>Start timecode:</source>
         <translation>Начальный таймкод:</translation>
+    </message>
+</context>
+<context>
+    <name>kk::ClipColorMenu</name>
+    <message>
+        <source>Add Flag</source>
+        <translation>Добавить флаг</translation>
+    </message>
+    <message>
+        <source>Clear All Flags</source>
+        <translation>Очистить все флаги</translation>
+    </message>
+    <message>
+        <source>Clear Clip Color</source>
+        <translation>Очистить цвет клипа</translation>
+    </message>
+    <message>
+        <source>Clear Color</source>
+        <translation>Очистить цвет</translation>
+    </message>
+    <message>
+        <source>Clip Color</source>
+        <translation>Цвет клипа</translation>
+    </message>
+    <message>
+        <source>Flags</source>
+        <translation>Флаги</translation>
+    </message>
+    <message>
+        <source>Remove Flag</source>
+        <translation>Удалить флаг</translation>
+    </message>
+    <message>
+        <source>Set Clip Color</source>
+        <translation>Задать цвет клипа</translation>
     </message>
 </context>
 <context>
@@ -4039,11 +8669,11 @@ The program was probably closed by the system because the computer ran out of me
     </message>
     <message>
         <source>Blur</source>
-        <translation type="unfinished">Размытие</translation>
+        <translation>Размытие</translation>
     </message>
     <message>
         <source>Blur, Sharpen and Mist the current node&apos;s picture; windows and the qualifier limit it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Размытие, резкость и дымка для изображения текущей ноды; ограничиваются окнами и квалификатором.</translation>
     </message>
     <message>
         <source>Tracker</source>
@@ -5081,6 +9711,65 @@ The program was probably closed by the system because the computer ran out of me
     </message>
 </context>
 <context>
+    <name>kk::CubeLut</name>
+    <message>
+        <source>%1 table rows, expected %2</source>
+        <translation>%1 строк таблицы, ожидалось %2</translation>
+    </message>
+    <message>
+        <source>%1: %2</source>
+        <translation>%1: %2</translation>
+    </message>
+    <message>
+        <source>LUT file not found: %1</source>
+        <translation>Файл LUT не найден: %1</translation>
+    </message>
+    <message>
+        <source>LUT file too large: %1</source>
+        <translation>Файл LUT слишком велик: %1</translation>
+    </message>
+    <message>
+        <source>both a 1D and a 3D size</source>
+        <translation>указаны и 1D, и 3D размеры</translation>
+    </message>
+    <message>
+        <source>empty domain</source>
+        <translation>пустой домен</translation>
+    </message>
+    <message>
+        <source>line %1: expected three numbers</source>
+        <translation>строка %1: ожидались три числа</translation>
+    </message>
+    <message>
+        <source>line %1: keyword after the table rows</source>
+        <translation>строка %1: ключевое слово после строк таблицы</translation>
+    </message>
+    <message>
+        <source>line %1: malformed domain</source>
+        <translation>строка %1: некорректный домен</translation>
+    </message>
+    <message>
+        <source>line %1: more rows than the table size</source>
+        <translation>строка %1: больше строк, чем размер таблицы</translation>
+    </message>
+    <message>
+        <source>line %1: table row before the table size</source>
+        <translation>строка %1: строка таблицы перед указанием её размера</translation>
+    </message>
+    <message>
+        <source>line %1: unsupported table size</source>
+        <translation>строка %1: неподдерживаемый размер таблицы</translation>
+    </message>
+    <message>
+        <source>no LUT file chosen</source>
+        <translation>Не выбран файл LUT</translation>
+    </message>
+    <message>
+        <source>no LUT_1D_SIZE or LUT_3D_SIZE</source>
+        <translation>отсутствует LUT_1D_SIZE или LUT_3D_SIZE</translation>
+    </message>
+</context>
+<context>
     <name>kk::CurveEditor</name>
     <message>
         <source>Drag a point to bend the curve, click to add a point, double-click or right-click a point to remove it</source>
@@ -5441,6 +10130,61 @@ The program was probably closed by the system because the computer ran out of me
     </message>
 </context>
 <context>
+    <name>kk::EditIndex</name>
+    <message>
+        <source>Adjustment</source>
+        <translation>Корректирующий</translation>
+    </message>
+    <message>
+        <source>Compound</source>
+        <translation>Составной</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <translation>Отключён</translation>
+    </message>
+    <message>
+        <source>Generator</source>
+        <translation>Генератор</translation>
+    </message>
+    <message>
+        <source>In: %1 (%2 fr)</source>
+        <translation>Вход: %1 (%2 кадр.)</translation>
+    </message>
+    <message>
+        <source>Offline</source>
+        <translation>Не в сети</translation>
+    </message>
+    <message>
+        <source>Out: %1 (%2 fr)</source>
+        <translation>Выход: %1 (%2 кадр.)</translation>
+    </message>
+    <message>
+        <source>Solid Color</source>
+        <translation>Сплошной цвет</translation>
+    </message>
+    <message>
+        <source>Speed %1%</source>
+        <translation>Скорость %1%</translation>
+    </message>
+    <message>
+        <source>Speed ramp</source>
+        <translation>Изменение скорости</translation>
+    </message>
+    <message>
+        <source>Subtitle</source>
+        <translation>Субтитры</translation>
+    </message>
+    <message>
+        <source>Timeline</source>
+        <translation>Таймлайн</translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation>Заголовок</translation>
+    </message>
+</context>
+<context>
     <name>kk::EditIndexModel</name>
     <message>
         <source>#</source>
@@ -5697,6 +10441,17 @@ The program was probably closed by the system because the computer ran out of me
     <message>
         <source>Cannot write %1: %2</source>
         <translation>Не удалось записать %1: %2</translation>
+    </message>
+</context>
+<context>
+    <name>kk::EffectActions</name>
+    <message>
+        <source>Add %1</source>
+        <translation>Добавить %1</translation>
+    </message>
+    <message>
+        <source>Remove Transition</source>
+        <translation>Удалить переход</translation>
     </message>
 </context>
 <context>
@@ -9922,6 +14677,181 @@ Standard transition of this project</source>
     </message>
 </context>
 <context>
+    <name>kk::ExportFormats</name>
+    <message>
+        <source>422</source>
+        <translation>422</translation>
+    </message>
+    <message>
+        <source>422 HQ</source>
+        <translation>422 HQ</translation>
+    </message>
+    <message>
+        <source>422 LT</source>
+        <translation>422 LT</translation>
+    </message>
+    <message>
+        <source>422 Proxy</source>
+        <translation>422 Proxy</translation>
+    </message>
+    <message>
+        <source>4444</source>
+        <translation>4444</translation>
+    </message>
+    <message>
+        <source>4444 XQ</source>
+        <translation>4444 XQ</translation>
+    </message>
+    <message>
+        <source>AAC</source>
+        <translation>AAC</translation>
+    </message>
+    <message>
+        <source>AAC / M4A (audio only)</source>
+        <translation>AAC / M4A (только звук)</translation>
+    </message>
+    <message>
+        <source>AV1</source>
+        <translation>AV1</translation>
+    </message>
+    <message>
+        <source>Apple ProRes</source>
+        <translation>Apple ProRes</translation>
+    </message>
+    <message>
+        <source>DNxHR</source>
+        <translation>DNxHR</translation>
+    </message>
+    <message>
+        <source>FLAC</source>
+        <translation>FLAC</translation>
+    </message>
+    <message>
+        <source>FLAC (audio only)</source>
+        <translation>FLAC (только звук)</translation>
+    </message>
+    <message>
+        <source>GIF</source>
+        <translation>GIF</translation>
+    </message>
+    <message>
+        <source>H.264</source>
+        <translation>H.264</translation>
+    </message>
+    <message>
+        <source>H.265 / HEVC</source>
+        <translation>H.265 / HEVC</translation>
+    </message>
+    <message>
+        <source>HQ</source>
+        <translation>HQ</translation>
+    </message>
+    <message>
+        <source>HQX (10-bit)</source>
+        <translation>HQX (10 бит)</translation>
+    </message>
+    <message>
+        <source>JPEG</source>
+        <translation>JPEG</translation>
+    </message>
+    <message>
+        <source>JPEG sequence</source>
+        <translation>Последовательность JPEG</translation>
+    </message>
+    <message>
+        <source>LB</source>
+        <translation>LB</translation>
+    </message>
+    <message>
+        <source>MP3</source>
+        <translation>MP3</translation>
+    </message>
+    <message>
+        <source>MP3 (audio only)</source>
+        <translation>MP3 (только звук)</translation>
+    </message>
+    <message>
+        <source>MP4</source>
+        <translation>MP4</translation>
+    </message>
+    <message>
+        <source>Matroska</source>
+        <translation>Matroska</translation>
+    </message>
+    <message>
+        <source>OpenEXR (half-float, linear)</source>
+        <translation>OpenEXR (half-float, линейный)</translation>
+    </message>
+    <message>
+        <source>OpenEXR sequence</source>
+        <translation>Последовательность OpenEXR</translation>
+    </message>
+    <message>
+        <source>Opus</source>
+        <translation>Opus</translation>
+    </message>
+    <message>
+        <source>Opus (audio only)</source>
+        <translation>Opus (только звук)</translation>
+    </message>
+    <message>
+        <source>PCM 16-bit</source>
+        <translation>PCM 16 бит</translation>
+    </message>
+    <message>
+        <source>PCM 24-bit</source>
+        <translation>PCM 24 бит</translation>
+    </message>
+    <message>
+        <source>PCM 32-bit float</source>
+        <translation>PCM 32 бит float</translation>
+    </message>
+    <message>
+        <source>PNG</source>
+        <translation>PNG</translation>
+    </message>
+    <message>
+        <source>PNG sequence</source>
+        <translation>Последовательность PNG</translation>
+    </message>
+    <message>
+        <source>QuickTime</source>
+        <translation>QuickTime</translation>
+    </message>
+    <message>
+        <source>SQ</source>
+        <translation>SQ</translation>
+    </message>
+    <message>
+        <source>Single frame (JPEG)</source>
+        <translation>Один кадр (JPEG)</translation>
+    </message>
+    <message>
+        <source>Single frame (PNG)</source>
+        <translation>Один кадр (PNG)</translation>
+    </message>
+    <message>
+        <source>TIFF</source>
+        <translation>TIFF</translation>
+    </message>
+    <message>
+        <source>TIFF sequence</source>
+        <translation>Последовательность TIFF</translation>
+    </message>
+    <message>
+        <source>VP9</source>
+        <translation>VP9</translation>
+    </message>
+    <message>
+        <source>Wave (audio only)</source>
+        <translation>Wave (только звук)</translation>
+    </message>
+    <message>
+        <source>WebM</source>
+        <translation>WebM</translation>
+    </message>
+</context>
+<context>
     <name>kk::ExportJob</name>
     <message>
         <source>No timeline to render.</source>
@@ -10133,6 +15063,26 @@ Standard transition of this project</source>
         <source>The render range is empty.</source>
         <translation>Диапазон рендера пуст.</translation>
     </message>
+    <message>
+        <source>Auto (hardware if available)</source>
+        <translation>Авто (аппаратно, если доступно)</translation>
+    </message>
+    <message>
+        <source>Intel Quick Sync</source>
+        <translation>Intel Quick Sync</translation>
+    </message>
+    <message>
+        <source>NVIDIA NVENC</source>
+        <translation>NVIDIA NVENC</translation>
+    </message>
+    <message>
+        <source>Software</source>
+        <translation>Программный</translation>
+    </message>
+    <message>
+        <source>VAAPI (Intel/AMD)</source>
+        <translation>VAAPI (Intel/AMD)</translation>
+    </message>
 </context>
 <context>
     <name>kk::FaderWidget</name>
@@ -10158,6 +15108,93 @@ Standard transition of this project</source>
     <message>
         <source>Missing: %1</source>
         <translation>Отсутствует: %1</translation>
+    </message>
+</context>
+<context>
+    <name>kk::FolderImport</name>
+    <message>
+        <source>%1: %2</source>
+        <translation>%1: %2</translation>
+    </message>
+    <message>
+        <source>%1: cannot read the folder</source>
+        <translation>%1: не удалось прочитать папку</translation>
+    </message>
+    <message>
+        <source>%n file already in the media pool was skipped.</source>
+        <translation>Пропущен %n файл, уже имеющийся в медиапуле.</translation>
+    </message>
+    <message>
+        <source>%n file could not be imported:</source>
+        <translation>Не удалось импортировать %n файл:</translation>
+    </message>
+    <message>
+        <source>%n file imported.</source>
+        <translation>Импортирован %n файл.</translation>
+    </message>
+    <message>
+        <source>%n file of another type was skipped.</source>
+        <translation>Пропущен %n файл другого типа.</translation>
+    </message>
+    <message>
+        <source>%n files already in the media pool were skipped.</source>
+        <translation>Пропущено %n файлов, уже имеющихся в медиапуле.</translation>
+    </message>
+    <message>
+        <source>%n files could not be imported:</source>
+        <translation>Не удалось импортировать %n файлов:</translation>
+    </message>
+    <message>
+        <source>%n files imported.</source>
+        <translation>Импортировано %n файлов.</translation>
+    </message>
+    <message>
+        <source>%n files of other types were skipped.</source>
+        <translation>Пропущено %n файлов других типов.</translation>
+    </message>
+    <message>
+        <source>%n hidden or system file was skipped.</source>
+        <translation>Пропущен %n скрытый или системный файл.</translation>
+    </message>
+    <message>
+        <source>%n hidden or system files were skipped.</source>
+        <translation>Пропущено %n скрытых или системных файлов.</translation>
+    </message>
+    <message>
+        <source>A bin named after the folder, with a sub-bin for each subfolder</source>
+        <translation>Папка с именем исходной папки и вложенными папками для каждой подпапки</translation>
+    </message>
+    <message>
+        <source>Create bins for subfolders</source>
+        <translation>Создавать папки для подпапок</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Импортировать</translation>
+    </message>
+    <message>
+        <source>Import Media Folder</source>
+        <translation>Импортировать папку с медиа</translation>
+    </message>
+    <message>
+        <source>Import the media files of “%1”.</source>
+        <translation>Импортировать медиафайлы из «%1».</translation>
+    </message>
+    <message>
+        <source>Include subfolders</source>
+        <translation>Включать подпапки</translation>
+    </message>
+    <message>
+        <source>No new media files were imported.</source>
+        <translation>Новые медиафайлы не импортированы.</translation>
+    </message>
+    <message>
+        <source>Reading the folder…</source>
+        <translation>Чтение папки…</translation>
+    </message>
+    <message>
+        <source>… and %1 more</source>
+        <translation>… и ещё %1</translation>
     </message>
 </context>
 <context>
@@ -11661,7 +16698,7 @@ Assign it to “%3” instead?</source>
     </message>
     <message>
         <source>Step In</source>
-        <translation>Step In</translation>
+        <translation>Ступенчатый вход</translation>
     </message>
     <message>
         <source>Step In (I): the value jumps right after the previous key. Step Out is the Static (Hold) button.</source>
@@ -12131,6 +17168,33 @@ You can also double-click the header, or drag the header out of the panel.</sour
     </message>
 </context>
 <context>
+    <name>kk::Mask</name>
+    <message>
+        <source>Bezier</source>
+        <translation>Безье</translation>
+    </message>
+    <message>
+        <source>Ellipse</source>
+        <translation>Эллипс</translation>
+    </message>
+    <message>
+        <source>Freehand</source>
+        <translation>Произвольная форма</translation>
+    </message>
+    <message>
+        <source>Mask</source>
+        <translation>Маска</translation>
+    </message>
+    <message>
+        <source>Polygon</source>
+        <translation>Многоугольник</translation>
+    </message>
+    <message>
+        <source>Rectangle</source>
+        <translation>Прямоугольник</translation>
+    </message>
+</context>
+<context>
     <name>kk::MaskOverlay</name>
     <message>
         <source>On-screen controls</source>
@@ -12258,6 +17322,77 @@ You can also double-click the header, or drag the header out of the panel.</sour
     <message>
         <source>Add %1 Files to Media Pool</source>
         <translation>Добавить файлы (%1) в медиапул</translation>
+    </message>
+</context>
+<context>
+    <name>kk::MediaImport</name>
+    <message>
+        <source>%1 file imported.</source>
+        <translation>Импортирован %1 файл.</translation>
+    </message>
+    <message>
+        <source>%1 files imported.</source>
+        <translation>Импортировано %1 файлов.</translation>
+    </message>
+    <message>
+        <source>%1 of %2 file could not be imported.</source>
+        <translation>Не удалось импортировать %1 из %2 файла.</translation>
+    </message>
+    <message>
+        <source>%1 of %2 files could not be imported.</source>
+        <translation>Не удалось импортировать %1 из %2 файлов.</translation>
+    </message>
+    <message>
+        <source>Change</source>
+        <translation>Изменить</translation>
+    </message>
+    <message>
+        <source>Change Project Frame Rate</source>
+        <translation>Изменить частоту кадров проекта</translation>
+    </message>
+    <message>
+        <source>Change the project frame rate to %1 fps to match them? Once a timeline has clips, its frame rate cannot change.</source>
+        <translation>Изменить частоту кадров проекта на %1 fps в соответствии с ними? Когда на таймлайне есть клипы, его частоту кадров нельзя изменить.</translation>
+    </message>
+    <message>
+        <source>Don&apos;t Change</source>
+        <translation>Не изменять</translation>
+    </message>
+    <message>
+        <source>Import Media</source>
+        <translation>Импортировать медиа</translation>
+    </message>
+    <message>
+        <source>Linked</source>
+        <translation>Связано</translation>
+    </message>
+    <message>
+        <source>Media files (%1);;All files (*)</source>
+        <translation>Медиафайлы (%1);;Все файлы (*)</translation>
+    </message>
+    <message>
+        <source>OpenTimelineIO files (*.otio);;All files (*)</source>
+        <translation>Файлы OpenTimelineIO (*.otio);;Все файлы (*)</translation>
+    </message>
+    <message>
+        <source>Store Media in Project</source>
+        <translation>Сохранять медиа в проекте</translation>
+    </message>
+    <message>
+        <source>Stored in the project file (%1)</source>
+        <translation>Сохранено в файле проекта (%1)</translation>
+    </message>
+    <message>
+        <source>Subtitle files (*.srt *.vtt *.SRT *.VTT);;All files (*)</source>
+        <translation>Файлы субтитров (*.srt *.vtt *.SRT *.VTT);;Все файлы (*)</translation>
+    </message>
+    <message>
+        <source>The clips you added run at %1 fps, the project at %2 fps.</source>
+        <translation>Добавленные клипы имеют частоту %1 fps, а проект — %2 fps.</translation>
+    </message>
+    <message>
+        <source>… and %1 more</source>
+        <translation>… и ещё %1</translation>
     </message>
 </context>
 <context>
@@ -13154,6 +18289,1373 @@ Import files with %1 or drop them here.</source>
     </message>
 </context>
 <context>
+    <name>kk::MenuLayouts</name>
+    <message>
+        <source>&amp;Audio</source>
+        <translation>&amp;Звук</translation>
+    </message>
+    <message>
+        <source>&amp;Clip</source>
+        <translation>&amp;Клип</translation>
+    </message>
+    <message>
+        <source>&amp;Edit</source>
+        <translation>&amp;Правка</translation>
+    </message>
+    <message>
+        <source>&amp;File</source>
+        <translation>&amp;Файл</translation>
+    </message>
+    <message>
+        <source>&amp;Grade</source>
+        <translation>&amp;Цвет</translation>
+    </message>
+    <message>
+        <source>&amp;Help</source>
+        <translation>&amp;Справка</translation>
+    </message>
+    <message>
+        <source>&amp;Mark</source>
+        <translation>&amp;Метка</translation>
+    </message>
+    <message>
+        <source>&amp;Nodes</source>
+        <translation>&amp;Ноды</translation>
+    </message>
+    <message>
+        <source>&amp;Playback</source>
+        <translation>&amp;Воспроизведение</translation>
+    </message>
+    <message>
+        <source>&amp;Trim</source>
+        <translation>&amp;Подрезка</translation>
+    </message>
+    <message>
+        <source>&amp;View</source>
+        <translation>&amp;Вид</translation>
+    </message>
+    <message>
+        <source>1.85:1</source>
+        <translation>1.85:1</translation>
+    </message>
+    <message>
+        <source>1:1</source>
+        <translation>1:1</translation>
+    </message>
+    <message>
+        <source>2.39:1</source>
+        <translation>2.39:1</translation>
+    </message>
+    <message>
+        <source>4 x 4 Grid</source>
+        <translation>Сетка 4 x 4</translation>
+    </message>
+    <message>
+        <source>4:3</source>
+        <translation>4:3</translation>
+    </message>
+    <message>
+        <source>4:5</source>
+        <translation>4:5</translation>
+    </message>
+    <message>
+        <source>9:16</source>
+        <translation>9:16</translation>
+    </message>
+    <message>
+        <source>Action Safe</source>
+        <translation>Безопасная зона действия</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Добавить</translation>
+    </message>
+    <message>
+        <source>Add / Remove Keyframe</source>
+        <translation>Добавить / удалить ключевой кадр</translation>
+    </message>
+    <message>
+        <source>Add Audio Track</source>
+        <translation>Добавить звуковую дорожку</translation>
+    </message>
+    <message>
+        <source>Add Bus</source>
+        <translation>Добавить шину</translation>
+    </message>
+    <message>
+        <source>Add Horizontal</source>
+        <translation>Добавить горизонтальную</translation>
+    </message>
+    <message>
+        <source>Add Marker</source>
+        <translation>Добавить маркер</translation>
+    </message>
+    <message>
+        <source>Add Marker with Note…</source>
+        <translation>Добавить маркер с заметкой…</translation>
+    </message>
+    <message>
+        <source>Add Node</source>
+        <translation>Добавить ноду</translation>
+    </message>
+    <message>
+        <source>Add Node…</source>
+        <translation>Добавить ноду…</translation>
+    </message>
+    <message>
+        <source>Add Note</source>
+        <translation>Добавить заметку</translation>
+    </message>
+    <message>
+        <source>Add Subtitle</source>
+        <translation>Добавить субтитр</translation>
+    </message>
+    <message>
+        <source>Add Subtitle Track</source>
+        <translation>Добавить дорожку субтитров</translation>
+    </message>
+    <message>
+        <source>Add Transition</source>
+        <translation>Добавить переход</translation>
+    </message>
+    <message>
+        <source>Add Vertical</source>
+        <translation>Добавить вертикальную</translation>
+    </message>
+    <message>
+        <source>Add Video Track</source>
+        <translation>Добавить видеодорожку</translation>
+    </message>
+    <message>
+        <source>Add to Timeline</source>
+        <translation>Добавить на таймлайн</translation>
+    </message>
+    <message>
+        <source>All</source>
+        <translation>Все</translation>
+    </message>
+    <message>
+        <source>Angle</source>
+        <translation>Угол</translation>
+    </message>
+    <message>
+        <source>Angle 1</source>
+        <translation>Ракурс 1</translation>
+    </message>
+    <message>
+        <source>Angle 2</source>
+        <translation>Ракурс 2</translation>
+    </message>
+    <message>
+        <source>Angle 3</source>
+        <translation>Ракурс 3</translation>
+    </message>
+    <message>
+        <source>Angle 4</source>
+        <translation>Ракурс 4</translation>
+    </message>
+    <message>
+        <source>Angle 5</source>
+        <translation>Ракурс 5</translation>
+    </message>
+    <message>
+        <source>Angle 6</source>
+        <translation>Ракурс 6</translation>
+    </message>
+    <message>
+        <source>Angle 7</source>
+        <translation>Ракурс 7</translation>
+    </message>
+    <message>
+        <source>Angle 8</source>
+        <translation>Ракурс 8</translation>
+    </message>
+    <message>
+        <source>Angle 9</source>
+        <translation>Ракурс 9</translation>
+    </message>
+    <message>
+        <source>Append</source>
+        <translation>Добавить</translation>
+    </message>
+    <message>
+        <source>Append at End</source>
+        <translation>Добавить в конец</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Применить</translation>
+    </message>
+    <message>
+        <source>Aspect Marker</source>
+        <translation>Маркер пропорций</translation>
+    </message>
+    <message>
+        <source>Attributes…</source>
+        <translation>Атрибуты…</translation>
+    </message>
+    <message>
+        <source>Audio</source>
+        <translation>Звук</translation>
+    </message>
+    <message>
+        <source>Audio Only</source>
+        <translation>Только звук</translation>
+    </message>
+    <message>
+        <source>Audio Scrubbing</source>
+        <translation>Прослушивание при перемотке</translation>
+    </message>
+    <message>
+        <source>Automatic</source>
+        <translation>Автоматически</translation>
+    </message>
+    <message>
+        <source>Back 1 Second</source>
+        <translation>Назад на 1 секунду</translation>
+    </message>
+    <message>
+        <source>Backward</source>
+        <translation>Назад</translation>
+    </message>
+    <message>
+        <source>Backward on All Tracks</source>
+        <translation>Назад на всех дорожках</translation>
+    </message>
+    <message>
+        <source>Based on In Points</source>
+        <translation>По точкам входа</translation>
+    </message>
+    <message>
+        <source>Based on Timecode</source>
+        <translation>По тайм-коду</translation>
+    </message>
+    <message>
+        <source>Based on Waveform</source>
+        <translation>По форме волны</translation>
+    </message>
+    <message>
+        <source>Bezier</source>
+        <translation>Безье</translation>
+    </message>
+    <message>
+        <source>Blade Mode</source>
+        <translation>Режим разреза</translation>
+    </message>
+    <message>
+        <source>Bypass All Grades</source>
+        <translation>Отключить всю цветокоррекцию</translation>
+    </message>
+    <message>
+        <source>C&amp;ut</source>
+        <translation>&amp;Быстрый монтаж</translation>
+    </message>
+    <message>
+        <source>Cache Clip Output</source>
+        <translation>Кэшировать вывод клипа</translation>
+    </message>
+    <message>
+        <source>Centre Mark</source>
+        <translation>Метка центра</translation>
+    </message>
+    <message>
+        <source>Change Duration…</source>
+        <translation>Изменить длительность…</translation>
+    </message>
+    <message>
+        <source>Change Speed…</source>
+        <translation>Изменить скорость…</translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <translation>Очистить</translation>
+    </message>
+    <message>
+        <source>Clear In</source>
+        <translation>Очистить вход</translation>
+    </message>
+    <message>
+        <source>Clear In and Out</source>
+        <translation>Очистить вход и выход</translation>
+    </message>
+    <message>
+        <source>Clear Out</source>
+        <translation>Очистить выход</translation>
+    </message>
+    <message>
+        <source>Clip Grade</source>
+        <translation>Цветокоррекция клипа</translation>
+    </message>
+    <message>
+        <source>Close Gaps</source>
+        <translation>Закрыть пробелы</translation>
+    </message>
+    <message>
+        <source>Close Tab</source>
+        <translation>Закрыть вкладку</translation>
+    </message>
+    <message>
+        <source>Close Up</source>
+        <translation>Крупный план</translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation>Цвет</translation>
+    </message>
+    <message>
+        <source>Colour Scheme</source>
+        <translation>Цветовая схема</translation>
+    </message>
+    <message>
+        <source>Colour…</source>
+        <translation>Цвет…</translation>
+    </message>
+    <message>
+        <source>Compact…</source>
+        <translation>Сжать…</translation>
+    </message>
+    <message>
+        <source>Compositing</source>
+        <translation>Композитинг</translation>
+    </message>
+    <message>
+        <source>Composition</source>
+        <translation>Композиция</translation>
+    </message>
+    <message>
+        <source>Compound</source>
+        <translation>Составной</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation>Копировать</translation>
+    </message>
+    <message>
+        <source>Copy Grade</source>
+        <translation>Копировать цветокоррекцию</translation>
+    </message>
+    <message>
+        <source>Crop</source>
+        <translation>Кадрирование</translation>
+    </message>
+    <message>
+        <source>Curve Editor</source>
+        <translation>Редактор кривых</translation>
+    </message>
+    <message>
+        <source>Custom Grid…</source>
+        <translation>Своя сетка…</translation>
+    </message>
+    <message>
+        <source>Cut</source>
+        <translation>Быстрый монтаж</translation>
+    </message>
+    <message>
+        <source>Cut Mode</source>
+        <translation>Режим нарезки</translation>
+    </message>
+    <message>
+        <source>Cycle Side</source>
+        <translation>Переключить сторону</translation>
+    </message>
+    <message>
+        <source>Decompose in Place</source>
+        <translation>Разложить на месте</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Удалить</translation>
+    </message>
+    <message>
+        <source>Delete Empty Tracks</source>
+        <translation>Удалить пустые дорожки</translation>
+    </message>
+    <message>
+        <source>Delete Marker</source>
+        <translation>Удалить маркер</translation>
+    </message>
+    <message>
+        <source>Delete Node</source>
+        <translation>Удалить ноду</translation>
+    </message>
+    <message>
+        <source>Delete Optimized Media…</source>
+        <translation>Удалить оптимизированные медиа…</translation>
+    </message>
+    <message>
+        <source>Delete Preset</source>
+        <translation>Удалить пресет</translation>
+    </message>
+    <message>
+        <source>Delete Proxies…</source>
+        <translation>Удалить прокси…</translation>
+    </message>
+    <message>
+        <source>Delete Render Cache…</source>
+        <translation>Удалить кэш рендера…</translation>
+    </message>
+    <message>
+        <source>Deliver</source>
+        <translation>Вывод</translation>
+    </message>
+    <message>
+        <source>Discord Community</source>
+        <translation>Сообщество в Discord</translation>
+    </message>
+    <message>
+        <source>Down a Track</source>
+        <translation>На дорожку вниз</translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <translation>Дублировать</translation>
+    </message>
+    <message>
+        <source>Dynamic Trim</source>
+        <translation>Динамическая подрезка</translation>
+    </message>
+    <message>
+        <source>Dynamic Zoom</source>
+        <translation>Динамический зум</translation>
+    </message>
+    <message>
+        <source>Ease In</source>
+        <translation>Плавный вход</translation>
+    </message>
+    <message>
+        <source>Ease In and Out</source>
+        <translation>Плавный вход и выход</translation>
+    </message>
+    <message>
+        <source>Ease Out</source>
+        <translation>Плавный выход</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation>Монтаж</translation>
+    </message>
+    <message>
+        <source>Edit Point</source>
+        <translation>Точка монтажа</translation>
+    </message>
+    <message>
+        <source>Ellipse</source>
+        <translation>Эллипс</translation>
+    </message>
+    <message>
+        <source>Enable Node</source>
+        <translation>Включить ноду</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation>Включено</translation>
+    </message>
+    <message>
+        <source>End</source>
+        <translation>Конец</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Экспорт</translation>
+    </message>
+    <message>
+        <source>Export Log File…</source>
+        <translation>Экспортировать файл журнала…</translation>
+    </message>
+    <message>
+        <source>Extend Edit</source>
+        <translation>Продлить монтажный стык</translation>
+    </message>
+    <message>
+        <source>Fast Review</source>
+        <translation>Быстрый просмотр</translation>
+    </message>
+    <message>
+        <source>Find in Media Pool</source>
+        <translation>Найти в медиапуле</translation>
+    </message>
+    <message>
+        <source>Fit to Fill</source>
+        <translation>Вписать по размеру</translation>
+    </message>
+    <message>
+        <source>Fit to View</source>
+        <translation>Вписать в окно</translation>
+    </message>
+    <message>
+        <source>Flag Clip</source>
+        <translation>Пометить клип флагом</translation>
+    </message>
+    <message>
+        <source>Flatten</source>
+        <translation>Сплющить</translation>
+    </message>
+    <message>
+        <source>Float Viewer</source>
+        <translation>Окно просмотра отдельным окном</translation>
+    </message>
+    <message>
+        <source>Forward</source>
+        <translation>Вперед</translation>
+    </message>
+    <message>
+        <source>Forward 1 Second</source>
+        <translation>Вперёд на 1 секунду</translation>
+    </message>
+    <message>
+        <source>Forward on All Tracks</source>
+        <translation>Вперёд на всех дорожках</translation>
+    </message>
+    <message>
+        <source>Freehand</source>
+        <translation>Произвольная форма</translation>
+    </message>
+    <message>
+        <source>Freeze Frame</source>
+        <translation>Стоп-кадр</translation>
+    </message>
+    <message>
+        <source>Full</source>
+        <translation>Полный</translation>
+    </message>
+    <message>
+        <source>Full Screen Window</source>
+        <translation>Окно на весь экран</translation>
+    </message>
+    <message>
+        <source>Full-Screen Viewer</source>
+        <translation>Окно просмотра на весь экран</translation>
+    </message>
+    <message>
+        <source>Generate Optimized Media</source>
+        <translation>Создать оптимизированные медиаданные</translation>
+    </message>
+    <message>
+        <source>Generate Proxies</source>
+        <translation>Создать прокси</translation>
+    </message>
+    <message>
+        <source>Getting Started</source>
+        <translation>Начало работы</translation>
+    </message>
+    <message>
+        <source>Go To</source>
+        <translation>Перейти</translation>
+    </message>
+    <message>
+        <source>Go to Page</source>
+        <translation>Перейти на страницу</translation>
+    </message>
+    <message>
+        <source>Grab</source>
+        <translation>Захват</translation>
+    </message>
+    <message>
+        <source>Grade the Timeline</source>
+        <translation>Цветокоррекция таймлайна</translation>
+    </message>
+    <message>
+        <source>Grid</source>
+        <translation>Сетка</translation>
+    </message>
+    <message>
+        <source>Grid Type</source>
+        <translation>Тип сетки</translation>
+    </message>
+    <message>
+        <source>Guides</source>
+        <translation>Направляющие</translation>
+    </message>
+    <message>
+        <source>Guide…</source>
+        <translation>Руководство…</translation>
+    </message>
+    <message>
+        <source>Half</source>
+        <translation>Половина</translation>
+    </message>
+    <message>
+        <source>Help for This…</source>
+        <translation>Справка по этому…</translation>
+    </message>
+    <message>
+        <source>Highlight</source>
+        <translation>Выделение</translation>
+    </message>
+    <message>
+        <source>History…</source>
+        <translation>История…</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Импортировать</translation>
+    </message>
+    <message>
+        <source>In</source>
+        <translation>Внутри</translation>
+    </message>
+    <message>
+        <source>Insert</source>
+        <translation>Вставить</translation>
+    </message>
+    <message>
+        <source>Interpolation</source>
+        <translation>Интерполяция</translation>
+    </message>
+    <message>
+        <source>Join Clips</source>
+        <translation>Объединить клипы</translation>
+    </message>
+    <message>
+        <source>Keyboard Shortcuts…</source>
+        <translation>Сочетания клавиш…</translation>
+    </message>
+    <message>
+        <source>Keyframe Editor</source>
+        <translation>Редактор ключевых кадров</translation>
+    </message>
+    <message>
+        <source>Keyframes</source>
+        <translation>Ключевые кадры</translation>
+    </message>
+    <message>
+        <source>Kinoklip</source>
+        <translation>Kinoklip</translation>
+    </message>
+    <message>
+        <source>Layer</source>
+        <translation>Слой</translation>
+    </message>
+    <message>
+        <source>Left 1 Frame</source>
+        <translation>Влево на 1 кадр</translation>
+    </message>
+    <message>
+        <source>Left Several Frames</source>
+        <translation>Влево на несколько кадров</translation>
+    </message>
+    <message>
+        <source>Linear</source>
+        <translation>Линейная</translation>
+    </message>
+    <message>
+        <source>Linear Extrapolation</source>
+        <translation>Линейная экстраполяция</translation>
+    </message>
+    <message>
+        <source>Linear Extrapolation Before</source>
+        <translation>Линейная экстраполяция до</translation>
+    </message>
+    <message>
+        <source>Link</source>
+        <translation>Связать</translation>
+    </message>
+    <message>
+        <source>Link Proxies…</source>
+        <translation>Связать прокси…</translation>
+    </message>
+    <message>
+        <source>Linked Selection</source>
+        <translation>Связанное выделение</translation>
+    </message>
+    <message>
+        <source>Load Preset</source>
+        <translation>Загрузить пресет</translation>
+    </message>
+    <message>
+        <source>Lock</source>
+        <translation>Заблокировать</translation>
+    </message>
+    <message>
+        <source>Look</source>
+        <translation>Внешний вид</translation>
+    </message>
+    <message>
+        <source>Loop</source>
+        <translation>Повтор</translation>
+    </message>
+    <message>
+        <source>Loops</source>
+        <translation>Циклы</translation>
+    </message>
+    <message>
+        <source>Mark Clip</source>
+        <translation>Пометить клип</translation>
+    </message>
+    <message>
+        <source>Mark In</source>
+        <translation>Поставить точку входа</translation>
+    </message>
+    <message>
+        <source>Mark Out</source>
+        <translation>Поставить точку выхода</translation>
+    </message>
+    <message>
+        <source>Mark Selection</source>
+        <translation>Пометить выделенное</translation>
+    </message>
+    <message>
+        <source>Markers as CSV…</source>
+        <translation>Маркеры как CSV…</translation>
+    </message>
+    <message>
+        <source>Markers as EDL…</source>
+        <translation>Маркеры как EDL…</translation>
+    </message>
+    <message>
+        <source>Mask</source>
+        <translation>Маска</translation>
+    </message>
+    <message>
+        <source>Masks</source>
+        <translation>Маски</translation>
+    </message>
+    <message>
+        <source>Match Frame</source>
+        <translation>Найти исходный кадр</translation>
+    </message>
+    <message>
+        <source>Media</source>
+        <translation>Медиа</translation>
+    </message>
+    <message>
+        <source>Media Folder…</source>
+        <translation>Папка с медиа…</translation>
+    </message>
+    <message>
+        <source>Media…</source>
+        <translation>Медиа…</translation>
+    </message>
+    <message>
+        <source>Mixer</source>
+        <translation>Микшер</translation>
+    </message>
+    <message>
+        <source>Move</source>
+        <translation>Перемещение</translation>
+    </message>
+    <message>
+        <source>Multicam</source>
+        <translation>Мультикамера</translation>
+    </message>
+    <message>
+        <source>Multicam Angles</source>
+        <translation>Ракурсы мультикамеры</translation>
+    </message>
+    <message>
+        <source>Nearest Clip or Gap</source>
+        <translation>Ближайший клип или пробел</translation>
+    </message>
+    <message>
+        <source>New Compound Clip…</source>
+        <translation>Новый составной клип…</translation>
+    </message>
+    <message>
+        <source>New Multicam Clip…</source>
+        <translation>Новый мультикамерный клип…</translation>
+    </message>
+    <message>
+        <source>New Timeline…</source>
+        <translation>Новый таймлайн…</translation>
+    </message>
+    <message>
+        <source>Next</source>
+        <translation>Далее</translation>
+    </message>
+    <message>
+        <source>Next Edit</source>
+        <translation>Следующая точка монтажа</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>Следующий кадр</translation>
+    </message>
+    <message>
+        <source>Next Marker</source>
+        <translation>Следующая метка</translation>
+    </message>
+    <message>
+        <source>Next Page</source>
+        <translation>Следующая страница</translation>
+    </message>
+    <message>
+        <source>Next Tab</source>
+        <translation>Следующая вкладка</translation>
+    </message>
+    <message>
+        <source>No Proxies</source>
+        <translation>Без прокси</translation>
+    </message>
+    <message>
+        <source>Node Grade</source>
+        <translation>Цветокоррекция ноды</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Нет</translation>
+    </message>
+    <message>
+        <source>Normalize Levels…</source>
+        <translation>Нормализовать уровни…</translation>
+    </message>
+    <message>
+        <source>Nudge</source>
+        <translation>Сдвиг</translation>
+    </message>
+    <message>
+        <source>On-Screen Controls</source>
+        <translation>Элементы управления на экране</translation>
+    </message>
+    <message>
+        <source>Open Project…</source>
+        <translation>Открыть проект…</translation>
+    </message>
+    <message>
+        <source>Open Recent</source>
+        <translation>Открыть недавний</translation>
+    </message>
+    <message>
+        <source>Open in Compositing Page</source>
+        <translation>Открыть на странице Композитинг</translation>
+    </message>
+    <message>
+        <source>Open in Timeline</source>
+        <translation>Открыть в таймлайне</translation>
+    </message>
+    <message>
+        <source>Out</source>
+        <translation>Выход</translation>
+    </message>
+    <message>
+        <source>Overlays</source>
+        <translation>Оверлеи</translation>
+    </message>
+    <message>
+        <source>Overwrite</source>
+        <translation>Перезаписать</translation>
+    </message>
+    <message>
+        <source>Pack…</source>
+        <translation>Упаковать…</translation>
+    </message>
+    <message>
+        <source>Panels</source>
+        <translation>Панели</translation>
+    </message>
+    <message>
+        <source>Parallel</source>
+        <translation>Параллельно</translation>
+    </message>
+    <message>
+        <source>Pass Through</source>
+        <translation>Пропускать</translation>
+    </message>
+    <message>
+        <source>Paste</source>
+        <translation>Вставить</translation>
+    </message>
+    <message>
+        <source>Paste Attributes…</source>
+        <translation>Вставить атрибуты…</translation>
+    </message>
+    <message>
+        <source>Paste Grade</source>
+        <translation>Вставить цветокоррекцию</translation>
+    </message>
+    <message>
+        <source>Paste Insert</source>
+        <translation>Вставить со сдвигом</translation>
+    </message>
+    <message>
+        <source>Paste Special</source>
+        <translation>Специальная вставка</translation>
+    </message>
+    <message>
+        <source>Place on Top</source>
+        <translation>Поместить сверху</translation>
+    </message>
+    <message>
+        <source>Play / Pause</source>
+        <translation>Воспроизведение / Пауза</translation>
+    </message>
+    <message>
+        <source>Play Around Current Frame</source>
+        <translation>Воспроизвести вокруг текущего кадра</translation>
+    </message>
+    <message>
+        <source>Play In to Out</source>
+        <translation>Воспроизвести от входа до выхода</translation>
+    </message>
+    <message>
+        <source>Play Reverse</source>
+        <translation>Воспроизвести назад</translation>
+    </message>
+    <message>
+        <source>Polygon</source>
+        <translation>Многоугольник</translation>
+    </message>
+    <message>
+        <source>Prefer Originals</source>
+        <translation>Предпочитать оригиналы</translation>
+    </message>
+    <message>
+        <source>Prefer Proxies</source>
+        <translation>Предпочитать прокси</translation>
+    </message>
+    <message>
+        <source>Previous</source>
+        <translation>Назад</translation>
+    </message>
+    <message>
+        <source>Previous Edit</source>
+        <translation>Предыдущая точка монтажа</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>Предыдущий кадр</translation>
+    </message>
+    <message>
+        <source>Previous Marker</source>
+        <translation>Предыдущая метка</translation>
+    </message>
+    <message>
+        <source>Previous Page</source>
+        <translation>Предыдущая страница</translation>
+    </message>
+    <message>
+        <source>Previous Tab</source>
+        <translation>Предыдущая вкладка</translation>
+    </message>
+    <message>
+        <source>Project Tools</source>
+        <translation>Инструменты проекта</translation>
+    </message>
+    <message>
+        <source>Proxies and Optimized Media</source>
+        <translation>Прокси и оптимизированные медиа</translation>
+    </message>
+    <message>
+        <source>Quality</source>
+        <translation>Качество</translation>
+    </message>
+    <message>
+        <source>Quarter</source>
+        <translation>Четверть</translation>
+    </message>
+    <message>
+        <source>Record Voice-Over…</source>
+        <translation>Записать закадровый голос…</translation>
+    </message>
+    <message>
+        <source>Rectangle</source>
+        <translation>Прямоугольник</translation>
+    </message>
+    <message>
+        <source>Remove Loop</source>
+        <translation>Удалить цикл</translation>
+    </message>
+    <message>
+        <source>Remove Pre-Loop</source>
+        <translation>Удалить пред-цикл</translation>
+    </message>
+    <message>
+        <source>Remove Unused Clips…</source>
+        <translation>Удалить неиспользуемые клипы…</translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <translation>Переименовать</translation>
+    </message>
+    <message>
+        <source>Render Cache</source>
+        <translation>Кэш рендера</translation>
+    </message>
+    <message>
+        <source>Replace</source>
+        <translation>Заменить</translation>
+    </message>
+    <message>
+        <source>Report a Bug…</source>
+        <translation>Сообщить об ошибке…</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Сброс</translation>
+    </message>
+    <message>
+        <source>Reset Composition</source>
+        <translation>Сбросить композицию</translation>
+    </message>
+    <message>
+        <source>Reset Layout</source>
+        <translation>Сбросить раскладку</translation>
+    </message>
+    <message>
+        <source>Reset Loudness Meter</source>
+        <translation>Сбросить измеритель громкости</translation>
+    </message>
+    <message>
+        <source>Retime Controls</source>
+        <translation>Управление временем</translation>
+    </message>
+    <message>
+        <source>Retime Curve</source>
+        <translation>Кривая изменения скорости</translation>
+    </message>
+    <message>
+        <source>Reverse</source>
+        <translation>Обратить</translation>
+    </message>
+    <message>
+        <source>Right 1 Frame</source>
+        <translation>Вправо на 1 кадр</translation>
+    </message>
+    <message>
+        <source>Right Several Frames</source>
+        <translation>Вправо на несколько кадров</translation>
+    </message>
+    <message>
+        <source>Ripple Cut</source>
+        <translation>Вырезать со сдвигом</translation>
+    </message>
+    <message>
+        <source>Ripple Delete</source>
+        <translation>Удалить со сдвигом</translation>
+    </message>
+    <message>
+        <source>Ripple End</source>
+        <translation>Сдвиг конца</translation>
+    </message>
+    <message>
+        <source>Ripple Overwrite</source>
+        <translation>Перезаписать со сдвигом</translation>
+    </message>
+    <message>
+        <source>Ripple Start</source>
+        <translation>Сдвиг начала</translation>
+    </message>
+    <message>
+        <source>Rule of Thirds</source>
+        <translation>Правило третей</translation>
+    </message>
+    <message>
+        <source>Rulers</source>
+        <translation>Линейки</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Сохранить</translation>
+    </message>
+    <message>
+        <source>Save As…</source>
+        <translation>Сохранить как…</translation>
+    </message>
+    <message>
+        <source>Save Preset…</source>
+        <translation>Сохранить пресет…</translation>
+    </message>
+    <message>
+        <source>Select</source>
+        <translation>Выделение</translation>
+    </message>
+    <message>
+        <source>Select Nearest</source>
+        <translation>Выделить ближайшее</translation>
+    </message>
+    <message>
+        <source>Selection Mode</source>
+        <translation>Режим выделения</translation>
+    </message>
+    <message>
+        <source>Serial</source>
+        <translation>Последовательно</translation>
+    </message>
+    <message>
+        <source>Serial Before</source>
+        <translation>Последовательно перед</translation>
+    </message>
+    <message>
+        <source>Set Loop</source>
+        <translation>Установить цикл</translation>
+    </message>
+    <message>
+        <source>Set Ping-Pong</source>
+        <translation>Установить пинг-понг</translation>
+    </message>
+    <message>
+        <source>Set Pre-Loop</source>
+        <translation>Установить пред-цикл</translation>
+    </message>
+    <message>
+        <source>Set Pre-Ping-Pong</source>
+        <translation>Установить пред-пинг-понг</translation>
+    </message>
+    <message>
+        <source>Set Pre-Relative</source>
+        <translation>Установить пред-относительный</translation>
+    </message>
+    <message>
+        <source>Set Relative</source>
+        <translation>Установить относительный</translation>
+    </message>
+    <message>
+        <source>Show</source>
+        <translation>Показать</translation>
+    </message>
+    <message>
+        <source>Show Source Clip</source>
+        <translation>Показать исходный клип</translation>
+    </message>
+    <message>
+        <source>Show Source Tape</source>
+        <translation>Показать исходную ленту</translation>
+    </message>
+    <message>
+        <source>Show Timeline</source>
+        <translation>Показать таймлайн</translation>
+    </message>
+    <message>
+        <source>Shuttle</source>
+        <translation>Челнок</translation>
+    </message>
+    <message>
+        <source>Shuttle Forward</source>
+        <translation>Челнок вперёд</translation>
+    </message>
+    <message>
+        <source>Shuttle Reverse</source>
+        <translation>Челнок назад</translation>
+    </message>
+    <message>
+        <source>Single Viewer</source>
+        <translation>Одно окно просмотра</translation>
+    </message>
+    <message>
+        <source>Smart</source>
+        <translation>Умный</translation>
+    </message>
+    <message>
+        <source>Smart Insert</source>
+        <translation>Умная вставка</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Сглаживание</translation>
+    </message>
+    <message>
+        <source>Snap</source>
+        <translation>Привязка</translation>
+    </message>
+    <message>
+        <source>Snap to Grid</source>
+        <translation>Привязка к сетке</translation>
+    </message>
+    <message>
+        <source>Snapping</source>
+        <translation>Привязка</translation>
+    </message>
+    <message>
+        <source>Source / Timeline</source>
+        <translation>Источник / Таймлайн</translation>
+    </message>
+    <message>
+        <source>Source Overwrite</source>
+        <translation>Перезапись по источнику</translation>
+    </message>
+    <message>
+        <source>Speed +10%</source>
+        <translation>Скорость +10%</translation>
+    </message>
+    <message>
+        <source>Speed -10%</source>
+        <translation>Скорость −10%</translation>
+    </message>
+    <message>
+        <source>Speed and Duration</source>
+        <translation>Скорость и длительность</translation>
+    </message>
+    <message>
+        <source>Split at Playhead</source>
+        <translation>Разрезать по указателю воспроизведения</translation>
+    </message>
+    <message>
+        <source>Stacked Timelines</source>
+        <translation>Стопка таймлайнов</translation>
+    </message>
+    <message>
+        <source>Start</source>
+        <translation>Начало</translation>
+    </message>
+    <message>
+        <source>Step In</source>
+        <translation>Ступенчатый вход</translation>
+    </message>
+    <message>
+        <source>Step Out</source>
+        <translation>Ступенчатый выход</translation>
+    </message>
+    <message>
+        <source>Stills</source>
+        <translation>Фотографии</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Стоп</translation>
+    </message>
+    <message>
+        <source>Subtitles…</source>
+        <translation>Субтитры…</translation>
+    </message>
+    <message>
+        <source>Swap Inputs</source>
+        <translation>Поменять входы местами</translation>
+    </message>
+    <message>
+        <source>Swap with Next</source>
+        <translation>Поменять со следующим</translation>
+    </message>
+    <message>
+        <source>Swap with Previous</source>
+        <translation>Поменять с предыдущим</translation>
+    </message>
+    <message>
+        <source>Switch Mode</source>
+        <translation>Переключить режим</translation>
+    </message>
+    <message>
+        <source>Sync and Place</source>
+        <translation>Синхронизировать и разместить</translation>
+    </message>
+    <message>
+        <source>Time&amp;line</source>
+        <translation>Тайм&amp;лайн</translation>
+    </message>
+    <message>
+        <source>Timeline Settings…</source>
+        <translation>Настройки таймлайна…</translation>
+    </message>
+    <message>
+        <source>Timeline as EDL…</source>
+        <translation>Таймлайн как EDL…</translation>
+    </message>
+    <message>
+        <source>Timeline as OpenTimelineIO…</source>
+        <translation>Таймлайн как OpenTimelineIO…</translation>
+    </message>
+    <message>
+        <source>Timelines</source>
+        <translation>Таймлайны</translation>
+    </message>
+    <message>
+        <source>Timeline…</source>
+        <translation>Таймлайн…</translation>
+    </message>
+    <message>
+        <source>Title Safe</source>
+        <translation>Безопасная зона названия</translation>
+    </message>
+    <message>
+        <source>Toggle Keyframe / Curve</source>
+        <translation>Переключить ключевые кадры / кривые</translation>
+    </message>
+    <message>
+        <source>Tracks</source>
+        <translation>Дорожки</translation>
+    </message>
+    <message>
+        <source>Transform</source>
+        <translation>Трансформация</translation>
+    </message>
+    <message>
+        <source>Trim Mode</source>
+        <translation>Режим подрезки</translation>
+    </message>
+    <message>
+        <source>Trim to Playhead</source>
+        <translation>Подрезать по указателю воспроизведения</translation>
+    </message>
+    <message>
+        <source>Unlink</source>
+        <translation>Разъединить</translation>
+    </message>
+    <message>
+        <source>Unlink Proxies</source>
+        <translation>Отвязать прокси</translation>
+    </message>
+    <message>
+        <source>Unpack…</source>
+        <translation>Распаковать…</translation>
+    </message>
+    <message>
+        <source>Up a Track</source>
+        <translation>На дорожку вверх</translation>
+    </message>
+    <message>
+        <source>Use Optimized Media</source>
+        <translation>Использовать оптимизированные медиа</translation>
+    </message>
+    <message>
+        <source>Use Proxies</source>
+        <translation>Использовать прокси</translation>
+    </message>
+    <message>
+        <source>User</source>
+        <translation>Пользователь</translation>
+    </message>
+    <message>
+        <source>Verify Project File</source>
+        <translation>Проверить файл проекта</translation>
+    </message>
+    <message>
+        <source>Video Only</source>
+        <translation>Только видео</translation>
+    </message>
+    <message>
+        <source>Video and Audio</source>
+        <translation>Видео и звук</translation>
+    </message>
+    <message>
+        <source>View in Left Viewer</source>
+        <translation>Показать в левом окне просмотра</translation>
+    </message>
+    <message>
+        <source>View in Right Viewer</source>
+        <translation>Показать в правом окне просмотра</translation>
+    </message>
+    <message>
+        <source>Viewer</source>
+        <translation>Окно просмотра</translation>
+    </message>
+    <message>
+        <source>Welcome…</source>
+        <translation>Приветствие…</translation>
+    </message>
+    <message>
+        <source>Widget Style</source>
+        <translation>Стиль элементов</translation>
+    </message>
+    <message>
+        <source>Wipe</source>
+        <translation>Шторка</translation>
+    </message>
+    <message>
+        <source>Zoom</source>
+        <translation>Зум</translation>
+    </message>
+    <message>
+        <source>Zoom In</source>
+        <translation>Приближение</translation>
+    </message>
+    <message>
+        <source>Zoom Out</source>
+        <translation>Уменьшить масштаб</translation>
+    </message>
+    <message>
+        <source>Zoom to Fit</source>
+        <translation>Масштаб по размеру</translation>
+    </message>
+</context>
+<context>
     <name>kk::MetadataPanel</name>
     <message>
         <source>Metadata</source>
@@ -13632,10 +20134,116 @@ Import files with %1 or drop them here.</source>
     </message>
 </context>
 <context>
+    <name>kk::MulticamDialog</name>
+    <message>
+        <source>Angle Number</source>
+        <translation>Номер ракурса</translation>
+    </message>
+    <message>
+        <source>Angle name</source>
+        <translation>Имя ракурса</translation>
+    </message>
+    <message>
+        <source>Angle sync</source>
+        <translation>Синхронизация ракурсов</translation>
+    </message>
+    <message>
+        <source>Clip Name</source>
+        <translation>Имя клипа</translation>
+    </message>
+    <message>
+        <source>Create</source>
+        <translation>Создать</translation>
+    </message>
+    <message>
+        <source>Creates a multicam clip with %n angle from the selected clip.</source>
+        <translation>Создает мультикамерный клип с %n ракурсом из выбранного клипа.</translation>
+    </message>
+    <message>
+        <source>Creates a multicam clip with %n angles from the selected clips.</source>
+        <translation>Создает мультикамерный клип с %n ракурсами из выбранных клипов.</translation>
+    </message>
+    <message>
+        <source>Move source clips to &quot;Original Clips&quot; bin</source>
+        <translation>Переместить исходные клипы в папку &quot;Original Clips&quot;</translation>
+    </message>
+    <message>
+        <source>Multicam clip name</source>
+        <translation>Имя мультикамерного клипа</translation>
+    </message>
+    <message>
+        <source>New Multicam Clip</source>
+        <translation>Новый мультикамерный клип</translation>
+    </message>
+    <message>
+        <source>Sound (audio waveform)</source>
+        <translation>Звук (форма волны)</translation>
+    </message>
+</context>
+<context>
     <name>kk::MulticamOverlay</name>
     <message>
         <source>Page %1 / %2</source>
         <translation>Страница %1 / %2</translation>
+    </message>
+</context>
+<context>
+    <name>kk::MulticamSync</name>
+    <message>
+        <source>%1 of %2 clips were synced. These were not and will start with the first clip:</source>
+        <translation>Синхронизировано клипов: %1 из %2. Следующие клипы не были синхронизированы и начнутся с первого клипа:</translation>
+    </message>
+    <message>
+        <source>%1: no audio</source>
+        <translation>%1: нет звука</translation>
+    </message>
+    <message>
+        <source>%1: no sound in common with %2 was found (confidence %3 %)</source>
+        <translation>%1: не найдено общего звука с %2 (точность %3 %)</translation>
+    </message>
+    <message>
+        <source>%1: no start timecode in the file</source>
+        <translation>%1: в файле отсутствует начальный тайм-код</translation>
+    </message>
+    <message>
+        <source>%1: the audio could not be read (%2)</source>
+        <translation>%1: не удалось прочитать звук (%2)</translation>
+    </message>
+    <message>
+        <source>Analysing the audio of %n clips…</source>
+        <translation>Анализ звука %n клипов…</translation>
+    </message>
+    <message>
+        <source>Analysing the audio of %n clip…</source>
+        <translation>Анализ звука %n клипа…</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
+    </message>
+    <message>
+        <source>Clip Start</source>
+        <translation>Начало клипа</translation>
+    </message>
+    <message>
+        <source>Continue?</source>
+        <translation>Продолжить?</translation>
+    </message>
+    <message>
+        <source>In Points</source>
+        <translation>Точки входа</translation>
+    </message>
+    <message>
+        <source>The clips could not be synced by %1.</source>
+        <translation>Не удалось синхронизировать клипы по %1.</translation>
+    </message>
+    <message>
+        <source>Timecode</source>
+        <translation>Тайм-код</translation>
+    </message>
+    <message>
+        <source>Waveform</source>
+        <translation>Форма волны</translation>
     </message>
 </context>
 <context>
@@ -14449,6 +21057,122 @@ Import files with %1 or drop them here.</source>
         <source>Despill</source>
         <translation>Подавление отсвета</translation>
     </message>
+    <message>
+        <source>Add</source>
+        <translation>Добавить</translation>
+    </message>
+    <message>
+        <source>Angle</source>
+        <translation>Угол</translation>
+    </message>
+    <message>
+        <source>Canvas</source>
+        <translation>Холст</translation>
+    </message>
+    <message>
+        <source>Catmull-Rom</source>
+        <translation>Катмулл-Ром</translation>
+    </message>
+    <message>
+        <source>Center X</source>
+        <translation>Центр X</translation>
+    </message>
+    <message>
+        <source>Center Y</source>
+        <translation>Центр Y</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation>Копировать</translation>
+    </message>
+    <message>
+        <source>Cubic</source>
+        <translation>Кубическая</translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <translation>Дублировать</translation>
+    </message>
+    <message>
+        <source>Edges</source>
+        <translation>Края</translation>
+    </message>
+    <message>
+        <source>Effect Mask</source>
+        <translation>Маска эффекта</translation>
+    </message>
+    <message>
+        <source>Filter Method</source>
+        <translation>Метод фильтрации</translation>
+    </message>
+    <message>
+        <source>Gaussian</source>
+        <translation>Гаусс</translation>
+    </message>
+    <message>
+        <source>Ignore</source>
+        <translation>Игнорировать</translation>
+    </message>
+    <message>
+        <source>Input</source>
+        <translation>Вход</translation>
+    </message>
+    <message>
+        <source>Lanczos</source>
+        <translation>Ланцош</translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation>Уровень</translation>
+    </message>
+    <message>
+        <source>Linear</source>
+        <translation>Линейная</translation>
+    </message>
+    <message>
+        <source>Maximum</source>
+        <translation>Максимум</translation>
+    </message>
+    <message>
+        <source>Minimum</source>
+        <translation>Минимум</translation>
+    </message>
+    <message>
+        <source>Mirror</source>
+        <translation>Зеркальное отражение</translation>
+    </message>
+    <message>
+        <source>Mitchell</source>
+        <translation>Митчелл</translation>
+    </message>
+    <message>
+        <source>Multiply</source>
+        <translation>Умножение</translation>
+    </message>
+    <message>
+        <source>Nearest Neighbor</source>
+        <translation>Ближайший сосед</translation>
+    </message>
+    <message>
+        <source>Paint Mode</source>
+        <translation>Режим рисования</translation>
+    </message>
+    <message>
+        <source>Replace</source>
+        <translation>Заменить</translation>
+    </message>
+    <message>
+        <source>Soft Edge</source>
+        <translation>Мягкие края</translation>
+    </message>
+    <message>
+        <source>Subtract</source>
+        <translation>Вычесть</translation>
+    </message>
+    <message>
+        <source>Wrap</source>
+        <translation>Зацикливание</translation>
+    </message>
 </context>
 <context>
     <name>kk::NormalizeAudioDialog</name>
@@ -15006,7 +21730,7 @@ Auto: Full, switching to Half only while playback cannot keep up (paused: Full).
     <name>kk::ProjectController</name>
     <message>
         <source>Project Repaired</source>
-        <translation type="unfinished"></translation>
+        <translation>Нормализовать уровни звука</translation>
     </message>
     <message>
         <source>This project had a damaged timeline. It was repaired so you can keep working; nothing was lost unless noted:
@@ -15014,7 +21738,11 @@ Auto: Full, switching to Half only while playback cannot keep up (paused: Full).
 %1
 
 Save the project to keep the repaired version.</source>
-        <translation type="unfinished"></translation>
+        <translation>В этом проекте был повреждён таймлайн. Он восстановлен, и вы можете продолжать работу; ничего не потеряно, кроме отмеченного:
+
+%1
+
+Сохраните проект, чтобы сохранить восстановленную версию.</translation>
     </message>
     <message>
         <source>Unsaved Changes</source>
@@ -15303,6 +22031,61 @@ Estimated size after compacting: %3</source>
     <message>
         <source>“%1” was repaired. Verify it again to check every byte.</source>
         <translation>“%1” был восстановлен. Проверьте снова, чтобы проверить каждый байт.</translation>
+    </message>
+</context>
+<context>
+    <name>kk::ProjectKinds</name>
+    <message>
+        <source>Cannot open the file: %1</source>
+        <translation>Не удалось открыть файл: %1</translation>
+    </message>
+    <message>
+        <source>Created by a newer version (format %1)</source>
+        <translation>Создан более новой версией (формат %1)</translation>
+    </message>
+    <message>
+        <source>Damaged project file: %1</source>
+        <translation>Повреждённый файл проекта: %1</translation>
+    </message>
+    <message>
+        <source>Damaged timeline: %1</source>
+        <translation>Повреждённый таймлайн: %1</translation>
+    </message>
+    <message>
+        <source>Linked</source>
+        <translation>Связано</translation>
+    </message>
+    <message>
+        <source>Linked project</source>
+        <translation>Связанный проект</translation>
+    </message>
+    <message>
+        <source>Not a %1 project file</source>
+        <translation>Это не файл проекта %1</translation>
+    </message>
+    <message>
+        <source>Not a valid project file: %1</source>
+        <translation>Недопустимый файл проекта: %1</translation>
+    </message>
+    <message>
+        <source>Single file</source>
+        <translation>Один файл</translation>
+    </message>
+    <message>
+        <source>Single-file project</source>
+        <translation>Однофайловый проект</translation>
+    </message>
+    <message>
+        <source>The project file holds no project yet</source>
+        <translation>В файле проекта пока нет проекта</translation>
+    </message>
+    <message>
+        <source>The project has no timeline</source>
+        <translation>В проекте нет таймлайна</translation>
+    </message>
+    <message>
+        <source>The project is open in another window or program</source>
+        <translation>Проект открыт в другом окне или программе</translation>
     </message>
 </context>
 <context>
@@ -16122,6 +22905,53 @@ The timelines that use the project settings are converted: clips, markers and ef
     <message>
         <source>Project Settings</source>
         <translation>Настройки проекта</translation>
+    </message>
+</context>
+<context>
+    <name>kk::ProxyMedia</name>
+    <message>
+        <source>%1 has no known frame rate.</source>
+        <translation>У %1 неизвестная частота кадров.</translation>
+    </message>
+    <message>
+        <source>%1 has no known picture size.</source>
+        <translation>У %1 неизвестный размер изображения.</translation>
+    </message>
+    <message>
+        <source>%1 has no moving pictures (proxies are made for video).</source>
+        <translation>У %1 нет видеопотока (прокси создаются для видео).</translation>
+    </message>
+    <message>
+        <source>DNxHR LB</source>
+        <translation>DNxHR LB</translation>
+    </message>
+    <message>
+        <source>DNxHR SQ</source>
+        <translation>DNxHR SQ</translation>
+    </message>
+    <message>
+        <source>H.264 (fast decode)</source>
+        <translation>H.264 (быстрое декодирование)</translation>
+    </message>
+    <message>
+        <source>ProRes 422</source>
+        <translation>ProRes 422</translation>
+    </message>
+    <message>
+        <source>ProRes 422 LT</source>
+        <translation>ProRes 422 LT</translation>
+    </message>
+    <message>
+        <source>ProRes 422 Proxy</source>
+        <translation>ProRes 422 Proxy</translation>
+    </message>
+    <message>
+        <source>ProRes 4444</source>
+        <translation>ProRes 4444</translation>
+    </message>
+    <message>
+        <source>Timelines and compound clips have no proxy media.</source>
+        <translation>Таймлайны и составные клипы не имеют прокси-медиа.</translation>
     </message>
 </context>
 <context>
@@ -17082,6 +23912,29 @@ The timelines that use the project settings are converted: clips, markers and ef
     <message>
         <source>Reset RGB Mixer</source>
         <translation>Сбросить RGB-микшер</translation>
+    </message>
+</context>
+<context>
+    <name>kk::SaveMediaCopy</name>
+    <message>
+        <source>Copying %1 files…</source>
+        <translation>Копирование %1 файлов…</translation>
+    </message>
+    <message>
+        <source>Copying %1…</source>
+        <translation>Копирование %1…</translation>
+    </message>
+    <message>
+        <source>Save Copies to Computer</source>
+        <translation>Сохранить копии на компьютер</translation>
+    </message>
+    <message>
+        <source>Save a Copy to Computer</source>
+        <translation>Сохранить копию на компьютер</translation>
+    </message>
+    <message>
+        <source>The copy could not be completed: %1</source>
+        <translation>Не удалось завершить копирование: %1</translation>
     </message>
 </context>
 <context>
@@ -18957,6 +25810,41 @@ Restart Kinoklip to apply them.</source>
     </message>
 </context>
 <context>
+    <name>kk::SubtitleExport</name>
+    <message>
+        <source>Advanced SubStation (ASS)</source>
+        <translation>Advanced SubStation (ASS)</translation>
+    </message>
+    <message>
+        <source>Cannot open the subtitle encoder %1: %2</source>
+        <translation>Не удалось открыть кодировщик субтитров %1: %2</translation>
+    </message>
+    <message>
+        <source>Cannot write %1: %2</source>
+        <translation>Не удалось записать %1: %2</translation>
+    </message>
+    <message>
+        <source>MP4 Timed Text</source>
+        <translation>MP4 Timed Text</translation>
+    </message>
+    <message>
+        <source>SubRip (SRT)</source>
+        <translation>SubRip (SRT)</translation>
+    </message>
+    <message>
+        <source>Subtitle encoding failed: %1</source>
+        <translation>Сбой кодирования субтитров: %1</translation>
+    </message>
+    <message>
+        <source>The subtitle encoder %1 is not available.</source>
+        <translation>Кодировщик субтитров %1 недоступен.</translation>
+    </message>
+    <message>
+        <source>WebVTT</source>
+        <translation>WebVTT</translation>
+    </message>
+</context>
+<context>
     <name>kk::TimelineController</name>
     <message>
         <source>Delete</source>
@@ -19144,11 +26032,11 @@ Restart Kinoklip to apply them.</source>
     </message>
     <message>
         <source>Ripple Trim Edits</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить</translation>
     </message>
     <message>
         <source>Trim Edits</source>
-        <translation type="unfinished"></translation>
+        <translation>Подрезка точек монтажа</translation>
     </message>
     <message>
         <source>Roll Edit</source>
@@ -19429,6 +26317,144 @@ Trim the clips so the media covers the transition?</source>
 
 Подрезать клипы, чтобы медиаданные покрывали переход?</translation>
     </message>
+    <message>
+        <source>Apply</source>
+        <translation>Применить</translation>
+    </message>
+    <message>
+        <source>Audio Attributes</source>
+        <translation>Аудио‑атрибуты</translation>
+    </message>
+    <message>
+        <source>Clip Marker</source>
+        <translation>Маркер клипа</translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation>Цвет</translation>
+    </message>
+    <message>
+        <source>Duration</source>
+        <translation>Длительность</translation>
+    </message>
+    <message>
+        <source>Effects</source>
+        <translation>Эффекты</translation>
+    </message>
+    <message>
+        <source>Insufficient Handles</source>
+        <translation>Недостаточно ручек</translation>
+    </message>
+    <message>
+        <source>Length of the marker (hh:mm:ss:ff); one frame = a single marker</source>
+        <translation>Длина маркера (чч:мм:сс:фф); один кадр = один маркер</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Название</translation>
+    </message>
+    <message>
+        <source>Notes</source>
+        <translation>Заметки</translation>
+    </message>
+    <message>
+        <source>Other</source>
+        <translation>Другие</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Панорама</translation>
+    </message>
+    <message>
+        <source>Paste Attributes</source>
+        <translation>Вставить атрибуты</translation>
+    </message>
+    <message>
+        <source>Shorten Transition</source>
+        <translation>Сократить переход</translation>
+    </message>
+    <message>
+        <source>Speed Change</source>
+        <translation>Изменение скорости</translation>
+    </message>
+    <message>
+        <source>Timeline Marker</source>
+        <translation>Маркер таймлайна</translation>
+    </message>
+    <message>
+        <source>Transform, Cropping and Composite</source>
+        <translation>Трансформация, кадрирование и композит</translation>
+    </message>
+    <message>
+        <source>Trim Clips</source>
+        <translation>Подрезать клипы</translation>
+    </message>
+    <message>
+        <source>Video Attributes</source>
+        <translation>Видео‑атрибуты</translation>
+    </message>
+    <message>
+        <source>Volume</source>
+        <translation>Громкость</translation>
+    </message>
+</context>
+<context>
+    <name>kk::TimelineExport</name>
+    <message>
+        <source>CSV files (*.csv)</source>
+        <translation>Файлы CSV (*.csv)</translation>
+    </message>
+    <message>
+        <source>EDL files (*.edl)</source>
+        <translation>Файлы EDL (*.edl)</translation>
+    </message>
+    <message>
+        <source>Export Timeline Markers to CSV</source>
+        <translation>Экспортировать маркеры таймлайна в CSV</translation>
+    </message>
+    <message>
+        <source>Export Timeline Markers to EDL</source>
+        <translation>Экспортировать маркеры таймлайна в EDL</translation>
+    </message>
+    <message>
+        <source>Export Timeline as EDL</source>
+        <translation>Экспортировать таймлайн как EDL</translation>
+    </message>
+    <message>
+        <source>Export Timeline as OpenTimelineIO</source>
+        <translation>Экспортировать таймлайн как OpenTimelineIO</translation>
+    </message>
+    <message>
+        <source>OpenTimelineIO files (*.otio)</source>
+        <translation>Файлы OpenTimelineIO (*.otio)</translation>
+    </message>
+    <message>
+        <source>Timeline</source>
+        <translation>Таймлайн</translation>
+    </message>
+</context>
+<context>
+    <name>kk::TimelineImport</name>
+    <message>
+        <source>%1 file(s) were not found; their clips are offline:</source>
+        <translation>%1 файл(ов) не найдено; их клипы находятся в офлайне:</translation>
+    </message>
+    <message>
+        <source>Cannot read %1: %2</source>
+        <translation>Не удалось прочитать %1: %2</translation>
+    </message>
+    <message>
+        <source>Import Timeline</source>
+        <translation>Импортировать таймлайн</translation>
+    </message>
+    <message>
+        <source>Left out of the import:</source>
+        <translation>Исключено из импорта:</translation>
+    </message>
+    <message>
+        <source>Offline clip</source>
+        <translation>Офлайн-клип</translation>
+    </message>
 </context>
 <context>
     <name>kk::TimelinePage</name>
@@ -19642,7 +26668,7 @@ Trim the clips so the media covers the transition?</source>
     </message>
     <message>
         <source>%1 edit points</source>
-        <translation type="unfinished"></translation>
+        <translation>Показывать открытые таймлайны вкладками</translation>
     </message>
     <message>
         <source>Edit %1</source>
@@ -19794,15 +26820,15 @@ Trim the clips so the media covers the transition?</source>
     </message>
     <message>
         <source>Ripple Trim Edits</source>
-        <translation type="unfinished"></translation>
+        <translation>Изменить %1</translation>
     </message>
     <message>
         <source>Trim Edits</source>
-        <translation type="unfinished"></translation>
+        <translation>Подрезка точек монтажа</translation>
     </message>
     <message>
         <source>Roll Edits</source>
-        <translation type="unfinished"></translation>
+        <translation>Перекат точек монтажа</translation>
     </message>
     <message>
         <source>Slip Clip</source>
@@ -20195,6 +27221,29 @@ Trim the clips so the media covers the transition?</source>
     <message>
         <source>Delete Marker</source>
         <translation>Удалить маркер</translation>
+    </message>
+</context>
+<context>
+    <name>kk::TitleLayers</name>
+    <message>
+        <source>Ellipse</source>
+        <translation>Эллипс</translation>
+    </message>
+    <message>
+        <source>Line</source>
+        <translation>Линия</translation>
+    </message>
+    <message>
+        <source>Rectangle</source>
+        <translation>Прямоугольник</translation>
+    </message>
+    <message>
+        <source>Rounded Rectangle</source>
+        <translation>Прямоугольник со скруглением</translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <translation>Текст</translation>
     </message>
 </context>
 <context>
@@ -21355,6 +28404,37 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
     </message>
 </context>
 <context>
+    <name>kk::VoiceOverMenu</name>
+    <message>
+        <source>Arm this track for voice-over (input: %1). Then press Record to count in and record while the timeline plays. Right-click to choose the input.</source>
+        <translation>Подготовить эту дорожку к записи закадрового голоса (вход: %1). Затем нажмите «Запись» для отсчета и записи во время воспроизведения таймлайна. Нажмите правой кнопкой мыши для выбора входа.</translation>
+    </message>
+    <message>
+        <source>Armed for voice-over (input: %1). Click to disarm; right-click to choose another input.</source>
+        <translation>Подготовлено к записи закадрового голоса (вход: %1). Нажмите для отмены; нажмите правой кнопкой мыши для выбора другого входа.</translation>
+    </message>
+    <message>
+        <source>Default (%1)</source>
+        <translation>По умолчанию (%1)</translation>
+    </message>
+    <message>
+        <source>No microphone found</source>
+        <translation>Микрофон не найден</translation>
+    </message>
+    <message>
+        <source>Record arm: voice-over is not available here.</source>
+        <translation>Подготовка к записи: запись закадрового голоса недоступна.</translation>
+    </message>
+    <message>
+        <source>Voice-over cannot be used: %1</source>
+        <translation>Запись закадрового голоса недоступна: %1</translation>
+    </message>
+    <message>
+        <source>Voice-over is not available</source>
+        <translation>Запись закадрового голоса недоступна</translation>
+    </message>
+</context>
+<context>
     <name>kk::WelcomeDialog</name>
     <message>
         <source>Welcome to %1</source>
@@ -21893,67 +28973,67 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
     </message>
     <message>
         <source>Blur Radius R</source>
-        <translation type="unfinished"></translation>
+        <translation>Добро пожаловать в %1</translation>
     </message>
     <message>
         <source>Blur Radius G</source>
-        <translation type="unfinished"></translation>
+        <translation>Радиус размытия G</translation>
     </message>
     <message>
         <source>Blur Radius B</source>
-        <translation type="unfinished"></translation>
+        <translation>Радиус размытия B</translation>
     </message>
     <message>
         <source>Blur H/V Ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>Соотношение Г/В размытия</translation>
     </message>
     <message>
         <source>Blur Scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>Масштабирование размытия</translation>
     </message>
     <message>
         <source>Sharpen Radius R</source>
-        <translation type="unfinished"></translation>
+        <translation>Радиус резкости R</translation>
     </message>
     <message>
         <source>Sharpen Radius G</source>
-        <translation type="unfinished"></translation>
+        <translation>Радиус резкости G</translation>
     </message>
     <message>
         <source>Sharpen Radius B</source>
-        <translation type="unfinished"></translation>
+        <translation>Радиус резкости B</translation>
     </message>
     <message>
         <source>Sharpen H/V Ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>Соотношение Г/В резкости</translation>
     </message>
     <message>
         <source>Sharpen Scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>Масштабирование резкости</translation>
     </message>
     <message>
         <source>Coring Softness</source>
-        <translation type="unfinished"></translation>
+        <translation>Мягкость отсечения</translation>
     </message>
     <message>
         <source>Sharpen Level</source>
-        <translation type="unfinished"></translation>
+        <translation>Уровень резкости</translation>
     </message>
     <message>
         <source>Mist Radius</source>
-        <translation type="unfinished"></translation>
+        <translation>Радиус дымки</translation>
     </message>
     <message>
         <source>Mist H/V Ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>Соотношение Г/В дымки</translation>
     </message>
     <message>
         <source>Mist Scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>Масштабирование дымки</translation>
     </message>
     <message>
         <source>Mist Mix</source>
-        <translation type="unfinished"></translation>
+        <translation>Смешивание дымки</translation>
     </message>
     <message>
         <source>Red Output: Red</source>
@@ -22084,6 +29164,14 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
     <message>
         <source>How to use %1…</source>
         <translation>Как использовать: %1…</translation>
+    </message>
+    <message>
+        <source>Guide: %1</source>
+        <translation>Руководство: %1</translation>
+    </message>
+    <message>
+        <source>Open the guide: %1</source>
+        <translation>Открыть руководство: %1</translation>
     </message>
 </context>
 <context>
@@ -22332,8 +29420,8 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
         <translation>Недопустимый файл проекта: %1</translation>
     </message>
     <message>
-        <source>Not a </source>
-        <translation>Не </translation>
+        <source>Not a %1 project file</source>
+        <translation>Не удалось открыть браузер</translation>
     </message>
     <message>
         <source>Created by a newer version (format %1)</source>

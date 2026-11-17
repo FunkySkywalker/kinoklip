@@ -307,10 +307,14 @@ void EffectRegistry::registerTransitions()
         const char* panName;
         const char* panId;
         const char* slideName;
-    } kWays[] = {{"slide_left", "Slide Left", "Pan Left", "pan_left", "left"},
-        {"slide_right", "Slide Right", "Pan Right", "pan_right", "right"},
-        {"slide_up", "Slide Up", "Pan Up", "pan_up", "up"},
-        {"slide_down", "Slide Down", "Pan Down", "pan_down", "down"}};
+    } kWays[] = {{"slide_left", QT_TRANSLATE_NOOP("kk::BuiltinTransitions", "Slide Left"),
+                     QT_TRANSLATE_NOOP("kk::BuiltinTransitions", "Pan Left"), "pan_left", "left"},
+        {"slide_right", QT_TRANSLATE_NOOP("kk::BuiltinTransitions", "Slide Right"),
+            QT_TRANSLATE_NOOP("kk::BuiltinTransitions", "Pan Right"), "pan_right", "right"},
+        {"slide_up", QT_TRANSLATE_NOOP("kk::BuiltinTransitions", "Slide Up"),
+            QT_TRANSLATE_NOOP("kk::BuiltinTransitions", "Pan Up"), "pan_up", "up"},
+        {"slide_down", QT_TRANSLATE_NOOP("kk::BuiltinTransitions", "Slide Down"),
+            QT_TRANSLATE_NOOP("kk::BuiltinTransitions", "Pan Down"), "pan_down", "down"}};
     for (const auto& way : kWays) {
         const QString dir = QLatin1String(way.slideName);
         add(transition(way.id, tr(way.name), FusionTransitions,

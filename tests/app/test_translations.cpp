@@ -287,6 +287,14 @@ private slots:
             QVERIFY2(QCoreApplication::translate("QWidget", "Interface scale")
                     != QLatin1String("Interface scale"),
                 code);
+            // Texts that go through a translate() helper (scripts/translation_sources.py puts
+            // them into the .ts files under the helper's context).
+            for (const auto& [context, source] : {std::pair {"kk::MenuLayouts", "Go to Page"},
+                     std::pair {"kk::MenuLayouts", "Project Tools"},
+                     std::pair {"kk::BuiltinVideoEffects", "Shrink / Grow"},
+                     std::pair {"kk::BuiltinTransitions", "Slide Left"}})
+                QVERIFY2(
+                    QCoreApplication::translate(context, source) != QLatin1String(source), source);
         }
         i18n::installLanguage(QStringLiteral("en"));
         QCOMPARE(QCoreApplication::translate("kk::CommandLine", "Non-linear video editor"),

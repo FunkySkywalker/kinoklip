@@ -417,7 +417,50 @@ Probablemente el sistema cerró el programa porque el equipo se quedó sin memor
     <name>TimelineRepair</name>
     <message>
         <source>A clip was removed: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Proyectos de %1 (*.%2 *.%3);;Todos los archivos (*)</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n clip(s) started before the timeline and were trimmed.</source>
+        <translation>
+            <numerusform>%n clip empezaba antes de la línea de tiempo y se recortó.</numerusform>
+            <numerusform>%n clips empezaban antes de la línea de tiempo y se recortaron.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%n clip(s) with no length were removed.</source>
+        <translation>
+            <numerusform>Se eliminó %n clip sin duración.</numerusform>
+            <numerusform>Se eliminaron %n clips sin duración.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%n duplicate or missing id(s) were renumbered.</source>
+        <translation>
+            <numerusform>Se renumeró %n id duplicado o ausente.</numerusform>
+            <numerusform>Se renumeraron %n ids duplicados o ausentes.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%n invalid value(s) were reset.</source>
+        <translation>
+            <numerusform>Se restableció %n valor no válido.</numerusform>
+            <numerusform>Se restablecieron %n valores no válidos.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%n overlapping or misplaced clip(s) were moved to new &quot;Repaired&quot; tracks at the same time.</source>
+        <translation>
+            <numerusform>Se movió %n clip superpuesto o mal colocado a nuevas pistas «Repaired» en el mismo momento.</numerusform>
+            <numerusform>Se movieron %n clips superpuestos o mal colocados a nuevas pistas «Repaired» en el mismo momento.</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>The frame rate was invalid and was reset to 25 fps.</source>
+        <translation>La velocidad de fotogramas no era válida y se restableció a 25 fps.</translation>
+    </message>
+    <message>
+        <source>The resolution was invalid and was reset to 1920x1080.</source>
+        <translation>La resolución no era válida y se restableció a 1920x1080.</translation>
     </message>
 </context>
 <context>
@@ -2842,6 +2885,121 @@ Probablemente el sistema cerró el programa porque el equipo se quedó sin memor
     </message>
 </context>
 <context>
+    <name>kk::AiModelDialog</name>
+    <message>
+        <source>AI Models</source>
+        <translation>Modelos de IA</translation>
+    </message>
+    <message>
+        <source>AI tool</source>
+        <translation>Herramienta de IA</translation>
+    </message>
+    <message>
+        <source>AI tool: Background Removal</source>
+        <translation>Herramienta de IA: eliminación de fondo</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Cancelar</translation>
+    </message>
+    <message>
+        <source>Clear Matte Cache</source>
+        <translation>Vaciar caché de matte</translation>
+    </message>
+    <message>
+        <source>Cuts a subject out of the footage with a model that runs on this computer. The models are not part of Kinoklip: each is downloaded only when you ask. The people model is for video; the any-subject model is for still pictures.</source>
+        <translation>Recorta un sujeto del metraje con un modelo que se ejecuta en este equipo. Los modelos no forman parte de Kinoklip: cada uno se descarga solo cuando se pide. El modelo de personas es para vídeo; el modelo de cualquier sujeto es para imágenes fijas.</translation>
+    </message>
+    <message>
+        <source>Download</source>
+        <translation>Descargar</translation>
+    </message>
+    <message>
+        <source>Download %1...</source>
+        <translation>Descargar %1...</translation>
+    </message>
+    <message>
+        <source>Download AI Model</source>
+        <translation>Descargar modelo de IA</translation>
+    </message>
+    <message>
+        <source>Download size:</source>
+        <translation>Tamaño de descarga:</translation>
+    </message>
+    <message>
+        <source>Downloading... %1 of %2</source>
+        <translation>Descargando... %1 de %2</translation>
+    </message>
+    <message>
+        <source>Licence:</source>
+        <translation>Licencia:</translation>
+    </message>
+    <message>
+        <source>Matte cache: %1 (kept so a clip is cut out only once)</source>
+        <translation>Caché de matte: %1 (se conserva para recortar un clip una sola vez)</translation>
+    </message>
+    <message>
+        <source>Model file:</source>
+        <translation>Archivo del modelo:</translation>
+    </message>
+    <message>
+        <source>Model:</source>
+        <translation>Modelo:</translation>
+    </message>
+    <message>
+        <source>Remove %1</source>
+        <translation>Eliminar %1</translation>
+    </message>
+    <message>
+        <source>Remove Model</source>
+        <translation>Eliminar modelo</translation>
+    </message>
+    <message>
+        <source>Remove the downloaded model (%1)? Background Removal with it stops working until it is downloaded again.</source>
+        <translation>¿Eliminar el modelo descargado (%1)? La eliminación de fondo con él deja de funcionar hasta que se vuelva a descargar.</translation>
+    </message>
+    <message>
+        <source>Runtime:</source>
+        <translation>Entorno de ejecución:</translation>
+    </message>
+    <message>
+        <source>Size:</source>
+        <translation>Tamaño:</translation>
+    </message>
+    <message>
+        <source>Source:</source>
+        <translation>Fuente:</translation>
+    </message>
+    <message>
+        <source>Starting the download...</source>
+        <translation>Iniciando la descarga...</translation>
+    </message>
+    <message>
+        <source>The file is downloaded once, only now because you asked, from the project&apos;s official release page over HTTPS, and checked against a checksum. It is used on this computer only: nothing is uploaded and no account is needed. You can remove it again in Preferences.</source>
+        <translation>El archivo se descarga una sola vez, solo ahora porque lo pediste, desde la página oficial de versiones del proyecto mediante HTTPS, y se verifica con una suma de comprobación. Se usa solo en este equipo: no se sube nada y no hace falta ninguna cuenta. Se puede eliminar de nuevo en Preferencias.</translation>
+    </message>
+    <message>
+        <source>Unavailable:</source>
+        <translation>No disponible:</translation>
+    </message>
+    <message>
+        <source>installed (%1)</source>
+        <translation>instalado (%1)</translation>
+    </message>
+    <message>
+        <source>not installed</source>
+        <translation>no instalado</translation>
+    </message>
+    <message>
+        <source>not part of this build</source>
+        <translation>no incluido en esta compilación</translation>
+    </message>
+    <message>
+        <source>optional</source>
+        <translation>opcional</translation>
+    </message>
+</context>
+<context>
     <name>kk::AiModelsPage</name>
     <message>
         <source>Download %1...</source>
@@ -3115,63 +3273,63 @@ Probablemente el sistema cerró el programa porque el equipo se quedó sin memor
     <name>kk::BlurPanel</name>
     <message>
         <source>Blur</source>
-        <translation type="unfinished">Desenfoque</translation>
+        <translation>Desenfoque</translation>
     </message>
     <message>
         <source>Sharpen</source>
-        <translation type="unfinished">Enfocar</translation>
+        <translation>Enfocar</translation>
     </message>
     <message>
         <source>Mist</source>
-        <translation type="unfinished"></translation>
+        <translation>Neblina</translation>
     </message>
     <message>
         <source>Link</source>
-        <translation type="unfinished">Vincular</translation>
+        <translation>Vincular</translation>
     </message>
     <message>
         <source>Edit Radius R, G and B together</source>
-        <translation type="unfinished"></translation>
+        <translation>Editar los radios R, G y B juntos</translation>
     </message>
     <message>
         <source>Radius R</source>
-        <translation type="unfinished"></translation>
+        <translation>Radio R</translation>
     </message>
     <message>
         <source>Radius G</source>
-        <translation type="unfinished"></translation>
+        <translation>Radio G</translation>
     </message>
     <message>
         <source>Radius B</source>
-        <translation type="unfinished"></translation>
+        <translation>Radio B</translation>
     </message>
     <message>
         <source>H/V Ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>Relación H/V</translation>
     </message>
     <message>
         <source>Scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>Escala</translation>
     </message>
     <message>
         <source>Coring Softness</source>
-        <translation type="unfinished"></translation>
+        <translation>Suavidad del coring</translation>
     </message>
     <message>
         <source>Level</source>
-        <translation type="unfinished">Nivel</translation>
+        <translation>Nivel</translation>
     </message>
     <message>
         <source>Radius</source>
-        <translation type="unfinished">Radio</translation>
+        <translation>Radio</translation>
     </message>
     <message>
         <source>Mix</source>
-        <translation type="unfinished">Mezcla</translation>
+        <translation>Mezcla</translation>
     </message>
     <message>
         <source>Reset Blur</source>
-        <translation type="unfinished"></translation>
+        <translation>Restablecer desenfoque</translation>
     </message>
 </context>
 <context>
@@ -3235,6 +3393,4438 @@ Probablemente el sistema cerró el programa porque el equipo se quedó sin memor
     <message>
         <source>For an idea only the version would be shared:</source>
         <translation>Para una idea solo se compartiría la versión:</translation>
+    </message>
+</context>
+<context>
+    <name>kk::BuiltinAudioEffects</name>
+    <message>
+        <source>A simple room: the sound dies away slowly</source>
+        <translation>Una sala sencilla: el sonido se apaga lentamente</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation>Ataque</translation>
+    </message>
+    <message>
+        <source>Ceiling</source>
+        <translation>Techo</translation>
+    </message>
+    <message>
+        <source>Compressor</source>
+        <translation>Compresor</translation>
+    </message>
+    <message>
+        <source>Damping</source>
+        <translation>Amortiguación</translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation>Retardo</translation>
+    </message>
+    <message>
+        <source>Echoes of the sound</source>
+        <translation>Ecos del sonido</translation>
+    </message>
+    <message>
+        <source>Equalizer</source>
+        <translation>Ecualizador</translation>
+    </message>
+    <message>
+        <source>Feedback</source>
+        <translation>Realimentación</translation>
+    </message>
+    <message>
+        <source>Frequency</source>
+        <translation>Frecuencia</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>Ganancia</translation>
+    </message>
+    <message>
+        <source>High Frequency</source>
+        <translation>Frecuencia de agudos</translation>
+    </message>
+    <message>
+        <source>High Gain</source>
+        <translation>Ganancia de agudos</translation>
+    </message>
+    <message>
+        <source>High-pass Filter</source>
+        <translation>Filtro paso alto</translation>
+    </message>
+    <message>
+        <source>Limiter</source>
+        <translation>Limitador</translation>
+    </message>
+    <message>
+        <source>Low Frequency</source>
+        <translation>Frecuencia de graves</translation>
+    </message>
+    <message>
+        <source>Low Gain</source>
+        <translation>Ganancia de graves</translation>
+    </message>
+    <message>
+        <source>Low shelf, mid bell and high shelf</source>
+        <translation>Shelf de graves, campana de medios y shelf de agudos</translation>
+    </message>
+    <message>
+        <source>Low-pass Filter</source>
+        <translation>Filtro paso bajo</translation>
+    </message>
+    <message>
+        <source>Make-up Gain</source>
+        <translation>Ganancia de compensación</translation>
+    </message>
+    <message>
+        <source>Mid Frequency</source>
+        <translation>Frecuencia de medios</translation>
+    </message>
+    <message>
+        <source>Mid Gain</source>
+        <translation>Ganancia de medios</translation>
+    </message>
+    <message>
+        <source>Mid Q</source>
+        <translation>Q de medios</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation>Mezcla</translation>
+    </message>
+    <message>
+        <source>Never let a sample go above the ceiling</source>
+        <translation>Impedir que una muestra supere el techo</translation>
+    </message>
+    <message>
+        <source>Raise or lower the level of the clip</source>
+        <translation>Subir o bajar el nivel del clip</translation>
+    </message>
+    <message>
+        <source>Ratio</source>
+        <translation>Relación</translation>
+    </message>
+    <message>
+        <source>Reduce the level of loud parts</source>
+        <translation>Reducir el nivel de las partes fuertes</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Liberación</translation>
+    </message>
+    <message>
+        <source>Remove high frequencies</source>
+        <translation>Elimina las frecuencias altas</translation>
+    </message>
+    <message>
+        <source>Remove low frequencies</source>
+        <translation>Elimina las frecuencias bajas</translation>
+    </message>
+    <message>
+        <source>Reverb</source>
+        <translation>Reverberación</translation>
+    </message>
+    <message>
+        <source>Room Size</source>
+        <translation>Tamaño de sala</translation>
+    </message>
+    <message>
+        <source>Threshold</source>
+        <translation>Umbral</translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation>Tiempo</translation>
+    </message>
+</context>
+<context>
+    <name>kk::BuiltinEffects</name>
+    <message>
+        <source>100mV Steps</source>
+        <translation>Escalones de 100mV</translation>
+    </message>
+    <message>
+        <source>4 Color Gradient</source>
+        <translation>Degradado de 4 colores</translation>
+    </message>
+    <message>
+        <source>A black to white ramp in steps</source>
+        <translation>Una rampa de negro a blanco en escalones</translation>
+    </message>
+    <message>
+        <source>A circular blend from an inner to an outer color</source>
+        <translation>Una mezcla circular de un color interior a uno exterior</translation>
+    </message>
+    <message>
+        <source>A full-frame solid color</source>
+        <translation>Un color sólido a fotograma completo</translation>
+    </message>
+    <message>
+        <source>A grid of lines over a see-through background, for lining things up</source>
+        <translation>Una cuadrícula de líneas sobre un fondo transparente, para alinear elementos</translation>
+    </message>
+    <message>
+        <source>A leader-style countdown with a sweeping hand</source>
+        <translation>Una cuenta atrás estilo leader con una aguja que barre</translation>
+    </message>
+    <message>
+        <source>A see-through clip with its own composition: build a node graph on the Compositing page</source>
+        <translation>Un clip transparente con su propia composición: crear un gráfico de nodos en la página Composición</translation>
+    </message>
+    <message>
+        <source>A shape layer of a title</source>
+        <translation>Una capa de forma de un título</translation>
+    </message>
+    <message>
+        <source>A simple text title</source>
+        <translation>Un título de texto sencillo</translation>
+    </message>
+    <message>
+        <source>A straight blend between two colors</source>
+        <translation>Una mezcla recta entre dos colores</translation>
+    </message>
+    <message>
+        <source>A text on a plain background box</source>
+        <translation>Un texto sobre un cuadro de fondo liso</translation>
+    </message>
+    <message>
+        <source>A white rectangle or ellipse on black, for checking the edges of a display</source>
+        <translation>Un rectángulo o elipse blanco sobre negro, para comprobar los bordes de una pantalla</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Sumar</translation>
+    </message>
+    <message>
+        <source>Adjustment Clip</source>
+        <translation>Clip de ajuste</translation>
+    </message>
+    <message>
+        <source>Alignment</source>
+        <translation>Alineación</translation>
+    </message>
+    <message>
+        <source>All Three</source>
+        <translation>Los tres</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Cantidad</translation>
+    </message>
+    <message>
+        <source>An adjustment clip that adds a camcorder viewfinder to the picture below it</source>
+        <translation>Un clip de ajuste que añade a la imagen inferior un visor de videocámara</translation>
+    </message>
+    <message>
+        <source>An adjustment clip that adds a drone-camera display to the picture below it</source>
+        <translation>Un clip de ajuste que añade a la imagen inferior una pantalla de cámara de dron</translation>
+    </message>
+    <message>
+        <source>An adjustment clip that adds a photo-camera viewfinder to the picture below it</source>
+        <translation>Un clip de ajuste que añade a la imagen inferior un visor de cámara fotográfica</translation>
+    </message>
+    <message>
+        <source>An adjustment clip that blurs a rectangle of the picture below it: move and size its mask in the viewer</source>
+        <translation>Un clip de ajuste que desenfoca un rectángulo de la imagen inferior: mover y dimensionar su máscara en el visor</translation>
+    </message>
+    <message>
+        <source>An adjustment clip that breaks up the picture below it with digital glitches</source>
+        <translation>Un clip de ajuste que fragmenta la imagen inferior con fallos digitales</translation>
+    </message>
+    <message>
+        <source>An adjustment clip that frames the picture below it with a colored border</source>
+        <translation>Un clip de ajuste que enmarca la imagen inferior con un borde de color</translation>
+    </message>
+    <message>
+        <source>An adjustment clip that makes the picture below it look like a security camera</source>
+        <translation>Un clip de ajuste que hace que la imagen inferior parezca de una cámara de seguridad</translation>
+    </message>
+    <message>
+        <source>An adjustment clip that puts the picture below it in a video-call tile</source>
+        <translation>Un clip de ajuste que coloca la imagen inferior en un mosaico de videollamada</translation>
+    </message>
+    <message>
+        <source>An adjustment clip that shows the picture below it through two round lenses</source>
+        <translation>Un clip de ajuste que muestra la imagen inferior a través de dos lentes redondas</translation>
+    </message>
+    <message>
+        <source>An adjustment clip that shrinks the picture below it into a framed box with a shadow</source>
+        <translation>Un clip de ajuste que reduce la imagen inferior a un cuadro enmarcado con sombra</translation>
+    </message>
+    <message>
+        <source>An adjustment clip that turns the picture below it into a green night-vision image with grain and scanlines</source>
+        <translation>Un clip de ajuste que convierte la imagen inferior en una imagen verde de visión nocturna con grano y líneas de barrido</translation>
+    </message>
+    <message>
+        <source>Anchor</source>
+        <translation>Ancla</translation>
+    </message>
+    <message>
+        <source>Anchor X</source>
+        <translation>Ancla X</translation>
+    </message>
+    <message>
+        <source>Anchor Y</source>
+        <translation>Ancla Y</translation>
+    </message>
+    <message>
+        <source>Angle</source>
+        <translation>Ángulo</translation>
+    </message>
+    <message>
+        <source>Animated</source>
+        <translation>Animado</translation>
+    </message>
+    <message>
+        <source>Applies its effects, transform and masks to every track below it</source>
+        <translation>Aplica sus efectos, transformación y máscaras a todas las pistas que tiene debajo</translation>
+    </message>
+    <message>
+        <source>Audio</source>
+        <translation>Audio</translation>
+    </message>
+    <message>
+        <source>BT.2111 Color Bar HLG Narrow</source>
+        <translation>Barras de color BT.2111 HLG estrecho</translation>
+    </message>
+    <message>
+        <source>BT.2111 Color Bar PQ Full</source>
+        <translation>Barras de color BT.2111 PQ completo</translation>
+    </message>
+    <message>
+        <source>BT.2111 Color Bar PQ Narrow</source>
+        <translation>Barras de color BT.2111 PQ estrecho</translation>
+    </message>
+    <message>
+        <source>Background</source>
+        <translation>Fondo</translation>
+    </message>
+    <message>
+        <source>Background Color</source>
+        <translation>Color de fondo</translation>
+    </message>
+    <message>
+        <source>Background Opacity</source>
+        <translation>Opacidad del fondo</translation>
+    </message>
+    <message>
+        <source>Band %1 Frequency</source>
+        <translation>Frecuencia de la banda %1</translation>
+    </message>
+    <message>
+        <source>Band %1 Gain</source>
+        <translation>Ganancia de la banda %1</translation>
+    </message>
+    <message>
+        <source>Band %1 Q</source>
+        <translation>Q de la banda %1</translation>
+    </message>
+    <message>
+        <source>Basic Title</source>
+        <translation>Título básico</translation>
+    </message>
+    <message>
+        <source>Between linear and equal power</source>
+        <translation>Entre lineal y de potencia constante</translation>
+    </message>
+    <message>
+        <source>Binoculars</source>
+        <translation>Prismáticos</translation>
+    </message>
+    <message>
+        <source>Blend from one clip into the next</source>
+        <translation>Fundir de un clip al siguiente</translation>
+    </message>
+    <message>
+        <source>Blends four corner colors across the frame</source>
+        <translation>Mezcla cuatro colores de esquina por el encuadre</translation>
+    </message>
+    <message>
+        <source>Block Size</source>
+        <translation>Tamaño de bloque</translation>
+    </message>
+    <message>
+        <source>Blur</source>
+        <translation>Desenfoque</translation>
+    </message>
+    <message>
+        <source>Bold</source>
+        <translation>Negrita</translation>
+    </message>
+    <message>
+        <source>Bottom</source>
+        <translation>Abajo</translation>
+    </message>
+    <message>
+        <source>Bottom Left</source>
+        <translation>Abajo a la izquierda</translation>
+    </message>
+    <message>
+        <source>Bottom Right</source>
+        <translation>Abajo a la derecha</translation>
+    </message>
+    <message>
+        <source>Brightness</source>
+        <translation>Brillo</translation>
+    </message>
+    <message>
+        <source>Brightness / Contrast</source>
+        <translation>Brillo / Contraste</translation>
+    </message>
+    <message>
+        <source>Burns the timeline or clip timecode into the picture</source>
+        <translation>Incrusta en la imagen el código de tiempo de la línea de tiempo o del clip</translation>
+    </message>
+    <message>
+        <source>CCTV</source>
+        <translation>CCTV</translation>
+    </message>
+    <message>
+        <source>Caption</source>
+        <translation>Rótulo</translation>
+    </message>
+    <message>
+        <source>Cb</source>
+        <translation>Cb</translation>
+    </message>
+    <message>
+        <source>Center</source>
+        <translation>Centro</translation>
+    </message>
+    <message>
+        <source>Center X</source>
+        <translation>Centro X</translation>
+    </message>
+    <message>
+        <source>Center Y</source>
+        <translation>Centro Y</translation>
+    </message>
+    <message>
+        <source>Channel</source>
+        <translation>Canal</translation>
+    </message>
+    <message>
+        <source>Clip</source>
+        <translation>Clip</translation>
+    </message>
+    <message>
+        <source>Clip volume, pan and pitch</source>
+        <translation>Volumen, panorama y tono del clip</translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation>Color</translation>
+    </message>
+    <message>
+        <source>Color 1</source>
+        <translation>Color 1</translation>
+    </message>
+    <message>
+        <source>Color 2</source>
+        <translation>Color 2</translation>
+    </message>
+    <message>
+        <source>Color Bars</source>
+        <translation>Barras de color</translation>
+    </message>
+    <message>
+        <source>Colored Border</source>
+        <translation>Borde de color</translation>
+    </message>
+    <message>
+        <source>Columns</source>
+        <translation>Columnas</translation>
+    </message>
+    <message>
+        <source>Composite</source>
+        <translation>Composición</translation>
+    </message>
+    <message>
+        <source>Composite Mode</source>
+        <translation>Modo de composición</translation>
+    </message>
+    <message>
+        <source>Composite mode and opacity over the tracks below</source>
+        <translation>Modo de composición y opacidad sobre las pistas inferiores</translation>
+    </message>
+    <message>
+        <source>Composition Clip</source>
+        <translation>Clip de composición</translation>
+    </message>
+    <message>
+        <source>Contrast</source>
+        <translation>Contraste</translation>
+    </message>
+    <message>
+        <source>Corner Radius</source>
+        <translation>Radio de esquina</translation>
+    </message>
+    <message>
+        <source>Countdown</source>
+        <translation>Cuenta atrás</translation>
+    </message>
+    <message>
+        <source>Cr</source>
+        <translation>Cr</translation>
+    </message>
+    <message>
+        <source>Crop Bottom</source>
+        <translation>Recorte inferior</translation>
+    </message>
+    <message>
+        <source>Crop Left</source>
+        <translation>Recorte izquierdo</translation>
+    </message>
+    <message>
+        <source>Crop Right</source>
+        <translation>Recorte derecho</translation>
+    </message>
+    <message>
+        <source>Crop Top</source>
+        <translation>Recorte superior</translation>
+    </message>
+    <message>
+        <source>Cropping</source>
+        <translation>Recorte</translation>
+    </message>
+    <message>
+        <source>Cross Dissolve</source>
+        <translation>Disolución cruzada</translation>
+    </message>
+    <message>
+        <source>Cross Fade +3 dB</source>
+        <translation>Fundido cruzado +3 dB</translation>
+    </message>
+    <message>
+        <source>Cross Fade -3 dB</source>
+        <translation>Fundido cruzado -3 dB</translation>
+    </message>
+    <message>
+        <source>Cross Fade 0 dB</source>
+        <translation>Fundido cruzado 0 dB</translation>
+    </message>
+    <message>
+        <source>Custom Style</source>
+        <translation>Estilo personalizado</translation>
+    </message>
+    <message>
+        <source>Cut pixels away from the edges of the source</source>
+        <translation>Elimina píxeles de los bordes del origen</translation>
+    </message>
+    <message>
+        <source>DSLR</source>
+        <translation>DSLR</translation>
+    </message>
+    <message>
+        <source>DVE</source>
+        <translation>DVE</translation>
+    </message>
+    <message>
+        <source>Darken the image corners</source>
+        <translation>Oscurece las esquinas de la imagen</translation>
+    </message>
+    <message>
+        <source>Detail</source>
+        <translation>Detalle</translation>
+    </message>
+    <message>
+        <source>Difference</source>
+        <translation>Diferencia</translation>
+    </message>
+    <message>
+        <source>Digital Glitch</source>
+        <translation>Glitch digital</translation>
+    </message>
+    <message>
+        <source>Dip to Color</source>
+        <translation>Fundido a color</translation>
+    </message>
+    <message>
+        <source>Direction</source>
+        <translation>Dirección</translation>
+    </message>
+    <message>
+        <source>Distance</source>
+        <translation>Distancia</translation>
+    </message>
+    <message>
+        <source>Down</source>
+        <translation>Abajo</translation>
+    </message>
+    <message>
+        <source>Drone Overlay</source>
+        <translation>Superposición de dron</translation>
+    </message>
+    <message>
+        <source>Drop Shadow</source>
+        <translation>Sombra proyectada</translation>
+    </message>
+    <message>
+        <source>Dynamic Zoom</source>
+        <translation>Zoom dinámico</translation>
+    </message>
+    <message>
+        <source>Dynamic Zoom Ease</source>
+        <translation>Suavizado del zoom dinámico</translation>
+    </message>
+    <message>
+        <source>EBU Color Bar</source>
+        <translation>Barras de color EBU</translation>
+    </message>
+    <message>
+        <source>Ellipse</source>
+        <translation>Elipse</translation>
+    </message>
+    <message>
+        <source>End Color</source>
+        <translation>Color final</translation>
+    </message>
+    <message>
+        <source>Equal-power crossfade: constant loudness for unrelated sounds (default)</source>
+        <translation>Fundido cruzado de potencia constante: volumen constante para sonidos no relacionados (predeterminado)</translation>
+    </message>
+    <message>
+        <source>Equalizer</source>
+        <translation>Ecualizador</translation>
+    </message>
+    <message>
+        <source>Evolution</source>
+        <translation>Evolución</translation>
+    </message>
+    <message>
+        <source>Expand</source>
+        <translation>Expandir</translation>
+    </message>
+    <message>
+        <source>Exponential</source>
+        <translation>Exponencial</translation>
+    </message>
+    <message>
+        <source>Fade through a solid color</source>
+        <translation>Fundido a través de un color sólido</translation>
+    </message>
+    <message>
+        <source>Feather Inside</source>
+        <translation>Difuminado interior</translation>
+    </message>
+    <message>
+        <source>Feather Outside</source>
+        <translation>Difuminado exterior</translation>
+    </message>
+    <message>
+        <source>Fill Color</source>
+        <translation>Color de relleno</translation>
+    </message>
+    <message>
+        <source>Fill Opacity</source>
+        <translation>Opacidad del relleno</translation>
+    </message>
+    <message>
+        <source>Flip Horizontal</source>
+        <translation>Voltear horizontalmente</translation>
+    </message>
+    <message>
+        <source>Flip Vertical</source>
+        <translation>Voltear verticalmente</translation>
+    </message>
+    <message>
+        <source>Flip the image horizontally and/or vertically</source>
+        <translation>Voltea la imagen horizontal y/o verticalmente</translation>
+    </message>
+    <message>
+        <source>Font</source>
+        <translation>Fuente</translation>
+    </message>
+    <message>
+        <source>Four-band clip equalizer</source>
+        <translation>Ecualizador de clip de cuatro bandas</translation>
+    </message>
+    <message>
+        <source>Full Field (100%)</source>
+        <translation>Campo completo (100%)</translation>
+    </message>
+    <message>
+        <source>Gaussian Blur</source>
+        <translation>Desenfoque gaussiano</translation>
+    </message>
+    <message>
+        <source>Gentle at both ends, quickest at the middle</source>
+        <translation>Suave en ambos extremos, más rápida en el centro</translation>
+    </message>
+    <message>
+        <source>Grain Size</source>
+        <translation>Tamaño del grano</translation>
+    </message>
+    <message>
+        <source>Grey Scale</source>
+        <translation>Escala de grises</translation>
+    </message>
+    <message>
+        <source>Grid</source>
+        <translation>Cuadrícula</translation>
+    </message>
+    <message>
+        <source>HDR test pattern of ITU-R BT.2111: </source>
+        <translation>Patrón de prueba HDR de ITU-R BT.2111: </translation>
+    </message>
+    <message>
+        <source>Height</source>
+        <translation>Alto</translation>
+    </message>
+    <message>
+        <source>Horizontal</source>
+        <translation>Horizontal</translation>
+    </message>
+    <message>
+        <source>Horizontal Margin</source>
+        <translation>Margen horizontal</translation>
+    </message>
+    <message>
+        <source>How captions look</source>
+        <translation>Aspecto de los rótulos</translation>
+    </message>
+    <message>
+        <source>Inner Color</source>
+        <translation>Color interior</translation>
+    </message>
+    <message>
+        <source>Intersect</source>
+        <translation>Intersección</translation>
+    </message>
+    <message>
+        <source>Invert</source>
+        <translation>Invertir</translation>
+    </message>
+    <message>
+        <source>Italic</source>
+        <translation>Cursiva</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation>Izquierda</translation>
+    </message>
+    <message>
+        <source>Left Lower Third</source>
+        <translation>Tercio inferior izquierdo</translation>
+    </message>
+    <message>
+        <source>Length</source>
+        <translation>Longitud</translation>
+    </message>
+    <message>
+        <source>Line</source>
+        <translation>Línea</translation>
+    </message>
+    <message>
+        <source>Line Color</source>
+        <translation>Color de línea</translation>
+    </message>
+    <message>
+        <source>Line Spacing</source>
+        <translation>Interlineado</translation>
+    </message>
+    <message>
+        <source>Line Width</source>
+        <translation>Ancho de línea</translation>
+    </message>
+    <message>
+        <source>Linear Gradient</source>
+        <translation>Degradado lineal</translation>
+    </message>
+    <message>
+        <source>Linear crossfade: the level dips at the middle</source>
+        <translation>Fundido cruzado lineal: el nivel cae en el centro</translation>
+    </message>
+    <message>
+        <source>Link Zoom</source>
+        <translation>Vincular zoom</translation>
+    </message>
+    <message>
+        <source>Logarithmic</source>
+        <translation>Logarítmica</translation>
+    </message>
+    <message>
+        <source>Major Line Every</source>
+        <translation>Línea principal cada</translation>
+    </message>
+    <message>
+        <source>Major Line Width</source>
+        <translation>Ancho de línea principal</translation>
+    </message>
+    <message>
+        <source>Make colors more or less intense (0 = greyscale)</source>
+        <translation>Hacer los colores más o menos intensos (0 = escala de grises)</translation>
+    </message>
+    <message>
+        <source>Masks</source>
+        <translation>Máscaras</translation>
+    </message>
+    <message>
+        <source>Middle</source>
+        <translation>Centro</translation>
+    </message>
+    <message>
+        <source>Middle Lower Third</source>
+        <translation>Tercio inferior central</translation>
+    </message>
+    <message>
+        <source>Mirror / Flip</source>
+        <translation>Reflejar / Voltear</translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <translation>Modo</translation>
+    </message>
+    <message>
+        <source>Monochrome</source>
+        <translation>Monocromo</translation>
+    </message>
+    <message>
+        <source>Mosaic</source>
+        <translation>Mosaico</translation>
+    </message>
+    <message>
+        <source>Move from a start framing to an end framing over the clip (pan and zoom)</source>
+        <translation>Pasar de un encuadre inicial a uno final a lo largo del clip (paneo y zoom)</translation>
+    </message>
+    <message>
+        <source>Name Surname
+Role or place</source>
+        <translation>Nombre Apellido
+Cargo o lugar</translation>
+    </message>
+    <message>
+        <source>Name and role centred low in the frame</source>
+        <translation>Nombre y cargo centrados abajo en el encuadre</translation>
+    </message>
+    <message>
+        <source>Name and role in the lower left of the frame</source>
+        <translation>Nombre y cargo en la parte inferior izquierda del encuadre</translation>
+    </message>
+    <message>
+        <source>Name and role in the lower right of the frame</source>
+        <translation>Nombre y cargo en la parte inferior derecha del encuadre</translation>
+    </message>
+    <message>
+        <source>Night Vision</source>
+        <translation>Visión nocturna</translation>
+    </message>
+    <message>
+        <source>Noise</source>
+        <translation>Ruido</translation>
+    </message>
+    <message>
+        <source>Noise Gradient</source>
+        <translation>Degradado de ruido</translation>
+    </message>
+    <message>
+        <source>Number Color</source>
+        <translation>Color del número</translation>
+    </message>
+    <message>
+        <source>Opacity</source>
+        <translation>Opacidad</translation>
+    </message>
+    <message>
+        <source>Orientation</source>
+        <translation>Orientación</translation>
+    </message>
+    <message>
+        <source>Outer Color</source>
+        <translation>Color exterior</translation>
+    </message>
+    <message>
+        <source>Outline Color</source>
+        <translation>Color del contorno</translation>
+    </message>
+    <message>
+        <source>Outline Width</source>
+        <translation>Ancho del contorno</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Panorama</translation>
+    </message>
+    <message>
+        <source>Pitch</source>
+        <translation>Tono</translation>
+    </message>
+    <message>
+        <source>Pitch Fine</source>
+        <translation>Tono fino</translation>
+    </message>
+    <message>
+        <source>Pixelate the image into blocks</source>
+        <translation>Pixela la imagen en bloques</translation>
+    </message>
+    <message>
+        <source>Position</source>
+        <translation>Posición</translation>
+    </message>
+    <message>
+        <source>Position X</source>
+        <translation>Posición X</translation>
+    </message>
+    <message>
+        <source>Position Y</source>
+        <translation>Posición Y</translation>
+    </message>
+    <message>
+        <source>Position, zoom, rotation, anchor point and flips</source>
+        <translation>Posición, zoom, rotación, punto de anclaje y volteos</translation>
+    </message>
+    <message>
+        <source>Prefix</source>
+        <translation>Prefijo</translation>
+    </message>
+    <message>
+        <source>Push</source>
+        <translation>Empuje</translation>
+    </message>
+    <message>
+        <source>Radial Gradient</source>
+        <translation>Degradado radial</translation>
+    </message>
+    <message>
+        <source>Radius</source>
+        <translation>Radio</translation>
+    </message>
+    <message>
+        <source>Random grain, still or animated</source>
+        <translation>Grano aleatorio, fijo o animado</translation>
+    </message>
+    <message>
+        <source>Rectangle</source>
+        <translation>Rectángulo</translation>
+    </message>
+    <message>
+        <source>Region Blur</source>
+        <translation>Desenfoque de región</translation>
+    </message>
+    <message>
+        <source>Reveal the next clip with a moving edge</source>
+        <translation>Revela el siguiente clip con un borde en movimiento</translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation>Derecha</translation>
+    </message>
+    <message>
+        <source>Right Lower Third</source>
+        <translation>Tercio inferior derecho</translation>
+    </message>
+    <message>
+        <source>Rolling credits: the text moves up through the frame over the clip&apos;s length</source>
+        <translation>Créditos rodantes: el texto sube por el encuadre durante la duración del clip</translation>
+    </message>
+    <message>
+        <source>Rotation</source>
+        <translation>Rotación</translation>
+    </message>
+    <message>
+        <source>Rounded Rectangle</source>
+        <translation>Rectángulo redondeado</translation>
+    </message>
+    <message>
+        <source>Rows</source>
+        <translation>Filas</translation>
+    </message>
+    <message>
+        <source>S-Curve</source>
+        <translation>Curva S</translation>
+    </message>
+    <message>
+        <source>SMPTE (75%)</source>
+        <translation>SMPTE (75%)</translation>
+    </message>
+    <message>
+        <source>Saturation</source>
+        <translation>Saturación</translation>
+    </message>
+    <message>
+        <source>Scale</source>
+        <translation>Escala</translation>
+    </message>
+    <message>
+        <source>Scale X</source>
+        <translation>Escala X</translation>
+    </message>
+    <message>
+        <source>Scale Y</source>
+        <translation>Escala Y</translation>
+    </message>
+    <message>
+        <source>Scroll</source>
+        <translation>Desplazamiento</translation>
+    </message>
+    <message>
+        <source>Seed</source>
+        <translation>Semilla</translation>
+    </message>
+    <message>
+        <source>Shadow behind the clip&apos;s alpha (titles, scaled-down overlays)</source>
+        <translation>Sombra detrás del alfa del clip (títulos, superposiciones reducidas)</translation>
+    </message>
+    <message>
+        <source>Shape</source>
+        <translation>Forma</translation>
+    </message>
+    <message>
+        <source>Shape masks cut the clip&apos;s picture before it is composited</source>
+        <translation>Las máscaras de forma recortan la imagen del clip antes de componerla</translation>
+    </message>
+    <message>
+        <source>Sharpen</source>
+        <translation>Enfocar</translation>
+    </message>
+    <message>
+        <source>Simple brightness and contrast adjustment</source>
+        <translation>Ajuste simple de brillo y contraste</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>Tamaño</translation>
+    </message>
+    <message>
+        <source>Smooth cloudy noise blended between two colors; move Evolution to animate it</source>
+        <translation>Ruido nuboso suave mezclado entre dos colores; mover Evolución para animarlo</translation>
+    </message>
+    <message>
+        <source>Soft blur of the whole image</source>
+        <translation>Desenfoque suave de toda la imagen</translation>
+    </message>
+    <message>
+        <source>Softness</source>
+        <translation>Suavidad</translation>
+    </message>
+    <message>
+        <source>Solid Color</source>
+        <translation>Color sólido</translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation>Origen</translation>
+    </message>
+    <message>
+        <source>Stabilization</source>
+        <translation>Estabilización</translation>
+    </message>
+    <message>
+        <source>Start At</source>
+        <translation>Empezar en</translation>
+    </message>
+    <message>
+        <source>Start Color</source>
+        <translation>Color inicial</translation>
+    </message>
+    <message>
+        <source>Start Frame</source>
+        <translation>Fotograma inicial</translation>
+    </message>
+    <message>
+        <source>Steady a shaky clip: measure its camera movement and correct it</source>
+        <translation>Estabilizar un clip tembloroso: mide el movimiento de la cámara y lo corrige</translation>
+    </message>
+    <message>
+        <source>Steps</source>
+        <translation>Escalones</translation>
+    </message>
+    <message>
+        <source>Stroke Color</source>
+        <translation>Color del trazo</translation>
+    </message>
+    <message>
+        <source>Stroke Width</source>
+        <translation>Ancho del trazo</translation>
+    </message>
+    <message>
+        <source>Style</source>
+        <translation>Estilo</translation>
+    </message>
+    <message>
+        <source>Subtitle text</source>
+        <translation>Texto de subtítulo</translation>
+    </message>
+    <message>
+        <source>Subtract</source>
+        <translation>Restar</translation>
+    </message>
+    <message>
+        <source>Sweep Color</source>
+        <translation>Color del barrido</translation>
+    </message>
+    <message>
+        <source>Test pattern: SMPTE-style or full-field color bars</source>
+        <translation>Patrón de prueba: barras de color estilo SMPTE o de campo completo</translation>
+    </message>
+    <message>
+        <source>Test pattern: a grey ramp in eight steps of 100 mV, from 0 to 700 mV</source>
+        <translation>Patrón de prueba: una rampa de grises en ocho escalones de 100 mV, de 0 a 700 mV</translation>
+    </message>
+    <message>
+        <source>Test pattern: ramps of Y&apos;, Cb and Cr (Rec. 709), each from its lowest to its highest value</source>
+        <translation>Patrón de prueba: rampas de Y&apos;, Cb y Cr (Rec. 709), cada una de su valor más bajo al más alto</translation>
+    </message>
+    <message>
+        <source>Test pattern: the eight EBU bars, 100% white and 75% colors</source>
+        <translation>Patrón de prueba: las ocho barras EBU, blanco al 100% y colores al 75%</translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <translation>Texto</translation>
+    </message>
+    <message>
+        <source>Text Box</source>
+        <translation>Cuadro de texto</translation>
+    </message>
+    <message>
+        <source>Text typed on letter by letter in the first second (Write On End 0 to 1)</source>
+        <translation>Texto que se escribe letra a letra en el primer segundo (Fin de escritura 0 a 1)</translation>
+    </message>
+    <message>
+        <source>The End
+
+Directed by
+Name
+
+Edited by
+Name
+
+Music by
+Name
+
+Thank you for watching</source>
+        <translation>Fin
+
+Dirigido por
+Nombre
+
+Montaje de
+Nombre
+
+Música de
+Nombre
+
+Gracias por ver</translation>
+    </message>
+    <message>
+        <source>The incoming sound rises fast, then slowly</source>
+        <translation>El sonido entrante sube rápido y luego despacio</translation>
+    </message>
+    <message>
+        <source>The incoming sound rises slowly, then fast</source>
+        <translation>El sonido entrante sube despacio y luego rápido</translation>
+    </message>
+    <message>
+        <source>The next clip pushes the current one out</source>
+        <translation>El siguiente clip empuja al actual hacia fuera</translation>
+    </message>
+    <message>
+        <source>Timecode</source>
+        <translation>Código de tiempo</translation>
+    </message>
+    <message>
+        <source>Timeline</source>
+        <translation>Línea de tiempo</translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation>Título</translation>
+    </message>
+    <message>
+        <source>Top</source>
+        <translation>Arriba</translation>
+    </message>
+    <message>
+        <source>Top Left</source>
+        <translation>Arriba a la izquierda</translation>
+    </message>
+    <message>
+        <source>Top Right</source>
+        <translation>Arriba a la derecha</translation>
+    </message>
+    <message>
+        <source>Tracking</source>
+        <translation>Espaciado entre letras</translation>
+    </message>
+    <message>
+        <source>Transform</source>
+        <translation>Transformar</translation>
+    </message>
+    <message>
+        <source>Type your text here</source>
+        <translation>Escribir aquí el texto</translation>
+    </message>
+    <message>
+        <source>Typewriter</source>
+        <translation>Máquina de escribir</translation>
+    </message>
+    <message>
+        <source>Unsharp-mask sharpening</source>
+        <translation>Enfoque con máscara de desenfoque</translation>
+    </message>
+    <message>
+        <source>Up</source>
+        <translation>Arriba</translation>
+    </message>
+    <message>
+        <source>Vertical</source>
+        <translation>Vertical</translation>
+    </message>
+    <message>
+        <source>Vertical Margin</source>
+        <translation>Margen vertical</translation>
+    </message>
+    <message>
+        <source>Vertical Position</source>
+        <translation>Posición vertical</translation>
+    </message>
+    <message>
+        <source>Video Call</source>
+        <translation>Videollamada</translation>
+    </message>
+    <message>
+        <source>Video Camera</source>
+        <translation>Videocámara</translation>
+    </message>
+    <message>
+        <source>Vignette</source>
+        <translation>Viñeta</translation>
+    </message>
+    <message>
+        <source>Volume</source>
+        <translation>Volumen</translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation>Ancho</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <translation>Ventana</translation>
+    </message>
+    <message>
+        <source>Window Color</source>
+        <translation>Color de la ventana</translation>
+    </message>
+    <message>
+        <source>Wipe</source>
+        <translation>Comparar</translation>
+    </message>
+    <message>
+        <source>Write On End</source>
+        <translation>Fin de escritura</translation>
+    </message>
+    <message>
+        <source>Write On Start</source>
+        <translation>Inicio de escritura</translation>
+    </message>
+    <message>
+        <source>Y&apos; (Luma)</source>
+        <translation>Y&apos; (Luma)</translation>
+    </message>
+    <message>
+        <source>YCbCr Ramp</source>
+        <translation>Rampa YCbCr</translation>
+    </message>
+    <message>
+        <source>Zoom X</source>
+        <translation>Zoom X</translation>
+    </message>
+    <message>
+        <source>Zoom Y</source>
+        <translation>Zoom Y</translation>
+    </message>
+    <message>
+        <source>hybrid log-gamma, narrow range code values</source>
+        <translation>hybrid log-gamma, valores de código de rango estrecho</translation>
+    </message>
+    <message>
+        <source>perceptual quantizer, full range code values</source>
+        <translation>perceptual quantizer, valores de código de rango completo</translation>
+    </message>
+    <message>
+        <source>perceptual quantizer, narrow range code values</source>
+        <translation>perceptual quantizer, valores de código de rango estrecho</translation>
+    </message>
+</context>
+<context>
+    <name>kk::BuiltinTransitions</name>
+    <message>
+        <source>Slide Left</source>
+        <translation>Deslizar a la izquierda</translation>
+    </message>
+    <message>
+        <source>Pan Left</source>
+        <translation>Panorámica a la izquierda</translation>
+    </message>
+    <message>
+        <source>Slide Right</source>
+        <translation>Deslizar a la derecha</translation>
+    </message>
+    <message>
+        <source>Pan Right</source>
+        <translation>Panorámica a la derecha</translation>
+    </message>
+    <message>
+        <source>Slide Up</source>
+        <translation>Deslizar hacia arriba</translation>
+    </message>
+    <message>
+        <source>Pan Up</source>
+        <translation>Panorámica hacia arriba</translation>
+    </message>
+    <message>
+        <source>Slide Down</source>
+        <translation>Deslizar hacia abajo</translation>
+    </message>
+    <message>
+        <source>Pan Down</source>
+        <translation>Panorámica hacia abajo</translation>
+    </message>
+    <message>
+        <source>4-Point</source>
+        <translation>4 puntas</translation>
+    </message>
+    <message>
+        <source>5-Point</source>
+        <translation>5 puntas</translation>
+    </message>
+    <message>
+        <source>6-Point</source>
+        <translation>6 puntas</translation>
+    </message>
+    <message>
+        <source>A box grows from a corner or the middle of an edge</source>
+        <translation>Una caja crece desde una esquina o el centro de un borde</translation>
+    </message>
+    <message>
+        <source>A cross grows from the centre</source>
+        <translation>Una cruz crece desde el centro</translation>
+    </message>
+    <message>
+        <source>A diamond grows from the centre</source>
+        <translation>Un rombo crece desde el centro</translation>
+    </message>
+    <message>
+        <source>A fast zoom into the first clip, a fast zoom out of the next one</source>
+        <translation>Un zoom rápido hacia el primer clip, un zoom rápido de salida del siguiente</translation>
+    </message>
+    <message>
+        <source>A flash of light covers the cut</source>
+        <translation>Un destello de luz cubre el corte</translation>
+    </message>
+    <message>
+        <source>A hand sweeps half a turn round the bottom centre</source>
+        <translation>Una aguja barre media vuelta alrededor del centro inferior</translation>
+    </message>
+    <message>
+        <source>A hand sweeps round the centre like a clock</source>
+        <translation>Una aguja barre alrededor del centro como un reloj</translation>
+    </message>
+    <message>
+        <source>A heart grows from the centre</source>
+        <translation>Un corazón crece desde el centro</translation>
+    </message>
+    <message>
+        <source>A hexagon grows from the centre</source>
+        <translation>Un hexágono crece desde el centro</translation>
+    </message>
+    <message>
+        <source>A magnifying column sweeps across and leaves the next clip behind it</source>
+        <translation>Una columna de aumento barre la imagen y deja detrás el siguiente clip</translation>
+    </message>
+    <message>
+        <source>A pentagon grows from the centre</source>
+        <translation>Un pentágono crece desde el centro</translation>
+    </message>
+    <message>
+        <source>A quarter turn while dissolving</source>
+        <translation>Un cuarto de vuelta mientras se disuelve</translation>
+    </message>
+    <message>
+        <source>A ripple spreads from a drop and brings in the next clip</source>
+        <translation>Una onda se extiende desde una gota y trae el siguiente clip</translation>
+    </message>
+    <message>
+        <source>A square grows from the centre</source>
+        <translation>Un cuadrado crece desde el centro</translation>
+    </message>
+    <message>
+        <source>A star grows from the centre</source>
+        <translation>Una estrella crece desde el centro</translation>
+    </message>
+    <message>
+        <source>A swirl draws the picture into the next one</source>
+        <translation>Un remolino arrastra la imagen hacia la siguiente</translation>
+    </message>
+    <message>
+        <source>A triangle grows from the centre</source>
+        <translation>Un triángulo crece desde el centro</translation>
+    </message>
+    <message>
+        <source>A triangle grows from the left edge towards the right</source>
+        <translation>Un triángulo crece desde el borde izquierdo hacia la derecha</translation>
+    </message>
+    <message>
+        <source>A triangle grows from the right edge towards the left</source>
+        <translation>Un triángulo crece desde el borde derecho hacia la izquierda</translation>
+    </message>
+    <message>
+        <source>Add the two pictures: brighter in the middle, back to normal at both ends</source>
+        <translation>Suma las dos imágenes: más brillante en el centro, normal en ambos extremos</translation>
+    </message>
+    <message>
+        <source>Additive Dissolve</source>
+        <translation>Disolución aditiva</translation>
+    </message>
+    <message>
+        <source>An arrow grows from the centre</source>
+        <translation>Una flecha crece desde el centro</translation>
+    </message>
+    <message>
+        <source>An eye opens from the centre</source>
+        <translation>Un ojo se abre desde el centro</translation>
+    </message>
+    <message>
+        <source>An oval grows from the centre</source>
+        <translation>Un óvalo crece desde el centro</translation>
+    </message>
+    <message>
+        <source>Angle</source>
+        <translation>Ángulo</translation>
+    </message>
+    <message>
+        <source>Arrow Iris</source>
+        <translation>Iris de flecha</translation>
+    </message>
+    <message>
+        <source>Aspect Ratio</source>
+        <translation>Relación de aspecto</translation>
+    </message>
+    <message>
+        <source>Band Wipe</source>
+        <translation>Cortinilla de bandas</translation>
+    </message>
+    <message>
+        <source>Bands</source>
+        <translation>Bandas</translation>
+    </message>
+    <message>
+        <source>Barn Door</source>
+        <translation>Puertas de granero</translation>
+    </message>
+    <message>
+        <source>Blur Dissolve</source>
+        <translation>Disolución con desenfoque</translation>
+    </message>
+    <message>
+        <source>Border</source>
+        <translation>Borde</translation>
+    </message>
+    <message>
+        <source>Border Color</source>
+        <translation>Color del borde</translation>
+    </message>
+    <message>
+        <source>Border Width</source>
+        <translation>Ancho del borde</translation>
+    </message>
+    <message>
+        <source>Both pictures pan %1 with a motion blur</source>
+        <translation>Ambas imágenes se desplazan %1 con desenfoque de movimiento</translation>
+    </message>
+    <message>
+        <source>Bottom</source>
+        <translation>Abajo</translation>
+    </message>
+    <message>
+        <source>Bottom Center</source>
+        <translation>Centro inferior</translation>
+    </message>
+    <message>
+        <source>Box</source>
+        <translation>Caja</translation>
+    </message>
+    <message>
+        <source>Brightness</source>
+        <translation>Brillo</translation>
+    </message>
+    <message>
+        <source>Brightness Flash</source>
+        <translation>Destello de brillo</translation>
+    </message>
+    <message>
+        <source>Brush strokes paint the next clip over the current one</source>
+        <translation>Pinceladas pintan el siguiente clip sobre el actual</translation>
+    </message>
+    <message>
+        <source>Burn Away</source>
+        <translation>Quemado</translation>
+    </message>
+    <message>
+        <source>Camera Shake</source>
+        <translation>Sacudida de cámara</translation>
+    </message>
+    <message>
+        <source>Center Wipe</source>
+        <translation>Cortinilla central</translation>
+    </message>
+    <message>
+        <source>Char</source>
+        <translation>Carbonizado</translation>
+    </message>
+    <message>
+        <source>Circles</source>
+        <translation>Círculos</translation>
+    </message>
+    <message>
+        <source>Clock Wipe</source>
+        <translation>Cortinilla de reloj</translation>
+    </message>
+    <message>
+        <source>Clockwise</source>
+        <translation>Sentido horario</translation>
+    </message>
+    <message>
+        <source>Crash Zoom</source>
+        <translation>Zoom brusco</translation>
+    </message>
+    <message>
+        <source>Cross Iris</source>
+        <translation>Iris de cruz</translation>
+    </message>
+    <message>
+        <source>Curve</source>
+        <translation>Curva</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>Personalizado</translation>
+    </message>
+    <message>
+        <source>Custom Curve</source>
+        <translation>Curva personalizada</translation>
+    </message>
+    <message>
+        <source>Diamond Iris</source>
+        <translation>Iris de rombo</translation>
+    </message>
+    <message>
+        <source>Direction</source>
+        <translation>Dirección</translation>
+    </message>
+    <message>
+        <source>Dissolve that keeps the brighter of the two pictures</source>
+        <translation>Disolución que conserva la más brillante de las dos imágenes</translation>
+    </message>
+    <message>
+        <source>Dissolve through a noise pattern</source>
+        <translation>Disolución a través de un patrón de ruido</translation>
+    </message>
+    <message>
+        <source>Dissolve with a blur that peaks in the middle</source>
+        <translation>Disolución con un desenfoque que alcanza su máximo en el centro</translation>
+    </message>
+    <message>
+        <source>Down</source>
+        <translation>Abajo</translation>
+    </message>
+    <message>
+        <source>Drop Warp</source>
+        <translation>Distorsión de gota</translation>
+    </message>
+    <message>
+        <source>Easing</source>
+        <translation>Suavizado</translation>
+    </message>
+    <message>
+        <source>End Ratio</source>
+        <translation>Proporción final</translation>
+    </message>
+    <message>
+        <source>Eye Iris</source>
+        <translation>Iris de ojo</translation>
+    </message>
+    <message>
+        <source>Fall Angle</source>
+        <translation>Ángulo de caída</translation>
+    </message>
+    <message>
+        <source>Fall and Bounce</source>
+        <translation>Caída y rebote</translation>
+    </message>
+    <message>
+        <source>Feather</source>
+        <translation>Difuminado</translation>
+    </message>
+    <message>
+        <source>Film Color</source>
+        <translation>Color de la película</translation>
+    </message>
+    <message>
+        <source>Film Strip</source>
+        <translation>Tira de película</translation>
+    </message>
+    <message>
+        <source>Flat</source>
+        <translation>Plano</translation>
+    </message>
+    <message>
+        <source>Flip 3D</source>
+        <translation>Giro 3D</translation>
+    </message>
+    <message>
+        <source>Foreground Wipe</source>
+        <translation>Cortinilla en primer plano</translation>
+    </message>
+    <message>
+        <source>Frame Size</source>
+        <translation>Tamaño del fotograma</translation>
+    </message>
+    <message>
+        <source>Glitch</source>
+        <translation>Glitch</translation>
+    </message>
+    <message>
+        <source>Glow Brightness</source>
+        <translation>Brillo del resplandor</translation>
+    </message>
+    <message>
+        <source>Glow Gain</source>
+        <translation>Ganancia del brillo</translation>
+    </message>
+    <message>
+        <source>Glow Size</source>
+        <translation>Tamaño del brillo</translation>
+    </message>
+    <message>
+        <source>Grain Size</source>
+        <translation>Tamaño del grano</translation>
+    </message>
+    <message>
+        <source>Half a turn while dissolving</source>
+        <translation>Media vuelta mientras se disuelve</translation>
+    </message>
+    <message>
+        <source>Heart</source>
+        <translation>Corazón</translation>
+    </message>
+    <message>
+        <source>Hexagon</source>
+        <translation>Hexágono</translation>
+    </message>
+    <message>
+        <source>Hexagon Iris</source>
+        <translation>Iris de hexágono</translation>
+    </message>
+    <message>
+        <source>Hexagon Vertical</source>
+        <translation>Hexágono vertical</translation>
+    </message>
+    <message>
+        <source>Hide a jump cut by morphing the pictures into each other along their motion (optical flow); use it on a short transition of 2 to 6 frames</source>
+        <translation>Oculta un salto de corte fundiendo las imágenes entre sí siguiendo su movimiento (flujo óptico); usarlo en una transición corta de 2 a 6 fotogramas</translation>
+    </message>
+    <message>
+        <source>Horizontal</source>
+        <translation>Horizontal</translation>
+    </message>
+    <message>
+        <source>Horizontal Bilinear</source>
+        <translation>Bilineal horizontal</translation>
+    </message>
+    <message>
+        <source>Horizontal Strength</source>
+        <translation>Intensidad horizontal</translation>
+    </message>
+    <message>
+        <source>Invert Wipe</source>
+        <translation>Invertir cortinilla</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation>Izquierda</translation>
+    </message>
+    <message>
+        <source>Left Center</source>
+        <translation>Centro izquierda</translation>
+    </message>
+    <message>
+        <source>Linear</source>
+        <translation>Lineal</translation>
+    </message>
+    <message>
+        <source>Lower Left</source>
+        <translation>Inferior izquierda</translation>
+    </message>
+    <message>
+        <source>Lower Right</source>
+        <translation>Inferior derecha</translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <translation>Modo</translation>
+    </message>
+    <message>
+        <source>Motion Blur</source>
+        <translation>Desenfoque de movimiento</translation>
+    </message>
+    <message>
+        <source>Noise Dissolve</source>
+        <translation>Disolución con ruido</translation>
+    </message>
+    <message>
+        <source>Non-Additive Dissolve</source>
+        <translation>Disolución no aditiva</translation>
+    </message>
+    <message>
+        <source>Offset X</source>
+        <translation>Desfase X</translation>
+    </message>
+    <message>
+        <source>Offset Y</source>
+        <translation>Desfase Y</translation>
+    </message>
+    <message>
+        <source>One clip slides over or off the other</source>
+        <translation>Un clip se desliza sobre el otro o fuera de él</translation>
+    </message>
+    <message>
+        <source>Oval Iris</source>
+        <translation>Iris oval</translation>
+    </message>
+    <message>
+        <source>Oval Ratio</source>
+        <translation>Relación del óvalo</translation>
+    </message>
+    <message>
+        <source>Paint On</source>
+        <translation>Pintar encima</translation>
+    </message>
+    <message>
+        <source>Pentagon Iris</source>
+        <translation>Iris de pentágono</translation>
+    </message>
+    <message>
+        <source>Pivot X</source>
+        <translation>Pivote X</translation>
+    </message>
+    <message>
+        <source>Pivot Y</source>
+        <translation>Pivote Y</translation>
+    </message>
+    <message>
+        <source>Point</source>
+        <translation>Punta</translation>
+    </message>
+    <message>
+        <source>Preset</source>
+        <translation>Preajuste</translation>
+    </message>
+    <message>
+        <source>Radial Wipe</source>
+        <translation>Cortinilla radial</translation>
+    </message>
+    <message>
+        <source>Raggedness</source>
+        <translation>Irregularidad</translation>
+    </message>
+    <message>
+        <source>Repeat</source>
+        <translation>Repetir</translation>
+    </message>
+    <message>
+        <source>Reverse</source>
+        <translation>Invertir orden</translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation>Derecha</translation>
+    </message>
+    <message>
+        <source>Right Center</source>
+        <translation>Centro derecha</translation>
+    </message>
+    <message>
+        <source>Rings</source>
+        <translation>Anillos</translation>
+    </message>
+    <message>
+        <source>Rings open one after another and show the next clip</source>
+        <translation>Anillos que se abren uno tras otro y muestran el siguiente clip</translation>
+    </message>
+    <message>
+        <source>Rotate</source>
+        <translation>Rotar</translation>
+    </message>
+    <message>
+        <source>Rotate 90</source>
+        <translation>Rotar 90</translation>
+    </message>
+    <message>
+        <source>Rotation</source>
+        <translation>Rotación</translation>
+    </message>
+    <message>
+        <source>Round and Down</source>
+        <translation>Giro hacia abajo</translation>
+    </message>
+    <message>
+        <source>Shadow Blend</source>
+        <translation>Mezcla de sombra</translation>
+    </message>
+    <message>
+        <source>Shadow Softness</source>
+        <translation>Suavidad de la sombra</translation>
+    </message>
+    <message>
+        <source>Shake Speed</source>
+        <translation>Velocidad de sacudida</translation>
+    </message>
+    <message>
+        <source>Shaking pictures with split colour channels</source>
+        <translation>Imágenes temblorosas con canales de color separados</translation>
+    </message>
+    <message>
+        <source>Slats open one after another</source>
+        <translation>Las lamas se abren una tras otra</translation>
+    </message>
+    <message>
+        <source>Slice Push</source>
+        <translation>Empuje por tiras</translation>
+    </message>
+    <message>
+        <source>Slices</source>
+        <translation>Tiras</translation>
+    </message>
+    <message>
+        <source>Slide</source>
+        <translation>Deslizar</translation>
+    </message>
+    <message>
+        <source>Slide In</source>
+        <translation>Deslizar hacia dentro</translation>
+    </message>
+    <message>
+        <source>Slide Out</source>
+        <translation>Deslizar hacia fuera</translation>
+    </message>
+    <message>
+        <source>Smooth Cut</source>
+        <translation>Corte suave</translation>
+    </message>
+    <message>
+        <source>Softness</source>
+        <translation>Suavidad</translation>
+    </message>
+    <message>
+        <source>Spiral Wipe</source>
+        <translation>Cortinilla en espiral</translation>
+    </message>
+    <message>
+        <source>Split</source>
+        <translation>Dividir</translation>
+    </message>
+    <message>
+        <source>Square Iris</source>
+        <translation>Iris cuadrado</translation>
+    </message>
+    <message>
+        <source>Star</source>
+        <translation>Estrella</translation>
+    </message>
+    <message>
+        <source>Start Ratio</source>
+        <translation>Proporción inicial</translation>
+    </message>
+    <message>
+        <source>Strength</source>
+        <translation>Intensidad</translation>
+    </message>
+    <message>
+        <source>Strips slide in from alternate sides</source>
+        <translation>Tiras que entran deslizándose desde lados alternos</translation>
+    </message>
+    <message>
+        <source>Strips slide out one after another and push the next clip in</source>
+        <translation>Las tiras salen deslizándose una tras otra y empujan el siguiente clip</translation>
+    </message>
+    <message>
+        <source>Strokes</source>
+        <translation>Pinceladas</translation>
+    </message>
+    <message>
+        <source>The current clip swings down round a pivot while it fades into the next</source>
+        <translation>El clip actual gira hacia abajo alrededor de un pivote mientras se funde con el siguiente</translation>
+    </message>
+    <message>
+        <source>The first clip burns away from one side and shows the next one</source>
+        <translation>El primer clip se quema desde un lado y muestra el siguiente</translation>
+    </message>
+    <message>
+        <source>The first clip is sucked into a glowing point, the next one grows out of it</source>
+        <translation>El primer clip es succionado hacia un punto brillante y el siguiente crece desde él</translation>
+    </message>
+    <message>
+        <source>The first clip zooms in while the next one zooms into place</source>
+        <translation>El primer clip se acerca mientras el siguiente se acerca hasta su sitio</translation>
+    </message>
+    <message>
+        <source>The next clip falls in over the current one and bounces to rest</source>
+        <translation>El siguiente clip cae sobre el actual y rebota hasta detenerse</translation>
+    </message>
+    <message>
+        <source>The next clip opens along the two diagonals</source>
+        <translation>El siguiente clip se abre a lo largo de las dos diagonales</translation>
+    </message>
+    <message>
+        <source>The next clip opens from a line through the centre</source>
+        <translation>El siguiente clip se abre desde una línea que pasa por el centro</translation>
+    </message>
+    <message>
+        <source>The next clip slides in over the current one, moving %1</source>
+        <translation>El siguiente clip se desliza sobre el actual, moviéndose %1</translation>
+    </message>
+    <message>
+        <source>The next clip spirals out from the centre</source>
+        <translation>El siguiente clip sale en espiral desde el centro</translation>
+    </message>
+    <message>
+        <source>The picture breaks up in strips and colour channels</source>
+        <translation>La imagen se rompe en tiras y canales de color</translation>
+    </message>
+    <message>
+        <source>The picture opens like a barn door from the centre</source>
+        <translation>La imagen se abre como una puerta de granero desde el centro</translation>
+    </message>
+    <message>
+        <source>The picture splits and the halves move apart in opposite directions</source>
+        <translation>La imagen se divide y las mitades se separan en direcciones opuestas</translation>
+    </message>
+    <message>
+        <source>The picture turns round like a card</source>
+        <translation>La imagen gira como una carta</translation>
+    </message>
+    <message>
+        <source>The picture zooms out to a frame of a moving film strip and zooms back in on the next one</source>
+        <translation>La imagen se aleja hasta un fotograma de una tira de película en movimiento y se acerca de nuevo al siguiente</translation>
+    </message>
+    <message>
+        <source>Top Center</source>
+        <translation>Centro superior</translation>
+    </message>
+    <message>
+        <source>Triangle Iris</source>
+        <translation>Iris de triángulo</translation>
+    </message>
+    <message>
+        <source>Triangle Left</source>
+        <translation>Triángulo izquierda</translation>
+    </message>
+    <message>
+        <source>Triangle Right</source>
+        <translation>Triángulo derecha</translation>
+    </message>
+    <message>
+        <source>Tunnel of Light</source>
+        <translation>Túnel de luz</translation>
+    </message>
+    <message>
+        <source>Up</source>
+        <translation>Arriba</translation>
+    </message>
+    <message>
+        <source>Upper Left</source>
+        <translation>Superior izquierda</translation>
+    </message>
+    <message>
+        <source>Upper Right</source>
+        <translation>Superior derecha</translation>
+    </message>
+    <message>
+        <source>Venetian Blind Wipe</source>
+        <translation>Cortinilla de persiana</translation>
+    </message>
+    <message>
+        <source>Vertical</source>
+        <translation>Vertical</translation>
+    </message>
+    <message>
+        <source>Vertical Bilinear</source>
+        <translation>Bilineal vertical</translation>
+    </message>
+    <message>
+        <source>Vertical Strength</source>
+        <translation>Intensidad vertical</translation>
+    </message>
+    <message>
+        <source>Warp</source>
+        <translation>Distorsión</translation>
+    </message>
+    <message>
+        <source>X Wipe</source>
+        <translation>Cortinilla en X</translation>
+    </message>
+    <message>
+        <source>Zoom In</source>
+        <translation>Acercar</translation>
+    </message>
+    <message>
+        <source>Zoom In and Out</source>
+        <translation>Acercar y alejar</translation>
+    </message>
+    <message>
+        <source>Zoom Scale</source>
+        <translation>Escala del zoom</translation>
+    </message>
+    <message>
+        <source>Zoom in on the first clip, zoom out to the next one</source>
+        <translation>Acercar el primer clip, alejar hacia el siguiente</translation>
+    </message>
+</context>
+<context>
+    <name>kk::BuiltinVideoEffects</name>
+    <message>
+        <source> X</source>
+        <translation> X</translation>
+    </message>
+    <message>
+        <source> Y</source>
+        <translation> Y</translation>
+    </message>
+    <message>
+        <source>3D Keyer</source>
+        <translation>Keyer 3D</translation>
+    </message>
+    <message>
+        <source>A camcorder viewfinder: a blinking recording dot, a running timecode, battery, zoom and card readouts, a focus frame and corner marks</source>
+        <translation>Un visor de videocámara: un punto de grabación parpadeante, un código de tiempo en marcha, lecturas de batería, zoom y tarjeta, un marco de enfoque y marcas de esquina</translation>
+    </message>
+    <message>
+        <source>A colored border around the clip&apos;s shape (titles, keyed or scaled-down clips)</source>
+        <translation>Un borde de color alrededor de la forma del clip (títulos, clips con clave o reducidos)</translation>
+    </message>
+    <message>
+        <source>A drawn lens flare: glow, streaks, a halo ring and ghosts along the lens axis</source>
+        <translation>Un destello de lente dibujado: brillo, rayos, un anillo de halo y reflejos a lo largo del eje de la lente</translation>
+    </message>
+    <message>
+        <source>A drone-camera display: corner framing marks, a compass bar, a horizon line with the gimbal pitch, and readouts of altitude, speed, distance, battery and satellites that can be keyframed</source>
+        <translation>Una pantalla de cámara de dron: marcas de encuadre en las esquinas, una barra de brújula, una línea de horizonte con la inclinación del gimbal y lecturas de altitud, velocidad, distancia, batería y satélites que se pueden animar con fotogramas clave</translation>
+    </message>
+    <message>
+        <source>A photo-camera viewfinder: focus points with a lock, frame lines, a grid, an exposure scale and a readout of shutter speed, aperture and ISO</source>
+        <translation>Un visor de cámara fotográfica: puntos de enfoque con bloqueo, líneas de encuadre, una cuadrícula, una escala de exposición y una lectura de velocidad de obturación, apertura e ISO</translation>
+    </message>
+    <message>
+        <source>A picture-in-picture box: the picture shrinks into a box that you move, size, turn and tilt, with a border, rounded corners and a drop shadow</source>
+        <translation>Un cuadro imagen en imagen: la imagen se reduce a un cuadro que se mueve, redimensiona, gira e inclina, con borde, esquinas redondeadas y sombra proyectada</translation>
+    </message>
+    <message>
+        <source>A security-camera picture: washed colors, noise, scanlines and corner shading, with a camera name, a running date and time, and a blinking recording dot</source>
+        <translation>Una imagen de cámara de seguridad: colores deslavados, ruido, líneas de barrido y sombreado en las esquinas, con un nombre de cámara, fecha y hora en marcha y un punto de grabación parpadeante</translation>
+    </message>
+    <message>
+        <source>A sharp band with blur growing away from it, like a miniature</source>
+        <translation>Una banda nítida con desenfoque creciente a su alrededor, como una miniatura</translation>
+    </message>
+    <message>
+        <source>A video-call tile: the picture in a rounded frame on a dark background, with a name label, a microphone mark, connection bars, a call timer and a ring that lights when the person speaks</source>
+        <translation>Un mosaico de videollamada: la imagen en un marco redondeado sobre fondo oscuro, con una etiqueta de nombre, una marca de micrófono, barras de conexión, un temporizador de llamada y un anillo que se ilumina cuando la persona habla</translation>
+    </message>
+    <message>
+        <source>AF-C</source>
+        <translation>AF-C</translation>
+    </message>
+    <message>
+        <source>AF-S</source>
+        <translation>AF-S</translation>
+    </message>
+    <message>
+        <source>AI tool: cuts the subject out of the picture with a model that runs on this computer</source>
+        <translation>Herramienta de IA: recorta el sujeto de la imagen con un modelo que se ejecuta en este equipo</translation>
+    </message>
+    <message>
+        <source>Abstraction</source>
+        <translation>Abstracción</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Sumar</translation>
+    </message>
+    <message>
+        <source>Adds film-like grain</source>
+        <translation>Añade grano similar al de la película</translation>
+    </message>
+    <message>
+        <source>Ahead</source>
+        <translation>Delante</translation>
+    </message>
+    <message>
+        <source>All Colors</source>
+        <translation>Todos los colores</translation>
+    </message>
+    <message>
+        <source>Alpha Matte Shrink and Grow</source>
+        <translation>Contraer y expandir matte alfa</translation>
+    </message>
+    <message>
+        <source>Altitude</source>
+        <translation>Altitud</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Cantidad</translation>
+    </message>
+    <message>
+        <source>Amplitude</source>
+        <translation>Amplitud</translation>
+    </message>
+    <message>
+        <source>Analog Damage</source>
+        <translation>Daño analógico</translation>
+    </message>
+    <message>
+        <source>Angle</source>
+        <translation>Ángulo</translation>
+    </message>
+    <message>
+        <source>Animated</source>
+        <translation>Animado</translation>
+    </message>
+    <message>
+        <source>Any subject (per frame)</source>
+        <translation>Cualquier sujeto (por fotograma)</translation>
+    </message>
+    <message>
+        <source>Aperture (f/)</source>
+        <translation>Apertura (f/)</translation>
+    </message>
+    <message>
+        <source>Aperture Diffraction</source>
+        <translation>Difracción de apertura</translation>
+    </message>
+    <message>
+        <source>Applies a 1D or 3D look-up table from a .cube file</source>
+        <translation>Aplica una tabla de consulta 1D o 3D de un archivo .cube</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Aplicar</translation>
+    </message>
+    <message>
+        <source>Apply LUT</source>
+        <translation>Aplicar LUT</translation>
+    </message>
+    <message>
+        <source>Area Size</source>
+        <translation>Tamaño del área</translation>
+    </message>
+    <message>
+        <source>Automatic</source>
+        <translation>Automático</translation>
+    </message>
+    <message>
+        <source>Automatic Dirt Removal</source>
+        <translation>Eliminación automática de suciedad</translation>
+    </message>
+    <message>
+        <source>Average</source>
+        <translation>Promedio</translation>
+    </message>
+    <message>
+        <source>Averages the frame with the frames around it: a soft smear along every movement</source>
+        <translation>Promedia el fotograma con los que lo rodean: un difuminado suave a lo largo de cada movimiento</translation>
+    </message>
+    <message>
+        <source>Background</source>
+        <translation>Fondo</translation>
+    </message>
+    <message>
+        <source>Background Only</source>
+        <translation>Solo fondo</translation>
+    </message>
+    <message>
+        <source>Background Opacity</source>
+        <translation>Opacidad del fondo</translation>
+    </message>
+    <message>
+        <source>Background Removal</source>
+        <translation>Eliminación de fondo</translation>
+    </message>
+    <message>
+        <source>Band Shift</source>
+        <translation>Desplazamiento de bandas</translation>
+    </message>
+    <message>
+        <source>Barrel (positive) or pincushion (negative) distortion</source>
+        <translation>Distorsión de barril (positiva) o de cojín (negativa)</translation>
+    </message>
+    <message>
+        <source>Battery</source>
+        <translation>Batería</translation>
+    </message>
+    <message>
+        <source>Beauty</source>
+        <translation>Belleza</translation>
+    </message>
+    <message>
+        <source>Behind</source>
+        <translation>Detrás</translation>
+    </message>
+    <message>
+        <source>Bends the picture with a grid of points that you move</source>
+        <translation>Curva la imagen con una cuadrícula de puntos que se mueven</translation>
+    </message>
+    <message>
+        <source>Black and White</source>
+        <translation>Blanco y negro</translation>
+    </message>
+    <message>
+        <source>Black on White</source>
+        <translation>Negro sobre blanco</translation>
+    </message>
+    <message>
+        <source>Blend</source>
+        <translation>Fusión</translation>
+    </message>
+    <message>
+        <source>Blend Mode</source>
+        <translation>Modo de fusión</translation>
+    </message>
+    <message>
+        <source>Blends earlier frames of the clip over it: trails and ghosting</source>
+        <translation>Mezcla fotogramas anteriores del clip sobre él: estelas y fantasmas</translation>
+    </message>
+    <message>
+        <source>Blink Recording Dot</source>
+        <translation>Parpadeo del punto de grabación</translation>
+    </message>
+    <message>
+        <source>Block Size</source>
+        <translation>Tamaño de bloque</translation>
+    </message>
+    <message>
+        <source>Bloom</source>
+        <translation>Bloom</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Azul</translation>
+    </message>
+    <message>
+        <source>Blue Scale</source>
+        <translation>Escala del azul</translation>
+    </message>
+    <message>
+        <source>Blue Screen</source>
+        <translation>Pantalla azul</translation>
+    </message>
+    <message>
+        <source>Blue from Blue</source>
+        <translation>Azul de azul</translation>
+    </message>
+    <message>
+        <source>Blue from Green</source>
+        <translation>Azul de verde</translation>
+    </message>
+    <message>
+        <source>Blue from Red</source>
+        <translation>Azul de rojo</translation>
+    </message>
+    <message>
+        <source>Blues</source>
+        <translation>Azules</translation>
+    </message>
+    <message>
+        <source>Blur</source>
+        <translation>Desenfoque</translation>
+    </message>
+    <message>
+        <source>Blur streaking out of a centre, like a fast zoom</source>
+        <translation>Desenfoque en estela desde un centro, como un zoom rápido</translation>
+    </message>
+    <message>
+        <source>Blurs along the motion measured between neighbouring frames, like a camera shutter</source>
+        <translation>Desenfoca a lo largo del movimiento medido entre fotogramas vecinos, como el obturador de una cámara</translation>
+    </message>
+    <message>
+        <source>Bokeh Highlights</source>
+        <translation>Altas luces del bokeh</translation>
+    </message>
+    <message>
+        <source>Border Color</source>
+        <translation>Color del borde</translation>
+    </message>
+    <message>
+        <source>Border Width</source>
+        <translation>Ancho del borde</translation>
+    </message>
+    <message>
+        <source>Both</source>
+        <translation>Ambos</translation>
+    </message>
+    <message>
+        <source>Bottom</source>
+        <translation>Abajo</translation>
+    </message>
+    <message>
+        <source>Bottom Half</source>
+        <translation>Mitad inferior</translation>
+    </message>
+    <message>
+        <source>Bottom Left X</source>
+        <translation>Inferior izquierda X</translation>
+    </message>
+    <message>
+        <source>Bottom Left Y</source>
+        <translation>Inferior izquierda Y</translation>
+    </message>
+    <message>
+        <source>Bottom Right X</source>
+        <translation>Inferior derecha X</translation>
+    </message>
+    <message>
+        <source>Bottom Right Y</source>
+        <translation>Inferior derecha Y</translation>
+    </message>
+    <message>
+        <source>Bows the picture out or in around a point, round, along one direction or square</source>
+        <translation>Curva la imagen hacia fuera o hacia dentro alrededor de un punto, de forma redonda, en una dirección o cuadrada</translation>
+    </message>
+    <message>
+        <source>Box Blur</source>
+        <translation>Desenfoque de caja</translation>
+    </message>
+    <message>
+        <source>Bright Only</source>
+        <translation>Solo brillantes</translation>
+    </message>
+    <message>
+        <source>Bright and Dark</source>
+        <translation>Brillantes y oscuros</translation>
+    </message>
+    <message>
+        <source>Bright areas bleed soft light</source>
+        <translation>Las zonas brillantes difunden luz suave</translation>
+    </message>
+    <message>
+        <source>Bright areas cast rays away from a light centre</source>
+        <translation>Las zonas brillantes proyectan rayos desde un centro de luz</translation>
+    </message>
+    <message>
+        <source>Bright lines where the picture has edges</source>
+        <translation>Líneas brillantes donde la imagen tiene bordes</translation>
+    </message>
+    <message>
+        <source>Brightens or darkens in camera stops</source>
+        <translation>Aclara u oscurece en pasos de diafragma</translation>
+    </message>
+    <message>
+        <source>Brightness Only</source>
+        <translation>Solo brillo</translation>
+    </message>
+    <message>
+        <source>Brightness Weight</source>
+        <translation>Peso del brillo</translation>
+    </message>
+    <message>
+        <source>Brightness that flickers like an old projector or a failing lamp</source>
+        <translation>Brillo que parpadea como un proyector antiguo o una lámpara que falla</translation>
+    </message>
+    <message>
+        <source>Brings back the detail hidden in deep shadows and bright highlights</source>
+        <translation>Recupera el detalle oculto en sombras profundas y altas luces brillantes</translation>
+    </message>
+    <message>
+        <source>Brush Size</source>
+        <translation>Tamaño del pincel</translation>
+    </message>
+    <message>
+        <source>Builds each output channel from a mix of the red, green and blue input</source>
+        <translation>Construye cada canal de salida a partir de una mezcla de la entrada roja, verde y azul</translation>
+    </message>
+    <message>
+        <source>Bulge / Pinch</source>
+        <translation>Abultar / Pellizcar</translation>
+    </message>
+    <message>
+        <source>CCTV</source>
+        <translation>CCTV</translation>
+    </message>
+    <message>
+        <source>Call Timer</source>
+        <translation>Temporizador de llamada</translation>
+    </message>
+    <message>
+        <source>Camera Name</source>
+        <translation>Nombre de la cámara</translation>
+    </message>
+    <message>
+        <source>Camera Shake</source>
+        <translation>Sacudida de cámara</translation>
+    </message>
+    <message>
+        <source>Card Remaining</source>
+        <translation>Tarjeta restante</translation>
+    </message>
+    <message>
+        <source>Cast</source>
+        <translation>Dominante</translation>
+    </message>
+    <message>
+        <source>Cell Size</source>
+        <translation>Tamaño de celda</translation>
+    </message>
+    <message>
+        <source>Center X</source>
+        <translation>Centro X</translation>
+    </message>
+    <message>
+        <source>Center Y</source>
+        <translation>Centro Y</translation>
+    </message>
+    <message>
+        <source>Channel Mixer</source>
+        <translation>Mezclador de canales</translation>
+    </message>
+    <message>
+        <source>Chroma Key</source>
+        <translation>Croma</translation>
+    </message>
+    <message>
+        <source>Chromatic Aberration</source>
+        <translation>Aberración cromática</translation>
+    </message>
+    <message>
+        <source>Chromatic Aberration Fix</source>
+        <translation>Corrección de aberración cromática</translation>
+    </message>
+    <message>
+        <source>Circle Dots</source>
+        <translation>Puntos circulares</translation>
+    </message>
+    <message>
+        <source>Circular waves from a centre</source>
+        <translation>Ondas circulares desde un centro</translation>
+    </message>
+    <message>
+        <source>Clip</source>
+        <translation>Clip</translation>
+    </message>
+    <message>
+        <source>Clip Black</source>
+        <translation>Recortar negros</translation>
+    </message>
+    <message>
+        <source>Clip White</source>
+        <translation>Recortar blancos</translation>
+    </message>
+    <message>
+        <source>Cloudy noise laid over the picture, still or drifting</source>
+        <translation>Ruido nuboso superpuesto a la imagen, fijo o a la deriva</translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation>Color</translation>
+    </message>
+    <message>
+        <source>Color 1</source>
+        <translation>Color 1</translation>
+    </message>
+    <message>
+        <source>Color 2</source>
+        <translation>Color 2</translation>
+    </message>
+    <message>
+        <source>Color 3</source>
+        <translation>Color 3</translation>
+    </message>
+    <message>
+        <source>Color Balance</source>
+        <translation>Balance de color</translation>
+    </message>
+    <message>
+        <source>Color Bleed</source>
+        <translation>Sangrado de color</translation>
+    </message>
+    <message>
+        <source>Color Palette</source>
+        <translation>Paleta de colores</translation>
+    </message>
+    <message>
+        <source>Color Split</source>
+        <translation>División de color</translation>
+    </message>
+    <message>
+        <source>Color Stabilizer</source>
+        <translation>Estabilizador de color</translation>
+    </message>
+    <message>
+        <source>Colored Border</source>
+        <translation>Borde de color</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <translation>Colores</translation>
+    </message>
+    <message>
+        <source>Columns</source>
+        <translation>Columnas</translation>
+    </message>
+    <message>
+        <source>Compass Bar</source>
+        <translation>Barra de brújula</translation>
+    </message>
+    <message>
+        <source>Connection Bars</source>
+        <translation>Barras de conexión</translation>
+    </message>
+    <message>
+        <source>Contrast</source>
+        <translation>Contraste</translation>
+    </message>
+    <message>
+        <source>Contrast Pop</source>
+        <translation>Realce de contraste</translation>
+    </message>
+    <message>
+        <source>Corner Marks</source>
+        <translation>Marcas de esquina</translation>
+    </message>
+    <message>
+        <source>Corner Pin</source>
+        <translation>Corner pin</translation>
+    </message>
+    <message>
+        <source>Corner Radius</source>
+        <translation>Radio de esquina</translation>
+    </message>
+    <message>
+        <source>Correct Colour Too</source>
+        <translation>Corregir también el color</translation>
+    </message>
+    <message>
+        <source>Corrects color fringes at the edges of a lens image by scaling red and blue</source>
+        <translation>Corrige los bordes de color en los extremos de una imagen de lente escalando el rojo y el azul</translation>
+    </message>
+    <message>
+        <source>Covers a blemish with a patch copied from another place in the same picture</source>
+        <translation>Cubre una imperfección con un parche copiado de otro lugar de la misma imagen</translation>
+    </message>
+    <message>
+        <source>Crops the edges with a soft feather (percent of the clip size)</source>
+        <translation>Recorta los bordes con un difuminado suave (porcentaje del tamaño del clip)</translation>
+    </message>
+    <message>
+        <source>Cube LUT files (*.cube)</source>
+        <translation>Archivos LUT Cube (*.cube)</translation>
+    </message>
+    <message>
+        <source>Curves</source>
+        <translation>Curvas</translation>
+    </message>
+    <message>
+        <source>Custom (Key Color)</source>
+        <translation>Personalizado (color de clave)</translation>
+    </message>
+    <message>
+        <source>Cutout</source>
+        <translation>Recorte</translation>
+    </message>
+    <message>
+        <source>Cyans</source>
+        <translation>Cianes</translation>
+    </message>
+    <message>
+        <source>DCI-P3 D65</source>
+        <translation>DCI-P3 D65</translation>
+    </message>
+    <message>
+        <source>DSLR</source>
+        <translation>DSLR</translation>
+    </message>
+    <message>
+        <source>DVE</source>
+        <translation>DVE</translation>
+    </message>
+    <message>
+        <source>Dark Only</source>
+        <translation>Solo oscuros</translation>
+    </message>
+    <message>
+        <source>Dark horizontal lines like an old monitor, optionally rolling</source>
+        <translation>Líneas horizontales oscuras como las de un monitor antiguo, opcionalmente en movimiento</translation>
+    </message>
+    <message>
+        <source>Darkness</source>
+        <translation>Oscuridad</translation>
+    </message>
+    <message>
+        <source>Dead Pixel Fixer</source>
+        <translation>Corrector de píxeles muertos</translation>
+    </message>
+    <message>
+        <source>Deband</source>
+        <translation>Eliminar bandas</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>Atenuación</translation>
+    </message>
+    <message>
+        <source>Defect Size</source>
+        <translation>Tamaño del defecto</translation>
+    </message>
+    <message>
+        <source>Deflicker</source>
+        <translation>Anti-parpadeo</translation>
+    </message>
+    <message>
+        <source>Dehaze</source>
+        <translation>Eliminar neblina</translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation>Retardo</translation>
+    </message>
+    <message>
+        <source>Dent</source>
+        <translation>Abolladura</translation>
+    </message>
+    <message>
+        <source>Desaturate</source>
+        <translation>Desaturar</translation>
+    </message>
+    <message>
+        <source>Desaturation</source>
+        <translation>Desaturación</translation>
+    </message>
+    <message>
+        <source>Despill</source>
+        <translation>Despill</translation>
+    </message>
+    <message>
+        <source>Detail</source>
+        <translation>Detalle</translation>
+    </message>
+    <message>
+        <source>Detail Recover</source>
+        <translation>Recuperación de detalle</translation>
+    </message>
+    <message>
+        <source>Detail Recovery</source>
+        <translation>Recuperación de detalle</translation>
+    </message>
+    <message>
+        <source>Detail Size</source>
+        <translation>Tamaño del detalle</translation>
+    </message>
+    <message>
+        <source>Detect</source>
+        <translation>Detectar</translation>
+    </message>
+    <message>
+        <source>Detected Dirt</source>
+        <translation>Suciedad detectada</translation>
+    </message>
+    <message>
+        <source>Diamonds</source>
+        <translation>Rombos</translation>
+    </message>
+    <message>
+        <source>Digital Glitch</source>
+        <translation>Glitch digital</translation>
+    </message>
+    <message>
+        <source>Digital Noise</source>
+        <translation>Ruido digital</translation>
+    </message>
+    <message>
+        <source>Digital damage: bands of the picture slide sideways, blocks jump, the color channels split apart and bright noise flickers</source>
+        <translation>Daño digital: bandas de la imagen se desplazan hacia los lados, bloques saltan, los canales de color se separan y parpadea ruido brillante</translation>
+    </message>
+    <message>
+        <source>Direction</source>
+        <translation>Dirección</translation>
+    </message>
+    <message>
+        <source>Directional Blur</source>
+        <translation>Desenfoque direccional</translation>
+    </message>
+    <message>
+        <source>Dirt</source>
+        <translation>Suciedad</translation>
+    </message>
+    <message>
+        <source>Dirt Contrast</source>
+        <translation>Contraste de la suciedad</translation>
+    </message>
+    <message>
+        <source>Distance to Home</source>
+        <translation>Distancia al punto de partida</translation>
+    </message>
+    <message>
+        <source>Distortion</source>
+        <translation>Distorsión</translation>
+    </message>
+    <message>
+        <source>Dither</source>
+        <translation>Dither</translation>
+    </message>
+    <message>
+        <source>Dot Spacing</source>
+        <translation>Espaciado de puntos</translation>
+    </message>
+    <message>
+        <source>Drift Speed</source>
+        <translation>Velocidad de deriva</translation>
+    </message>
+    <message>
+        <source>Drone Overlay</source>
+        <translation>Superposición de dron</translation>
+    </message>
+    <message>
+        <source>Duotone</source>
+        <translation>Duotono</translation>
+    </message>
+    <message>
+        <source>Dust Buster</source>
+        <translation>Dust Buster</translation>
+    </message>
+    <message>
+        <source>Echo</source>
+        <translation>Eco</translation>
+    </message>
+    <message>
+        <source>Echoes</source>
+        <translation>Ecos</translation>
+    </message>
+    <message>
+        <source>Edge Blur</source>
+        <translation>Desenfoque de bordes</translation>
+    </message>
+    <message>
+        <source>Edge Darkening</source>
+        <translation>Oscurecimiento de bordes</translation>
+    </message>
+    <message>
+        <source>Edge Detect</source>
+        <translation>Detección de bordes</translation>
+    </message>
+    <message>
+        <source>Edge Sensitivity</source>
+        <translation>Sensibilidad de bordes</translation>
+    </message>
+    <message>
+        <source>Edge Softness</source>
+        <translation>Suavidad del borde</translation>
+    </message>
+    <message>
+        <source>Edge Threshold</source>
+        <translation>Umbral de bordes</translation>
+    </message>
+    <message>
+        <source>Edges</source>
+        <translation>Bordes</translation>
+    </message>
+    <message>
+        <source>Ellipse</source>
+        <translation>Elipse</translation>
+    </message>
+    <message>
+        <source>Emboss</source>
+        <translation>Relieve</translation>
+    </message>
+    <message>
+        <source>Even blur over a square area</source>
+        <translation>Desenfoque uniforme sobre un área cuadrada</translation>
+    </message>
+    <message>
+        <source>Evens out brightness that jumps from frame to frame by pulling each frame toward the average of the frames around it</source>
+        <translation>Uniformiza el brillo que salta de un fotograma a otro acercando cada fotograma al promedio de los que lo rodean</translation>
+    </message>
+    <message>
+        <source>Evolution</source>
+        <translation>Evolución</translation>
+    </message>
+    <message>
+        <source>Exposure</source>
+        <translation>Exposición</translation>
+    </message>
+    <message>
+        <source>Exposure Bands</source>
+        <translation>Bandas de exposición</translation>
+    </message>
+    <message>
+        <source>Exposure Compensation</source>
+        <translation>Compensación de exposición</translation>
+    </message>
+    <message>
+        <source>Exposure and White Balance</source>
+        <translation>Exposición y balance de blancos</translation>
+    </message>
+    <message>
+        <source>Fade</source>
+        <translation>Fundido</translation>
+    </message>
+    <message>
+        <source>Faint colored reflections of the bright lights, mirrored through the lens center</source>
+        <translation>Reflejos de color tenues de las luces brillantes, reflejados a través del centro de la lente</translation>
+    </message>
+    <message>
+        <source>Falloff</source>
+        <translation>Caída</translation>
+    </message>
+    <message>
+        <source>False Color</source>
+        <translation>Falso color</translation>
+    </message>
+    <message>
+        <source>Fast Noise</source>
+        <translation>Ruido rápido</translation>
+    </message>
+    <message>
+        <source>Feather</source>
+        <translation>Difuminado</translation>
+    </message>
+    <message>
+        <source>Feathered Crop</source>
+        <translation>Recorte difuminado</translation>
+    </message>
+    <message>
+        <source>Fill</source>
+        <translation>Rellenar</translation>
+    </message>
+    <message>
+        <source>Film Damage</source>
+        <translation>Daño de película</translation>
+    </message>
+    <message>
+        <source>Film Grain</source>
+        <translation>Grano de película</translation>
+    </message>
+    <message>
+        <source>Final</source>
+        <translation>Final</translation>
+    </message>
+    <message>
+        <source>Final Result</source>
+        <translation>Resultado final</translation>
+    </message>
+    <message>
+        <source>Finds the dominant colors of the picture and shows them as a strip of swatches</source>
+        <translation>Encuentra los colores dominantes de la imagen y los muestra como una tira de muestras</translation>
+    </message>
+    <message>
+        <source>Fine Grid</source>
+        <translation>Cuadrícula fina</translation>
+    </message>
+    <message>
+        <source>Fit</source>
+        <translation>Ajustar</translation>
+    </message>
+    <message>
+        <source>Flicker</source>
+        <translation>Parpadeo</translation>
+    </message>
+    <message>
+        <source>Focus Frame</source>
+        <translation>Marco de enfoque</translation>
+    </message>
+    <message>
+        <source>Focus Locked</source>
+        <translation>Enfoque bloqueado</translation>
+    </message>
+    <message>
+        <source>Focus Mode</source>
+        <translation>Modo de enfoque</translation>
+    </message>
+    <message>
+        <source>Focus Point X</source>
+        <translation>Punto de enfoque X</translation>
+    </message>
+    <message>
+        <source>Focus Point Y</source>
+        <translation>Punto de enfoque Y</translation>
+    </message>
+    <message>
+        <source>Focus Position</source>
+        <translation>Posición del foco</translation>
+    </message>
+    <message>
+        <source>Focus Width</source>
+        <translation>Ancho del foco</translation>
+    </message>
+    <message>
+        <source>Follow the Track</source>
+        <translation>Seguir la pista</translation>
+    </message>
+    <message>
+        <source>Follows a point or a region of the picture and moves the clip with it</source>
+        <translation>Sigue un punto o una región de la imagen y mueve el clip con él</translation>
+    </message>
+    <message>
+        <source>Font</source>
+        <translation>Fuente</translation>
+    </message>
+    <message>
+        <source>Footage Below</source>
+        <translation>Metraje inferior</translation>
+    </message>
+    <message>
+        <source>Foreground</source>
+        <translation>Primer plano</translation>
+    </message>
+    <message>
+        <source>Format Label</source>
+        <translation>Etiqueta de formato</translation>
+    </message>
+    <message>
+        <source>Frame Replacer</source>
+        <translation>Reemplazo de fotograma</translation>
+    </message>
+    <message>
+        <source>Frame Spacing</source>
+        <translation>Espaciado de fotogramas</translation>
+    </message>
+    <message>
+        <source>Framing Marks</source>
+        <translation>Marcas de encuadre</translation>
+    </message>
+    <message>
+        <source>Frequency</source>
+        <translation>Frecuencia</translation>
+    </message>
+    <message>
+        <source>Fringe Removal</source>
+        <translation>Eliminación de bordes</translation>
+    </message>
+    <message>
+        <source>Full (slow)</source>
+        <translation>Completo (lento)</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>Ganancia</translation>
+    </message>
+    <message>
+        <source>Gain Blue</source>
+        <translation>Ganancia azul</translation>
+    </message>
+    <message>
+        <source>Gain Green</source>
+        <translation>Ganancia verde</translation>
+    </message>
+    <message>
+        <source>Gain Red</source>
+        <translation>Ganancia rojo</translation>
+    </message>
+    <message>
+        <source>Gamma</source>
+        <translation>Gamma</translation>
+    </message>
+    <message>
+        <source>Gamma Blue</source>
+        <translation>Gamma azul</translation>
+    </message>
+    <message>
+        <source>Gamma Green</source>
+        <translation>Gamma verde</translation>
+    </message>
+    <message>
+        <source>Gamma Red</source>
+        <translation>Gamma rojo</translation>
+    </message>
+    <message>
+        <source>Gamut Limiter</source>
+        <translation>Limitador de gamut</translation>
+    </message>
+    <message>
+        <source>Gap</source>
+        <translation>Hueco</translation>
+    </message>
+    <message>
+        <source>Gate Weave</source>
+        <translation>Vibración de ventanilla</translation>
+    </message>
+    <message>
+        <source>Ghosts</source>
+        <translation>Reflejos</translation>
+    </message>
+    <message>
+        <source>Gimbal Pitch</source>
+        <translation>Inclinación del gimbal</translation>
+    </message>
+    <message>
+        <source>Glitches per Second</source>
+        <translation>Glitches por segundo</translation>
+    </message>
+    <message>
+        <source>Glow</source>
+        <translation>Resplandor</translation>
+    </message>
+    <message>
+        <source>Grain Size</source>
+        <translation>Tamaño del grano</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Verde</translation>
+    </message>
+    <message>
+        <source>Green / blue screen: makes the key color transparent</source>
+        <translation>Pantalla verde / azul: hace transparente el color de clave</translation>
+    </message>
+    <message>
+        <source>Green Screen</source>
+        <translation>Pantalla verde</translation>
+    </message>
+    <message>
+        <source>Green from Blue</source>
+        <translation>Verde de azul</translation>
+    </message>
+    <message>
+        <source>Green from Green</source>
+        <translation>Verde de verde</translation>
+    </message>
+    <message>
+        <source>Green from Red</source>
+        <translation>Verde de rojo</translation>
+    </message>
+    <message>
+        <source>Greens</source>
+        <translation>Verdes</translation>
+    </message>
+    <message>
+        <source>Greyscale, optionally tinted (sepia, cyanotype, ...)</source>
+        <translation>Escala de grises, opcionalmente teñida (sepia, cianotipo, ...)</translation>
+    </message>
+    <message>
+        <source>Grid</source>
+        <translation>Cuadrícula</translation>
+    </message>
+    <message>
+        <source>Grid Density</source>
+        <translation>Densidad de la cuadrícula</translation>
+    </message>
+    <message>
+        <source>Grow</source>
+        <translation>Expandir</translation>
+    </message>
+    <message>
+        <source>HSL Adjust</source>
+        <translation>Ajuste HSL</translation>
+    </message>
+    <message>
+        <source>HSL Key</source>
+        <translation>Clave HSL</translation>
+    </message>
+    <message>
+        <source>Halation</source>
+        <translation>Halación</translation>
+    </message>
+    <message>
+        <source>Halftone</source>
+        <translation>Semitono</translation>
+    </message>
+    <message>
+        <source>Halo Limit</source>
+        <translation>Límite de halo</translation>
+    </message>
+    <message>
+        <source>Hand-held or impact shake: smooth random movement, the same on every play</source>
+        <translation>Sacudida de cámara en mano o de impacto: movimiento aleatorio suave, igual en cada reproducción</translation>
+    </message>
+    <message>
+        <source>Haze Color</source>
+        <translation>Color de la bruma</translation>
+    </message>
+    <message>
+        <source>Heading</source>
+        <translation>Rumbo</translation>
+    </message>
+    <message>
+        <source>Height</source>
+        <translation>Alto</translation>
+    </message>
+    <message>
+        <source>Hexagon, dot or diamond cells filled with the picture&apos;s color</source>
+        <translation>Celdas hexagonales, de puntos o de rombos rellenas con el color de la imagen</translation>
+    </message>
+    <message>
+        <source>Hexagons</source>
+        <translation>Hexágonos</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>Alto</translation>
+    </message>
+    <message>
+        <source>Highlight Protection</source>
+        <translation>Protección de altas luces</translation>
+    </message>
+    <message>
+        <source>Highlight Threshold</source>
+        <translation>Umbral de altas luces</translation>
+    </message>
+    <message>
+        <source>Highlights</source>
+        <translation>Altas luces</translation>
+    </message>
+    <message>
+        <source>Hold Frames</source>
+        <translation>Fotogramas retenidos</translation>
+    </message>
+    <message>
+        <source>Hold the Track in Place</source>
+        <translation>Mantener la pista fija</translation>
+    </message>
+    <message>
+        <source>Holds every Nth frame: a choppy, stop-motion look</source>
+        <translation>Mantiene cada N fotogramas: un aspecto entrecortado, de stop-motion</translation>
+    </message>
+    <message>
+        <source>Holds exposure and white balance steady by matching every frame to a reference frame</source>
+        <translation>Mantiene estables la exposición y el balance de blancos igualando cada fotograma a un fotograma de referencia</translation>
+    </message>
+    <message>
+        <source>Horizontal Bow</source>
+        <translation>Curvado horizontal</translation>
+    </message>
+    <message>
+        <source>Hue</source>
+        <translation>Tono</translation>
+    </message>
+    <message>
+        <source>Hue Shift</source>
+        <translation>Desplazamiento de tono</translation>
+    </message>
+    <message>
+        <source>Hue Softness</source>
+        <translation>Suavidad de tono</translation>
+    </message>
+    <message>
+        <source>Hue Width</source>
+        <translation>Ancho de tono</translation>
+    </message>
+    <message>
+        <source>ISO</source>
+        <translation>ISO</translation>
+    </message>
+    <message>
+        <source>Imperial</source>
+        <translation>Imperial</translation>
+    </message>
+    <message>
+        <source>Ink Outline</source>
+        <translation>Contorno de tinta</translation>
+    </message>
+    <message>
+        <source>Input Black</source>
+        <translation>Negro de entrada</translation>
+    </message>
+    <message>
+        <source>Input White</source>
+        <translation>Blanco de entrada</translation>
+    </message>
+    <message>
+        <source>Input and output black / white points and gamma</source>
+        <translation>Puntos de negro / blanco de entrada y salida y gamma</translation>
+    </message>
+    <message>
+        <source>Inside</source>
+        <translation>Interior</translation>
+    </message>
+    <message>
+        <source>Intensity</source>
+        <translation>Intensidad</translation>
+    </message>
+    <message>
+        <source>Invert</source>
+        <translation>Invertir</translation>
+    </message>
+    <message>
+        <source>JPEG Damage</source>
+        <translation>Daño JPEG</translation>
+    </message>
+    <message>
+        <source>Kaleidoscope</source>
+        <translation>Caleidoscopio</translation>
+    </message>
+    <message>
+        <source>Keep</source>
+        <translation>Conservar</translation>
+    </message>
+    <message>
+        <source>Keeps the brightness range between Low and High, the rest becomes transparent</source>
+        <translation>Conserva el rango de brillo entre Bajo y Alto, el resto se vuelve transparente</translation>
+    </message>
+    <message>
+        <source>Key Color</source>
+        <translation>Color de clave</translation>
+    </message>
+    <message>
+        <source>Keys out up to three picked colors in color space, with a tolerance and a soft edge</source>
+        <translation>Elimina hasta tres colores elegidos en el espacio de color, con tolerancia y borde suave</translation>
+    </message>
+    <message>
+        <source>LUT File</source>
+        <translation>Archivo LUT</translation>
+    </message>
+    <message>
+        <source>Leaves a fading trail of the clip&apos;s earlier frames behind everything that moves</source>
+        <translation>Deja una estela que se desvanece de los fotogramas anteriores del clip tras todo lo que se mueve</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation>Izquierda</translation>
+    </message>
+    <message>
+        <source>Left Half</source>
+        <translation>Mitad izquierda</translation>
+    </message>
+    <message>
+        <source>Length</source>
+        <translation>Longitud</translation>
+    </message>
+    <message>
+        <source>Lens Blur</source>
+        <translation>Desenfoque de lente</translation>
+    </message>
+    <message>
+        <source>Lens Distortion</source>
+        <translation>Distorsión de lente</translation>
+    </message>
+    <message>
+        <source>Lens Flare</source>
+        <translation>Destello de lente</translation>
+    </message>
+    <message>
+        <source>Lens Reflections</source>
+        <translation>Reflejos de lente</translation>
+    </message>
+    <message>
+        <source>Levels</source>
+        <translation>Niveles</translation>
+    </message>
+    <message>
+        <source>Lift</source>
+        <translation>Lift</translation>
+    </message>
+    <message>
+        <source>Lift (shadows), gamma (midtones) and gain (highlights), overall and per channel</source>
+        <translation>Lift (sombras), gamma (medios tonos) y ganancia (altas luces), en conjunto y por canal</translation>
+    </message>
+    <message>
+        <source>Lift Blue</source>
+        <translation>Lift azul</translation>
+    </message>
+    <message>
+        <source>Lift Green</source>
+        <translation>Lift verde</translation>
+    </message>
+    <message>
+        <source>Lift Red</source>
+        <translation>Lift rojo</translation>
+    </message>
+    <message>
+        <source>Light Angle</source>
+        <translation>Ángulo de luz</translation>
+    </message>
+    <message>
+        <source>Light Rays</source>
+        <translation>Rayos de luz</translation>
+    </message>
+    <message>
+        <source>Light X</source>
+        <translation>Luz X</translation>
+    </message>
+    <message>
+        <source>Light Y</source>
+        <translation>Luz Y</translation>
+    </message>
+    <message>
+        <source>Lighten</source>
+        <translation>Aclarar</translation>
+    </message>
+    <message>
+        <source>Lightness</source>
+        <translation>Luminosidad</translation>
+    </message>
+    <message>
+        <source>Limit</source>
+        <translation>Límite</translation>
+    </message>
+    <message>
+        <source>Limit To</source>
+        <translation>Limitar a</translation>
+    </message>
+    <message>
+        <source>Line Jitter</source>
+        <translation>Temblor de líneas</translation>
+    </message>
+    <message>
+        <source>Line Width</source>
+        <translation>Ancho de línea</translation>
+    </message>
+    <message>
+        <source>Local contrast: adds punch to the detail of mid-sized shapes without changing the overall tones</source>
+        <translation>Contraste local: da fuerza al detalle de formas medianas sin cambiar los tonos generales</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>Bajo</translation>
+    </message>
+    <message>
+        <source>Luma Key</source>
+        <translation>Clave de luma</translation>
+    </message>
+    <message>
+        <source>Luminance High</source>
+        <translation>Luminancia alta</translation>
+    </message>
+    <message>
+        <source>Luminance Low</source>
+        <translation>Luminancia baja</translation>
+    </message>
+    <message>
+        <source>Luminance Softness</source>
+        <translation>Suavidad de luminancia</translation>
+    </message>
+    <message>
+        <source>MF</source>
+        <translation>MF</translation>
+    </message>
+    <message>
+        <source>Magentas</source>
+        <translation>Magentas</translation>
+    </message>
+    <message>
+        <source>Magnifies (bulge, positive) or squeezes (pinch, negative) a round area</source>
+        <translation>Amplía (abultar, positivo) o comprime (pellizcar, negativo) un área redonda</translation>
+    </message>
+    <message>
+        <source>Makes a hue, saturation and luminance range transparent</source>
+        <translation>Hace transparente un rango de tono, saturación y luminancia</translation>
+    </message>
+    <message>
+        <source>Makes the fine texture of surfaces stand out, without touching the large tones</source>
+        <translation>Hace resaltar la textura fina de las superficies sin tocar los tonos amplios</translation>
+    </message>
+    <message>
+        <source>Maps the shadows to one color and the highlights to another</source>
+        <translation>Asigna las sombras a un color y las altas luces a otro</translation>
+    </message>
+    <message>
+        <source>Margin</source>
+        <translation>Margen</translation>
+    </message>
+    <message>
+        <source>Master</source>
+        <translation>Maestro</translation>
+    </message>
+    <message>
+        <source>Match</source>
+        <translation>Igualar</translation>
+    </message>
+    <message>
+        <source>Match Move</source>
+        <translation>Match move</translation>
+    </message>
+    <message>
+        <source>Matte</source>
+        <translation>Matte</translation>
+    </message>
+    <message>
+        <source>Matte Only</source>
+        <translation>Solo matte</translation>
+    </message>
+    <message>
+        <source>Maximum</source>
+        <translation>Máximo</translation>
+    </message>
+    <message>
+        <source>Method</source>
+        <translation>Método</translation>
+    </message>
+    <message>
+        <source>Metric</source>
+        <translation>Métrico</translation>
+    </message>
+    <message>
+        <source>Mirror Edges</source>
+        <translation>Reflejar bordes</translation>
+    </message>
+    <message>
+        <source>Mirror Split</source>
+        <translation>División reflejada</translation>
+    </message>
+    <message>
+        <source>Mirror X</source>
+        <translation>Reflejo X</translation>
+    </message>
+    <message>
+        <source>Mirror Y</source>
+        <translation>Reflejo Y</translation>
+    </message>
+    <message>
+        <source>Mirrored</source>
+        <translation>Reflejado</translation>
+    </message>
+    <message>
+        <source>Mirrors one half (or quarter) of the picture onto the other</source>
+        <translation>Refleja una mitad (o cuarto) de la imagen sobre la otra</translation>
+    </message>
+    <message>
+        <source>Mix of Both</source>
+        <translation>Mezcla de ambos</translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <translation>Modo</translation>
+    </message>
+    <message>
+        <source>Model</source>
+        <translation>Modelo</translation>
+    </message>
+    <message>
+        <source>Monochrome</source>
+        <translation>Monocromo</translation>
+    </message>
+    <message>
+        <source>Monochrome (Red Row)</source>
+        <translation>Monocromo (fila roja)</translation>
+    </message>
+    <message>
+        <source>Motion Blur</source>
+        <translation>Desenfoque de movimiento</translation>
+    </message>
+    <message>
+        <source>Motion Tolerance</source>
+        <translation>Tolerancia de movimiento</translation>
+    </message>
+    <message>
+        <source>Motion Trails</source>
+        <translation>Estelas de movimiento</translation>
+    </message>
+    <message>
+        <source>Motion blur along one direction</source>
+        <translation>Desenfoque de movimiento en una dirección</translation>
+    </message>
+    <message>
+        <source>Moves the four corners freely (perspective): offsets from the clip&apos;s corners</source>
+        <translation>Mueve libremente las cuatro esquinas (perspectiva): desplazamientos respecto a las esquinas del clip</translation>
+    </message>
+    <message>
+        <source>Moves, scales and rotates the picture, as an effect that can sit anywhere in the stack</source>
+        <translation>Mueve, escala y rota la imagen, como un efecto que puede ir en cualquier lugar de la pila</translation>
+    </message>
+    <message>
+        <source>Multiply</source>
+        <translation>Multiplicar</translation>
+    </message>
+    <message>
+        <source>Muted</source>
+        <translation>Silenciado</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Nombre</translation>
+    </message>
+    <message>
+        <source>Negative image</source>
+        <translation>Imagen en negativo</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>Fotograma siguiente</translation>
+    </message>
+    <message>
+        <source>Noise</source>
+        <translation>Ruido</translation>
+    </message>
+    <message>
+        <source>Noise Reduction</source>
+        <translation>Reducción de ruido</translation>
+    </message>
+    <message>
+        <source>Normal</source>
+        <translation>Normal</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation>Desactivado</translation>
+    </message>
+    <message>
+        <source>Offset X</source>
+        <translation>Desfase X</translation>
+    </message>
+    <message>
+        <source>Offset Y</source>
+        <translation>Desfase Y</translation>
+    </message>
+    <message>
+        <source>Old film: dirt, scratches, a soft dark vignette, gate weave and flicker</source>
+        <translation>Película antigua: suciedad, arañazos, una viñeta oscura suave, vibración de ventanilla y parpadeo</translation>
+    </message>
+    <message>
+        <source>Opacity</source>
+        <translation>Opacidad</translation>
+    </message>
+    <message>
+        <source>Out-of-focus blur with round bokeh; bright spots become discs</source>
+        <translation>Desenfoque fuera de foco con bokeh redondo; los puntos brillantes se vuelven discos</translation>
+    </message>
+    <message>
+        <source>Outlines</source>
+        <translation>Contornos</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>Salida</translation>
+    </message>
+    <message>
+        <source>Output Black</source>
+        <translation>Negro de salida</translation>
+    </message>
+    <message>
+        <source>Output White</source>
+        <translation>Blanco de salida</translation>
+    </message>
+    <message>
+        <source>Outside</source>
+        <translation>Exterior</translation>
+    </message>
+    <message>
+        <source>Overlay</source>
+        <translation>Superponer</translation>
+    </message>
+    <message>
+        <source>Overlay Color</source>
+        <translation>Color de la superposición</translation>
+    </message>
+    <message>
+        <source>Overlay Opacity</source>
+        <translation>Opacidad de la superposición</translation>
+    </message>
+    <message>
+        <source>Painterly look: smooth flat color areas with few tones and dark outlines</source>
+        <translation>Aspecto pictórico: áreas de color planas y suaves con pocos tonos y contornos oscuros</translation>
+    </message>
+    <message>
+        <source>Paints a colored frame inside the edges of the picture</source>
+        <translation>Pinta un marco de color dentro de los bordes de la imagen</translation>
+    </message>
+    <message>
+        <source>Paints the picture by brightness: exposure bands, a thermal scale or a rainbow</source>
+        <translation>Pinta la imagen según el brillo: bandas de exposición, una escala térmica o un arcoíris</translation>
+    </message>
+    <message>
+        <source>Paints the picture in flat washes of color with darker pooled edges and paper grain</source>
+        <translation>Pinta la imagen en aguadas planas de color con bordes más oscuros acumulados y grano de papel</translation>
+    </message>
+    <message>
+        <source>Palette</source>
+        <translation>Paleta</translation>
+    </message>
+    <message>
+        <source>Paper Texture</source>
+        <translation>Textura de papel</translation>
+    </message>
+    <message>
+        <source>Patch Replacer</source>
+        <translation>Reemplazo de parche</translation>
+    </message>
+    <message>
+        <source>Patch Shape</source>
+        <translation>Forma del parche</translation>
+    </message>
+    <message>
+        <source>Pencil Sketch</source>
+        <translation>Boceto a lápiz</translation>
+    </message>
+    <message>
+        <source>People in video (temporal)</source>
+        <translation>Personas en vídeo (temporal)</translation>
+    </message>
+    <message>
+        <source>Phase</source>
+        <translation>Fase</translation>
+    </message>
+    <message>
+        <source>Picture Colors</source>
+        <translation>Colores de la imagen</translation>
+    </message>
+    <message>
+        <source>Picture Gamut</source>
+        <translation>Gamut de la imagen</translation>
+    </message>
+    <message>
+        <source>Pin to the Surface</source>
+        <translation>Fijar a la superficie</translation>
+    </message>
+    <message>
+        <source>Pivot X</source>
+        <translation>Pivote X</translation>
+    </message>
+    <message>
+        <source>Pivot Y</source>
+        <translation>Pivote Y</translation>
+    </message>
+    <message>
+        <source>Pixelate</source>
+        <translation>Pixelar</translation>
+    </message>
+    <message>
+        <source>Point %1, %2</source>
+        <translation>Punto %1, %2</translation>
+    </message>
+    <message>
+        <source>Position</source>
+        <translation>Posición</translation>
+    </message>
+    <message>
+        <source>Position X</source>
+        <translation>Posición X</translation>
+    </message>
+    <message>
+        <source>Position Y</source>
+        <translation>Posición Y</translation>
+    </message>
+    <message>
+        <source>Position, Scale and Rotation</source>
+        <translation>Posición, escala y rotación</translation>
+    </message>
+    <message>
+        <source>Posterize</source>
+        <translation>Posterizar</translation>
+    </message>
+    <message>
+        <source>Preview (fast)</source>
+        <translation>Vista previa (rápido)</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>Fotograma anterior</translation>
+    </message>
+    <message>
+        <source>Print-like dots whose size follows the brightness</source>
+        <translation>Puntos tipo impresión cuyo tamaño sigue el brillo</translation>
+    </message>
+    <message>
+        <source>Prism</source>
+        <translation>Prisma</translation>
+    </message>
+    <message>
+        <source>Pulls colors outside a smaller gamut back inside it, keeping their brightness</source>
+        <translation>Devuelve al interior los colores fuera de un gamut menor, conservando su brillo</translation>
+    </message>
+    <message>
+        <source>Quality</source>
+        <translation>Calidad</translation>
+    </message>
+    <message>
+        <source>Radial Blur</source>
+        <translation>Desenfoque radial</translation>
+    </message>
+    <message>
+        <source>Radius</source>
+        <translation>Radio</translation>
+    </message>
+    <message>
+        <source>Rainbow</source>
+        <translation>Arcoíris</translation>
+    </message>
+    <message>
+        <source>Random Seed</source>
+        <translation>Semilla aleatoria</translation>
+    </message>
+    <message>
+        <source>Randomness</source>
+        <translation>Aleatoriedad</translation>
+    </message>
+    <message>
+        <source>Range</source>
+        <translation>Rango</translation>
+    </message>
+    <message>
+        <source>Range Softness</source>
+        <translation>Suavidad del rango</translation>
+    </message>
+    <message>
+        <source>Range Width</source>
+        <translation>Ancho del rango</translation>
+    </message>
+    <message>
+        <source>Rec. 2020</source>
+        <translation>Rec. 2020</translation>
+    </message>
+    <message>
+        <source>Rec. 709</source>
+        <translation>Rec. 709</translation>
+    </message>
+    <message>
+        <source>Recompresses the picture as a badly compressed JPEG: blocks, banding and blotchy color</source>
+        <translation>Recomprime la imagen como un JPEG mal comprimido: bloques, bandas y color manchado</translation>
+    </message>
+    <message>
+        <source>Recording</source>
+        <translation>Grabando</translation>
+    </message>
+    <message>
+        <source>Recording Dot</source>
+        <translation>Punto de grabación</translation>
+    </message>
+    <message>
+        <source>Rectangle</source>
+        <translation>Rectángulo</translation>
+    </message>
+    <message>
+        <source>Red</source>
+        <translation>Rojo</translation>
+    </message>
+    <message>
+        <source>Red Scale</source>
+        <translation>Escala del rojo</translation>
+    </message>
+    <message>
+        <source>Red and blue fringes towards the edges, like a cheap lens</source>
+        <translation>Bordes rojos y azules hacia los extremos, como una lente barata</translation>
+    </message>
+    <message>
+        <source>Red from Blue</source>
+        <translation>Rojo de azul</translation>
+    </message>
+    <message>
+        <source>Red from Green</source>
+        <translation>Rojo de verde</translation>
+    </message>
+    <message>
+        <source>Red from Red</source>
+        <translation>Rojo de rojo</translation>
+    </message>
+    <message>
+        <source>Reds</source>
+        <translation>Rojos</translation>
+    </message>
+    <message>
+        <source>Reduces every color channel to a few levels</source>
+        <translation>Reduce cada canal de color a unos pocos niveles</translation>
+    </message>
+    <message>
+        <source>Reference Frame</source>
+        <translation>Fotograma de referencia</translation>
+    </message>
+    <message>
+        <source>Reflections</source>
+        <translation>Reflejos</translation>
+    </message>
+    <message>
+        <source>Region Height</source>
+        <translation>Alto de la región</translation>
+    </message>
+    <message>
+        <source>Region Shape</source>
+        <translation>Forma de la región</translation>
+    </message>
+    <message>
+        <source>Region Size</source>
+        <translation>Tamaño de la región</translation>
+    </message>
+    <message>
+        <source>Region Width</source>
+        <translation>Ancho de la región</translation>
+    </message>
+    <message>
+        <source>Region X</source>
+        <translation>Región X</translation>
+    </message>
+    <message>
+        <source>Region Y</source>
+        <translation>Región Y</translation>
+    </message>
+    <message>
+        <source>Relief</source>
+        <translation>Relieve</translation>
+    </message>
+    <message>
+        <source>Relief look lit from one side</source>
+        <translation>Aspecto de relieve iluminado desde un lado</translation>
+    </message>
+    <message>
+        <source>Removes a red, green or blue color cast left by a screen</source>
+        <translation>Elimina una dominante roja, verde o azul que deja una pantalla</translation>
+    </message>
+    <message>
+        <source>Removes dust and hairs that show in one frame only, using the frames around it</source>
+        <translation>Quita polvo y pelos que aparecen en un solo fotograma, usando los fotogramas vecinos</translation>
+    </message>
+    <message>
+        <source>Removes dust and scratches that show in one frame only, inside a region you place</source>
+        <translation>Quita polvo y arañazos que aparecen en un solo fotograma, dentro de una región que se coloca</translation>
+    </message>
+    <message>
+        <source>Repair</source>
+        <translation>Reparar</translation>
+    </message>
+    <message>
+        <source>Repeat</source>
+        <translation>Repetir</translation>
+    </message>
+    <message>
+        <source>Repeat Edge Pixels</source>
+        <translation>Repetir píxeles del borde</translation>
+    </message>
+    <message>
+        <source>Repeats one mirrored wedge of the picture around a centre</source>
+        <translation>Repite una cuña reflejada de la imagen alrededor de un centro</translation>
+    </message>
+    <message>
+        <source>Repeats the picture in smaller copies, optionally mirrored at the edges</source>
+        <translation>Repite la imagen en copias más pequeñas, opcionalmente reflejadas en los bordes</translation>
+    </message>
+    <message>
+        <source>Replace</source>
+        <translation>Reemplazar</translation>
+    </message>
+    <message>
+        <source>Replace With</source>
+        <translation>Reemplazar con</translation>
+    </message>
+    <message>
+        <source>Replaces a damaged frame with the frame before it, the frame after it or a mix of both</source>
+        <translation>Reemplaza un fotograma dañado por el anterior, el siguiente o una mezcla de ambos</translation>
+    </message>
+    <message>
+        <source>Replaces stuck bright or dark pixels with the average of their surroundings</source>
+        <translation>Reemplaza píxeles brillantes u oscuros atascados por el promedio de su entorno</translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation>Derecha</translation>
+    </message>
+    <message>
+        <source>Right Half</source>
+        <translation>Mitad derecha</translation>
+    </message>
+    <message>
+        <source>Ripple</source>
+        <translation>Ondulación</translation>
+    </message>
+    <message>
+        <source>Roll Speed</source>
+        <translation>Velocidad de desplazamiento</translation>
+    </message>
+    <message>
+        <source>Rotation</source>
+        <translation>Rotación</translation>
+    </message>
+    <message>
+        <source>Round Bulge</source>
+        <translation>Abultado redondo</translation>
+    </message>
+    <message>
+        <source>Round Pinch</source>
+        <translation>Pellizco redondo</translation>
+    </message>
+    <message>
+        <source>Rows</source>
+        <translation>Filas</translation>
+    </message>
+    <message>
+        <source>Rule of Thirds</source>
+        <translation>Regla de los tercios</translation>
+    </message>
+    <message>
+        <source>Satellites</source>
+        <translation>Satélites</translation>
+    </message>
+    <message>
+        <source>Saturates muted colors more than colors that are already strong; skin is spared</source>
+        <translation>Satura más los colores apagados que los ya intensos; la piel se respeta</translation>
+    </message>
+    <message>
+        <source>Saturation</source>
+        <translation>Saturación</translation>
+    </message>
+    <message>
+        <source>Saturation High</source>
+        <translation>Saturación alta</translation>
+    </message>
+    <message>
+        <source>Saturation Low</source>
+        <translation>Saturación baja</translation>
+    </message>
+    <message>
+        <source>Saturation Softness</source>
+        <translation>Suavidad de saturación</translation>
+    </message>
+    <message>
+        <source>Scale</source>
+        <translation>Escala</translation>
+    </message>
+    <message>
+        <source>Scanlines</source>
+        <translation>Líneas de barrido</translation>
+    </message>
+    <message>
+        <source>Scratches</source>
+        <translation>Arañazos</translation>
+    </message>
+    <message>
+        <source>Screen</source>
+        <translation>Pantalla</translation>
+    </message>
+    <message>
+        <source>Seed</source>
+        <translation>Semilla</translation>
+    </message>
+    <message>
+        <source>Segments</source>
+        <translation>Segmentos</translation>
+    </message>
+    <message>
+        <source>Shadow</source>
+        <translation>Sombra</translation>
+    </message>
+    <message>
+        <source>Shadow Blur</source>
+        <translation>Desenfoque de la sombra</translation>
+    </message>
+    <message>
+        <source>Shadow Offset X</source>
+        <translation>Desfase de la sombra X</translation>
+    </message>
+    <message>
+        <source>Shadow Offset Y</source>
+        <translation>Desfase de la sombra Y</translation>
+    </message>
+    <message>
+        <source>Shadow Opacity</source>
+        <translation>Opacidad de la sombra</translation>
+    </message>
+    <message>
+        <source>Shadows</source>
+        <translation>Sombras</translation>
+    </message>
+    <message>
+        <source>Shape</source>
+        <translation>Forma</translation>
+    </message>
+    <message>
+        <source>Sharpen</source>
+        <translation>Enfocar</translation>
+    </message>
+    <message>
+        <source>Sharpen Edges</source>
+        <translation>Enfocar bordes</translation>
+    </message>
+    <message>
+        <source>Sharpens edges; the threshold leaves flat areas and noise alone</source>
+        <translation>Enfoca los bordes; el umbral deja intactas las zonas planas y el ruido</translation>
+    </message>
+    <message>
+        <source>Sharpens only the real edges of the picture and leaves flat areas and fine texture alone</source>
+        <translation>Enfoca solo los bordes reales de la imagen y deja intactas las zonas planas y la textura fina</translation>
+    </message>
+    <message>
+        <source>Shifts the hue and changes saturation and lightness, of all colors or one hue range</source>
+        <translation>Desplaza el tono y cambia la saturación y la luminosidad, de todos los colores o de un rango de tono</translation>
+    </message>
+    <message>
+        <source>Shots Remaining</source>
+        <translation>Disparos restantes</translation>
+    </message>
+    <message>
+        <source>Shows the picture again and again in a grid of tiles</source>
+        <translation>Muestra la imagen una y otra vez en una cuadrícula de mosaicos</translation>
+    </message>
+    <message>
+        <source>Shrink / Grow</source>
+        <translation>Reducir / Ampliar</translation>
+    </message>
+    <message>
+        <source>Shrinks or grows the transparency edge of the picture, with an optional blur</source>
+        <translation>Contrae o expande el borde de transparencia de la imagen, con desenfoque opcional</translation>
+    </message>
+    <message>
+        <source>Shutter Angle</source>
+        <translation>Ángulo de obturación</translation>
+    </message>
+    <message>
+        <source>Shutter Speed</source>
+        <translation>Velocidad de obturación</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>Tamaño</translation>
+    </message>
+    <message>
+        <source>Skin Tones Only</source>
+        <translation>Solo tonos de piel</translation>
+    </message>
+    <message>
+        <source>Smear</source>
+        <translation>Difuminado de movimiento</translation>
+    </message>
+    <message>
+        <source>Smoothing</source>
+        <translation>Suavizado</translation>
+    </message>
+    <message>
+        <source>Smoothing Size</source>
+        <translation>Tamaño del suavizado</translation>
+    </message>
+    <message>
+        <source>Smoothness</source>
+        <translation>Suavidad</translation>
+    </message>
+    <message>
+        <source>Smooths noise in flat areas and keeps edges (spatial, per frame)</source>
+        <translation>Suaviza el ruido en zonas planas y conserva los bordes (espacial, por fotograma)</translation>
+    </message>
+    <message>
+        <source>Smooths skin and other blotchy areas but keeps the edges; no face detection</source>
+        <translation>Suaviza la piel y otras zonas manchadas pero conserva los bordes; sin detección de rostros</translation>
+    </message>
+    <message>
+        <source>Smooths the visible steps in skies and gradients and dithers them away</source>
+        <translation>Suaviza los escalones visibles en cielos y degradados y los disimula con dither</translation>
+    </message>
+    <message>
+        <source>Soften</source>
+        <translation>Suavizar</translation>
+    </message>
+    <message>
+        <source>Soften and Sharpen</source>
+        <translation>Suavizar y enfocar</translation>
+    </message>
+    <message>
+        <source>Softens fine texture such as skin pores while sharpening the larger edges</source>
+        <translation>Suaviza la textura fina, como los poros de la piel, mientras enfoca los bordes mayores</translation>
+    </message>
+    <message>
+        <source>Softness</source>
+        <translation>Suavidad</translation>
+    </message>
+    <message>
+        <source>Source X</source>
+        <translation>Origen X</translation>
+    </message>
+    <message>
+        <source>Source Y</source>
+        <translation>Origen Y</translation>
+    </message>
+    <message>
+        <source>Spacing</source>
+        <translation>Espaciado</translation>
+    </message>
+    <message>
+        <source>Speaking</source>
+        <translation>Hablando</translation>
+    </message>
+    <message>
+        <source>Speaking Ring Color</source>
+        <translation>Color del anillo de habla</translation>
+    </message>
+    <message>
+        <source>Speed</source>
+        <translation>Velocidad</translation>
+    </message>
+    <message>
+        <source>Spikes</source>
+        <translation>Puntas</translation>
+    </message>
+    <message>
+        <source>Spill Method</source>
+        <translation>Método de derrame</translation>
+    </message>
+    <message>
+        <source>Spill Removal</source>
+        <translation>Eliminación de derrame</translation>
+    </message>
+    <message>
+        <source>Spin blur around a centre</source>
+        <translation>Desenfoque giratorio alrededor de un centro</translation>
+    </message>
+    <message>
+        <source>Splits the picture into a rainbow along one direction</source>
+        <translation>Divide la imagen en un arcoíris a lo largo de una dirección</translation>
+    </message>
+    <message>
+        <source>Spread</source>
+        <translation>Dispersión</translation>
+    </message>
+    <message>
+        <source>Square Bulge</source>
+        <translation>Abultado cuadrado</translation>
+    </message>
+    <message>
+        <source>Square Pinch</source>
+        <translation>Pellizco cuadrado</translation>
+    </message>
+    <message>
+        <source>Starburst spikes from the bright lights of the picture, like a stopped-down lens</source>
+        <translation>Destellos en estrella desde las luces brillantes de la imagen, como un objetivo muy cerrado</translation>
+    </message>
+    <message>
+        <source>Start Date and Time</source>
+        <translation>Fecha y hora de inicio</translation>
+    </message>
+    <message>
+        <source>Start Timecode</source>
+        <translation>Código de tiempo inicial</translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation>Estado</translation>
+    </message>
+    <message>
+        <source>Straight waves across the picture</source>
+        <translation>Ondas rectas por la imagen</translation>
+    </message>
+    <message>
+        <source>Streaks</source>
+        <translation>Rayos</translation>
+    </message>
+    <message>
+        <source>Strength</source>
+        <translation>Intensidad</translation>
+    </message>
+    <message>
+        <source>Stretch</source>
+        <translation>Estirar</translation>
+    </message>
+    <message>
+        <source>Strip Size</source>
+        <translation>Tamaño de la tira</translation>
+    </message>
+    <message>
+        <source>Strobe</source>
+        <translation>Estroboscopio</translation>
+    </message>
+    <message>
+        <source>Stroke</source>
+        <translation>Contorno</translation>
+    </message>
+    <message>
+        <source>Style</source>
+        <translation>Estilo</translation>
+    </message>
+    <message>
+        <source>Stylize</source>
+        <translation>Estilizar</translation>
+    </message>
+    <message>
+        <source>Surface Tracker</source>
+        <translation>Tracker de superficie</translation>
+    </message>
+    <message>
+        <source>Takes the fog or haze out of the picture, from the darkest colors of each area</source>
+        <translation>Quita la niebla o bruma de la imagen, a partir de los colores más oscuros de cada área</translation>
+    </message>
+    <message>
+        <source>Target X</source>
+        <translation>Destino X</translation>
+    </message>
+    <message>
+        <source>Target Y</source>
+        <translation>Destino Y</translation>
+    </message>
+    <message>
+        <source>Temperature</source>
+        <translation>Temperatura</translation>
+    </message>
+    <message>
+        <source>Temperature / Tint</source>
+        <translation>Temperatura / Matiz</translation>
+    </message>
+    <message>
+        <source>Text Color</source>
+        <translation>Color del texto</translation>
+    </message>
+    <message>
+        <source>Text Shadow</source>
+        <translation>Sombra del texto</translation>
+    </message>
+    <message>
+        <source>Text Size</source>
+        <translation>Tamaño del texto</translation>
+    </message>
+    <message>
+        <source>Texture Limit</source>
+        <translation>Límite de textura</translation>
+    </message>
+    <message>
+        <source>Texture Pop</source>
+        <translation>Realce de textura</translation>
+    </message>
+    <message>
+        <source>Texture Size</source>
+        <translation>Tamaño de textura</translation>
+    </message>
+    <message>
+        <source>The reddish halo film shows around bright edges</source>
+        <translation>El halo rojizo que la película muestra alrededor de bordes brillantes</translation>
+    </message>
+    <message>
+        <source>Thermal</source>
+        <translation>Térmico</translation>
+    </message>
+    <message>
+        <source>Thickness</source>
+        <translation>Grosor</translation>
+    </message>
+    <message>
+        <source>This Clip</source>
+        <translation>Este clip</translation>
+    </message>
+    <message>
+        <source>Threshold</source>
+        <translation>Umbral</translation>
+    </message>
+    <message>
+        <source>Tile</source>
+        <translation>Mosaico</translation>
+    </message>
+    <message>
+        <source>Tile Fit</source>
+        <translation>Ajuste del mosaico</translation>
+    </message>
+    <message>
+        <source>Tile Size</source>
+        <translation>Tamaño del mosaico</translation>
+    </message>
+    <message>
+        <source>Tilt X</source>
+        <translation>Inclinación X</translation>
+    </message>
+    <message>
+        <source>Tilt Y</source>
+        <translation>Inclinación Y</translation>
+    </message>
+    <message>
+        <source>Tilt-Shift</source>
+        <translation>Tilt-shift</translation>
+    </message>
+    <message>
+        <source>Time Format</source>
+        <translation>Formato de hora</translation>
+    </message>
+    <message>
+        <source>Time Window</source>
+        <translation>Ventana de tiempo</translation>
+    </message>
+    <message>
+        <source>Tint</source>
+        <translation>Matiz</translation>
+    </message>
+    <message>
+        <source>Tint Amount</source>
+        <translation>Cantidad de tinte</translation>
+    </message>
+    <message>
+        <source>Tint Color</source>
+        <translation>Color del tinte</translation>
+    </message>
+    <message>
+        <source>Tolerance</source>
+        <translation>Tolerancia</translation>
+    </message>
+    <message>
+        <source>Tone curves: a master curve and one per red, green and blue channel</source>
+        <translation>Curvas de tono: una curva maestra y una por cada canal rojo, verde y azul</translation>
+    </message>
+    <message>
+        <source>Tones</source>
+        <translation>Tonos</translation>
+    </message>
+    <message>
+        <source>Top</source>
+        <translation>Arriba</translation>
+    </message>
+    <message>
+        <source>Top Half</source>
+        <translation>Mitad superior</translation>
+    </message>
+    <message>
+        <source>Top Left Quarter</source>
+        <translation>Cuarto superior izquierdo</translation>
+    </message>
+    <message>
+        <source>Top Left X</source>
+        <translation>Superior izquierda X</translation>
+    </message>
+    <message>
+        <source>Top Left Y</source>
+        <translation>Superior izquierda Y</translation>
+    </message>
+    <message>
+        <source>Top Right X</source>
+        <translation>Superior derecha X</translation>
+    </message>
+    <message>
+        <source>Top Right Y</source>
+        <translation>Superior derecha Y</translation>
+    </message>
+    <message>
+        <source>Track</source>
+        <translation>Pista</translation>
+    </message>
+    <message>
+        <source>Tracking</source>
+        <translation>Espaciado entre letras</translation>
+    </message>
+    <message>
+        <source>Tracking Error</source>
+        <translation>Error de seguimiento</translation>
+    </message>
+    <message>
+        <source>Tracks a bending surface with a mesh of points, then pins the clip to it or warps the clip with it</source>
+        <translation>Sigue una superficie curva con una malla de puntos y luego fija el clip a ella o lo deforma con ella</translation>
+    </message>
+    <message>
+        <source>Trail Opacity</source>
+        <translation>Opacidad de la estela</translation>
+    </message>
+    <message>
+        <source>Trails</source>
+        <translation>Estelas</translation>
+    </message>
+    <message>
+        <source>Transform</source>
+        <translation>Transformar</translation>
+    </message>
+    <message>
+        <source>Transition</source>
+        <translation>Transición</translation>
+    </message>
+    <message>
+        <source>Transparent</source>
+        <translation>Transparente</translation>
+    </message>
+    <message>
+        <source>Turns the picture into a relief, an ink drawing or a flat cutout</source>
+        <translation>Convierte la imagen en un relieve, un dibujo a tinta o un recorte plano</translation>
+    </message>
+    <message>
+        <source>Turns the picture into pencil lines on paper</source>
+        <translation>Convierte la imagen en líneas de lápiz sobre papel</translation>
+    </message>
+    <message>
+        <source>Twirl</source>
+        <translation>Remolino</translation>
+    </message>
+    <message>
+        <source>Twists the picture around a centre, most at the centre</source>
+        <translation>Retuerce la imagen alrededor de un centro, más en el centro</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>Tipo</translation>
+    </message>
+    <message>
+        <source>Units</source>
+        <translation>Unidades</translation>
+    </message>
+    <message>
+        <source>Unsharp Mask</source>
+        <translation>Máscara de enfoque</translation>
+    </message>
+    <message>
+        <source>Use Color 2</source>
+        <translation>Usar color 2</translation>
+    </message>
+    <message>
+        <source>Use Color 3</source>
+        <translation>Usar color 3</translation>
+    </message>
+    <message>
+        <source>Vertical Bow</source>
+        <translation>Curvado vertical</translation>
+    </message>
+    <message>
+        <source>Vibrance</source>
+        <translation>Vibración</translation>
+    </message>
+    <message>
+        <source>Video Call</source>
+        <translation>Videollamada</translation>
+    </message>
+    <message>
+        <source>Video Camera</source>
+        <translation>Videocámara</translation>
+    </message>
+    <message>
+        <source>Video Collage</source>
+        <translation>Collage de vídeo</translation>
+    </message>
+    <message>
+        <source>View</source>
+        <translation>Vista</translation>
+    </message>
+    <message>
+        <source>Vignette</source>
+        <translation>Viñeta</translation>
+    </message>
+    <message>
+        <source>Warmer / cooler (blue - orange) and green - magenta white balance</source>
+        <translation>Balance de blancos más cálido / más frío (azul - naranja) y verde - magenta</translation>
+    </message>
+    <message>
+        <source>Warp with the Surface</source>
+        <translation>Deformar con la superficie</translation>
+    </message>
+    <message>
+        <source>Warper</source>
+        <translation>Warper</translation>
+    </message>
+    <message>
+        <source>Watercolor</source>
+        <translation>Acuarela</translation>
+    </message>
+    <message>
+        <source>Wave</source>
+        <translation>Onda</translation>
+    </message>
+    <message>
+        <source>Wavelength</source>
+        <translation>Longitud de onda</translation>
+    </message>
+    <message>
+        <source>White Balance</source>
+        <translation>Balance de blancos</translation>
+    </message>
+    <message>
+        <source>Whole Region</source>
+        <translation>Región completa</translation>
+    </message>
+    <message>
+        <source>Wide, layered soft light around the highlights</source>
+        <translation>Luz suave amplia y en capas alrededor de las altas luces</translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation>Ancho</translation>
+    </message>
+    <message>
+        <source>Worn videotape: line jitter, color bleed, noise, a tracking error band and scanlines</source>
+        <translation>Cinta de vídeo gastada: temblor de líneas, sangrado de color, ruido, una banda de error de seguimiento y líneas de barrido</translation>
+    </message>
+    <message>
+        <source>Yellows</source>
+        <translation>Amarillos</translation>
+    </message>
+    <message>
+        <source>Zoom</source>
+        <translation>Zoom</translation>
+    </message>
+    <message>
+        <source>Zoom Blur</source>
+        <translation>Desenfoque de zoom</translation>
     </message>
 </context>
 <context>
@@ -3544,6 +8134,41 @@ Probablemente el sistema cerró el programa porque el equipo se quedó sin memor
     <message>
         <source>Start timecode:</source>
         <translation>Código de tiempo inicial:</translation>
+    </message>
+</context>
+<context>
+    <name>kk::ClipColorMenu</name>
+    <message>
+        <source>Add Flag</source>
+        <translation>Añadir bandera</translation>
+    </message>
+    <message>
+        <source>Clear All Flags</source>
+        <translation>Quitar todas las banderas</translation>
+    </message>
+    <message>
+        <source>Clear Clip Color</source>
+        <translation>Quitar color del clip</translation>
+    </message>
+    <message>
+        <source>Clear Color</source>
+        <translation>Quitar color</translation>
+    </message>
+    <message>
+        <source>Clip Color</source>
+        <translation>Color del clip</translation>
+    </message>
+    <message>
+        <source>Flags</source>
+        <translation>Banderas</translation>
+    </message>
+    <message>
+        <source>Remove Flag</source>
+        <translation>Quitar bandera</translation>
+    </message>
+    <message>
+        <source>Set Clip Color</source>
+        <translation>Establecer color del clip</translation>
     </message>
 </context>
 <context>
@@ -4034,11 +8659,11 @@ Probablemente el sistema cerró el programa porque el equipo se quedó sin memor
     </message>
     <message>
         <source>Blur</source>
-        <translation type="unfinished">Desenfoque</translation>
+        <translation>Desenfoque</translation>
     </message>
     <message>
         <source>Blur, Sharpen and Mist the current node&apos;s picture; windows and the qualifier limit it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Desenfoque, enfoque y neblina de la imagen del nodo actual; las ventanas y el calificador la limitan.</translation>
     </message>
     <message>
         <source>Tracker</source>
@@ -5076,6 +9701,65 @@ Probablemente el sistema cerró el programa porque el equipo se quedó sin memor
     </message>
 </context>
 <context>
+    <name>kk::CubeLut</name>
+    <message>
+        <source>%1 table rows, expected %2</source>
+        <translation>%1 filas de tabla, se esperaban %2</translation>
+    </message>
+    <message>
+        <source>%1: %2</source>
+        <translation>%1: %2</translation>
+    </message>
+    <message>
+        <source>LUT file not found: %1</source>
+        <translation>Archivo LUT no encontrado: %1</translation>
+    </message>
+    <message>
+        <source>LUT file too large: %1</source>
+        <translation>Archivo LUT demasiado grande: %1</translation>
+    </message>
+    <message>
+        <source>both a 1D and a 3D size</source>
+        <translation>hay tanto un tamaño 1D como uno 3D</translation>
+    </message>
+    <message>
+        <source>empty domain</source>
+        <translation>dominio vacío</translation>
+    </message>
+    <message>
+        <source>line %1: expected three numbers</source>
+        <translation>línea %1: se esperaban tres números</translation>
+    </message>
+    <message>
+        <source>line %1: keyword after the table rows</source>
+        <translation>línea %1: palabra clave después de las filas de la tabla</translation>
+    </message>
+    <message>
+        <source>line %1: malformed domain</source>
+        <translation>línea %1: dominio mal formado</translation>
+    </message>
+    <message>
+        <source>line %1: more rows than the table size</source>
+        <translation>línea %1: más filas que el tamaño de la tabla</translation>
+    </message>
+    <message>
+        <source>line %1: table row before the table size</source>
+        <translation>línea %1: fila de tabla antes del tamaño de la tabla</translation>
+    </message>
+    <message>
+        <source>line %1: unsupported table size</source>
+        <translation>línea %1: tamaño de tabla no admitido</translation>
+    </message>
+    <message>
+        <source>no LUT file chosen</source>
+        <translation>no se eligió ningún archivo LUT</translation>
+    </message>
+    <message>
+        <source>no LUT_1D_SIZE or LUT_3D_SIZE</source>
+        <translation>falta LUT_1D_SIZE o LUT_3D_SIZE</translation>
+    </message>
+</context>
+<context>
     <name>kk::CurveEditor</name>
     <message>
         <source>Drag a point to bend the curve, click to add a point, double-click or right-click a point to remove it</source>
@@ -5435,6 +10119,61 @@ Probablemente el sistema cerró el programa porque el equipo se quedó sin memor
     </message>
 </context>
 <context>
+    <name>kk::EditIndex</name>
+    <message>
+        <source>Adjustment</source>
+        <translation>Ajuste</translation>
+    </message>
+    <message>
+        <source>Compound</source>
+        <translation>Compuesto</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <translation>Desactivado</translation>
+    </message>
+    <message>
+        <source>Generator</source>
+        <translation>Generador</translation>
+    </message>
+    <message>
+        <source>In: %1 (%2 fr)</source>
+        <translation>Entrada: %1 (%2 fr)</translation>
+    </message>
+    <message>
+        <source>Offline</source>
+        <translation>Sin conexión</translation>
+    </message>
+    <message>
+        <source>Out: %1 (%2 fr)</source>
+        <translation>Salida: %1 (%2 fr)</translation>
+    </message>
+    <message>
+        <source>Solid Color</source>
+        <translation>Color sólido</translation>
+    </message>
+    <message>
+        <source>Speed %1%</source>
+        <translation>Velocidad %1%</translation>
+    </message>
+    <message>
+        <source>Speed ramp</source>
+        <translation>Rampa de velocidad</translation>
+    </message>
+    <message>
+        <source>Subtitle</source>
+        <translation>Subtítulo</translation>
+    </message>
+    <message>
+        <source>Timeline</source>
+        <translation>Línea de tiempo</translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation>Título</translation>
+    </message>
+</context>
+<context>
     <name>kk::EditIndexModel</name>
     <message>
         <source>#</source>
@@ -5691,6 +10430,17 @@ Probablemente el sistema cerró el programa porque el equipo se quedó sin memor
     <message>
         <source>Cannot write %1: %2</source>
         <translation>No se puede escribir %1: %2</translation>
+    </message>
+</context>
+<context>
+    <name>kk::EffectActions</name>
+    <message>
+        <source>Add %1</source>
+        <translation>Añadir %1</translation>
+    </message>
+    <message>
+        <source>Remove Transition</source>
+        <translation>Quitar transición</translation>
     </message>
 </context>
 <context>
@@ -9916,6 +14666,181 @@ Transición estándar de este proyecto</translation>
     </message>
 </context>
 <context>
+    <name>kk::ExportFormats</name>
+    <message>
+        <source>422</source>
+        <translation>422</translation>
+    </message>
+    <message>
+        <source>422 HQ</source>
+        <translation>422 HQ</translation>
+    </message>
+    <message>
+        <source>422 LT</source>
+        <translation>422 LT</translation>
+    </message>
+    <message>
+        <source>422 Proxy</source>
+        <translation>422 Proxy</translation>
+    </message>
+    <message>
+        <source>4444</source>
+        <translation>4444</translation>
+    </message>
+    <message>
+        <source>4444 XQ</source>
+        <translation>4444 XQ</translation>
+    </message>
+    <message>
+        <source>AAC</source>
+        <translation>AAC</translation>
+    </message>
+    <message>
+        <source>AAC / M4A (audio only)</source>
+        <translation>AAC / M4A (solo audio)</translation>
+    </message>
+    <message>
+        <source>AV1</source>
+        <translation>AV1</translation>
+    </message>
+    <message>
+        <source>Apple ProRes</source>
+        <translation>Apple ProRes</translation>
+    </message>
+    <message>
+        <source>DNxHR</source>
+        <translation>DNxHR</translation>
+    </message>
+    <message>
+        <source>FLAC</source>
+        <translation>FLAC</translation>
+    </message>
+    <message>
+        <source>FLAC (audio only)</source>
+        <translation>FLAC (solo audio)</translation>
+    </message>
+    <message>
+        <source>GIF</source>
+        <translation>GIF</translation>
+    </message>
+    <message>
+        <source>H.264</source>
+        <translation>H.264</translation>
+    </message>
+    <message>
+        <source>H.265 / HEVC</source>
+        <translation>H.265 / HEVC</translation>
+    </message>
+    <message>
+        <source>HQ</source>
+        <translation>HQ</translation>
+    </message>
+    <message>
+        <source>HQX (10-bit)</source>
+        <translation>HQX (10 bits)</translation>
+    </message>
+    <message>
+        <source>JPEG</source>
+        <translation>JPEG</translation>
+    </message>
+    <message>
+        <source>JPEG sequence</source>
+        <translation>Secuencia JPEG</translation>
+    </message>
+    <message>
+        <source>LB</source>
+        <translation>LB</translation>
+    </message>
+    <message>
+        <source>MP3</source>
+        <translation>MP3</translation>
+    </message>
+    <message>
+        <source>MP3 (audio only)</source>
+        <translation>MP3 (solo audio)</translation>
+    </message>
+    <message>
+        <source>MP4</source>
+        <translation>MP4</translation>
+    </message>
+    <message>
+        <source>Matroska</source>
+        <translation>Matroska</translation>
+    </message>
+    <message>
+        <source>OpenEXR (half-float, linear)</source>
+        <translation>OpenEXR (half-float, lineal)</translation>
+    </message>
+    <message>
+        <source>OpenEXR sequence</source>
+        <translation>Secuencia OpenEXR</translation>
+    </message>
+    <message>
+        <source>Opus</source>
+        <translation>Opus</translation>
+    </message>
+    <message>
+        <source>Opus (audio only)</source>
+        <translation>Opus (solo audio)</translation>
+    </message>
+    <message>
+        <source>PCM 16-bit</source>
+        <translation>PCM 16 bits</translation>
+    </message>
+    <message>
+        <source>PCM 24-bit</source>
+        <translation>PCM 24 bits</translation>
+    </message>
+    <message>
+        <source>PCM 32-bit float</source>
+        <translation>PCM 32 bits float</translation>
+    </message>
+    <message>
+        <source>PNG</source>
+        <translation>PNG</translation>
+    </message>
+    <message>
+        <source>PNG sequence</source>
+        <translation>Secuencia PNG</translation>
+    </message>
+    <message>
+        <source>QuickTime</source>
+        <translation>QuickTime</translation>
+    </message>
+    <message>
+        <source>SQ</source>
+        <translation>SQ</translation>
+    </message>
+    <message>
+        <source>Single frame (JPEG)</source>
+        <translation>Fotograma único (JPEG)</translation>
+    </message>
+    <message>
+        <source>Single frame (PNG)</source>
+        <translation>Fotograma único (PNG)</translation>
+    </message>
+    <message>
+        <source>TIFF</source>
+        <translation>TIFF</translation>
+    </message>
+    <message>
+        <source>TIFF sequence</source>
+        <translation>Secuencia TIFF</translation>
+    </message>
+    <message>
+        <source>VP9</source>
+        <translation>VP9</translation>
+    </message>
+    <message>
+        <source>Wave (audio only)</source>
+        <translation>Wave (solo audio)</translation>
+    </message>
+    <message>
+        <source>WebM</source>
+        <translation>WebM</translation>
+    </message>
+</context>
+<context>
     <name>kk::ExportJob</name>
     <message>
         <source>No timeline to render.</source>
@@ -10127,6 +15052,26 @@ Transición estándar de este proyecto</translation>
         <source>The render range is empty.</source>
         <translation>El rango de renderizado está vacío.</translation>
     </message>
+    <message>
+        <source>Auto (hardware if available)</source>
+        <translation>Automático (hardware si está disponible)</translation>
+    </message>
+    <message>
+        <source>Intel Quick Sync</source>
+        <translation>Intel Quick Sync</translation>
+    </message>
+    <message>
+        <source>NVIDIA NVENC</source>
+        <translation>NVIDIA NVENC</translation>
+    </message>
+    <message>
+        <source>Software</source>
+        <translation>Software</translation>
+    </message>
+    <message>
+        <source>VAAPI (Intel/AMD)</source>
+        <translation>VAAPI (Intel/AMD)</translation>
+    </message>
 </context>
 <context>
     <name>kk::FaderWidget</name>
@@ -10152,6 +15097,93 @@ Transición estándar de este proyecto</translation>
     <message>
         <source>Missing: %1</source>
         <translation>Falta: %1</translation>
+    </message>
+</context>
+<context>
+    <name>kk::FolderImport</name>
+    <message>
+        <source>%1: %2</source>
+        <translation>%1: %2</translation>
+    </message>
+    <message>
+        <source>%1: cannot read the folder</source>
+        <translation>%1: no se puede leer la carpeta</translation>
+    </message>
+    <message>
+        <source>%n file already in the media pool was skipped.</source>
+        <translation>Se omitió %n archivo que ya estaba en el panel de medios.</translation>
+    </message>
+    <message>
+        <source>%n file could not be imported:</source>
+        <translation>No se pudo importar %n archivo:</translation>
+    </message>
+    <message>
+        <source>%n file imported.</source>
+        <translation>Se importó %n archivo.</translation>
+    </message>
+    <message>
+        <source>%n file of another type was skipped.</source>
+        <translation>Se omitió %n archivo de otro tipo.</translation>
+    </message>
+    <message>
+        <source>%n files already in the media pool were skipped.</source>
+        <translation>Se omitieron %n archivos que ya estaban en el panel de medios.</translation>
+    </message>
+    <message>
+        <source>%n files could not be imported:</source>
+        <translation>No se pudieron importar %n archivos:</translation>
+    </message>
+    <message>
+        <source>%n files imported.</source>
+        <translation>Se importaron %n archivos.</translation>
+    </message>
+    <message>
+        <source>%n files of other types were skipped.</source>
+        <translation>Se omitieron %n archivos de otros tipos.</translation>
+    </message>
+    <message>
+        <source>%n hidden or system file was skipped.</source>
+        <translation>Se omitió %n archivo oculto o de sistema.</translation>
+    </message>
+    <message>
+        <source>%n hidden or system files were skipped.</source>
+        <translation>Se omitieron %n archivos ocultos o de sistema.</translation>
+    </message>
+    <message>
+        <source>A bin named after the folder, with a sub-bin for each subfolder</source>
+        <translation>Una carpeta con el nombre de la carpeta, con una subcarpeta para cada subcarpeta</translation>
+    </message>
+    <message>
+        <source>Create bins for subfolders</source>
+        <translation>Crear carpetas para las subcarpetas</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Importar</translation>
+    </message>
+    <message>
+        <source>Import Media Folder</source>
+        <translation>Importar carpeta de medios</translation>
+    </message>
+    <message>
+        <source>Import the media files of “%1”.</source>
+        <translation>Importar los archivos de medios de «%1».</translation>
+    </message>
+    <message>
+        <source>Include subfolders</source>
+        <translation>Incluir subcarpetas</translation>
+    </message>
+    <message>
+        <source>No new media files were imported.</source>
+        <translation>No se importó ningún archivo de medios nuevo.</translation>
+    </message>
+    <message>
+        <source>Reading the folder…</source>
+        <translation>Leyendo la carpeta…</translation>
+    </message>
+    <message>
+        <source>… and %1 more</source>
+        <translation>… y %1 más</translation>
     </message>
 </context>
 <context>
@@ -11653,7 +16685,7 @@ Assign it to “%3” instead?</source>
     </message>
     <message>
         <source>Step In</source>
-        <translation>Entrada escalonada</translation>
+        <translation>Escalón de entrada</translation>
     </message>
     <message>
         <source>Step In (I): the value jumps right after the previous key. Step Out is the Static (Hold) button.</source>
@@ -12122,6 +17154,33 @@ También se puede hacer doble clic en el encabezado o arrastrarlo fuera del pane
     </message>
 </context>
 <context>
+    <name>kk::Mask</name>
+    <message>
+        <source>Bezier</source>
+        <translation>Bézier</translation>
+    </message>
+    <message>
+        <source>Ellipse</source>
+        <translation>Elipse</translation>
+    </message>
+    <message>
+        <source>Freehand</source>
+        <translation>Mano alzada</translation>
+    </message>
+    <message>
+        <source>Mask</source>
+        <translation>Máscara</translation>
+    </message>
+    <message>
+        <source>Polygon</source>
+        <translation>Polígono</translation>
+    </message>
+    <message>
+        <source>Rectangle</source>
+        <translation>Rectángulo</translation>
+    </message>
+</context>
+<context>
     <name>kk::MaskOverlay</name>
     <message>
         <source>On-screen controls</source>
@@ -12249,6 +17308,77 @@ También se puede hacer doble clic en el encabezado o arrastrarlo fuera del pane
     <message>
         <source>Add %1 Files to Media Pool</source>
         <translation>Añadir %1 archivos al panel de medios</translation>
+    </message>
+</context>
+<context>
+    <name>kk::MediaImport</name>
+    <message>
+        <source>%1 file imported.</source>
+        <translation>Se importó %1 archivo.</translation>
+    </message>
+    <message>
+        <source>%1 files imported.</source>
+        <translation>Se importaron %1 archivos.</translation>
+    </message>
+    <message>
+        <source>%1 of %2 file could not be imported.</source>
+        <translation>No se pudo importar %1 de %2 archivo.</translation>
+    </message>
+    <message>
+        <source>%1 of %2 files could not be imported.</source>
+        <translation>No se pudieron importar %1 de %2 archivos.</translation>
+    </message>
+    <message>
+        <source>Change</source>
+        <translation>Cambiar</translation>
+    </message>
+    <message>
+        <source>Change Project Frame Rate</source>
+        <translation>Cambiar velocidad de fotogramas del proyecto</translation>
+    </message>
+    <message>
+        <source>Change the project frame rate to %1 fps to match them? Once a timeline has clips, its frame rate cannot change.</source>
+        <translation>¿Cambiar la velocidad de fotogramas del proyecto a %1 fps para que coincida? Cuando una línea de tiempo tiene clips, su velocidad de fotogramas no se puede cambiar.</translation>
+    </message>
+    <message>
+        <source>Don&apos;t Change</source>
+        <translation>No cambiar</translation>
+    </message>
+    <message>
+        <source>Import Media</source>
+        <translation>Importar medios</translation>
+    </message>
+    <message>
+        <source>Linked</source>
+        <translation>Vinculado</translation>
+    </message>
+    <message>
+        <source>Media files (%1);;All files (*)</source>
+        <translation>Archivos de medios (%1);;Todos los archivos (*)</translation>
+    </message>
+    <message>
+        <source>OpenTimelineIO files (*.otio);;All files (*)</source>
+        <translation>Archivos OpenTimelineIO (*.otio);;Todos los archivos (*)</translation>
+    </message>
+    <message>
+        <source>Store Media in Project</source>
+        <translation>Guardar medios en el proyecto</translation>
+    </message>
+    <message>
+        <source>Stored in the project file (%1)</source>
+        <translation>Guardado en el archivo del proyecto (%1)</translation>
+    </message>
+    <message>
+        <source>Subtitle files (*.srt *.vtt *.SRT *.VTT);;All files (*)</source>
+        <translation>Archivos de subtítulos (*.srt *.vtt *.SRT *.VTT);;Todos los archivos (*)</translation>
+    </message>
+    <message>
+        <source>The clips you added run at %1 fps, the project at %2 fps.</source>
+        <translation>Los clips añadidos van a %1 fps y el proyecto a %2 fps.</translation>
+    </message>
+    <message>
+        <source>… and %1 more</source>
+        <translation>… y %1 más</translation>
     </message>
 </context>
 <context>
@@ -13145,6 +18275,1373 @@ Importar archivos con %1 o soltarlos aquí.</translation>
     </message>
 </context>
 <context>
+    <name>kk::MenuLayouts</name>
+    <message>
+        <source>&amp;Audio</source>
+        <translation>&amp;Audio</translation>
+    </message>
+    <message>
+        <source>&amp;Clip</source>
+        <translation>&amp;Clip</translation>
+    </message>
+    <message>
+        <source>&amp;Edit</source>
+        <translation>&amp;Edición</translation>
+    </message>
+    <message>
+        <source>&amp;File</source>
+        <translation>&amp;Archivo</translation>
+    </message>
+    <message>
+        <source>&amp;Grade</source>
+        <translation>&amp;Corrección</translation>
+    </message>
+    <message>
+        <source>&amp;Help</source>
+        <translation>&amp;Ayuda</translation>
+    </message>
+    <message>
+        <source>&amp;Mark</source>
+        <translation>&amp;Marcador</translation>
+    </message>
+    <message>
+        <source>&amp;Nodes</source>
+        <translation>&amp;Nodos</translation>
+    </message>
+    <message>
+        <source>&amp;Playback</source>
+        <translation>&amp;Reproducción</translation>
+    </message>
+    <message>
+        <source>&amp;Trim</source>
+        <translation>&amp;Recorte</translation>
+    </message>
+    <message>
+        <source>&amp;View</source>
+        <translation>&amp;Ver</translation>
+    </message>
+    <message>
+        <source>1.85:1</source>
+        <translation>1.85:1</translation>
+    </message>
+    <message>
+        <source>1:1</source>
+        <translation>1:1</translation>
+    </message>
+    <message>
+        <source>2.39:1</source>
+        <translation>2.39:1</translation>
+    </message>
+    <message>
+        <source>4 x 4 Grid</source>
+        <translation>Cuadrícula de 4 x 4</translation>
+    </message>
+    <message>
+        <source>4:3</source>
+        <translation>4:3</translation>
+    </message>
+    <message>
+        <source>4:5</source>
+        <translation>4:5</translation>
+    </message>
+    <message>
+        <source>9:16</source>
+        <translation>9:16</translation>
+    </message>
+    <message>
+        <source>Action Safe</source>
+        <translation>Acción segura</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Sumar</translation>
+    </message>
+    <message>
+        <source>Add / Remove Keyframe</source>
+        <translation>Añadir / quitar fotograma clave</translation>
+    </message>
+    <message>
+        <source>Add Audio Track</source>
+        <translation>Añadir pista de audio</translation>
+    </message>
+    <message>
+        <source>Add Bus</source>
+        <translation>Añadir bus</translation>
+    </message>
+    <message>
+        <source>Add Horizontal</source>
+        <translation>Añadir horizontal</translation>
+    </message>
+    <message>
+        <source>Add Marker</source>
+        <translation>Añadir marcador</translation>
+    </message>
+    <message>
+        <source>Add Marker with Note…</source>
+        <translation>Añadir marcador con nota…</translation>
+    </message>
+    <message>
+        <source>Add Node</source>
+        <translation>Añadir nodo</translation>
+    </message>
+    <message>
+        <source>Add Node…</source>
+        <translation>Añadir nodo…</translation>
+    </message>
+    <message>
+        <source>Add Note</source>
+        <translation>Añadir nota</translation>
+    </message>
+    <message>
+        <source>Add Subtitle</source>
+        <translation>Añadir subtítulo</translation>
+    </message>
+    <message>
+        <source>Add Subtitle Track</source>
+        <translation>Añadir pista de subtítulos</translation>
+    </message>
+    <message>
+        <source>Add Transition</source>
+        <translation>Añadir transición</translation>
+    </message>
+    <message>
+        <source>Add Vertical</source>
+        <translation>Añadir vertical</translation>
+    </message>
+    <message>
+        <source>Add Video Track</source>
+        <translation>Añadir pista de vídeo</translation>
+    </message>
+    <message>
+        <source>Add to Timeline</source>
+        <translation>Añadir a la línea de tiempo</translation>
+    </message>
+    <message>
+        <source>All</source>
+        <translation>Todo</translation>
+    </message>
+    <message>
+        <source>Angle</source>
+        <translation>Ángulo</translation>
+    </message>
+    <message>
+        <source>Angle 1</source>
+        <translation>Ángulo 1</translation>
+    </message>
+    <message>
+        <source>Angle 2</source>
+        <translation>Ángulo 2</translation>
+    </message>
+    <message>
+        <source>Angle 3</source>
+        <translation>Ángulo 3</translation>
+    </message>
+    <message>
+        <source>Angle 4</source>
+        <translation>Ángulo 4</translation>
+    </message>
+    <message>
+        <source>Angle 5</source>
+        <translation>Ángulo 5</translation>
+    </message>
+    <message>
+        <source>Angle 6</source>
+        <translation>Ángulo 6</translation>
+    </message>
+    <message>
+        <source>Angle 7</source>
+        <translation>Ángulo 7</translation>
+    </message>
+    <message>
+        <source>Angle 8</source>
+        <translation>Ángulo 8</translation>
+    </message>
+    <message>
+        <source>Angle 9</source>
+        <translation>Ángulo 9</translation>
+    </message>
+    <message>
+        <source>Append</source>
+        <translation>Anexar</translation>
+    </message>
+    <message>
+        <source>Append at End</source>
+        <translation>Anexar al final</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Aplicar</translation>
+    </message>
+    <message>
+        <source>Aspect Marker</source>
+        <translation>Marcador de proporción</translation>
+    </message>
+    <message>
+        <source>Attributes…</source>
+        <translation>Atributos…</translation>
+    </message>
+    <message>
+        <source>Audio</source>
+        <translation>Audio</translation>
+    </message>
+    <message>
+        <source>Audio Only</source>
+        <translation>Solo audio</translation>
+    </message>
+    <message>
+        <source>Audio Scrubbing</source>
+        <translation>Scrubbing de audio</translation>
+    </message>
+    <message>
+        <source>Automatic</source>
+        <translation>Automático</translation>
+    </message>
+    <message>
+        <source>Back 1 Second</source>
+        <translation>Atrás 1 segundo</translation>
+    </message>
+    <message>
+        <source>Backward</source>
+        <translation>Hacia atrás</translation>
+    </message>
+    <message>
+        <source>Backward on All Tracks</source>
+        <translation>Hacia atrás en todas las pistas</translation>
+    </message>
+    <message>
+        <source>Based on In Points</source>
+        <translation>Según puntos de entrada</translation>
+    </message>
+    <message>
+        <source>Based on Timecode</source>
+        <translation>Según código de tiempo</translation>
+    </message>
+    <message>
+        <source>Based on Waveform</source>
+        <translation>Según forma de onda</translation>
+    </message>
+    <message>
+        <source>Bezier</source>
+        <translation>Bézier</translation>
+    </message>
+    <message>
+        <source>Blade Mode</source>
+        <translation>Modo cuchilla</translation>
+    </message>
+    <message>
+        <source>Bypass All Grades</source>
+        <translation>Omitir todas las correcciones</translation>
+    </message>
+    <message>
+        <source>C&amp;ut</source>
+        <translation>C&amp;orte</translation>
+    </message>
+    <message>
+        <source>Cache Clip Output</source>
+        <translation>Guardar en caché la salida del clip</translation>
+    </message>
+    <message>
+        <source>Centre Mark</source>
+        <translation>Marca de centro</translation>
+    </message>
+    <message>
+        <source>Change Duration…</source>
+        <translation>Cambiar duración…</translation>
+    </message>
+    <message>
+        <source>Change Speed…</source>
+        <translation>Cambiar velocidad…</translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <translation>Borrar</translation>
+    </message>
+    <message>
+        <source>Clear In</source>
+        <translation>Borrar entrada</translation>
+    </message>
+    <message>
+        <source>Clear In and Out</source>
+        <translation>Borrar entrada y salida</translation>
+    </message>
+    <message>
+        <source>Clear Out</source>
+        <translation>Borrar salida</translation>
+    </message>
+    <message>
+        <source>Clip Grade</source>
+        <translation>Corrección del clip</translation>
+    </message>
+    <message>
+        <source>Close Gaps</source>
+        <translation>Cerrar huecos</translation>
+    </message>
+    <message>
+        <source>Close Tab</source>
+        <translation>Cerrar pestaña</translation>
+    </message>
+    <message>
+        <source>Close Up</source>
+        <translation>Cerrar hueco</translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation>Color</translation>
+    </message>
+    <message>
+        <source>Colour Scheme</source>
+        <translation>Esquema de color</translation>
+    </message>
+    <message>
+        <source>Colour…</source>
+        <translation>Color…</translation>
+    </message>
+    <message>
+        <source>Compact…</source>
+        <translation>Compactar…</translation>
+    </message>
+    <message>
+        <source>Compositing</source>
+        <translation>Composición</translation>
+    </message>
+    <message>
+        <source>Composition</source>
+        <translation>Composición</translation>
+    </message>
+    <message>
+        <source>Compound</source>
+        <translation>Compuesto</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation>Copiar</translation>
+    </message>
+    <message>
+        <source>Copy Grade</source>
+        <translation>Copiar corrección</translation>
+    </message>
+    <message>
+        <source>Crop</source>
+        <translation>Recorte</translation>
+    </message>
+    <message>
+        <source>Curve Editor</source>
+        <translation>Editor de curvas</translation>
+    </message>
+    <message>
+        <source>Custom Grid…</source>
+        <translation>Cuadrícula personalizada…</translation>
+    </message>
+    <message>
+        <source>Cut</source>
+        <translation>Corte</translation>
+    </message>
+    <message>
+        <source>Cut Mode</source>
+        <translation>Modo de corte</translation>
+    </message>
+    <message>
+        <source>Cycle Side</source>
+        <translation>Alternar lado</translation>
+    </message>
+    <message>
+        <source>Decompose in Place</source>
+        <translation>Descomponer en el sitio</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Eliminar</translation>
+    </message>
+    <message>
+        <source>Delete Empty Tracks</source>
+        <translation>Eliminar pistas vacías</translation>
+    </message>
+    <message>
+        <source>Delete Marker</source>
+        <translation>Eliminar marcador</translation>
+    </message>
+    <message>
+        <source>Delete Node</source>
+        <translation>Eliminar nodo</translation>
+    </message>
+    <message>
+        <source>Delete Optimized Media…</source>
+        <translation>Eliminar medios optimizados…</translation>
+    </message>
+    <message>
+        <source>Delete Preset</source>
+        <translation>Eliminar preajuste</translation>
+    </message>
+    <message>
+        <source>Delete Proxies…</source>
+        <translation>Eliminar proxies…</translation>
+    </message>
+    <message>
+        <source>Delete Render Cache…</source>
+        <translation>Eliminar caché de renderizado…</translation>
+    </message>
+    <message>
+        <source>Deliver</source>
+        <translation>Entrega</translation>
+    </message>
+    <message>
+        <source>Discord Community</source>
+        <translation>Comunidad de Discord</translation>
+    </message>
+    <message>
+        <source>Down a Track</source>
+        <translation>Bajar una pista</translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <translation>Duplicar</translation>
+    </message>
+    <message>
+        <source>Dynamic Trim</source>
+        <translation>Recorte dinámico</translation>
+    </message>
+    <message>
+        <source>Dynamic Zoom</source>
+        <translation>Zoom dinámico</translation>
+    </message>
+    <message>
+        <source>Ease In</source>
+        <translation>Entrada suave</translation>
+    </message>
+    <message>
+        <source>Ease In and Out</source>
+        <translation>Entrada y salida suaves</translation>
+    </message>
+    <message>
+        <source>Ease Out</source>
+        <translation>Salida suave</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation>Edición</translation>
+    </message>
+    <message>
+        <source>Edit Point</source>
+        <translation>Punto de edición</translation>
+    </message>
+    <message>
+        <source>Ellipse</source>
+        <translation>Elipse</translation>
+    </message>
+    <message>
+        <source>Enable Node</source>
+        <translation>Activar nodo</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation>Activado</translation>
+    </message>
+    <message>
+        <source>End</source>
+        <translation>Fin</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Exportar</translation>
+    </message>
+    <message>
+        <source>Export Log File…</source>
+        <translation>Exportar archivo de registro…</translation>
+    </message>
+    <message>
+        <source>Extend Edit</source>
+        <translation>Extender edición</translation>
+    </message>
+    <message>
+        <source>Fast Review</source>
+        <translation>Revisión rápida</translation>
+    </message>
+    <message>
+        <source>Find in Media Pool</source>
+        <translation>Buscar en el panel de medios</translation>
+    </message>
+    <message>
+        <source>Fit to Fill</source>
+        <translation>Ajustar para rellenar</translation>
+    </message>
+    <message>
+        <source>Fit to View</source>
+        <translation>Ajustar a la vista</translation>
+    </message>
+    <message>
+        <source>Flag Clip</source>
+        <translation>Marcar clip con bandera</translation>
+    </message>
+    <message>
+        <source>Flatten</source>
+        <translation>Aplanar</translation>
+    </message>
+    <message>
+        <source>Float Viewer</source>
+        <translation>Desacoplar visor</translation>
+    </message>
+    <message>
+        <source>Forward</source>
+        <translation>Adelante</translation>
+    </message>
+    <message>
+        <source>Forward 1 Second</source>
+        <translation>Adelante 1 segundo</translation>
+    </message>
+    <message>
+        <source>Forward on All Tracks</source>
+        <translation>Hacia delante en todas las pistas</translation>
+    </message>
+    <message>
+        <source>Freehand</source>
+        <translation>Mano alzada</translation>
+    </message>
+    <message>
+        <source>Freeze Frame</source>
+        <translation>Congelar fotograma</translation>
+    </message>
+    <message>
+        <source>Full</source>
+        <translation>Completo</translation>
+    </message>
+    <message>
+        <source>Full Screen Window</source>
+        <translation>Ventana a pantalla completa</translation>
+    </message>
+    <message>
+        <source>Full-Screen Viewer</source>
+        <translation>Visor a pantalla completa</translation>
+    </message>
+    <message>
+        <source>Generate Optimized Media</source>
+        <translation>Generar medios optimizados</translation>
+    </message>
+    <message>
+        <source>Generate Proxies</source>
+        <translation>Generar proxies</translation>
+    </message>
+    <message>
+        <source>Getting Started</source>
+        <translation>Primeros pasos</translation>
+    </message>
+    <message>
+        <source>Go To</source>
+        <translation>Ir a</translation>
+    </message>
+    <message>
+        <source>Go to Page</source>
+        <translation>Ir a la página</translation>
+    </message>
+    <message>
+        <source>Grab</source>
+        <translation>Agarrar</translation>
+    </message>
+    <message>
+        <source>Grade the Timeline</source>
+        <translation>Corregir la línea de tiempo</translation>
+    </message>
+    <message>
+        <source>Grid</source>
+        <translation>Cuadrícula</translation>
+    </message>
+    <message>
+        <source>Grid Type</source>
+        <translation>Tipo de cuadrícula</translation>
+    </message>
+    <message>
+        <source>Guides</source>
+        <translation>Guías</translation>
+    </message>
+    <message>
+        <source>Guide…</source>
+        <translation>Guía…</translation>
+    </message>
+    <message>
+        <source>Half</source>
+        <translation>Mitad</translation>
+    </message>
+    <message>
+        <source>Help for This…</source>
+        <translation>Ayuda sobre esto…</translation>
+    </message>
+    <message>
+        <source>Highlight</source>
+        <translation>Resaltar</translation>
+    </message>
+    <message>
+        <source>History…</source>
+        <translation>Historial…</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Importar</translation>
+    </message>
+    <message>
+        <source>In</source>
+        <translation>In</translation>
+    </message>
+    <message>
+        <source>Insert</source>
+        <translation>Insertar</translation>
+    </message>
+    <message>
+        <source>Interpolation</source>
+        <translation>Interpolación</translation>
+    </message>
+    <message>
+        <source>Join Clips</source>
+        <translation>Unir clips</translation>
+    </message>
+    <message>
+        <source>Keyboard Shortcuts…</source>
+        <translation>Atajos de teclado…</translation>
+    </message>
+    <message>
+        <source>Keyframe Editor</source>
+        <translation>Editor de fotogramas clave</translation>
+    </message>
+    <message>
+        <source>Keyframes</source>
+        <translation>Fotogramas clave</translation>
+    </message>
+    <message>
+        <source>Kinoklip</source>
+        <translation>Kinoklip</translation>
+    </message>
+    <message>
+        <source>Layer</source>
+        <translation>Capa</translation>
+    </message>
+    <message>
+        <source>Left 1 Frame</source>
+        <translation>1 fotograma a la izquierda</translation>
+    </message>
+    <message>
+        <source>Left Several Frames</source>
+        <translation>Varios fotogramas a la izquierda</translation>
+    </message>
+    <message>
+        <source>Linear</source>
+        <translation>Lineal</translation>
+    </message>
+    <message>
+        <source>Linear Extrapolation</source>
+        <translation>Extrapolación lineal</translation>
+    </message>
+    <message>
+        <source>Linear Extrapolation Before</source>
+        <translation>Extrapolación lineal anterior</translation>
+    </message>
+    <message>
+        <source>Link</source>
+        <translation>Vincular</translation>
+    </message>
+    <message>
+        <source>Link Proxies…</source>
+        <translation>Vincular proxies…</translation>
+    </message>
+    <message>
+        <source>Linked Selection</source>
+        <translation>Selección vinculada</translation>
+    </message>
+    <message>
+        <source>Load Preset</source>
+        <translation>Cargar preajuste</translation>
+    </message>
+    <message>
+        <source>Lock</source>
+        <translation>Bloquear</translation>
+    </message>
+    <message>
+        <source>Look</source>
+        <translation>Aspecto</translation>
+    </message>
+    <message>
+        <source>Loop</source>
+        <translation>Bucle</translation>
+    </message>
+    <message>
+        <source>Loops</source>
+        <translation>Bucles</translation>
+    </message>
+    <message>
+        <source>Mark Clip</source>
+        <translation>Marcar clip</translation>
+    </message>
+    <message>
+        <source>Mark In</source>
+        <translation>Marcar entrada</translation>
+    </message>
+    <message>
+        <source>Mark Out</source>
+        <translation>Marcar salida</translation>
+    </message>
+    <message>
+        <source>Mark Selection</source>
+        <translation>Marcar selección</translation>
+    </message>
+    <message>
+        <source>Markers as CSV…</source>
+        <translation>Marcadores como CSV…</translation>
+    </message>
+    <message>
+        <source>Markers as EDL…</source>
+        <translation>Marcadores como EDL…</translation>
+    </message>
+    <message>
+        <source>Mask</source>
+        <translation>Máscara</translation>
+    </message>
+    <message>
+        <source>Masks</source>
+        <translation>Máscaras</translation>
+    </message>
+    <message>
+        <source>Match Frame</source>
+        <translation>Buscar fotograma de origen</translation>
+    </message>
+    <message>
+        <source>Media</source>
+        <translation>Medios</translation>
+    </message>
+    <message>
+        <source>Media Folder…</source>
+        <translation>Carpeta de medios…</translation>
+    </message>
+    <message>
+        <source>Media…</source>
+        <translation>Medios…</translation>
+    </message>
+    <message>
+        <source>Mixer</source>
+        <translation>Mezclador</translation>
+    </message>
+    <message>
+        <source>Move</source>
+        <translation>Mover</translation>
+    </message>
+    <message>
+        <source>Multicam</source>
+        <translation>Multicámara</translation>
+    </message>
+    <message>
+        <source>Multicam Angles</source>
+        <translation>Ángulos multicámara</translation>
+    </message>
+    <message>
+        <source>Nearest Clip or Gap</source>
+        <translation>Clip o hueco más cercano</translation>
+    </message>
+    <message>
+        <source>New Compound Clip…</source>
+        <translation>Nuevo clip compuesto…</translation>
+    </message>
+    <message>
+        <source>New Multicam Clip…</source>
+        <translation>Nuevo clip multicámara…</translation>
+    </message>
+    <message>
+        <source>New Timeline…</source>
+        <translation>Nueva línea de tiempo…</translation>
+    </message>
+    <message>
+        <source>Next</source>
+        <translation>Siguiente</translation>
+    </message>
+    <message>
+        <source>Next Edit</source>
+        <translation>Siguiente edición</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>Fotograma siguiente</translation>
+    </message>
+    <message>
+        <source>Next Marker</source>
+        <translation>Marcador siguiente</translation>
+    </message>
+    <message>
+        <source>Next Page</source>
+        <translation>Página siguiente</translation>
+    </message>
+    <message>
+        <source>Next Tab</source>
+        <translation>Pestaña siguiente</translation>
+    </message>
+    <message>
+        <source>No Proxies</source>
+        <translation>Sin proxies</translation>
+    </message>
+    <message>
+        <source>Node Grade</source>
+        <translation>Corrección del nodo</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Ninguno</translation>
+    </message>
+    <message>
+        <source>Normalize Levels…</source>
+        <translation>Normalizar niveles…</translation>
+    </message>
+    <message>
+        <source>Nudge</source>
+        <translation>Desplazar</translation>
+    </message>
+    <message>
+        <source>On-Screen Controls</source>
+        <translation>Controles en pantalla</translation>
+    </message>
+    <message>
+        <source>Open Project…</source>
+        <translation>Abrir proyecto…</translation>
+    </message>
+    <message>
+        <source>Open Recent</source>
+        <translation>Abrir reciente</translation>
+    </message>
+    <message>
+        <source>Open in Compositing Page</source>
+        <translation>Abrir en la página de composición</translation>
+    </message>
+    <message>
+        <source>Open in Timeline</source>
+        <translation>Abrir en la línea de tiempo</translation>
+    </message>
+    <message>
+        <source>Out</source>
+        <translation>Salida</translation>
+    </message>
+    <message>
+        <source>Overlays</source>
+        <translation>Superposiciones</translation>
+    </message>
+    <message>
+        <source>Overwrite</source>
+        <translation>Sobrescribir</translation>
+    </message>
+    <message>
+        <source>Pack…</source>
+        <translation>Empaquetar…</translation>
+    </message>
+    <message>
+        <source>Panels</source>
+        <translation>Paneles</translation>
+    </message>
+    <message>
+        <source>Parallel</source>
+        <translation>Paralelo</translation>
+    </message>
+    <message>
+        <source>Pass Through</source>
+        <translation>Pasar a través</translation>
+    </message>
+    <message>
+        <source>Paste</source>
+        <translation>Pegar</translation>
+    </message>
+    <message>
+        <source>Paste Attributes…</source>
+        <translation>Pegar atributos…</translation>
+    </message>
+    <message>
+        <source>Paste Grade</source>
+        <translation>Pegar corrección</translation>
+    </message>
+    <message>
+        <source>Paste Insert</source>
+        <translation>Pegar insertando</translation>
+    </message>
+    <message>
+        <source>Paste Special</source>
+        <translation>Pegado especial</translation>
+    </message>
+    <message>
+        <source>Place on Top</source>
+        <translation>Colocar encima</translation>
+    </message>
+    <message>
+        <source>Play / Pause</source>
+        <translation>Reproducir / Pausar</translation>
+    </message>
+    <message>
+        <source>Play Around Current Frame</source>
+        <translation>Reproducir alrededor del fotograma actual</translation>
+    </message>
+    <message>
+        <source>Play In to Out</source>
+        <translation>Reproducir de entrada a salida</translation>
+    </message>
+    <message>
+        <source>Play Reverse</source>
+        <translation>Reproducir hacia atrás</translation>
+    </message>
+    <message>
+        <source>Polygon</source>
+        <translation>Polígono</translation>
+    </message>
+    <message>
+        <source>Prefer Originals</source>
+        <translation>Preferir originales</translation>
+    </message>
+    <message>
+        <source>Prefer Proxies</source>
+        <translation>Preferir proxies</translation>
+    </message>
+    <message>
+        <source>Previous</source>
+        <translation>Anterior</translation>
+    </message>
+    <message>
+        <source>Previous Edit</source>
+        <translation>Edición anterior</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>Fotograma anterior</translation>
+    </message>
+    <message>
+        <source>Previous Marker</source>
+        <translation>Marcador anterior</translation>
+    </message>
+    <message>
+        <source>Previous Page</source>
+        <translation>Página anterior</translation>
+    </message>
+    <message>
+        <source>Previous Tab</source>
+        <translation>Pestaña anterior</translation>
+    </message>
+    <message>
+        <source>Project Tools</source>
+        <translation>Herramientas del proyecto</translation>
+    </message>
+    <message>
+        <source>Proxies and Optimized Media</source>
+        <translation>Proxies y medios optimizados</translation>
+    </message>
+    <message>
+        <source>Quality</source>
+        <translation>Calidad</translation>
+    </message>
+    <message>
+        <source>Quarter</source>
+        <translation>Cuarto</translation>
+    </message>
+    <message>
+        <source>Record Voice-Over…</source>
+        <translation>Grabar locución…</translation>
+    </message>
+    <message>
+        <source>Rectangle</source>
+        <translation>Rectángulo</translation>
+    </message>
+    <message>
+        <source>Remove Loop</source>
+        <translation>Quitar bucle</translation>
+    </message>
+    <message>
+        <source>Remove Pre-Loop</source>
+        <translation>Quitar pre-bucle</translation>
+    </message>
+    <message>
+        <source>Remove Unused Clips…</source>
+        <translation>Quitar clips sin usar…</translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <translation>Renombrar</translation>
+    </message>
+    <message>
+        <source>Render Cache</source>
+        <translation>Caché de renderizado</translation>
+    </message>
+    <message>
+        <source>Replace</source>
+        <translation>Reemplazar</translation>
+    </message>
+    <message>
+        <source>Report a Bug…</source>
+        <translation>Informar de un error…</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Restablecer</translation>
+    </message>
+    <message>
+        <source>Reset Composition</source>
+        <translation>Restablecer composición</translation>
+    </message>
+    <message>
+        <source>Reset Layout</source>
+        <translation>Restablecer disposición</translation>
+    </message>
+    <message>
+        <source>Reset Loudness Meter</source>
+        <translation>Restablecer medidor de sonoridad</translation>
+    </message>
+    <message>
+        <source>Retime Controls</source>
+        <translation>Controles de retiming</translation>
+    </message>
+    <message>
+        <source>Retime Curve</source>
+        <translation>Curva de retiming</translation>
+    </message>
+    <message>
+        <source>Reverse</source>
+        <translation>Invertir orden</translation>
+    </message>
+    <message>
+        <source>Right 1 Frame</source>
+        <translation>1 fotograma a la derecha</translation>
+    </message>
+    <message>
+        <source>Right Several Frames</source>
+        <translation>Varios fotogramas a la derecha</translation>
+    </message>
+    <message>
+        <source>Ripple Cut</source>
+        <translation>Cortar con ripple</translation>
+    </message>
+    <message>
+        <source>Ripple Delete</source>
+        <translation>Borrado ripple</translation>
+    </message>
+    <message>
+        <source>Ripple End</source>
+        <translation>Fin con ripple</translation>
+    </message>
+    <message>
+        <source>Ripple Overwrite</source>
+        <translation>Sobrescribir con ripple</translation>
+    </message>
+    <message>
+        <source>Ripple Start</source>
+        <translation>Inicio con ripple</translation>
+    </message>
+    <message>
+        <source>Rule of Thirds</source>
+        <translation>Regla de los tercios</translation>
+    </message>
+    <message>
+        <source>Rulers</source>
+        <translation>Reglas</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Guardar</translation>
+    </message>
+    <message>
+        <source>Save As…</source>
+        <translation>Guardar como…</translation>
+    </message>
+    <message>
+        <source>Save Preset…</source>
+        <translation>Guardar preajuste…</translation>
+    </message>
+    <message>
+        <source>Select</source>
+        <translation>Selección</translation>
+    </message>
+    <message>
+        <source>Select Nearest</source>
+        <translation>Seleccionar el más cercano</translation>
+    </message>
+    <message>
+        <source>Selection Mode</source>
+        <translation>Modo de selección</translation>
+    </message>
+    <message>
+        <source>Serial</source>
+        <translation>Serie</translation>
+    </message>
+    <message>
+        <source>Serial Before</source>
+        <translation>Serie antes</translation>
+    </message>
+    <message>
+        <source>Set Loop</source>
+        <translation>Establecer bucle</translation>
+    </message>
+    <message>
+        <source>Set Ping-Pong</source>
+        <translation>Establecer Ping-Pong</translation>
+    </message>
+    <message>
+        <source>Set Pre-Loop</source>
+        <translation>Establecer pre-bucle</translation>
+    </message>
+    <message>
+        <source>Set Pre-Ping-Pong</source>
+        <translation>Establecer pre-ping-pong</translation>
+    </message>
+    <message>
+        <source>Set Pre-Relative</source>
+        <translation>Establecer pre-relativo</translation>
+    </message>
+    <message>
+        <source>Set Relative</source>
+        <translation>Establecer relativo</translation>
+    </message>
+    <message>
+        <source>Show</source>
+        <translation>Mostrar</translation>
+    </message>
+    <message>
+        <source>Show Source Clip</source>
+        <translation>Mostrar clip de origen</translation>
+    </message>
+    <message>
+        <source>Show Source Tape</source>
+        <translation>Mostrar cinta de origen</translation>
+    </message>
+    <message>
+        <source>Show Timeline</source>
+        <translation>Mostrar línea de tiempo</translation>
+    </message>
+    <message>
+        <source>Shuttle</source>
+        <translation>Shuttle</translation>
+    </message>
+    <message>
+        <source>Shuttle Forward</source>
+        <translation>Shuttle hacia delante</translation>
+    </message>
+    <message>
+        <source>Shuttle Reverse</source>
+        <translation>Shuttle hacia atrás</translation>
+    </message>
+    <message>
+        <source>Single Viewer</source>
+        <translation>Visor único</translation>
+    </message>
+    <message>
+        <source>Smart</source>
+        <translation>Inteligente</translation>
+    </message>
+    <message>
+        <source>Smart Insert</source>
+        <translation>Inserción inteligente</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Suavizado</translation>
+    </message>
+    <message>
+        <source>Snap</source>
+        <translation>Ajustar</translation>
+    </message>
+    <message>
+        <source>Snap to Grid</source>
+        <translation>Ajustar a la cuadrícula</translation>
+    </message>
+    <message>
+        <source>Snapping</source>
+        <translation>Ajuste magnético</translation>
+    </message>
+    <message>
+        <source>Source / Timeline</source>
+        <translation>Origen / Línea de tiempo</translation>
+    </message>
+    <message>
+        <source>Source Overwrite</source>
+        <translation>Sobrescribir origen</translation>
+    </message>
+    <message>
+        <source>Speed +10%</source>
+        <translation>Velocidad +10%</translation>
+    </message>
+    <message>
+        <source>Speed -10%</source>
+        <translation>Velocidad −10%</translation>
+    </message>
+    <message>
+        <source>Speed and Duration</source>
+        <translation>Velocidad y duración</translation>
+    </message>
+    <message>
+        <source>Split at Playhead</source>
+        <translation>Dividir en el cabezal de reproducción</translation>
+    </message>
+    <message>
+        <source>Stacked Timelines</source>
+        <translation>Líneas de tiempo apiladas</translation>
+    </message>
+    <message>
+        <source>Start</source>
+        <translation>Inicio</translation>
+    </message>
+    <message>
+        <source>Step In</source>
+        <translation>Escalón de entrada</translation>
+    </message>
+    <message>
+        <source>Step Out</source>
+        <translation>Escalón de salida</translation>
+    </message>
+    <message>
+        <source>Stills</source>
+        <translation>Imágenes fijas</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Detener</translation>
+    </message>
+    <message>
+        <source>Subtitles…</source>
+        <translation>Subtítulos…</translation>
+    </message>
+    <message>
+        <source>Swap Inputs</source>
+        <translation>Intercambiar entradas</translation>
+    </message>
+    <message>
+        <source>Swap with Next</source>
+        <translation>Intercambiar con el siguiente</translation>
+    </message>
+    <message>
+        <source>Swap with Previous</source>
+        <translation>Intercambiar con el anterior</translation>
+    </message>
+    <message>
+        <source>Switch Mode</source>
+        <translation>Cambiar modo</translation>
+    </message>
+    <message>
+        <source>Sync and Place</source>
+        <translation>Sincronizar y colocar</translation>
+    </message>
+    <message>
+        <source>Time&amp;line</source>
+        <translation>&amp;Línea de tiempo</translation>
+    </message>
+    <message>
+        <source>Timeline Settings…</source>
+        <translation>Ajustes de la línea de tiempo…</translation>
+    </message>
+    <message>
+        <source>Timeline as EDL…</source>
+        <translation>Línea de tiempo como EDL…</translation>
+    </message>
+    <message>
+        <source>Timeline as OpenTimelineIO…</source>
+        <translation>Línea de tiempo como OpenTimelineIO…</translation>
+    </message>
+    <message>
+        <source>Timelines</source>
+        <translation>Líneas de tiempo</translation>
+    </message>
+    <message>
+        <source>Timeline…</source>
+        <translation>Línea de tiempo…</translation>
+    </message>
+    <message>
+        <source>Title Safe</source>
+        <translation>Título seguro</translation>
+    </message>
+    <message>
+        <source>Toggle Keyframe / Curve</source>
+        <translation>Alternar fotogramas clave / curvas</translation>
+    </message>
+    <message>
+        <source>Tracks</source>
+        <translation>Pistas</translation>
+    </message>
+    <message>
+        <source>Transform</source>
+        <translation>Transformar</translation>
+    </message>
+    <message>
+        <source>Trim Mode</source>
+        <translation>Modo de recorte</translation>
+    </message>
+    <message>
+        <source>Trim to Playhead</source>
+        <translation>Recortar hasta el cabezal</translation>
+    </message>
+    <message>
+        <source>Unlink</source>
+        <translation>Desvincular</translation>
+    </message>
+    <message>
+        <source>Unlink Proxies</source>
+        <translation>Desvincular proxies</translation>
+    </message>
+    <message>
+        <source>Unpack…</source>
+        <translation>Desempaquetar…</translation>
+    </message>
+    <message>
+        <source>Up a Track</source>
+        <translation>Subir una pista</translation>
+    </message>
+    <message>
+        <source>Use Optimized Media</source>
+        <translation>Usar medios optimizados</translation>
+    </message>
+    <message>
+        <source>Use Proxies</source>
+        <translation>Usar proxies</translation>
+    </message>
+    <message>
+        <source>User</source>
+        <translation>Usuario</translation>
+    </message>
+    <message>
+        <source>Verify Project File</source>
+        <translation>Verificar archivo del proyecto</translation>
+    </message>
+    <message>
+        <source>Video Only</source>
+        <translation>Solo vídeo</translation>
+    </message>
+    <message>
+        <source>Video and Audio</source>
+        <translation>Vídeo y audio</translation>
+    </message>
+    <message>
+        <source>View in Left Viewer</source>
+        <translation>Ver en el visor izquierdo</translation>
+    </message>
+    <message>
+        <source>View in Right Viewer</source>
+        <translation>Ver en el visor derecho</translation>
+    </message>
+    <message>
+        <source>Viewer</source>
+        <translation>Visor</translation>
+    </message>
+    <message>
+        <source>Welcome…</source>
+        <translation>Bienvenida…</translation>
+    </message>
+    <message>
+        <source>Widget Style</source>
+        <translation>Estilo de widgets</translation>
+    </message>
+    <message>
+        <source>Wipe</source>
+        <translation>Comparar</translation>
+    </message>
+    <message>
+        <source>Zoom</source>
+        <translation>Zoom</translation>
+    </message>
+    <message>
+        <source>Zoom In</source>
+        <translation>Acercar</translation>
+    </message>
+    <message>
+        <source>Zoom Out</source>
+        <translation>Alejar</translation>
+    </message>
+    <message>
+        <source>Zoom to Fit</source>
+        <translation>Ajustar zoom</translation>
+    </message>
+</context>
+<context>
     <name>kk::MetadataPanel</name>
     <message>
         <source>Metadata</source>
@@ -13620,10 +20117,116 @@ Importar archivos con %1 o soltarlos aquí.</translation>
     </message>
 </context>
 <context>
+    <name>kk::MulticamDialog</name>
+    <message>
+        <source>Angle Number</source>
+        <translation>Número de ángulo</translation>
+    </message>
+    <message>
+        <source>Angle name</source>
+        <translation>Nombre del ángulo</translation>
+    </message>
+    <message>
+        <source>Angle sync</source>
+        <translation>Sincronización de ángulos</translation>
+    </message>
+    <message>
+        <source>Clip Name</source>
+        <translation>Nombre del clip</translation>
+    </message>
+    <message>
+        <source>Create</source>
+        <translation>Crear</translation>
+    </message>
+    <message>
+        <source>Creates a multicam clip with %n angle from the selected clip.</source>
+        <translation>Crea un clip multicámara con %n ángulo a partir del clip seleccionado.</translation>
+    </message>
+    <message>
+        <source>Creates a multicam clip with %n angles from the selected clips.</source>
+        <translation>Crea un clip multicámara con %n ángulos a partir de los clips seleccionados.</translation>
+    </message>
+    <message>
+        <source>Move source clips to &quot;Original Clips&quot; bin</source>
+        <translation>Mover los clips de origen a la carpeta &quot;Original Clips&quot;</translation>
+    </message>
+    <message>
+        <source>Multicam clip name</source>
+        <translation>Nombre del clip multicámara</translation>
+    </message>
+    <message>
+        <source>New Multicam Clip</source>
+        <translation>Nuevo clip multicámara</translation>
+    </message>
+    <message>
+        <source>Sound (audio waveform)</source>
+        <translation>Sonido (forma de onda de audio)</translation>
+    </message>
+</context>
+<context>
     <name>kk::MulticamOverlay</name>
     <message>
         <source>Page %1 / %2</source>
         <translation>Página %1 / %2</translation>
+    </message>
+</context>
+<context>
+    <name>kk::MulticamSync</name>
+    <message>
+        <source>%1 of %2 clips were synced. These were not and will start with the first clip:</source>
+        <translation>Se sincronizaron %1 de %2 clips. Estos no se sincronizaron y comenzarán con el primer clip:</translation>
+    </message>
+    <message>
+        <source>%1: no audio</source>
+        <translation>%1: sin audio</translation>
+    </message>
+    <message>
+        <source>%1: no sound in common with %2 was found (confidence %3 %)</source>
+        <translation>%1: no se encontró sonido en común con %2 (confianza %3 %)</translation>
+    </message>
+    <message>
+        <source>%1: no start timecode in the file</source>
+        <translation>%1: el archivo no tiene código de tiempo inicial</translation>
+    </message>
+    <message>
+        <source>%1: the audio could not be read (%2)</source>
+        <translation>%1: no se pudo leer el audio (%2)</translation>
+    </message>
+    <message>
+        <source>Analysing the audio of %n clips…</source>
+        <translation>Analizando el audio de %n clips…</translation>
+    </message>
+    <message>
+        <source>Analysing the audio of %n clip…</source>
+        <translation>Analizando el audio de %n clip…</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Cancelar</translation>
+    </message>
+    <message>
+        <source>Clip Start</source>
+        <translation>Inicio del clip</translation>
+    </message>
+    <message>
+        <source>Continue?</source>
+        <translation>¿Continuar?</translation>
+    </message>
+    <message>
+        <source>In Points</source>
+        <translation>Puntos de entrada</translation>
+    </message>
+    <message>
+        <source>The clips could not be synced by %1.</source>
+        <translation>No se pudieron sincronizar los clips por %1.</translation>
+    </message>
+    <message>
+        <source>Timecode</source>
+        <translation>Código de tiempo</translation>
+    </message>
+    <message>
+        <source>Waveform</source>
+        <translation>Forma de onda</translation>
     </message>
 </context>
 <context>
@@ -14437,6 +21040,122 @@ Importar archivos con %1 o soltarlos aquí.</translation>
         <source>Despill</source>
         <translation>Despill</translation>
     </message>
+    <message>
+        <source>Add</source>
+        <translation>Sumar</translation>
+    </message>
+    <message>
+        <source>Angle</source>
+        <translation>Ángulo</translation>
+    </message>
+    <message>
+        <source>Canvas</source>
+        <translation>Lienzo</translation>
+    </message>
+    <message>
+        <source>Catmull-Rom</source>
+        <translation>Catmull-Rom</translation>
+    </message>
+    <message>
+        <source>Center X</source>
+        <translation>Centro X</translation>
+    </message>
+    <message>
+        <source>Center Y</source>
+        <translation>Centro Y</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation>Copiar</translation>
+    </message>
+    <message>
+        <source>Cubic</source>
+        <translation>Cúbico</translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <translation>Duplicar</translation>
+    </message>
+    <message>
+        <source>Edges</source>
+        <translation>Bordes</translation>
+    </message>
+    <message>
+        <source>Effect Mask</source>
+        <translation>Máscara de efecto</translation>
+    </message>
+    <message>
+        <source>Filter Method</source>
+        <translation>Método de filtrado</translation>
+    </message>
+    <message>
+        <source>Gaussian</source>
+        <translation>Gaussiano</translation>
+    </message>
+    <message>
+        <source>Ignore</source>
+        <translation>Ignorar</translation>
+    </message>
+    <message>
+        <source>Input</source>
+        <translation>Entrada</translation>
+    </message>
+    <message>
+        <source>Lanczos</source>
+        <translation>Lanczos</translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation>Nivel</translation>
+    </message>
+    <message>
+        <source>Linear</source>
+        <translation>Lineal</translation>
+    </message>
+    <message>
+        <source>Maximum</source>
+        <translation>Máximo</translation>
+    </message>
+    <message>
+        <source>Minimum</source>
+        <translation>Mínimo</translation>
+    </message>
+    <message>
+        <source>Mirror</source>
+        <translation>Reflejar</translation>
+    </message>
+    <message>
+        <source>Mitchell</source>
+        <translation>Mitchell</translation>
+    </message>
+    <message>
+        <source>Multiply</source>
+        <translation>Multiplicar</translation>
+    </message>
+    <message>
+        <source>Nearest Neighbor</source>
+        <translation>Vecino más cercano</translation>
+    </message>
+    <message>
+        <source>Paint Mode</source>
+        <translation>Modo de pintura</translation>
+    </message>
+    <message>
+        <source>Replace</source>
+        <translation>Reemplazar</translation>
+    </message>
+    <message>
+        <source>Soft Edge</source>
+        <translation>Borde suave</translation>
+    </message>
+    <message>
+        <source>Subtract</source>
+        <translation>Restar</translation>
+    </message>
+    <message>
+        <source>Wrap</source>
+        <translation>Envolver</translation>
+    </message>
 </context>
 <context>
     <name>kk::NormalizeAudioDialog</name>
@@ -14993,7 +21712,7 @@ Automática: Completa, pasando a Mitad solo mientras la reproducción no pueda s
     <name>kk::ProjectController</name>
     <message>
         <source>Project Repaired</source>
-        <translation type="unfinished"></translation>
+        <translation>Normalizar niveles de audio</translation>
     </message>
     <message>
         <source>This project had a damaged timeline. It was repaired so you can keep working; nothing was lost unless noted:
@@ -15001,7 +21720,11 @@ Automática: Completa, pasando a Mitad solo mientras la reproducción no pueda s
 %1
 
 Save the project to keep the repaired version.</source>
-        <translation type="unfinished"></translation>
+        <translation>La línea de tiempo de este proyecto estaba dañada. Se reparó para que pueda seguir trabajando; no se perdió nada salvo lo indicado:
+
+%1
+
+Guarde el proyecto para conservar la versión reparada.</translation>
     </message>
     <message>
         <source>Unsaved Changes</source>
@@ -15290,6 +22013,61 @@ Tamaño estimado tras compactar: %3</translation>
     <message>
         <source>“%1” was repaired. Verify it again to check every byte.</source>
         <translation>«%1» se reparó. Volver a verificarlo para comprobar cada byte.</translation>
+    </message>
+</context>
+<context>
+    <name>kk::ProjectKinds</name>
+    <message>
+        <source>Cannot open the file: %1</source>
+        <translation>No se puede abrir el archivo: %1</translation>
+    </message>
+    <message>
+        <source>Created by a newer version (format %1)</source>
+        <translation>Creado por una versión más reciente (formato %1)</translation>
+    </message>
+    <message>
+        <source>Damaged project file: %1</source>
+        <translation>Archivo de proyecto dañado: %1</translation>
+    </message>
+    <message>
+        <source>Damaged timeline: %1</source>
+        <translation>Línea de tiempo dañada: %1</translation>
+    </message>
+    <message>
+        <source>Linked</source>
+        <translation>Vinculado</translation>
+    </message>
+    <message>
+        <source>Linked project</source>
+        <translation>Proyecto vinculado</translation>
+    </message>
+    <message>
+        <source>Not a %1 project file</source>
+        <translation>No es un archivo de proyecto de %1</translation>
+    </message>
+    <message>
+        <source>Not a valid project file: %1</source>
+        <translation>No es un archivo de proyecto válido: %1</translation>
+    </message>
+    <message>
+        <source>Single file</source>
+        <translation>Un solo archivo</translation>
+    </message>
+    <message>
+        <source>Single-file project</source>
+        <translation>Proyecto de un solo archivo</translation>
+    </message>
+    <message>
+        <source>The project file holds no project yet</source>
+        <translation>El archivo del proyecto aún no contiene ningún proyecto</translation>
+    </message>
+    <message>
+        <source>The project has no timeline</source>
+        <translation>El proyecto no tiene línea de tiempo</translation>
+    </message>
+    <message>
+        <source>The project is open in another window or program</source>
+        <translation>El proyecto está abierto en otra ventana o programa</translation>
     </message>
 </context>
 <context>
@@ -16109,6 +22887,53 @@ Las líneas de tiempo que usan los ajustes del proyecto se convierten: los clips
     <message>
         <source>Project Settings</source>
         <translation>Ajustes del proyecto</translation>
+    </message>
+</context>
+<context>
+    <name>kk::ProxyMedia</name>
+    <message>
+        <source>%1 has no known frame rate.</source>
+        <translation>%1 no tiene una velocidad de fotogramas conocida.</translation>
+    </message>
+    <message>
+        <source>%1 has no known picture size.</source>
+        <translation>%1 no tiene un tamaño de imagen conocido.</translation>
+    </message>
+    <message>
+        <source>%1 has no moving pictures (proxies are made for video).</source>
+        <translation>%1 no tiene imágenes en movimiento (los proxies se crean para vídeo).</translation>
+    </message>
+    <message>
+        <source>DNxHR LB</source>
+        <translation>DNxHR LB</translation>
+    </message>
+    <message>
+        <source>DNxHR SQ</source>
+        <translation>DNxHR SQ</translation>
+    </message>
+    <message>
+        <source>H.264 (fast decode)</source>
+        <translation>H.264 (decodificación rápida)</translation>
+    </message>
+    <message>
+        <source>ProRes 422</source>
+        <translation>ProRes 422</translation>
+    </message>
+    <message>
+        <source>ProRes 422 LT</source>
+        <translation>ProRes 422 LT</translation>
+    </message>
+    <message>
+        <source>ProRes 422 Proxy</source>
+        <translation>ProRes 422 Proxy</translation>
+    </message>
+    <message>
+        <source>ProRes 4444</source>
+        <translation>ProRes 4444</translation>
+    </message>
+    <message>
+        <source>Timelines and compound clips have no proxy media.</source>
+        <translation>Las líneas de tiempo y los clips compuestos no tienen medios proxy.</translation>
     </message>
 </context>
 <context>
@@ -17069,6 +23894,29 @@ Las líneas de tiempo que usan los ajustes del proyecto se convierten: los clips
     <message>
         <source>Reset RGB Mixer</source>
         <translation>Restablecer mezclador RGB</translation>
+    </message>
+</context>
+<context>
+    <name>kk::SaveMediaCopy</name>
+    <message>
+        <source>Copying %1 files…</source>
+        <translation>Copiando %1 archivos…</translation>
+    </message>
+    <message>
+        <source>Copying %1…</source>
+        <translation>Copiando %1…</translation>
+    </message>
+    <message>
+        <source>Save Copies to Computer</source>
+        <translation>Guardar copias en el equipo</translation>
+    </message>
+    <message>
+        <source>Save a Copy to Computer</source>
+        <translation>Guardar una copia en el equipo</translation>
+    </message>
+    <message>
+        <source>The copy could not be completed: %1</source>
+        <translation>No se pudo completar la copia: %1</translation>
     </message>
 </context>
 <context>
@@ -18943,6 +25791,41 @@ Reiniciar Kinoklip para aplicarlos.</translation>
     </message>
 </context>
 <context>
+    <name>kk::SubtitleExport</name>
+    <message>
+        <source>Advanced SubStation (ASS)</source>
+        <translation>Advanced SubStation (ASS)</translation>
+    </message>
+    <message>
+        <source>Cannot open the subtitle encoder %1: %2</source>
+        <translation>No se puede abrir el codificador de subtítulos %1: %2</translation>
+    </message>
+    <message>
+        <source>Cannot write %1: %2</source>
+        <translation>No se puede escribir %1: %2</translation>
+    </message>
+    <message>
+        <source>MP4 Timed Text</source>
+        <translation>Texto temporizado MP4</translation>
+    </message>
+    <message>
+        <source>SubRip (SRT)</source>
+        <translation>SubRip (SRT)</translation>
+    </message>
+    <message>
+        <source>Subtitle encoding failed: %1</source>
+        <translation>Falló la codificación de subtítulos: %1</translation>
+    </message>
+    <message>
+        <source>The subtitle encoder %1 is not available.</source>
+        <translation>El codificador de subtítulos %1 no está disponible.</translation>
+    </message>
+    <message>
+        <source>WebVTT</source>
+        <translation>WebVTT</translation>
+    </message>
+</context>
+<context>
     <name>kk::TimelineController</name>
     <message>
         <source>Delete</source>
@@ -19130,11 +26013,11 @@ Reiniciar Kinoklip para aplicarlos.</translation>
     </message>
     <message>
         <source>Ripple Trim Edits</source>
-        <translation type="unfinished"></translation>
+        <translation>Eliminar</translation>
     </message>
     <message>
         <source>Trim Edits</source>
-        <translation type="unfinished"></translation>
+        <translation>Recortar ediciones</translation>
     </message>
     <message>
         <source>Roll Edit</source>
@@ -19415,6 +26298,144 @@ Trim the clips so the media covers the transition?</source>
 
 ¿Recortar los clips para que los medios cubran la transición?</translation>
     </message>
+    <message>
+        <source>Apply</source>
+        <translation>Aplicar</translation>
+    </message>
+    <message>
+        <source>Audio Attributes</source>
+        <translation>Atributos de audio</translation>
+    </message>
+    <message>
+        <source>Clip Marker</source>
+        <translation>Marcador de clip</translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation>Color</translation>
+    </message>
+    <message>
+        <source>Duration</source>
+        <translation>Duración</translation>
+    </message>
+    <message>
+        <source>Effects</source>
+        <translation>Efectos</translation>
+    </message>
+    <message>
+        <source>Insufficient Handles</source>
+        <translation>Márgenes insuficientes</translation>
+    </message>
+    <message>
+        <source>Length of the marker (hh:mm:ss:ff); one frame = a single marker</source>
+        <translation>Duración del marcador (hh:mm:ss:ff); un fotograma = un solo marcador</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Nombre</translation>
+    </message>
+    <message>
+        <source>Notes</source>
+        <translation>Notas</translation>
+    </message>
+    <message>
+        <source>Other</source>
+        <translation>Otros</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Panorama</translation>
+    </message>
+    <message>
+        <source>Paste Attributes</source>
+        <translation>Pegar atributos</translation>
+    </message>
+    <message>
+        <source>Shorten Transition</source>
+        <translation>Acortar transición</translation>
+    </message>
+    <message>
+        <source>Speed Change</source>
+        <translation>Cambio de velocidad</translation>
+    </message>
+    <message>
+        <source>Timeline Marker</source>
+        <translation>Marcador de línea de tiempo</translation>
+    </message>
+    <message>
+        <source>Transform, Cropping and Composite</source>
+        <translation>Transformación, recorte y composición</translation>
+    </message>
+    <message>
+        <source>Trim Clips</source>
+        <translation>Recortar clips</translation>
+    </message>
+    <message>
+        <source>Video Attributes</source>
+        <translation>Atributos de vídeo</translation>
+    </message>
+    <message>
+        <source>Volume</source>
+        <translation>Volumen</translation>
+    </message>
+</context>
+<context>
+    <name>kk::TimelineExport</name>
+    <message>
+        <source>CSV files (*.csv)</source>
+        <translation>Archivos CSV (*.csv)</translation>
+    </message>
+    <message>
+        <source>EDL files (*.edl)</source>
+        <translation>Archivos EDL (*.edl)</translation>
+    </message>
+    <message>
+        <source>Export Timeline Markers to CSV</source>
+        <translation>Exportar marcadores de la línea de tiempo a CSV</translation>
+    </message>
+    <message>
+        <source>Export Timeline Markers to EDL</source>
+        <translation>Exportar marcadores de la línea de tiempo a EDL</translation>
+    </message>
+    <message>
+        <source>Export Timeline as EDL</source>
+        <translation>Exportar línea de tiempo como EDL</translation>
+    </message>
+    <message>
+        <source>Export Timeline as OpenTimelineIO</source>
+        <translation>Exportar línea de tiempo como OpenTimelineIO</translation>
+    </message>
+    <message>
+        <source>OpenTimelineIO files (*.otio)</source>
+        <translation>Archivos OpenTimelineIO (*.otio)</translation>
+    </message>
+    <message>
+        <source>Timeline</source>
+        <translation>Línea de tiempo</translation>
+    </message>
+</context>
+<context>
+    <name>kk::TimelineImport</name>
+    <message>
+        <source>%1 file(s) were not found; their clips are offline:</source>
+        <translation>No se encontraron %1 archivo(s); sus clips están sin conexión:</translation>
+    </message>
+    <message>
+        <source>Cannot read %1: %2</source>
+        <translation>No se puede leer %1: %2</translation>
+    </message>
+    <message>
+        <source>Import Timeline</source>
+        <translation>Importar línea de tiempo</translation>
+    </message>
+    <message>
+        <source>Left out of the import:</source>
+        <translation>Excluido de la importación:</translation>
+    </message>
+    <message>
+        <source>Offline clip</source>
+        <translation>Clip sin conexión</translation>
+    </message>
 </context>
 <context>
     <name>kk::TimelinePage</name>
@@ -19628,7 +26649,7 @@ Trim the clips so the media covers the transition?</source>
     </message>
     <message>
         <source>%1 edit points</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar las líneas de tiempo abiertas como pestañas</translation>
     </message>
     <message>
         <source>Edit %1</source>
@@ -19780,15 +26801,15 @@ Trim the clips so the media covers the transition?</source>
     </message>
     <message>
         <source>Ripple Trim Edits</source>
-        <translation type="unfinished"></translation>
+        <translation>Editar %1</translation>
     </message>
     <message>
         <source>Trim Edits</source>
-        <translation type="unfinished"></translation>
+        <translation>Recortar ediciones</translation>
     </message>
     <message>
         <source>Roll Edits</source>
-        <translation type="unfinished"></translation>
+        <translation>Edición roll de ediciones</translation>
     </message>
     <message>
         <source>Slip Clip</source>
@@ -20181,6 +27202,29 @@ Trim the clips so the media covers the transition?</source>
     <message>
         <source>Delete Marker</source>
         <translation>Eliminar marcador</translation>
+    </message>
+</context>
+<context>
+    <name>kk::TitleLayers</name>
+    <message>
+        <source>Ellipse</source>
+        <translation>Elipse</translation>
+    </message>
+    <message>
+        <source>Line</source>
+        <translation>Línea</translation>
+    </message>
+    <message>
+        <source>Rectangle</source>
+        <translation>Rectángulo</translation>
+    </message>
+    <message>
+        <source>Rounded Rectangle</source>
+        <translation>Rectángulo redondeado</translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <translation>Texto</translation>
     </message>
 </context>
 <context>
@@ -21340,6 +28384,37 @@ Abrir un clip multicámara del panel de medios o mover el cabezal de reproducci�
     </message>
 </context>
 <context>
+    <name>kk::VoiceOverMenu</name>
+    <message>
+        <source>Arm this track for voice-over (input: %1). Then press Record to count in and record while the timeline plays. Right-click to choose the input.</source>
+        <translation>Armar esta pista para locución (entrada: %1). Después pulsar Grabar para la cuenta atrás y grabar mientras se reproduce la línea de tiempo. Clic derecho para elegir la entrada.</translation>
+    </message>
+    <message>
+        <source>Armed for voice-over (input: %1). Click to disarm; right-click to choose another input.</source>
+        <translation>Armada para locución (entrada: %1). Clic para desarmar; clic derecho para elegir otra entrada.</translation>
+    </message>
+    <message>
+        <source>Default (%1)</source>
+        <translation>Predeterminado (%1)</translation>
+    </message>
+    <message>
+        <source>No microphone found</source>
+        <translation>No se encontró ningún micrófono</translation>
+    </message>
+    <message>
+        <source>Record arm: voice-over is not available here.</source>
+        <translation>Armado de grabación: la locución no está disponible aquí.</translation>
+    </message>
+    <message>
+        <source>Voice-over cannot be used: %1</source>
+        <translation>No se puede usar la locución: %1</translation>
+    </message>
+    <message>
+        <source>Voice-over is not available</source>
+        <translation>La locución no está disponible</translation>
+    </message>
+</context>
+<context>
     <name>kk::WelcomeDialog</name>
     <message>
         <source>Welcome to %1</source>
@@ -21878,67 +28953,67 @@ Abrir un clip multicámara del panel de medios o mover el cabezal de reproducci�
     </message>
     <message>
         <source>Blur Radius R</source>
-        <translation type="unfinished"></translation>
+        <translation>Bienvenido a %1</translation>
     </message>
     <message>
         <source>Blur Radius G</source>
-        <translation type="unfinished"></translation>
+        <translation>Radio de desenfoque G</translation>
     </message>
     <message>
         <source>Blur Radius B</source>
-        <translation type="unfinished"></translation>
+        <translation>Radio de desenfoque B</translation>
     </message>
     <message>
         <source>Blur H/V Ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>Relación H/V del desenfoque</translation>
     </message>
     <message>
         <source>Blur Scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>Escala del desenfoque</translation>
     </message>
     <message>
         <source>Sharpen Radius R</source>
-        <translation type="unfinished"></translation>
+        <translation>Radio de enfoque R</translation>
     </message>
     <message>
         <source>Sharpen Radius G</source>
-        <translation type="unfinished"></translation>
+        <translation>Radio de enfoque G</translation>
     </message>
     <message>
         <source>Sharpen Radius B</source>
-        <translation type="unfinished"></translation>
+        <translation>Radio de enfoque B</translation>
     </message>
     <message>
         <source>Sharpen H/V Ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>Relación H/V del enfoque</translation>
     </message>
     <message>
         <source>Sharpen Scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>Escala del enfoque</translation>
     </message>
     <message>
         <source>Coring Softness</source>
-        <translation type="unfinished"></translation>
+        <translation>Suavidad del coring</translation>
     </message>
     <message>
         <source>Sharpen Level</source>
-        <translation type="unfinished"></translation>
+        <translation>Nivel de enfoque</translation>
     </message>
     <message>
         <source>Mist Radius</source>
-        <translation type="unfinished"></translation>
+        <translation>Radio de neblina</translation>
     </message>
     <message>
         <source>Mist H/V Ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>Relación H/V de la neblina</translation>
     </message>
     <message>
         <source>Mist Scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>Escala de la neblina</translation>
     </message>
     <message>
         <source>Mist Mix</source>
-        <translation type="unfinished"></translation>
+        <translation>Mezcla de neblina</translation>
     </message>
     <message>
         <source>Red Output: Red</source>
@@ -22069,6 +29144,14 @@ Abrir un clip multicámara del panel de medios o mover el cabezal de reproducci�
     <message>
         <source>How to use %1…</source>
         <translation>Cómo usar %1…</translation>
+    </message>
+    <message>
+        <source>Guide: %1</source>
+        <translation>Guía: %1</translation>
+    </message>
+    <message>
+        <source>Open the guide: %1</source>
+        <translation>Abrir la guía: %1</translation>
     </message>
 </context>
 <context>
@@ -22317,8 +29400,8 @@ Abrir un clip multicámara del panel de medios o mover el cabezal de reproducci�
         <translation>No es un archivo de proyecto válido: %1</translation>
     </message>
     <message>
-        <source>Not a </source>
-        <translation>No es un </translation>
+        <source>Not a %1 project file</source>
+        <translation>No se pudo abrir el navegador</translation>
     </message>
     <message>
         <source>Created by a newer version (format %1)</source>

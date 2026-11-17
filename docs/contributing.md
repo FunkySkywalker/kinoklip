@@ -84,6 +84,16 @@ DaVinci Resolve and the Kdenlive / Shotcut interfaces for the same language wher
   static tables, `%n` in counts so that every language gets its plural forms). Object names,
   settings keys, file formats, codec names, log lines (`kk.*` categories) and command names
   stay English.
+  Some files translate through a helper (`QString tr(const char* text) { return
+  QCoreApplication::translate("kk::Mask", text); }`) that lupdate cannot follow.
+  `scripts/translation_sources.py --write` (run by `update_translations`) finds such helpers,
+  collects the literals of their calls and writes them to `resources/translations/helper_strings.cpp`,
+  which lupdate reads too. Texts that reach a helper through a table or a variable need
+  `QT_TRANSLATE_NOOP("<context>", "...")` where they are written.
+- **Guard:** `check_translations` (quick group) fails when `helper_strings.cpp` is out of date, a
+  helper text is missing from a .ts file, or any entry of a .ts file is still `unfinished`. After
+  changing a UI text, run `update_translations`, translate the new entries in all four files and
+  remove their `type="unfinished"` before committing.
 - **Add a language:** copy an existing file to `kinoklip_<code>.ts` and change `language="..."`
   in its first line, run `update_translations`, translate, add the code and the language's own
   name to `languages()` in `src/core/Translations.cpp`, and the Qt translations of the language

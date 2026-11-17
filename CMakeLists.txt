@@ -182,10 +182,13 @@ if(TARGET Qt6::lrelease AND KK_TS_FILES)
   add_dependencies(kinoklip_core kk_translations)
   target_compile_definitions(kinoklip_core PUBLIC KK_HAVE_TRANSLATIONS=1)
 endif()
-if(TARGET Qt6::lupdate)
+if(TARGET Qt6::lupdate AND Python3_Interpreter_FOUND)
   add_custom_target(update_translations
-    COMMAND Qt6::lupdate ${CMAKE_SOURCE_DIR}/src -recursive -locations none -no-obsolete
-            -ts ${KK_TS_FILES}
+    # scripts/translation_sources.py writes helper_strings.cpp: the texts of the translate()
+    # helpers (tr("...") through a function) that lupdate cannot follow on its own.
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/scripts/translation_sources.py --write
+    COMMAND Qt6::lupdate ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/resources/translations/helper_strings.cpp
+            -recursive -locations none -no-obsolete -ts ${KK_TS_FILES}
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "lupdate: reading the sources into resources/translations/*.ts" VERBATIM)
 endif()
@@ -250,6 +253,10 @@ find_package(Python3 QUIET COMPONENTS Interpreter)
 if(Python3_Interpreter_FOUND)
   add_test(NAME check_issue_forms
     COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/scripts/check_issue_forms.py)
+  # Every text a translate() helper forwards must be in the .ts files, and none unfinished
+  # (scripts/translation_sources.py; docs/contributing.md, "Translating Kinoklip").
+  add_test(NAME check_translations
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/scripts/translation_sources.py --check)
   add_test(NAME check_vim_docs
     COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/scripts/vim-docs.py --check)
   add_test(NAME check_status

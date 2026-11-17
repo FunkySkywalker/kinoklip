@@ -205,7 +205,7 @@ ProjectMetadata readDocumentMetadata(const QByteArray& json, const QString& path
     }
     const QJsonObject root = doc.object();
     if (!root.contains(QLatin1String("formatVersion"))) {
-        meta.error = tr("Not a " KK_APP_NAME " project file");
+        meta.error = tr("Not a %1 project file").arg(QStringLiteral(KK_APP_NAME));
         return meta;
     }
     const int version = root.value(QLatin1String("formatVersion")).toInt();
