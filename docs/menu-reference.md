@@ -1,4 +1,4 @@
-367 menu entries in 12 menus; 50 panels
+367 menu entries in 12 menus; 52 panels
 
 # Menu and panel reference
 
@@ -489,6 +489,7 @@ Shortcuts are the defaults of the Resolve keymap (Windows); another keyboard pro
 
 | Panel | What it is |
 |---|---|
+| Blur | Blur, Sharpen and Mist the current node's picture; windows and the qualifier limit it. |
 | Clips | Every clip of the timeline as a thumbnail; click one to grade it. |
 | Curves | Curve adjustments of the current node. |
 | Gallery | The stills grabbed from graded clips; use one to compare in the viewer or copy its grade. |
@@ -499,6 +500,7 @@ Shortcuts are the defaults of the Resolve keymap (Windows); another keyboard pro
 | Qualifier | Selects part of the picture by hue, saturation and luminance for the current node. |
 | Scopes | A scope of the picture; choose the type from its menu. |
 | Timeline | The video tracks fitted to the width; click or drag to move the playhead. |
+| Tracker | Track a window so it follows the subject, or stabilize the clip. |
 | Viewer | The graded picture at the playhead, with transport controls. |
 | Windows | Circle, linear, polygon and gradient windows that limit the current node to part of the picture. |
 
