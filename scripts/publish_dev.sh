@@ -38,17 +38,23 @@ if [ -z "$NOTES" ]; then
     trap 'rm -f "$NOTES"' EXIT
     LAST="$(git describe --tags --abbrev=0 --match 'v*' "$COMMIT")"
     {
-        # The dev icon on top (resources/icons/app/kinoklip-dev.aseprite), from the dev build's commit.
-        echo "<img src=\"https://raw.githubusercontent.com/SeniorMatt/kinoklip/$COMMIT/resources/icons/app/kinoklip-dev-128.png\" width=\"96\" alt=\"Kinoklip Dev icon\">"
+        # Centred icon (resources/icons/app/kinoklip-dev.aseprite), name, download link; then the
+        # changes users see (docs, packaging and script commits left out), up to the first ";".
+        RAW="https://raw.githubusercontent.com/SeniorMatt/kinoklip/$COMMIT/resources/icons/app"
+        DL="https://github.com/SeniorMatt/kinoklip/releases/download/$TAG/KinoklipDev-x86_64.AppImage"
+        echo "<p align=\"center\"><img src=\"$RAW/kinoklip-dev-128.png\" width=\"128\" alt=\"Kinoklip Dev\"></p>"
+        echo "<p align=\"center\">The next version, built $(date -u +%F) from <code>$COMMIT</code></p>"
+        echo "<p align=\"center\"><a href=\"$DL\"><b>Download KinoklipDev-x86_64.AppImage</b></a></p>"
         echo
-        echo "**Development build, not tested.** $STAMP, built $(date -u +%F)."
+        echo "> [!WARNING]"
+        echo "> Not tested yet. Keep backups of your projects."
         echo
-        echo "For trying new work before the next release. It can break things: keep backups of"
-        echo "your projects. Open \`KinoklipDev-x86_64.AppImage\` with Gear Lever and it updates to"
-        echo "every new dev build with one click. Release copies of Kinoklip never update to dev builds."
+        echo "Open it with Gear Lever once, and every new dev build arrives as a one-click update."
         echo
-        echo "Changes since $LAST:"
-        git log --no-merges --format='- %s' "$LAST..$COMMIT" | cut -c1-200
+        echo "### New since ${LAST#v}"
+        git log --no-merges --format='%s' "$LAST..$COMMIT" |
+            { grep -vE '^(Docs|Notes|Nix|Readme|Roadmap|Menu reference|Release notes|Status|CI|Tests?|Dev channel|Dev icon|publish_dev|dev_build|package_linux|check_[a-z_]+|scripts?)\b' || true; } |
+            sed -E 's/;.*//' | sed 's/^/- /'
     } > "$NOTES"
 fi
 
@@ -56,10 +62,10 @@ git tag -f "$TAG" "$COMMIT" >/dev/null
 git push -q -f origin "refs/tags/$TAG"
 
 if gh release view "$TAG" >/dev/null 2>&1; then
-    gh release edit "$TAG" --title "Kinoklip Dev build ($COMMIT)" --notes-file "$NOTES" \
+    gh release edit "$TAG" --title "Kinoklip Dev" --notes-file "$NOTES" \
         --prerelease --latest=false --draft=false >/dev/null
 else
-    gh release create "$TAG" --verify-tag --title "Kinoklip Dev build ($COMMIT)" \
+    gh release create "$TAG" --verify-tag --title "Kinoklip Dev" \
         --notes-file "$NOTES" --prerelease --latest=false >/dev/null
 fi
 # The AppImage first, the .zsync last: an updater that reads the new .zsync finds the new file.
