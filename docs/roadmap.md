@@ -233,15 +233,10 @@ when the owner asks for it.
 - [ ] Media: clone tool on the Media page
 - [ ] Deliver: render presets per platform
 - [ ] Titles: automatic subtitles
-- [ ] Color: tracking of windows, polygon shape keyframes, Bezier windows
-- [ ] Color: Midtone Detail, soft clip, HDR and log wheels
-- [ ] Color: key mixer, splitter and outside nodes; node presets and versions; ColorTrace and grade groups
-- [ ] Color: keyframe strip, Sizing palette, node labels typed in the editor
-- [ ] Color: Qualifier 3D / RGB / Luma modes, lightbox, split-screen modes other than the split wipe
 - [ ] Color: relative LUT paths, and packing LUTs into single-file projects
 - [ ] Color: thumbnails of the clip itself when a higher track covers it
 - [ ] Audio: recording and ADR, plugins, surround formats, sound library
-- [ ] Audio: dialogue leveler, elastic wave, console mapping, VCAs, more effects
+- [ ] Audio: elastic wave, console mapping, VCAs, more effects
 - [ ] Project: pack with trimming (only the used parts of long clips plus handles) and image sequences inside single-file projects
 - [ ] Project: more than one project library, Open in a New Window, a cloud / shared library
 - [ ] Interchange: EDL export with more than one video track
