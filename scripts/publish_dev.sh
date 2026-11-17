@@ -63,7 +63,7 @@ fi
 gh release upload "$TAG" "$IMAGE" --clobber
 gh release upload "$TAG" "$OUT/SHA256SUMS-dev.txt" "$IMAGE.zsync" --clobber
 # Files of older dev schemes (Kinoklip-dev-<version>-<commit>-...) do not belong here.
-gh release view "$TAG" --json assets -q '.assets[].name' | grep -E '^Kinoklip-dev-' | while read -r a; do
+gh release view "$TAG" --json assets -q '.assets[].name' | { grep -E '^Kinoklip-dev-' || true; } | while read -r a; do
     gh release delete-asset "$TAG" "$a" -y
 done
 
