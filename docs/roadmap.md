@@ -155,12 +155,44 @@ Shipped in 1.4 ([release notes](releases/v1.4.0.md)):
 - [ ] Tests: quick, full and release test groups, so day-to-day builds run only the quick tests
 - [ ] Platform: dev builds: a test AppImage built on our own computer (not on GitHub servers) with the quick and full tests, for trying new work before a release
 
-## The version after that
+## Next version (1.10.0)
 
+Beginner and intermediate tutorial workflows for Resolve's Color and Fairlight pages that fail today are listed in [color-audio-gaps.md](color-audio-gaps.md); each gap below has its line.
+
+- [ ] Color: Tracker palette: a window or node follows a tracked subject (Pan, Tilt, Zoom, Rotate, 3D) so a blurred or graded face stays covered, and a Stabilizer palette
+- [ ] Color: Curve (Bezier) power window in the Windows palette, with polygon and curve shape keyframes
+- [ ] Color: Qualifier Matte Finesse (Clean Black / White, Blur Radius, Shrink / Grow, In / Out Ratio, Denoise) and the 3D, RGB and Luma qualifier modes
+- [ ] Color: Primaries Shad, Hi, Color Boost, Midtone Detail and Auto Color buttons, and a Log palette (Shadow, Midtone, Highlight, Offset wheels with Low / High range)
+- [ ] Color: Curves: Sat vs Lum curve, Soft Clip, and picking a colour or luma from the viewer to add curve points
+- [ ] Color: Color Warper palette (Hue - Sat and Chroma - Luma grids)
+- [ ] Color: HDR palette (zones: Global, Shadow, Light, Highlight, Specular)
+- [ ] Color: RGB Mixer palette (Red / Green / Blue output sliders, Monochrome, Preserve Luminance)
+- [ ] Color: Motion Effects palette: temporal and spatial Noise Reduction with Better / Faster modes
+- [ ] Color: Magic Mask palette: draw a stroke on a person or object and it follows (local open model, optional)
+- [ ] Color: Color Match palette: Shot Match to another clip, and a colour chart
+- [ ] Color: Generate 3D LUT (CUBE) from a grade, in the clip context menu
+- [ ] Color: node types Outside, Key Mixer, Splitter / Combiner and Compound Node, typed node labels, and an Alpha Output node with key input and output ports
+- [ ] Color: Gallery albums, Memories A to Z, Power Grade albums, Import Still and Export Still (DRX and image)
+- [ ] Color: Versions of a grade (Local and Remote), Groups with Pre-Clip and Post-Clip grades
+- [ ] Color: CIE Chromaticity scope and scope settings (scale, gain)
+- [ ] Color: Color Space Transform, ACES Transform, Gamut Mapping and Chromatic Adaptation effects, Color Management in Project Settings and Input Color Space in Clip Attributes
+- [ ] Color: Face Refinement, Depth Map, Relight and Sky Replacement effects (optional local open models)
+- [ ] Color: Resolve FX palette: put an effect (Glow, Lens Blur, Film Grain, Halation, Film Look) on a node so its window or qualifier limits it
+- [ ] Color: Keyframes palette and strip on the Color page with Dynamic interpolation, and a Sizing palette (Zoom, Pan, Tilt, Rotate, Flip, Input / Output sizing)
+- [ ] Color: Split Screen modes (Selected Clips, Timeline), Lightbox and Output Blanking
 - [ ] Color: Blur / Sharpen / Mist palette on the Color page, so a window can blur part of the picture
 - [ ] Audio: noise reduction with a local, open model (RNNoise / DeepFilterNet, spectral gate fallback)
 - [ ] Audio: Effects Library and Inspector on the Audio page, effect slots on mixer tracks
 - [ ] Audio: Normalize a whole track or bus / the main mix to a loudness target in one step
+- [ ] Audio: Voice Isolation button on a track and in the Inspector (local open model, optional)
+- [ ] Audio: Gate and Expander in the Dynamics window, a De-Esser effect, and a Dialogue Leveler
+- [ ] Audio: sidechain input on the compressor (key from another track) for ducking music under a voice
+- [ ] Audio: Sends (level, Pre / Post fader) to buses and aux buses, bus-to-bus feeds, and a bus Pan
+- [ ] Audio: automation lane under a track with Volume, Pan and effect parameter curves, plus Latch and Trim modes
+- [ ] Audio: loudness meter standards and targets (-14 YouTube, -16, -23 EBU R128, ATSC), Loudness Range (LRA) and a history graph, and normalize to a loudness target when rendering
+- [ ] Audio: Chorus, Flanger, Distortion and Stereo Width effects, and Reverb with Pre-delay, Decay and room presets
+- [ ] Audio: EQ presets (voice, music, telephone) and a Phase Invert button on the strip
+- [ ] Audio: Spectrum analyzer and Phase / correlation meters, and monitor controls (Dim, Mono, Mute) on the Audio page
 - [ ] Background Removal: Keep / Remove brush to correct the model by hand
 - [ ] Media: New Fusion Clip, and Fusion / compound clips as Media Pool entries you can drag to the timeline
 - [ ] Titles: underline and strikethrough
