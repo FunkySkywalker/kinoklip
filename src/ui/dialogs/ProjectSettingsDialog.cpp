@@ -141,6 +141,7 @@ ProjectSettingsDialog::ProjectSettingsDialog(Project* project, QWidget* parent)
     addSection(QStringLiteral("master"), tr("Master Settings"), buildMaster());
     addSection(QStringLiteral("scaling"), tr("Image Scaling"), buildScaling());
     addSection(QStringLiteral("audio"), tr("Audio"), buildAudio());
+    addSection(QStringLiteral("color"), tr("Color Management"), buildColor());
     addSection(QStringLiteral("general"), tr("General Options"), buildGeneral());
     addSection(QStringLiteral("cache"), tr("Optimized Media and Render Cache"), buildCache());
     m_sections->setCurrentRow(0);
@@ -339,6 +340,41 @@ QWidget* ProjectSettingsDialog::buildAudio()
     return formWidget(form);
 }
 
+QWidget* ProjectSettingsDialog::buildColor()
+{
+    auto* page = new QWidget;
+    auto* layout = new QVBoxLayout(page);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(metrics::kSpaceL);
+    layout->addWidget(subHeading(tr("Output Tone Mapping")));
+    QFormLayout* form = makeForm();
+    m_toneMap = new QComboBox;
+    m_toneMap->setObjectName(QStringLiteral("ToneMapping"));
+    m_toneMap->addItem(tr("None"), 0);
+    m_toneMap->addItem(tr("AgX"), 1);
+    m_toneMap->setToolTip(tr("A tone mapping applied to the whole timeline picture after the "
+                             "grades, in the viewer and in every render. None leaves the picture "
+                             "as graded. AgX is Blender's view transform: it rolls bright "
+                             "highlights off smoothly instead of clipping them."));
+    form->addRow(tr("Output tone mapping"), m_toneMap);
+    m_agxLook = new QComboBox;
+    m_agxLook->setObjectName(QStringLiteral("ToneMappingLook"));
+    m_agxLook->addItem(tr("None"), int(AgxLook::None));
+    m_agxLook->addItem(tr("Punchy"), int(AgxLook::Punchy));
+    m_agxLook->addItem(tr("Golden"), int(AgxLook::Golden));
+    m_agxLook->addItem(tr("Greyscale"), int(AgxLook::Greyscale));
+    m_agxLook->setToolTip(tr("A creative grade on top of AgX: Punchy adds contrast and colour, "
+                             "Golden warms the picture, Greyscale removes the colour. None is "
+                             "plain AgX."));
+    form->addRow(tr("AgX look"), m_agxLook);
+    connect(m_toneMap, &QComboBox::currentIndexChanged, this,
+        [this](int i) { m_agxLook->setEnabled(i == 1); });
+    m_agxLook->setEnabled(false);
+    layout->addWidget(formWidget(form));
+    layout->addStretch(1);
+    return page;
+}
+
 QWidget* ProjectSettingsDialog::buildGeneral()
 {
     auto* form = makeForm();
@@ -514,6 +550,8 @@ ProjectSettings ProjectSettingsDialog::settings() const
     const QPoint fps = m_fps->currentData().toPoint();
     s.fps = Rational {fps.x(), fps.y()};
     s.retimeProcess = RetimeProcess(m_retimeProcess->currentData().toInt());
+    s.toneMap.agx = m_toneMap->currentData().toInt() == 1;
+    s.toneMap.look = s.toneMap.agx ? AgxLook(m_agxLook->currentData().toInt()) : AgxLook::None;
     // The typed starting timecode, in frames of the chosen rate; unchanged text keeps the
     // current value (Project::setSettings() carries it over to a new rate).
     const ProjectSettings current = m_project->settings();
@@ -545,6 +583,9 @@ void ProjectSettingsDialog::setSettings(const ProjectSettings& settings)
     m_playbackFps->setItemText(0, m_fps->currentText());
     const int process = m_retimeProcess->findData(int(settings.retimeProcess));
     m_retimeProcess->setCurrentIndex(std::max(0, process));
+    m_toneMap->setCurrentIndex(settings.toneMap.agx ? 1 : 0);
+    m_agxLook->setCurrentIndex(std::max(0, m_agxLook->findData(int(settings.toneMap.look))));
+    m_agxLook->setEnabled(settings.toneMap.agx);
     m_timelineStart->setText(timecode::format(settings.timelineStart, settings.fps));
     m_stdVideo->setCurrentIndex(std::max(0, m_stdVideo->findData(settings.stdVideoTransition)));
     m_stdAudio->setCurrentIndex(std::max(0, m_stdAudio->findData(settings.stdAudioTransition)));

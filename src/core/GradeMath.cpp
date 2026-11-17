@@ -159,6 +159,152 @@ void applyMixer(const MixerValues& v, float c[3])
     std::copy(out, out + 3, c);
 }
 
+// AgX (applyAgx, agxLinearize and the constants below): the inset / outset matrices, the log2
+// range and the polynomial are those of the minimal AgX implementation, whose licence is:
+//
+// MIT License
+//
+// Copyright (c) 2024 Missing Deadlines (Benjamin Wrensch)
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this
+// software and associated documentation files (the "Software"), to deal in the Software
+// without restriction, including without limitation the rights to use, copy, modify, merge,
+// publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons
+// to whom the Software is furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all copies or
+// substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+// FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+// DEALINGS IN THE SOFTWARE.
+// Source: https://iolite-engine.com/blog_posts/minimal_agx_implementation (values from
+// https://github.com/sobotka/AgX).
+
+AgxValues AgxValues::at(const GradeNode& node, int64_t f)
+{
+    namespace gk = gradekeys;
+    AgxValues v;
+    v.on = node.value(gk::AgxOn, f) >= 0.5;
+    const auto pick = [&](const QString& key, int count) {
+        return std::clamp(int(std::lround(node.value(key, f))), 0, count - 1);
+    };
+    v.input = AgxInput(pick(gk::AgxInput, int(AgxInput::Count)));
+    v.exposure = float(std::clamp(node.value(gk::AgxExposure, f), -8.0, 8.0));
+    v.look = AgxLook(pick(gk::AgxLook, int(AgxLook::Count)));
+    v.output = AgxOutput(pick(gk::AgxOutput, int(AgxOutput::Count)));
+    return v;
+}
+
+AgxValues AgxValues::fromToneMap(const ToneMap& map)
+{
+    AgxValues v;
+    v.on = map.agx;
+    v.look = map.look;
+    return v;
+}
+
+float agxLinearize(AgxInput input, float x)
+{
+    switch (input) {
+    case AgxInput::Rec709:
+        return std::pow(std::max(x, 0.0f), 2.4f); // BT.1886 display, the usual video picture
+    case AgxInput::Srgb:
+        return x <= 0.04045f ? x / 12.92f : std::pow((x + 0.055f) / 1.055f, 2.4f);
+    case AgxInput::Linear:
+        return x;
+    case AgxInput::AppleLog: { // Apple Log Profile white paper
+        constexpr float r0 = -0.05641088f, rt = 0.01f, c = 47.28711236f, beta = 0.00964052f,
+                        gamma = 0.08550479f, delta = 0.69336945f;
+        const float pt = c * (rt - r0) * (rt - r0);
+        return x >= pt ? std::exp2((x - delta) / gamma) - beta : std::sqrt(std::max(x, 0.0f) / c) + r0;
+    }
+    case AgxInput::SLog3: // Sony S-Log3 technical summary
+        if (x >= 171.2102946929f / 1023.0f)
+            return std::pow(10.0f, (x * 1023.0f - 420.0f) / 261.5f) * (0.18f + 0.01f) - 0.01f;
+        return (x * 1023.0f - 95.0f) * 0.01125f / (171.2102946929f - 95.0f);
+    case AgxInput::VLog: // Panasonic V-Log / V-Gamut reference manual
+        if (x < 0.181f)
+            return (x - 0.125f) / 5.6f;
+        return std::pow(10.0f, (x - 0.598206f) / 0.241514f) - 0.00873f;
+    case AgxInput::LogC3: // ARRI LogC3, EI 800
+        if (x > 5.367655f * 0.010591f + 0.092809f)
+            return (std::pow(10.0f, (x - 0.385537f) / 0.247190f) - 0.052272f) / 5.555556f;
+        return (x - 0.092809f) / 5.367655f;
+    case AgxInput::Count:
+        break;
+    }
+    return x;
+}
+
+namespace {
+// Sobotka's AgX inset (row-major: out = M * in) and its inverse, from his OCIO config.
+constexpr float kAgxInset[9] = {0.842479062253094f, 0.0784335999999992f, 0.0792237451477643f,
+    0.0423282422610123f, 0.878468636469772f, 0.0791661274605434f, 0.0423756549057051f,
+    0.0784336f, 0.879142973793104f};
+constexpr float kAgxOutset[9] = {1.19687900512017f, -0.0980208811401368f, -0.0990297440797205f,
+    -0.0528968517574562f, 1.15190312990417f, -0.0989611768448433f, -0.0529716355144438f,
+    -0.0980434501171241f, 1.15107367264116f};
+constexpr float kAgxMinEv = -12.47393f;
+constexpr float kAgxMaxEv = 4.026069f;
+
+/// The sigmoid of AgX's default contrast, a 6th degree polynomial of the 0..1 log encoding.
+float agxCurve(float x)
+{
+    const float x2 = x * x;
+    const float x4 = x2 * x2;
+    return 15.5f * x4 * x2 - 40.14f * x4 * x + 31.96f * x4 - 6.868f * x2 * x + 0.4298f * x2
+        + 0.1191f * x - 0.00232f;
+}
+} // namespace
+
+void applyAgx(const AgxValues& v, float c[3])
+{
+    const float gain = std::exp2(v.exposure);
+    float lin[3];
+    for (int i = 0; i < 3; ++i)
+        lin[i] = agxLinearize(v.input, c[i]) * gain;
+    float e[3];
+    for (int r = 0; r < 3; ++r) {
+        const float m = kAgxInset[r * 3] * lin[0] + kAgxInset[r * 3 + 1] * lin[1]
+            + kAgxInset[r * 3 + 2] * lin[2];
+        const float ev = std::clamp(std::log2(std::max(m, 1e-10f)), kAgxMinEv, kAgxMaxEv);
+        e[r] = agxCurve((ev - kAgxMinEv) / (kAgxMaxEv - kAgxMinEv));
+    }
+    if (v.look != AgxLook::None) {
+        float slope[3] = {1, 1, 1};
+        float power = 1.0f, sat = 1.0f;
+        if (v.look == AgxLook::Punchy) {
+            power = 1.35f;
+            sat = 1.4f;
+        } else if (v.look == AgxLook::Golden) {
+            slope[1] = 0.9f;
+            slope[2] = 0.5f;
+            power = 0.8f;
+            sat = 0.8f;
+        } else {
+            sat = 0.0f; // Greyscale
+        }
+        for (int i = 0; i < 3; ++i)
+            e[i] = std::pow(std::max(e[i] * slope[i], 0.0f), power);
+        const float y = luma(e);
+        for (float& x : e)
+            x = y + sat * (x - y);
+    }
+    for (int r = 0; r < 3; ++r) {
+        float o = kAgxOutset[r * 3] * e[0] + kAgxOutset[r * 3 + 1] * e[1]
+            + kAgxOutset[r * 3 + 2] * e[2];
+        o = std::max(o, 0.0f);
+        // The curve is fitted for a display of gamma 2.2 (sRGB); Rec. 709 video is shown at 2.4.
+        if (v.output == AgxOutput::Rec709)
+            o = std::pow(std::pow(o, 2.2f), 1.0f / 2.4f);
+        c[r] = std::min(o, 1.0f);
+    }
+}
+
 float liftGammaGain(float x, float lift, float gamma, float gain)
 {
     const float v = std::max(gain * (x + lift * (1.0f - x)), 0.0f);

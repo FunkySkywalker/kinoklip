@@ -673,6 +673,30 @@
       ]
     },
     {
+      "id": "use-agx",
+      "title": "Use AgX to tame bright highlights",
+      "file": "use-agx.md",
+      "summary": "Tone map bright highlights with AgX, Blender's view transform, on one clip (Color page) or on the whole timeline (Project Settings > Color Management).",
+      "keywords": [
+        "agx",
+        "tone mapping",
+        "view transform",
+        "highlights",
+        "clipping",
+        "blender",
+        "aces",
+        "exposure",
+        "hdr",
+        "log",
+        "color management",
+        "punchy",
+        "golden"
+      ],
+      "contexts": [
+        "page:color"
+      ]
+    },
+    {
       "id": "use-the-shortcuts-of-your-old-editor",
       "title": "Use the shortcuts of your old editor",
       "file": "use-the-shortcuts-of-your-old-editor.md",

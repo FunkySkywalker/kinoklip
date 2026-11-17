@@ -69,6 +69,8 @@ PreparedGrade prepareGrade(const ClipGrade& grade, int64_t frame, const PictureG
                 p.primariesIdentity = p.primaries.isIdentity();
                 p.mixer = MixerValues::at(n, frame);
                 p.mixes = !p.mixer.isIdentity();
+                p.agx = AgxValues::at(n, frame);
+                p.agxOn = p.agx.on;
                 if (!n.curves.isIdentity())
                     p.curves = std::make_shared<const CurveTables>(CurveTables::bake(n.curves));
                 if (!n.lutPath.isEmpty()) {
@@ -78,7 +80,7 @@ PreparedGrade prepareGrade(const ClipGrade& grade, int64_t frame, const PictureG
                         warnLut(n.lutPath, why);
                 }
                 p.tetrahedral = n.lutInterpolation == LutInterpolation::Tetrahedral;
-                p.corrects = p.mix > 0.0f && (!p.primariesIdentity || p.mixes || p.curves || p.lut);
+                p.corrects = p.mix > 0.0f && (!p.primariesIdentity || p.mixes || p.agxOn || p.curves || p.lut);
                 p.blur = BlurValues::at(n, frame, geometry.height);
                 p.blurs = p.mix > 0.0f && p.blur.active();
                 p.qualifier = n.qualifier;
@@ -153,6 +155,8 @@ void evalNode(const PreparedGrade& g, size_t i, const float rgb[3], float px, fl
             else
                 n.lut->apply(c);
         }
+        if (n.agxOn)
+            applyAgx(n.agx, c);
         for (int ch = 0; ch < 3; ++ch)
             o[ch] = in[ch] + (c[ch] - in[ch]) * key;
         break;
@@ -382,6 +386,8 @@ void applyGradeBlurred(const PreparedGrade& g, QImage& image)
                                 else
                                     n.lut->apply(c);
                             }
+                            if (n.agxOn)
+                                applyAgx(n.agx, c);
                         }
                         std::copy(c, c + 3, &graded[p * 3]);
                     }

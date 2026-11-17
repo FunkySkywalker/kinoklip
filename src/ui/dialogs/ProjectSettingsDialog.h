@@ -75,6 +75,7 @@ private:
     QWidget* buildMaster();
     QWidget* buildScaling();
     QWidget* buildAudio();
+    QWidget* buildColor();
     QWidget* buildGeneral();
     QWidget* buildCache();
     void addSection(const QString& id, const QString& title, QWidget* page);
@@ -92,6 +93,8 @@ private:
     QComboBox* m_sampleRate = nullptr;
     QComboBox* m_playbackFps = nullptr;
     QComboBox* m_retimeProcess = nullptr; ///< Frame Interpolation > Retime process
+    QComboBox* m_toneMap = nullptr; ///< Color Management > Output tone mapping
+    QComboBox* m_agxLook = nullptr; ///< Color Management > AgX look
     QSpinBox* m_autosave = nullptr;
     QLineEdit* m_timelineStart = nullptr; ///< General Options > starting timecode
     QComboBox* m_stdVideo = nullptr; ///< General Options > standard video transition

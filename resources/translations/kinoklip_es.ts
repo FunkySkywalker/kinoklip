@@ -2892,6 +2892,101 @@ Probablemente el sistema cerró el programa porque el equipo se quedó sin memor
     </message>
 </context>
 <context>
+    <name>kk::AgxPanel</name>
+    <message>
+        <source>Enable AgX</source>
+        <translation>Activar AgX</translation>
+    </message>
+    <message>
+        <source>Tone map this node&apos;s picture with AgX, Blender&apos;s view transform: it compresses bright highlights smoothly instead of clipping them. It runs after the node&apos;s other corrections.</source>
+        <translation>Aplica a la imagen de este nodo el mapeo de tonos AgX, la transformación de vista de Blender: comprime las altas luces con suavidad en lugar de recortarlas. Se ejecuta después de las demás correcciones del nodo.</translation>
+    </message>
+    <message>
+        <source>Rec.709 (gamma 2.4)</source>
+        <translation>Rec.709 (gamma 2,4)</translation>
+    </message>
+    <message>
+        <source>sRGB</source>
+        <translation>sRGB</translation>
+    </message>
+    <message>
+        <source>Linear</source>
+        <translation>Lineal</translation>
+    </message>
+    <message>
+        <source>Apple Log</source>
+        <translation>Apple Log</translation>
+    </message>
+    <message>
+        <source>S-Log3</source>
+        <translation>S-Log3</translation>
+    </message>
+    <message>
+        <source>V-Log</source>
+        <translation>V-Log</translation>
+    </message>
+    <message>
+        <source>LogC3 (EI 800)</source>
+        <translation>LogC3 (EI 800)</translation>
+    </message>
+    <message>
+        <source>Input</source>
+        <translation>Entrada</translation>
+    </message>
+    <message>
+        <source>What the numbers of the picture mean. Rec.709 (gamma 2.4) is ordinary video. A camera log is undone first; only its curve is handled, the colours are taken as Rec.709.</source>
+        <translation>Qué significan los números de la imagen. Rec.709 (gamma 2,4) es vídeo normal. El log de una cámara se deshace primero; solo se trata su curva, los colores se toman como Rec.709.</translation>
+    </message>
+    <message>
+        <source> stops</source>
+        <translation> pasos</translation>
+    </message>
+    <message>
+        <source>Exposure</source>
+        <translation>Exposición</translation>
+    </message>
+    <message>
+        <source>Brightens (+) or darkens (-) the linear picture in stops before AgX. Each stop doubles or halves the light.</source>
+        <translation>Aclara (+) u oscurece (-) la imagen lineal en pasos antes de AgX. Cada paso duplica o reduce a la mitad la luz.</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Ninguno</translation>
+    </message>
+    <message>
+        <source>Punchy</source>
+        <translation>Intenso</translation>
+    </message>
+    <message>
+        <source>Golden</source>
+        <translation>Dorado</translation>
+    </message>
+    <message>
+        <source>Greyscale</source>
+        <translation>Escala de grises</translation>
+    </message>
+    <message>
+        <source>Look</source>
+        <translation>Aspecto</translation>
+    </message>
+    <message>
+        <source>A creative grade on top of AgX: Punchy adds contrast and colour, Golden warms the picture, Greyscale removes the colour. None is plain AgX.</source>
+        <translation>Un acabado creativo sobre AgX: Intenso añade contraste y color, Dorado calienta la imagen, Escala de grises quita el color. Ninguno es AgX puro.</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>Salida</translation>
+    </message>
+    <message>
+        <source>How the result is encoded: Rec.709 for video shown on a gamma 2.4 screen, sRGB for pictures and the web.</source>
+        <translation>Cómo se codifica el resultado: Rec.709 para vídeo en una pantalla de gamma 2,4, sRGB para imágenes y la web.</translation>
+    </message>
+    <message>
+        <source>Reset AgX</source>
+        <translation>Restablecer AgX</translation>
+    </message>
+</context>
+<context>
     <name>kk::AiModelDialog</name>
     <message>
         <source>AI Models</source>
@@ -8735,6 +8830,14 @@ Gracias por ver</translation>
     <message>
         <source>Mix the red, green and blue channels of the current node, or make it monochrome.</source>
         <translation>Mezcla los canales rojo, verde y azul del nodo actual o lo vuelve monocromo.</translation>
+    </message>
+    <message>
+        <source>AgX</source>
+        <translation>AgX</translation>
+    </message>
+    <message>
+        <source>Tone map the current node with AgX, Blender&apos;s view transform.</source>
+        <translation>Aplica AgX, la transformación de vista de Blender, al nodo actual.</translation>
     </message>
     <message>
         <source>Reset</source>
@@ -22876,6 +22979,10 @@ Tamaño estimado tras compactar: %3</translation>
         <translation>Audio</translation>
     </message>
     <message>
+        <source>Color Management</source>
+        <translation>Gestión del color</translation>
+    </message>
+    <message>
         <source>General Options</source>
         <translation>Opciones generales</translation>
     </message>
@@ -23066,6 +23173,42 @@ Tamaño estimado tras compactar: %3</translation>
     <message>
         <source>The mixer works in 32-bit float; render bit depth is set on the Deliver page.</source>
         <translation>El mezclador trabaja en 32 bits float; la profundidad de bits del renderizado se establece en la página Entrega.</translation>
+    </message>
+    <message>
+        <source>Output Tone Mapping</source>
+        <translation>Mapeo de tonos de salida</translation>
+    </message>
+    <message>
+        <source>AgX</source>
+        <translation>AgX</translation>
+    </message>
+    <message>
+        <source>A tone mapping applied to the whole timeline picture after the grades, in the viewer and in every render. None leaves the picture as graded. AgX is Blender&apos;s view transform: it rolls bright highlights off smoothly instead of clipping them.</source>
+        <translation>Un mapeo de tonos aplicado a toda la imagen de la línea de tiempo después de las correcciones, en el visor y en cada render. Ninguno deja la imagen como se corrigió. AgX es la transformación de vista de Blender: las altas luces se atenúan con suavidad en lugar de recortarse.</translation>
+    </message>
+    <message>
+        <source>Output tone mapping</source>
+        <translation>Mapeo de tonos de salida</translation>
+    </message>
+    <message>
+        <source>Punchy</source>
+        <translation>Intenso</translation>
+    </message>
+    <message>
+        <source>Golden</source>
+        <translation>Dorado</translation>
+    </message>
+    <message>
+        <source>Greyscale</source>
+        <translation>Escala de grises</translation>
+    </message>
+    <message>
+        <source>A creative grade on top of AgX: Punchy adds contrast and colour, Golden warms the picture, Greyscale removes the colour. None is plain AgX.</source>
+        <translation>Un acabado creativo sobre AgX: Intenso añade contraste y color, Dorado calienta la imagen, Escala de grises quita el color. Ninguno es AgX puro.</translation>
+    </message>
+    <message>
+        <source>AgX look</source>
+        <translation>Aspecto de AgX</translation>
     </message>
     <message>
         <source>The name of the project, shown in the Project Manager and in the window title.</source>
@@ -29561,6 +29704,26 @@ Abrir un clip multicámara del panel de medios o mover el cabezal de reproducci�
     <message>
         <source>Preserve Luminance</source>
         <translation>Conservar luminancia</translation>
+    </message>
+    <message>
+        <source>AgX</source>
+        <translation>AgX</translation>
+    </message>
+    <message>
+        <source>AgX Input</source>
+        <translation>Entrada de AgX</translation>
+    </message>
+    <message>
+        <source>AgX Exposure</source>
+        <translation>Exposición de AgX</translation>
+    </message>
+    <message>
+        <source>AgX Look</source>
+        <translation>Aspecto de AgX</translation>
+    </message>
+    <message>
+        <source>AgX Output</source>
+        <translation>Salida de AgX</translation>
     </message>
     <message>
         <source>Contrast</source>

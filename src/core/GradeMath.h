@@ -91,6 +91,32 @@ inline constexpr float kMixerEpsilon = 1e-5f;
 /// shares of one whole (when the sum is above epsilon).
 void applyMixer(const MixerValues& v, float rgb[3]);
 
+/// AgX of a node at one frame. AgX is Troy Sobotka's display transform (the view transform of
+/// Blender): the picture is brought to linear light, scaled by the exposure, squeezed through an
+/// S-shaped curve over about 16.5 stops (log2 encoding, inset of the primaries), given an
+/// optional look and encoded again. The maths follows the minimal AgX port of Benjamin Wrensch
+/// (MIT, constants from Sobotka's OCIO config; see attribution.md), which uses a polynomial for
+/// the curve; GlGrade.cpp mirrors applyAgx() line by line.
+struct AgxValues
+{
+    bool on = false;
+    AgxInput input = AgxInput::Rec709;
+    float exposure = 0.0f; ///< stops, applied to the linear picture
+    AgxLook look = AgxLook::None;
+    AgxOutput output = AgxOutput::Rec709;
+
+    /// The values of @p node at frame @p localFrame (enums rounded and clamped).
+    [[nodiscard]] static AgxValues at(const GradeNode& node, int64_t localFrame);
+    /// The values of a project's output tone mapping (Rec. 709 in and out, no exposure).
+    [[nodiscard]] static AgxValues fromToneMap(const ToneMap& map);
+};
+
+/// Linear light of one encoded channel of the AgX input @p input (no gamut change).
+[[nodiscard]] float agxLinearize(AgxInput input, float v);
+
+/// Applies AgX to straight RGB @p rgb in place; the result is clamped to 0..1.
+void applyAgx(const AgxValues& v, float rgb[3]);
+
 /// One lift / gamma / gain transfer: pow(max(gain * (x + lift * (1 - x)), 0), 2^(-2 gamma)).
 [[nodiscard]] float liftGammaGain(float x, float lift, float gamma, float gain);
 

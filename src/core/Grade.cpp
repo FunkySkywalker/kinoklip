@@ -215,6 +215,8 @@ double defaultValue(QStringView key)
         return 1.0;
     if (key == Pivot)
         return 0.435; // Resolve's default contrast pivot (log-ish mid grey)
+    if (key.startsWith(u"agx"))
+        return 0.0;
     if (key.startsWith(u"mixer")) {
         if (key == MixerRR || key == MixerGG || key == MixerBB)
             return 1.0;
@@ -249,6 +251,17 @@ const QVector<QString>& rgbMixerKeys()
     return keys;
 }
 
+const QVector<QString>& agxKeys()
+{
+    static const QVector<QString> keys = {AgxOn, AgxInput, AgxExposure, AgxLook, AgxOutput};
+    return keys;
+}
+
+bool isAgxKey(QStringView key)
+{
+    return key.startsWith(u"agx");
+}
+
 bool isRgbMixerKey(QStringView key)
 {
     return key.startsWith(u"mixer");
@@ -267,7 +280,7 @@ const QVector<QString>& allKeys()
         BlurRatio, BlurScaling, SharpRadiusR, SharpRadiusG, SharpRadiusB, SharpRatio, SharpScaling,
         SharpCoring, SharpLevel, MistRadius, MistRatio, MistScaling, MistMix, MixerRR, MixerRG, MixerRB,
         MixerGR, MixerGG, MixerGB, MixerBR, MixerBG, MixerBB, MixerMonoR, MixerMonoG, MixerMonoB,
-        MixerMono, MixerPreserve};
+        MixerMono, MixerPreserve, AgxOn, AgxInput, AgxExposure, AgxLook, AgxOutput};
     return keys;
 }
 
@@ -315,6 +328,11 @@ QString label(const QString& key)
         {&MixerMonoB, QT_TRANSLATE_NOOP("kk::gradekeys", "Monochrome Blue")},
         {&MixerMono, QT_TRANSLATE_NOOP("kk::gradekeys", "Monochrome")},
         {&MixerPreserve, QT_TRANSLATE_NOOP("kk::gradekeys", "Preserve Luminance")},
+        {&AgxOn, QT_TRANSLATE_NOOP("kk::gradekeys", "AgX")},
+        {&AgxInput, QT_TRANSLATE_NOOP("kk::gradekeys", "AgX Input")},
+        {&AgxExposure, QT_TRANSLATE_NOOP("kk::gradekeys", "AgX Exposure")},
+        {&AgxLook, QT_TRANSLATE_NOOP("kk::gradekeys", "AgX Look")},
+        {&AgxOutput, QT_TRANSLATE_NOOP("kk::gradekeys", "AgX Output")},
         {&Contrast, QT_TRANSLATE_NOOP("kk::gradekeys", "Contrast")},
         {&Pivot, QT_TRANSLATE_NOOP("kk::gradekeys", "Pivot")},
         {&Saturation, QT_TRANSLATE_NOOP("kk::gradekeys", "Saturation")},
@@ -342,8 +360,16 @@ std::pair<double, double> range(const QString& key)
         return {0.0, 4.0};
     if (key == Pivot || key == LumMix || key == Mix || isBlurKey(key))
         return {0.0, 1.0};
-    if (key == MixerMono || key == MixerPreserve)
+    if (key == MixerMono || key == MixerPreserve || key == AgxOn)
         return {0.0, 1.0};
+    if (key == AgxInput)
+        return {0.0, double(int(AgxInput::Count) - 1)};
+    if (key == AgxLook)
+        return {0.0, double(int(AgxLook::Count) - 1)};
+    if (key == AgxOutput)
+        return {0.0, double(int(AgxOutput::Count) - 1)};
+    if (key == AgxExposure)
+        return {-8.0, 8.0};
     if (isRgbMixerKey(key))
         return {-2.0, 2.0};
     if (key == Hue)
@@ -621,13 +647,15 @@ bool isNodeIdentity(const GradeNode& node, int64_t localFrame)
         return false;
     for (const QString& key : gradekeys::allKeys()) {
         if (key == gradekeys::Pivot || key == gradekeys::LumMix || key == gradekeys::Mix
-            || gradekeys::isBlurKey(key) || gradekeys::isRgbMixerKey(key))
-            continue; // only matter together with another value (blur, mixer: checked below)
+            || gradekeys::isBlurKey(key) || gradekeys::isRgbMixerKey(key)
+            || gradekeys::isAgxKey(key))
+            continue; // only matter together with another value (blur, mixer, AgX: below)
         if (node.value(key, localFrame) != gradekeys::defaultValue(key))
             return false;
     }
     return !grademath::BlurValues::at(node, localFrame, 1080.0).active()
-        && grademath::MixerValues::at(node, localFrame).isIdentity();
+        && grademath::MixerValues::at(node, localFrame).isIdentity()
+        && !grademath::AgxValues::at(node, localFrame).on;
 }
 
 bool isIdentity(const ClipGrade& grade, int64_t localFrame)
@@ -651,6 +679,18 @@ quint64 initialize(ClipGrade& grade)
     grade.nodes.append(n);
     grade.output = n.id;
     return n.id;
+}
+
+ClipGrade toneMapGrade(const ToneMap& map)
+{
+    ClipGrade grade;
+    if (!map.agx)
+        return grade;
+    const quint64 id = initialize(grade);
+    GradeNode* n = grade.node(id);
+    n->params.setBase(gradekeys::AgxOn, 1.0);
+    n->params.setBase(gradekeys::AgxLook, double(int(map.look)));
+    return grade;
 }
 
 quint64 addSerialNode(ClipGrade& grade, quint64 after)

@@ -129,7 +129,16 @@ namespace kk::serialization {
 ///   corner points) and it may carry "shapeKeys" ([{"frame", "points"}], the animated shape).
 ///   Files of versions 1 - 20 have none and load unchanged; older builds refuse version 21
 ///   instead of silently showing a circle where a curve was drawn.
-inline constexpr int kFormatVersion = 21;
+/// - 22 (agx branch): output tone mapping. The "project" object and each timeline may carry
+///   "toneMap" ({"mode": "agx", "look": "punchy" | "golden" | "greyscale"}; absent = none), and a
+///   grade node may carry the "agx..." parameters. Files of versions 1 - 21 have none and look
+///   exactly as before; older builds refuse version 22 instead of silently showing the
+///   untoned picture.
+inline constexpr int kFormatVersion = 22;
+
+/// The "toneMap" object of a project or timeline, and back (unknown or missing = none).
+[[nodiscard]] QJsonObject toneMapToJson(const ToneMap& map);
+[[nodiscard]] ToneMap toneMapFromJson(const QJsonObject& o);
 
 /// Encodes one keyframe: {"frame", "value"} plus "in" / "out" / "hold" when not default.
 [[nodiscard]] QJsonObject keyframeToJson(const Keyframe& key);

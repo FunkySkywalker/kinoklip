@@ -287,6 +287,33 @@ GradeTrack trackFromJson(const QJsonObject& o)
 
 } // namespace
 
+QJsonObject toneMapToJson(const ToneMap& map)
+{
+    QJsonObject o;
+    if (!map.agx)
+        return o;
+    o[QLatin1String("mode")] = QLatin1String("agx");
+    static const char* const looks[] = {"none", "punchy", "golden", "greyscale"};
+    o[QLatin1String("look")] = QLatin1String(looks[std::clamp(int(map.look), 0, 3)]);
+    return o;
+}
+
+ToneMap toneMapFromJson(const QJsonObject& o)
+{
+    ToneMap map;
+    if (o.value(QLatin1String("mode")).toString() != QLatin1String("agx"))
+        return map;
+    map.agx = true;
+    const QString look = o.value(QLatin1String("look")).toString();
+    if (look == QLatin1String("punchy"))
+        map.look = AgxLook::Punchy;
+    else if (look == QLatin1String("golden"))
+        map.look = AgxLook::Golden;
+    else if (look == QLatin1String("greyscale"))
+        map.look = AgxLook::Greyscale;
+    return map;
+}
+
 QJsonObject gradeToJson(const ClipGrade& grade)
 {
     QJsonArray nodes;

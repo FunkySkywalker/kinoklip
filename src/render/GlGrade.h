@@ -37,6 +37,7 @@ private:
         GLint lift = -1, gamma = -1, gain = -1, offset = -1;
         GLint contrast = -1, pivot = -1, saturation = -1, temperature = -1, tint = -1;
         GLint lumMix = -1, hue = -1, curveMask = -1, mixer = -1, mixM = -1, mixGrey = -1;
+        GLint agx = -1, agxIn = -1, agxLook = -1, agxOut = -1, agxExp = -1;
         GLint lutMode = -1, lutN = -1, lutMin = -1, lutMax = -1;
         GLint keyed = -1, mix = -1;
         GLint qual = -1, qualInvert = -1, qualUse = -1, qualHue = -1, qualSat = -1, qualLum = -1;

@@ -46,6 +46,9 @@ struct ProjectSettings
     QString stdAudioTransition;
     /// Standard transition length in frames; 0 = follow Preferences > Editing (old projects).
     int64_t stdTransitionFrames = 0;
+    /// Output tone mapping (Project Settings > Color Management), mirrored into every
+    /// timeline's TimelineData::toneMap. Off by default (also in files before format 22).
+    ToneMap toneMap;
 
     friend bool operator==(const ProjectSettings&, const ProjectSettings&) = default;
 };
@@ -397,6 +400,7 @@ public:
         QString stdVideoTransition; ///< ProjectSettings::stdVideoTransition (empty = default)
         QString stdAudioTransition; ///< ProjectSettings::stdAudioTransition (empty = default)
         int64_t stdTransitionFrames = 0; ///< ProjectSettings::stdTransitionFrames
+        ToneMap toneMap; ///< ProjectSettings::toneMap
         friend bool operator==(const Format&, const Format&) = default;
     };
     /// Restores a complete state (undo commands). @p primary: the timeline the step was made

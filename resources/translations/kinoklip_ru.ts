@@ -2900,6 +2900,101 @@ The program was probably closed by the system because the computer ran out of me
     </message>
 </context>
 <context>
+    <name>kk::AgxPanel</name>
+    <message>
+        <source>Enable AgX</source>
+        <translation>Включить AgX</translation>
+    </message>
+    <message>
+        <source>Tone map this node&apos;s picture with AgX, Blender&apos;s view transform: it compresses bright highlights smoothly instead of clipping them. It runs after the node&apos;s other corrections.</source>
+        <translation>Применяет к изображению этого узла тональное отображение AgX, преобразование вида из Blender: яркие света плавно сжимаются, а не обрезаются. Выполняется после остальных коррекций узла.</translation>
+    </message>
+    <message>
+        <source>Rec.709 (gamma 2.4)</source>
+        <translation>Rec.709 (гамма 2,4)</translation>
+    </message>
+    <message>
+        <source>sRGB</source>
+        <translation>sRGB</translation>
+    </message>
+    <message>
+        <source>Linear</source>
+        <translation>Линейная</translation>
+    </message>
+    <message>
+        <source>Apple Log</source>
+        <translation>Apple Log</translation>
+    </message>
+    <message>
+        <source>S-Log3</source>
+        <translation>S-Log3</translation>
+    </message>
+    <message>
+        <source>V-Log</source>
+        <translation>V-Log</translation>
+    </message>
+    <message>
+        <source>LogC3 (EI 800)</source>
+        <translation>LogC3 (EI 800)</translation>
+    </message>
+    <message>
+        <source>Input</source>
+        <translation>Вход</translation>
+    </message>
+    <message>
+        <source>What the numbers of the picture mean. Rec.709 (gamma 2.4) is ordinary video. A camera log is undone first; only its curve is handled, the colours are taken as Rec.709.</source>
+        <translation>Что означают числа изображения. Rec.709 (гамма 2,4) — обычное видео. Лог камеры сначала снимается; обрабатывается только его кривая, цвета считаются Rec.709.</translation>
+    </message>
+    <message>
+        <source> stops</source>
+        <translation> ступ.</translation>
+    </message>
+    <message>
+        <source>Exposure</source>
+        <translation>Экспозиция</translation>
+    </message>
+    <message>
+        <source>Brightens (+) or darkens (-) the linear picture in stops before AgX. Each stop doubles or halves the light.</source>
+        <translation>Осветляет (+) или затемняет (-) линейное изображение в ступенях перед AgX. Каждая ступень удваивает или вдвое уменьшает свет.</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Нет</translation>
+    </message>
+    <message>
+        <source>Punchy</source>
+        <translation>Яркий</translation>
+    </message>
+    <message>
+        <source>Golden</source>
+        <translation>Золотистый</translation>
+    </message>
+    <message>
+        <source>Greyscale</source>
+        <translation>Оттенки серого</translation>
+    </message>
+    <message>
+        <source>Look</source>
+        <translation>Внешний вид</translation>
+    </message>
+    <message>
+        <source>A creative grade on top of AgX: Punchy adds contrast and colour, Golden warms the picture, Greyscale removes the colour. None is plain AgX.</source>
+        <translation>Творческий вид поверх AgX: «Яркий» добавляет контраст и цвет, «Золотистый» согревает изображение, «Оттенки серого» убирает цвет. «Нет» — чистый AgX.</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>Вывод</translation>
+    </message>
+    <message>
+        <source>How the result is encoded: Rec.709 for video shown on a gamma 2.4 screen, sRGB for pictures and the web.</source>
+        <translation>Как кодируется результат: Rec.709 для видео на экране с гаммой 2,4, sRGB для картинок и веба.</translation>
+    </message>
+    <message>
+        <source>Reset AgX</source>
+        <translation>Сбросить AgX</translation>
+    </message>
+</context>
+<context>
     <name>kk::AiModelDialog</name>
     <message>
         <source>AI Models</source>
@@ -8745,6 +8840,14 @@ Thank you for watching</source>
     <message>
         <source>Mix the red, green and blue channels of the current node, or make it monochrome.</source>
         <translation>Смешивает красный, зелёный и синий каналы текущего нода или делает его монохромным.</translation>
+    </message>
+    <message>
+        <source>AgX</source>
+        <translation>AgX</translation>
+    </message>
+    <message>
+        <source>Tone map the current node with AgX, Blender&apos;s view transform.</source>
+        <translation>Применить к текущему узлу AgX, преобразование вида из Blender.</translation>
     </message>
     <message>
         <source>Reset</source>
@@ -22894,6 +22997,10 @@ Estimated size after compacting: %3</source>
         <translation>Звук</translation>
     </message>
     <message>
+        <source>Color Management</source>
+        <translation>Управление цветом</translation>
+    </message>
+    <message>
         <source>General Options</source>
         <translation>Общие параметры</translation>
     </message>
@@ -23084,6 +23191,42 @@ Estimated size after compacting: %3</source>
     <message>
         <source>The mixer works in 32-bit float; render bit depth is set on the Deliver page.</source>
         <translation>Микшер работает в 32‑битном float; разрядность рендера задаётся на странице Вывода.</translation>
+    </message>
+    <message>
+        <source>Output Tone Mapping</source>
+        <translation>Тональное отображение вывода</translation>
+    </message>
+    <message>
+        <source>AgX</source>
+        <translation>AgX</translation>
+    </message>
+    <message>
+        <source>A tone mapping applied to the whole timeline picture after the grades, in the viewer and in every render. None leaves the picture as graded. AgX is Blender&apos;s view transform: it rolls bright highlights off smoothly instead of clipping them.</source>
+        <translation>Тональное отображение всего изображения таймлайна после коррекций, в просмотре и в каждом рендере. «Нет» оставляет изображение как есть после коррекции. AgX — преобразование вида из Blender: яркие света плавно сходят на нет, а не обрезаются.</translation>
+    </message>
+    <message>
+        <source>Output tone mapping</source>
+        <translation>Тональное отображение вывода</translation>
+    </message>
+    <message>
+        <source>Punchy</source>
+        <translation>Яркий</translation>
+    </message>
+    <message>
+        <source>Golden</source>
+        <translation>Золотистый</translation>
+    </message>
+    <message>
+        <source>Greyscale</source>
+        <translation>Оттенки серого</translation>
+    </message>
+    <message>
+        <source>A creative grade on top of AgX: Punchy adds contrast and colour, Golden warms the picture, Greyscale removes the colour. None is plain AgX.</source>
+        <translation>Творческий вид поверх AgX: «Яркий» добавляет контраст и цвет, «Золотистый» согревает изображение, «Оттенки серого» убирает цвет. «Нет» — чистый AgX.</translation>
+    </message>
+    <message>
+        <source>AgX look</source>
+        <translation>Вид AgX</translation>
     </message>
     <message>
         <source>The name of the project, shown in the Project Manager and in the window title.</source>
@@ -29581,6 +29724,26 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
     <message>
         <source>Preserve Luminance</source>
         <translation>Сохранять яркость</translation>
+    </message>
+    <message>
+        <source>AgX</source>
+        <translation>AgX</translation>
+    </message>
+    <message>
+        <source>AgX Input</source>
+        <translation>Вход AgX</translation>
+    </message>
+    <message>
+        <source>AgX Exposure</source>
+        <translation>Экспозиция AgX</translation>
+    </message>
+    <message>
+        <source>AgX Look</source>
+        <translation>Вид AgX</translation>
+    </message>
+    <message>
+        <source>AgX Output</source>
+        <translation>Вывод AgX</translation>
     </message>
     <message>
         <source>Contrast</source>

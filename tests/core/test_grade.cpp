@@ -955,6 +955,165 @@ private slots:
         QCOMPARE(gk::range(gk::MixerRG), (std::pair<double, double> {-2.0, 2.0}));
     }
 
+    // ---- AgX ----
+
+    void agxKnownValues()
+    {
+        // Reference numbers from an independent Python port of the minimal AgX implementation
+        // (Linear in, sRGB out). Mid grey 0.18 lands on 0.4967, as in Blender's AgX.
+        struct Case
+        {
+            AgxLook look;
+            AgxOutput out;
+            float in[3];
+            float want[3];
+        };
+        const Case cases[] = {
+            {AgxLook::None, AgxOutput::Srgb, {0, 0, 0}, {0, 0, 0}},
+            {AgxLook::None, AgxOutput::Srgb, {0.18f, 0.18f, 0.18f}, {0.49668f, 0.49674f, 0.49675f}},
+            {AgxLook::None, AgxOutput::Srgb, {1, 1, 1}, {0.78675f, 0.78688f, 0.78689f}},
+            {AgxLook::None, AgxOutput::Srgb, {16, 16, 16}, {0.99761f, 0.99782f, 0.99783f}},
+            {AgxLook::None, AgxOutput::Srgb, {1, 0, 0}, {0.86098f, 0.23016f, 0.23032f}},
+            {AgxLook::None, AgxOutput::Srgb, {0, 1, 0}, {0.31138f, 0.83109f, 0.31146f}},
+            {AgxLook::None, AgxOutput::Srgb, {0, 0, 1}, {0.31278f, 0.31274f, 0.83064f}},
+            {AgxLook::None, AgxOutput::Srgb, {0.5f, 0.2f, 0.1f}, {0.69378f, 0.52145f, 0.41084f}},
+            {AgxLook::Punchy, AgxOutput::Srgb, {0.18f, 0.18f, 0.18f}, {0.38881f, 0.38884f, 0.38884f}},
+            {AgxLook::Punchy, AgxOutput::Srgb, {0.5f, 0.2f, 0.1f}, {0.67498f, 0.40441f, 0.24327f}},
+            {AgxLook::Golden, AgxOutput::Srgb, {0.18f, 0.18f, 0.18f}, {0.58404f, 0.53794f, 0.34093f}},
+            {AgxLook::Golden, AgxOutput::Srgb, {0.5f, 0.2f, 0.1f}, {0.73161f, 0.56106f, 0.30952f}},
+            {AgxLook::Greyscale, AgxOutput::Srgb, {0.5f, 0.2f, 0.1f}, {0.54282f, 0.54294f, 0.54294f}},
+            {AgxLook::None, AgxOutput::Rec709, {0.18f, 0.18f, 0.18f}, {0.5265f, 0.52657f, 0.52657f}},
+            {AgxLook::None, AgxOutput::Rec709, {1, 0, 0}, {0.87178f, 0.26013f, 0.2603f}},
+        };
+        for (const Case& c : cases) {
+            AgxValues v;
+            v.on = true;
+            v.input = AgxInput::Linear;
+            v.look = c.look;
+            v.output = c.out;
+            float rgb[3] = {c.in[0], c.in[1], c.in[2]};
+            applyAgx(v, rgb);
+            for (int i = 0; i < 3; ++i)
+                QVERIFY2(std::abs(rgb[i] - c.want[i]) < 2e-3f,
+                    qPrintable(QStringLiteral("look %1 out %2 in %3 channel %4: %5 vs %6")
+                            .arg(int(c.look)).arg(int(c.out)).arg(c.in[0]).arg(i)
+                            .arg(rgb[i]).arg(c.want[i])));
+        }
+        // Exposure: one stop up on 0.09 equals 0.18.
+        AgxValues up;
+        up.on = true;
+        up.input = AgxInput::Linear;
+        up.output = AgxOutput::Srgb;
+        up.exposure = 1.0f;
+        float half[3] = {0.09f, 0.09f, 0.09f};
+        applyAgx(up, half);
+        QVERIFY(std::abs(half[1] - 0.49674f) < 2e-3f);
+    }
+
+    void agxInputTransfers()
+    {
+        // The public reference points: 18 % grey encodes to these code values.
+        QVERIFY(std::abs(agxLinearize(AgxInput::SLog3, 420.0f / 1023.0f) - 0.18f) < 1e-3f);
+        QVERIFY(std::abs(agxLinearize(AgxInput::LogC3, 0.391007f) - 0.18f) < 1e-3f);
+        QVERIFY(std::abs(agxLinearize(AgxInput::VLog, 0.423311f) - 0.18f) < 1e-3f);
+        QVERIFY(std::abs(agxLinearize(AgxInput::AppleLog, 0.488300f) - 0.18f) < 2e-3f);
+        QVERIFY(std::abs(agxLinearize(AgxInput::Rec709, 0.5f) - std::pow(0.5f, 2.4f)) < 1e-6f);
+        QVERIFY(std::abs(agxLinearize(AgxInput::Srgb, 0.5f) - 0.21404f) < 1e-4f);
+        QCOMPARE(agxLinearize(AgxInput::Linear, 0.3f), 0.3f);
+        // Every log is continuous at its toe and rises with the code value.
+        for (const AgxInput in : {AgxInput::AppleLog, AgxInput::SLog3, AgxInput::VLog, AgxInput::LogC3}) {
+            float last = agxLinearize(in, 0.0f);
+            for (int i = 1; i <= 100; ++i) {
+                const float now = agxLinearize(in, float(i) / 100.0f);
+                QVERIFY(now >= last);
+                last = now;
+            }
+        }
+    }
+
+    void agxNodeParametersAndSerialization()
+    {
+        GradeNode n;
+        QVERIFY(go::isNodeIdentity(n, 0));
+        n.params.setBase(gk::AgxOn, 1.0);
+        QVERIFY(!go::isNodeIdentity(n, 0));
+        n.params.setBase(gk::AgxLook, 2.0);
+        n.params.setBase(gk::AgxInput, 3.0);
+        n.params.setBase(gk::AgxExposure, -1.5);
+        n.params.setBase(gk::AgxOutput, 1.0);
+        const AgxValues v = AgxValues::at(n, 0);
+        QVERIFY(v.on);
+        QCOMPARE(int(v.look), int(AgxLook::Golden));
+        QCOMPARE(int(v.input), int(AgxInput::AppleLog));
+        QCOMPARE(int(v.output), int(AgxOutput::Srgb));
+        QCOMPARE(v.exposure, -1.5f);
+        n.params.setBase(gk::AgxLook, 99.0); // out of range values are clamped
+        QCOMPARE(int(AgxValues::at(n, 0).look), int(AgxLook::Greyscale));
+        ClipGrade g;
+        const quint64 id = go::initialize(g);
+        g.node(id)->params = n.params;
+        QCOMPARE(serialization::gradeFromJson(serialization::gradeToJson(g)), g);
+        for (const QString& key : gk::agxKeys()) {
+            QVERIFY(gk::allKeys().contains(key));
+            QVERIFY(gk::label(key) != key);
+        }
+        QVERIFY(go::resetNode(g, id));
+        QVERIFY(!AgxValues::at(*g.node(id), 0).on);
+        // The tone mapping grade: empty while off.
+        QVERIFY(go::toneMapGrade(ToneMap {}).isEmpty());
+        ToneMap on;
+        on.agx = true;
+        on.look = AgxLook::Punchy;
+        const ClipGrade t = go::toneMapGrade(on);
+        QVERIFY(!go::isIdentity(t, 0));
+        QCOMPARE(int(AgxValues::at(t.nodes[0], 0).look), int(AgxLook::Punchy));
+    }
+
+    void toneMapProjectRoundTrip()
+    {
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        Project p;
+        QCOMPARE(p.settings().toneMap, ToneMap {}); // off by default
+        ProjectSettings s = p.settings();
+        s.toneMap.agx = true;
+        s.toneMap.look = AgxLook::Golden;
+        p.setSettings(s);
+        QCOMPARE(p.settings().toneMap, s.toneMap);
+        QVERIFY(p.timeline()->data().toneMap.agx); // reaches the timelines
+        p.undo();
+        QVERIFY(!p.settings().toneMap.agx);
+        QVERIFY(!p.timeline()->data().toneMap.agx);
+        p.redo();
+        const QString path = dir.filePath(QStringLiteral("agx.kkproj"));
+        QVERIFY(p.save(path));
+        Project back;
+        QString error;
+        QVERIFY2(back.load(path, &error), qPrintable(error));
+        QCOMPARE(back.settings().toneMap, s.toneMap);
+        QCOMPARE(back.timeline()->data().toneMap, s.toneMap);
+        // A new timeline follows the project.
+        const quint64 uid = back.createTimeline(QStringLiteral("Second"), QString(), 1, 1);
+        QVERIFY(back.timelineData(uid)->toneMap.agx);
+        // A file saved while the mapping is off has no key and loads as off; so does a file
+        // from before format 22.
+        Project plain;
+        const QString plainPath = dir.filePath(QStringLiteral("plain.kkproj"));
+        QVERIFY(plain.save(plainPath));
+        QFile file(plainPath);
+        QVERIFY(file.open(QIODevice::ReadOnly));
+        QJsonObject root = QJsonDocument::fromJson(file.readAll()).object();
+        file.close();
+        QVERIFY(!root.value(QLatin1String("project")).toObject().contains(QLatin1String("toneMap")));
+        root[QLatin1String("formatVersion")] = 21;
+        QVERIFY(file.open(QIODevice::WriteOnly | QIODevice::Truncate));
+        file.write(QJsonDocument(root).toJson());
+        file.close();
+        Project old;
+        QVERIFY2(old.load(plainPath, &error), qPrintable(error));
+        QCOMPARE(old.settings().toneMap, ToneMap {});
+    }
+
     // ---- Serialization ----
 
     void serializationRoundTrip()

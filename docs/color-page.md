@@ -79,6 +79,9 @@ Decisions:
 - **RGB Mixer palette** (spec 109): `G` = primaries -> RGB Mixer -> curves -> LUT; the mixer is a 3 x 3
   matrix (out = M in), or with Monochrome one grey weighting of R, G, B; Preserve Luminance rescales
   to the input's Rec. 709 luma. The values are node params (`mixer*` keys), no format change.
+- **AgX palette** (spec 112): `G` = primaries -> RGB Mixer -> curves -> LUT -> AgX (input decode, exposure, AgX curve,
+  look, output encode; clamped to 0..1). The values are node params (`agx*` keys). The project's output tone
+  mapping (`TimelineData::toneMap`) runs the same code as one extra corrector after the timeline grade.
 - **Tracker palette** (spec 107): the node's tracker data (`GradeTrack`) moves, scales and turns
   every window of the node about the track's pivot before the window matte is evaluated
   (`grademath::trackedWindowGeometry`, used by the GPU pass, the CPU reference and the overlay).

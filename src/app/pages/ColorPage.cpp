@@ -408,12 +408,16 @@ QWidget* ColorPage::buildPalettes()
     m_rgbMixer = new RgbMixerPanel(m_session);
     setPanelInfo(m_rgbMixer, tr("RGB Mixer"),
         tr("Mix the red, green and blue channels of the current node, or make it monochrome."));
+    m_agx = new AgxPanel(m_session);
+    setPanelInfo(m_agx, tr("AgX"),
+        tr("Tone map the current node with AgX, Blender's view transform."));
     m_paletteStack = new QStackedWidget;
     m_paletteStack->setObjectName(QStringLiteral("ColorPaletteStack"));
     for (QWidget* w : {static_cast<QWidget*>(m_primaries), static_cast<QWidget*>(m_curves),
              static_cast<QWidget*>(m_qualifier), static_cast<QWidget*>(m_windows),
              static_cast<QWidget*>(m_luts), static_cast<QWidget*>(m_blur),
-             static_cast<QWidget*>(m_tracker), static_cast<QWidget*>(m_rgbMixer)})
+             static_cast<QWidget*>(m_tracker), static_cast<QWidget*>(m_rgbMixer),
+             static_cast<QWidget*>(m_agx)})
         m_paletteStack->addWidget(w);
     auto* box = new QWidget;
     box->setObjectName(QStringLiteral("ColorPalettes"));
@@ -423,7 +427,7 @@ QWidget* ColorPage::buildPalettes()
     m_paletteButtons = new QButtonGroup(this);
     QWidget* bar = tabRow(m_paletteButtons,
         {tr("Primaries"), tr("Curves"), tr("Qualifier"), tr("Windows"), tr("LUTs"), tr("Blur"), tr("Tracker"),
-            tr("RGB Mixer")},
+            tr("RGB Mixer"), tr("AgX")},
         QStringLiteral("ColorPaletteTab_"), box);
     // The primaries reset sits at the right of the bar (like Resolve's palette reset).
     auto* reset = new QToolButton(bar);
@@ -463,6 +467,9 @@ QWidget* ColorPage::buildPalettes()
             break;
         case Palette::RgbMixer:
             m_rgbMixer->resetAll();
+            break;
+        case Palette::Agx:
+            m_agx->resetAll();
             break;
         }
     });
@@ -915,7 +922,7 @@ void ColorPage::restoreLayout(const QSettings& settings)
     m_rows->restoreState(settings.value(QStringLiteral("rows")).toByteArray());
     m_top->restoreState(settings.value(QStringLiteral("top")).toByteArray());
     m_bottom->restoreState(settings.value(QStringLiteral("bottom")).toByteArray());
-    showPalette(Palette(std::clamp(settings.value(QStringLiteral("palette"), 0).toInt(), 0, 7)));
+    showPalette(Palette(std::clamp(settings.value(QStringLiteral("palette"), 0).toInt(), 0, 8)));
     m_primaries->setBarsMode(settings.value(QStringLiteral("bars"), false).toBool());
     const int right = std::clamp(settings.value(QStringLiteral("rightTab"), 0).toInt(), 0, 1);
     m_rightStack->setCurrentIndex(right);

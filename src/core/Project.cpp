@@ -193,7 +193,7 @@ ProjectSettings Project::settings() const
 {
     return ProjectSettings {m_name, m_format.width, m_format.height, m_format.fps,
         m_format.retimeProcess, m_format.timelineStart, standardTransitionId(false),
-        standardTransitionId(true), standardTransitionFrames()};
+        standardTransitionId(true), standardTransitionFrames(), m_format.toneMap};
 }
 
 namespace {
@@ -261,7 +261,8 @@ void Project::setSettings(const ProjectSettings& settings)
         storedId(settings.stdAudioTransition, true),
         settings.stdTransitionFrames == standardTransitionFrames()
             ? scaledTransitionFrames(m_format.stdTransitionFrames, m_format.fps, fps)
-            : std::max<int64_t>(0, settings.stdTransitionFrames)};
+            : std::max<int64_t>(0, settings.stdTransitionFrames),
+        settings.toneMap};
     if (format == m_format)
         return;
     const Rational oldFps = m_format.fps;
@@ -272,6 +273,7 @@ void Project::setSettings(const ProjectSettings& settings)
         const auto data = timelineData(uid);
         auto copy = std::make_shared<TimelineData>(*data);
         copy->retimeProcess = format.retimeProcess; // project-wide, every timeline
+        copy->toneMap = format.toneMap;
         if (data->useProjectSettings) {
             copy->width = format.width;
             copy->height = format.height;
@@ -395,6 +397,8 @@ QJsonObject Project::toJson(const SaveSnapshot& snap, const QString& path)
         {QLatin1String("timelineStart"), qint64(snap.format.timelineStart)}};
     {
         QJsonObject p = root.value(QLatin1String("project")).toObject();
+        if (snap.format.toneMap.agx) // format 22
+            p[QLatin1String("toneMap")] = serialization::toneMapToJson(snap.format.toneMap);
         if (!snap.format.stdVideoTransition.isEmpty())
             p[QLatin1String("stdVideoTransition")] = snap.format.stdVideoTransition;
         if (!snap.format.stdAudioTransition.isEmpty())
@@ -527,6 +531,8 @@ bool Project::fromJson(const QJsonObject& root, int version, const QDir& project
         format.stdAudioTransition = project.value(QLatin1String("stdAudioTransition")).toString();
         format.stdTransitionFrames
             = std::max<qint64>(0, project.value(QLatin1String("stdTransitionFrames")).toInteger(0));
+        // Format <= 21: no output tone mapping.
+        format.toneMap = serialization::toneMapFromJson(project.value(QLatin1String("toneMap")).toObject());
     }
     for (const QJsonValue& v : root.value(QLatin1String("timelineViews")).toArray()) {
         const QJsonObject o = v.toObject();

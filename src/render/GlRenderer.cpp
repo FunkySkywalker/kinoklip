@@ -671,6 +671,17 @@ void GlRenderer::render(RenderJob& job)
         }
     } else {
         accumulator = compositeTimeline(fc);
+        // Output tone mapping (Project Settings > Color Management): after the timeline grade,
+        // before the captions; nothing is touched while it is off.
+        if (fc.grades && tl.toneMap.agx) {
+            const ClipGrade toneMap = gradeops::toneMapGrade(tl.toneMap);
+            grademath::PictureGeometry g;
+            g.width = fc.outSize.width();
+            g.height = fc.outSize.height();
+            if (PooledTarget mapped
+                = m_grade.apply(*m_kit, *accumulator, prepareGrade(toneMap, fc.frame, g)))
+                accumulator = std::move(mapped);
+        }
         if (fc.subtitles && !tl.subtitleTracks.empty())
             drawSubtitles(fc, *accumulator);
     }

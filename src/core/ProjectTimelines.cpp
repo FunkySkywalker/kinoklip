@@ -557,6 +557,7 @@ quint64 Project::createTimeline(const QString& name, const QString& binId, int v
         std::max(1, audioTracks));
     t.uid = m_nextTimelineUid++;
     t.retimeProcess = m_format.retimeProcess;
+    t.toneMap = m_format.toneMap;
     if (monoAudio) {
         for (TrackData& track : t.audioTracks)
             track.mix.mono = true;
@@ -581,6 +582,7 @@ quint64 Project::importTimeline(TimelineData data, const QString& binId)
     data.width = m_format.width;
     data.height = m_format.height;
     data.retimeProcess = m_format.retimeProcess;
+    data.toneMap = m_format.toneMap;
     data.useProjectSettings = data.fps == m_format.fps;
     const quint64 uid = data.uid;
     beginEdit(tr("Import Timeline"));

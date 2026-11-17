@@ -290,4 +290,36 @@ private:
     bool m_refreshing = false;
 };
 
+/// The AgX palette: the selected node tone maps the picture with AgX (Blender's view transform)
+/// as the last of its corrections. An enable box, the Input (what the numbers of the picture
+/// mean: Rec. 709 video, sRGB, Linear or a camera log), the Exposure in stops, the Look and the
+/// Output encoding. They edit the selected node's gradekeys; the palette bar's Reset sets all
+/// of them back.
+class AgxPanel : public QWidget
+{
+    Q_OBJECT
+public:
+    explicit AgxPanel(ColorSession* session, QWidget* parent = nullptr);
+
+    [[nodiscard]] QCheckBox* enableBox() const { return m_on; }
+    [[nodiscard]] QComboBox* inputBox() const { return m_input; }
+    [[nodiscard]] QComboBox* lookBox() const { return m_look; }
+    [[nodiscard]] QComboBox* outputBox() const { return m_output; }
+    [[nodiscard]] ValueField* exposureField() const { return m_exposure; }
+    /// Sets every AgX parameter of the selected node back to its default.
+    void resetAll();
+
+private:
+    void setValueOf(const QString& key, double value);
+    void refresh();
+
+    QPointer<ColorSession> m_session;
+    QCheckBox* m_on = nullptr;
+    QComboBox* m_input = nullptr;
+    QComboBox* m_look = nullptr;
+    QComboBox* m_output = nullptr;
+    ValueField* m_exposure = nullptr;
+    bool m_refreshing = false;
+};
+
 } // namespace kk

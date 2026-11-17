@@ -311,6 +311,23 @@ class TestGradeRender : public QObject
                     {gk::MixerBR, 0.8}, {gk::Contrast, 1.2}})});
         }
         {
+            // AgX (spec 112): the default Rec. 709 input, a camera log, each look, sRGB output,
+            // an exposure, and after other corrections.
+            out.append({QStringLiteral("agx_base"), primariesGrade({{gk::AgxOn, 1.0}})});
+            out.append({QStringLiteral("agx_punchy"),
+                primariesGrade({{gk::AgxOn, 1.0}, {gk::AgxLook, 1.0}, {gk::AgxExposure, 0.5}})});
+            out.append({QStringLiteral("agx_golden_srgb"),
+                primariesGrade({{gk::AgxOn, 1.0}, {gk::AgxLook, 2.0}, {gk::AgxOutput, 1.0},
+                    {gk::AgxInput, 1.0}})});
+            out.append({QStringLiteral("agx_greyscale"),
+                primariesGrade({{gk::AgxOn, 1.0}, {gk::AgxLook, 3.0}})});
+            out.append({QStringLiteral("agx_slog3_after_primaries"),
+                primariesGrade({{gk::AgxOn, 1.0}, {gk::AgxInput, 4.0}, {gk::Saturation, 1.3},
+                    {gk::AgxExposure, -1.0}})});
+            out.append({QStringLiteral("agx_linear_applelog"),
+                primariesGrade({{gk::AgxOn, 1.0}, {gk::AgxInput, 3.0}})});
+        }
+        {
             ClipGrade g = primariesGrade({});
             g.nodes[0].lutPath = m_lut3d;
             out.append({QStringLiteral("lut3d_tetrahedral"), g});
@@ -514,6 +531,36 @@ private slots:
                 = maxDiff(render(*m_gpu, timelineWith(grade)), render(*m_cpu, timelineWith(grade)));
             qInfo("%s: GPU vs CPU backend max diff %d", qPrintable(name), d);
             QVERIFY2(d <= base + 3, qPrintable(name));
+        }
+    }
+
+    void outputToneMapping()
+    {
+        // The project's tone mapping runs after the timeline grade on both back ends and equals
+        // the same grade as a node; off, the picture is bit-identical.
+        for (Compositor* c : {m_gpu.get(), m_cpu.get()}) {
+            if (c == m_gpu.get() && !gpuReady())
+                continue;
+            TimelineData tl = timelineWith({});
+            const QImage plain = render(*c, tl);
+            tl.toneMap = ToneMap {};
+            QCOMPARE(render(*c, tl), plain);
+            tl.toneMap.agx = true;
+            tl.toneMap.look = AgxLook::Punchy;
+            const QImage mapped = render(*c, tl);
+            QVERIFY(maxDiff(mapped, plain) >= 10);
+            QImage reference = plain.copy();
+            applyGrade(gradeops::toneMapGrade(tl.toneMap), 0, reference);
+            QVERIFY(maxDiff(mapped, reference) <= 2);
+            // Bypassing the grades bypasses the mapping too.
+            QCOMPARE(render(*c, tl, true), plain);
+            // It follows the timeline grade.
+            ClipGrade grey = primariesGrade({{gk::Saturation, 0.0}});
+            TimelineData both = timelineWith({}, grey);
+            both.toneMap = tl.toneMap;
+            QImage chain = render(*c, timelineWith({}, grey));
+            applyGrade(gradeops::toneMapGrade(tl.toneMap), 0, chain);
+            QVERIFY(maxDiff(render(*c, both), chain) <= 2);
         }
     }
 

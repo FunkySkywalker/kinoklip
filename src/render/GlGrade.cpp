@@ -41,6 +41,9 @@ uniform mat3 uHue;
 uniform int uMixer;       // RGB Mixer: 0 off, else bit 0 on, bit 1 Monochrome, bit 2 Preserve Luminance
 uniform mat3 uMixM;       // row-major on the CPU (out = M * in)
 uniform vec3 uMixGrey;
+uniform int uAgx;         // AgX: 0 off, 1 on
+uniform int uAgxIn, uAgxLook, uAgxOut;
+uniform float uAgxExp;    // stops
 uniform int uCurveMask;
 uniform int uLutMode;     // 0 none, 1 1D, 2 3D trilinear, 3 3D tetrahedral
 uniform float uLutN;
@@ -127,6 +130,82 @@ vec3 mixer(vec3 c)
             o *= luma(c) / yOut;
     }
     return o;
+}
+
+// Mirrors grademath::applyAgx (CPU): the minimal AgX port (MIT, Missing Deadlines), constants
+// from Sobotka's AgX OCIO config. The matrices are written column by column, as GLSL wants.
+float agxLinear(float x)
+{
+    if (uAgxIn == 0)
+        return pow(max(x, 0.0), 2.4);
+    if (uAgxIn == 1)
+        return x <= 0.04045 ? x / 12.92 : pow((x + 0.055) / 1.055, 2.4);
+    if (uAgxIn == 3) {
+        float pt = 47.28711236 * (0.01 + 0.05641088) * (0.01 + 0.05641088);
+        return x >= pt ? exp2((x - 0.69336945) / 0.08550479) - 0.00964052
+                       : sqrt(max(x, 0.0) / 47.28711236) - 0.05641088;
+    }
+    if (uAgxIn == 4) {
+        if (x >= 171.2102946929 / 1023.0)
+            return pow(10.0, (x * 1023.0 - 420.0) / 261.5) * (0.18 + 0.01) - 0.01;
+        return (x * 1023.0 - 95.0) * 0.01125 / (171.2102946929 - 95.0);
+    }
+    if (uAgxIn == 5) {
+        if (x < 0.181)
+            return (x - 0.125) / 5.6;
+        return pow(10.0, (x - 0.598206) / 0.241514) - 0.00873;
+    }
+    if (uAgxIn == 6) {
+        if (x > 5.367655 * 0.010591 + 0.092809)
+            return (pow(10.0, (x - 0.385537) / 0.247190) - 0.052272) / 5.555556;
+        return (x - 0.092809) / 5.367655;
+    }
+    return x;
+}
+
+vec3 agxCurve(vec3 x)
+{
+    vec3 x2 = x * x;
+    vec3 x4 = x2 * x2;
+    return 15.5 * x4 * x2 - 40.14 * x4 * x + 31.96 * x4 - 6.868 * x2 * x + 0.4298 * x2
+        + 0.1191 * x - 0.00232;
+}
+
+vec3 agx(vec3 c)
+{
+    const mat3 inset = mat3(0.842479062253094, 0.0423282422610123, 0.0423756549057051,
+        0.0784335999999992, 0.878468636469772, 0.0784336,
+        0.0792237451477643, 0.0791661274605434, 0.879142973793104);
+    const mat3 outset = mat3(1.19687900512017, -0.0528968517574562, -0.0529716355144438,
+        -0.0980208811401368, 1.15190312990417, -0.0980434501171241,
+        -0.0990297440797205, -0.0989611768448433, 1.15107367264116);
+    const float minEv = -12.47393;
+    const float maxEv = 4.026069;
+    vec3 lin = vec3(agxLinear(c.r), agxLinear(c.g), agxLinear(c.b)) * exp2(uAgxExp);
+    vec3 e = clamp(log2(max(inset * lin, vec3(1e-10))), minEv, maxEv);
+    e = agxCurve((e - minEv) / (maxEv - minEv));
+    if (uAgxLook != 0) {
+        vec3 slope = vec3(1.0);
+        float power = 1.0;
+        float sat = 1.0;
+        if (uAgxLook == 1) {
+            power = 1.35;
+            sat = 1.4;
+        } else if (uAgxLook == 2) {
+            slope = vec3(1.0, 0.9, 0.5);
+            power = 0.8;
+            sat = 0.8;
+        } else {
+            sat = 0.0;
+        }
+        e = pow(max(e * slope, vec3(0.0)), vec3(power));
+        float y = luma(e);
+        e = vec3(y) + sat * (e - vec3(y));
+    }
+    vec3 o = max(outset * e, vec3(0.0));
+    if (uAgxOut == 0)
+        o = pow(pow(o, vec3(2.2)), vec3(1.0 / 2.4));
+    return min(o, vec3(1.0));
 }
 
 float curve(int index, float x)
@@ -379,6 +458,8 @@ vec3 correct(vec3 c)
             g = curves(g);
         if (uLutMode != 0)
             g = lut(g);
+        if (uAgx != 0)
+            g = agx(g);
     }
     return g;
 }
@@ -644,6 +725,11 @@ bool GlGrade::initialize(GlKit& kit, QString* why)
     m_u.mixer = u("uMixer");
     m_u.mixM = u("uMixM");
     m_u.mixGrey = u("uMixGrey");
+    m_u.agx = u("uAgx");
+    m_u.agxIn = u("uAgxIn");
+    m_u.agxLook = u("uAgxLook");
+    m_u.agxOut = u("uAgxOut");
+    m_u.agxExp = u("uAgxExp");
     m_u.curveMask = u("uCurveMask");
     m_u.lutMode = u("uLutMode");
     m_u.lutN = u("uLutN");
@@ -842,6 +928,11 @@ void GlGrade::drawCorrector(
         n.mixes ? (1 | (n.mixer.mono ? 2 : 0) | (n.mixer.preserveLum ? 4 : 0)) : 0);
     gl->glUniformMatrix3fv(m_u.mixM, 1, GL_TRUE, n.mixer.m); // row-major on the CPU
     gl->glUniform3f(m_u.mixGrey, n.mixer.grey[0], n.mixer.grey[1], n.mixer.grey[2]);
+    gl->glUniform1i(m_u.agx, n.agxOn ? 1 : 0);
+    gl->glUniform1i(m_u.agxIn, int(n.agx.input));
+    gl->glUniform1i(m_u.agxLook, int(n.agx.look));
+    gl->glUniform1i(m_u.agxOut, int(n.agx.output));
+    gl->glUniform1f(m_u.agxExp, n.agx.exposure);
     gl->glUniform1i(m_u.curveMask, n.curves ? n.curves->mask() : 0);
     int lutMode = 0;
     if (n.lut)

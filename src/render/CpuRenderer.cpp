@@ -80,6 +80,10 @@ public:
             image = compositionNodeImage(tl, *rq.compositionNode, out);
         } else {
             image = renderTimeline(tl, rq.frame, out);
+            // Output tone mapping (Project Settings > Color Management): after the timeline
+            // grade, before the captions; nothing is touched while it is off.
+            if (m_grades && tl.toneMap.agx)
+                applyGrade(gradeops::toneMapGrade(tl.toneMap), rq.frame, image);
             if (rq.subtitles && !tl.subtitleTracks.empty())
                 drawSubtitles(image, tl, rq.frame);
         }

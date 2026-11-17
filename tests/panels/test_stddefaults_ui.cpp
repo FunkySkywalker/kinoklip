@@ -103,6 +103,30 @@ private slots:
         QCOMPARE(f.project.standardTransitionId(false), QStringLiteral("cross_dissolve"));
     }
 
+    void colorManagementSectionSetsTheToneMapping()
+    {
+        PanelFixture f;
+        ProjectSettingsDialog dialog(&f.project);
+        QVERIFY(dialog.showSection(QStringLiteral("color")));
+        auto* mapping = dialog.findChild<QComboBox*>(QStringLiteral("ToneMapping"));
+        auto* look = dialog.findChild<QComboBox*>(QStringLiteral("ToneMappingLook"));
+        QVERIFY(mapping && look);
+        QCOMPARE(mapping->currentText(), QStringLiteral("None")); // the default
+        QVERIFY(!look->isEnabled());
+        QVERIFY(!mapping->toolTip().isEmpty() && !look->toolTip().isEmpty());
+        mapping->setCurrentIndex(mapping->findText(QStringLiteral("AgX")));
+        QVERIFY(look->isEnabled());
+        look->setCurrentIndex(look->findText(QStringLiteral("Punchy")));
+        dialog.apply();
+        QVERIFY(f.project.settings().toneMap.agx);
+        QCOMPARE(int(f.project.settings().toneMap.look), int(AgxLook::Punchy));
+        ProjectSettingsDialog again(&f.project); // shows what is stored
+        QCOMPARE(again.findChild<QComboBox*>(QStringLiteral("ToneMapping"))->currentText(),
+            QStringLiteral("AgX"));
+        f.project.undo();
+        QVERIFY(!f.project.settings().toneMap.agx);
+    }
+
     void defaultTransitionFollowsTheProject()
     {
         PanelFixture f;

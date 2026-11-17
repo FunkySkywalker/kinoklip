@@ -260,6 +260,9 @@ std::vector<CacheChunk> renderCacheChunks(
     // of every retimed clip that follows the project default. The clips' own retime state
     // (speed, curve, process, pitch) is part of their JSON.
     header.addData(QByteArrayLiteral(":retime:") + QByteArray::number(int(timeline.retimeProcess)));
+    // The output tone mapping changes every picture (absent while off: older keys stay).
+    if (timeline.toneMap.agx)
+        header.addData(QByteArrayLiteral(":agx:") + QByteArray::number(int(timeline.toneMap.look)));
     // The timeline grade (Color page) changes every picture.
     if (!timeline.grade.isEmpty()) {
         header.addData(QByteArrayLiteral(":grade:"));

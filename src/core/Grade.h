@@ -344,6 +344,19 @@ inline const QString MixerPreserve = QStringLiteral("mixerPreserve"); ///< Prese
 /// True for an RGB Mixer key.
 [[nodiscard]] bool isRgbMixerKey(QStringView key);
 
+// AgX (see grademath::AgxValues): a tone mapping step at the end of the node's corrections.
+// Enum parameters are stored as numbers (rounded to the nearest whole value) so they keyframe,
+// undo and save like the sliders.
+inline const QString AgxOn = QStringLiteral("agxOn"); ///< 0 / 1 (on from 0.5 up); default 0
+inline const QString AgxInput = QStringLiteral("agxInput"); ///< AgxInput; default 0 (Rec. 709)
+inline const QString AgxExposure = QStringLiteral("agxExposure"); ///< stops, -8..8; default 0
+inline const QString AgxLook = QStringLiteral("agxLook"); ///< AgxLook; default 0 (None)
+inline const QString AgxOutput = QStringLiteral("agxOutput"); ///< AgxOutput; default 0 (Rec. 709)
+/// The AgX keys, in palette order.
+[[nodiscard]] const QVector<QString>& agxKeys();
+/// True for an AgX key.
+[[nodiscard]] bool isAgxKey(QStringView key);
+
 /// The blur palette keys (every key above from BlurRadiusR on), in palette order.
 [[nodiscard]] const QVector<QString>& blurKeys();
 /// True for a blur palette key.
@@ -367,6 +380,23 @@ enum class Wheel : quint8 {
 /// Useful editing range of @p key (curve editor fallback range, field limits).
 [[nodiscard]] std::pair<double, double> range(const QString& key);
 } // namespace gradekeys
+
+/// What the picture's numbers mean before AgX (the AgX node's Input, values of gradekeys::AgxInput).
+/// Only the transfer function is undone; the colours are taken as Rec. 709 primaries.
+enum class AgxInput { Rec709 = 0, Srgb, Linear, AppleLog, SLog3, VLog, LogC3, Count };
+/// The AgX looks (gradekeys::AgxLook): ASC CDL style grades of the minimal AgX port.
+enum class AgxLook { None = 0, Punchy, Golden, Greyscale, Count };
+/// What the picture is encoded as after AgX (gradekeys::AgxOutput).
+enum class AgxOutput { Rec709 = 0, Srgb, Count };
+
+/// Output tone mapping of a project (Project Settings > Color Management): AgX over the
+/// timeline picture after the timeline grade. Off by default, so old projects do not change.
+struct ToneMap
+{
+    bool agx = false;
+    AgxLook look = AgxLook::None;
+    friend bool operator==(const ToneMap&, const ToneMap&) = default;
+};
 
 /// One frame of a node's tracker data (Color page Tracker palette): how the tracked subject
 /// moved, turned and grew since the frame the track started on. dx / dy are fractions of the
@@ -499,6 +529,9 @@ namespace gradeops {
 
 /// A grade with one neutral corrector connected source -> node -> output. Returns its id.
 quint64 initialize(ClipGrade& grade);
+/// The grade that applies @p map: one AgX corrector, or an empty grade while the tone mapping
+/// is off (so the picture stays bit-identical).
+[[nodiscard]] ClipGrade toneMapGrade(const ToneMap& map);
 /// Adds a serial corrector after node @p after (Alt+S): it takes @p after's output and
 /// everything that used @p after now uses the new node. @p after = 0 or unknown: after the
 /// output node (or a new graph). Returns the new id.

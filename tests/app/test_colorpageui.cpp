@@ -981,6 +981,43 @@ private slots:
         QCOMPARE(page->currentPalette(), ColorPage::Palette::RgbMixer);
     }
 
+    void agxPalette()
+    {
+        Fixture f;
+        f.showPage();
+        ColorPage* page = f.page();
+        auto* tab = page->findChild<QAbstractButton*>(QStringLiteral("ColorPaletteTab_8"));
+        QVERIFY(tab);
+        QCOMPARE(tab->text(), QStringLiteral("AgX"));
+        tab->click();
+        QCOMPARE(page->currentPalette(), ColorPage::Palette::Agx);
+        AgxPanel* agx = page->agx();
+        QVERIFY(agx && agx->isVisible());
+        QVERIFY(!agx->enableBox()->isChecked());
+        QCOMPARE(agx->inputBox()->currentIndex(), 0);
+        for (QWidget* w : {static_cast<QWidget*>(agx->enableBox()), static_cast<QWidget*>(agx->inputBox()),
+                 static_cast<QWidget*>(agx->lookBox()), static_cast<QWidget*>(agx->outputBox()),
+                 static_cast<QWidget*>(agx->exposureField())})
+            QVERIFY2(!w->toolTip().isEmpty(), qPrintable(w->objectName()));
+        // Ticking the box is one undo step (the first edit makes the node).
+        const int steps = f.steps();
+        agx->enableBox()->setChecked(true);
+        QCOMPARE(f.steps(), steps + 1);
+        QCOMPARE(f.session()->currentNode()->value(gk::AgxOn, 0), 1.0);
+        Q_EMIT agx->lookBox()->activated(2);
+        QCOMPARE(f.session()->currentNode()->value(gk::AgxLook, 0), 2.0);
+        Q_EMIT agx->inputBox()->activated(4);
+        QCOMPARE(f.session()->currentNode()->value(gk::AgxInput, 0), 4.0);
+        Q_EMIT agx->exposureField()->valueCommitted(-1.5);
+        QCOMPARE(f.session()->currentNode()->value(gk::AgxExposure, 0), -1.5);
+        auto* reset = page->findChild<QToolButton*>(QStringLiteral("ColorPaletteReset"));
+        QVERIFY(reset);
+        reset->click();
+        for (const QString& key : gk::agxKeys())
+            QCOMPARE(f.session()->currentNode()->value(key, 0), gk::defaultValue(key));
+        QVERIFY(!agx->enableBox()->isChecked());
+    }
+
     void trackerPalette()
     {
         Fixture f;

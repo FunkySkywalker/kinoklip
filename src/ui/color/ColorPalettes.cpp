@@ -2,6 +2,7 @@
 // ColorPalettes — Qualifier, Windows, LUTs and Key palettes.
 #include "ui/color/ColorPalettes.h"
 
+#include "core/GradeMath.h"
 #include "ui/color/ColorFrameSource.h"
 #include "ui/color/ColorSession.h"
 #include "ui/common/TextFit.h"
@@ -1529,6 +1530,125 @@ void RgbMixerPanel::refresh()
     for (QToolButton* t : m_tabs)
         t->setEnabled(!mono);
     m_stack->setCurrentIndex(mono ? 3 : m_tab);
+    m_refreshing = false;
+}
+
+// ---- AgxPanel ----
+
+AgxPanel::AgxPanel(ColorSession* session, QWidget* parent)
+    : QWidget(parent)
+    , m_session(session)
+{
+    markVimForm(this);
+    setObjectName(QStringLiteral("AgxPanel"));
+    namespace gk = gradekeys;
+    auto* grid = new QGridLayout(this);
+    grid->setContentsMargins(6, 4, 6, 4);
+    grid->setHorizontalSpacing(8);
+    grid->setVerticalSpacing(4);
+    m_on = new QCheckBox(tr("Enable AgX"), this);
+    m_on->setObjectName(QStringLiteral("AgxEnable"));
+    m_on->setToolTip(tr("Tone map this node's picture with AgX, Blender's view transform: it "
+                        "compresses bright highlights smoothly instead of clipping them. It runs "
+                        "after the node's other corrections."));
+    grid->addWidget(m_on, 0, 0, 1, 2);
+    const auto addRow = [&](int row, const QString& label, QWidget* w, const QString& tip) {
+        auto* l = new QLabel(label, this);
+        l->setToolTip(tip);
+        w->setToolTip(tip);
+        grid->addWidget(l, row, 0);
+        grid->addWidget(w, row, 1);
+    };
+    m_input = new QComboBox(this);
+    m_input->setObjectName(QStringLiteral("AgxInput"));
+    for (const QString& n : {tr("Rec.709 (gamma 2.4)"), tr("sRGB"), tr("Linear"), tr("Apple Log"),
+             tr("S-Log3"), tr("V-Log"), tr("LogC3 (EI 800)")})
+        m_input->addItem(n);
+    addRow(1, tr("Input"), m_input,
+        tr("What the numbers of the picture mean. Rec.709 (gamma 2.4) is ordinary video. A camera "
+           "log is undone first; only its curve is handled, the colours are taken as Rec.709."));
+    m_exposure = makeField(this, -8.0, 8.0, 0.05, 2);
+    m_exposure->setObjectName(QStringLiteral("AgxExposure"));
+    m_exposure->setSuffix(tr(" stops"));
+    addRow(2, tr("Exposure"), m_exposure,
+        tr("Brightens (+) or darkens (-) the linear picture in stops before AgX. Each stop "
+           "doubles or halves the light."));
+    m_look = new QComboBox(this);
+    m_look->setObjectName(QStringLiteral("AgxLook"));
+    for (const QString& n : {tr("None"), tr("Punchy"), tr("Golden"), tr("Greyscale")})
+        m_look->addItem(n);
+    addRow(3, tr("Look"), m_look,
+        tr("A creative grade on top of AgX: Punchy adds contrast and colour, Golden warms the "
+           "picture, Greyscale removes the colour. None is plain AgX."));
+    m_output = new QComboBox(this);
+    m_output->setObjectName(QStringLiteral("AgxOutput"));
+    for (const QString& n : {tr("Rec.709 (gamma 2.4)"), tr("sRGB")})
+        m_output->addItem(n);
+    addRow(4, tr("Output"), m_output,
+        tr("How the result is encoded: Rec.709 for video shown on a gamma 2.4 screen, sRGB for "
+           "pictures and the web."));
+    grid->setColumnStretch(2, 1);
+    grid->setRowStretch(5, 1);
+
+    connect(m_on, &QCheckBox::toggled, this,
+        [this](bool on) { setValueOf(gradekeys::AgxOn, on ? 1.0 : 0.0); });
+    const auto bindCombo = [this](QComboBox* box, const QString& key) {
+        connect(box, &QComboBox::activated, this,
+            [this, key](int i) { setValueOf(key, double(i)); });
+    };
+    bindCombo(m_input, gk::AgxInput);
+    bindCombo(m_look, gk::AgxLook);
+    bindCombo(m_output, gk::AgxOutput);
+    connect(m_exposure, &ValueField::scrubStarted, this, [this] {
+        if (m_session)
+            m_session->beginGesture(gradekeys::label(gradekeys::AgxExposure));
+    });
+    connect(m_exposure, &ValueField::valueScrubbed, this,
+        [this](double v) { setValueOf(gradekeys::AgxExposure, v); });
+    connect(m_exposure, &ValueField::scrubFinished, this, [this] {
+        if (m_session)
+            m_session->endGesture();
+    });
+    connect(m_exposure, &ValueField::valueCommitted, this,
+        [this](double v) { setValueOf(gradekeys::AgxExposure, v); });
+    if (m_session) {
+        connect(m_session, &ColorSession::gradeChanged, this, &AgxPanel::refresh);
+        connect(m_session, &ColorSession::selectedNodeChanged, this, &AgxPanel::refresh);
+        connect(m_session, &ColorSession::clipChanged, this, &AgxPanel::refresh);
+    }
+    refresh();
+}
+
+void AgxPanel::setValueOf(const QString& key, double value)
+{
+    if (m_refreshing || !m_session)
+        return;
+    m_session->setParam(0, key, value, gradekeys::label(key));
+}
+
+void AgxPanel::resetAll()
+{
+    if (!m_session || !m_session->currentNode())
+        return;
+    QVector<std::pair<QString, double>> values;
+    for (const QString& key : gradekeys::agxKeys())
+        values.append({key, gradekeys::defaultValue(key)});
+    m_session->setParams(0, values, tr("Reset AgX"));
+}
+
+void AgxPanel::refresh()
+{
+    m_refreshing = true;
+    const GradeNode* n = m_session ? m_session->currentNode() : nullptr;
+    setEnabled(n && !n->isMixer());
+    const int64_t frame = m_session ? m_session->gradeFrame() : 0;
+    const grademath::AgxValues v = n ? grademath::AgxValues::at(*n, frame) : grademath::AgxValues {};
+    m_on->setChecked(v.on);
+    m_input->setCurrentIndex(int(v.input));
+    m_look->setCurrentIndex(int(v.look));
+    m_output->setCurrentIndex(int(v.output));
+    if (!m_exposure->isScrubbing())
+        m_exposure->setValue(double(v.exposure));
     m_refreshing = false;
 }
 

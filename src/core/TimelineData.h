@@ -397,6 +397,9 @@ struct TimelineData
     /// Retime process of clips set to RetimeProcess::ProjectDefault (Project Settings > Master
     /// Settings > Frame Interpolation; Project::setSettings() keeps every timeline in sync).
     RetimeProcess retimeProcess = RetimeProcess::Nearest;
+    /// Output tone mapping (Project Settings > Color Management; Project::setSettings() keeps
+    /// every timeline in sync): over the composite after the timeline grade, before the captions.
+    ToneMap toneMap;
     int64_t markIn = -1; ///< -1 = not set
     int64_t markOut = -1; ///< -1 = not set; exclusive end frame
     QVector<Marker> markers; ///< sorted by frame

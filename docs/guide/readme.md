@@ -76,6 +76,7 @@ search field.
 - [Colour correct a clip](colour-correct-a-clip.md) (the Color page)
 - [Change the colour of one object](change-the-colour-of-one-object.md)
 - [Use a LUT](use-a-lut.md)
+- [Use AgX to tame bright highlights](use-agx.md)
 - [Use the shortcuts of your old editor](use-the-shortcuts-of-your-old-editor.md) (Vegas Pro,
   Premiere Pro, Final Cut Pro, Avid, Kdenlive, Shotcut)
 - [Vim mode: quick start](vim-quick-start.md) (new to Vim mode? start here)

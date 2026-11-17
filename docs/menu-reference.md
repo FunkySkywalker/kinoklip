@@ -1,4 +1,4 @@
-368 menu entries in 13 menus; 53 panels
+368 menu entries in 13 menus; 54 panels
 
 # Menu and panel reference
 
@@ -495,6 +495,7 @@ Shortcuts are the defaults of the Resolve keymap (Windows); another keyboard pro
 
 | Panel | What it is |
 |---|---|
+| AgX | Tone map the current node with AgX, Blender's view transform. |
 | Blur | Blur, Sharpen and Mist the current node's picture; windows and the qualifier limit it. |
 | Clips | Every clip of the timeline as a thumbnail; click one to grade it. |
 | Curves | Curve adjustments of the current node. |

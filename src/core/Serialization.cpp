@@ -787,6 +787,8 @@ QJsonObject timelineToJson(const TimelineData& data)
     o[QLatin1String("height")] = data.height;
     if (data.retimeProcess != RetimeProcess::Nearest)
         o[QLatin1String("retimeProcess")] = retime::processToString(data.retimeProcess);
+    if (data.toneMap.agx) // format 22
+        o[QLatin1String("toneMap")] = toneMapToJson(data.toneMap);
     o[QLatin1String("markIn")] = qint64(data.markIn);
     o[QLatin1String("markOut")] = qint64(data.markOut);
     o[QLatin1String("nextId")] = qint64(data.nextId);
@@ -836,6 +838,7 @@ bool timelineFromJson(
         o.value(QLatin1String("retimeProcess")).toString(), RetimeProcess::Nearest);
     if (data.retimeProcess == RetimeProcess::ProjectDefault)
         data.retimeProcess = RetimeProcess::Nearest;
+    data.toneMap = toneMapFromJson(o.value(QLatin1String("toneMap")).toObject());
     auto fail = [error](const QString& why) {
         if (error)
             *error = QStringLiteral("invalid timeline: %1").arg(why);
