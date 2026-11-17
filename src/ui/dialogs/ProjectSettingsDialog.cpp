@@ -7,6 +7,7 @@
 #include "core/Project.h"
 #include "export/ProxyMedia.h"
 #include "ui/common/DialogSizing.h"
+#include "ui/common/FormTips.h"
 #include "ui/common/Metrics.h"
 #include "ui/common/SchemeColors.h"
 #include "ui/common/TextFit.h"
@@ -169,6 +170,13 @@ ProjectSettingsDialog::ProjectSettingsDialog(Project* project, QWidget* parent)
         [this] { m_playbackFps->setItemText(0, m_fps->currentText()); });
     setSettings(project->settings());
     // Big enough for the widest and tallest section: no scroll bar at the first opening (spec 73).
+    formtips::mirrorToLabels(this);
+    for (QAbstractButton* button : buttons->buttons()) {
+        if (buttons->buttonRole(button) == QDialogButtonBox::AcceptRole)
+            button->setToolTip(tr("Apply these settings to the project and close."));
+        else
+            button->setToolTip(tr("Close without changing anything."));
+    }
     dialogsizing::fit(this, kDialogSize);
 }
 
@@ -216,6 +224,8 @@ QWidget* ProjectSettingsDialog::buildMaster()
     auto* form = makeForm();
     m_preset = new QComboBox;
     m_preset->setObjectName(QStringLiteral("TimelineResolution"));
+    m_preset->setToolTip(tr("The picture size of the project's timelines, chosen from the "
+                            "usual sizes. Pick Custom to type your own width and height."));
     form->addRow(tr("Timeline resolution"), m_preset);
 
     m_width = new QSpinBox;
@@ -233,6 +243,10 @@ QWidget* ProjectSettingsDialog::buildMaster()
     size->addWidget(new QLabel(QStringLiteral("x")));
     size->addWidget(m_height);
     size->addStretch(1);
+    m_width->setToolTip(tr("The width of the timeline picture in pixels. Only available with "
+                           "the Custom resolution. Even numbers suit video encoders."));
+    m_height->setToolTip(tr("The height of the timeline picture in pixels. Only available with "
+                            "the Custom resolution. Even numbers suit video encoders."));
     form->addRow(QString(), size);
     bindResolutionPresets(m_preset, m_width, m_height);
     form->addRow(tr("Pixel aspect ratio"),
@@ -266,8 +280,14 @@ QWidget* ProjectSettingsDialog::buildMaster()
     m_retimeProcess->addItem(tr("Nearest"), int(RetimeProcess::Nearest));
     m_retimeProcess->addItem(tr("Frame Blend"), int(RetimeProcess::FrameBlend));
     m_retimeProcess->addItem(tr("Optical Flow"), int(RetimeProcess::OpticalFlow));
-    m_retimeProcess->setToolTip(tr("How clips playing at another speed make the frames between "
-                                   "two source frames, unless a clip chooses its own."));
+    m_retimeProcess->setToolTip(tr("How clips playing at another speed make the frames "
+                                   "between two source frames, unless a clip chooses its own."));
+    m_retimeProcess->setItemData(0, tr("Repeats the nearest source frame. Fast, but motion can "
+                                       "look steppy."), Qt::ToolTipRole);
+    m_retimeProcess->setItemData(1, tr("Blends the two nearest source frames. Smoother, but "
+                                       "fast motion can look ghosted."), Qt::ToolTipRole);
+    m_retimeProcess->setItemData(2, tr("Follows the motion between frames to build new ones. "
+                                       "The smoothest result, and the slowest."), Qt::ToolTipRole);
     interpolation->addRow(tr("Retime process"), m_retimeProcess);
     layout->addWidget(formWidget(interpolation));
 
@@ -324,6 +344,8 @@ QWidget* ProjectSettingsDialog::buildGeneral()
     auto* form = makeForm();
     m_name = new QLineEdit;
     m_name->setObjectName(QStringLiteral("ProjectName"));
+    m_name->setToolTip(tr("The name of the project, shown in the Project Manager and in the "
+                          "window title."));
     form->addRow(tr("Project name"), m_name);
     m_timelineStart = new QLineEdit;
     m_timelineStart->setObjectName(QStringLiteral("TimelineStartTimecode"));
@@ -356,8 +378,12 @@ QWidget* ProjectSettingsDialog::buildGeneral()
         return combo;
     };
     m_stdVideo = transitionCombo("StandardVideoTransition", EffectCategory::Transition);
+    m_stdVideo->setToolTip(tr("The video transition that Ctrl+T and Add Default Transition "
+                              "put on a cut in this project."));
     transitions->addRow(tr("Standard video transition"), m_stdVideo);
     m_stdAudio = transitionCombo("StandardAudioTransition", EffectCategory::AudioTransition);
+    m_stdAudio->setToolTip(tr("The audio transition that Add Default Transition puts on an "
+                              "audio cut in this project."));
     transitions->addRow(tr("Standard audio transition"), m_stdAudio);
     m_stdFrames = new QSpinBox;
     m_stdFrames->setObjectName(QStringLiteral("StandardTransitionFrames"));
@@ -400,8 +426,14 @@ QWidget* ProjectSettingsDialog::buildCache()
                                  "playback on laptops; hardware encoded when available."));
     form->addRow(tr("Proxy media format"), m_proxyFormat);
     m_optimizedResolution = resolutionCombo("OptimizedResolution");
+    m_optimizedResolution->setToolTip(tr("The size optimized media is made at. Choose "
+                                         "automatically picks the largest of Original, Half and "
+                                         "Quarter that is at most 540 lines high."));
     form->addRow(tr("Optimized media resolution"), m_optimizedResolution);
     m_optimizedFormat = formatCombo("OptimizedFormat", proxyFormats());
+    m_optimizedFormat->setToolTip(tr("The codec optimized media is made with. H.264 (fast "
+                                     "decode) gives the smallest files and the fastest "
+                                     "playback on laptops."));
     form->addRow(tr("Optimized media format"), m_optimizedFormat);
     m_cacheFormat = formatCombo("RenderCacheFormat", renderCacheFormats());
     m_cacheFormat->setToolTip(tr("Intra-frame codec of cached frames (timeline resolution). "
@@ -418,15 +450,24 @@ QWidget* ProjectSettingsDialog::buildCache()
     m_backgroundDelay->setObjectName(QStringLiteral("BackgroundCacheDelay"));
     m_backgroundDelay->setRange(0, 600);
     m_backgroundDelay->setSuffix(tr(" seconds"));
+    m_backgroundCache->setToolTip(tr("Caches the parts of the timeline that are slow to play "
+                                     "while you are not editing, so playback is smooth later."));
+    m_backgroundDelay->setToolTip(tr("How many seconds without an edit before background "
+                                     "caching starts."));
     row->addWidget(m_backgroundCache);
     row->addWidget(m_backgroundDelay);
     row->addStretch(1);
     form->addRow(QString(), background);
+    // The checkbox text names the option; the delay widget sits in the same row.
     m_userTransitions = new QCheckBox(tr("Automatically cache transitions in User Mode"));
     m_userTransitions->setObjectName(QStringLiteral("UserCacheTransitions"));
+    m_userTransitions->setToolTip(tr("In User Mode, caches the transitions of the timeline by "
+                                     "itself so they play smoothly."));
     form->addRow(QString(), m_userTransitions);
     m_userComposites = new QCheckBox(tr("Automatically cache composites in User Mode"));
     m_userComposites->setObjectName(QStringLiteral("UserCacheComposites"));
+    m_userComposites->setToolTip(tr("In User Mode, caches composites (clips layered on "
+                                    "others) by itself so they play smoothly."));
     form->addRow(QString(), m_userComposites);
 
     auto select = [](QComboBox* c, const QVariant& v) {
@@ -570,9 +611,12 @@ void ProjectSettingsDialog::updateWarning()
                  "asked before it happens, and Undo takes it back.")
             : QString());
     m_warning->setVisible(changes);
-    m_fps->setToolTip(followersHaveClips()
-            ? tr("Timelines with clips are converted when the frame rate changes.")
-            : QString());
+    QString fpsTip = tr("How many frames per second the timelines of this project play at. "
+                        "Choose the rate your footage and your delivery use.");
+    if (followersHaveClips())
+        fpsTip += QLatin1Char(' ')
+            + tr("Timelines with clips are converted when the frame rate changes.");
+    m_fps->setToolTip(fpsTip);
 }
 
 bool ProjectSettingsDialog::confirmFrameRateChange()

@@ -4,6 +4,7 @@
 #include "ui/dialogs/PreferencesDialog.h"
 
 #include "ui/common/DialogSizing.h"
+#include "ui/common/FormTips.h"
 #include "ui/common/Metrics.h"
 #include "ui/common/SettingsPages.h"
 #include "ui/common/TextFit.h"
@@ -162,6 +163,7 @@ PreferencesDialog::PreferencesDialog(const SettingsPageRegistry* registry, QWidg
             SettingsPage* page = info.create(content);
             page->setObjectName(QStringLiteral("SettingsPage_") + info.id);
             alignForms(page);
+            formtips::mirrorToLabels(page);
             layout->addWidget(page);
             m_pages.append(page);
         }
@@ -187,6 +189,11 @@ PreferencesDialog::PreferencesDialog(const SettingsPageRegistry* registry, QWidg
     body->addWidget(m_stack, 1);
 
     auto* buttons = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel);
+    buttons->button(QDialogButtonBox::Save)
+        ->setToolTip(tr("Store these preferences and close. Changes marked as needing a "
+                        "restart apply the next time Kinoklip starts."));
+    buttons->button(QDialogButtonBox::Cancel)
+        ->setToolTip(tr("Close without changing any preference."));
     connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 

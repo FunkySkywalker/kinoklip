@@ -2918,6 +2918,14 @@ Probablemente el sistema cerró el programa porque el equipo se quedó sin memor
         <translation>Recorta un sujeto del metraje con un modelo que se ejecuta en este equipo. Los modelos no forman parte de Kinoklip: cada uno se descarga solo cuando se pide. El modelo de personas es para vídeo; el modelo de cualquier sujeto es para imágenes fijas.</translation>
     </message>
     <message>
+        <source>Delete the downloaded %1 model to free its disk space. Download it again to use it.</source>
+        <translation>Elimina el modelo %1 descargado para liberar espacio en disco. Descárgalo de nuevo para usarlo.</translation>
+    </message>
+    <message>
+        <source>Delete the saved cut-outs. A clip is cut out again the next time you remove its background.</source>
+        <translation>Elimina los recortes guardados. Un clip se recorta de nuevo la próxima vez que le quites el fondo.</translation>
+    </message>
+    <message>
         <source>Download</source>
         <translation>Descargar</translation>
     </message>
@@ -2932,6 +2940,10 @@ Probablemente el sistema cerró el programa porque el equipo se quedó sin memor
     <message>
         <source>Download size:</source>
         <translation>Tamaño de descarga:</translation>
+    </message>
+    <message>
+        <source>Download the %1 model to this computer. It is only downloaded when you ask, and Background Removal needs it.</source>
+        <translation>Descarga el modelo %1 en este ordenador. Solo se descarga cuando lo pides, y la eliminación de fondo lo necesita.</translation>
     </message>
     <message>
         <source>Downloading... %1 of %2</source>
@@ -3013,8 +3025,16 @@ Probablemente el sistema cerró el programa porque el equipo se quedó sin memor
         <translation>Descargar %1...</translation>
     </message>
     <message>
+        <source>Download the %1 model to this computer. It is only downloaded when you ask, and Background Removal needs it.</source>
+        <translation>Descarga el modelo %1 en este ordenador. Solo se descarga cuando lo pides, y la eliminación de fondo lo necesita.</translation>
+    </message>
+    <message>
         <source>Remove %1</source>
         <translation>Eliminar %1</translation>
+    </message>
+    <message>
+        <source>Delete the downloaded %1 model to free its disk space. Download it again to use it.</source>
+        <translation>Elimina el modelo %1 descargado para liberar espacio en disco. Descárgalo de nuevo para usarlo.</translation>
     </message>
     <message>
         <source>Remove Model</source>
@@ -3027,6 +3047,10 @@ Probablemente el sistema cerró el programa porque el equipo se quedó sin memor
     <message>
         <source>Clear Matte Cache</source>
         <translation>Vaciar caché de matte</translation>
+    </message>
+    <message>
+        <source>Delete the saved cut-outs. A clip is cut out again the next time you remove its background.</source>
+        <translation>Elimina los recortes guardados. Un clip se recorta de nuevo la próxima vez que le quites el fondo.</translation>
     </message>
     <message>
         <source>AI tool: Background Removal</source>
@@ -3115,6 +3139,10 @@ Probablemente el sistema cerró el programa porque el equipo se quedó sin memor
         <translation>La reproducción usa estéreo a 48 kHz. Automático sigue el dispositivo de salida del sistema (por ejemplo, unos auriculares conectados durante la reproducción). Un dispositivo elegido se usa en cuanto se guarda; mientras no esté conectado, suena el dispositivo del sistema.</translation>
     </message>
     <message>
+        <source>The microphone or line input that voice-over records from. Automatic uses the system&apos;s default input.</source>
+        <translation>El micrófono o la entrada de línea desde la que graba la locución. Automático usa la entrada predeterminada del sistema.</translation>
+    </message>
+    <message>
         <source>Input device</source>
         <translation>Dispositivo de entrada</translation>
     </message>
@@ -3127,12 +3155,20 @@ Probablemente el sistema cerró el programa porque el equipo se quedó sin memor
         <translation>Ninguno</translation>
     </message>
     <message>
+        <source>Seconds of lead-in before a voice-over take starts, so you can get ready. None starts recording at once.</source>
+        <translation>Segundos de cuenta atrás antes de que empiece una toma de locución, para que puedas prepararte. Ninguno empieza a grabar de inmediato.</translation>
+    </message>
+    <message>
         <source>Voice-over count-in</source>
         <translation>Cuenta atrás de locución</translation>
     </message>
     <message>
         <source> ms</source>
         <translation> ms</translation>
+    </message>
+    <message>
+        <source>Milliseconds added on top of the input&apos;s own delay when a voice-over take is placed on the timeline. Raise it if your voice comes in late.</source>
+        <translation>Milisegundos que se suman al retardo propio de la entrada al colocar una toma de locución en la línea de tiempo. Auméntalo si tu voz entra tarde.</translation>
     </message>
     <message>
         <source>Voice-over extra latency</source>
@@ -3145,6 +3181,18 @@ Probablemente el sistema cerró el programa porque el equipo se quedó sin memor
     <message>
         <source>16-bit</source>
         <translation>16 bits</translation>
+    </message>
+    <message>
+        <source>More detail, larger files.</source>
+        <translation>Más detalle, archivos más grandes.</translation>
+    </message>
+    <message>
+        <source>Smaller files, a little less detail.</source>
+        <translation>Archivos más pequeños, algo menos de detalle.</translation>
+    </message>
+    <message>
+        <source>The sample size of the WAV file a voice-over take is saved as. 24-bit keeps more detail; 16-bit makes smaller files.</source>
+        <translation>El tamaño de muestra del archivo WAV en el que se guarda una toma de locución. 24 bits conserva más detalle; 16 bits da archivos más pequeños.</translation>
     </message>
     <message>
         <source>Voice-over WAV format</source>
@@ -9942,6 +9990,34 @@ Gracias por ver</translation>
 <context>
     <name>kk::DecodePage</name>
     <message>
+        <source>Use the first method that works on this computer.</source>
+        <translation>Usa el primer método que funcione en este ordenador.</translation>
+    </message>
+    <message>
+        <source>Decode on the processor only. Slower, but works everywhere.</source>
+        <translation>Decodifica solo en el procesador. Más lento, pero funciona en todas partes.</translation>
+    </message>
+    <message>
+        <source>Decode on the graphics chip through VA-API, the usual way on Intel and AMD graphics.</source>
+        <translation>Decodifica en el chip gráfico mediante VA-API, la vía habitual en gráficos Intel y AMD.</translation>
+    </message>
+    <message>
+        <source>Decode on an NVIDIA graphics card with CUDA / NVDEC.</source>
+        <translation>Decodifica en una tarjeta gráfica NVIDIA con CUDA / NVDEC.</translation>
+    </message>
+    <message>
+        <source>Decode on Intel graphics. On Linux this uses the same path as VA-API.</source>
+        <translation>Decodifica en gráficos Intel. En Linux usa la misma vía que VA-API.</translation>
+    </message>
+    <message>
+        <source>Decode through Vulkan Video. Still experimental: try it only if the other methods do not work.</source>
+        <translation>Decodifica mediante Vulkan Video. Todavía es experimental: pruébalo solo si los demás métodos no funcionan.</translation>
+    </message>
+    <message>
+        <source>Which part of the computer decodes video files. Automatic picks what works on this machine; Off decodes on the processor only, which is slower but always works. The table below shows what was found.</source>
+        <translation>Qué parte del ordenador decodifica los archivos de vídeo. Automático elige lo que funciona en esta máquina; Desactivado decodifica solo en el procesador, que es más lento pero siempre funciona. La tabla de abajo muestra lo que se encontró.</translation>
+    </message>
+    <message>
         <source>Hardware decoding</source>
         <translation>Decodificación por hardware</translation>
     </message>
@@ -9960,6 +10036,10 @@ Gracias por ver</translation>
     <message>
         <source>Checking…</source>
         <translation>Comprobando…</translation>
+    </message>
+    <message>
+        <source>The decoding methods found on this computer, whether each one works, and the video formats it can decode. Hover a row for the details.</source>
+        <translation>Los métodos de decodificación encontrados en este ordenador, si cada uno funciona y qué formatos de vídeo puede decodificar. Pasa el ratón por una fila para ver los detalles.</translation>
     </message>
     <message>
         <source>Available hardware</source>
@@ -10300,8 +10380,16 @@ Gracias por ver</translation>
 <context>
     <name>kk::EditingPage</name>
     <message>
+        <source>How long a photo or other still image is when you put it on the timeline.</source>
+        <translation>Cuánto dura una foto u otra imagen fija al ponerla en la línea de tiempo.</translation>
+    </message>
+    <message>
         <source>Standard still duration</source>
         <translation>Duración estándar de imágenes fijas</translation>
+    </message>
+    <message>
+        <source>How long a new title or generator clip is when you add it to the timeline.</source>
+        <translation>Cuánto dura un título o generador nuevo al añadirlo a la línea de tiempo.</translation>
     </message>
     <message>
         <source>Standard title and generator duration</source>
@@ -10340,6 +10428,10 @@ Gracias por ver</translation>
         <translation>Estático (mantener)</translation>
     </message>
     <message>
+        <source>New keyframes use the &quot;%1&quot; curve between keyframes.</source>
+        <translation>Los fotogramas clave nuevos usan la curva «%1» entre fotogramas clave.</translation>
+    </message>
+    <message>
         <source>The type of every keyframe you add. Right-click a keyframe and choose Set as Default for New Keyframes to change it from there.</source>
         <translation>El tipo de cada fotograma clave que se añade. Clic derecho en un fotograma clave y elegir Establecer como predeterminado para fotogramas clave nuevos para cambiarlo desde allí.</translation>
     </message>
@@ -10350,6 +10442,10 @@ Gracias por ver</translation>
     <message>
         <source> frames</source>
         <translation> fotogramas</translation>
+    </message>
+    <message>
+        <source>How many frames the fast nudge commands move a clip or a trim at a time.</source>
+        <translation>Cuántos fotogramas mueven a la vez los comandos de desplazamiento rápido de un clip o de un recorte.</translation>
     </message>
     <message>
         <source>Fast nudge</source>
@@ -10364,8 +10460,16 @@ Gracias por ver</translation>
         <translation>Puntero del ratón</translation>
     </message>
     <message>
-        <source>Point the timeline keeps in place when zooming with the mouse wheel</source>
-        <translation>El punto que la línea de tiempo mantiene fijo al hacer zoom con la rueda del ratón</translation>
+        <source>The point the timeline keeps in place when you zoom with the mouse wheel: the playhead, or the spot under the mouse pointer. Zooming with the keyboard always uses the playhead.</source>
+        <translation>El punto que la línea de tiempo mantiene fijo al hacer zoom con la rueda del ratón: el cabezal de reproducción o el lugar bajo el puntero del ratón. El zoom con el teclado siempre usa el cabezal de reproducción.</translation>
+    </message>
+    <message>
+        <source>The timeline zooms around the playhead.</source>
+        <translation>La línea de tiempo hace zoom alrededor del cabezal de reproducción.</translation>
+    </message>
+    <message>
+        <source>The timeline zooms around the spot under the mouse pointer.</source>
+        <translation>La línea de tiempo hace zoom alrededor del lugar bajo el puntero del ratón.</translation>
     </message>
     <message>
         <source>Timeline zooms around</source>
@@ -10380,12 +10484,28 @@ Gracias por ver</translation>
         <translation>Clásico (Ctrl hace zoom, Mayús desplaza el tiempo)</translation>
     </message>
     <message>
+        <source>Which keys change what the mouse wheel does in the timeline.</source>
+        <translation>Qué teclas cambian lo que hace la rueda del ratón en la línea de tiempo.</translation>
+    </message>
+    <message>
+        <source>As in DaVinci Resolve: Alt zooms, Ctrl scrolls in time, Shift changes the track height.</source>
+        <translation>Como en DaVinci Resolve: Alt hace zoom, Ctrl se desplaza en el tiempo, Mayús cambia la altura de las pistas.</translation>
+    </message>
+    <message>
+        <source>Ctrl zooms and Shift scrolls in time, as in most editors.</source>
+        <translation>Ctrl hace zoom y Mayús se desplaza en el tiempo, como en la mayoría de los editores.</translation>
+    </message>
+    <message>
         <source>Mouse wheel</source>
         <translation>Rueda del ratón</translation>
     </message>
     <message>
         <source>Use timeline in and out points for source edits</source>
         <translation>Usar los puntos de entrada y salida de la línea de tiempo para ediciones de origen</translation>
+    </message>
+    <message>
+        <source>On: Insert, Overwrite and the other source edits go between the timeline&apos;s in and out points when they are set. Off: they always go at the playhead.</source>
+        <translation>Activado: Insertar, Sobrescribir y las demás ediciones de origen van entre los puntos de entrada y salida de la línea de tiempo cuando están definidos. Desactivado: siempre van en el cabezal de reproducción.</translation>
     </message>
     <message>
         <source>Three-point editing</source>
@@ -10396,6 +10516,10 @@ Gracias por ver</translation>
         <translation>Cerrar el hueco bajo el cabezal de reproducción cuando no hay nada seleccionado</translation>
     </message>
     <message>
+        <source>On: Ripple Delete with nothing selected closes the gap under the playhead. Off: it does nothing until you select the gap.</source>
+        <translation>Activado: el borrado ripple sin selección cierra el hueco bajo el cabezal de reproducción. Desactivado: no hace nada hasta que selecciones el hueco.</translation>
+    </message>
+    <message>
         <source>Ripple delete</source>
         <translation>Borrado ripple</translation>
     </message>
@@ -10404,8 +10528,16 @@ Gracias por ver</translation>
         <translation>Eliminar los clips bajo el cabezal de reproducción en las pistas seleccionadas cuando no hay nada seleccionado</translation>
     </message>
     <message>
+        <source>On: Ripple Delete with nothing selected removes the clips under the playhead on the selected tracks and closes the gap. Off: it does nothing.</source>
+        <translation>Activado: el borrado ripple sin selección elimina los clips bajo el cabezal de reproducción en las pistas seleccionadas y cierra el hueco. Desactivado: no hace nada.</translation>
+    </message>
+    <message>
         <source>Selection tool rolls at the middle of an edit</source>
         <translation>La herramienta de selección hace roll en el centro de una edición</translation>
+    </message>
+    <message>
+        <source>On: dragging exactly at the cut between two touching clips with the Selection tool moves the cut (a roll). Off: it trims only one side.</source>
+        <translation>Activado: arrastrar justo en el corte entre dos clips contiguos con la herramienta de selección mueve el corte (un roll). Desactivado: solo recorta un lado.</translation>
     </message>
     <message>
         <source>Trimming</source>
@@ -10416,20 +10548,28 @@ Gracias por ver</translation>
         <translation>La herramienta de recorte desliza en la barra de nombre del clip</translation>
     </message>
     <message>
+        <source>On: with the Trim tool, dragging the upper part of a clip (its name bar) slides it and dragging the rest slips it. Off: the whole clip slips.</source>
+        <translation>Activado: con la herramienta de recorte, arrastrar la parte superior de un clip (su barra de nombre) lo desliza y arrastrar el resto desplaza su contenido (slip). Desactivado: todo el clip se desplaza con slip.</translation>
+    </message>
+    <message>
         <source>Trim view shows effects and transforms (slower)</source>
         <translation>La vista de recorte muestra efectos y transformaciones (más lento)</translation>
+    </message>
+    <message>
+        <source>On: the two pictures of the trim view show the clips with their effects and transforms. This looks right but lags behind fast drags. Off: the plain pictures.</source>
+        <translation>Activado: las dos imágenes de la vista de recorte muestran los clips con sus efectos y transformaciones. Se ve correcto, pero va con retraso al arrastrar rápido. Desactivado: las imágenes sin efectos.</translation>
     </message>
     <message>
         <source>Sync Lock on new tracks</source>
         <translation>Bloqueo de sincronización en pistas nuevas</translation>
     </message>
     <message>
-        <source>Tracks</source>
-        <translation>Pistas</translation>
+        <source>Tracks you add from now on start with Sync Lock on, so their clips stay in step with the others when you ripple edit. Existing tracks keep their setting.</source>
+        <translation>Las pistas que añadas a partir de ahora empiezan con el bloqueo de sincronización activado, para que sus clips sigan el ritmo de los demás al editar con ripple. Las pistas existentes conservan el suyo.</translation>
     </message>
     <message>
-        <source>Sets Sync Lock for tracks added afterwards: Add Track, tracks made by dropping onto empty space above the timeline, the tracks of new timelines and of compound clips. Existing tracks keep theirs.</source>
-        <translation>Define el bloqueo de sincronización de las pistas añadidas después: Añadir pista, pistas creadas al soltar sobre el espacio vacío encima de la línea de tiempo, las pistas de líneas de tiempo nuevas y de clips compuestos. Las pistas existentes conservan el suyo.</translation>
+        <source>Tracks</source>
+        <translation>Pistas</translation>
     </message>
 </context>
 <context>
@@ -16126,12 +16266,28 @@ Arrastrar una desde la biblioteca de efectos al clip, o añadir una aquí.</tran
         <translation>Automático (sistema)</translation>
     </message>
     <message>
+        <source>Use the scale the system is set to.</source>
+        <translation>Usa la escala que tiene el sistema.</translation>
+    </message>
+    <message>
+        <source>Makes the whole window larger or smaller. Automatic follows the system&apos;s setting. A change applies after a restart.</source>
+        <translation>Hace toda la ventana más grande o más pequeña. Automático sigue el ajuste del sistema. Un cambio se aplica tras reiniciar.</translation>
+    </message>
+    <message>
         <source>Interface scale</source>
         <translation>Escala de la interfaz</translation>
     </message>
     <message>
         <source>System default</source>
         <translation>Predeterminado del sistema</translation>
+    </message>
+    <message>
+        <source>Use the language of the computer, if Kinoklip has it.</source>
+        <translation>Usa el idioma del ordenador, si Kinoklip lo tiene.</translation>
+    </message>
+    <message>
+        <source>The language of menus and dialogs. System default follows the computer&apos;s language. A change applies after a restart.</source>
+        <translation>El idioma de los menús y los diálogos. Predeterminado del sistema sigue el idioma del ordenador. Un cambio se aplica tras reiniciar.</translation>
     </message>
     <message>
         <source>Language</source>
@@ -16146,6 +16302,14 @@ Arrastrar una desde la biblioteca de efectos al clip, o añadir una aquí.</tran
         <translation>Simplificado</translation>
     </message>
     <message>
+        <source>The menus as in DaVinci Resolve.</source>
+        <translation>Los menús como en DaVinci Resolve.</translation>
+    </message>
+    <message>
+        <source>Shorter menus grouped by task, with plain names.</source>
+        <translation>Menús más cortos agrupados por tarea, con nombres sencillos.</translation>
+    </message>
+    <message>
         <source>Menu layout</source>
         <translation>Disposición de menús</translation>
     </message>
@@ -16158,8 +16322,16 @@ Arrastrar una desde la biblioteca de efectos al clip, o añadir una aquí.</tran
         <translation>Animar ediciones de la línea de tiempo</translation>
     </message>
     <message>
+        <source>Clips slide, appear and fade after edits, cuts flash and the playhead glides on jumps. Turn it off for an instant timeline.</source>
+        <translation>Los clips se deslizan, aparecen y se desvanecen tras las ediciones, los cortes destellan y el cabezal de reproducción se desliza en los saltos. Desactívalo para una línea de tiempo instantánea.</translation>
+    </message>
+    <message>
         <source>Animations</source>
         <translation>Animaciones</translation>
+    </message>
+    <message>
+        <source>How fast the timeline animations run, from half speed to double speed. Only used while animations are on.</source>
+        <translation>Qué tan rápido van las animaciones de la línea de tiempo, de media velocidad a velocidad doble. Solo se usa con las animaciones activadas.</translation>
     </message>
     <message>
         <source>%1x</source>
@@ -16176,6 +16348,10 @@ Arrastrar una desde la biblioteca de efectos al clip, o añadir una aquí.</tran
     <message>
         <source>Show a system notification when renders finish</source>
         <translation>Mostrar una notificación del sistema cuando terminen los renderizados</translation>
+    </message>
+    <message>
+        <source>Shows a notification from the desktop when a render finishes, so you can work in another window meanwhile.</source>
+        <translation>Muestra una notificación del escritorio cuando termina un renderizado, para que puedas trabajar mientras tanto en otra ventana.</translation>
     </message>
     <message>
         <source>Notifications</source>
@@ -16387,6 +16563,10 @@ Assign it to “%3” instead?</source>
     <message>
         <source>Keyboard Customization…</source>
         <translation>Personalización del teclado…</translation>
+    </message>
+    <message>
+        <source>Opens the keyboard shortcut editor.</source>
+        <translation>Abre el editor de atajos de teclado.</translation>
     </message>
     <message>
         <source>Opens the keyboard shortcut editor</source>
@@ -18245,10 +18425,6 @@ Importar archivos con %1 o soltarlos aquí.</translation>
         <translation> MB</translation>
     </message>
     <message>
-        <source>Memory kept for decoded still images (photos, titles). Least recently used images are dropped first.</source>
-        <translation>Memoria reservada para imágenes fijas decodificadas (fotos, títulos). Las imágenes usadas hace más tiempo se descartan primero.</translation>
-    </message>
-    <message>
         <source>Still image cache</source>
         <translation>Caché de imágenes fijas</translation>
     </message>
@@ -18261,8 +18437,12 @@ Importar archivos con %1 o soltarlos aquí.</translation>
         <translation> GB</translation>
     </message>
     <message>
-        <source>The memory Kinoklip plans for: its caches (thumbnails, frames, waveforms, open decoders) are made smaller on machines with less than 8 GB. Auto uses the computer&apos;s memory (%1 GB here).</source>
-        <translation>La memoria con la que cuenta Kinoklip: las cachés (miniaturas, fotogramas, formas de onda, decodificadores abiertos) se reducen en equipos con menos de 8 GB. Auto usa la memoria del equipo (%1 GB aquí).</translation>
+        <source>How much memory decoded still images (photos, titles) may use. The images used longest ago are dropped first when it is full; raise it if big stills reload slowly.</source>
+        <translation>Cuánta memoria pueden usar las imágenes fijas decodificadas (fotos, títulos). Las imágenes usadas hace más tiempo se descartan primero cuando está llena; auméntala si las imágenes grandes se recargan despacio.</translation>
+    </message>
+    <message>
+        <source>The memory Kinoklip plans for: its caches (thumbnails, frames, waveforms, open decoders) are made smaller on machines with less than 8 GB. Auto uses the computer&apos;s memory (%1 GB here). A change applies after a restart.</source>
+        <translation>La memoria con la que Kinoklip planifica: sus cachés (miniaturas, fotogramas, formas de onda, decodificadores abiertos) se hacen más pequeños en equipos con menos de 8 GB. Automático usa la memoria del ordenador (%1 GB aquí). Un cambio se aplica tras reiniciar.</translation>
     </message>
     <message>
         <source>Limit Kinoklip memory usage to</source>
@@ -18275,6 +18455,18 @@ Importar archivos con %1 o soltarlos aquí.</translation>
     <message>
         <source>CPU only</source>
         <translation>Solo CPU</translation>
+    </message>
+    <message>
+        <source>Auto draws the picture on the graphics card with OpenGL. CPU only uses the processor instead: slower, but a way out of graphics driver problems. A change applies after a restart.</source>
+        <translation>Automático dibuja la imagen en la tarjeta gráfica con OpenGL. Solo CPU usa el procesador: más lento, pero una salida ante problemas del controlador gráfico. Un cambio se aplica tras reiniciar.</translation>
+    </message>
+    <message>
+        <source>Use the graphics card through OpenGL.</source>
+        <translation>Usa la tarjeta gráfica mediante OpenGL.</translation>
+    </message>
+    <message>
+        <source>Draw everything on the processor, without the graphics card.</source>
+        <translation>Dibuja todo en el procesador, sin la tarjeta gráfica.</translation>
     </message>
     <message>
         <source>GPU processing mode</source>
@@ -21376,12 +21568,36 @@ Importar archivos con %1 o soltarlos aquí.</translation>
         <translation>Automática (Mitad mientras la reproducción no pueda seguir el ritmo)</translation>
     </message>
     <message>
+        <source>Every frame at full resolution; frames are skipped if the computer cannot keep up.</source>
+        <translation>Todos los fotogramas a resolución completa; se omiten fotogramas si el ordenador no puede seguir el ritmo.</translation>
+    </message>
+    <message>
+        <source>Half of the timeline resolution: smoother playback, softer picture.</source>
+        <translation>La mitad de la resolución de la línea de tiempo: reproducción más fluida, imagen más suave.</translation>
+    </message>
+    <message>
+        <source>A quarter of the timeline resolution: the smoothest playback on a slow computer.</source>
+        <translation>Un cuarto de la resolución de la línea de tiempo: la reproducción más fluida en un ordenador lento.</translation>
+    </message>
+    <message>
+        <source>Full resolution, switching to half only while playback cannot keep up. Paused frames are always full.</source>
+        <translation>Resolución completa, que pasa a la mitad solo mientras la reproducción no puede seguir el ritmo. Los fotogramas en pausa siempre son completos.</translation>
+    </message>
+    <message>
         <source>Playback resolution</source>
         <translation>Resolución de reproducción</translation>
     </message>
     <message>
         <source> s</source>
         <translation> s</translation>
+    </message>
+    <message>
+        <source>How much of the timeline before the playhead is played when you play around the current frame.</source>
+        <translation>Cuánto de la línea de tiempo anterior al cabezal de reproducción se reproduce al reproducir alrededor del fotograma actual.</translation>
+    </message>
+    <message>
+        <source>How much of the timeline after the playhead is played when you play around the current frame.</source>
+        <translation>Cuánto de la línea de tiempo posterior al cabezal de reproducción se reproduce al reproducir alrededor del fotograma actual.</translation>
     </message>
     <message>
         <source>Pre-roll</source>
@@ -21396,12 +21612,20 @@ Importar archivos con %1 o soltarlos aquí.</translation>
         <translation>Volver a la posición inicial tras reproducir alrededor</translation>
     </message>
     <message>
+        <source>On: the playhead goes back to where it was when playing around the current frame or from in to out ends. Off: it stays where playback stopped.</source>
+        <translation>Activado: el cabezal de reproducción vuelve a donde estaba cuando termina la reproducción alrededor del fotograma actual o de entrada a salida. Desactivado: se queda donde se detuvo la reproducción.</translation>
+    </message>
+    <message>
         <source>Play around</source>
         <translation>Reproducir alrededor</translation>
     </message>
     <message>
         <source>Play from the start when the playhead is at the end</source>
         <translation>Reproducir desde el inicio cuando el cabezal de reproducción está al final</translation>
+    </message>
+    <message>
+        <source>On: pressing Play with the playhead on the last frame starts again from the start. Off: nothing happens.</source>
+        <translation>Activado: pulsar Reproducir con el cabezal de reproducción en el último fotograma empieza de nuevo desde el principio. Desactivado: no ocurre nada.</translation>
     </message>
     <message>
         <source>At the end</source>
@@ -21430,6 +21654,14 @@ Importar archivos con %1 o soltarlos aquí.</translation>
     <message>
         <source>What playback does after an edit of the timeline while it plays (ripple delete, split, trim, move, insert, undo...). Changing values in the Inspector never stops it.</source>
         <translation>Qué hace la reproducción tras una edición de la línea de tiempo mientras se reproduce (borrado ripple, dividir, recortar, mover, insertar, deshacer...). Cambiar valores en el Inspector nunca la detiene.</translation>
+    </message>
+    <message>
+        <source>Playback carries on after the edit.</source>
+        <translation>La reproducción continúa después de la edición.</translation>
+    </message>
+    <message>
+        <source>Playback stops when the edit is made.</source>
+        <translation>La reproducción se detiene cuando se hace la edición.</translation>
     </message>
     <message>
         <source>After an edit during playback</source>
@@ -21505,6 +21737,14 @@ Automática: Completa, pasando a Mitad solo mientras la reproducción no pueda s
     <message>
         <source>Preferences</source>
         <translation>Preferencias</translation>
+    </message>
+    <message>
+        <source>Store these preferences and close. Changes marked as needing a restart apply the next time Kinoklip starts.</source>
+        <translation>Guarda estas preferencias y cierra. Los cambios marcados como que necesitan reinicio se aplican la próxima vez que se inicie Kinoklip.</translation>
+    </message>
+    <message>
+        <source>Close without changing any preference.</source>
+        <translation>Cierra sin cambiar ninguna preferencia.</translation>
     </message>
     <message>
         <source>Restart Required</source>
@@ -22493,28 +22733,40 @@ Tamaño estimado tras compactar: %3</translation>
         <translation>Desactivado</translation>
     </message>
     <message>
+        <source>How often the open project is saved to the autosave folder in the background. Off turns autosave off.</source>
+        <translation>Cada cuánto se guarda el proyecto abierto en la carpeta de autoguardado, en segundo plano. Desactivado desactiva el autoguardado.</translation>
+    </message>
+    <message>
         <source>Autosave every</source>
         <translation>Autoguardar cada</translation>
+    </message>
+    <message>
+        <source>The folder where autosaved copies of your projects are kept.</source>
+        <translation>La carpeta donde se guardan las copias autoguardadas de tus proyectos.</translation>
     </message>
     <message>
         <source>Autosave location</source>
         <translation>Ubicación del autoguardado</translation>
     </message>
     <message>
+        <source>The folder the Project Manager lists projects from, with its sub-folders. Empty uses the default folder.</source>
+        <translation>La carpeta de la que el gestor de proyectos lista los proyectos, con sus subcarpetas. Vacío usa la carpeta predeterminada.</translation>
+    </message>
+    <message>
         <source>Browse</source>
         <translation>Examinar</translation>
     </message>
     <message>
-        <source>Choose the project library folder</source>
-        <translation>Elegir la carpeta de la biblioteca de proyectos</translation>
+        <source>Choose the project library folder.</source>
+        <translation>Elige la carpeta de la biblioteca de proyectos.</translation>
+    </message>
+    <message>
+        <source>Go back to the default project library folder.</source>
+        <translation>Vuelve a la carpeta predeterminada de la biblioteca de proyectos.</translation>
     </message>
     <message>
         <source>Default</source>
         <translation>Predeterminado</translation>
-    </message>
-    <message>
-        <source>Use the default project library folder</source>
-        <translation>Usar la carpeta predeterminada de la biblioteca de proyectos</translation>
     </message>
     <message>
         <source>Project library location</source>
@@ -22535,6 +22787,18 @@ Tamaño estimado tras compactar: %3</translation>
     <message>
         <source>Reopen the last project</source>
         <translation>Reabrir el último proyecto</translation>
+    </message>
+    <message>
+        <source>Start with the Project Manager, where you pick a project.</source>
+        <translation>Empieza con el gestor de proyectos, donde eliges un proyecto.</translation>
+    </message>
+    <message>
+        <source>Start by opening the project you worked on last.</source>
+        <translation>Empieza abriendo el último proyecto en el que trabajaste.</translation>
+    </message>
+    <message>
+        <source>What Kinoklip does when it starts: show the Project Manager to pick a project, or open the project you worked on last.</source>
+        <translation>Qué hace Kinoklip al iniciarse: mostrar el gestor de proyectos para elegir un proyecto, o abrir el último proyecto en el que trabajaste.</translation>
     </message>
     <message>
         <source>At start-up</source>
@@ -22600,12 +22864,32 @@ Tamaño estimado tras compactar: %3</translation>
         <translation>Medios optimizados y caché de renderizado</translation>
     </message>
     <message>
+        <source>Apply these settings to the project and close.</source>
+        <translation>Aplica estos ajustes al proyecto y cierra.</translation>
+    </message>
+    <message>
+        <source>Close without changing anything.</source>
+        <translation>Cierra sin cambiar nada.</translation>
+    </message>
+    <message>
+        <source>The picture size of the project&apos;s timelines, chosen from the usual sizes. Pick Custom to type your own width and height.</source>
+        <translation>El tamaño de imagen de las líneas de tiempo del proyecto, elegido entre los tamaños habituales. Elige Personalizado para escribir tu propio ancho y alto.</translation>
+    </message>
+    <message>
         <source>Timeline resolution</source>
         <translation>Resolución de la línea de tiempo</translation>
     </message>
     <message>
         <source> px</source>
         <translation> px</translation>
+    </message>
+    <message>
+        <source>The width of the timeline picture in pixels. Only available with the Custom resolution. Even numbers suit video encoders.</source>
+        <translation>El ancho de la imagen de la línea de tiempo en píxeles. Solo disponible con la resolución personalizada. Los números pares van bien con los codificadores de vídeo.</translation>
+    </message>
+    <message>
+        <source>The height of the timeline picture in pixels. Only available with the Custom resolution. Even numbers suit video encoders.</source>
+        <translation>El alto de la imagen de la línea de tiempo en píxeles. Solo disponible con la resolución personalizada. Los números pares van bien con los codificadores de vídeo.</translation>
     </message>
     <message>
         <source>Pixel aspect ratio</source>
@@ -22654,6 +22938,18 @@ Tamaño estimado tras compactar: %3</translation>
     <message>
         <source>How clips playing at another speed make the frames between two source frames, unless a clip chooses its own.</source>
         <translation>Cómo generan los clips que se reproducen a otra velocidad los fotogramas entre dos fotogramas de origen, salvo que un clip elija el suyo.</translation>
+    </message>
+    <message>
+        <source>Repeats the nearest source frame. Fast, but motion can look steppy.</source>
+        <translation>Repite el fotograma de origen más cercano. Rápido, pero el movimiento puede verse escalonado.</translation>
+    </message>
+    <message>
+        <source>Blends the two nearest source frames. Smoother, but fast motion can look ghosted.</source>
+        <translation>Mezcla los dos fotogramas de origen más cercanos. Más suave, pero el movimiento rápido puede verse con fantasmas.</translation>
+    </message>
+    <message>
+        <source>Follows the motion between frames to build new ones. The smoothest result, and the slowest.</source>
+        <translation>Sigue el movimiento entre fotogramas para crear otros nuevos. El resultado más suave y el más lento.</translation>
     </message>
     <message>
         <source>Retime process</source>
@@ -22752,6 +23048,10 @@ Tamaño estimado tras compactar: %3</translation>
         <translation>El mezclador trabaja en 32 bits float; la profundidad de bits del renderizado se establece en la página Entrega.</translation>
     </message>
     <message>
+        <source>The name of the project, shown in the Project Manager and in the window title.</source>
+        <translation>El nombre del proyecto, que se muestra en el gestor de proyectos y en el título de la ventana.</translation>
+    </message>
+    <message>
         <source>Project name</source>
         <translation>Nombre del proyecto</translation>
     </message>
@@ -22784,8 +23084,16 @@ Tamaño estimado tras compactar: %3</translation>
         <translation>Transiciones estándar</translation>
     </message>
     <message>
+        <source>The video transition that Ctrl+T and Add Default Transition put on a cut in this project.</source>
+        <translation>La transición de vídeo que Ctrl+T y Añadir transición predeterminada ponen en un corte de este proyecto.</translation>
+    </message>
+    <message>
         <source>Standard video transition</source>
         <translation>Transición de vídeo estándar</translation>
+    </message>
+    <message>
+        <source>The audio transition that Add Default Transition puts on an audio cut in this project.</source>
+        <translation>La transición de audio que Añadir transición predeterminada pone en un corte de audio de este proyecto.</translation>
     </message>
     <message>
         <source>Standard audio transition</source>
@@ -22836,8 +23144,16 @@ Tamaño estimado tras compactar: %3</translation>
         <translation>Formato de medios proxy</translation>
     </message>
     <message>
+        <source>The size optimized media is made at. Choose automatically picks the largest of Original, Half and Quarter that is at most 540 lines high.</source>
+        <translation>El tamaño con el que se crean los medios optimizados. Elegir automáticamente toma el mayor entre Original, Mitad y Cuarto que tenga como máximo 540 líneas de alto.</translation>
+    </message>
+    <message>
         <source>Optimized media resolution</source>
         <translation>Resolución de medios optimizados</translation>
+    </message>
+    <message>
+        <source>The codec optimized media is made with. H.264 (fast decode) gives the smallest files and the fastest playback on laptops.</source>
+        <translation>El códec con el que se crean los medios optimizados. H.264 (decodificación rápida) da los archivos más pequeños y la reproducción más rápida en portátiles.</translation>
     </message>
     <message>
         <source>Optimized media format</source>
@@ -22860,12 +23176,28 @@ Tamaño estimado tras compactar: %3</translation>
         <translation> segundos</translation>
     </message>
     <message>
+        <source>Caches the parts of the timeline that are slow to play while you are not editing, so playback is smooth later.</source>
+        <translation>Guarda en caché las partes de la línea de tiempo que se reproducen despacio mientras no editas, para que la reproducción sea fluida después.</translation>
+    </message>
+    <message>
+        <source>How many seconds without an edit before background caching starts.</source>
+        <translation>Cuántos segundos sin editar pasan antes de que empiece el almacenamiento en caché en segundo plano.</translation>
+    </message>
+    <message>
         <source>Automatically cache transitions in User Mode</source>
         <translation>Cachear transiciones automáticamente en modo de usuario</translation>
     </message>
     <message>
+        <source>In User Mode, caches the transitions of the timeline by itself so they play smoothly.</source>
+        <translation>En modo usuario, guarda en caché por sí mismo las transiciones de la línea de tiempo para que se reproduzcan con fluidez.</translation>
+    </message>
+    <message>
         <source>Automatically cache composites in User Mode</source>
         <translation>Cachear composiciones automáticamente en modo de usuario</translation>
+    </message>
+    <message>
+        <source>In User Mode, caches composites (clips layered on others) by itself so they play smoothly.</source>
+        <translation>En modo usuario, guarda en caché por sí mismo los composites (clips superpuestos) para que se reproduzcan con fluidez.</translation>
     </message>
     <message>
         <source>Custom</source>
@@ -22874,6 +23206,10 @@ Tamaño estimado tras compactar: %3</translation>
     <message>
         <source>Timelines that use the project settings and have clips are converted to the new frame rate: clips, markers and effects stay at the same time and the keyframes are re-timed (a clip edge can move by up to half a frame). You are asked before it happens, and Undo takes it back.</source>
         <translation>Las líneas de tiempo que usan los ajustes del proyecto y tienen clips se convierten a la nueva velocidad de fotogramas: los clips, marcadores y efectos se mantienen en el mismo momento y los fotogramas clave se reajustan en el tiempo (el borde de un clip puede moverse hasta medio fotograma). Se pregunta antes de que ocurra, y Deshacer lo revierte.</translation>
+    </message>
+    <message>
+        <source>How many frames per second the timelines of this project play at. Choose the rate your footage and your delivery use.</source>
+        <translation>A cuántos fotogramas por segundo se reproducen las líneas de tiempo de este proyecto. Elige la frecuencia que usan tu material y tu entrega.</translation>
     </message>
     <message>
         <source>Timelines with clips are converted when the frame rate changes.</source>
@@ -24093,8 +24429,16 @@ Reiniciar Kinoklip para aplicarlos.</translation>
         <translation>Exportar ajustes...</translation>
     </message>
     <message>
+        <source>Save your settings to a file, to keep a copy or to move them to another computer.</source>
+        <translation>Guarda tus ajustes en un archivo, para conservar una copia o llevarlos a otro ordenador.</translation>
+    </message>
+    <message>
         <source>Import Settings...</source>
         <translation>Importar ajustes...</translation>
+    </message>
+    <message>
+        <source>Load settings from a file made with Export Settings. Your current settings are saved first, so you can go back.</source>
+        <translation>Carga los ajustes de un archivo hecho con Exportar ajustes. Tus ajustes actuales se guardan antes, para que puedas volver atrás.</translation>
     </message>
     <message>
         <source>Import and Export</source>
@@ -25741,16 +26085,20 @@ Reiniciar Kinoklip para aplicarlos.</translation>
         <translation>Examinar</translation>
     </message>
     <message>
-        <source>Choose the cache folder</source>
-        <translation>Elegir la carpeta de caché</translation>
-    </message>
-    <message>
         <source>Default</source>
         <translation>Predeterminado</translation>
     </message>
     <message>
-        <source>Use the default cache folder</source>
-        <translation>Usar la carpeta de caché predeterminada</translation>
+        <source>The folder where thumbnails and audio waveforms of imported media are kept so projects open quickly. Empty uses the default folder.</source>
+        <translation>La carpeta donde se guardan las miniaturas y formas de onda de los medios importados para que los proyectos abran rápido. Vacío usa la carpeta predeterminada.</translation>
+    </message>
+    <message>
+        <source>Choose the folder for the cache files.</source>
+        <translation>Elige la carpeta de los archivos de caché.</translation>
+    </message>
+    <message>
+        <source>Go back to the default cache folder.</source>
+        <translation>Vuelve a la carpeta de caché predeterminada.</translation>
     </message>
     <message>
         <source>Cache files location</source>
@@ -25769,12 +26117,16 @@ Reiniciar Kinoklip para aplicarlos.</translation>
         <translation>&lt;ubicación de los archivos de caché&gt;/ProxyMedia</translation>
     </message>
     <message>
-        <source>Choose the proxy media folder</source>
-        <translation>Elegir la carpeta de medios proxy</translation>
+        <source>The folder where proxy media (small copies that play smoothly) is made. Empty keeps them inside the cache folder; a folder of your own lets other projects find the same proxies.</source>
+        <translation>La carpeta donde se crean los medios proxy (copias pequeñas que se reproducen con fluidez). Vacío los mantiene dentro de la carpeta de caché; una carpeta propia permite que otros proyectos encuentren los mismos proxies.</translation>
     </message>
     <message>
-        <source>Keep proxies inside the cache folder</source>
-        <translation>Mantener los proxies dentro de la carpeta de caché</translation>
+        <source>Choose the folder for proxy media.</source>
+        <translation>Elige la carpeta de los medios proxy.</translation>
+    </message>
+    <message>
+        <source>Keep the proxies inside the cache folder.</source>
+        <translation>Mantiene los proxies dentro de la carpeta de caché.</translation>
     </message>
     <message>
         <source>Proxy generation location</source>
@@ -25789,12 +26141,12 @@ Reiniciar Kinoklip para aplicarlos.</translation>
         <translation> GB</translation>
     </message>
     <message>
-        <source>Render cache size limit</source>
-        <translation>Límite de tamaño de la caché de renderizado</translation>
+        <source>The most disk space optimized media and the render cache may use. The oldest cached frames are deleted first when it is reached.</source>
+        <translation>El máximo de espacio en disco que pueden usar los medios optimizados y la caché de renderizado. Al alcanzarlo se borran primero los fotogramas más antiguos.</translation>
     </message>
     <message>
-        <source>Optimized media and the render cache live in the cache folder (OptimizedMedia, RenderCache); the oldest cached frames are deleted first when the limit is reached.</source>
-        <translation>Los medios optimizados y la caché de renderizado están en la carpeta de caché (OptimizedMedia, RenderCache); al alcanzar el límite se eliminan primero los fotogramas más antiguos.</translation>
+        <source>Render cache size limit</source>
+        <translation>Límite de tamaño de la caché de renderizado</translation>
     </message>
 </context>
 <context>
@@ -26463,6 +26815,10 @@ Trim the clips so the media covers the transition?</source>
         <translation>Mostrar las carpetas inteligentes predeterminadas (Vídeo, Audio, Imágenes fijas, Líneas de tiempo)</translation>
     </message>
     <message>
+        <source>Shows the built-in smart bins that collect your Video, Audio, Stills and Timelines by themselves. Your own smart bins are not affected.</source>
+        <translation>Muestra las carpetas inteligentes integradas que reúnen por sí solas tus Vídeos, Audios, Imágenes fijas y Líneas de tiempo. Tus propias carpetas inteligentes no cambian.</translation>
+    </message>
+    <message>
         <source>Media pool</source>
         <translation>Panel de medios</translation>
     </message>
@@ -26477,6 +26833,14 @@ Trim the clips so the media covers the transition?</source>
     <message>
         <source>Where File &gt; Import, the Media page&apos;s Add to Media Pool, drops onto the media pool and timeline drops put new media. A drop onto a bin always goes into that bin.</source>
         <translation>Dónde colocan los medios nuevos Archivo &gt; Importar, Añadir al panel de medios de la página Medios, los soltados en el panel de medios y los soltados en la línea de tiempo. Soltar sobre una carpeta siempre lo coloca en esa carpeta.</translation>
+    </message>
+    <message>
+        <source>New media goes into the bin that is open.</source>
+        <translation>Los medios nuevos van a la carpeta abierta.</translation>
+    </message>
+    <message>
+        <source>New media always goes into the Master bin.</source>
+        <translation>Los medios nuevos van siempre a la carpeta maestra.</translation>
     </message>
     <message>
         <source>Import new media into</source>
@@ -29670,8 +30034,16 @@ Abrir un clip multicámara del panel de medios o mover el cabezal de reproducci�
 <context>
     <name>kk::theme</name>
     <message>
+        <source>The colours of the whole window. Default (System) follows the desktop&apos;s colour scheme; the others are fixed colour schemes.</source>
+        <translation>Los colores de toda la ventana. Predeterminado (sistema) sigue el esquema de colores del escritorio; los demás son esquemas de colores fijos.</translation>
+    </message>
+    <message>
         <source>Color theme</source>
         <translation>Tema de color</translation>
+    </message>
+    <message>
+        <source>How buttons, menus and other controls are drawn. Breeze is the KDE look, Fusion a neutral look that is the same on every desktop.</source>
+        <translation>Cómo se dibujan los botones, los menús y otros controles. Breeze es el aspecto de KDE, Fusion un aspecto neutro que es igual en todos los escritorios.</translation>
     </message>
     <message>
         <source>Widget style</source>

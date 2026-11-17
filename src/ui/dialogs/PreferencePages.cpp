@@ -82,6 +82,12 @@ QFormLayout* makeForm(QWidget* page)
     return form;
 }
 
+/// Tooltip of the combo's item @p index (shown in the open list).
+void itemTip(QComboBox* combo, int index, const QString& tip)
+{
+    combo->setItemData(index, tip, Qt::ToolTipRole);
+}
+
 /// Dimmed explanatory text under a field (palette's placeholder colour: readable in light and
 /// dark schemes).
 /// Explains the form's last row on hover: the text becomes the tooltip of its label and of
@@ -98,7 +104,8 @@ void hint(QFormLayout* form, const QString& text)
         } else if (QLayout* layout = item->layout()) {
             for (int i = 0; i < layout->count(); ++i)
                 if (QWidget* child = layout->itemAt(i)->widget())
-                    child->setToolTip(text);
+                    if (!(qobject_cast<QPushButton*>(child) && !child->toolTip().isEmpty()))
+                        child->setToolTip(text); // a button keeps its own short tip
         }
     }
 }
@@ -180,8 +187,9 @@ public:
         m_stillCache->setSingleStep(kStillCacheStepMiB);
         m_stillCache->setSuffix(tr(" MB"));
         m_stillCache->setValue(prefs::stillCacheMiB());
-        m_stillCache->setToolTip(tr("Memory kept for decoded still images (photos, titles). "
-                                    "Least recently used images are dropped first."));
+        m_stillCache->setToolTip(tr("How much memory decoded still images (photos, titles) may "
+                                    "use. The images used longest ago are dropped first when it "
+                                    "is full; raise it if big stills reload slowly."));
         form->addRow(tr("Still image cache"), m_stillCache);
 
         // Resolve: Preferences > System > Memory and GPU > "Limit Resolve memory usage to".
@@ -194,7 +202,7 @@ public:
         m_memoryLimit->setToolTip(tr("The memory Kinoklip plans for: its caches (thumbnails, "
                                      "frames, waveforms, open decoders) are made smaller on "
                                      "machines with less than 8 GB. Auto uses the computer's "
-                                     "memory (%1 GB here).")
+                                     "memory (%1 GB here). A change applies after a restart.")
                                       .arg(double(membudget::totalRamBytes()) / (1 << 30), 0, 'f', 1));
         form->addRow(tr("Limit Kinoklip memory usage to"), m_memoryLimit);
 
@@ -203,8 +211,12 @@ public:
         m_gpu->addItem(tr("Auto (OpenGL)"), QStringLiteral("auto"));
         m_gpu->addItem(tr("CPU only"), QStringLiteral("cpu"));
         m_gpu->setCurrentIndex(prefs::forceCpuRendering() ? 1 : 0);
+        m_gpu->setToolTip(tr("Auto draws the picture on the graphics card with OpenGL. CPU only "
+                             "uses the processor instead: slower, but a way out of graphics "
+                             "driver problems. A change applies after a restart."));
+        itemTip(m_gpu, 0, tr("Use the graphics card through OpenGL."));
+        itemTip(m_gpu, 1, tr("Draw everything on the processor, without the graphics card."));
         form->addRow(tr("GPU processing mode"), m_gpu);
-        
     }
 
     void apply() override
@@ -267,10 +279,13 @@ public:
         m_folder = new QLineEdit(prefs::cacheDirectory());
         m_folder->setObjectName(QStringLiteral("CacheDirectory"));
         m_folder->setPlaceholderText(QDir::toNativeSeparators(defaultCacheDirectory()));
+        m_folder->setToolTip(tr("The folder where thumbnails and audio waveforms of imported "
+                                "media are kept so projects open quickly. Empty uses the "
+                                "default folder."));
         auto* browse = new QPushButton(tr("Browse"));
-        browse->setToolTip(tr("Choose the cache folder"));
+        browse->setToolTip(tr("Choose the folder for the cache files."));
         auto* reset = new QPushButton(tr("Default"));
-        reset->setToolTip(tr("Use the default cache folder"));
+        reset->setToolTip(tr("Go back to the default cache folder."));
         auto* row = new QWidget;
         auto* layout = new QHBoxLayout(row);
         layout->setContentsMargins(0, 0, 0, 0);
@@ -294,10 +309,14 @@ public:
         m_proxyFolder = new QLineEdit(prefs::proxyDirectoryOverride());
         m_proxyFolder->setObjectName(QStringLiteral("ProxyDirectory"));
         m_proxyFolder->setPlaceholderText(tr("<cache files location>/ProxyMedia"));
+        m_proxyFolder->setToolTip(tr("The folder where proxy media (small copies that play "
+                                     "smoothly) is made. Empty keeps them inside the cache "
+                                     "folder; a folder of your own lets other projects find "
+                                     "the same proxies."));
         auto* proxyBrowse = new QPushButton(tr("Browse"));
-        proxyBrowse->setToolTip(tr("Choose the proxy media folder"));
+        proxyBrowse->setToolTip(tr("Choose the folder for proxy media."));
         auto* proxyReset = new QPushButton(tr("Default"));
-        proxyReset->setToolTip(tr("Keep proxies inside the cache folder"));
+        proxyReset->setToolTip(tr("Keep the proxies inside the cache folder."));
         auto* proxyRow = new QWidget;
         auto* proxyLayout = new QHBoxLayout(proxyRow);
         proxyLayout->setContentsMargins(0, 0, 0, 0);
@@ -320,10 +339,10 @@ public:
         m_cacheLimit->setRange(1, 4096);
         m_cacheLimit->setSuffix(tr(" GB"));
         m_cacheLimit->setValue(prefs::renderCacheLimitGiB());
+        m_cacheLimit->setToolTip(tr("The most disk space optimized media and the render cache "
+                                    "may use. The oldest cached frames are deleted first when "
+                                    "it is reached."));
         form->addRow(tr("Render cache size limit"), m_cacheLimit);
-        hint(form, tr("Optimized media and the render cache live in the cache folder "
-                    "(OptimizedMedia, RenderCache); the oldest cached frames are deleted "
-                    "first when the limit is reached."));
     }
 
     void apply() override
@@ -358,6 +377,36 @@ public:
         for (const QString& id : prefs::hwAccelIds())
             m_hwAccel->addItem(hwAccelLabel(prefs::hwAccelFromString(id)), id);
         m_hwAccel->setCurrentIndex(m_hwAccel->findData(prefs::hwAccelToString(prefs::hwAccel())));
+        for (int i = 0; i < m_hwAccel->count(); ++i) {
+            QString tip;
+            switch (prefs::hwAccelFromString(m_hwAccel->itemData(i).toString())) {
+            case prefs::HwAccel::Auto:
+                tip = tr("Use the first method that works on this computer.");
+                break;
+            case prefs::HwAccel::Off:
+                tip = tr("Decode on the processor only. Slower, but works everywhere.");
+                break;
+            case prefs::HwAccel::Vaapi:
+                tip = tr("Decode on the graphics chip through VA-API, the usual way on Intel "
+                         "and AMD graphics.");
+                break;
+            case prefs::HwAccel::Cuda:
+                tip = tr("Decode on an NVIDIA graphics card with CUDA / NVDEC.");
+                break;
+            case prefs::HwAccel::Qsv:
+                tip = tr("Decode on Intel graphics. On Linux this uses the same path as VA-API.");
+                break;
+            case prefs::HwAccel::Vulkan:
+                tip = tr("Decode through Vulkan Video. Still experimental: try it only if the "
+                         "other methods do not work.");
+                break;
+            }
+            itemTip(m_hwAccel, i, tip);
+        }
+        m_hwAccel->setToolTip(tr("Which part of the computer decodes video files. Automatic "
+                                 "picks what works on this machine; Off decodes on the "
+                                 "processor only, which is slower but always works. The table "
+                                 "below shows what was found."));
         form->addRow(tr("Hardware decoding"), m_hwAccel);
 
         m_table = new QTreeWidget;
@@ -371,6 +420,9 @@ public:
         m_table->setTextElideMode(Qt::ElideRight);
         auto* checking = new QTreeWidgetItem(m_table, {QString(), tr("Checking…")});
         checking->setFirstColumnSpanned(true);
+        m_table->setToolTip(tr("The decoding methods found on this computer, whether each one "
+                               "works, and the video formats it can decode. Hover a row for "
+                               "the details."));
         form->addRow(tr("Available hardware"), m_table);
 
         // Probing opens GPU devices (up to ~1 s the first time): never on the GUI thread.
@@ -444,6 +496,8 @@ public:
         // Voice-over (spec 75).
         m_input = new QComboBox;
         m_input->setObjectName(QStringLiteral("AudioInputDevice"));
+        m_input->setToolTip(tr("The microphone or line input that voice-over records from. "
+                               "Automatic uses the system's default input."));
         form->addRow(tr("Input device"), m_input);
         m_countIn = new QSpinBox;
         m_countIn->setObjectName(QStringLiteral("VoiceOverCountIn"));
@@ -451,18 +505,27 @@ public:
         m_countIn->setSuffix(tr(" s"));
         m_countIn->setSpecialValueText(tr("None"));
         m_countIn->setValue(prefs::voiceOverCountInSeconds());
+        m_countIn->setToolTip(tr("Seconds of lead-in before a voice-over take starts, so you "
+                                 "can get ready. None starts recording at once."));
         form->addRow(tr("Voice-over count-in"), m_countIn);
         m_latency = new QSpinBox;
         m_latency->setObjectName(QStringLiteral("VoiceOverLatency"));
         m_latency->setRange(0, 1000);
         m_latency->setSuffix(tr(" ms"));
         m_latency->setValue(prefs::voiceOverLatencyMs());
+        m_latency->setToolTip(tr("Milliseconds added on top of the input's own delay when a "
+                                 "voice-over take is placed on the timeline. Raise it if your "
+                                 "voice comes in late."));
         form->addRow(tr("Voice-over extra latency"), m_latency);
         m_bits = new QComboBox;
         m_bits->setObjectName(QStringLiteral("VoiceOverBits"));
         m_bits->addItem(tr("24-bit"), 24);
         m_bits->addItem(tr("16-bit"), 16);
+        itemTip(m_bits, 0, tr("More detail, larger files."));
+        itemTip(m_bits, 1, tr("Smaller files, a little less detail."));
         m_bits->setCurrentIndex(std::max(0, m_bits->findData(prefs::voiceOverBits())));
+        m_bits->setToolTip(tr("The sample size of the WAV file a voice-over take is saved as. "
+                              "24-bit keeps more detail; 16-bit makes smaller files."));
         form->addRow(tr("Voice-over WAV format"), m_bits);
         hint(form, tr("Voice-over records onto an armed audio track (the R button of the track) "
                     "while the timeline plays. The input is never played back through the "
@@ -554,6 +617,9 @@ public:
         const QString scale
             = QSettings().value(QLatin1String(prefs::kUiScale), QStringLiteral("auto")).toString();
         m_scale->setCurrentIndex(std::max(0, m_scale->findData(scale)));
+        itemTip(m_scale, 0, tr("Use the scale the system is set to."));
+        m_scale->setToolTip(tr("Makes the whole window larger or smaller. Automatic follows "
+                               "the system's setting. A change applies after a restart."));
         form->addRow(tr("Interface scale"), m_scale);
 
         // Resolve: Preferences > User > UI Settings > Language (also needs a restart).
@@ -566,8 +632,10 @@ public:
                                      .value(QLatin1String(i18n::kLanguageKey), QStringLiteral("system"))
                                      .toString();
         m_language->setCurrentIndex(std::max(0, m_language->findData(language)));
+        itemTip(m_language, 0, tr("Use the language of the computer, if Kinoklip has it."));
+        m_language->setToolTip(tr("The language of menus and dialogs. System default follows "
+                                  "the computer's language. A change applies after a restart."));
         form->addRow(tr("Language"), m_language);
-        
 
         // Our own (Resolve has one arrangement): shorter menus grouped by task (spec 82).
         m_menuLayout = new QComboBox;
@@ -575,6 +643,8 @@ public:
         m_menuLayout->addItem(tr("Resolve"), menulayout::layoutId(menulayout::Layout::Resolve));
         m_menuLayout->addItem(
             tr("Streamlined"), menulayout::layoutId(menulayout::Layout::Streamlined));
+        itemTip(m_menuLayout, 0, tr("The menus as in DaVinci Resolve."));
+        itemTip(m_menuLayout, 1, tr("Shorter menus grouped by task, with plain names."));
         m_menuLayout->setCurrentIndex(
             std::max(0, m_menuLayout->findData(menulayout::layoutId(menulayout::layout()))));
         form->addRow(tr("Menu layout"), m_menuLayout);
@@ -586,6 +656,9 @@ public:
         m_animate = new QCheckBox(tr("Animate timeline edits"));
         m_animate->setObjectName(QStringLiteral("AnimateTimelineEdits"));
         m_animate->setChecked(prefs::animationsEnabled());
+        m_animate->setToolTip(tr("Clips slide, appear and fade after edits, cuts flash and the "
+                                 "playhead glides on jumps. Turn it off for an instant "
+                                 "timeline."));
         form->addRow(tr("Animations"), m_animate);
         m_speed = new QSlider(Qt::Horizontal);
         m_speed->setObjectName(QStringLiteral("AnimationSpeed"));
@@ -595,6 +668,8 @@ public:
         m_speed->setTickPosition(QSlider::TicksBelow);
         m_speed->setValue(int(std::lround(prefs::animationSpeed() / kSpeedStep)));
         m_speed->setEnabled(m_animate->isChecked());
+        m_speed->setToolTip(tr("How fast the timeline animations run, from half speed to double "
+                               "speed. Only used while animations are on."));
         auto* speedLabel = new QLabel;
         auto showSpeed = [this, speedLabel] {
             speedLabel->setText(tr("%1x").arg(m_speed->value() * kSpeedStep));
@@ -614,6 +689,8 @@ public:
         m_renderNotify = new QCheckBox(tr("Show a system notification when renders finish"));
         m_renderNotify->setObjectName(QStringLiteral("RenderNotifications"));
         m_renderNotify->setChecked(prefs::renderNotificationsEnabled());
+        m_renderNotify->setToolTip(tr("Shows a notification from the desktop when a render "
+                                      "finishes, so you can work in another window meanwhile."));
         form->addRow(tr("Notifications"), m_renderNotify);
     }
 
@@ -663,11 +740,14 @@ public:
         m_autosave->setSuffix(tr(" min"));
         m_autosave->setSpecialValueText(tr("Off"));
         m_autosave->setValue(prefs::autosaveMinutes());
+        m_autosave->setToolTip(tr("How often the open project is saved to the autosave folder "
+                                  "in the background. Off turns autosave off."));
         form->addRow(tr("Autosave every"), m_autosave);
         const QString folder = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
             + QStringLiteral("/autosave");
         auto* location = note(QDir::toNativeSeparators(folder));
         location->setTextInteractionFlags(Qt::TextSelectableByMouse);
+        location->setToolTip(tr("The folder where autosaved copies of your projects are kept."));
         form->addRow(tr("Autosave location"), location);
 
         // Project library (the Project Manager's folder) and what start-up shows.
@@ -675,10 +755,12 @@ public:
         m_library->setObjectName(QStringLiteral("ProjectLibraryDirectory"));
         m_library->setPlaceholderText(
             QDir::toNativeSeparators(prefs::projectLibraryDefaultDirectory()));
+        m_library->setToolTip(tr("The folder the Project Manager lists projects from, with its "
+                                 "sub-folders. Empty uses the default folder."));
         auto* browse = new QPushButton(tr("Browse"));
-        browse->setToolTip(tr("Choose the project library folder"));
+        browse->setToolTip(tr("Choose the project library folder."));
         auto* reset = new QPushButton(tr("Default"));
-        reset->setToolTip(tr("Use the default project library folder"));
+        reset->setToolTip(tr("Go back to the default project library folder."));
         auto* row = new QWidget;
         auto* layout = new QHBoxLayout(row);
         layout->setContentsMargins(0, 0, 0, 0);
@@ -702,7 +784,11 @@ public:
         m_startup->setObjectName(QStringLiteral("StartupAction"));
         m_startup->addItem(tr("Show the Project Manager"), true);
         m_startup->addItem(tr("Reopen the last project"), false);
+        itemTip(m_startup, 0, tr("Start with the Project Manager, where you pick a project."));
+        itemTip(m_startup, 1, tr("Start by opening the project you worked on last."));
         m_startup->setCurrentIndex(prefs::startupShowsProjectManager() ? 0 : 1);
+        m_startup->setToolTip(tr("What Kinoklip does when it starts: show the Project Manager "
+                                 "to pick a project, or open the project you worked on last."));
         form->addRow(tr("At start-up"), m_startup);
     }
 
@@ -732,9 +818,13 @@ public:
         auto* form = makeForm(this);
         m_still = secondsSpin(b.stillSeconds);
         m_still->setObjectName(QStringLiteral("StillSeconds"));
+        m_still->setToolTip(tr("How long a photo or other still image is when you put it on "
+                               "the timeline."));
         form->addRow(tr("Standard still duration"), m_still);
         m_generator = secondsSpin(b.generatorSeconds);
         m_generator->setObjectName(QStringLiteral("GeneratorSeconds"));
+        m_generator->setToolTip(tr("How long a new title or generator clip is when you add it "
+                                   "to the timeline."));
         form->addRow(tr("Standard title and generator duration"), m_generator);
         m_transition = secondsSpin(b.transitionSeconds);
         m_transition->setObjectName(QStringLiteral("TransitionSeconds"));
@@ -752,6 +842,10 @@ public:
                 std::pair {Interp::Smooth, tr("Smooth (Bezier)")},
                 std::pair {Interp::Hold, tr("Static (Hold)")}})
             m_newKeyInterp->addItem(name, int(interp));
+        for (int i = 0; i < m_newKeyInterp->count(); ++i)
+            itemTip(m_newKeyInterp, i,
+                tr("New keyframes use the \"%1\" curve between keyframes.")
+                    .arg(m_newKeyInterp->itemText(i)));
         m_newKeyInterp->setCurrentIndex(
             std::max(0, m_newKeyInterp->findData(int(defaultKeyInterp()))));
         m_newKeyInterp->setToolTip(tr("The type of every keyframe you add. Right-click a "
@@ -763,6 +857,8 @@ public:
         m_nudge->setRange(1, kMaxNudgeFrames);
         m_nudge->setSuffix(tr(" frames"));
         m_nudge->setValue(b.multiFrameNudge);
+        m_nudge->setToolTip(tr("How many frames the fast nudge commands move a clip or a "
+                               "trim at a time."));
         form->addRow(tr("Fast nudge"), m_nudge);
 
         m_zoom = new QComboBox;
@@ -770,8 +866,11 @@ public:
         m_zoom->addItem(tr("Playhead"), QStringLiteral("playhead"));
         m_zoom->addItem(tr("Mouse pointer"), QStringLiteral("mouse"));
         m_zoom->setCurrentIndex(prefs::zoomAroundMouse() ? 1 : 0);
-        m_zoom->setToolTip(tr("Point the timeline keeps in place when zooming with the "
-                              "mouse wheel"));
+        m_zoom->setToolTip(tr("The point the timeline keeps in place when you zoom with the "
+                              "mouse wheel: the playhead, or the spot under the mouse "
+                              "pointer. Zooming with the keyboard always uses the playhead."));
+        itemTip(m_zoom, 0, tr("The timeline zooms around the playhead."));
+        itemTip(m_zoom, 1, tr("The timeline zooms around the spot under the mouse pointer."));
         form->addRow(tr("Timeline zooms around"), m_zoom);
         m_wheel = new QComboBox;
         m_wheel->setObjectName(QStringLiteral("WheelScheme"));
@@ -779,38 +878,60 @@ public:
             int(WheelScheme::Resolve));
         m_wheel->addItem(tr("Classic (Ctrl zooms, Shift scrolls time)"), int(WheelScheme::Classic));
         m_wheel->setCurrentIndex(m_wheel->findData(int(b.wheelScheme)));
+        m_wheel->setToolTip(tr("Which keys change what the mouse wheel does in the timeline."));
+        itemTip(m_wheel, 0, tr("As in DaVinci Resolve: Alt zooms, Ctrl scrolls in time, Shift "
+                               "changes the track height."));
+        itemTip(m_wheel, 1, tr("Ctrl zooms and Shift scrolls in time, as in most editors."));
         form->addRow(tr("Mouse wheel"), m_wheel);
 
         m_threePoint = new QCheckBox(tr("Use timeline in and out points for source edits"));
         m_threePoint->setChecked(b.threePointEditing);
+        m_threePoint->setToolTip(tr("On: Insert, Overwrite and the other source edits go "
+                                    "between the timeline's in and out points when they are "
+                                    "set. Off: they always go at the playhead."));
         form->addRow(tr("Three-point editing"), m_threePoint);
         m_rippleGap = new QCheckBox(tr("Close the gap under the playhead when nothing is "
                                        "selected"));
         m_rippleGap->setChecked(b.rippleDeleteGapAtPlayhead);
+        m_rippleGap->setToolTip(tr("On: Ripple Delete with nothing selected closes the gap "
+                                   "under the playhead. Off: it does nothing until you select "
+                                   "the gap."));
         form->addRow(tr("Ripple delete"), m_rippleGap);
         // Off by default, keeping spec 10.5 (see 49.6 for what is known of Resolve).
         m_rippleClip = new QCheckBox(tr("Delete the clips under the playhead on the selected "
                                         "tracks when nothing is selected"));
         m_rippleClip->setObjectName(QStringLiteral("RippleDeleteClipAtPlayhead"));
         m_rippleClip->setChecked(b.rippleDeleteClipAtPlayhead);
+        m_rippleClip->setToolTip(tr("On: Ripple Delete with nothing selected removes the clips "
+                                    "under the playhead on the selected tracks and closes the "
+                                    "gap. Off: it does nothing."));
         form->addRow(QString(), m_rippleClip);
         m_rollAtCut = new QCheckBox(tr("Selection tool rolls at the middle of an edit"));
         m_rollAtCut->setChecked(b.selectToolRollsAtCut);
+        m_rollAtCut->setToolTip(tr("On: dragging exactly at the cut between two touching clips "
+                                   "with the Selection tool moves the cut (a roll). Off: it "
+                                   "trims only one side."));
         form->addRow(tr("Trimming"), m_rollAtCut);
         m_slideInName = new QCheckBox(tr("Trim tool slides in the clip name bar"));
         m_slideInName->setChecked(b.trimToolSlideInNameBar);
+        m_slideInName->setToolTip(tr("On: with the Trim tool, dragging the upper part of a "
+                                     "clip (its name bar) slides it and dragging the rest "
+                                     "slips it. Off: the whole clip slips."));
         form->addRow(QString(), m_slideInName);
         m_twoUpLook = new QCheckBox(tr("Trim view shows effects and transforms (slower)"));
         m_twoUpLook->setObjectName(QStringLiteral("TwoUpProgramLook"));
         m_twoUpLook->setChecked(b.twoUpProgramLook);
+        m_twoUpLook->setToolTip(tr("On: the two pictures of the trim view show the clips with "
+                                   "their effects and transforms. This looks right but lags "
+                                   "behind fast drags. Off: the plain pictures."));
         form->addRow(QString(), m_twoUpLook);
         m_syncLockNew = new QCheckBox(tr("Sync Lock on new tracks"));
         m_syncLockNew->setObjectName(QStringLiteral("SyncLockNewTracks"));
         m_syncLockNew->setChecked(EditBehaviour::syncLockNewTracks());
+        m_syncLockNew->setToolTip(tr("Tracks you add from now on start with Sync Lock on, so "
+                                     "their clips stay in step with the others when you ripple "
+                                     "edit. Existing tracks keep their setting."));
         form->addRow(tr("Tracks"), m_syncLockNew);
-        hint(form, tr("Sets Sync Lock for tracks added afterwards: Add Track, tracks made by "
-                      "dropping onto empty space above the timeline, the tracks of new "
-                      "timelines and of compound clips. Existing tracks keep theirs."));
     }
 
     void apply() override
@@ -873,6 +994,9 @@ public:
                                        "Timelines)"));
         m_smartBins->setObjectName(QStringLiteral("DefaultSmartBins"));
         m_smartBins->setChecked(prefs::showDefaultSmartBins());
+        m_smartBins->setToolTip(tr("Shows the built-in smart bins that collect your Video, "
+                                   "Audio, Stills and Timelines by themselves. Your own smart "
+                                   "bins are not affected."));
         form->addRow(tr("Media pool"), m_smartBins);
         m_importTarget = new QComboBox;
         m_importTarget->setObjectName(QStringLiteral("ImportTarget"));
@@ -881,6 +1005,8 @@ public:
         m_importTarget->setToolTip(tr("Where File > Import, the Media page's Add to Media Pool, "
                                       "drops onto the media pool and timeline drops put new "
                                       "media. A drop onto a bin always goes into that bin."));
+        itemTip(m_importTarget, 0, tr("New media goes into the bin that is open."));
+        itemTip(m_importTarget, 1, tr("New media always goes into the Master bin."));
         m_importTarget->setCurrentIndex(prefs::importIntoMasterBin() ? 1 : 0);
         form->addRow(tr("Import new media into"), m_importTarget);
         m_rulerJumps = new QCheckBox(tr("Pressing the ruler moves the playhead there at once"));
@@ -929,6 +1055,14 @@ public:
             tr("Automatic (Half while playback cannot keep up)"), QStringLiteral("auto"));
         m_quality->setCurrentIndex(std::max(0, m_quality->findData(prefs::previewQuality())));
         m_quality->setToolTip(PlaybackResolution::toolTip());
+        itemTip(m_quality, 0, tr("Every frame at full resolution; frames are skipped if the "
+                                 "computer cannot keep up."));
+        itemTip(m_quality, 1, tr("Half of the timeline resolution: smoother playback, softer "
+                                 "picture."));
+        itemTip(m_quality, 2, tr("A quarter of the timeline resolution: the smoothest playback "
+                                 "on a slow computer."));
+        itemTip(m_quality, 3, tr("Full resolution, switching to half only while playback "
+                                 "cannot keep up. Paused frames are always full."));
         form->addRow(tr("Playback resolution"), m_quality);
         m_preroll = new QDoubleSpinBox;
         m_postroll = new QDoubleSpinBox;
@@ -942,13 +1076,22 @@ public:
         m_postroll->setObjectName(QStringLiteral("PostrollSeconds"));
         m_preroll->setValue(double(b.prerollMs) / kMsPerSecond);
         m_postroll->setValue(double(b.postrollMs) / kMsPerSecond);
+        m_preroll->setToolTip(tr("How much of the timeline before the playhead is played "
+                                 "when you play around the current frame."));
+        m_postroll->setToolTip(tr("How much of the timeline after the playhead is played "
+                                  "when you play around the current frame."));
         form->addRow(tr("Pre-roll"), m_preroll);
         form->addRow(tr("Post-roll"), m_postroll);
         m_return = new QCheckBox(tr("Return to the start position after playing around"));
         m_return->setChecked(b.returnAfterPlayAround);
+        m_return->setToolTip(tr("On: the playhead goes back to where it was when playing "
+                                "around the current frame or from in to out ends. Off: it "
+                                "stays where playback stopped."));
         form->addRow(tr("Play around"), m_return);
         m_restart = new QCheckBox(tr("Play from the start when the playhead is at the end"));
         m_restart->setChecked(b.restartAtEnd);
+        m_restart->setToolTip(tr("On: pressing Play with the playhead on the last frame starts "
+                                 "again from the start. Off: nothing happens."));
         form->addRow(tr("At the end"), m_restart);
         m_stopOnMove = new QCheckBox(tr("Stop playback when the playhead is moved"));
         m_stopOnMove->setObjectName(QStringLiteral("StopOnPlayheadMove"));
@@ -965,6 +1108,8 @@ public:
         m_afterEdit->setToolTip(tr("What playback does after an edit of the timeline while it "
                                    "plays (ripple delete, split, trim, move, insert, undo...). "
                                    "Changing values in the Inspector never stops it."));
+        itemTip(m_afterEdit, 0, tr("Playback carries on after the edit."));
+        itemTip(m_afterEdit, 1, tr("Playback stops when the edit is made."));
         m_afterEdit->setCurrentIndex(b.stopOnEdit ? 1 : 0);
         form->addRow(tr("After an edit during playback"), m_afterEdit);
     }
@@ -1006,6 +1151,7 @@ public:
         auto* button = new QPushButton(tr("Keyboard Customization…"));
         button->setObjectName(QStringLiteral("OpenKeyboardCustomization"));
         button->setEnabled(customize != nullptr);
+        button->setToolTip(tr("Opens the keyboard shortcut editor.")); // with the key, below
         if (customize) {
             QPointer<QAction> action(customize);
             // The key named in the tooltip follows the action (it can be rebound in the

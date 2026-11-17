@@ -229,8 +229,14 @@ public:
         auto* row = new QHBoxLayout;
         auto* exportButton = new QPushButton(SettingsTransferDialog::tr("Export Settings..."));
         exportButton->setObjectName(QStringLiteral("ExportSettingsButton"));
+        exportButton->setToolTip(SettingsTransferDialog::tr(
+            "Save your settings to a file, to keep a copy or to move them to another "
+            "computer."));
         auto* importButton = new QPushButton(SettingsTransferDialog::tr("Import Settings..."));
         importButton->setObjectName(QStringLiteral("ImportSettingsButton"));
+        importButton->setToolTip(SettingsTransferDialog::tr(
+            "Load settings from a file made with Export Settings. Your current settings are "
+            "saved first, so you can go back."));
         connect(exportButton, &QPushButton::clicked, this,
             [this] { SettingsTransferDialog::runExport(window()); });
         connect(importButton, &QPushButton::clicked, this,

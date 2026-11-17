@@ -2926,6 +2926,14 @@ The program was probably closed by the system because the computer ran out of me
         <translation>Вирізає об’єкт із відео за допомогою моделі, що працює на цьому комп’ютері. Моделі не входять до Kinoklip: кожну завантажують лише на ваше прохання. Модель для людей призначена для відео; модель для будь-якого об’єкта — для нерухомих зображень.</translation>
     </message>
     <message>
+        <source>Delete the downloaded %1 model to free its disk space. Download it again to use it.</source>
+        <translation>Видалити завантажену модель %1, щоб звільнити місце на диску. Щоб користуватися нею, завантажте знову.</translation>
+    </message>
+    <message>
+        <source>Delete the saved cut-outs. A clip is cut out again the next time you remove its background.</source>
+        <translation>Видалити збережені вирізані маски. Кліп буде вирізано знову, коли ви наступного разу приберете його тло.</translation>
+    </message>
+    <message>
         <source>Download</source>
         <translation>Завантажити</translation>
     </message>
@@ -2940,6 +2948,10 @@ The program was probably closed by the system because the computer ran out of me
     <message>
         <source>Download size:</source>
         <translation>Розмір завантаження:</translation>
+    </message>
+    <message>
+        <source>Download the %1 model to this computer. It is only downloaded when you ask, and Background Removal needs it.</source>
+        <translation>Завантажити модель %1 на цей комп'ютер. Вона завантажується лише на ваше прохання і потрібна для вилучення тла.</translation>
     </message>
     <message>
         <source>Downloading... %1 of %2</source>
@@ -3021,8 +3033,16 @@ The program was probably closed by the system because the computer ran out of me
         <translation>Завантажити %1...</translation>
     </message>
     <message>
+        <source>Download the %1 model to this computer. It is only downloaded when you ask, and Background Removal needs it.</source>
+        <translation>Завантажити модель %1 на цей комп'ютер. Вона завантажується лише на ваше прохання і потрібна для вилучення тла.</translation>
+    </message>
+    <message>
         <source>Remove %1</source>
         <translation>Видалити %1</translation>
+    </message>
+    <message>
+        <source>Delete the downloaded %1 model to free its disk space. Download it again to use it.</source>
+        <translation>Видалити завантажену модель %1, щоб звільнити місце на диску. Щоб користуватися нею, завантажте знову.</translation>
     </message>
     <message>
         <source>Remove Model</source>
@@ -3035,6 +3055,10 @@ The program was probably closed by the system because the computer ran out of me
     <message>
         <source>Clear Matte Cache</source>
         <translation>Очистити кеш матте</translation>
+    </message>
+    <message>
+        <source>Delete the saved cut-outs. A clip is cut out again the next time you remove its background.</source>
+        <translation>Видалити збережені вирізані маски. Кліп буде вирізано знову, коли ви наступного разу приберете його тло.</translation>
     </message>
     <message>
         <source>AI tool: Background Removal</source>
@@ -3123,6 +3147,10 @@ The program was probably closed by the system because the computer ran out of me
         <translation>Відтворення використовує стерео 48 кГц. «Автоматично» слідує за системним пристроєм виведення (наприклад, навушниками, підключеними під час відтворення). Вибраний пристрій використовується одразу після збереження; поки його не підключено, звук іде через системний пристрій.</translation>
     </message>
     <message>
+        <source>The microphone or line input that voice-over records from. Automatic uses the system&apos;s default input.</source>
+        <translation>Мікрофон або лінійний вхід, з якого записується озвучення. Автоматично використовує вхід системи за замовчуванням.</translation>
+    </message>
+    <message>
         <source>Input device</source>
         <translation>Пристрій введення</translation>
     </message>
@@ -3135,12 +3163,20 @@ The program was probably closed by the system because the computer ran out of me
         <translation>Немає</translation>
     </message>
     <message>
+        <source>Seconds of lead-in before a voice-over take starts, so you can get ready. None starts recording at once.</source>
+        <translation>Секунди відліку перед початком дубля озвучення, щоб ви встигли підготуватися. «Немає» починає запис одразу.</translation>
+    </message>
+    <message>
         <source>Voice-over count-in</source>
         <translation>Відлік перед озвученням</translation>
     </message>
     <message>
         <source> ms</source>
         <translation> мс</translation>
+    </message>
+    <message>
+        <source>Milliseconds added on top of the input&apos;s own delay when a voice-over take is placed on the timeline. Raise it if your voice comes in late.</source>
+        <translation>Мілісекунди, що додаються до власної затримки входу під час розміщення дубля озвучення на таймлайні. Збільшіть, якщо голос запізнюється.</translation>
     </message>
     <message>
         <source>Voice-over extra latency</source>
@@ -3153,6 +3189,18 @@ The program was probably closed by the system because the computer ran out of me
     <message>
         <source>16-bit</source>
         <translation>16 біт</translation>
+    </message>
+    <message>
+        <source>More detail, larger files.</source>
+        <translation>Більше деталей, файли більші.</translation>
+    </message>
+    <message>
+        <source>Smaller files, a little less detail.</source>
+        <translation>Файли менші, трохи менше деталей.</translation>
+    </message>
+    <message>
+        <source>The sample size of the WAV file a voice-over take is saved as. 24-bit keeps more detail; 16-bit makes smaller files.</source>
+        <translation>Розрядність WAV-файлу, у який зберігається дубль озвучення. 24 біти зберігають більше деталей, 16 бітів дають менші файли.</translation>
     </message>
     <message>
         <source>Voice-over WAV format</source>
@@ -9952,6 +10000,34 @@ Thank you for watching</source>
 <context>
     <name>kk::DecodePage</name>
     <message>
+        <source>Use the first method that works on this computer.</source>
+        <translation>Використовувати перший спосіб, що працює на цьому комп'ютері.</translation>
+    </message>
+    <message>
+        <source>Decode on the processor only. Slower, but works everywhere.</source>
+        <translation>Декодувати лише на процесорі. Повільніше, але працює всюди.</translation>
+    </message>
+    <message>
+        <source>Decode on the graphics chip through VA-API, the usual way on Intel and AMD graphics.</source>
+        <translation>Декодувати на графічному чипі через VA-API, звичайний спосіб для графіки Intel і AMD.</translation>
+    </message>
+    <message>
+        <source>Decode on an NVIDIA graphics card with CUDA / NVDEC.</source>
+        <translation>Декодувати на відеокарті NVIDIA за допомогою CUDA / NVDEC.</translation>
+    </message>
+    <message>
+        <source>Decode on Intel graphics. On Linux this uses the same path as VA-API.</source>
+        <translation>Декодувати на графіці Intel. У Linux використовується той самий шлях, що й у VA-API.</translation>
+    </message>
+    <message>
+        <source>Decode through Vulkan Video. Still experimental: try it only if the other methods do not work.</source>
+        <translation>Декодувати через Vulkan Video. Поки що експериментально: пробуйте, лише якщо інші способи не працюють.</translation>
+    </message>
+    <message>
+        <source>Which part of the computer decodes video files. Automatic picks what works on this machine; Off decodes on the processor only, which is slower but always works. The table below shows what was found.</source>
+        <translation>Яка частина комп'ютера декодує відеофайли. «Автоматично» вибирає те, що працює на цій машині; «Вимкнено» декодує лише на процесорі, це повільніше, але працює завжди. Таблиця нижче показує, що знайдено.</translation>
+    </message>
+    <message>
         <source>Hardware decoding</source>
         <translation>Апаратне декодування</translation>
     </message>
@@ -9970,6 +10046,10 @@ Thank you for watching</source>
     <message>
         <source>Checking…</source>
         <translation>Перевірка…</translation>
+    </message>
+    <message>
+        <source>The decoding methods found on this computer, whether each one works, and the video formats it can decode. Hover a row for the details.</source>
+        <translation>Способи декодування, знайдені на цьому комп'ютері, чи працює кожен із них і які відеоформати він уміє декодувати. Наведіть курсор на рядок, щоб побачити подробиці.</translation>
     </message>
     <message>
         <source>Available hardware</source>
@@ -10311,8 +10391,16 @@ Thank you for watching</source>
 <context>
     <name>kk::EditingPage</name>
     <message>
+        <source>How long a photo or other still image is when you put it on the timeline.</source>
+        <translation>Якої довжини буде фотографія чи інше нерухоме зображення, коли ви кладете його на таймлайн.</translation>
+    </message>
+    <message>
         <source>Standard still duration</source>
         <translation>Стандартна тривалість стоп-кадру</translation>
+    </message>
+    <message>
+        <source>How long a new title or generator clip is when you add it to the timeline.</source>
+        <translation>Якої довжини буде новий титр або генератор, коли ви додаєте його на таймлайн.</translation>
     </message>
     <message>
         <source>Standard title and generator duration</source>
@@ -10351,6 +10439,10 @@ Thank you for watching</source>
         <translation>Статична (утримання)</translation>
     </message>
     <message>
+        <source>New keyframes use the &quot;%1&quot; curve between keyframes.</source>
+        <translation>Нові ключові кадри використовують криву «%1» між ключовими кадрами.</translation>
+    </message>
+    <message>
         <source>The type of every keyframe you add. Right-click a keyframe and choose Set as Default for New Keyframes to change it from there.</source>
         <translation>Тип кожного доданого ключового кадру. Клацніть ключовий кадр правою кнопкою й виберіть «Зробити типовим для нових ключових кадрів», щоб змінити його там.</translation>
     </message>
@@ -10361,6 +10453,10 @@ Thank you for watching</source>
     <message>
         <source> frames</source>
         <translation> кадрів</translation>
+    </message>
+    <message>
+        <source>How many frames the fast nudge commands move a clip or a trim at a time.</source>
+        <translation>На скільки кадрів за раз команди швидкого зсуву переміщують кліп або обрізання.</translation>
     </message>
     <message>
         <source>Fast nudge</source>
@@ -10375,8 +10471,16 @@ Thank you for watching</source>
         <translation>Вказівник миші</translation>
     </message>
     <message>
-        <source>Point the timeline keeps in place when zooming with the mouse wheel</source>
-        <translation>Точка, яку таймлайн утримує на місці під час масштабування коліщатком миші</translation>
+        <source>The point the timeline keeps in place when you zoom with the mouse wheel: the playhead, or the spot under the mouse pointer. Zooming with the keyboard always uses the playhead.</source>
+        <translation>Точка, яку таймлайн утримує на місці під час масштабування коліщатком миші: вказівник відтворення або місце під вказівником миші. Масштабування з клавіатури завжди використовує вказівник відтворення.</translation>
+    </message>
+    <message>
+        <source>The timeline zooms around the playhead.</source>
+        <translation>Таймлайн масштабується навколо вказівника відтворення.</translation>
+    </message>
+    <message>
+        <source>The timeline zooms around the spot under the mouse pointer.</source>
+        <translation>Таймлайн масштабується навколо місця під вказівником миші.</translation>
     </message>
     <message>
         <source>Timeline zooms around</source>
@@ -10391,12 +10495,28 @@ Thank you for watching</source>
         <translation>Класичний (Ctrl масштабує, Shift прокручує час)</translation>
     </message>
     <message>
+        <source>Which keys change what the mouse wheel does in the timeline.</source>
+        <translation>Які клавіші змінюють дію коліщатка миші на таймлайні.</translation>
+    </message>
+    <message>
+        <source>As in DaVinci Resolve: Alt zooms, Ctrl scrolls in time, Shift changes the track height.</source>
+        <translation>Як у DaVinci Resolve: Alt масштабує, Ctrl прокручує за часом, Shift змінює висоту доріжки.</translation>
+    </message>
+    <message>
+        <source>Ctrl zooms and Shift scrolls in time, as in most editors.</source>
+        <translation>Ctrl масштабує, Shift прокручує за часом, як у більшості редакторів.</translation>
+    </message>
+    <message>
         <source>Mouse wheel</source>
         <translation>Коліщатко миші</translation>
     </message>
     <message>
         <source>Use timeline in and out points for source edits</source>
         <translation>Використовувати точки входу й виходу таймлайну для монтажу з джерела</translation>
+    </message>
+    <message>
+        <source>On: Insert, Overwrite and the other source edits go between the timeline&apos;s in and out points when they are set. Off: they always go at the playhead.</source>
+        <translation>Увімк.: вставка, перезапис та інші правки з джерела йдуть між точками входу й виходу таймлайна, якщо їх задано. Вимк.: вони завжди йдуть у позицію вказівника відтворення.</translation>
     </message>
     <message>
         <source>Three-point editing</source>
@@ -10407,6 +10527,10 @@ Thank you for watching</source>
         <translation>Закривати проміжок під вказівником відтворення, коли нічого не вибрано</translation>
     </message>
     <message>
+        <source>On: Ripple Delete with nothing selected closes the gap under the playhead. Off: it does nothing until you select the gap.</source>
+        <translation>Увімк.: видалення зі зсувом без виділення закриває проміжок під вказівником відтворення. Вимк.: нічого не відбувається, доки ви не виділите проміжок.</translation>
+    </message>
+    <message>
         <source>Ripple delete</source>
         <translation>Видалення зі зсувом</translation>
     </message>
@@ -10415,8 +10539,16 @@ Thank you for watching</source>
         <translation>Видаляти кліпи під вказівником відтворення на вибраних доріжках, коли нічого не вибрано</translation>
     </message>
     <message>
+        <source>On: Ripple Delete with nothing selected removes the clips under the playhead on the selected tracks and closes the gap. Off: it does nothing.</source>
+        <translation>Увімк.: видалення зі зсувом без виділення прибирає кліпи під вказівником відтворення на вибраних доріжках і закриває проміжок. Вимк.: нічого не відбувається.</translation>
+    </message>
+    <message>
         <source>Selection tool rolls at the middle of an edit</source>
         <translation>Інструмент вибору виконує перекат посередині склейки</translation>
+    </message>
+    <message>
+        <source>On: dragging exactly at the cut between two touching clips with the Selection tool moves the cut (a roll). Off: it trims only one side.</source>
+        <translation>Увімк.: перетягування інструментом виділення точно по стику двох кліпів, що торкаються, зсуває стик (ролл). Вимк.: обрізається лише одна сторона.</translation>
     </message>
     <message>
         <source>Trimming</source>
@@ -10427,20 +10559,28 @@ Thank you for watching</source>
         <translation>Інструмент підрізки зсуває в смузі назви кліпу</translation>
     </message>
     <message>
+        <source>On: with the Trim tool, dragging the upper part of a clip (its name bar) slides it and dragging the rest slips it. Off: the whole clip slips.</source>
+        <translation>Увімк.: інструментом обрізання перетягування верхньої частини кліпу (його смуги з назвою) зсуває кліп, а перетягування решти зсуває вміст (слип). Вимк.: увесь кліп зсувається слипом.</translation>
+    </message>
+    <message>
         <source>Trim view shows effects and transforms (slower)</source>
         <translation>Вигляд підрізки показує ефекти й трансформації (повільніше)</translation>
+    </message>
+    <message>
+        <source>On: the two pictures of the trim view show the clips with their effects and transforms. This looks right but lags behind fast drags. Off: the plain pictures.</source>
+        <translation>Увімк.: два зображення вікна обрізання показують кліпи з їхніми ефектами й перетвореннями. Виглядає правильно, але відстає під час швидкого перетягування. Вимк.: прості зображення.</translation>
     </message>
     <message>
         <source>Sync Lock on new tracks</source>
         <translation>Синхроблокування на нових доріжках</translation>
     </message>
     <message>
-        <source>Tracks</source>
-        <translation>Доріжки</translation>
+        <source>Tracks you add from now on start with Sync Lock on, so their clips stay in step with the others when you ripple edit. Existing tracks keep their setting.</source>
+        <translation>Доріжки, додані відтепер, створюються з увімкненим синхроблокуванням, щоб їхні кліпи лишалися узгодженими з іншими під час правки зі зсувом. Наявні доріжки зберігають свої налаштування.</translation>
     </message>
     <message>
-        <source>Sets Sync Lock for tracks added afterwards: Add Track, tracks made by dropping onto empty space above the timeline, the tracks of new timelines and of compound clips. Existing tracks keep theirs.</source>
-        <translation>Задає синхроблокування для доріжок, доданих пізніше: Додати доріжку, доріжки, створені перетягуванням на порожнє місце над таймлайном, доріжки нових таймлайнів і складених кліпів. Наявні доріжки залишаються з попереднім значенням.</translation>
+        <source>Tracks</source>
+        <translation>Доріжки</translation>
     </message>
 </context>
 <context>
@@ -16137,12 +16277,28 @@ Drag one from the Effects library onto the clip, or add one here.</source>
         <translation>Автоматично (система)</translation>
     </message>
     <message>
+        <source>Use the scale the system is set to.</source>
+        <translation>Використовувати масштаб, заданий у системі.</translation>
+    </message>
+    <message>
+        <source>Makes the whole window larger or smaller. Automatic follows the system&apos;s setting. A change applies after a restart.</source>
+        <translation>Робить усе вікно більшим або меншим. «Автоматично» дотримується налаштування системи. Зміна набуває чинності після перезапуску.</translation>
+    </message>
+    <message>
         <source>Interface scale</source>
         <translation>Масштаб інтерфейсу</translation>
     </message>
     <message>
         <source>System default</source>
         <translation>Типово в системі</translation>
+    </message>
+    <message>
+        <source>Use the language of the computer, if Kinoklip has it.</source>
+        <translation>Використовувати мову комп'ютера, якщо вона є в Kinoklip.</translation>
+    </message>
+    <message>
+        <source>The language of menus and dialogs. System default follows the computer&apos;s language. A change applies after a restart.</source>
+        <translation>Мова меню та діалогів. «Типова системна» дотримується мови комп'ютера. Зміна набуває чинності після перезапуску.</translation>
     </message>
     <message>
         <source>Language</source>
@@ -16157,6 +16313,14 @@ Drag one from the Effects library onto the clip, or add one here.</source>
         <translation>Спрощена</translation>
     </message>
     <message>
+        <source>The menus as in DaVinci Resolve.</source>
+        <translation>Меню як у DaVinci Resolve.</translation>
+    </message>
+    <message>
+        <source>Shorter menus grouped by task, with plain names.</source>
+        <translation>Коротші меню, згруповані за завданнями, з простими назвами.</translation>
+    </message>
+    <message>
         <source>Menu layout</source>
         <translation>Розкладка меню</translation>
     </message>
@@ -16169,8 +16333,16 @@ Drag one from the Effects library onto the clip, or add one here.</source>
         <translation>Анімувати зміни на таймлайні</translation>
     </message>
     <message>
+        <source>Clips slide, appear and fade after edits, cuts flash and the playhead glides on jumps. Turn it off for an instant timeline.</source>
+        <translation>Кліпи ковзають, з'являються й плавно проявляються після правок, склейки спалахують, а вказівник відтворення плавно переміщується під час стрибків. Вимкніть для миттєвого таймлайна.</translation>
+    </message>
+    <message>
         <source>Animations</source>
         <translation>Анімації</translation>
+    </message>
+    <message>
+        <source>How fast the timeline animations run, from half speed to double speed. Only used while animations are on.</source>
+        <translation>Як швидко йдуть анімації таймлайна, від половинної до подвійної швидкості. Використовується лише за ввімкнених анімацій.</translation>
     </message>
     <message>
         <source>%1x</source>
@@ -16187,6 +16359,10 @@ Drag one from the Effects library onto the clip, or add one here.</source>
     <message>
         <source>Show a system notification when renders finish</source>
         <translation>Показувати системне сповіщення після завершення рендеру</translation>
+    </message>
+    <message>
+        <source>Shows a notification from the desktop when a render finishes, so you can work in another window meanwhile.</source>
+        <translation>Показує сповіщення стільниці, коли рендер завершено, щоб ви могли тим часом працювати в іншому вікні.</translation>
     </message>
     <message>
         <source>Notifications</source>
@@ -16400,6 +16576,10 @@ Assign it to “%3” instead?</source>
     <message>
         <source>Keyboard Customization…</source>
         <translation>Налаштування клавіатури…</translation>
+    </message>
+    <message>
+        <source>Opens the keyboard shortcut editor.</source>
+        <translation>Відкриває редактор скорочень клавіатури.</translation>
     </message>
     <message>
         <source>Opens the keyboard shortcut editor</source>
@@ -18259,10 +18439,6 @@ Import files with %1 or drop them here.</source>
         <translation> МБ</translation>
     </message>
     <message>
-        <source>Memory kept for decoded still images (photos, titles). Least recently used images are dropped first.</source>
-        <translation>Пам’ять для декодованих нерухомих зображень (фото, титри). Найдавніше використані зображення вилучаються першими.</translation>
-    </message>
-    <message>
         <source>Still image cache</source>
         <translation>Кеш нерухомих зображень</translation>
     </message>
@@ -18275,8 +18451,12 @@ Import files with %1 or drop them here.</source>
         <translation> ГБ</translation>
     </message>
     <message>
-        <source>The memory Kinoklip plans for: its caches (thumbnails, frames, waveforms, open decoders) are made smaller on machines with less than 8 GB. Auto uses the computer&apos;s memory (%1 GB here).</source>
-        <translation>Пам&apos;ять, на яку розраховує Kinoklip: кеші (мініатюри, кадри, форми хвилі, відкриті декодери) зменшуються на комп&apos;ютерах з пам&apos;яттю менше 8 ГБ. Авто використовує пам&apos;ять комп&apos;ютера (тут %1 ГБ).</translation>
+        <source>How much memory decoded still images (photos, titles) may use. The images used longest ago are dropped first when it is full; raise it if big stills reload slowly.</source>
+        <translation>Скільки пам'яті можуть займати декодовані нерухомі зображення (фото, титри). Коли вона заповнена, першими видаляються зображення, які використовувалися найдавніше; збільшіть, якщо великі зображення повільно завантажуються знову.</translation>
+    </message>
+    <message>
+        <source>The memory Kinoklip plans for: its caches (thumbnails, frames, waveforms, open decoders) are made smaller on machines with less than 8 GB. Auto uses the computer&apos;s memory (%1 GB here). A change applies after a restart.</source>
+        <translation>Пам'ять, на яку розраховує Kinoklip: його кеші (мініатюри, кадри, форми хвилі, відкриті декодери) стають меншими на машинах із менш ніж 8 ГБ. «Авто» використовує пам'ять комп'ютера (тут %1 ГБ). Зміна набуває чинності після перезапуску.</translation>
     </message>
     <message>
         <source>Limit Kinoklip memory usage to</source>
@@ -18289,6 +18469,18 @@ Import files with %1 or drop them here.</source>
     <message>
         <source>CPU only</source>
         <translation>Лише CPU</translation>
+    </message>
+    <message>
+        <source>Auto draws the picture on the graphics card with OpenGL. CPU only uses the processor instead: slower, but a way out of graphics driver problems. A change applies after a restart.</source>
+        <translation>«Авто» малює зображення на відеокарті через OpenGL. «Лише CPU» використовує процесор: повільніше, але вихід у разі проблем із графічним драйвером. Зміна набуває чинності після перезапуску.</translation>
+    </message>
+    <message>
+        <source>Use the graphics card through OpenGL.</source>
+        <translation>Використовувати відеокарту через OpenGL.</translation>
+    </message>
+    <message>
+        <source>Draw everything on the processor, without the graphics card.</source>
+        <translation>Малювати все на процесорі, без відеокарти.</translation>
     </message>
     <message>
         <source>GPU processing mode</source>
@@ -21394,12 +21586,36 @@ Import files with %1 or drop them here.</source>
         <translation>Автоматично (половинна, коли відтворення не встигає)</translation>
     </message>
     <message>
+        <source>Every frame at full resolution; frames are skipped if the computer cannot keep up.</source>
+        <translation>Кожен кадр у повній роздільності; кадри пропускаються, якщо комп'ютер не встигає.</translation>
+    </message>
+    <message>
+        <source>Half of the timeline resolution: smoother playback, softer picture.</source>
+        <translation>Половина роздільності таймлайна: відтворення плавніше, зображення м'якше.</translation>
+    </message>
+    <message>
+        <source>A quarter of the timeline resolution: the smoothest playback on a slow computer.</source>
+        <translation>Чверть роздільності таймлайна: найплавніше відтворення на повільному комп'ютері.</translation>
+    </message>
+    <message>
+        <source>Full resolution, switching to half only while playback cannot keep up. Paused frames are always full.</source>
+        <translation>Повна роздільність, перемикання на половинну лише доки відтворення не встигає. Кадри на паузі завжди повні.</translation>
+    </message>
+    <message>
         <source>Playback resolution</source>
         <translation>Роздільність відтворення</translation>
     </message>
     <message>
         <source> s</source>
         <translation> с</translation>
+    </message>
+    <message>
+        <source>How much of the timeline before the playhead is played when you play around the current frame.</source>
+        <translation>Яка частина таймлайна перед вказівником відтворення програється під час відтворення навколо поточного кадру.</translation>
+    </message>
+    <message>
+        <source>How much of the timeline after the playhead is played when you play around the current frame.</source>
+        <translation>Яка частина таймлайна після вказівника відтворення програється під час відтворення навколо поточного кадру.</translation>
     </message>
     <message>
         <source>Pre-roll</source>
@@ -21414,12 +21630,20 @@ Import files with %1 or drop them here.</source>
         <translation>Повертатися до початкової позиції після відтворення навколо</translation>
     </message>
     <message>
+        <source>On: the playhead goes back to where it was when playing around the current frame or from in to out ends. Off: it stays where playback stopped.</source>
+        <translation>Увімк.: вказівник відтворення повертається туди, де був, коли завершується відтворення навколо поточного кадру або від входу до виходу. Вимк.: він лишається там, де зупинилося відтворення.</translation>
+    </message>
+    <message>
         <source>Play around</source>
         <translation>Відтворення навколо</translation>
     </message>
     <message>
         <source>Play from the start when the playhead is at the end</source>
         <translation>Відтворювати з початку, коли вказівник відтворення в кінці</translation>
+    </message>
+    <message>
+        <source>On: pressing Play with the playhead on the last frame starts again from the start. Off: nothing happens.</source>
+        <translation>Увімк.: натискання «Відтворення» на останньому кадрі починає знову з початку. Вимк.: нічого не відбувається.</translation>
     </message>
     <message>
         <source>At the end</source>
@@ -21448,6 +21672,14 @@ Import files with %1 or drop them here.</source>
     <message>
         <source>What playback does after an edit of the timeline while it plays (ripple delete, split, trim, move, insert, undo...). Changing values in the Inspector never stops it.</source>
         <translation>Що робить відтворення після редагування таймлайну під час відтворення (видалення зі зсувом, розрізання, підрізка, переміщення, вставка, скасування...). Зміна значень в Інспекторі ніколи його не зупиняє.</translation>
+    </message>
+    <message>
+        <source>Playback carries on after the edit.</source>
+        <translation>Відтворення триває після правки.</translation>
+    </message>
+    <message>
+        <source>Playback stops when the edit is made.</source>
+        <translation>Відтворення зупиняється під час правки.</translation>
     </message>
     <message>
         <source>After an edit during playback</source>
@@ -21523,6 +21755,14 @@ Auto: Full, switching to Half only while playback cannot keep up (paused: Full).
     <message>
         <source>Preferences</source>
         <translation>Налаштування</translation>
+    </message>
+    <message>
+        <source>Store these preferences and close. Changes marked as needing a restart apply the next time Kinoklip starts.</source>
+        <translation>Зберегти ці налаштування й закрити. Зміни, позначені як такі, що потребують перезапуску, набудуть чинності під час наступного запуску Kinoklip.</translation>
+    </message>
+    <message>
+        <source>Close without changing any preference.</source>
+        <translation>Закрити, не змінюючи налаштувань.</translation>
     </message>
     <message>
         <source>Restart Required</source>
@@ -22511,28 +22751,40 @@ Estimated size after compacting: %3</source>
         <translation>Вимкнено</translation>
     </message>
     <message>
+        <source>How often the open project is saved to the autosave folder in the background. Off turns autosave off.</source>
+        <translation>Як часто відкритий проєкт зберігається в теку автозбереження у фоновому режимі. «Вимкнено» вимикає автозбереження.</translation>
+    </message>
+    <message>
         <source>Autosave every</source>
         <translation>Автозбереження кожні</translation>
+    </message>
+    <message>
+        <source>The folder where autosaved copies of your projects are kept.</source>
+        <translation>Тека, де зберігаються автоматично збережені копії ваших проєктів.</translation>
     </message>
     <message>
         <source>Autosave location</source>
         <translation>Розташування автозбережень</translation>
     </message>
     <message>
+        <source>The folder the Project Manager lists projects from, with its sub-folders. Empty uses the default folder.</source>
+        <translation>Тека, з якої менеджер проєктів показує проєкти разом із вкладеними теками. Порожньо: тека за замовчуванням.</translation>
+    </message>
+    <message>
         <source>Browse</source>
         <translation>Огляд</translation>
     </message>
     <message>
-        <source>Choose the project library folder</source>
-        <translation>Виберіть теку бібліотеки проєктів</translation>
+        <source>Choose the project library folder.</source>
+        <translation>Вибрати теку бібліотеки проєктів.</translation>
+    </message>
+    <message>
+        <source>Go back to the default project library folder.</source>
+        <translation>Повернутися до теки бібліотеки проєктів за замовчуванням.</translation>
     </message>
     <message>
         <source>Default</source>
         <translation>Типове</translation>
-    </message>
-    <message>
-        <source>Use the default project library folder</source>
-        <translation>Використати типову теку бібліотеки проєктів</translation>
     </message>
     <message>
         <source>Project library location</source>
@@ -22553,6 +22805,18 @@ Estimated size after compacting: %3</source>
     <message>
         <source>Reopen the last project</source>
         <translation>Відкривати останній проєкт знову</translation>
+    </message>
+    <message>
+        <source>Start with the Project Manager, where you pick a project.</source>
+        <translation>Починати з менеджера проєктів, де ви вибираєте проєкт.</translation>
+    </message>
+    <message>
+        <source>Start by opening the project you worked on last.</source>
+        <translation>Починати з відкриття проєкту, над яким ви працювали останнім.</translation>
+    </message>
+    <message>
+        <source>What Kinoklip does when it starts: show the Project Manager to pick a project, or open the project you worked on last.</source>
+        <translation>Що робить Kinoklip під час запуску: показує менеджер проєктів для вибору проєкту або відкриває проєкт, над яким ви працювали останнім.</translation>
     </message>
     <message>
         <source>At start-up</source>
@@ -22618,12 +22882,32 @@ Estimated size after compacting: %3</source>
         <translation>Оптимізовані медіа та кеш рендеру</translation>
     </message>
     <message>
+        <source>Apply these settings to the project and close.</source>
+        <translation>Застосувати ці налаштування до проєкту й закрити.</translation>
+    </message>
+    <message>
+        <source>Close without changing anything.</source>
+        <translation>Закрити, нічого не змінюючи.</translation>
+    </message>
+    <message>
+        <source>The picture size of the project&apos;s timelines, chosen from the usual sizes. Pick Custom to type your own width and height.</source>
+        <translation>Розмір зображення таймлайнів проєкту, вибраний зі звичайних розмірів. Виберіть «Власна», щоб ввести свої ширину й висоту.</translation>
+    </message>
+    <message>
         <source>Timeline resolution</source>
         <translation>Роздільність таймлайну</translation>
     </message>
     <message>
         <source> px</source>
         <translation> px</translation>
+    </message>
+    <message>
+        <source>The width of the timeline picture in pixels. Only available with the Custom resolution. Even numbers suit video encoders.</source>
+        <translation>Ширина зображення таймлайна в пікселях. Доступна лише з власною роздільністю. Парні числа пасують відеокодерам.</translation>
+    </message>
+    <message>
+        <source>The height of the timeline picture in pixels. Only available with the Custom resolution. Even numbers suit video encoders.</source>
+        <translation>Висота зображення таймлайна в пікселях. Доступна лише з власною роздільністю. Парні числа пасують відеокодерам.</translation>
     </message>
     <message>
         <source>Pixel aspect ratio</source>
@@ -22672,6 +22956,18 @@ Estimated size after compacting: %3</source>
     <message>
         <source>How clips playing at another speed make the frames between two source frames, unless a clip chooses its own.</source>
         <translation>Як кліпи, що відтворюються з іншою швидкістю, створюють кадри між двома вихідними кадрами, якщо кліп не вибрав власний спосіб.</translation>
+    </message>
+    <message>
+        <source>Repeats the nearest source frame. Fast, but motion can look steppy.</source>
+        <translation>Повторює найближчий вихідний кадр. Швидко, але рух може виглядати східчастим.</translation>
+    </message>
+    <message>
+        <source>Blends the two nearest source frames. Smoother, but fast motion can look ghosted.</source>
+        <translation>Змішує два найближчі вихідні кадри. Плавніше, але швидкий рух може виглядати з «привидами».</translation>
+    </message>
+    <message>
+        <source>Follows the motion between frames to build new ones. The smoothest result, and the slowest.</source>
+        <translation>Стежить за рухом між кадрами й будує нові. Найплавніший результат і найповільніший.</translation>
     </message>
     <message>
         <source>Retime process</source>
@@ -22770,6 +23066,10 @@ Estimated size after compacting: %3</source>
         <translation>Мікшер працює у 32-бітному float; розрядність рендеру задається на сторінці Виведення.</translation>
     </message>
     <message>
+        <source>The name of the project, shown in the Project Manager and in the window title.</source>
+        <translation>Назва проєкту, показується в менеджері проєктів і в заголовку вікна.</translation>
+    </message>
+    <message>
         <source>Project name</source>
         <translation>Назва проєкту</translation>
     </message>
@@ -22802,8 +23102,16 @@ Estimated size after compacting: %3</source>
         <translation>Стандартні переходи</translation>
     </message>
     <message>
+        <source>The video transition that Ctrl+T and Add Default Transition put on a cut in this project.</source>
+        <translation>Відеоперехід, який Ctrl+T і «Додати перехід за замовчуванням» ставлять на стик у цьому проєкті.</translation>
+    </message>
+    <message>
         <source>Standard video transition</source>
         <translation>Стандартний відеоперехід</translation>
+    </message>
+    <message>
+        <source>The audio transition that Add Default Transition puts on an audio cut in this project.</source>
+        <translation>Аудіоперехід, який «Додати перехід за замовчуванням» ставить на аудіостик у цьому проєкті.</translation>
     </message>
     <message>
         <source>Standard audio transition</source>
@@ -22854,8 +23162,16 @@ Estimated size after compacting: %3</source>
         <translation>Формат проксі-медіа</translation>
     </message>
     <message>
+        <source>The size optimized media is made at. Choose automatically picks the largest of Original, Half and Quarter that is at most 540 lines high.</source>
+        <translation>Розмір, у якому створюються оптимізовані медіа. «Вибирати автоматично» бере найбільший із варіантів «Оригінал», «Половинна» і «Чвертинна», висота якого не більша за 540 рядків.</translation>
+    </message>
+    <message>
         <source>Optimized media resolution</source>
         <translation>Роздільність оптимізованих медіа</translation>
+    </message>
+    <message>
+        <source>The codec optimized media is made with. H.264 (fast decode) gives the smallest files and the fastest playback on laptops.</source>
+        <translation>Кодек, яким створюються оптимізовані медіа. H.264 (швидке декодування) дає найменші файли й найшвидше відтворення на ноутбуках.</translation>
     </message>
     <message>
         <source>Optimized media format</source>
@@ -22878,12 +23194,28 @@ Estimated size after compacting: %3</source>
         <translation> с</translation>
     </message>
     <message>
+        <source>Caches the parts of the timeline that are slow to play while you are not editing, so playback is smooth later.</source>
+        <translation>Кешує частини таймлайна, що повільно відтворюються, поки ви не монтуєте, щоб згодом відтворення було плавним.</translation>
+    </message>
+    <message>
+        <source>How many seconds without an edit before background caching starts.</source>
+        <translation>Скільки секунд без правок має минути до початку фонового кешування.</translation>
+    </message>
+    <message>
         <source>Automatically cache transitions in User Mode</source>
         <translation>Автоматично кешувати переходи в режимі користувача</translation>
     </message>
     <message>
+        <source>In User Mode, caches the transitions of the timeline by itself so they play smoothly.</source>
+        <translation>У користувацькому режимі сам кешує переходи таймлайна, щоб вони відтворювалися плавно.</translation>
+    </message>
+    <message>
         <source>Automatically cache composites in User Mode</source>
         <translation>Автоматично кешувати композити в режимі користувача</translation>
+    </message>
+    <message>
+        <source>In User Mode, caches composites (clips layered on others) by itself so they play smoothly.</source>
+        <translation>У користувацькому режимі сам кешує композити (кліпи, накладені один на одного), щоб вони відтворювалися плавно.</translation>
     </message>
     <message>
         <source>Custom</source>
@@ -22892,6 +23224,10 @@ Estimated size after compacting: %3</source>
     <message>
         <source>Timelines that use the project settings and have clips are converted to the new frame rate: clips, markers and effects stay at the same time and the keyframes are re-timed (a clip edge can move by up to half a frame). You are asked before it happens, and Undo takes it back.</source>
         <translation>Таймлайни, що використовують налаштування проєкту й мають кліпи, перетворюються на нову частоту кадрів: кліпи, маркери та ефекти лишаються в той самий час, а ключові кадри перераховуються в часі (край кліпу може зсунутися щонайбільше на півкадру). Перед цим вас спитають, а «Скасувати» поверне все назад.</translation>
+    </message>
+    <message>
+        <source>How many frames per second the timelines of this project play at. Choose the rate your footage and your delivery use.</source>
+        <translation>З якою частотою кадрів на секунду відтворюються таймлайни цього проєкту. Виберіть частоту, яку використовують ваші матеріали та видача.</translation>
     </message>
     <message>
         <source>Timelines with clips are converted when the frame rate changes.</source>
@@ -24112,8 +24448,16 @@ Restart Kinoklip to apply them.</source>
         <translation>Експортувати налаштування...</translation>
     </message>
     <message>
+        <source>Save your settings to a file, to keep a copy or to move them to another computer.</source>
+        <translation>Зберігає ваші налаштування у файл, щоб мати копію або перенести їх на інший комп'ютер.</translation>
+    </message>
+    <message>
         <source>Import Settings...</source>
         <translation>Імпортувати налаштування...</translation>
+    </message>
+    <message>
+        <source>Load settings from a file made with Export Settings. Your current settings are saved first, so you can go back.</source>
+        <translation>Завантажує налаштування з файлу, створеного командою «Експорт налаштувань». Ваші поточні налаштування спершу зберігаються, щоб можна було повернутися.</translation>
     </message>
     <message>
         <source>Import and Export</source>
@@ -25760,16 +26104,20 @@ Restart Kinoklip to apply them.</source>
         <translation>Огляд</translation>
     </message>
     <message>
-        <source>Choose the cache folder</source>
-        <translation>Виберіть теку кешу</translation>
-    </message>
-    <message>
         <source>Default</source>
         <translation>Типове</translation>
     </message>
     <message>
-        <source>Use the default cache folder</source>
-        <translation>Використати типову теку кешу</translation>
+        <source>The folder where thumbnails and audio waveforms of imported media are kept so projects open quickly. Empty uses the default folder.</source>
+        <translation>Тека, де зберігаються мініатюри та форми хвилі імпортованих медіа, щоб проєкти відкривалися швидко. Порожньо: тека за замовчуванням.</translation>
+    </message>
+    <message>
+        <source>Choose the folder for the cache files.</source>
+        <translation>Вибрати теку для файлів кешу.</translation>
+    </message>
+    <message>
+        <source>Go back to the default cache folder.</source>
+        <translation>Повернутися до теки кешу за замовчуванням.</translation>
     </message>
     <message>
         <source>Cache files location</source>
@@ -25788,12 +26136,16 @@ Restart Kinoklip to apply them.</source>
         <translation>&lt;розташування файлів кешу&gt;/ProxyMedia</translation>
     </message>
     <message>
-        <source>Choose the proxy media folder</source>
-        <translation>Виберіть теку проксі-медіа</translation>
+        <source>The folder where proxy media (small copies that play smoothly) is made. Empty keeps them inside the cache folder; a folder of your own lets other projects find the same proxies.</source>
+        <translation>Тека, де створюються проксі-медіа (невеликі копії, що відтворюються плавно). Порожньо: вони лишаються всередині теки кешу; власна тека дає змогу іншим проєктам знаходити ті самі проксі.</translation>
     </message>
     <message>
-        <source>Keep proxies inside the cache folder</source>
-        <translation>Тримати проксі в теці кешу</translation>
+        <source>Choose the folder for proxy media.</source>
+        <translation>Вибрати теку для проксі-медіа.</translation>
+    </message>
+    <message>
+        <source>Keep the proxies inside the cache folder.</source>
+        <translation>Зберігати проксі всередині теки кешу.</translation>
     </message>
     <message>
         <source>Proxy generation location</source>
@@ -25808,12 +26160,12 @@ Restart Kinoklip to apply them.</source>
         <translation> ГБ</translation>
     </message>
     <message>
-        <source>Render cache size limit</source>
-        <translation>Обмеження розміру кешу рендеру</translation>
+        <source>The most disk space optimized media and the render cache may use. The oldest cached frames are deleted first when it is reached.</source>
+        <translation>Найбільше місця на диску, яке можуть займати оптимізовані медіа та кеш рендерингу. Після досягнення ліміту першими видаляються найстаріші кадри кешу.</translation>
     </message>
     <message>
-        <source>Optimized media and the render cache live in the cache folder (OptimizedMedia, RenderCache); the oldest cached frames are deleted first when the limit is reached.</source>
-        <translation>Оптимізовані медіа та кеш рендеру лежать у теці кешу (OptimizedMedia, RenderCache); коли досягається обмеження, найстаріші кешовані кадри видаляються першими.</translation>
+        <source>Render cache size limit</source>
+        <translation>Обмеження розміру кешу рендеру</translation>
     </message>
 </context>
 <context>
@@ -26482,6 +26834,10 @@ Trim the clips so the media covers the transition?</source>
         <translation>Показувати типові розумні теки (Відео, Аудіо, Стоп-кадри, Таймлайни)</translation>
     </message>
     <message>
+        <source>Shows the built-in smart bins that collect your Video, Audio, Stills and Timelines by themselves. Your own smart bins are not affected.</source>
+        <translation>Показує вбудовані розумні теки, що самі збирають ваші відео, аудіо, стоп-кадри та таймлайни. Ваші власні розумні теки не змінюються.</translation>
+    </message>
+    <message>
         <source>Media pool</source>
         <translation>Медіапул</translation>
     </message>
@@ -26496,6 +26852,14 @@ Trim the clips so the media covers the transition?</source>
     <message>
         <source>Where File &gt; Import, the Media page&apos;s Add to Media Pool, drops onto the media pool and timeline drops put new media. A drop onto a bin always goes into that bin.</source>
         <translation>Куди потрапляють нові медіа з Файл &gt; Імпорт, «Додати до медіапулу» на сторінці Медіа, перетягування на медіапул і на таймлайн. Перетягування на теку завжди кладе в цю теку.</translation>
+    </message>
+    <message>
+        <source>New media goes into the bin that is open.</source>
+        <translation>Нові медіа потрапляють у відкриту теку.</translation>
+    </message>
+    <message>
+        <source>New media always goes into the Master bin.</source>
+        <translation>Нові медіа завжди потрапляють у головну теку.</translation>
     </message>
     <message>
         <source>Import new media into</source>
@@ -29690,8 +30054,16 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
 <context>
     <name>kk::theme</name>
     <message>
+        <source>The colours of the whole window. Default (System) follows the desktop&apos;s colour scheme; the others are fixed colour schemes.</source>
+        <translation>Кольори всього вікна. «Типова (система)» дотримується кольорової схеми стільниці; решта — фіксовані кольорові схеми.</translation>
+    </message>
+    <message>
         <source>Color theme</source>
         <translation>Кольорова тема</translation>
+    </message>
+    <message>
+        <source>How buttons, menus and other controls are drawn. Breeze is the KDE look, Fusion a neutral look that is the same on every desktop.</source>
+        <translation>Як малюються кнопки, меню та інші елементи керування. Breeze — вигляд KDE, Fusion — нейтральний вигляд, однаковий на будь-якій стільниці.</translation>
     </message>
     <message>
         <source>Widget style</source>

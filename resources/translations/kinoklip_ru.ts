@@ -2926,6 +2926,14 @@ The program was probably closed by the system because the computer ran out of me
         <translation>Вырезает объект из видео с помощью модели, запущенной на этом компьютере. Модели не входят в состав Kinoklip: каждая скачивается только по запросу. Модель для людей предназначена для видео, модель для любых объектов — для статичных изображений.</translation>
     </message>
     <message>
+        <source>Delete the downloaded %1 model to free its disk space. Download it again to use it.</source>
+        <translation>Удалить загруженную модель %1, чтобы освободить место на диске. Чтобы использовать её, загрузите заново.</translation>
+    </message>
+    <message>
+        <source>Delete the saved cut-outs. A clip is cut out again the next time you remove its background.</source>
+        <translation>Удалить сохранённые вырезанные маски. Клип будет вырезан заново при следующем удалении его фона.</translation>
+    </message>
+    <message>
         <source>Download</source>
         <translation>Скачать</translation>
     </message>
@@ -2940,6 +2948,10 @@ The program was probably closed by the system because the computer ran out of me
     <message>
         <source>Download size:</source>
         <translation>Размер скачивания:</translation>
+    </message>
+    <message>
+        <source>Download the %1 model to this computer. It is only downloaded when you ask, and Background Removal needs it.</source>
+        <translation>Загрузить модель %1 на этот компьютер. Она загружается только по вашей просьбе и нужна для удаления фона.</translation>
     </message>
     <message>
         <source>Downloading... %1 of %2</source>
@@ -3021,8 +3033,16 @@ The program was probably closed by the system because the computer ran out of me
         <translation>Скачать %1...</translation>
     </message>
     <message>
+        <source>Download the %1 model to this computer. It is only downloaded when you ask, and Background Removal needs it.</source>
+        <translation>Загрузить модель %1 на этот компьютер. Она загружается только по вашей просьбе и нужна для удаления фона.</translation>
+    </message>
+    <message>
         <source>Remove %1</source>
         <translation>Удалить %1</translation>
+    </message>
+    <message>
+        <source>Delete the downloaded %1 model to free its disk space. Download it again to use it.</source>
+        <translation>Удалить загруженную модель %1, чтобы освободить место на диске. Чтобы использовать её, загрузите заново.</translation>
     </message>
     <message>
         <source>Remove Model</source>
@@ -3035,6 +3055,10 @@ The program was probably closed by the system because the computer ran out of me
     <message>
         <source>Clear Matte Cache</source>
         <translation>Очистить кэш масок</translation>
+    </message>
+    <message>
+        <source>Delete the saved cut-outs. A clip is cut out again the next time you remove its background.</source>
+        <translation>Удалить сохранённые вырезанные маски. Клип будет вырезан заново при следующем удалении его фона.</translation>
     </message>
     <message>
         <source>AI tool: Background Removal</source>
@@ -3123,6 +3147,10 @@ The program was probably closed by the system because the computer ran out of me
         <translation>Воспроизведение использует 48 кГц стерео. Автоматический режим следует за системным устройством вывода (например, наушниками, подключенными во время игры). Выбранное устройство используется сразу после сохранения; если оно не подключено, звук идет через системное устройство.</translation>
     </message>
     <message>
+        <source>The microphone or line input that voice-over records from. Automatic uses the system&apos;s default input.</source>
+        <translation>Микрофон или линейный вход, с которого записывается озвучка. Автоматически использует вход системы по умолчанию.</translation>
+    </message>
+    <message>
         <source>Input device</source>
         <translation>Устройство ввода</translation>
     </message>
@@ -3135,12 +3163,20 @@ The program was probably closed by the system because the computer ran out of me
         <translation>Нет</translation>
     </message>
     <message>
+        <source>Seconds of lead-in before a voice-over take starts, so you can get ready. None starts recording at once.</source>
+        <translation>Секунды отсчёта перед началом дубля озвучки, чтобы вы успели подготовиться. «Нет» начинает запись сразу.</translation>
+    </message>
+    <message>
         <source>Voice-over count-in</source>
         <translation>Отсчет для озвучки</translation>
     </message>
     <message>
         <source> ms</source>
         <translation> мс</translation>
+    </message>
+    <message>
+        <source>Milliseconds added on top of the input&apos;s own delay when a voice-over take is placed on the timeline. Raise it if your voice comes in late.</source>
+        <translation>Миллисекунды, добавляемые к собственной задержке входа при размещении дубля озвучки на таймлайне. Увеличьте, если голос опаздывает.</translation>
     </message>
     <message>
         <source>Voice-over extra latency</source>
@@ -3153,6 +3189,18 @@ The program was probably closed by the system because the computer ran out of me
     <message>
         <source>16-bit</source>
         <translation>16 бит</translation>
+    </message>
+    <message>
+        <source>More detail, larger files.</source>
+        <translation>Больше деталей, файлы крупнее.</translation>
+    </message>
+    <message>
+        <source>Smaller files, a little less detail.</source>
+        <translation>Файлы меньше, чуть меньше деталей.</translation>
+    </message>
+    <message>
+        <source>The sample size of the WAV file a voice-over take is saved as. 24-bit keeps more detail; 16-bit makes smaller files.</source>
+        <translation>Разрядность WAV-файла, в который сохраняется дубль озвучки. 24 бита сохраняют больше деталей, 16 бит дают файлы меньшего размера.</translation>
     </message>
     <message>
         <source>Voice-over WAV format</source>
@@ -9952,6 +10000,34 @@ Thank you for watching</source>
 <context>
     <name>kk::DecodePage</name>
     <message>
+        <source>Use the first method that works on this computer.</source>
+        <translation>Использовать первый способ, который работает на этом компьютере.</translation>
+    </message>
+    <message>
+        <source>Decode on the processor only. Slower, but works everywhere.</source>
+        <translation>Декодировать только на процессоре. Медленнее, но работает везде.</translation>
+    </message>
+    <message>
+        <source>Decode on the graphics chip through VA-API, the usual way on Intel and AMD graphics.</source>
+        <translation>Декодировать на графическом чипе через VA-API, обычный способ для графики Intel и AMD.</translation>
+    </message>
+    <message>
+        <source>Decode on an NVIDIA graphics card with CUDA / NVDEC.</source>
+        <translation>Декодировать на видеокарте NVIDIA с помощью CUDA / NVDEC.</translation>
+    </message>
+    <message>
+        <source>Decode on Intel graphics. On Linux this uses the same path as VA-API.</source>
+        <translation>Декодировать на графике Intel. В Linux используется тот же путь, что и у VA-API.</translation>
+    </message>
+    <message>
+        <source>Decode through Vulkan Video. Still experimental: try it only if the other methods do not work.</source>
+        <translation>Декодировать через Vulkan Video. Пока экспериментально: пробуйте, только если другие способы не работают.</translation>
+    </message>
+    <message>
+        <source>Which part of the computer decodes video files. Automatic picks what works on this machine; Off decodes on the processor only, which is slower but always works. The table below shows what was found.</source>
+        <translation>Какая часть компьютера декодирует видеофайлы. «Автоматически» выбирает то, что работает на этой машине; «Откл.» декодирует только на процессоре, это медленнее, но работает всегда. Таблица ниже показывает, что найдено.</translation>
+    </message>
+    <message>
         <source>Hardware decoding</source>
         <translation>Аппаратное декодирование</translation>
     </message>
@@ -9970,6 +10046,10 @@ Thank you for watching</source>
     <message>
         <source>Checking…</source>
         <translation>Проверка…</translation>
+    </message>
+    <message>
+        <source>The decoding methods found on this computer, whether each one works, and the video formats it can decode. Hover a row for the details.</source>
+        <translation>Способы декодирования, найденные на этом компьютере, работает ли каждый из них и какие видеоформаты он умеет декодировать. Наведите курсор на строку, чтобы увидеть подробности.</translation>
     </message>
     <message>
         <source>Available hardware</source>
@@ -10311,8 +10391,16 @@ Thank you for watching</source>
 <context>
     <name>kk::EditingPage</name>
     <message>
+        <source>How long a photo or other still image is when you put it on the timeline.</source>
+        <translation>Какой длины будет фотография или другое неподвижное изображение, когда вы кладёте его на таймлайн.</translation>
+    </message>
+    <message>
         <source>Standard still duration</source>
         <translation>Стандартная длительность статики</translation>
+    </message>
+    <message>
+        <source>How long a new title or generator clip is when you add it to the timeline.</source>
+        <translation>Какой длины будет новый титр или генератор, когда вы добавляете его на таймлайн.</translation>
     </message>
     <message>
         <source>Standard title and generator duration</source>
@@ -10351,6 +10439,10 @@ Thank you for watching</source>
         <translation>Статичный (Hold)</translation>
     </message>
     <message>
+        <source>New keyframes use the &quot;%1&quot; curve between keyframes.</source>
+        <translation>Новые ключевые кадры используют кривую «%1» между ключевыми кадрами.</translation>
+    </message>
+    <message>
         <source>The type of every keyframe you add. Right-click a keyframe and choose Set as Default for New Keyframes to change it from there.</source>
         <translation>Тип для каждого нового ключевого кадра. Чтобы изменить его, нажмите правой кнопкой на ключевой кадр и выберите «Сделать значением по умолчанию для новых кадров».</translation>
     </message>
@@ -10361,6 +10453,10 @@ Thank you for watching</source>
     <message>
         <source> frames</source>
         <translation> кадры</translation>
+    </message>
+    <message>
+        <source>How many frames the fast nudge commands move a clip or a trim at a time.</source>
+        <translation>На сколько кадров за раз команды быстрого сдвига перемещают клип или обрезку.</translation>
     </message>
     <message>
         <source>Fast nudge</source>
@@ -10375,8 +10471,16 @@ Thank you for watching</source>
         <translation>Указатель мыши</translation>
     </message>
     <message>
-        <source>Point the timeline keeps in place when zooming with the mouse wheel</source>
-        <translation>Точка таймлайна, остающаяся неподвижной при масштабировании колесом мыши</translation>
+        <source>The point the timeline keeps in place when you zoom with the mouse wheel: the playhead, or the spot under the mouse pointer. Zooming with the keyboard always uses the playhead.</source>
+        <translation>Точка, которую таймлайн удерживает на месте при масштабировании колёсиком мыши: указатель воспроизведения или место под указателем мыши. Масштабирование с клавиатуры всегда использует указатель воспроизведения.</translation>
+    </message>
+    <message>
+        <source>The timeline zooms around the playhead.</source>
+        <translation>Таймлайн масштабируется вокруг указателя воспроизведения.</translation>
+    </message>
+    <message>
+        <source>The timeline zooms around the spot under the mouse pointer.</source>
+        <translation>Таймлайн масштабируется вокруг места под указателем мыши.</translation>
     </message>
     <message>
         <source>Timeline zooms around</source>
@@ -10391,12 +10495,28 @@ Thank you for watching</source>
         <translation>Classic (Ctrl — масштаб, Shift — время)</translation>
     </message>
     <message>
+        <source>Which keys change what the mouse wheel does in the timeline.</source>
+        <translation>Какие клавиши меняют действие колёсика мыши на таймлайне.</translation>
+    </message>
+    <message>
+        <source>As in DaVinci Resolve: Alt zooms, Ctrl scrolls in time, Shift changes the track height.</source>
+        <translation>Как в DaVinci Resolve: Alt масштабирует, Ctrl прокручивает по времени, Shift меняет высоту дорожки.</translation>
+    </message>
+    <message>
+        <source>Ctrl zooms and Shift scrolls in time, as in most editors.</source>
+        <translation>Ctrl масштабирует, Shift прокручивает по времени, как в большинстве редакторов.</translation>
+    </message>
+    <message>
         <source>Mouse wheel</source>
         <translation>Колесо мыши</translation>
     </message>
     <message>
         <source>Use timeline in and out points for source edits</source>
         <translation>Использовать точки входа и выхода таймлайна для монтажа источника</translation>
+    </message>
+    <message>
+        <source>On: Insert, Overwrite and the other source edits go between the timeline&apos;s in and out points when they are set. Off: they always go at the playhead.</source>
+        <translation>Вкл.: вставка, перезапись и другие правки из источника идут между точками входа и выхода таймлайна, если они заданы. Выкл.: они всегда идут в позицию указателя воспроизведения.</translation>
     </message>
     <message>
         <source>Three-point editing</source>
@@ -10407,6 +10527,10 @@ Thank you for watching</source>
         <translation>Удалять пробел под указателем воспроизведения, когда ничего не выбрано</translation>
     </message>
     <message>
+        <source>On: Ripple Delete with nothing selected closes the gap under the playhead. Off: it does nothing until you select the gap.</source>
+        <translation>Вкл.: удаление со сдвигом без выделения закрывает промежуток под указателем воспроизведения. Выкл.: ничего не происходит, пока вы не выделите промежуток.</translation>
+    </message>
+    <message>
         <source>Ripple delete</source>
         <translation>Удалить со сдвигом</translation>
     </message>
@@ -10415,8 +10539,16 @@ Thank you for watching</source>
         <translation>Удалять клипы под указателем воспроизведения на выбранных дорожках, когда ничего не выбрано</translation>
     </message>
     <message>
+        <source>On: Ripple Delete with nothing selected removes the clips under the playhead on the selected tracks and closes the gap. Off: it does nothing.</source>
+        <translation>Вкл.: удаление со сдвигом без выделения убирает клипы под указателем воспроизведения на выбранных дорожках и закрывает промежуток. Выкл.: ничего не происходит.</translation>
+    </message>
+    <message>
         <source>Selection tool rolls at the middle of an edit</source>
         <translation>Инструмент выделения выполняет сдвиг границы в центре склейки</translation>
+    </message>
+    <message>
+        <source>On: dragging exactly at the cut between two touching clips with the Selection tool moves the cut (a roll). Off: it trims only one side.</source>
+        <translation>Вкл.: перетаскивание инструментом выделения точно по стыку двух соприкасающихся клипов сдвигает стык (ролл). Выкл.: обрезается только одна сторона.</translation>
     </message>
     <message>
         <source>Trimming</source>
@@ -10427,20 +10559,28 @@ Thank you for watching</source>
         <translation>Инструмент подрезки делает «скольжение» при перетаскивании за имя клипа</translation>
     </message>
     <message>
+        <source>On: with the Trim tool, dragging the upper part of a clip (its name bar) slides it and dragging the rest slips it. Off: the whole clip slips.</source>
+        <translation>Вкл.: инструментом обрезки перетаскивание верхней части клипа (его полосы с названием) сдвигает клип, а перетаскивание остальной части сдвигает содержимое (слип). Выкл.: весь клип сдвигается слипом.</translation>
+    </message>
+    <message>
         <source>Trim view shows effects and transforms (slower)</source>
         <translation>Окно подрезки показывает эффекты и трансформации (медленнее)</translation>
+    </message>
+    <message>
+        <source>On: the two pictures of the trim view show the clips with their effects and transforms. This looks right but lags behind fast drags. Off: the plain pictures.</source>
+        <translation>Вкл.: два изображения окна обрезки показывают клипы с их эффектами и преобразованиями. Выглядит верно, но отстаёт при быстром перетаскивании. Выкл.: простые изображения.</translation>
     </message>
     <message>
         <source>Sync Lock on new tracks</source>
         <translation>Синхроблокировка на новых дорожках</translation>
     </message>
     <message>
-        <source>Tracks</source>
-        <translation>Дорожки</translation>
+        <source>Tracks you add from now on start with Sync Lock on, so their clips stay in step with the others when you ripple edit. Existing tracks keep their setting.</source>
+        <translation>Дорожки, добавляемые с этого момента, создаются с включённой синхроблокировкой, чтобы их клипы оставались согласованными с остальными при правке со сдвигом. Существующие дорожки сохраняют свои настройки.</translation>
     </message>
     <message>
-        <source>Sets Sync Lock for tracks added afterwards: Add Track, tracks made by dropping onto empty space above the timeline, the tracks of new timelines and of compound clips. Existing tracks keep theirs.</source>
-        <translation>Задаёт синхроблокировку для дорожек, добавленных позже: Добавить дорожку, дорожки, созданные перетаскиванием на пустое место над таймлайном, дорожки новых таймлайнов и составных клипов. У существующих дорожек она остаётся прежней.</translation>
+        <source>Tracks</source>
+        <translation>Дорожки</translation>
     </message>
 </context>
 <context>
@@ -16137,12 +16277,28 @@ Drag one from the Effects library onto the clip, or add one here.</source>
         <translation>Автоматически (системный)</translation>
     </message>
     <message>
+        <source>Use the scale the system is set to.</source>
+        <translation>Использовать масштаб, заданный в системе.</translation>
+    </message>
+    <message>
+        <source>Makes the whole window larger or smaller. Automatic follows the system&apos;s setting. A change applies after a restart.</source>
+        <translation>Делает всё окно крупнее или мельче. «Автоматически» следует настройке системы. Изменение вступает в силу после перезапуска.</translation>
+    </message>
+    <message>
         <source>Interface scale</source>
         <translation>Масштаб интерфейса</translation>
     </message>
     <message>
         <source>System default</source>
         <translation>Системный по умолчанию</translation>
+    </message>
+    <message>
+        <source>Use the language of the computer, if Kinoklip has it.</source>
+        <translation>Использовать язык компьютера, если он есть в Kinoklip.</translation>
+    </message>
+    <message>
+        <source>The language of menus and dialogs. System default follows the computer&apos;s language. A change applies after a restart.</source>
+        <translation>Язык меню и диалогов. «Системный» следует языку компьютера. Изменение вступает в силу после перезапуска.</translation>
     </message>
     <message>
         <source>Language</source>
@@ -16157,6 +16313,14 @@ Drag one from the Effects library onto the clip, or add one here.</source>
         <translation>Упрощенный</translation>
     </message>
     <message>
+        <source>The menus as in DaVinci Resolve.</source>
+        <translation>Меню как в DaVinci Resolve.</translation>
+    </message>
+    <message>
+        <source>Shorter menus grouped by task, with plain names.</source>
+        <translation>Более короткие меню, сгруппированные по задачам, с простыми названиями.</translation>
+    </message>
+    <message>
         <source>Menu layout</source>
         <translation>Макет меню</translation>
     </message>
@@ -16169,8 +16333,16 @@ Drag one from the Effects library onto the clip, or add one here.</source>
         <translation>Анимировать правки на таймлайне</translation>
     </message>
     <message>
+        <source>Clips slide, appear and fade after edits, cuts flash and the playhead glides on jumps. Turn it off for an instant timeline.</source>
+        <translation>Клипы скользят, появляются и плавно проявляются после правок, склейки вспыхивают, а указатель воспроизведения плавно перемещается при прыжках. Выключите для мгновенного таймлайна.</translation>
+    </message>
+    <message>
         <source>Animations</source>
         <translation>Анимации</translation>
+    </message>
+    <message>
+        <source>How fast the timeline animations run, from half speed to double speed. Only used while animations are on.</source>
+        <translation>Как быстро идут анимации таймлайна, от половинной до двойной скорости. Используется только при включённых анимациях.</translation>
     </message>
     <message>
         <source>%1x</source>
@@ -16187,6 +16359,10 @@ Drag one from the Effects library onto the clip, or add one here.</source>
     <message>
         <source>Show a system notification when renders finish</source>
         <translation>Показывать системное уведомление по окончании рендера</translation>
+    </message>
+    <message>
+        <source>Shows a notification from the desktop when a render finishes, so you can work in another window meanwhile.</source>
+        <translation>Показывает уведомление рабочего стола, когда рендер завершён, чтобы вы могли тем временем работать в другом окне.</translation>
     </message>
     <message>
         <source>Notifications</source>
@@ -16400,6 +16576,10 @@ Assign it to “%3” instead?</source>
     <message>
         <source>Keyboard Customization…</source>
         <translation>Настройка клавиатуры…</translation>
+    </message>
+    <message>
+        <source>Opens the keyboard shortcut editor.</source>
+        <translation>Открывает редактор сочетаний клавиш.</translation>
     </message>
     <message>
         <source>Opens the keyboard shortcut editor</source>
@@ -18259,10 +18439,6 @@ Import files with %1 or drop them here.</source>
         <translation> MB</translation>
     </message>
     <message>
-        <source>Memory kept for decoded still images (photos, titles). Least recently used images are dropped first.</source>
-        <translation>Память для декодированных неподвижных изображений (фото, титры). Давно не используемые изображения удаляются первыми.</translation>
-    </message>
-    <message>
         <source>Still image cache</source>
         <translation>Кэш неподвижных изображений</translation>
     </message>
@@ -18275,8 +18451,12 @@ Import files with %1 or drop them here.</source>
         <translation> ГБ</translation>
     </message>
     <message>
-        <source>The memory Kinoklip plans for: its caches (thumbnails, frames, waveforms, open decoders) are made smaller on machines with less than 8 GB. Auto uses the computer&apos;s memory (%1 GB here).</source>
-        <translation>Память, на которую рассчитывает Kinoklip: кэши (миниатюры, кадры, формы волны, открытые декодеры) уменьшаются на компьютерах с памятью менее 8 ГБ. Авто использует память компьютера (здесь %1 ГБ).</translation>
+        <source>How much memory decoded still images (photos, titles) may use. The images used longest ago are dropped first when it is full; raise it if big stills reload slowly.</source>
+        <translation>Сколько памяти могут занимать декодированные неподвижные изображения (фото, титры). Когда она заполнена, первыми удаляются изображения, которые использовались раньше всех; увеличьте, если большие изображения медленно загружаются заново.</translation>
+    </message>
+    <message>
+        <source>The memory Kinoklip plans for: its caches (thumbnails, frames, waveforms, open decoders) are made smaller on machines with less than 8 GB. Auto uses the computer&apos;s memory (%1 GB here). A change applies after a restart.</source>
+        <translation>Память, на которую рассчитывает Kinoklip: его кеши (миниатюры, кадры, формы волны, открытые декодеры) делаются меньше на машинах с менее чем 8 ГБ. «Авто» использует память компьютера (здесь %1 ГБ). Изменение вступает в силу после перезапуска.</translation>
     </message>
     <message>
         <source>Limit Kinoklip memory usage to</source>
@@ -18289,6 +18469,18 @@ Import files with %1 or drop them here.</source>
     <message>
         <source>CPU only</source>
         <translation>Только CPU</translation>
+    </message>
+    <message>
+        <source>Auto draws the picture on the graphics card with OpenGL. CPU only uses the processor instead: slower, but a way out of graphics driver problems. A change applies after a restart.</source>
+        <translation>«Авто» рисует картинку на видеокарте через OpenGL. «Только CPU» использует процессор: медленнее, но выход при проблемах с графическим драйвером. Изменение вступает в силу после перезапуска.</translation>
+    </message>
+    <message>
+        <source>Use the graphics card through OpenGL.</source>
+        <translation>Использовать видеокарту через OpenGL.</translation>
+    </message>
+    <message>
+        <source>Draw everything on the processor, without the graphics card.</source>
+        <translation>Рисовать всё на процессоре, без видеокарты.</translation>
     </message>
     <message>
         <source>GPU processing mode</source>
@@ -21394,12 +21586,36 @@ Import files with %1 or drop them here.</source>
         <translation>Автоматически (Половина, когда воспроизведение не успевает)</translation>
     </message>
     <message>
+        <source>Every frame at full resolution; frames are skipped if the computer cannot keep up.</source>
+        <translation>Каждый кадр в полном разрешении; кадры пропускаются, если компьютер не справляется.</translation>
+    </message>
+    <message>
+        <source>Half of the timeline resolution: smoother playback, softer picture.</source>
+        <translation>Половина разрешения таймлайна: воспроизведение плавнее, картинка мягче.</translation>
+    </message>
+    <message>
+        <source>A quarter of the timeline resolution: the smoothest playback on a slow computer.</source>
+        <translation>Четверть разрешения таймлайна: самое плавное воспроизведение на медленном компьютере.</translation>
+    </message>
+    <message>
+        <source>Full resolution, switching to half only while playback cannot keep up. Paused frames are always full.</source>
+        <translation>Полное разрешение, переключение на половину только пока воспроизведение не справляется. Кадры на паузе всегда полные.</translation>
+    </message>
+    <message>
         <source>Playback resolution</source>
         <translation>Разрешение воспроизведения</translation>
     </message>
     <message>
         <source> s</source>
         <translation> с</translation>
+    </message>
+    <message>
+        <source>How much of the timeline before the playhead is played when you play around the current frame.</source>
+        <translation>Какая часть таймлайна перед указателем воспроизведения проигрывается при воспроизведении вокруг текущего кадра.</translation>
+    </message>
+    <message>
+        <source>How much of the timeline after the playhead is played when you play around the current frame.</source>
+        <translation>Какая часть таймлайна после указателя воспроизведения проигрывается при воспроизведении вокруг текущего кадра.</translation>
     </message>
     <message>
         <source>Pre-roll</source>
@@ -21414,12 +21630,20 @@ Import files with %1 or drop them here.</source>
         <translation>Вернуться к начальной позиции после перемотки</translation>
     </message>
     <message>
+        <source>On: the playhead goes back to where it was when playing around the current frame or from in to out ends. Off: it stays where playback stopped.</source>
+        <translation>Вкл.: указатель воспроизведения возвращается туда, где он был, когда заканчивается воспроизведение вокруг текущего кадра или от входа до выхода. Выкл.: он остаётся там, где остановилось воспроизведение.</translation>
+    </message>
+    <message>
         <source>Play around</source>
         <translation>Воспроизвести перемоткой</translation>
     </message>
     <message>
         <source>Play from the start when the playhead is at the end</source>
         <translation>Воспроизводить с начала, когда указатель воспроизведения находится в конце</translation>
+    </message>
+    <message>
+        <source>On: pressing Play with the playhead on the last frame starts again from the start. Off: nothing happens.</source>
+        <translation>Вкл.: нажатие «Воспроизведение» на последнем кадре начинает заново с начала. Выкл.: ничего не происходит.</translation>
     </message>
     <message>
         <source>At the end</source>
@@ -21448,6 +21672,14 @@ Import files with %1 or drop them here.</source>
     <message>
         <source>What playback does after an edit of the timeline while it plays (ripple delete, split, trim, move, insert, undo...). Changing values in the Inspector never stops it.</source>
         <translation>Что происходит с воспроизведением после правки таймлайна во время воспроизведения (удаление со сдвигом, разрезание, подрезка, перемещение, вставка, отмена...). Изменения в Инспекторе никогда не останавливают воспроизведение.</translation>
+    </message>
+    <message>
+        <source>Playback carries on after the edit.</source>
+        <translation>Воспроизведение продолжается после правки.</translation>
+    </message>
+    <message>
+        <source>Playback stops when the edit is made.</source>
+        <translation>Воспроизведение останавливается при правке.</translation>
     </message>
     <message>
         <source>After an edit during playback</source>
@@ -21523,6 +21755,14 @@ Auto: Full, switching to Half only while playback cannot keep up (paused: Full).
     <message>
         <source>Preferences</source>
         <translation>Настройки</translation>
+    </message>
+    <message>
+        <source>Store these preferences and close. Changes marked as needing a restart apply the next time Kinoklip starts.</source>
+        <translation>Сохранить эти настройки и закрыть. Изменения, отмеченные как требующие перезапуска, вступят в силу при следующем запуске Kinoklip.</translation>
+    </message>
+    <message>
+        <source>Close without changing any preference.</source>
+        <translation>Закрыть, не меняя настроек.</translation>
     </message>
     <message>
         <source>Restart Required</source>
@@ -22511,28 +22751,40 @@ Estimated size after compacting: %3</source>
         <translation>Откл.</translation>
     </message>
     <message>
+        <source>How often the open project is saved to the autosave folder in the background. Off turns autosave off.</source>
+        <translation>Как часто открытый проект сохраняется в папку автосохранения в фоновом режиме. «Откл.» выключает автосохранение.</translation>
+    </message>
+    <message>
         <source>Autosave every</source>
         <translation>Автосохранение каждые</translation>
+    </message>
+    <message>
+        <source>The folder where autosaved copies of your projects are kept.</source>
+        <translation>Папка, где хранятся автоматически сохранённые копии ваших проектов.</translation>
     </message>
     <message>
         <source>Autosave location</source>
         <translation>Расположение автосохранения</translation>
     </message>
     <message>
+        <source>The folder the Project Manager lists projects from, with its sub-folders. Empty uses the default folder.</source>
+        <translation>Папка, из которой менеджер проектов показывает проекты вместе с вложенными папками. Пусто: папка по умолчанию.</translation>
+    </message>
+    <message>
         <source>Browse</source>
         <translation>Обзор</translation>
     </message>
     <message>
-        <source>Choose the project library folder</source>
-        <translation>Выберите папку библиотеки проектов</translation>
+        <source>Choose the project library folder.</source>
+        <translation>Выбрать папку библиотеки проектов.</translation>
+    </message>
+    <message>
+        <source>Go back to the default project library folder.</source>
+        <translation>Вернуться к папке библиотеки проектов по умолчанию.</translation>
     </message>
     <message>
         <source>Default</source>
         <translation>По умолчанию</translation>
-    </message>
-    <message>
-        <source>Use the default project library folder</source>
-        <translation>Использовать папку библиотеки проектов по умолчанию</translation>
     </message>
     <message>
         <source>Project library location</source>
@@ -22553,6 +22805,18 @@ Estimated size after compacting: %3</source>
     <message>
         <source>Reopen the last project</source>
         <translation>Открыть последний проект</translation>
+    </message>
+    <message>
+        <source>Start with the Project Manager, where you pick a project.</source>
+        <translation>Начинать с менеджера проектов, где вы выбираете проект.</translation>
+    </message>
+    <message>
+        <source>Start by opening the project you worked on last.</source>
+        <translation>Начинать с открытия проекта, над которым вы работали последним.</translation>
+    </message>
+    <message>
+        <source>What Kinoklip does when it starts: show the Project Manager to pick a project, or open the project you worked on last.</source>
+        <translation>Что делает Kinoklip при запуске: показывает менеджер проектов для выбора проекта или открывает проект, над которым вы работали последним.</translation>
     </message>
     <message>
         <source>At start-up</source>
@@ -22618,12 +22882,32 @@ Estimated size after compacting: %3</source>
         <translation>Оптимизированные медиа и кеш рендеринга</translation>
     </message>
     <message>
+        <source>Apply these settings to the project and close.</source>
+        <translation>Применить эти настройки к проекту и закрыть.</translation>
+    </message>
+    <message>
+        <source>Close without changing anything.</source>
+        <translation>Закрыть, ничего не меняя.</translation>
+    </message>
+    <message>
+        <source>The picture size of the project&apos;s timelines, chosen from the usual sizes. Pick Custom to type your own width and height.</source>
+        <translation>Размер изображения таймлайнов проекта, выбранный из обычных размеров. Выберите «Пользовательские», чтобы ввести свои ширину и высоту.</translation>
+    </message>
+    <message>
         <source>Timeline resolution</source>
         <translation>Разрешение таймлайна</translation>
     </message>
     <message>
         <source> px</source>
         <translation> px</translation>
+    </message>
+    <message>
+        <source>The width of the timeline picture in pixels. Only available with the Custom resolution. Even numbers suit video encoders.</source>
+        <translation>Ширина изображения таймлайна в пикселях. Доступна только с пользовательским разрешением. Чётные числа подходят видеокодировщикам.</translation>
+    </message>
+    <message>
+        <source>The height of the timeline picture in pixels. Only available with the Custom resolution. Even numbers suit video encoders.</source>
+        <translation>Высота изображения таймлайна в пикселях. Доступна только с пользовательским разрешением. Чётные числа подходят видеокодировщикам.</translation>
     </message>
     <message>
         <source>Pixel aspect ratio</source>
@@ -22672,6 +22956,18 @@ Estimated size after compacting: %3</source>
     <message>
         <source>How clips playing at another speed make the frames between two source frames, unless a clip chooses its own.</source>
         <translation>Как клипы, воспроизводимые с иной скоростью, создают промежуточные кадры между двумя исходными кадрами, если только клип не задаёт собственный.</translation>
+    </message>
+    <message>
+        <source>Repeats the nearest source frame. Fast, but motion can look steppy.</source>
+        <translation>Повторяет ближайший исходный кадр. Быстро, но движение может выглядеть ступенчатым.</translation>
+    </message>
+    <message>
+        <source>Blends the two nearest source frames. Smoother, but fast motion can look ghosted.</source>
+        <translation>Смешивает два ближайших исходных кадра. Плавнее, но быстрое движение может выглядеть с «призраками».</translation>
+    </message>
+    <message>
+        <source>Follows the motion between frames to build new ones. The smoothest result, and the slowest.</source>
+        <translation>Следит за движением между кадрами и строит новые. Самый плавный результат и самый медленный.</translation>
     </message>
     <message>
         <source>Retime process</source>
@@ -22770,6 +23066,10 @@ Estimated size after compacting: %3</source>
         <translation>Микшер работает в 32‑битном float; разрядность рендера задаётся на странице Вывода.</translation>
     </message>
     <message>
+        <source>The name of the project, shown in the Project Manager and in the window title.</source>
+        <translation>Название проекта, показывается в менеджере проектов и в заголовке окна.</translation>
+    </message>
+    <message>
         <source>Project name</source>
         <translation>Название проекта</translation>
     </message>
@@ -22802,8 +23102,16 @@ Estimated size after compacting: %3</source>
         <translation>Стандартные переходы</translation>
     </message>
     <message>
+        <source>The video transition that Ctrl+T and Add Default Transition put on a cut in this project.</source>
+        <translation>Видеопереход, который Ctrl+T и «Добавить переход по умолчанию» ставят на стык в этом проекте.</translation>
+    </message>
+    <message>
         <source>Standard video transition</source>
         <translation>Стандартный видеопереход</translation>
+    </message>
+    <message>
+        <source>The audio transition that Add Default Transition puts on an audio cut in this project.</source>
+        <translation>Аудиопереход, который «Добавить переход по умолчанию» ставит на аудиостык в этом проекте.</translation>
     </message>
     <message>
         <source>Standard audio transition</source>
@@ -22854,8 +23162,16 @@ Estimated size after compacting: %3</source>
         <translation>Формат прокси‑медиа</translation>
     </message>
     <message>
+        <source>The size optimized media is made at. Choose automatically picks the largest of Original, Half and Quarter that is at most 540 lines high.</source>
+        <translation>Размер, в котором создаются оптимизированные медиа. «Выбрать автоматически» берёт наибольший из вариантов «Оригинал», «Половина» и «Четверть», высота которого не больше 540 строк.</translation>
+    </message>
+    <message>
         <source>Optimized media resolution</source>
         <translation>Разрешение оптимизированных медиа</translation>
+    </message>
+    <message>
+        <source>The codec optimized media is made with. H.264 (fast decode) gives the smallest files and the fastest playback on laptops.</source>
+        <translation>Кодек, которым создаются оптимизированные медиа. H.264 (быстрое декодирование) даёт самые маленькие файлы и самое быстрое воспроизведение на ноутбуках.</translation>
     </message>
     <message>
         <source>Optimized media format</source>
@@ -22878,12 +23194,28 @@ Estimated size after compacting: %3</source>
         <translation> секунд</translation>
     </message>
     <message>
+        <source>Caches the parts of the timeline that are slow to play while you are not editing, so playback is smooth later.</source>
+        <translation>Кеширует части таймлайна, которые медленно воспроизводятся, пока вы не монтируете, чтобы позже воспроизведение было плавным.</translation>
+    </message>
+    <message>
+        <source>How many seconds without an edit before background caching starts.</source>
+        <translation>Сколько секунд без правок должно пройти до начала фонового кеширования.</translation>
+    </message>
+    <message>
         <source>Automatically cache transitions in User Mode</source>
         <translation>Автоматически кэшировать переходы в пользовательском режиме</translation>
     </message>
     <message>
+        <source>In User Mode, caches the transitions of the timeline by itself so they play smoothly.</source>
+        <translation>В пользовательском режиме сам кеширует переходы таймлайна, чтобы они воспроизводились плавно.</translation>
+    </message>
+    <message>
         <source>Automatically cache composites in User Mode</source>
         <translation>Автоматически кэшировать композиты в пользовательском режиме</translation>
+    </message>
+    <message>
+        <source>In User Mode, caches composites (clips layered on others) by itself so they play smoothly.</source>
+        <translation>В пользовательском режиме сам кеширует композиты (клипы, наложенные друг на друга), чтобы они воспроизводились плавно.</translation>
     </message>
     <message>
         <source>Custom</source>
@@ -22892,6 +23224,10 @@ Estimated size after compacting: %3</source>
     <message>
         <source>Timelines that use the project settings and have clips are converted to the new frame rate: clips, markers and effects stay at the same time and the keyframes are re-timed (a clip edge can move by up to half a frame). You are asked before it happens, and Undo takes it back.</source>
         <translation>Таймлайны, использующие настройки проекта и содержащие клипы, конвертируются к новой частоте кадров: клипы, маркеры и эффекты сохраняют своё время, а ключевые кадры пересчитываются (край клипа может сместиться до половины кадра). Перед этим появляется запрос, и действие можно отменить.</translation>
+    </message>
+    <message>
+        <source>How many frames per second the timelines of this project play at. Choose the rate your footage and your delivery use.</source>
+        <translation>С какой частотой кадров в секунду воспроизводятся таймлайны этого проекта. Выберите частоту, которую используют ваши материалы и выдача.</translation>
     </message>
     <message>
         <source>Timelines with clips are converted when the frame rate changes.</source>
@@ -24112,8 +24448,16 @@ Restart Kinoklip to apply them.</source>
         <translation>Экспорт настроек...</translation>
     </message>
     <message>
+        <source>Save your settings to a file, to keep a copy or to move them to another computer.</source>
+        <translation>Сохраняет ваши настройки в файл, чтобы хранить копию или перенести их на другой компьютер.</translation>
+    </message>
+    <message>
         <source>Import Settings...</source>
         <translation>Импорт настроек...</translation>
+    </message>
+    <message>
+        <source>Load settings from a file made with Export Settings. Your current settings are saved first, so you can go back.</source>
+        <translation>Загружает настройки из файла, созданного командой «Экспорт настроек». Ваши текущие настройки сначала сохраняются, чтобы можно было вернуться.</translation>
     </message>
     <message>
         <source>Import and Export</source>
@@ -25760,16 +26104,20 @@ Restart Kinoklip to apply them.</source>
         <translation>Обзор</translation>
     </message>
     <message>
-        <source>Choose the cache folder</source>
-        <translation>Выбрать папку кеша</translation>
-    </message>
-    <message>
         <source>Default</source>
         <translation>По умолчанию</translation>
     </message>
     <message>
-        <source>Use the default cache folder</source>
-        <translation>Использовать папку кеша по умолчанию</translation>
+        <source>The folder where thumbnails and audio waveforms of imported media are kept so projects open quickly. Empty uses the default folder.</source>
+        <translation>Папка, где хранятся миниатюры и формы волны импортированных медиа, чтобы проекты открывались быстро. Пусто: папка по умолчанию.</translation>
+    </message>
+    <message>
+        <source>Choose the folder for the cache files.</source>
+        <translation>Выбрать папку для файлов кеша.</translation>
+    </message>
+    <message>
+        <source>Go back to the default cache folder.</source>
+        <translation>Вернуться к папке кеша по умолчанию.</translation>
     </message>
     <message>
         <source>Cache files location</source>
@@ -25788,12 +26136,16 @@ Restart Kinoklip to apply them.</source>
         <translation>&lt;cache files location&gt;/ProxyMedia</translation>
     </message>
     <message>
-        <source>Choose the proxy media folder</source>
-        <translation>Выбрать папку прокси‑медиа</translation>
+        <source>The folder where proxy media (small copies that play smoothly) is made. Empty keeps them inside the cache folder; a folder of your own lets other projects find the same proxies.</source>
+        <translation>Папка, где создаются прокси-медиа (небольшие копии, которые воспроизводятся плавно). Пусто: они остаются внутри папки кеша; своя папка позволяет другим проектам находить те же прокси.</translation>
     </message>
     <message>
-        <source>Keep proxies inside the cache folder</source>
-        <translation>Хранить прокси внутри папки кеша</translation>
+        <source>Choose the folder for proxy media.</source>
+        <translation>Выбрать папку для прокси-медиа.</translation>
+    </message>
+    <message>
+        <source>Keep the proxies inside the cache folder.</source>
+        <translation>Хранить прокси внутри папки кеша.</translation>
     </message>
     <message>
         <source>Proxy generation location</source>
@@ -25808,12 +26160,12 @@ Restart Kinoklip to apply them.</source>
         <translation> ГБ</translation>
     </message>
     <message>
-        <source>Render cache size limit</source>
-        <translation>Лимит размера кеша рендеринга</translation>
+        <source>The most disk space optimized media and the render cache may use. The oldest cached frames are deleted first when it is reached.</source>
+        <translation>Наибольшее место на диске, которое могут занимать оптимизированные медиа и кеш рендера. При достижении предела первыми удаляются самые старые кадры кеша.</translation>
     </message>
     <message>
-        <source>Optimized media and the render cache live in the cache folder (OptimizedMedia, RenderCache); the oldest cached frames are deleted first when the limit is reached.</source>
-        <translation>Оптимизированные медиа и кеш рендеринга находятся в папке кеша (OptimizedMedia, RenderCache); при достижении лимита сначала удаляются самые старые кешированные кадры.</translation>
+        <source>Render cache size limit</source>
+        <translation>Лимит размера кеша рендеринга</translation>
     </message>
 </context>
 <context>
@@ -26482,6 +26834,10 @@ Trim the clips so the media covers the transition?</source>
         <translation>Показывать стандартные смарт-папки (Видео, Аудио, Снимки, Таймлайны)</translation>
     </message>
     <message>
+        <source>Shows the built-in smart bins that collect your Video, Audio, Stills and Timelines by themselves. Your own smart bins are not affected.</source>
+        <translation>Показывает встроенные смарт-папки, которые сами собирают ваши видео, аудио, фотографии и таймлайны. Ваши собственные смарт-папки не затрагиваются.</translation>
+    </message>
+    <message>
         <source>Media pool</source>
         <translation>Медиапул</translation>
     </message>
@@ -26496,6 +26852,14 @@ Trim the clips so the media covers the transition?</source>
     <message>
         <source>Where File &gt; Import, the Media page&apos;s Add to Media Pool, drops onto the media pool and timeline drops put new media. A drop onto a bin always goes into that bin.</source>
         <translation>Где File &gt; Import, на странице Media кнопка Add to Media Pool, перетаскивание в медиапул и таймлайн помещает новый медиа. Перетаскивание в bin всегда попадает в эту папку.</translation>
+    </message>
+    <message>
+        <source>New media goes into the bin that is open.</source>
+        <translation>Новые медиа попадают в открытую папку.</translation>
+    </message>
+    <message>
+        <source>New media always goes into the Master bin.</source>
+        <translation>Новые медиа всегда попадают в основную папку.</translation>
     </message>
     <message>
         <source>Import new media into</source>
@@ -29690,8 +30054,16 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
 <context>
     <name>kk::theme</name>
     <message>
+        <source>The colours of the whole window. Default (System) follows the desktop&apos;s colour scheme; the others are fixed colour schemes.</source>
+        <translation>Цвета всего окна. «По умолчанию (система)» следует цветовой схеме рабочего стола; остальные — фиксированные цветовые схемы.</translation>
+    </message>
+    <message>
         <source>Color theme</source>
         <translation>Цветовая тема</translation>
+    </message>
+    <message>
+        <source>How buttons, menus and other controls are drawn. Breeze is the KDE look, Fusion a neutral look that is the same on every desktop.</source>
+        <translation>Как рисуются кнопки, меню и другие элементы управления. Breeze — внешний вид KDE, Fusion — нейтральный вид, одинаковый на любом рабочем столе.</translation>
     </message>
     <message>
         <source>Widget style</source>

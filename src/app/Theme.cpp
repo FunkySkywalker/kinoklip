@@ -507,6 +507,9 @@ public:
         }
         m_scheme->setCurrentIndex(
             std::max(0, m_scheme->findData(colorSchemeActionId(currentColorScheme()))));
+        m_scheme->setToolTip(QCoreApplication::translate("kk::theme",
+            "The colours of the whole window. Default (System) follows the desktop's colour "
+            "scheme; the others are fixed colour schemes."));
         form->addRow(QCoreApplication::translate("kk::theme", "Color theme"), m_scheme);
 
         m_style = new QComboBox;
@@ -514,6 +517,9 @@ public:
         for (const QString& style : availableStyles())
             m_style->addItem(style, styleActionId(style));
         m_style->setCurrentIndex(std::max(0, m_style->findData(styleActionId(currentStyle()))));
+        m_style->setToolTip(QCoreApplication::translate("kk::theme",
+            "How buttons, menus and other controls are drawn. Breeze is the KDE look, Fusion "
+            "a neutral look that is the same on every desktop."));
         form->addRow(QCoreApplication::translate("kk::theme", "Widget style"), m_style);
     }
 

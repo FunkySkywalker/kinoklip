@@ -170,7 +170,12 @@ public:
             auto* row = new QHBoxLayout;
             download = new QPushButton(tr("Download %1...").arg(model.name));
             download->setObjectName(QStringLiteral("Ai%1ModelDownload").arg(suffix));
+            download->setToolTip(tr("Download the %1 model to this computer. It is only "
+                                    "downloaded when you ask, and Background Removal needs "
+                                    "it.").arg(model.name));
             remove = new QPushButton(tr("Remove %1").arg(model.name));
+            remove->setToolTip(tr("Delete the downloaded %1 model to free its disk space. "
+                                  "Download it again to use it.").arg(model.name));
             remove->setObjectName(QStringLiteral("Ai%1ModelRemove").arg(suffix));
             row->addWidget(download);
             row->addWidget(remove);
@@ -196,6 +201,8 @@ public:
         makeRow(matting::imageModel(), QStringLiteral("Image"), m_downloadImage, m_removeImage);
         m_clear = new QPushButton(tr("Clear Matte Cache"));
         m_clear->setObjectName(QStringLiteral("AiMatteClear"));
+        m_clear->setToolTip(tr("Delete the saved cut-outs. A clip is cut out again the next "
+                               "time you remove its background."));
         layout->addWidget(m_clear);
         m_cache = new QLabel;
         m_cache->setObjectName(QStringLiteral("AiMatteCache"));
