@@ -157,7 +157,7 @@ Shipped in 1.4 ([release notes](releases/v1.4.0.md)):
 
 ## Next version (1.10.0)
 
-Beginner and intermediate tutorial workflows for Resolve's Color and Fairlight pages that fail today are listed in [color-audio-gaps.md](color-audio-gaps.md); each gap below has its line.
+Beginner and intermediate tutorial workflows for Resolve's Color, Fairlight and Fusion pages that fail today are listed in [color-audio-gaps.md](color-audio-gaps.md); each gap below has its line.
 
 - [ ] Color: Tracker palette: a window or node follows a tracked subject (Pan, Tilt, Zoom, Rotate, 3D) so a blurred or graded face stays covered, and a Stabilizer palette
 - [ ] Color: Curve (Bezier) power window in the Windows palette, with polygon and curve shape keyframes
@@ -180,7 +180,7 @@ Beginner and intermediate tutorial workflows for Resolve's Color and Fairlight p
 - [ ] Color: Resolve FX palette: put an effect (Glow, Lens Blur, Film Grain, Halation, Film Look) on a node so its window or qualifier limits it
 - [ ] Color: Keyframes palette and strip on the Color page with Dynamic interpolation, and a Sizing palette (Zoom, Pan, Tilt, Rotate, Flip, Input / Output sizing)
 - [ ] Color: Split Screen modes (Selected Clips, Timeline), Lightbox and Output Blanking
-- [ ] Color: Blur / Sharpen / Mist palette on the Color page, so a window can blur part of the picture
+- [x] Color: Blur / Sharpen / Mist palette on the Color page, so a window can blur part of the picture (spec 106; Radius R G B with link, H/V Ratio, Scaling, Coring Softness, Level, Mist Mix; keyframes, undo, same maths on GPU and CPU; tracking a window is the open Tracker item)
 - [ ] Audio: noise reduction with a local, open model (RNNoise / DeepFilterNet, spectral gate fallback)
 - [ ] Audio: Effects Library and Inspector on the Audio page, effect slots on mixer tracks
 - [ ] Audio: Normalize a whole track or bus / the main mix to a loudness target in one step
@@ -193,6 +193,20 @@ Beginner and intermediate tutorial workflows for Resolve's Color and Fairlight p
 - [ ] Audio: Chorus, Flanger, Distortion and Stereo Width effects, and Reverb with Pre-delay, Decay and room presets
 - [ ] Audio: EQ presets (voice, music, telephone) and a Phase Invert button on the strip
 - [ ] Audio: Spectrum analyzer and Phase / correlation meters, and monitor controls (Dim, Mono, Mute) on the Audio page
+- [ ] Compositing: Text+ controls: Layout (Point, Frame, Circle, Path), Tracking, Line Spacing, Kerning, Shading elements, a Write On range on the Text node, and a Follower for per-character animation
+- [ ] Compositing: Bezier mask with tangent handles and Roto assist, Point Follower, and mask tracking (a Mask Tracker moves a mask, polygon points, size and angle; also on the Edit page)
+- [ ] Compositing: Planar Tracker Track Mask input, several trackers in one Tracker node (rotation and scale from two patterns), and Follow Track for size and angle
+- [ ] Compositing: Ultra Keyer, Delta Keyer advanced tabs (Pre-Matte Blur, Erode / Dilate, Matte Blur, Fringe, Replace Mode), Matte Control (Garbage and Solid masks, Restore Fringe) and a Clean Plate input
+- [ ] Compositing: Light Wrap and Soft Glow nodes
+- [ ] Compositing: particles: pEmitter, pRender, pMerge, pGravity, pTurbulence
+- [ ] Compositing: 3D: Image Plane 3D, Text3D, Shape3D, Merge3D, Camera3D, lights, Renderer3D and a 3D viewer
+- [ ] Compositing: Paint node (Stroke, Clone, Eraser, Smear, stroke duration) and Magic Mask / Object Removal in the node graph (optional local open model)
+- [ ] Compositing: modifiers (Perturb, Wiggle, Offset, Expression, Cycle, XY Path), parameter links with Connect To and Publish, and expressions in value fields
+- [ ] Compositing: Group, Macro (Make Macro, published controls, save as a title in the Effects Library), Underlay and Instance nodes
+- [ ] Compositing: Grid Warp, Displace and Vector Distort nodes
+- [ ] Compositing: build a transition on the page (MediaIn1 / MediaIn2 composite), Loader and Saver nodes, Time Speed and Time Stretcher nodes
+- [ ] Compositing: Vector Motion Blur, Custom Tool (pixel expressions), Color Curves, Hue Curves, Brightness Contrast, Alpha Multiply / Divide and Channel Mapper nodes
+- [ ] Compositing: viewer Onion Skin, Region of Interest, Rulers, safe area overlay, and Proxy / Auto Proxy / High Quality / Motion Blur toggle buttons with a disk cache
 - [ ] Background Removal: Keep / Remove brush to correct the model by hand
 - [ ] Media: New Fusion Clip, and Fusion / compound clips as Media Pool entries you can drag to the timeline
 - [ ] Titles: underline and strikethrough
@@ -227,8 +241,6 @@ when the owner asks for it.
 - [ ] Deliver: lossless FFV1 video and MP3 audio as export formats
 - [ ] Platform: `kinoklip --graphics-check`: draws a test picture with the graphics card, reads it back, says whether video decodes on the card and why not, and prints a report for bug reports
 - [ ] Platform: AppImage for ARM64 computers, and a Flathub submission once the Flatpak exists
-- [ ] Compositing: mask tracking on the Edit page
-- [ ] Compositing: Paint (B-spline and paint tools), particles, 3D, expressions, modifiers
 - [ ] Pages: compare the Media, Cut, Compositing, Color, Audio and Deliver pages with Resolve and add what is missing
 - [ ] Media: clone tool on the Media page
 - [ ] Deliver: render presets per platform

@@ -1,6 +1,6 @@
-# Color and Audio page gaps
+# Color, Audio and Compositing page gaps
 
-Goal for 1.10.0: a user can follow any YouTube guide for DaVinci Resolve's Color page and Fairlight (Audio) page and it just works. This file lists the roughly 40 most common beginner and intermediate tutorial workflows for each page and whether Kinoklip can do them today, step by step. Checked on 2026-11-17 against the code, [color-page.md](color-page.md), [behavior-spec.md](behavior-spec.md) (sections 37, 44), [effects-library-status.md](effects-library-status.md) and [roadmap.md](roadmap.md).
+Goal for 1.10.0: a user can follow any YouTube guide for DaVinci Resolve's Color page, Fairlight (Audio) page and Fusion (Compositing) page and it just works. This file lists the most common beginner and intermediate tutorial workflows for each page and whether Kinoklip can do them today, step by step. Checked on 2026-11-17 against the code, [color-page.md](color-page.md), [behavior-spec.md](behavior-spec.md) (sections 37, 44), [effects-library-status.md](effects-library-status.md) and [roadmap.md](roadmap.md).
 
 Clean room ([clean-room.md](clean-room.md)): the names below are those of Resolve's public reference manual and of public tutorials; nothing was taken from Resolve itself.
 
@@ -14,10 +14,10 @@ Every missing piece has a line in [roadmap.md](roadmap.md) under "Next version (
 
 | # | Workflow | Status | What is missing |
 |---|---|---|---|
-| C1 | Blur or censor a face with a tracked window | missing | Blur palette (Radius, Scaling), Tracker palette (window tracking: Pan / Tilt / Zoom / Rotate / 3D), Cloud tracker; windows cannot follow a subject |
-| C2 | Blur a polygon or circle window (static) | missing | Blur palette on the Color page (the Edit page Blur effect and clip masks blur or cut the whole clip, not a node's window) |
-| C3 | Sharpen part of the picture (Blur palette, Sharpen mode) | missing | Blur / Sharpen / Mist palette with its Radius R G B link and Scaling |
-| C4 | Mist / soften skin or glow with the Mist mode | missing | Mist mode of the Blur palette |
+| C1 | Blur or censor a face with a tracked window | partly | Blur palette works (spec 106); missing: Tracker palette (window tracking: Pan / Tilt / Zoom / Rotate / 3D), Cloud tracker; windows cannot follow a subject |
+| C2 | Blur a polygon or circle window (static) | works | |
+| C3 | Sharpen part of the picture (Blur palette, Sharpen mode) | works | |
+| C4 | Mist / soften skin or glow with the Mist mode | works | |
 | C5 | Power windows: Circle, Linear, Polygon, Gradient (softness, invert, opacity, keyframes) | works | |
 | C6 | Curve (Bezier) power window | missing | Curve window button in the Windows palette; Bezier points and tangents on the viewer |
 | C7 | Window follows the subject (animate or track a window) | missing | Tracker palette applied to windows; polygon shape keyframes |
@@ -110,3 +110,62 @@ Every missing piece has a line in [roadmap.md](roadmap.md) under "Next version (
 | A41 | Dialogue / sound library search | missing | Sound Library panel (spec 37.27) |
 | A42 | Elastic Wave (stretch audio to a clip's speed without moving pitch) | partly | Speed change with Pitch Correction works; Elastic Wave editing inside a clip is missing (spec 37.29) |
 | A43 | Plug-ins (VST / AU / LV2 third-party effects) | missing | Plug-in host (spec 37.25) |
+
+## Compositing page (Fusion)
+
+The names are those of the Fusion reference manual and public tutorials. Status is checked against the Compositing page ([compositing-page.md](compositing-page.md), [behavior-spec.md](behavior-spec.md) sections 42, 88 to 94, [effects-library-status.md](effects-library-status.md)).
+
+| # | Workflow | Status | What is missing |
+|---|---|---|---|
+| F1 | Text+ title with font, size, colour, outline and shadow | partly | Text node has those; no Text+ layout controls (Layout type Point / Frame / Circle / Path, Tracking, Line Spacing, Kerning), no Shading tab with several elements, no Rich Text |
+| F2 | Text+ animated title with Follower (per-character animation) | missing | Text+ Follower modifier and per-character Transform / Shading; the Edit page Write On range is not in the Fusion Text node |
+| F3 | Text+ Write On (Start / End keyframes) | partly | Write On exists on Edit page titles (spec 84); the Compositing Text node has no Write On range |
+| F4 | Lower third (Text + Background + Merge, animate with Transform) | works |  |
+| F5 | Merge basics: Foreground, Background, Blend, Apply Mode, Size, Center, Angle | works |  |
+| F6 | Background node: solid colour, gradient, with a Merge | works |  |
+| F7 | Transform: Center, Pivot, Size, Angle, Flip, Edges, Keyframes | works |  |
+| F8 | Rectangle / Ellipse / Polygon mask, plug into a tool's Effect Mask | works |  |
+| F9 | BSpline mask and rotoscoping a subject by keyframing points | partly | B-Spline and Polygon exist with shape keyframes; no Bezier mask node with tangent handles, no Roto assist / Ctrl+drag to add points, no Point Follower, no Solid / Open spline toggle |
+| F10 | Mask tracking (a mask follows the subject) | missing | Tracker or Planar Tracker output cannot drive a mask's Center from a Mask Tracker; Connect to Tracker copies keys for Center only, not for polygon points, size or angle (roadmap: mask tracking on the Edit page) |
+| F11 | Planar Tracker: screen replacement (Corner Pin output, Merge) | works | Planar Tracker has Corner Pin, Steady, Unsteady; Create Planar Transform is not needed (the Output modes cover it) |
+| F12 | Planar Tracker with a mask excluding occluding objects (Track Mask) | missing | Planar Tracker has no Mask input to exclude areas, no Pattern / Occlusion mask |
+| F13 | Corner Positioner / Corner Pin by hand | works |  |
+| F14 | Tracker: stick text or an image to a moving object (Match Move) | partly | Tracker (point) works; one point per Tracker node (no several trackers in one node, so no Rotation / Scale from two patterns); Follow Track copies Center only |
+| F15 | Stabilize a shaky shot with the Tracker (Stabilize) | works |  |
+| F16 | Delta Keyer green screen: pick colour, Gain, Balance, Clean Background | partly | Delta Keyer exists; missing the advanced tabs: Pre-Matte Blur, Erode / Dilate, Matte Blur, Fringe, Replace Mode (spec 92.4) |
+| F17 | Ultra Keyer green screen (Pre-Matte, Matte, Spill, Color Correction tabs) | missing | Ultra Keyer node |
+| F18 | Clean plate for keying | partly | Clean Background / Foreground inputs in Delta Keyer; a clean plate is not a node input, and Clean Plate tool is missing |
+| F19 | Chroma Keyer and Luma Keyer | works | Luma Keyer node, Chroma Key and 3D Keyer effect nodes |
+| F20 | Matte control: Erode / Dilate, Blur, Matte Finesse on the alpha | partly | Alpha Matte Shrink and Grow effect; no Matte Control node (Garbage mask, Solid mask, Erode / Dilate, Blur, Restore Fringe) |
+| F21 | Light Wrap on a keyed subject | missing | Light Wrap (Blur and Merge recipe works by hand; no ready node) |
+| F22 | Glow and Soft Glow | partly | Glow effect works; no Soft Glow node (Threshold, Gain, Blur, Color Scale) |
+| F23 | Blur, Directional Blur, Radial and Zoom Blur | works |  |
+| F24 | Fast Noise: smoke, fog, clouds (animated Seethe) | partly | Fast Noise exists; Seethe, Seethe Rate and the Color gradient tab are not confirmed present and need a check |
+| F25 | Particles: pEmitter, pRender, pMerge | missing | pEmitter, pRender, pMerge, pGravity, pTurbulence (roadmap Later: particles) |
+| F26 | 3D: Text3D, Shape3D, Merge3D, Renderer3D | missing | Text3D, Shape3D, Image Plane 3D, Merge3D, Renderer3D, 3D viewer (roadmap Later: 3D) |
+| F27 | 3D: Camera3D, lights and camera moves | missing | Camera3D, Spot / Point / Directional Light, Ambient Light |
+| F28 | Paint tool: clone, erase, wire removal | missing | Paint node with Stroke, Clone, Eraser, Smear, and stroke Duration (roadmap Later: Paint) |
+| F29 | Magic Mask in Fusion (and Surface Tracker / Object Removal) | missing | Magic Mask node, Object Removal, AI mask; optional local open model |
+| F30 | Keyframes and the Spline editor (Bezier, Linear, Ease, Loop) | works | Spline and Keyframes panels, loops, Ping-Pong, Relative |
+| F31 | Modifiers: Perturb, Wiggle, Offset, Expression, Cycle / Time | missing | Modifiers menu on a parameter (right-click > Modify With), Perturb, Offset, Expression, Calculation, XY Path; no parameter links either |
+| F32 | Connect a parameter to another (Connect To, Publish, expressions such as `Transform1.Angle*2`) | missing | Parameter linking and the = expression field |
+| F33 | Macros: group nodes, Make Macro, publish controls, save as a Fusion title | missing | Group, Macro Editor, Effects Library > Titles entry from a saved macro |
+| F34 | Groups, Underlay and Sticky Notes in the node editor | partly | Notes with group frames exist (CompNote); no Group node that folds nodes into one tile, no Underlay that moves its nodes |
+| F35 | Grid Warp and mesh warp | missing | Grid Warp node (Warper and Dent effects exist, but not a draggable grid) |
+| F36 | Displace and Distort by a map | missing | Displace node (an image drives a shift), Vector Distort |
+| F37 | Transitions made in Fusion (a Fusion transition and a MediaIn1 / MediaIn2 composite) | partly | Fusion Transitions exist as ready transitions (effects-library-status); a user cannot build one: the node graph has only one MediaIn and no transition mode with MediaIn2 and a Background mix |
+| F38 | Loader and Saver (import a still or sequence, write a render) | partly | MediaIn takes any media pool item; no Loader (file path) node, no Saver node; render happens on the Deliver page |
+| F39 | MediaIn and MediaOut with several MediaIns of the Media Pool | works |  |
+| F40 | Instance tool (copy a node linked to the original) | missing | Instance node / Paste Instance |
+| F41 | Background Removal / Depth Map in the Compositing page | partly | Edit page Background Removal effect appears as a node; no Depth Map, no Brush to refine, no Magic Mask |
+| F42 | Drop Shadow and Shadow | works | Drop Shadow effect and Text node shadow |
+| F43 | Vector Motion Blur and Motion Blur | partly | Motion Blur on Merge and Transform (spec 94) and the Motion Blur effect; no Vector Motion Blur node (uses motion vectors from the Optical Flow) |
+| F44 | Time Speed and Time Stretcher | missing | Time Speed and Time Stretcher nodes on the page (Edit page speed ramps exist) |
+| F45 | Color Corrector in Fusion (Color Correct tools: Gamma, Gain, Lift, Hue, Saturation, Color Curves) | partly | Color Corrector node (Color Balance, Levels, Saturation); no Color Curves, Hue Curves, Color Gain tools, no Brightness Contrast node, no Gamut node |
+| F46 | Channel Booleans, Channel Swap, Set Alpha, Alpha Multiply / Divide | partly | Channel Booleans exists; no Alpha Multiply / Alpha Divide, Matte Control, Set Canvas Color or Channel Mapper as named tools |
+| F47 | Custom Tool (pixel code) | missing | Custom Tool with expression fields (r1, r2, n1 ..., Setup / Intermediate tabs) |
+| F48 | Viewer: A / B buffers, split, channel keys, checker, Lock, 100% | works | spec 90 |
+| F49 | Viewer: onion skin, Region of Interest (RoD), Smart Control, Snap, Fit, 3D / Rulers | partly | Zoom and Fit exist; missing Onion Skin, ROI, Rulers, Show Safe Area, DoD overlay, Stereo and 3D view options |
+| F50 | Inspector: Common Controls, Tools / Modifiers / Settings tab names | works |  |
+| F51 | Node editor basics: Shift+Space, add after selection, insert on link, replace, find | works |  |
+| F52 | Render cache and Fusion render settings (Proxy, Auto Proxy, Motion Blur toggle, High Quality) | partly | Viewer quality via Playback; missing Proxy / Auto Proxy / HiQ / MB toggle buttons on the page and cache-to-disk |
