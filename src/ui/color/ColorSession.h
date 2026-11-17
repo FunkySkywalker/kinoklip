@@ -134,8 +134,22 @@ public:
     /// Sets parameters of window @p windowId (0: selected) at the current frame.
     bool setWindowParams(
         quint64 windowId, const QVector<std::pair<QString, double>>& values, const QString& label);
-    /// Replaces the polygon points of window @p windowId (0: selected).
-    bool setWindowPoints(quint64 windowId, const QVector<QPointF>& points, const QString& label);
+    /// Replaces the Polygon / Curve shape of window @p windowId (0: selected): a key at the
+    /// current frame when the window already has shape keys, else its static shape. The
+    /// point count must stay the same (use addWindowPoint / removeWindowPoint).
+    bool setWindowShape(
+        quint64 windowId, const GradeWindowShapePoints& points, const QString& label);
+    /// Inserts a point after @p index at parameter @p t of that span, in the static shape and
+    /// in every shape key (the outline does not change).
+    bool addWindowPoint(quint64 windowId, int index, double t, const QString& label);
+    /// Removes point @p index from the static shape and from every shape key (three stay).
+    bool removeWindowPoint(quint64 windowId, int index, const QString& label);
+    /// Sets a shape key at the current frame holding the shape shown there.
+    bool keyWindowShape(quint64 windowId = 0);
+    /// Removes the shape key at the current frame (the shape goes on between its neighbours).
+    bool removeWindowShapeKey(quint64 windowId = 0);
+    /// Removes every shape key; the static shape becomes the one shown at the current frame.
+    bool clearWindowShapeKeys(quint64 windowId = 0);
     /// Sets the enabled / invert flags of window @p windowId (0: selected).
     bool setWindowFlags(quint64 windowId, bool enabled, bool invert);
 

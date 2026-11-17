@@ -8880,6 +8880,18 @@ Thank you for watching</source>
         <translation>Удалить окно</translation>
     </message>
     <message>
+        <source>Keyframe Window Shape</source>
+        <translation>Задать ключевой кадр формы окна</translation>
+    </message>
+    <message>
+        <source>Remove Window Shape Keyframe</source>
+        <translation>Удалить ключевой кадр формы окна</translation>
+    </message>
+    <message>
+        <source>Clear Window Shape Keyframes</source>
+        <translation>Очистить ключевые кадры формы окна</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Окно</translation>
     </message>
@@ -9212,6 +9224,14 @@ Thank you for watching</source>
     <message>
         <source>Move Window Point</source>
         <translation>Переместить точку окна</translation>
+    </message>
+    <message>
+        <source>Move Window Tangent</source>
+        <translation>Переместить касательную окна</translation>
+    </message>
+    <message>
+        <source>Smooth or Corner Window Point</source>
+        <translation>Точка окна: гладкая или угловая</translation>
     </message>
     <message>
         <source>Add Window Point</source>
@@ -29095,6 +29115,14 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
         <translation>Градиент</translation>
     </message>
     <message>
+        <source>Curve</source>
+        <translation>Кривая</translation>
+    </message>
+    <message>
+        <source>Add a curve window to the current node: a Bezier shape whose points have tangent handles. Drag the handles in the viewer; double-click a point to switch it between smooth and corner, double-click the outline to add a point, right-click a point to delete it.</source>
+        <translation>Добавить кривое окно к текущей ноде: форма Безье, у точек которой есть касательные. Перетаскивайте их во вьюере; двойной щелчок по точке переключает её между гладкой и угловой, двойной щелчок по контуру добавляет точку, щелчок правой кнопкой по точке удаляет её.</translation>
+    </message>
+    <message>
         <source>Add a %1 window to the current node</source>
         <translation>Добавить окно %1 к текущей ноде</translation>
     </message>
@@ -29105,6 +29133,38 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
     <message>
         <source>Delete</source>
         <translation>Удалить</translation>
+    </message>
+    <message>
+        <source>Select everything outside the window instead of the inside</source>
+        <translation>Выбрать всё снаружи окна вместо внутренней части</translation>
+    </message>
+    <message>
+        <source>Delete the selected window</source>
+        <translation>Удалить выбранное окно</translation>
+    </message>
+    <message>
+        <source>Key Shape</source>
+        <translation>Ключ формы</translation>
+    </message>
+    <message>
+        <source>Set a shape keyframe at the playhead. From then on every point you move writes a key at the playhead, and the shape changes smoothly between keys.</source>
+        <translation>Задать ключевой кадр формы на указателе воспроизведения. После этого каждая перемещённая точка записывает ключ на указателе, а форма плавно меняется между ключами.</translation>
+    </message>
+    <message>
+        <source>Remove Key</source>
+        <translation>Удалить ключ</translation>
+    </message>
+    <message>
+        <source>Remove the shape keyframe at the playhead</source>
+        <translation>Удалить ключевой кадр формы на указателе воспроизведения</translation>
+    </message>
+    <message>
+        <source>Clear Keys</source>
+        <translation>Очистить ключи</translation>
+    </message>
+    <message>
+        <source>Remove all shape keyframes; the window keeps the shape it shows at the playhead</source>
+        <translation>Удалить все ключевые кадры формы; окно сохраняет форму, которую показывает на указателе воспроизведения</translation>
     </message>
     <message>
         <source>inverted</source>

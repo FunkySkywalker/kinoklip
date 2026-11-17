@@ -8870,6 +8870,18 @@ Gracias por ver</translation>
         <translation>Eliminar ventana</translation>
     </message>
     <message>
+        <source>Keyframe Window Shape</source>
+        <translation>Poner fotograma clave a la forma de ventana</translation>
+    </message>
+    <message>
+        <source>Remove Window Shape Keyframe</source>
+        <translation>Quitar fotograma clave de la forma de ventana</translation>
+    </message>
+    <message>
+        <source>Clear Window Shape Keyframes</source>
+        <translation>Borrar fotogramas clave de la forma de ventana</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Ventana</translation>
     </message>
@@ -9202,6 +9214,14 @@ Gracias por ver</translation>
     <message>
         <source>Move Window Point</source>
         <translation>Mover punto de ventana</translation>
+    </message>
+    <message>
+        <source>Move Window Tangent</source>
+        <translation>Mover tangente de ventana</translation>
+    </message>
+    <message>
+        <source>Smooth or Corner Window Point</source>
+        <translation>Punto de ventana suave o en esquina</translation>
     </message>
     <message>
         <source>Add Window Point</source>
@@ -29075,6 +29095,14 @@ Abrir un clip multicámara del panel de medios o mover el cabezal de reproducci�
         <translation>Degradado</translation>
     </message>
     <message>
+        <source>Curve</source>
+        <translation>Curva</translation>
+    </message>
+    <message>
+        <source>Add a curve window to the current node: a Bezier shape whose points have tangent handles. Drag the handles in the viewer; double-click a point to switch it between smooth and corner, double-click the outline to add a point, right-click a point to delete it.</source>
+        <translation>Añadir una ventana de curva al nodo actual: una forma Bézier cuyos puntos tienen tiradores de tangente. Arrastra los tiradores en el visor; doble clic en un punto alterna entre suave y esquina, doble clic en el contorno añade un punto y clic derecho en un punto lo elimina.</translation>
+    </message>
+    <message>
         <source>Add a %1 window to the current node</source>
         <translation>Añadir una ventana de tipo %1 al nodo actual</translation>
     </message>
@@ -29085,6 +29113,38 @@ Abrir un clip multicámara del panel de medios o mover el cabezal de reproducci�
     <message>
         <source>Delete</source>
         <translation>Eliminar</translation>
+    </message>
+    <message>
+        <source>Select everything outside the window instead of the inside</source>
+        <translation>Seleccionar todo lo que queda fuera de la ventana en vez de lo de dentro</translation>
+    </message>
+    <message>
+        <source>Delete the selected window</source>
+        <translation>Eliminar la ventana seleccionada</translation>
+    </message>
+    <message>
+        <source>Key Shape</source>
+        <translation>Fijar forma</translation>
+    </message>
+    <message>
+        <source>Set a shape keyframe at the playhead. From then on every point you move writes a key at the playhead, and the shape changes smoothly between keys.</source>
+        <translation>Fijar un fotograma clave de forma en el cabezal de reproducción. A partir de ahí cada punto que muevas escribe un fotograma clave en el cabezal y la forma cambia suavemente entre ellos.</translation>
+    </message>
+    <message>
+        <source>Remove Key</source>
+        <translation>Quitar clave</translation>
+    </message>
+    <message>
+        <source>Remove the shape keyframe at the playhead</source>
+        <translation>Quitar el fotograma clave de forma en el cabezal de reproducción</translation>
+    </message>
+    <message>
+        <source>Clear Keys</source>
+        <translation>Borrar claves</translation>
+    </message>
+    <message>
+        <source>Remove all shape keyframes; the window keeps the shape it shows at the playhead</source>
+        <translation>Quitar todos los fotogramas clave de forma; la ventana conserva la forma que muestra en el cabezal de reproducción</translation>
     </message>
     <message>
         <source>inverted</source>

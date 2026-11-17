@@ -8870,6 +8870,18 @@ Danke fürs Zuschauen</translation>
         <translation>Window löschen</translation>
     </message>
     <message>
+        <source>Keyframe Window Shape</source>
+        <translation>Window-Form als Keyframe setzen</translation>
+    </message>
+    <message>
+        <source>Remove Window Shape Keyframe</source>
+        <translation>Window-Form-Keyframe entfernen</translation>
+    </message>
+    <message>
+        <source>Clear Window Shape Keyframes</source>
+        <translation>Window-Form-Keyframes löschen</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Window</translation>
     </message>
@@ -9202,6 +9214,14 @@ Danke fürs Zuschauen</translation>
     <message>
         <source>Move Window Point</source>
         <translation>Window-Punkt verschieben</translation>
+    </message>
+    <message>
+        <source>Move Window Tangent</source>
+        <translation>Window-Tangente verschieben</translation>
+    </message>
+    <message>
+        <source>Smooth or Corner Window Point</source>
+        <translation>Window-Punkt glatt oder eckig</translation>
     </message>
     <message>
         <source>Add Window Point</source>
@@ -29075,6 +29095,14 @@ Einen Multicam-Clip aus dem Medienpool öffnen oder den Abspielkopf über einen 
         <translation>Verlauf</translation>
     </message>
     <message>
+        <source>Curve</source>
+        <translation>Kurve</translation>
+    </message>
+    <message>
+        <source>Add a curve window to the current node: a Bezier shape whose points have tangent handles. Drag the handles in the viewer; double-click a point to switch it between smooth and corner, double-click the outline to add a point, right-click a point to delete it.</source>
+        <translation>Ein Kurven-Window zur aktuellen Node hinzufügen: eine Bézierform, deren Punkte Tangentengriffe haben. Die Griffe im Viewer ziehen; Doppelklick auf einen Punkt wechselt zwischen glatt und eckig, Doppelklick auf die Kontur fügt einen Punkt hinzu, Rechtsklick auf einen Punkt löscht ihn.</translation>
+    </message>
+    <message>
         <source>Add a %1 window to the current node</source>
         <translation>Ein %1-Window zur aktuellen Node hinzufügen</translation>
     </message>
@@ -29085,6 +29113,38 @@ Einen Multicam-Clip aus dem Medienpool öffnen oder den Abspielkopf über einen 
     <message>
         <source>Delete</source>
         <translation>Löschen</translation>
+    </message>
+    <message>
+        <source>Select everything outside the window instead of the inside</source>
+        <translation>Alles außerhalb des Windows statt innerhalb auswählen</translation>
+    </message>
+    <message>
+        <source>Delete the selected window</source>
+        <translation>Das ausgewählte Window löschen</translation>
+    </message>
+    <message>
+        <source>Key Shape</source>
+        <translation>Form keyen</translation>
+    </message>
+    <message>
+        <source>Set a shape keyframe at the playhead. From then on every point you move writes a key at the playhead, and the shape changes smoothly between keys.</source>
+        <translation>Einen Form-Keyframe am Abspielkopf setzen. Danach schreibt jeder verschobene Punkt einen Key am Abspielkopf, und die Form ändert sich zwischen den Keys gleichmäßig.</translation>
+    </message>
+    <message>
+        <source>Remove Key</source>
+        <translation>Key entfernen</translation>
+    </message>
+    <message>
+        <source>Remove the shape keyframe at the playhead</source>
+        <translation>Den Form-Keyframe am Abspielkopf entfernen</translation>
+    </message>
+    <message>
+        <source>Clear Keys</source>
+        <translation>Keys löschen</translation>
+    </message>
+    <message>
+        <source>Remove all shape keyframes; the window keeps the shape it shows at the playhead</source>
+        <translation>Alle Form-Keyframes entfernen; das Window behält die Form, die es am Abspielkopf zeigt</translation>
     </message>
     <message>
         <source>inverted</source>

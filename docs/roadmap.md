@@ -160,7 +160,7 @@ Shipped in 1.4 ([release notes](releases/v1.4.0.md)):
 Beginner and intermediate tutorial workflows for Resolve's Color, Fairlight and Fusion pages that fail today are listed in [color-audio-gaps.md](color-audio-gaps.md); each gap below has its line.
 
 - [x] Color: Tracker palette: a window follows a tracked subject (Pan, Tilt, Zoom, Rotate, 3D) so a blurred or graded face stays covered, and a Stabilizer mode of the palette (spec 107; Interactive mode and the Cloud tracker are not done)
-- [ ] Color: Curve (Bezier) power window in the Windows palette, with polygon and curve shape keyframes
+- [x] Color: Curve (Bezier) power window in the Windows palette, with polygon and curve shape keyframes
 - [x] Color: Qualifier Matte Finesse (Clean Black / White, Blur Radius, Shrink / Grow, In / Out Ratio, Denoise) and the 3D, RGB and Luma qualifier modes (spec 108; same maths on GPU and CPU, saved in the project, one undo step each; the qualifier stays static, so no keyframes)
 - [ ] Color: Primaries Shad, Hi, Color Boost, Midtone Detail and Auto Color buttons, and a Log palette (Shadow, Midtone, Highlight, Offset wheels with Low / High range)
 - [ ] Color: Curves: Sat vs Lum curve, Soft Clip, and picking a colour or luma from the viewer to add curve points

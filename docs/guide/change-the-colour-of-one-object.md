@@ -116,6 +116,15 @@ shapes are **Linear** (a rectangle), **Polygon** (drag its points; double-click 
 one, right-click a point to remove it) and **Gradient** (a soft straight edge, good for a sky).
 Click **Invert** to change everything *outside* the window instead.
 
+For an odd shape, such as a person or a cloud, use **Curve**. It starts as a rounded shape
+with four points. Drag a point to move it; click a point to show its two handles and drag a
+handle to bend the line next to it (hold **Alt** to bend one side only). Double-click a point
+to switch it between smooth and corner, double-click the line to add a point, and right-click
+a point to remove it. If the shape must change during the clip (a hand moving), put the
+playhead on the first frame and click **Key Shape**, move to another frame and move the
+points: the shape changes smoothly between the frames. **Remove Key** and **Clear Keys**
+undo it.
+
 In a node with both a qualifier and a window, only the colours you picked *inside* the window
 change. That is how you change the blue shirt but not the blue car behind it.
 

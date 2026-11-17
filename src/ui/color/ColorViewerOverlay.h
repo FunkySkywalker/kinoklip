@@ -31,9 +31,12 @@ class ViewerSurface;
 /// Windows palette, like Resolve's on-screen controls): every window of the selected node is
 /// outlined (its soft edge dashed), the selected one with handles: drag inside to move, the
 /// side handles for width / height, the corner for both, the knob above for rotation, the
-/// outer handle on the left for the outside softness; polygon points drag one by one,
-/// double-click on an edge inserts a point, right-click on a point deletes it (at least
-/// three stay). Clicking another window's outline selects it. Every drag is one undo step.
+/// outer handle on the left for the outside softness; polygon and curve points drag one by
+/// one, double-click on an edge inserts a point, right-click on a point deletes it (at least
+/// three stay). A curve window's selected point shows its two tangent handles: dragging one
+/// turns it (a smooth point keeps the other collinear, Alt breaks that), double-click on a
+/// curve point switches it between smooth (automatic tangents) and corner (no tangents). With
+/// shape keyframes every edit writes a key at the playhead. Clicking another window's outline selects it. Every drag is one undo step.
 ///
 /// **Eyedropper** (setPickMode()): click or drag a rectangle; pickRequested() carries the
 /// frame-fraction rectangle (a point for a click).
@@ -51,7 +54,9 @@ public:
         Corner,
         Rotate,
         Soft,
-        Point ///< a polygon point (index: pointIndex)
+        Point, ///< a polygon / curve point (index: pointIndex)
+        TangentIn, ///< the incoming handle of curve point pointIndex
+        TangentOut ///< the outgoing handle of curve point pointIndex
     };
     struct HandleHit
     {
@@ -87,6 +92,8 @@ public:
     /// Widget position of @p handle of @p window (null point when it has none).
     [[nodiscard]] QPointF handlePos(const GradeWindow& window, Handle handle, int point = -1) const;
     [[nodiscard]] HandleHit hitTest(QPointF pos) const;
+    /// The point whose tangent handles are shown on the selected curve window.
+    [[nodiscard]] int selectedPoint() const { return m_selPoint; }
     /// The viewer's picture rectangle (widget pixels).
     [[nodiscard]] QRectF pictureRect() const;
 
@@ -124,6 +131,7 @@ private:
     // Drag state.
     HandleHit m_drag;
     bool m_dragWipe = false;
+    int m_selPoint = 0;
     bool m_picking = false;
     QPointF m_pressPos;
     QPointF m_mousePos;

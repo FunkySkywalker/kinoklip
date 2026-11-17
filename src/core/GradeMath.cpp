@@ -4,6 +4,8 @@
 // compares them).
 #include "core/GradeMath.h"
 
+#include "core/Mask.h"
+
 #include <algorithm>
 #include <cmath>
 #include <numbers>
@@ -565,6 +567,10 @@ GradeWindow trackedWindow(
     return out;
 }
 
+namespace {
+constexpr double kCurveFlattenTolerance = 0.1; ///< chord error of a Curve outline, pixels
+} // namespace
+
 std::vector<WindowValues> evaluateWindows(
     const GradeNode& node, int64_t localFrame, const PictureGeometry& g)
 {
@@ -592,13 +598,40 @@ std::vector<WindowValues> evaluateWindows(
         v.softIn = float(std::max(0.5, std::max(0.0, w.value(wk::SoftIn, localFrame)) * g.height));
         v.softOut
             = float(std::max(0.5, std::max(0.0, w.value(wk::SoftOut, localFrame)) * g.height));
-        if (w.shape == GradeWindowShape::Polygon) {
-            const int n = std::min(int(w.points.size()), kMaxWindowPoints);
-            v.points.reserve(size_t(n) * 2);
-            for (int i = 0; i < n; ++i) {
-                v.points.push_back(float(w.points[i].x() * width));
-                v.points.push_back(float(w.points[i].y() * height));
+        if (w.shape == GradeWindowShape::Polygon || w.shape == GradeWindowShape::Curve) {
+            const GradeWindowShapePoints pts = w.shapeAt(localFrame);
+            const int n = std::min(int(pts.size()), kMaxWindowPoints);
+            if (w.shape == GradeWindowShape::Polygon) {
+                v.points.reserve(size_t(n) * 2);
+                for (int i = 0; i < n; ++i) {
+                    v.points.push_back(float(pts[i].pos.x() * width));
+                    v.points.push_back(float(pts[i].pos.y() * height));
+                }
+            } else {
+                // A Curve is flattened here (window pixels, error well under a pixel), so the
+                // coverage code and the GPU treat it as a polygon.
+                MaskPath path;
+                path.reserve(n);
+                for (int i = 0; i < n; ++i) {
+                    MaskPoint m;
+                    m.x = pts[i].pos.x() * width;
+                    m.y = pts[i].pos.y() * height;
+                    m.inX = pts[i].inHandle.x() * width;
+                    m.inY = pts[i].inHandle.y() * height;
+                    m.outX = pts[i].outHandle.x() * width;
+                    m.outY = pts[i].outHandle.y() * height;
+                    path.append(m);
+                }
+                QVector<QPointF> flat;
+                flattenPath(path, true, kCurveFlattenTolerance, [](QPointF p) { return p; }, flat);
+                const int count = std::min(int(flat.size()), kMaxWindowOutlinePoints);
+                v.points.reserve(size_t(count) * 2);
+                for (int i = 0; i < count; ++i) {
+                    v.points.push_back(float(flat[i].x()));
+                    v.points.push_back(float(flat[i].y()));
+                }
             }
+            v.shape = int(GradeWindowShape::Polygon);
         }
         out.push_back(std::move(v));
     }

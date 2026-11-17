@@ -165,6 +165,45 @@ GradeCurves curvesFromJson(const QJsonObject& o)
     return curves;
 }
 
+/// Points as [x, y, inX, inY, outX, outY, smooth 0 | 1]; a point without handles is [x, y].
+QJsonArray windowPointsToJson(const GradeWindowShapePoints& points)
+{
+    QJsonArray out;
+    for (const GradeWindowPoint& p : points) {
+        QJsonArray a {p.pos.x(), p.pos.y()};
+        if (p.hasHandles() || p.smooth) {
+            a.append(p.inHandle.x());
+            a.append(p.inHandle.y());
+            a.append(p.outHandle.x());
+            a.append(p.outHandle.y());
+            a.append(p.smooth ? 1 : 0);
+        }
+        out.append(a);
+    }
+    return out;
+}
+
+/// Reads the points written above and the older [x, y] pairs (corner points); at most
+/// kMaxWindowPoints are kept.
+GradeWindowShapePoints windowPointsFromJson(const QJsonArray& array)
+{
+    GradeWindowShapePoints out;
+    for (const QJsonValue& v : array) {
+        const QJsonArray a = v.toArray();
+        if (a.size() < 2 || out.size() >= kMaxWindowPoints)
+            continue;
+        GradeWindowPoint p;
+        p.pos = QPointF(a[0].toDouble(), a[1].toDouble());
+        if (a.size() >= 7) {
+            p.inHandle = QPointF(a[2].toDouble(), a[3].toDouble());
+            p.outHandle = QPointF(a[4].toDouble(), a[5].toDouble());
+            p.smooth = a[6].toDouble() != 0.0;
+        }
+        out.append(p);
+    }
+    return out;
+}
+
 QJsonObject windowToJson(const GradeWindow& w)
 {
     QJsonObject o {{QLatin1String("id"), qint64(w.id)},
@@ -175,11 +214,15 @@ QJsonObject windowToJson(const GradeWindow& w)
         o[QLatin1String("invert")] = true;
     if (w.params != ParamSet {})
         o[QLatin1String("params")] = paramSetToJson(w.params);
-    if (!w.points.isEmpty()) {
-        QJsonArray points;
-        for (const QPointF& p : w.points)
-            points.append(QJsonArray {p.x(), p.y()});
-        o[QLatin1String("points")] = points;
+    if (!w.points.isEmpty())
+        o[QLatin1String("points")] = windowPointsToJson(w.points);
+    if (!w.shapeKeys.isEmpty()) {
+        QJsonArray keys;
+        for (auto it = w.shapeKeys.cbegin(); it != w.shapeKeys.cend(); ++it) {
+            keys.append(QJsonObject {{QLatin1String("frame"), qint64(it.key())},
+                {QLatin1String("points"), windowPointsToJson(it.value())}});
+        }
+        o[QLatin1String("shapeKeys")] = keys;
     }
     return o;
 }
@@ -192,10 +235,13 @@ GradeWindow windowFromJson(const QJsonObject& o)
     w.enabled = o.value(QLatin1String("enabled")).toBool(true);
     w.invert = o.value(QLatin1String("invert")).toBool(false);
     w.params = paramSetFromJson(o.value(QLatin1String("params")).toObject());
-    for (const QJsonValue& v : o.value(QLatin1String("points")).toArray()) {
-        const QJsonArray a = v.toArray();
-        if (a.size() >= 2)
-            w.points.append(QPointF(a[0].toDouble(), a[1].toDouble()));
+    w.points = windowPointsFromJson(o.value(QLatin1String("points")).toArray());
+    // Shape keys: a key whose point count differs from the static shape is dropped.
+    for (const QJsonValue& v : o.value(QLatin1String("shapeKeys")).toArray()) {
+        const QJsonObject key = v.toObject();
+        const GradeWindowShapePoints pts = windowPointsFromJson(key.value(QLatin1String("points")).toArray());
+        if (pts.size() == w.points.size() && !pts.isEmpty())
+            w.shapeKeys.insert(key.value(QLatin1String("frame")).toInteger(), pts);
     }
     return w;
 }

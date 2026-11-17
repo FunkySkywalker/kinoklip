@@ -515,10 +515,65 @@ bool ColorSession::setWindowParams(
     });
 }
 
-bool ColorSession::setWindowPoints(
-    quint64 windowId, const QVector<QPointF>& points, const QString& label)
+bool ColorSession::setWindowShape(
+    quint64 windowId, const GradeWindowShapePoints& points, const QString& label)
 {
-    return editWindow(windowId, label, [&](GradeWindow& w) { w.points = points; });
+    const int64_t frame = gradeFrame();
+    return editWindow(windowId, label, [&](GradeWindow& w) {
+        if (w.shapeKeys.isEmpty())
+            w.points = points;
+        else if (points.size() == w.points.size())
+            w.shapeKeys.insert(frame, points);
+    });
+}
+
+bool ColorSession::addWindowPoint(quint64 windowId, int index, double t, const QString& label)
+{
+    return editWindow(windowId, label, [&](GradeWindow& w) {
+        if (w.points.size() >= kMaxWindowPoints)
+            return;
+        insertWindowPoint(w.points, index, t);
+        for (auto it = w.shapeKeys.begin(); it != w.shapeKeys.end(); ++it)
+            insertWindowPoint(it.value(), index, t);
+    });
+}
+
+bool ColorSession::removeWindowPoint(quint64 windowId, int index, const QString& label)
+{
+    return editWindow(windowId, label, [&](GradeWindow& w) {
+        if (w.points.size() <= 3 || index < 0 || index >= w.points.size())
+            return;
+        w.points.remove(index);
+        for (auto it = w.shapeKeys.begin(); it != w.shapeKeys.end(); ++it)
+            it.value().remove(index);
+    });
+}
+
+bool ColorSession::keyWindowShape(quint64 windowId)
+{
+    const int64_t frame = gradeFrame();
+    return editWindow(windowId, tr("Keyframe Window Shape"), [&](GradeWindow& w) {
+        if (w.shape == GradeWindowShape::Polygon || w.shape == GradeWindowShape::Curve)
+            w.shapeKeys.insert(frame, w.shapeAt(frame));
+    });
+}
+
+bool ColorSession::removeWindowShapeKey(quint64 windowId)
+{
+    const int64_t frame = gradeFrame();
+    return editWindow(windowId, tr("Remove Window Shape Keyframe"),
+        [&](GradeWindow& w) { w.shapeKeys.remove(frame); });
+}
+
+bool ColorSession::clearWindowShapeKeys(quint64 windowId)
+{
+    const int64_t frame = gradeFrame();
+    return editWindow(windowId, tr("Clear Window Shape Keyframes"), [&](GradeWindow& w) {
+        if (w.shapeKeys.isEmpty())
+            return;
+        w.points = w.shapeAt(frame);
+        w.shapeKeys.clear();
+    });
 }
 
 bool ColorSession::setWindowFlags(quint64 windowId, bool enabled, bool invert)

@@ -2951,7 +2951,7 @@ The program was probably closed by the system because the computer ran out of me
     </message>
     <message>
         <source>Download the %1 model to this computer. It is only downloaded when you ask, and Background Removal needs it.</source>
-        <translation>Завантажити модель %1 на цей комп'ютер. Вона завантажується лише на ваше прохання і потрібна для вилучення тла.</translation>
+        <translation>Завантажити модель %1 на цей комп&apos;ютер. Вона завантажується лише на ваше прохання і потрібна для вилучення тла.</translation>
     </message>
     <message>
         <source>Downloading... %1 of %2</source>
@@ -3034,7 +3034,7 @@ The program was probably closed by the system because the computer ran out of me
     </message>
     <message>
         <source>Download the %1 model to this computer. It is only downloaded when you ask, and Background Removal needs it.</source>
-        <translation>Завантажити модель %1 на цей комп'ютер. Вона завантажується лише на ваше прохання і потрібна для вилучення тла.</translation>
+        <translation>Завантажити модель %1 на цей комп&apos;ютер. Вона завантажується лише на ваше прохання і потрібна для вилучення тла.</translation>
     </message>
     <message>
         <source>Remove %1</source>
@@ -8880,6 +8880,18 @@ Thank you for watching</source>
         <translation>Видалити вікно</translation>
     </message>
     <message>
+        <source>Keyframe Window Shape</source>
+        <translation>Задати ключовий кадр форми вікна</translation>
+    </message>
+    <message>
+        <source>Remove Window Shape Keyframe</source>
+        <translation>Видалити ключовий кадр форми вікна</translation>
+    </message>
+    <message>
+        <source>Clear Window Shape Keyframes</source>
+        <translation>Очистити ключові кадри форми вікна</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Вікно</translation>
     </message>
@@ -9212,6 +9224,14 @@ Thank you for watching</source>
     <message>
         <source>Move Window Point</source>
         <translation>Перемістити точку вікна</translation>
+    </message>
+    <message>
+        <source>Move Window Tangent</source>
+        <translation>Перемістити дотичну вікна</translation>
+    </message>
+    <message>
+        <source>Smooth or Corner Window Point</source>
+        <translation>Точка вікна: гладка або кутова</translation>
     </message>
     <message>
         <source>Add Window Point</source>
@@ -10001,7 +10021,7 @@ Thank you for watching</source>
     <name>kk::DecodePage</name>
     <message>
         <source>Use the first method that works on this computer.</source>
-        <translation>Використовувати перший спосіб, що працює на цьому комп'ютері.</translation>
+        <translation>Використовувати перший спосіб, що працює на цьому комп&apos;ютері.</translation>
     </message>
     <message>
         <source>Decode on the processor only. Slower, but works everywhere.</source>
@@ -10025,7 +10045,7 @@ Thank you for watching</source>
     </message>
     <message>
         <source>Which part of the computer decodes video files. Automatic picks what works on this machine; Off decodes on the processor only, which is slower but always works. The table below shows what was found.</source>
-        <translation>Яка частина комп'ютера декодує відеофайли. «Автоматично» вибирає те, що працює на цій машині; «Вимкнено» декодує лише на процесорі, це повільніше, але працює завжди. Таблиця нижче показує, що знайдено.</translation>
+        <translation>Яка частина комп&apos;ютера декодує відеофайли. «Автоматично» вибирає те, що працює на цій машині; «Вимкнено» декодує лише на процесорі, це повільніше, але працює завжди. Таблиця нижче показує, що знайдено.</translation>
     </message>
     <message>
         <source>Hardware decoding</source>
@@ -10049,7 +10069,7 @@ Thank you for watching</source>
     </message>
     <message>
         <source>The decoding methods found on this computer, whether each one works, and the video formats it can decode. Hover a row for the details.</source>
-        <translation>Способи декодування, знайдені на цьому комп'ютері, чи працює кожен із них і які відеоформати він уміє декодувати. Наведіть курсор на рядок, щоб побачити подробиці.</translation>
+        <translation>Способи декодування, знайдені на цьому комп&apos;ютері, чи працює кожен із них і які відеоформати він уміє декодувати. Наведіть курсор на рядок, щоб побачити подробиці.</translation>
     </message>
     <message>
         <source>Available hardware</source>
@@ -16294,11 +16314,11 @@ Drag one from the Effects library onto the clip, or add one here.</source>
     </message>
     <message>
         <source>Use the language of the computer, if Kinoklip has it.</source>
-        <translation>Використовувати мову комп'ютера, якщо вона є в Kinoklip.</translation>
+        <translation>Використовувати мову комп&apos;ютера, якщо вона є в Kinoklip.</translation>
     </message>
     <message>
         <source>The language of menus and dialogs. System default follows the computer&apos;s language. A change applies after a restart.</source>
-        <translation>Мова меню та діалогів. «Типова системна» дотримується мови комп'ютера. Зміна набуває чинності після перезапуску.</translation>
+        <translation>Мова меню та діалогів. «Типова системна» дотримується мови комп&apos;ютера. Зміна набуває чинності після перезапуску.</translation>
     </message>
     <message>
         <source>Language</source>
@@ -16334,7 +16354,7 @@ Drag one from the Effects library onto the clip, or add one here.</source>
     </message>
     <message>
         <source>Clips slide, appear and fade after edits, cuts flash and the playhead glides on jumps. Turn it off for an instant timeline.</source>
-        <translation>Кліпи ковзають, з'являються й плавно проявляються після правок, склейки спалахують, а вказівник відтворення плавно переміщується під час стрибків. Вимкніть для миттєвого таймлайна.</translation>
+        <translation>Кліпи ковзають, з&apos;являються й плавно проявляються після правок, склейки спалахують, а вказівник відтворення плавно переміщується під час стрибків. Вимкніть для миттєвого таймлайна.</translation>
     </message>
     <message>
         <source>Animations</source>
@@ -18452,11 +18472,11 @@ Import files with %1 or drop them here.</source>
     </message>
     <message>
         <source>How much memory decoded still images (photos, titles) may use. The images used longest ago are dropped first when it is full; raise it if big stills reload slowly.</source>
-        <translation>Скільки пам'яті можуть займати декодовані нерухомі зображення (фото, титри). Коли вона заповнена, першими видаляються зображення, які використовувалися найдавніше; збільшіть, якщо великі зображення повільно завантажуються знову.</translation>
+        <translation>Скільки пам&apos;яті можуть займати декодовані нерухомі зображення (фото, титри). Коли вона заповнена, першими видаляються зображення, які використовувалися найдавніше; збільшіть, якщо великі зображення повільно завантажуються знову.</translation>
     </message>
     <message>
         <source>The memory Kinoklip plans for: its caches (thumbnails, frames, waveforms, open decoders) are made smaller on machines with less than 8 GB. Auto uses the computer&apos;s memory (%1 GB here). A change applies after a restart.</source>
-        <translation>Пам'ять, на яку розраховує Kinoklip: його кеші (мініатюри, кадри, форми хвилі, відкриті декодери) стають меншими на машинах із менш ніж 8 ГБ. «Авто» використовує пам'ять комп'ютера (тут %1 ГБ). Зміна набуває чинності після перезапуску.</translation>
+        <translation>Пам&apos;ять, на яку розраховує Kinoklip: його кеші (мініатюри, кадри, форми хвилі, відкриті декодери) стають меншими на машинах із менш ніж 8 ГБ. «Авто» використовує пам&apos;ять комп&apos;ютера (тут %1 ГБ). Зміна набуває чинності після перезапуску.</translation>
     </message>
     <message>
         <source>Limit Kinoklip memory usage to</source>
@@ -21587,15 +21607,15 @@ Import files with %1 or drop them here.</source>
     </message>
     <message>
         <source>Every frame at full resolution; frames are skipped if the computer cannot keep up.</source>
-        <translation>Кожен кадр у повній роздільності; кадри пропускаються, якщо комп'ютер не встигає.</translation>
+        <translation>Кожен кадр у повній роздільності; кадри пропускаються, якщо комп&apos;ютер не встигає.</translation>
     </message>
     <message>
         <source>Half of the timeline resolution: smoother playback, softer picture.</source>
-        <translation>Половина роздільності таймлайна: відтворення плавніше, зображення м'якше.</translation>
+        <translation>Половина роздільності таймлайна: відтворення плавніше, зображення м&apos;якше.</translation>
     </message>
     <message>
         <source>A quarter of the timeline resolution: the smoothest playback on a slow computer.</source>
-        <translation>Чверть роздільності таймлайна: найплавніше відтворення на повільному комп'ютері.</translation>
+        <translation>Чверть роздільності таймлайна: найплавніше відтворення на повільному комп&apos;ютері.</translation>
     </message>
     <message>
         <source>Full resolution, switching to half only while playback cannot keep up. Paused frames are always full.</source>
@@ -24449,7 +24469,7 @@ Restart Kinoklip to apply them.</source>
     </message>
     <message>
         <source>Save your settings to a file, to keep a copy or to move them to another computer.</source>
-        <translation>Зберігає ваші налаштування у файл, щоб мати копію або перенести їх на інший комп'ютер.</translation>
+        <translation>Зберігає ваші налаштування у файл, щоб мати копію або перенести їх на інший комп&apos;ютер.</translation>
     </message>
     <message>
         <source>Import Settings...</source>
@@ -29095,6 +29115,14 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
         <translation>Градієнт</translation>
     </message>
     <message>
+        <source>Curve</source>
+        <translation>Крива</translation>
+    </message>
+    <message>
+        <source>Add a curve window to the current node: a Bezier shape whose points have tangent handles. Drag the handles in the viewer; double-click a point to switch it between smooth and corner, double-click the outline to add a point, right-click a point to delete it.</source>
+        <translation>Додати вікно-криву до поточної ноди: форма Безьє, точки якої мають дотичні. Перетягуйте їх у вʼюері; подвійний клік на точці перемикає її між гладкою та кутовою, подвійний клік на контурі додає точку, клік правою кнопкою на точці видаляє її.</translation>
+    </message>
+    <message>
         <source>Add a %1 window to the current node</source>
         <translation>Додати вікно «%1» до поточної ноди</translation>
     </message>
@@ -29105,6 +29133,38 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
     <message>
         <source>Delete</source>
         <translation>Видалити</translation>
+    </message>
+    <message>
+        <source>Select everything outside the window instead of the inside</source>
+        <translation>Вибрати все поза вікном замість внутрішньої частини</translation>
+    </message>
+    <message>
+        <source>Delete the selected window</source>
+        <translation>Видалити вибране вікно</translation>
+    </message>
+    <message>
+        <source>Key Shape</source>
+        <translation>Ключ форми</translation>
+    </message>
+    <message>
+        <source>Set a shape keyframe at the playhead. From then on every point you move writes a key at the playhead, and the shape changes smoothly between keys.</source>
+        <translation>Задати ключовий кадр форми на вказівнику відтворення. Після цього кожна переміщена точка записує ключ на вказівнику, а форма плавно змінюється між ключами.</translation>
+    </message>
+    <message>
+        <source>Remove Key</source>
+        <translation>Видалити ключ</translation>
+    </message>
+    <message>
+        <source>Remove the shape keyframe at the playhead</source>
+        <translation>Видалити ключовий кадр форми на вказівнику відтворення</translation>
+    </message>
+    <message>
+        <source>Clear Keys</source>
+        <translation>Очистити ключі</translation>
+    </message>
+    <message>
+        <source>Remove all shape keyframes; the window keeps the shape it shows at the playhead</source>
+        <translation>Видалити всі ключові кадри форми; вікно зберігає форму, яку показує на вказівнику відтворення</translation>
     </message>
     <message>
         <source>inverted</source>

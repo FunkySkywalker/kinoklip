@@ -8,6 +8,7 @@
 
 #include "core/Animation.h"
 
+#include <QMap>
 #include <QPointF>
 #include <QString>
 #include <QVector>
@@ -175,7 +176,8 @@ enum class GradeWindowShape : quint8 {
     Circle, ///< ellipse of Width x Height
     Linear, ///< rectangle of Width x Height (Resolve's "linear" window)
     Polygon, ///< closed polygon (GradeWindow::points)
-    Gradient ///< half plane: selects the side above the line through the centre (before rotation)
+    Gradient, ///< half plane: selects the side above the line through the centre (before rotation)
+    Curve ///< closed Bezier curve (GradeWindow::points with tangent handles)
 };
 
 /// Well-known keys of GradeWindow::params (all keyframeable). Positions and sizes are
@@ -202,6 +204,34 @@ inline const QString Opacity = QStringLiteral("opacity"); ///< 0..1; default 1
 inline constexpr int kMaxGradeWindows = 8;
 inline constexpr int kMaxWindowPoints = 32;
 
+/// One point of a Polygon or Curve window, in window units (-0.5..0.5 of Width / Height around
+/// the centre, y down, before rotation). The handles are offsets from @p pos in the same
+/// units; a Polygon ignores them. A smooth point keeps its two handles collinear when one is
+/// dragged.
+struct GradeWindowPoint
+{
+    QPointF pos;
+    QPointF inHandle; ///< control point of the span arriving at this point = pos + inHandle
+    QPointF outHandle; ///< control point of the span leaving this point = pos + outHandle
+    bool smooth = false;
+    [[nodiscard]] bool hasHandles() const { return !inHandle.isNull() || !outHandle.isNull(); }
+    friend bool operator==(const GradeWindowPoint&, const GradeWindowPoint&) = default;
+};
+using GradeWindowShapePoints = QVector<GradeWindowPoint>;
+
+/// Largest number of line pieces the outline of a Curve window is flattened into.
+inline constexpr int kMaxWindowOutlinePoints = 256;
+
+/// Point @p index with automatic (Catmull-Rom) handles: the tangent along the neighbours,
+/// a sixth of their distance long (the "smooth" command; a "cusp" zeroes the handles).
+[[nodiscard]] GradeWindowPoint smoothedPoint(const GradeWindowShapePoints& points, int index);
+/// Inserts a point after @p index at parameter @p t of that span (0..1). A Curve span is split
+/// with de Casteljau so the outline stays; a Polygon span (no handles) gets a point on the edge.
+/// Returns false when @p index is out of range or the shape is full.
+bool insertWindowPoint(GradeWindowShapePoints& points, int index, double t);
+/// Position and tangent-free evaluation of span @p index (to the next point) at @p t.
+[[nodiscard]] QPointF windowSpanPoint(const GradeWindowShapePoints& points, int index, double t);
+
 /// A power window of a corrector node. Windows combine as a union (m = M + w - M w, each
 /// window's coverage w after its invert and opacity); the result multiplies the qualifier key.
 struct GradeWindow
@@ -211,9 +241,16 @@ struct GradeWindow
     bool enabled = true;
     bool invert = false;
     ParamSet params; ///< gradewindowkeys::*
-    /// Polygon only: points in window units (-0.5..0.5 of Width / Height around the centre,
-    /// y down, before rotation); at most kMaxWindowPoints are used.
-    QVector<QPointF> points;
+    /// Polygon and Curve: the static shape; at most kMaxWindowPoints are used. Unused while
+    /// shapeKeys is not empty.
+    GradeWindowShapePoints points;
+    /// Shape keyframes (window-local frame -> points). Every key has as many points as `points`
+    /// (inserting or deleting a point edits all of them). Empty = the static shape.
+    QMap<int64_t, GradeWindowShapePoints> shapeKeys;
+
+    /// The shape at @p localFrame: the static one without keys; else held before the first and
+    /// after the last key, linearly blended (positions and handles) between neighbours.
+    [[nodiscard]] GradeWindowShapePoints shapeAt(int64_t localFrame) const;
 
     /// Value of @p key at @p localFrame with its documented default.
     [[nodiscard]] double value(const QString& key, int64_t localFrame) const
@@ -225,7 +262,7 @@ struct GradeWindow
     friend bool operator==(const GradeWindow&, const GradeWindow&) = default;
 };
 
-/// Stable string ids of window shapes ("circle", "linear", "polygon", "gradient").
+/// Stable string ids of window shapes ("circle", "linear", "polygon", "gradient", "curve").
 [[nodiscard]] QString gradeWindowShapeToString(GradeWindowShape shape);
 [[nodiscard]] GradeWindowShape gradeWindowShapeFromString(const QString& text);
 

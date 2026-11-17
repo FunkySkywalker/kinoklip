@@ -64,6 +64,8 @@ QString shapeName(GradeWindowShape s)
         return WindowsPanel::tr("Polygon");
     case GradeWindowShape::Gradient:
         return WindowsPanel::tr("Gradient");
+    case GradeWindowShape::Curve:
+        return WindowsPanel::tr("Curve");
     }
     return {};
 }
@@ -710,10 +712,15 @@ WindowsPanel::WindowsPanel(ColorSession* session, QWidget* parent)
     auto* shapes = new QHBoxLayout;
     shapes->setSpacing(1);
     for (const GradeWindowShape s : {GradeWindowShape::Circle, GradeWindowShape::Linear,
-             GradeWindowShape::Polygon, GradeWindowShape::Gradient}) {
+             GradeWindowShape::Polygon, GradeWindowShape::Curve, GradeWindowShape::Gradient}) {
         QToolButton* b = toolButton(shapeName(s), this);
         b->setObjectName(QStringLiteral("WindowAdd_") + gradeWindowShapeToString(s));
-        b->setToolTip(tr("Add a %1 window to the current node").arg(shapeName(s).toLower()));
+        b->setToolTip(s == GradeWindowShape::Curve
+                ? tr("Add a curve window to the current node: a Bezier shape whose points have "
+                     "tangent handles. Drag the handles in the viewer; double-click a point to "
+                     "switch it between smooth and corner, double-click the outline to add a "
+                     "point, right-click a point to delete it.")
+                : tr("Add a %1 window to the current node").arg(shapeName(s).toLower()));
         connect(b, &QToolButton::clicked, this, [this, s] {
             if (m_session)
                 m_session->addWindow(s);
@@ -735,8 +742,26 @@ WindowsPanel::WindowsPanel(ColorSession* session, QWidget* parent)
     m_invert->setObjectName(QStringLiteral("WindowInvert"));
     m_delete = toolButton(tr("Delete"), this);
     m_delete->setObjectName(QStringLiteral("WindowDelete"));
+    m_invert->setToolTip(tr("Select everything outside the window instead of the inside"));
+    m_delete->setToolTip(tr("Delete the selected window"));
     listTools->addWidget(m_invert);
     listTools->addWidget(m_delete);
+    // Shape keyframes (Polygon and Curve windows).
+    m_keyShape = toolButton(tr("Key Shape"), this);
+    m_keyShape->setObjectName(QStringLiteral("WindowKeyShape"));
+    m_keyShape->setToolTip(tr("Set a shape keyframe at the playhead. From then on every point "
+                              "you move writes a key at the playhead, and the shape changes "
+                              "smoothly between keys."));
+    m_removeShapeKey = toolButton(tr("Remove Key"), this);
+    m_removeShapeKey->setObjectName(QStringLiteral("WindowRemoveShapeKey"));
+    m_removeShapeKey->setToolTip(tr("Remove the shape keyframe at the playhead"));
+    m_clearShapeKeys = toolButton(tr("Clear Keys"), this);
+    m_clearShapeKeys->setObjectName(QStringLiteral("WindowClearShapeKeys"));
+    m_clearShapeKeys->setToolTip(
+        tr("Remove all shape keyframes; the window keeps the shape it shows at the playhead"));
+    listTools->addWidget(m_keyShape);
+    listTools->addWidget(m_removeShapeKey);
+    listTools->addWidget(m_clearShapeKeys);
     listTools->addStretch(1);
     left->addLayout(listTools);
     layout->addLayout(left, 2);
@@ -810,6 +835,18 @@ WindowsPanel::WindowsPanel(ColorSession* session, QWidget* parent)
         if (m_session)
             m_session->removeWindow();
     });
+    connect(m_keyShape, &QToolButton::clicked, this, [this] {
+        if (m_session)
+            m_session->keyWindowShape();
+    });
+    connect(m_removeShapeKey, &QToolButton::clicked, this, [this] {
+        if (m_session)
+            m_session->removeWindowShapeKey();
+    });
+    connect(m_clearShapeKeys, &QToolButton::clicked, this, [this] {
+        if (m_session)
+            m_session->clearWindowShapeKeys();
+    });
     if (m_session) {
         connect(m_session, &ColorSession::gradeChanged, this, &WindowsPanel::refresh);
         connect(m_session, &ColorSession::selectedNodeChanged, this, &WindowsPanel::refresh);
@@ -843,7 +880,7 @@ void WindowsPanel::refresh()
     m_list->clear();
     const quint64 selected = m_session ? m_session->selectedWindow() : 0;
     if (n) {
-        int counts[4] = {0, 0, 0, 0};
+        int counts[5] = {0, 0, 0, 0, 0};
         for (const GradeWindow& w : n->windows) {
             const int number = ++counts[int(w.shape)];
             auto* item = new QListWidgetItem(
@@ -854,6 +891,8 @@ void WindowsPanel::refresh()
             if (w.invert)
                 item->setText(
                     item->text() + QStringLiteral(" (") + tr("inverted") + QLatin1Char(')'));
+            if (!w.shapeKeys.isEmpty())
+                item->setText(item->text() + QStringLiteral(" \u25C6")); // a key diamond
             if (w.id == selected)
                 m_list->setCurrentItem(item);
         }
@@ -862,6 +901,11 @@ void WindowsPanel::refresh()
     m_fieldsBox->setEnabled(w != nullptr);
     m_invert->setEnabled(w != nullptr);
     m_delete->setEnabled(w != nullptr);
+    const bool pointShape
+        = w && (w->shape == GradeWindowShape::Polygon || w->shape == GradeWindowShape::Curve);
+    m_keyShape->setEnabled(pointShape);
+    m_removeShapeKey->setEnabled(pointShape && w->shapeKeys.contains(m_session->gradeFrame()));
+    m_clearShapeKeys->setEnabled(pointShape && !w->shapeKeys.isEmpty());
     m_invert->setChecked(w && w->invert);
     const int64_t frame = m_session ? m_session->gradeFrame() : 0;
     for (const auto& [key, f] : std::as_const(m_fields)) {

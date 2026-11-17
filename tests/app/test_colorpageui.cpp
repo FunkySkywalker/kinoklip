@@ -484,7 +484,7 @@ private slots:
         drag(ov, p0, p0 + QPointF(0, -15));
         QCOMPARE(f.steps(), before + 1);
         poly = *f.session()->window();
-        QVERIFY(poly.points[0].y() < -0.5);
+        QVERIFY(poly.points[0].pos.y() < -0.5);
         const QPointF a = ov->handlePos(poly, ColorViewerOverlay::Handle::Point, 1);
         const QPointF b = ov->handlePos(poly, ColorViewerOverlay::Handle::Point, 2);
         QTest::mouseDClick(ov, Qt::LeftButton, {}, ((a + b) / 2).toPoint());
@@ -499,6 +499,94 @@ private slots:
         // Off the Windows palette the controls hide.
         f.page()->showPalette(ColorPage::Palette::Primaries);
         QVERIFY(!ov->windowControls());
+    }
+
+    void curveWindow()
+    {
+        // Spec 111: the Curve button, tangent handles, smooth / corner, point insertion and
+        // deletion, and shape keyframes.
+        Fixture f;
+        f.showPage();
+        f.page()->showPalette(ColorPage::Palette::Windows);
+        WindowsPanel* wp = f.page()->windows();
+        ColorViewerOverlay* ov = f.page()->overlay();
+        QVERIFY(wp->shapeButton(GradeWindowShape::Curve));
+        // Every button of the palette explains itself.
+        for (const QToolButton* b : wp->findChildren<QToolButton*>())
+            QVERIFY2(!b->toolTip().isEmpty(), qPrintable(b->objectName() + b->text()));
+        const int base = f.steps();
+        wp->shapeButton(GradeWindowShape::Curve)->click();
+        QCOMPARE(f.steps(), base + 1);
+        QCOMPARE(f.session()->window()->shape, GradeWindowShape::Curve);
+        QCOMPARE(f.session()->window()->points.size(), 4);
+        // Select point 1 and drag its outgoing tangent: one step, the other side follows.
+        GradeWindow win = *f.session()->window();
+        const QPointF p1 = ov->handlePos(win, ColorViewerOverlay::Handle::Point, 1);
+        QTest::mouseClick(ov, Qt::LeftButton, {}, p1.toPoint());
+        QCOMPARE(ov->selectedPoint(), 1);
+        const QPointF out = ov->handlePos(win, ColorViewerOverlay::Handle::TangentOut, 1);
+        QCOMPARE(ov->hitTest(out).handle, ColorViewerOverlay::Handle::TangentOut);
+        int steps = f.steps();
+        drag(ov, out, out + QPointF(0, 20));
+        QCOMPARE(f.steps(), steps + 1);
+        win = *f.session()->window();
+        const GradeWindowPoint pt = win.points[1];
+        QVERIFY(pt.outHandle.y() > 0.3 * 0.5522847498 + 0.001);
+        QVERIFY(std::abs(pt.inHandle.x() * pt.outHandle.y() - pt.inHandle.y() * pt.outHandle.x())
+            < 1e-9); // still collinear
+        QVERIFY(pt.inHandle.y() < 0.0); // pointing the opposite way
+        QVERIFY(pt.smooth);
+        // Double-click on the point makes it a corner (no handles), again smooth again.
+        const QPointF at = ov->handlePos(win, ColorViewerOverlay::Handle::Point, 1);
+        QTest::mouseDClick(ov, Qt::LeftButton, {}, at.toPoint());
+        win = *f.session()->window();
+        QVERIFY(!win.points[1].smooth && !win.points[1].hasHandles());
+        QTest::mouseDClick(ov, Qt::LeftButton, {}, at.toPoint());
+        QVERIFY(f.session()->window()->points[1].smooth);
+        QVERIFY(f.session()->window()->points[1].hasHandles());
+        // Double-click on the outline between points 2 and 3 inserts a point and the curve
+        // keeps its shape.
+        win = *f.session()->window();
+        // A point of the outline itself, from the span's own curve.
+        QSizeF size;
+        ov->pictureToWidget(&size);
+        const double fw = win.value(wk::Width, 0) * size.width();
+        const double fh = win.value(wk::Height, 0) * size.height();
+        const QPointF local = windowSpanPoint(win.points, 2, 0.5);
+        const QPointF outline = ov->windowToWidget(win)->map(QPointF(local.x() * fw, local.y() * fh));
+        QTest::mouseDClick(ov, Qt::LeftButton, {}, outline.toPoint());
+        QCOMPARE(f.session()->window()->points.size(), 5);
+        QVERIFY(f.session()->window()->points[3].smooth);
+        // Right-click deletes it again.
+        win = *f.session()->window();
+        QTest::mouseClick(ov, Qt::RightButton, {},
+            ov->handlePos(win, ColorViewerOverlay::Handle::Point, 3).toPoint());
+        QCOMPARE(f.session()->window()->points.size(), 4);
+        // Shape keyframes: Key Shape creates a key; moving a point at another frame writes
+        // a second key and the shape differs between the frames.
+        auto* keyButton = wp->findChild<QToolButton*>(QStringLiteral("WindowKeyShape"));
+        QVERIFY(keyButton->isEnabled());
+        f.project.timeline()->setPlayhead(0);
+        keyButton->click();
+        QCOMPARE(f.session()->window()->shapeKeys.size(), 1);
+        f.project.timeline()->setPlayhead(10);
+        win = *f.session()->window();
+        const QPointF q0 = ov->handlePos(ov->shown(win), ColorViewerOverlay::Handle::Point, 0);
+        drag(ov, q0, q0 + QPointF(0, -20));
+        QCOMPARE(f.session()->window()->shapeKeys.size(), 2);
+        const GradeWindow keyed = *f.session()->window();
+        QVERIFY(keyed.shapeAt(10)[0].pos.y() < keyed.shapeAt(0)[0].pos.y());
+        // Deleting a point removes it from every key; one undo step.
+        steps = f.steps();
+        QTest::mouseClick(ov, Qt::RightButton, {},
+            ov->handlePos(ov->shown(keyed), ColorViewerOverlay::Handle::Point, 2).toPoint());
+        QCOMPARE(f.steps(), steps + 1);
+        for (const auto& key : f.session()->window()->shapeKeys)
+            QCOMPARE(key.size(), 3);
+        QCOMPARE(f.session()->window()->points.size(), 3);
+        // Clear Keys flattens to the shape shown now.
+        wp->findChild<QToolButton*>(QStringLiteral("WindowClearShapeKeys"))->click();
+        QVERIFY(f.session()->window()->shapeKeys.isEmpty());
     }
 
     void galleryStillApplyAndWipe()

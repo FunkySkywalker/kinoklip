@@ -144,10 +144,13 @@ private:
     void refresh();
 
     QPointer<ColorSession> m_session;
-    QToolButton* m_shapes[4] {};
+    QToolButton* m_shapes[5] {};
     QListWidget* m_list = nullptr;
     QToolButton* m_invert = nullptr;
     QToolButton* m_delete = nullptr;
+    QToolButton* m_keyShape = nullptr;
+    QToolButton* m_removeShapeKey = nullptr;
+    QToolButton* m_clearShapeKeys = nullptr;
     QWidget* m_fieldsBox = nullptr;
     QVector<std::pair<QString, ValueField*>> m_fields;
     bool m_refreshing = false;

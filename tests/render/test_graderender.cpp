@@ -231,8 +231,8 @@ class TestGradeRender : public QObject
             ClipGrade p = primariesGrade({{gk::Saturation, 0.2}});
             const quint64 m = p.nodes[0].id;
             const quint64 poly = go::addWindow(p, m, GradeWindowShape::Polygon);
-            p.window(poly)->points = {QPointF(-0.5, -0.4), QPointF(0.4, -0.5), QPointF(0.1, 0.0),
-                QPointF(0.5, 0.5), QPointF(-0.3, 0.3)};
+            p.window(poly)->points = {{QPointF(-0.5, -0.4)}, {QPointF(0.4, -0.5)},
+                {QPointF(0.1, 0.0)}, {QPointF(0.5, 0.5)}, {QPointF(-0.3, 0.3)}};
             p.window(poly)->params.setBase(wk::Width, 0.8);
             p.window(poly)->params.setBase(wk::Height, 0.9);
             p.window(poly)->params.setBase(wk::SoftOut, 0.08);
@@ -241,6 +241,19 @@ class TestGradeRender : public QObject
             p.window(grad)->invert = true;
             p.window(grad)->params.setBase(wk::Opacity, 0.7);
             out.append({QStringLiteral("polygon_gradient"), p});
+            // Curve window (spec 111): smooth and corner points, softness both sides.
+            ClipGrade c = primariesGrade({{gk::Saturation, 0.2}});
+            const quint64 cm = c.nodes[0].id;
+            const quint64 curve = go::addWindow(c, cm, GradeWindowShape::Curve);
+            c.window(curve)->points = {
+                {QPointF(-0.4, -0.3), QPointF(-0.2, 0.1), QPointF(0.25, -0.2), true},
+                {QPointF(0.45, -0.1), QPointF(-0.1, -0.2), QPointF(0.0, 0.3), true},
+                {QPointF(0.1, 0.45)}, {QPointF(-0.45, 0.4), QPointF(0.2, 0.15), QPointF(), false}};
+            c.window(curve)->params.setBase(wk::Width, 0.8);
+            c.window(curve)->params.setBase(wk::Height, 0.8);
+            c.window(curve)->params.setBase(wk::SoftIn, 0.03);
+            c.window(curve)->params.setBase(wk::SoftOut, 0.06);
+            out.append({QStringLiteral("curve_window"), c});
         }
         {
             // Blur palette (spec 106): the three modes, per-channel radii, a window and its
@@ -594,6 +607,38 @@ private slots:
             QVERIFY(dark.r + dark.g + dark.b < 6);
             QVERIFY(lit.r + lit.g + lit.b > 200);
         }
+    }
+
+    void shapeKeysMatchOnGpuAndCpu()
+    {
+        // Spec 111: a keyframed polygon window renders the same on both backends at the keys
+        // and between them, and the shape really changes with the frame.
+        if (!gpuReady())
+            QSKIP("no OpenGL");
+        ClipGrade g = primariesGrade({{gk::Saturation, 0.0}});
+        const quint64 id = go::addWindow(g, g.nodes[0].id, GradeWindowShape::Polygon);
+        GradeWindow* w = g.window(id);
+        w->params.setBase(wk::SoftOut, 0.0);
+        w->shapeKeys.insert(0, w->points);
+        GradeWindowShapePoints moved = w->points;
+        for (GradeWindowPoint& p : moved)
+            p.pos += QPointF(0.4, 0.0);
+        w->shapeKeys.insert(8, moved);
+        const TimelineData tl = timelineWith(g);
+        const QImage plain = render(*m_gpu, timelineWith({}));
+        QImage first, last;
+        for (const int64_t frame : {0, 4, 8}) {
+            const QImage graded = render(*m_gpu, tl, false, frame);
+            QImage reference = render(*m_cpu, timelineWith({}), false, frame);
+            applyGrade(g, frame, reference);
+            QVERIFY2(maxDiff(graded, reference) <= 2, qPrintable(QString::number(frame)));
+            if (frame == 0)
+                first = graded;
+            if (frame == 8)
+                last = graded;
+        }
+        QVERIFY(maxDiff(first, last) > 10);
+        QVERIFY(maxDiff(first, plain) > 10);
     }
 
     void bypassAndIdentity()

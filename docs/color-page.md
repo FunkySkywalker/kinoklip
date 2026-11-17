@@ -61,13 +61,13 @@ Decisions:
 - **Qualifier**: HSL, RGB, Luma or 3D mode (`QualifierMode`) with soft edges, per-channel
   enable, invert, and Matte Finesse (Clean Black / White, Shrink / Grow, Denoise, Blur Radius,
   In / Out Ratio; spec 108). Static (not keyed).
-- **Power windows**: Circle, Linear (rectangle), Polygon, Gradient; centre, size, rotation,
+- **Power windows**: Circle, Linear (rectangle), Polygon, Curve (Bezier points with tangent handles), Gradient; polygon and curve shapes can have shape keyframes (spec 111); centre, size, rotation,
   inside / outside softness and opacity keyframeable (`gradewindowkeys`), invert per window.
   Several windows combine as a union. Coordinates are fractions of the graded picture.
 - **LUT node**: any corrector can load a `.cube` (1D or 3D), applied last in the node,
   tetrahedral (default) or trilinear.
 - Midtone detail, soft clip, the HDR and log wheels, tracking of windows, shape keyframes of
-  polygons, Bezier windows, key mixers and splitter / combiner nodes: later.
+  key mixers and splitter / combiner nodes: later.
 
 ### Node semantics (identical on GPU and CPU)
 - **Corrector**: input `I`, graded `G` = primaries -> RGB Mixer -> curves -> LUT; key `k` = qualifier of `I` x
@@ -196,12 +196,14 @@ engine's API, replacing the minimal page (node list, curve picker, gallery strip
   The matte is a whole-picture buffer (`grademath::applyMatteFinesse()` on the CPU, the matte
   passes of `GlGrade::matteFinesse()` on the GPU, same steps in the same order). Highlight (Shift+H) shows the node's key (qualifier
   x windows x Mix) over a flat grey or as a black and white matte.
-- **Windows**: Circle / Linear / Polygon / Gradient buttons add windows to the current node
+- **Windows**: Circle / Linear / Polygon / Curve / Gradient buttons add windows to the current node
   (several per node), the list (enable check boxes), Invert, Delete and the fields. In the
   viewer (while the Windows palette is shown): drag inside to move, side handles for width /
   height, the corner for both, the knob for rotation (Shift: 15 degree steps), the left diamond
   for the outside softness; polygon points drag, a double-click on an edge inserts one, a
-  right-click deletes one (three stay).
+  right-click deletes one (three stay). A curve window shows the tangent handles of its
+  selected point (drag to turn; Alt breaks the pair), a double-click on a point switches
+  smooth / corner; Key Shape / Remove Key / Clear Keys animate the shape (spec 111).
 - **LUTs**: a browser of the .cube files in the LUT folders (the user's LUT folder in the
   application data plus "Add Folder..."), double-click applies to the current node, "Load
   File...", Remove, interpolation.

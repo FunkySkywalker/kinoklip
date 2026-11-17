@@ -145,8 +145,14 @@ std::optional<QTransform> ColorViewerOverlay::pictureToWidget(QSizeF* pictureSiz
         * frameToWidget;
 }
 
-GradeWindow ColorViewerOverlay::shown(const GradeWindow& w) const
+GradeWindow ColorViewerOverlay::shown(const GradeWindow& window) const
 {
+    GradeWindow w = window;
+    if (m_session && !w.shapeKeys.isEmpty()) {
+        // The shape at the playhead (the handle code reads points only).
+        w.points = w.shapeAt(m_session->gradeFrame());
+        w.shapeKeys.clear();
+    }
     const GradeNode* n = m_session ? m_session->currentNode() : nullptr;
     QSizeF size;
     if (!n || !n->track.hasData() || !pictureToWidget(&size) || size.height() <= 0)
@@ -238,28 +244,43 @@ QPainterPath ColorViewerOverlay::windowPath(const GradeWindow& w, double grow) c
     case GradeWindowShape::Linear:
         path.addRect(QRectF(-hw, -hh, 2 * hw, 2 * hh));
         break;
-    case GradeWindowShape::Polygon: {
+    case GradeWindowShape::Polygon:
+    case GradeWindowShape::Curve: {
         const double pw = w.value(wk::Width, f) * size.width();
         const double ph = w.value(wk::Height, f) * size.height();
-        QPolygonF poly;
-        for (const QPointF& pt : w.points)
-            poly << QPointF(pt.x() * pw, pt.y() * ph);
-        if (grow != 0.0 && poly.size() >= 3) {
+        const bool curve = w.shape == GradeWindowShape::Curve;
+        const int n = int(w.points.size());
+        QVector<QPointF> pos(n);
+        QPointF centre;
+        for (int i = 0; i < n; ++i) {
+            pos[i] = QPointF(w.points[i].pos.x() * pw, w.points[i].pos.y() * ph);
+            centre += pos[i];
+        }
+        if (n > 0)
+            centre /= n;
+        if (grow != 0.0 && n >= 3) {
             // Grow about the centroid (an approximation of the soft edge, for display).
-            QPointF c;
-            for (const QPointF& pt : std::as_const(poly))
-                c += pt;
-            c /= poly.size();
-            for (QPointF& pt : poly) {
-                const QPointF d = pt - c;
+            for (QPointF& pt : pos) {
+                const QPointF d = pt - centre;
                 const double len = length(d);
                 if (len > 1e-6)
                     pt += d / len * grow;
             }
         }
-        if (!poly.isEmpty()) {
-            poly << poly.first();
-            path.addPolygon(poly);
+        if (n == 0)
+            break;
+        path.moveTo(pos[0]);
+        for (int i = 0; i < n; ++i) {
+            const int j = (i + 1) % n;
+            if (curve && (w.points[i].hasHandles() || w.points[j].hasHandles())) {
+                const QPointF c0 = pos[i]
+                    + QPointF(w.points[i].outHandle.x() * pw, w.points[i].outHandle.y() * ph);
+                const QPointF c1 = pos[j]
+                    + QPointF(w.points[j].inHandle.x() * pw, w.points[j].inHandle.y() * ph);
+                path.cubicTo(c0, c1, pos[j]);
+            } else {
+                path.lineTo(pos[j]);
+            }
         }
         break;
     }
@@ -293,8 +314,9 @@ QPointF ColorViewerOverlay::handlePos(const GradeWindow& w, Handle handle, int p
     case Handle::Height:
         return gradient ? QPointF() : toW->map(QPointF(0, hh));
     case Handle::Corner:
-        return gradient || w.shape == GradeWindowShape::Polygon ? QPointF()
-                                                                : toW->map(QPointF(hw, hh));
+        return gradient || w.shape == GradeWindowShape::Polygon || w.shape == GradeWindowShape::Curve
+            ? QPointF()
+            : toW->map(QPointF(hw, hh));
     case Handle::Rotate: {
         const QPointF top = toW->map(QPointF(0, gradient ? 0.0 : -hh));
         const QPointF centre = toW->map(QPointF(0, 0));
@@ -326,11 +348,20 @@ QPointF ColorViewerOverlay::handlePos(const GradeWindow& w, Handle handle, int p
         return at;
     }
     case Handle::Point:
-        if (w.shape == GradeWindowShape::Polygon && point >= 0 && point < w.points.size()) {
-            const QPointF pt = w.points[point];
-            return toW->map(QPointF(pt.x() * hw * 2, pt.y() * hh * 2));
-        }
-        return {};
+    case Handle::TangentIn:
+    case Handle::TangentOut: {
+        const bool curve = w.shape == GradeWindowShape::Curve;
+        if (!(w.shape == GradeWindowShape::Polygon || curve) || point < 0
+            || point >= w.points.size() || (handle != Handle::Point && !curve))
+            return {};
+        const GradeWindowPoint& gp = w.points[point];
+        QPointF pt = gp.pos;
+        if (handle == Handle::TangentIn)
+            pt += gp.inHandle;
+        else if (handle == Handle::TangentOut)
+            pt += gp.outHandle;
+        return toW->map(QPointF(pt.x() * hw * 2, pt.y() * hh * 2));
+    }
     case Handle::None:
         break;
     }
@@ -350,7 +381,16 @@ ColorViewerOverlay::HandleHit ColorViewerOverlay::hitTest(QPointF pos) const
     if (const GradeWindow* raw = m_session->window()) {
         const GradeWindow shownWindow = shown(*raw);
         const GradeWindow* w = &shownWindow;
-        if (w->shape == GradeWindowShape::Polygon) {
+        if (w->shape == GradeWindowShape::Curve && m_selPoint >= 0 && m_selPoint < w->points.size()) {
+            // The selected point's tangent handles (only those with a length: a corner is
+            // switched to smooth by a double-click first).
+            const GradeWindowPoint& gp = w->points[m_selPoint];
+            if (!gp.outHandle.isNull() && near(handlePos(*w, Handle::TangentOut, m_selPoint)))
+                return {Handle::TangentOut, w->id, m_selPoint};
+            if (!gp.inHandle.isNull() && near(handlePos(*w, Handle::TangentIn, m_selPoint)))
+                return {Handle::TangentIn, w->id, m_selPoint};
+        }
+        if (w->shape == GradeWindowShape::Polygon || w->shape == GradeWindowShape::Curve) {
             for (int i = 0; i < w->points.size(); ++i) {
                 if (near(handlePos(*w, Handle::Point, i)))
                     return {Handle::Point, w->id, i};
@@ -455,9 +495,33 @@ void ColorViewerOverlay::paintWindow(QPainter& p, const GradeWindow& w, bool sel
     square(handlePos(w, Handle::Move), handle);
     for (const Handle h : {Handle::Width, Handle::Height, Handle::Corner})
         square(handlePos(w, h), handle);
-    if (w.shape == GradeWindowShape::Polygon) {
-        for (int i = 0; i < w.points.size(); ++i)
-            square(handlePos(w, Handle::Point, i), QColor(255, 210, 90));
+    if (w.shape == GradeWindowShape::Polygon || w.shape == GradeWindowShape::Curve) {
+        if (w.shape == GradeWindowShape::Curve && m_selPoint >= 0 && m_selPoint < w.points.size()) {
+            const QPointF at = handlePos(w, Handle::Point, m_selPoint);
+            for (const Handle t : {Handle::TangentIn, Handle::TangentOut}) {
+                const QPointF tip = handlePos(w, t, m_selPoint);
+                if (length(tip - at) < 0.5)
+                    continue;
+                p.setPen(QPen(QColor(255, 210, 90, 200), 1));
+                p.drawLine(at, tip);
+                p.setPen(QPen(QColor(0, 0, 0, 160), 1));
+                p.setBrush(QColor(255, 210, 90));
+                p.drawEllipse(tip, 3.5, 3.5);
+            }
+        }
+        for (int i = 0; i < w.points.size(); ++i) {
+            const bool sel = w.shape == GradeWindowShape::Curve && i == m_selPoint;
+            // Smooth points are drawn round, corners square; the selected one is brighter.
+            if (w.shape == GradeWindowShape::Curve && w.points[i].smooth) {
+                const QPointF at = handlePos(w, Handle::Point, i);
+                p.setPen(QPen(QColor(0, 0, 0, 160), 1));
+                p.setBrush(sel ? QColor(255, 240, 160) : QColor(255, 210, 90));
+                p.drawEllipse(at, kHandleSize / 2 + 0.5, kHandleSize / 2 + 0.5);
+            } else {
+                square(handlePos(w, Handle::Point, i),
+                    sel ? QColor(255, 240, 160) : QColor(255, 210, 90));
+            }
+        }
     }
     const QPointF knob = handlePos(w, Handle::Rotate);
     if (!knob.isNull()) {
@@ -528,11 +592,7 @@ void ColorViewerOverlay::mousePressEvent(QMouseEvent* event)
     if (event->button() == Qt::RightButton) {
         // Right-click on a polygon point deletes it (three stay).
         if (hit.handle == Handle::Point) {
-            if (const GradeWindow* w = m_session->window(hit.window); w && w->points.size() > 3) {
-                QVector<QPointF> pts = w->points;
-                pts.remove(hit.pointIndex);
-                m_session->setWindowPoints(hit.window, pts, tr("Delete Window Point"));
-            }
+            m_session->removeWindowPoint(hit.window, hit.pointIndex, tr("Delete Window Point"));
         }
         return;
     }
@@ -545,6 +605,11 @@ void ColorViewerOverlay::mousePressEvent(QMouseEvent* event)
         const auto toW = pictureToWidget(&m_pressPicture);
         if (!w || !toW)
             return;
+        if (hit.handle == Handle::Point || hit.handle == Handle::TangentIn
+            || hit.handle == Handle::TangentOut) {
+            m_selPoint = hit.pointIndex;
+            update();
+        }
         m_drag = hit;
         m_pressWindow = shown(*w);
         m_pressToWidget = *toW;
@@ -623,13 +688,41 @@ void ColorViewerOverlay::applyDrag(QPointF pos)
         break;
     }
     case Handle::Point: {
-        QVector<QPointF> pts = w.points;
+        GradeWindowShapePoints pts = w.points;
         if (m_drag.pointIndex < 0 || m_drag.pointIndex >= pts.size())
             return;
         const double pw = std::max(1e-6, w0 * size.width());
         const double ph = std::max(1e-6, h0 * size.height());
-        pts[m_drag.pointIndex] = QPointF(lp.x() / pw, lp.y() / ph);
-        m_session->setWindowPoints(m_drag.window, pts, tr("Move Window Point"));
+        // The handles are offsets: they travel with the point.
+        pts[m_drag.pointIndex].pos = QPointF(lp.x() / pw, lp.y() / ph);
+        m_session->setWindowShape(m_drag.window, pts, tr("Move Window Point"));
+        break;
+    }
+    case Handle::TangentIn:
+    case Handle::TangentOut: {
+        GradeWindowShapePoints pts = w.points;
+        const int i = m_drag.pointIndex;
+        if (i < 0 || i >= pts.size())
+            return;
+        const double pw = std::max(1e-6, w0 * size.width());
+        const double ph = std::max(1e-6, h0 * size.height());
+        GradeWindowPoint& pt = pts[i];
+        const QPointF t = QPointF(lp.x() / pw, lp.y() / ph) - pt.pos;
+        const bool in = m_drag.handle == Handle::TangentIn;
+        const QPointF other = in ? pt.outHandle : pt.inHandle;
+        if (QGuiApplication::keyboardModifiers() & Qt::AltModifier)
+            pt.smooth = false; // break the tangent
+        QPointF mirrored = other;
+        if (pt.smooth) {
+            // The other side stays collinear and keeps its length (as the mask editor does).
+            const double lt = std::hypot(t.x() * pw, t.y() * ph);
+            const double lo = std::hypot(other.x() * pw, other.y() * ph);
+            const double keep = lo > 1e-9 ? lo : lt;
+            mirrored = lt > 1e-9 ? -t * (keep / lt) : other;
+        }
+        (in ? pt.inHandle : pt.outHandle) = t;
+        (in ? pt.outHandle : pt.inHandle) = mirrored;
+        m_session->setWindowShape(m_drag.window, pts, tr("Move Window Tangent"));
         break;
     }
     case Handle::None:
@@ -667,6 +760,8 @@ void ColorViewerOverlay::mouseMoveEvent(QMouseEvent* event)
     case Handle::Corner:
     case Handle::Soft:
     case Handle::Point:
+    case Handle::TangentIn:
+    case Handle::TangentOut:
         shape = Qt::PointingHandCursor;
         break;
     case Handle::Rotate:
@@ -709,40 +804,79 @@ void ColorViewerOverlay::mouseReleaseEvent(QMouseEvent* event)
 
 void ColorViewerOverlay::mouseDoubleClickEvent(QMouseEvent* event)
 {
-    // Double-click on a polygon edge inserts a point there.
+    // Double-click on a curve point switches it between smooth and corner; on a polygon or
+    // curve edge it inserts a point there.
     if (!m_windowControls || !m_session)
         return;
     const GradeWindow* raw = m_session->window();
-    if (!raw || raw->shape != GradeWindowShape::Polygon || raw->points.size() >= kMaxWindowPoints)
+    if (!raw
+        || (raw->shape != GradeWindowShape::Polygon && raw->shape != GradeWindowShape::Curve))
         return;
     const GradeWindow shownWindow = shown(*raw);
     const GradeWindow* w = &shownWindow;
+    const bool curve = w->shape == GradeWindowShape::Curve;
     const QPointF pos = event->position();
+    const int count = int(w->points.size());
+    if (curve) {
+        const HandleHit hit = hitTest(pos);
+        if (hit.handle == Handle::Point && hit.window == w->id) {
+            // Cusp: no handles. Smooth: automatic handles along the neighbours.
+            GradeWindowShapePoints pts = w->points;
+            GradeWindowPoint& p = pts[hit.pointIndex];
+            if (p.smooth || p.hasHandles()) {
+                p.inHandle = p.outHandle = QPointF();
+                p.smooth = false;
+            } else {
+                p = smoothedPoint(pts, hit.pointIndex);
+            }
+            m_selPoint = hit.pointIndex;
+            m_session->setWindowShape(w->id, pts, tr("Smooth or Corner Window Point"));
+            return;
+        }
+    }
+    if (count >= kMaxWindowPoints)
+        return;
+    const auto toW = windowToWidget(*w);
+    QSizeF size;
+    if (!toW || !pictureToWidget(&size))
+        return;
+    const double hw2 = w->value(wk::Width, m_session->gradeFrame()) * size.width();
+    const double hh2 = w->value(wk::Height, m_session->gradeFrame()) * size.height();
     int best = -1;
+    double bestT = 0;
     double bestDist = 8.0;
-    QPointF bestPoint;
-    for (int i = 0; i < w->points.size(); ++i) {
-        const QPointF a = handlePos(*w, Handle::Point, i);
-        const QPointF b = handlePos(*w, Handle::Point, (i + 1) % int(w->points.size()));
-        const QPointF ab = b - a;
-        const double len2 = ab.x() * ab.x() + ab.y() * ab.y();
-        if (len2 < 1e-9)
-            continue;
-        const double t = std::clamp(
-            ((pos.x() - a.x()) * ab.x() + (pos.y() - a.y()) * ab.y()) / len2, 0.0, 1.0);
-        const double d = length(a + ab * t - pos);
-        if (d < bestDist) {
-            bestDist = d;
-            best = i;
-            bestPoint
-                = w->points[i] + (w->points[(i + 1) % int(w->points.size())] - w->points[i]) * t;
+    constexpr int kSteps = 24;
+    for (int i = 0; i < count; ++i) {
+        // Walk the span in small steps (a straight edge is one step) and keep the nearest.
+        const int steps = curve ? kSteps : 1;
+        QPointF prev;
+        for (int k = 0; k <= steps; ++k) {
+            const double t = double(k) / steps;
+            QPointF local = curve ? windowSpanPoint(w->points, i, t)
+                                  : w->points[i].pos
+                    + (w->points[(i + 1) % count].pos - w->points[i].pos) * t;
+            const QPointF at = toW->map(QPointF(local.x() * hw2, local.y() * hh2));
+            if (k > 0) {
+                const QPointF ab = at - prev;
+                const double len2 = ab.x() * ab.x() + ab.y() * ab.y();
+                const double u = len2 < 1e-9 ? 0.0
+                                             : std::clamp(((pos.x() - prev.x()) * ab.x()
+                                                              + (pos.y() - prev.y()) * ab.y())
+                                                       / len2,
+                                                   0.0, 1.0);
+                const double d = length(prev + ab * u - pos);
+                if (d < bestDist) {
+                    bestDist = d;
+                    best = i;
+                    bestT = (double(k - 1) + u) / steps;
+                }
+            }
+            prev = at;
         }
     }
     if (best < 0)
         return;
-    QVector<QPointF> pts = w->points;
-    pts.insert(best + 1, bestPoint);
-    m_session->setWindowPoints(w->id, pts, tr("Add Window Point"));
+    m_session->addWindowPoint(w->id, best, bestT, tr("Add Window Point"));
 }
 
 } // namespace kk

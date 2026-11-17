@@ -86,7 +86,82 @@ QString label(const QString& key)
 
 bool GradeWindow::isRenderable() const
 {
-    return enabled && (shape != GradeWindowShape::Polygon || points.size() >= 3);
+    const bool pointShape = shape == GradeWindowShape::Polygon || shape == GradeWindowShape::Curve;
+    return enabled && (!pointShape || points.size() >= 3);
+}
+
+GradeWindowShapePoints GradeWindow::shapeAt(int64_t localFrame) const
+{
+    if (shapeKeys.isEmpty())
+        return points;
+    auto after = shapeKeys.lowerBound(localFrame); // first key >= localFrame
+    if (after == shapeKeys.cbegin() || (after != shapeKeys.cend() && after.key() == localFrame))
+        return after.value();
+    if (after == shapeKeys.cend())
+        return std::prev(after).value();
+    const auto before = std::prev(after);
+    const GradeWindowShapePoints& a = before.value();
+    const GradeWindowShapePoints& b = after.value();
+    if (a.size() != b.size())
+        return a;
+    const double t = double(localFrame - before.key()) / double(after.key() - before.key());
+    GradeWindowShapePoints out = a;
+    for (int i = 0; i < out.size(); ++i) {
+        out[i].pos = a[i].pos + (b[i].pos - a[i].pos) * t;
+        out[i].inHandle = a[i].inHandle + (b[i].inHandle - a[i].inHandle) * t;
+        out[i].outHandle = a[i].outHandle + (b[i].outHandle - a[i].outHandle) * t;
+    }
+    return out;
+}
+
+GradeWindowPoint smoothedPoint(const GradeWindowShapePoints& points, int index)
+{
+    GradeWindowPoint p = points.value(index);
+    const int n = int(points.size());
+    if (n < 2)
+        return p;
+    const QPointF t = (points[(index + 1) % n].pos - points[(index + n - 1) % n].pos) / 6.0;
+    p.outHandle = t;
+    p.inHandle = -t;
+    p.smooth = true;
+    return p;
+}
+
+bool insertWindowPoint(GradeWindowShapePoints& points, int index, double t)
+{
+    const int n = int(points.size());
+    if (index < 0 || index >= n || n >= kMaxWindowPoints)
+        return false;
+    t = std::clamp(t, 0.0, 1.0);
+    GradeWindowPoint& a = points[index];
+    GradeWindowPoint& b = points[(index + 1) % n];
+    auto lerp = [](QPointF x, QPointF y, double k) { return x + (y - x) * k; };
+    GradeWindowPoint mid;
+    if (!a.hasHandles() && !b.hasHandles()) {
+        mid.pos = lerp(a.pos, b.pos, t);
+    } else {
+        const QPointF p0 = a.pos, c0 = a.pos + a.outHandle, c1 = b.pos + b.inHandle, p1 = b.pos;
+        const QPointF q0 = lerp(p0, c0, t), q1 = lerp(c0, c1, t), q2 = lerp(c1, p1, t);
+        const QPointF r0 = lerp(q0, q1, t), r1 = lerp(q1, q2, t);
+        const QPointF s = lerp(r0, r1, t);
+        a.outHandle = q0 - p0;
+        b.inHandle = q2 - p1;
+        mid = {s, r0 - s, r1 - s, true};
+    }
+    points.insert(index + 1, mid);
+    return true;
+}
+
+QPointF windowSpanPoint(const GradeWindowShapePoints& points, int index, double t)
+{
+    const int n = int(points.size());
+    if (n == 0)
+        return {};
+    const GradeWindowPoint& a = points[((index % n) + n) % n];
+    const GradeWindowPoint& b = points[(index + 1 + n) % n];
+    const double u = 1.0 - t;
+    return u * u * u * a.pos + 3 * u * u * t * (a.pos + a.outHandle)
+        + 3 * u * t * t * (b.pos + b.inHandle) + t * t * t * b.pos;
 }
 
 QString gradeWindowShapeToString(GradeWindowShape shape)
@@ -100,6 +175,8 @@ QString gradeWindowShapeToString(GradeWindowShape shape)
         return QStringLiteral("polygon");
     case GradeWindowShape::Gradient:
         return QStringLiteral("gradient");
+    case GradeWindowShape::Curve:
+        return QStringLiteral("curve");
     }
     return QStringLiteral("circle");
 }
@@ -112,6 +189,8 @@ GradeWindowShape gradeWindowShapeFromString(const QString& text)
         return GradeWindowShape::Polygon;
     if (text == QLatin1String("gradient"))
         return GradeWindowShape::Gradient;
+    if (text == QLatin1String("curve"))
+        return GradeWindowShape::Curve;
     return GradeWindowShape::Circle;
 }
 
@@ -313,15 +392,22 @@ bool GradeNode::isAnimated() const
 {
     return track.hasData() || params.isAnimated()
         || std::any_of(windows.cbegin(), windows.cend(),
-            [](const GradeWindow& w) { return w.params.isAnimated(); });
+            [](const GradeWindow& w) { return w.params.isAnimated() || !w.shapeKeys.isEmpty(); });
 }
 
 void GradeNode::shiftKeys(int64_t deltaFrames)
 {
     params.shiftKeys(deltaFrames);
     track.firstFrame += deltaFrames;
-    for (GradeWindow& w : windows)
+    for (GradeWindow& w : windows) {
         w.params.shiftKeys(deltaFrames);
+        if (!w.shapeKeys.isEmpty()) {
+            QMap<int64_t, GradeWindowShapePoints> shifted;
+            for (auto it = w.shapeKeys.cbegin(); it != w.shapeKeys.cend(); ++it)
+                shifted.insert(it.key() + deltaFrames, it.value());
+            w.shapeKeys = shifted;
+        }
+    }
 }
 
 quint64 ClipGrade::allocateId() const
@@ -768,7 +854,15 @@ quint64 addWindow(ClipGrade& grade, quint64 nodeId, GradeWindowShape shape)
     w.id = grade.allocateId();
     w.shape = shape;
     if (shape == GradeWindowShape::Polygon)
-        w.points = {QPointF(0, -0.5), QPointF(0.5, 0), QPointF(0, 0.5), QPointF(-0.5, 0)};
+        w.points = {{QPointF(0, -0.5)}, {QPointF(0.5, 0)}, {QPointF(0, 0.5)}, {QPointF(-0.5, 0)}};
+    if (shape == GradeWindowShape::Curve) {
+        // A rounded shape: four smooth points on a circle (handle length 0.5523 of the radius).
+        constexpr double k = 0.5 * 0.5522847498;
+        w.points = {{QPointF(0, -0.5), QPointF(-k, 0), QPointF(k, 0), true},
+            {QPointF(0.5, 0), QPointF(0, -k), QPointF(0, k), true},
+            {QPointF(0, 0.5), QPointF(k, 0), QPointF(-k, 0), true},
+            {QPointF(-0.5, 0), QPointF(0, k), QPointF(0, -k), true}};
+    }
     if (shape == GradeWindowShape::Gradient)
         w.params.setBase(gradewindowkeys::SoftOut, 0.25);
     n->windows.append(w);

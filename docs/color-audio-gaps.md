@@ -19,8 +19,8 @@ Every missing piece has a line in [roadmap.md](roadmap.md) under "Next version (
 | C3 | Sharpen part of the picture (Blur palette, Sharpen mode) | works | |
 | C4 | Mist / soften skin or glow with the Mist mode | works | |
 | C5 | Power windows: Circle, Linear, Polygon, Gradient (softness, invert, opacity, keyframes) | works | |
-| C6 | Curve (Bezier) power window | missing | Curve window button in the Windows palette; Bezier points and tangents on the viewer |
-| C7 | Window follows the subject (animate or track a window) | works | Tracker palette moves, scales and turns every window of the node (spec 107); polygon shape keyframes stay missing (with the Curve window) |
+| C6 | Curve (Bezier) power window | works | Curve button in the Windows palette; Bezier points and tangents on the viewer, smooth / corner, point insertion (spec 111) |
+| C7 | Window follows the subject (animate or track a window) | works | Tracker palette moves, scales and turns every window of the node (spec 107); polygon and curve shapes can be keyframed (spec 111) |
 | C8 | Tracker and Stabilizer palettes on the Color page | works | The Tracker palette has Window and Stabilizer modes (spec 107); a node follows a track through its windows. The Stabilizer mode sets the clip's Stabilization (Mode, Zoom, Smooth, Strength, Stabilize); the Interactive mode, a tracked node without a window, and the Cloud tracker are not done |
 | C9 | Qualifier HSL: pick colours, adjust ranges and softness, invert, Highlight | works | |
 | C10 | Qualifier clean-up: Matte Finesse (Clean Black / White, Blur Radius, Shrink / Grow, In / Out Ratio, Denoise) | works | Matte Finesse section of the Qualifier palette (spec 108); Highlight shows the cleaned matte; not done: Black Clip / White Clip |

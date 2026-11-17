@@ -351,13 +351,13 @@ private slots:
 
         // Polygon: the square of the window box equals the rectangle.
         w->shape = GradeWindowShape::Polygon;
-        w->points
-            = {QPointF(-0.5, -0.5), QPointF(0.5, -0.5), QPointF(0.5, 0.5), QPointF(-0.5, 0.5)};
+        w->points = {{QPointF(-0.5, -0.5)}, {QPointF(0.5, -0.5)}, {QPointF(0.5, 0.5)},
+            {QPointF(-0.5, 0.5)}};
         QCOMPARE(matte(145, 70), 1.0f);
         QCOMPARE(matte(100, 80), 0.0f);
         QVERIFY(near(matte(150, 50), 0.5, 1e-3));
         // Triangle: the point under the tip is inside, the corners of the box are not.
-        w->points = {QPointF(0, -0.5), QPointF(0.5, 0.5), QPointF(-0.5, 0.5)};
+        w->points = {{QPointF(0, -0.5)}, {QPointF(0.5, 0.5)}, {QPointF(-0.5, 0.5)}};
         QCOMPARE(matte(100, 60), 1.0f);
         QCOMPARE(matte(55, 30), 0.0f);
 
@@ -387,8 +387,157 @@ private slots:
         QCOMPARE(matte(180, 50), 0.0f);
         GradeWindow line;
         line.shape = GradeWindowShape::Polygon;
-        line.points = {QPointF(0, 0), QPointF(1, 1)};
+        line.points = {{QPointF(0, 0)}, {QPointF(1, 1)}};
         QVERIFY(!line.isRenderable());
+    }
+
+    // ---- Curve windows (spec 111) ----
+
+    void curveWindowRoundTripAndOldFiles()
+    {
+        ClipGrade g;
+        GradeNode n;
+        n.id = 1;
+        g.nodes.append(n);
+        g.output = 1;
+        const quint64 id = go::addWindow(g, 1, GradeWindowShape::Curve);
+        QCOMPARE(g.window(id)->points.size(), 4);
+        QVERIFY(g.window(id)->isRenderable());
+        GradeWindowShapePoints moved = g.window(id)->points;
+        moved[1].outHandle = QPointF(0.05, 0.3);
+        moved[1].smooth = false;
+        g.window(id)->shapeKeys.insert(0, g.window(id)->points);
+        g.window(id)->shapeKeys.insert(12, moved);
+        QVERIFY(g.isAnimated());
+        const ClipGrade back = serialization::gradeFromJson(serialization::gradeToJson(g));
+        QCOMPARE(back, g);
+        QCOMPARE(back.window(id)->shape, GradeWindowShape::Curve);
+        QCOMPARE(back.window(id)->shapeKeys.size(), 2);
+
+        // A file of format 16 - 20 stores polygon points as [x, y]: they load as corners.
+        QJsonObject window {{QLatin1String("id"), 5}, {QLatin1String("shape"), QLatin1String("polygon")},
+            {QLatin1String("points"),
+                QJsonArray {QJsonArray {0.0, -0.5}, QJsonArray {0.5, 0.5}, QJsonArray {-0.5, 0.5}}}};
+        QJsonObject node {{QLatin1String("id"), 1}, {QLatin1String("windows"), QJsonArray {window}}};
+        QJsonObject root {{QLatin1String("nodes"), QJsonArray {node}}, {QLatin1String("output"), 1}};
+        const ClipGrade old = serialization::gradeFromJson(root);
+        const GradeWindow* w = old.window(5);
+        QVERIFY(w);
+        QCOMPARE(w->points.size(), 3);
+        QCOMPARE(w->points[1].pos, QPointF(0.5, 0.5));
+        QVERIFY(!w->points[1].hasHandles() && !w->points[1].smooth);
+
+        // Counts are clamped; a key with another point count is dropped.
+        QJsonArray many;
+        for (int i = 0; i < kMaxWindowPoints + 10; ++i)
+            many.append(QJsonArray {0.1 * i, 0.0});
+        window[QLatin1String("points")] = many;
+        window[QLatin1String("shapeKeys")] = QJsonArray {QJsonObject {{QLatin1String("frame"), 3},
+            {QLatin1String("points"), QJsonArray {QJsonArray {0.0, 0.0}}}}};
+        node[QLatin1String("windows")] = QJsonArray {window};
+        root[QLatin1String("nodes")] = QJsonArray {node};
+        const GradeWindow* clamped = serialization::gradeFromJson(root).window(5);
+        QCOMPARE(clamped->points.size(), kMaxWindowPoints);
+        QVERIFY(clamped->shapeKeys.isEmpty());
+    }
+
+    void shapeKeysInterpolate()
+    {
+        GradeWindow w;
+        w.shape = GradeWindowShape::Polygon;
+        w.points = {{QPointF(0, 0)}, {QPointF(1, 0)}, {QPointF(0, 1)}};
+        QCOMPARE(w.shapeAt(5), w.points); // no keys: the static shape
+        GradeWindowShapePoints a = w.points, b = w.points;
+        for (GradeWindowPoint& p : b)
+            p.pos += QPointF(1, 2);
+        b[0].outHandle = QPointF(0.4, 0.0);
+        w.shapeKeys.insert(10, a);
+        w.shapeKeys.insert(20, b);
+        QCOMPARE(w.shapeAt(0), a); // held before the first key
+        QCOMPARE(w.shapeAt(10), a); // exact on keys
+        QCOMPARE(w.shapeAt(20), b);
+        QCOMPARE(w.shapeAt(99), b); // held after the last
+        const GradeWindowShapePoints mid = w.shapeAt(15);
+        QCOMPARE(mid[1].pos, QPointF(1.5, 1.0));
+        QCOMPARE(mid[0].outHandle, QPointF(0.2, 0.0));
+        // Keys move with the clip (trim / split).
+        GradeNode n;
+        n.windows.append(w);
+        n.shiftKeys(-4);
+        QVERIFY(n.windows[0].shapeKeys.contains(6) && n.windows[0].shapeKeys.contains(16));
+    }
+
+    void insertPointKeepsTheCurve()
+    {
+        GradeWindowShapePoints pts = {{QPointF(0, 0), QPointF(), QPointF(0.3, 0.3), true},
+            {QPointF(1, 0), QPointF(0.0, -0.4), QPointF(), true}, {QPointF(0.5, 1)}};
+        const QPointF before = windowSpanPoint(pts, 0, 0.25);
+        QVERIFY(insertWindowPoint(pts, 0, 0.5));
+        QCOMPARE(pts.size(), 4);
+        // The first half of the new two spans traces the old span's first half.
+        const QPointF after = windowSpanPoint(pts, 0, 0.5);
+        QVERIFY(near((before - after).x(), 0.0, 1e-9) && near((before - after).y(), 0.0, 1e-9));
+        // A polygon edge gets a point on the edge.
+        GradeWindowShapePoints poly = {{QPointF(0, 0)}, {QPointF(2, 0)}, {QPointF(0, 2)}};
+        QVERIFY(insertWindowPoint(poly, 0, 0.25));
+        QCOMPARE(poly[1].pos, QPointF(0.5, 0));
+        // Smoothing: automatic handles along the neighbours.
+        const GradeWindowPoint s = smoothedPoint(poly, 1);
+        QVERIFY(s.smooth);
+        QCOMPARE(s.outHandle, -s.inHandle);
+    }
+
+    void curveWindowFlattening()
+    {
+        PictureGeometry g;
+        g.width = 200;
+        g.height = 200;
+        ClipGrade grade;
+        GradeNode n;
+        n.id = 1;
+        grade.nodes.append(n);
+        grade.output = 1;
+        const quint64 id = go::addWindow(grade, 1, GradeWindowShape::Curve);
+        GradeWindow* w = grade.window(id);
+        w->params.setBase(wk::SoftIn, 0.0);
+        w->params.setBase(wk::SoftOut, 0.0);
+        // The four-point rounded default (width 0.5 of 200 px) stays within half a pixel of
+        // the true circle of radius 50 px.
+        const auto values = evaluateWindows(*grade.node(1), 0, g);
+        QCOMPARE(values.size(), size_t(1));
+        const std::vector<float>& flat = values[0].points;
+        QVERIFY(flat.size() / 2 > 8);
+        QVERIFY(flat.size() / 2 <= size_t(kMaxWindowOutlinePoints));
+        for (size_t i = 0; i < flat.size(); i += 2) {
+            const double r = std::hypot(double(flat[i]), double(flat[i + 1]));
+            QVERIFY2(std::abs(r - 50.0) < 0.5, qPrintable(QString::number(r)));
+        }
+        // Zero-length handles give exactly the polygon of the same points.
+        GradeWindowShapePoints corners = w->points;
+        for (GradeWindowPoint& p : corners)
+            p.inHandle = p.outHandle = QPointF();
+        w->points = corners;
+        auto curveMatte = [&](double x, double y) {
+            return windowsMatte(evaluateWindows(*grade.node(1), 0, g), float(x), float(y));
+        };
+        std::vector<float> curveSamples;
+        for (int y = 5; y < 200; y += 17)
+            for (int x = 3; x < 200; x += 13)
+                curveSamples.push_back(curveMatte(x, y));
+        w->shape = GradeWindowShape::Polygon;
+        size_t k = 0;
+        for (int y = 5; y < 200; y += 17)
+            for (int x = 3; x < 200; x += 13)
+                QCOMPARE(curveMatte(x, y), curveSamples[k++]);
+        // The soft edge of a curve equals the polygon's ramp, and a tracker moves it.
+        w->shape = GradeWindowShape::Curve;
+        w->params.setBase(wk::SoftOut, 0.1);
+        const float edge = curveMatte(150, 100); // on the outline: half
+        QVERIFY(edge > 0.0f && edge < 1.0f);
+        grade.node(1)->track.samples.append({0.1, 0.0, 1.0, 1.0, 0.0});
+        grade.node(1)->track.pan = true;
+        grade.node(1)->track.tilt = true;
+        QVERIFY(curveMatte(150, 100) != edge); // the track moved the whole curve
     }
 
     void layerFormula()

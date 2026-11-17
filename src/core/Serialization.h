@@ -124,7 +124,12 @@ namespace kk::serialization {
 ///   Finesse values ("cleanBlack", "cleanWhite", "shrinkGrow", "blurRadius", "inOutRatio",
 ///   "denoise"). Files of versions 1 - 19 have none and select exactly as before; older builds
 ///   refuse version 20 instead of silently showing an unfinished matte.
-inline constexpr int kFormatVersion = 20;
+/// - 21 (curvewindow branch): Curve power windows. A window's "shape" may be "curve"; its
+///   "points" may be [x, y, inX, inY, outX, outY, smooth] (the older [x, y] still load, as
+///   corner points) and it may carry "shapeKeys" ([{"frame", "points"}], the animated shape).
+///   Files of versions 1 - 20 have none and load unchanged; older builds refuse version 21
+///   instead of silently showing a circle where a curve was drawn.
+inline constexpr int kFormatVersion = 21;
 
 /// Encodes one keyframe: {"frame", "value"} plus "in" / "out" / "hold" when not default.
 [[nodiscard]] QJsonObject keyframeToJson(const Keyframe& key);

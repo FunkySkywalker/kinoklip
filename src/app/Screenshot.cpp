@@ -1039,7 +1039,9 @@ int runScreenshot(MainWindow& window, const QString& target, const QString& pngP
         // turns Highlight on, KK_SCREENSHOT_COLOR_PICK=1 arms the qualifier's Pick,
         // KK_SCREENSHOT_SCOPE=<waveform|parade|...> picks the scope, KK_SCREENSHOT_COLOR_SELECT
         // =<n,m> selects those clips of the clips strip (1-based) and grades the first,
-        // KK_SCREENSHOT_COLOR_GRAB=1 grabs a still into the gallery.
+        // KK_SCREENSHOT_COLOR_GRAB=1 grabs a still into the gallery,
+        // KK_SCREENSHOT_COLOR_WINDOW=<circle|linear|polygon|curve|gradient> adds that window to the
+        // node (a curve gets an uneven shape with handles).
         ColorPage* color = window.colorPage();
         if (!color || !window.setCurrentPage(QStringLiteral("color"))) {
             std::fprintf(stderr, "color: no Color page\n");
@@ -1074,6 +1076,18 @@ int runScreenshot(MainWindow& window, const QString& target, const QString& pngP
             const int node = qEnvironmentVariableIntValue("KK_SCREENSHOT_COLOR_NODE") - 1;
             if (node >= 0 && node < int(session->grade().nodes.size()))
                 session->selectNode(session->grade().nodes[node].id);
+            if (const QString shape = qEnvironmentVariable("KK_SCREENSHOT_COLOR_WINDOW");
+                !shape.isEmpty()) {
+                const GradeWindowShape kind = gradeWindowShapeFromString(shape);
+                if (session->addWindow(kind) && kind == GradeWindowShape::Curve) {
+                    GradeWindowShapePoints pts = session->window()->points;
+                    pts[0].pos = QPointF(-0.05, -0.55);
+                    pts[1].outHandle = QPointF(0.0, 0.35);
+                    pts[1].inHandle = QPointF(0.0, -0.12);
+                    pts[3].pos = QPointF(-0.45, 0.15);
+                    session->setWindowShape(0, pts, QStringLiteral("Shape"));
+                }
+            }
             if (qEnvironmentVariableIntValue("KK_SCREENSHOT_COLOR_PICK") == 1)
                 color->qualifier()->setPickMode(qualifierpick::Mode::Pick);
             if (qEnvironmentVariableIntValue("KK_SCREENSHOT_COLOR_HIGHLIGHT") == 1)
