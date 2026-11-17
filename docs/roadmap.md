@@ -159,7 +159,7 @@ Shipped in 1.4 ([release notes](releases/v1.4.0.md)):
 
 Beginner and intermediate tutorial workflows for Resolve's Color, Fairlight and Fusion pages that fail today are listed in [color-audio-gaps.md](color-audio-gaps.md); each gap below has its line.
 
-- [ ] Color: Tracker palette: a window or node follows a tracked subject (Pan, Tilt, Zoom, Rotate, 3D) so a blurred or graded face stays covered, and a Stabilizer palette
+- [x] Color: Tracker palette: a window follows a tracked subject (Pan, Tilt, Zoom, Rotate, 3D) so a blurred or graded face stays covered, and a Stabilizer mode of the palette (spec 107; Interactive mode and the Cloud tracker are not done)
 - [ ] Color: Curve (Bezier) power window in the Windows palette, with polygon and curve shape keyframes
 - [ ] Color: Qualifier Matte Finesse (Clean Black / White, Blur Radius, Shrink / Grow, In / Out Ratio, Denoise) and the 3D, RGB and Luma qualifier modes
 - [ ] Color: Primaries Shad, Hi, Color Boost, Midtone Detail and Auto Color buttons, and a Log palette (Shadow, Midtone, Highlight, Offset wheels with Low / High range)
@@ -180,7 +180,7 @@ Beginner and intermediate tutorial workflows for Resolve's Color, Fairlight and 
 - [ ] Color: Resolve FX palette: put an effect (Glow, Lens Blur, Film Grain, Halation, Film Look) on a node so its window or qualifier limits it
 - [ ] Color: Keyframes palette and strip on the Color page with Dynamic interpolation, and a Sizing palette (Zoom, Pan, Tilt, Rotate, Flip, Input / Output sizing)
 - [ ] Color: Split Screen modes (Selected Clips, Timeline), Lightbox and Output Blanking
-- [x] Color: Blur / Sharpen / Mist palette on the Color page, so a window can blur part of the picture (spec 106; Radius R G B with link, H/V Ratio, Scaling, Coring Softness, Level, Mist Mix; keyframes, undo, same maths on GPU and CPU; tracking a window is the open Tracker item)
+- [x] Color: Blur / Sharpen / Mist palette on the Color page, so a window can blur part of the picture (spec 106; Radius R G B with link, H/V Ratio, Scaling, Coring Softness, Level, Mist Mix; keyframes, undo, same maths on GPU and CPU; tracking a window is the Tracker palette, spec 107)
 - [ ] Audio: noise reduction with a local, open model (RNNoise / DeepFilterNet, spectral gate fallback)
 - [ ] Audio: Effects Library and Inspector on the Audio page, effect slots on mixer tracks
 - [ ] Audio: Normalize a whole track or bus / the main mix to a loudness target in one step

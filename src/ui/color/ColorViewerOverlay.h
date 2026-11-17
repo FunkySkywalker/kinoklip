@@ -81,6 +81,9 @@ public:
     [[nodiscard]] std::optional<QTransform> pictureToWidget(QSizeF* pictureSize = nullptr) const;
     /// Window-local pixels (centre origin, unrotated) -> widget for @p window at the grade frame.
     [[nodiscard]] std::optional<QTransform> windowToWidget(const GradeWindow& window) const;
+    /// @p w as the picture shows it at the playhead: moved by the node's tracker data. The
+    /// handle functions below take shown windows.
+    [[nodiscard]] GradeWindow shown(const GradeWindow& w) const;
     /// Widget position of @p handle of @p window (null point when it has none).
     [[nodiscard]] QPointF handlePos(const GradeWindow& window, Handle handle, int point = -1) const;
     [[nodiscard]] HandleHit hitTest(QPointF pos) const;
@@ -105,6 +108,9 @@ private:
     [[nodiscard]] QPainterPath windowPath(const GradeWindow& w, double grow) const;
     [[nodiscard]] QPointF toFrameFraction(QPointF widget) const;
     void applyDrag(QPointF pos);
+    /// Sets window geometry keys given as shown (the drag works on the shown window); the
+    /// tracker data is taken out again before they are stored.
+    bool setShownParams(const QVector<std::pair<QString, double>>& values, const QString& label);
 
     QPointer<ColorSession> m_session;
     Project* m_project = nullptr;

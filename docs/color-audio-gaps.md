@@ -14,14 +14,14 @@ Every missing piece has a line in [roadmap.md](roadmap.md) under "Next version (
 
 | # | Workflow | Status | What is missing |
 |---|---|---|---|
-| C1 | Blur or censor a face with a tracked window | partly | Blur palette works (spec 106); missing: Tracker palette (window tracking: Pan / Tilt / Zoom / Rotate / 3D), Cloud tracker; windows cannot follow a subject |
+| C1 | Blur or censor a face with a tracked window | works | Blur palette (spec 106) and Tracker palette (spec 107: Track Forward / Reverse, Pan / Tilt / Zoom / Rotate / 3D, Clip / Frame, graph, Clear Track); not done: Interactive mode, Cloud tracker |
 | C2 | Blur a polygon or circle window (static) | works | |
 | C3 | Sharpen part of the picture (Blur palette, Sharpen mode) | works | |
 | C4 | Mist / soften skin or glow with the Mist mode | works | |
 | C5 | Power windows: Circle, Linear, Polygon, Gradient (softness, invert, opacity, keyframes) | works | |
 | C6 | Curve (Bezier) power window | missing | Curve window button in the Windows palette; Bezier points and tangents on the viewer |
-| C7 | Window follows the subject (animate or track a window) | missing | Tracker palette applied to windows; polygon shape keyframes |
-| C8 | Tracker and Stabilizer palettes on the Color page | partly | Edit page Inspector has stabilization and the Tracker; the Color page has no Tracker or Stabilizer palette and nothing drives a window or node from a track |
+| C7 | Window follows the subject (animate or track a window) | works | Tracker palette moves, scales and turns every window of the node (spec 107); polygon shape keyframes stay missing (with the Curve window) |
+| C8 | Tracker and Stabilizer palettes on the Color page | works | The Tracker palette has Window and Stabilizer modes (spec 107); a node follows a track through its windows. The Stabilizer mode sets the clip's Stabilization (Mode, Zoom, Smooth, Strength, Stabilize); the Interactive mode, a tracked node without a window, and the Cloud tracker are not done |
 | C9 | Qualifier HSL: pick colours, adjust ranges and softness, invert, Highlight | works | |
 | C10 | Qualifier clean-up: Matte Finesse (Clean Black / White, Blur Radius, Shrink / Grow, In / Out Ratio, Denoise) | missing | Matte Finesse section of the Qualifier palette |
 | C11 | Qualifier 3D and Luma modes, RGB mode | missing | 3D, RGB and Luma qualifier mode buttons; 3D picker with Pick / Pick + / Pick - in 3D space |

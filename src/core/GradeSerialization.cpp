@@ -135,6 +135,45 @@ GradeWindow windowFromJson(const QJsonObject& o)
     return w;
 }
 
+/// Tracker data: the samples as one flat array of five numbers per frame.
+QJsonObject trackToJson(const GradeTrack& t)
+{
+    QJsonObject o {{QLatin1String("first"), qint64(t.firstFrame)},
+        {QLatin1String("pivot"), QJsonArray {t.pivot.x(), t.pivot.y()}},
+        {QLatin1String("pan"), t.pan}, {QLatin1String("tilt"), t.tilt},
+        {QLatin1String("zoom"), t.zoom}, {QLatin1String("rotate"), t.rotate},
+        {QLatin1String("perspective"), t.perspective}};
+    QJsonArray samples;
+    for (const GradeTrackSample& s : t.samples) {
+        for (const double v : {s.dx, s.dy, s.sx, s.sy, s.rot})
+            samples.append(v);
+    }
+    if (!samples.isEmpty())
+        o[QLatin1String("samples")] = samples;
+    return o;
+}
+
+GradeTrack trackFromJson(const QJsonObject& o)
+{
+    GradeTrack t;
+    t.firstFrame = o.value(QLatin1String("first")).toInteger();
+    const QJsonArray pivot = o.value(QLatin1String("pivot")).toArray();
+    if (pivot.size() >= 2)
+        t.pivot = QPointF(pivot[0].toDouble(0.5), pivot[1].toDouble(0.5));
+    t.pan = o.value(QLatin1String("pan")).toBool(true);
+    t.tilt = o.value(QLatin1String("tilt")).toBool(true);
+    t.zoom = o.value(QLatin1String("zoom")).toBool(false);
+    t.rotate = o.value(QLatin1String("rotate")).toBool(false);
+    t.perspective = o.value(QLatin1String("perspective")).toBool(false);
+    const QJsonArray a = o.value(QLatin1String("samples")).toArray();
+    constexpr qsizetype kMaxSamples = 1000000;
+    for (qsizetype i = 0; i + 4 < a.size() && t.samples.size() < kMaxSamples; i += 5) {
+        t.samples.append({a[i].toDouble(), a[i + 1].toDouble(), a[i + 2].toDouble(1.0),
+            a[i + 3].toDouble(1.0), a[i + 4].toDouble()});
+    }
+    return t;
+}
+
 } // namespace
 
 QJsonObject gradeToJson(const ClipGrade& grade)
@@ -164,6 +203,8 @@ QJsonObject gradeToJson(const ClipGrade& grade)
                 windows.append(windowToJson(w));
             o[QLatin1String("windows")] = windows;
         }
+        if (n.track != GradeTrack {})
+            o[QLatin1String("track")] = trackToJson(n.track);
         if (!n.lutPath.isEmpty())
             o[QLatin1String("lut")] = n.lutPath;
         if (n.lutInterpolation == LutInterpolation::Trilinear)
@@ -193,6 +234,7 @@ ClipGrade gradeFromJson(const QJsonObject& json)
         n.qualifier = qualifierFromJson(o.value(QLatin1String("qualifier")).toObject());
         for (const QJsonValue& w : o.value(QLatin1String("windows")).toArray())
             n.windows.append(windowFromJson(w.toObject()));
+        n.track = trackFromJson(o.value(QLatin1String("track")).toObject());
         n.lutPath = o.value(QLatin1String("lut")).toString();
         n.lutInterpolation
             = o.value(QLatin1String("lutInterp")).toString() == QLatin1String("trilinear")

@@ -403,6 +403,70 @@ float qualifierKey(const GradeQualifier& q, const float rgb[3])
 
 namespace kk::grademath {
 
+WindowGeometry trackedWindowGeometry(
+    const GradeNode& node, const GradeWindow& w, int64_t localFrame, double aspect)
+{
+    namespace wk = gradewindowkeys;
+    WindowGeometry r;
+    r.cx = w.value(wk::CenterX, localFrame);
+    r.cy = w.value(wk::CenterY, localFrame);
+    r.width = w.value(wk::Width, localFrame);
+    r.height = w.value(wk::Height, localFrame);
+    r.rotation = w.value(wk::Rotation, localFrame);
+    if (!node.track.hasData())
+        return r;
+    const GradeTrackSample s = node.track.applied(localFrame);
+    const double a = s.rot * std::numbers::pi / 180.0;
+    const double cs = std::cos(a), sn = std::sin(a);
+    // Offset from the pivot in units of the picture height, scaled, turned, moved.
+    const double vx = (r.cx - node.track.pivot.x()) * aspect * s.sx;
+    const double vy = (r.cy - node.track.pivot.y()) * s.sy;
+    r.cx = node.track.pivot.x() + (cs * vx - sn * vy) / aspect + s.dx;
+    r.cy = node.track.pivot.y() + sn * vx + cs * vy + s.dy;
+    r.width *= s.sx;
+    r.height *= s.sy;
+    r.rotation += s.rot;
+    return r;
+}
+
+WindowGeometry untrackedWindowGeometry(
+    const GradeTrack& track, const WindowGeometry& shown, int64_t localFrame, double aspect)
+{
+    if (!track.hasData())
+        return shown;
+    const GradeTrackSample s = track.applied(localFrame);
+    const double a = s.rot * std::numbers::pi / 180.0;
+    const double cs = std::cos(a), sn = std::sin(a);
+    const double px = (shown.cx - track.pivot.x() - s.dx) * aspect;
+    const double py = shown.cy - track.pivot.y() - s.dy;
+    const double ux = cs * px + sn * py; // turn back
+    const double uy = -sn * px + cs * py;
+    WindowGeometry r = shown;
+    r.cx = track.pivot.x() + ux / std::max(1e-6, s.sx) / aspect;
+    r.cy = track.pivot.y() + uy / std::max(1e-6, s.sy);
+    r.width = shown.width / std::max(1e-6, s.sx);
+    r.height = shown.height / std::max(1e-6, s.sy);
+    r.rotation = shown.rotation - s.rot;
+    return r;
+}
+
+GradeWindow trackedWindow(
+    const GradeNode& node, const GradeWindow& w, int64_t localFrame, double aspect)
+{
+    if (!node.track.hasData())
+        return w;
+    namespace wk = gradewindowkeys;
+    const WindowGeometry g = trackedWindowGeometry(node, w, localFrame, aspect);
+    GradeWindow out = w;
+    const std::pair<QString, double> values[] = {{wk::CenterX, g.cx}, {wk::CenterY, g.cy},
+        {wk::Width, g.width}, {wk::Height, g.height}, {wk::Rotation, g.rotation}};
+    for (const auto& [key, value] : values) {
+        out.params.values.remove(key);
+        out.params.setBase(key, value);
+    }
+    return out;
+}
+
 std::vector<WindowValues> evaluateWindows(
     const GradeNode& node, int64_t localFrame, const PictureGeometry& g)
 {
@@ -415,13 +479,15 @@ std::vector<WindowValues> evaluateWindows(
         v.shape = int(w.shape);
         v.invert = w.invert;
         v.opacity = float(std::clamp(w.value(wk::Opacity, localFrame), 0.0, 1.0));
-        v.cx = float(g.originX + w.value(wk::CenterX, localFrame) * g.width);
-        v.cy = float(g.originY + w.value(wk::CenterY, localFrame) * g.height);
-        const double angle = w.value(wk::Rotation, localFrame) * std::numbers::pi / 180.0;
+        const WindowGeometry geo
+            = trackedWindowGeometry(node, w, localFrame, g.width / std::max(1e-9, g.height));
+        v.cx = float(g.originX + geo.cx * g.width);
+        v.cy = float(g.originY + geo.cy * g.height);
+        const double angle = geo.rotation * std::numbers::pi / 180.0;
         v.cosR = float(std::cos(angle));
         v.sinR = float(std::sin(angle));
-        const double width = std::abs(w.value(wk::Width, localFrame)) * g.width;
-        const double height = std::abs(w.value(wk::Height, localFrame)) * g.height;
+        const double width = std::abs(geo.width) * g.width;
+        const double height = std::abs(geo.height) * g.height;
         v.halfW = float(width * 0.5);
         v.halfH = float(height * 0.5);
         // Softness in picture heights; at least half a pixel (the antialiasing).

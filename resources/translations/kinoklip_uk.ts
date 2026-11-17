@@ -399,6 +399,22 @@ The program was probably closed by the system because the computer ran out of me
         <source>/%1  [%2/%3]</source>
         <translation>/%1  [%2/%3]</translation>
     </message>
+    <message>
+        <source>a gradient window has no subject to follow</source>
+        <translation>у градієнтного вікна немає об'єкта для стеження</translation>
+    </message>
+    <message>
+        <source>the picture has no size</source>
+        <translation>у зображення немає розміру</translation>
+    </message>
+    <message>
+        <source>the window is too small</source>
+        <translation>вікно занадто мале</translation>
+    </message>
+    <message>
+        <source>the window is outside the picture</source>
+        <translation>вікно за межами кадру</translation>
+    </message>
 </context>
 <context>
     <name>TimelineRepair</name>
@@ -4026,6 +4042,14 @@ The program was probably closed by the system because the computer ran out of me
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Tracker</source>
+        <translation>Трекер</translation>
+    </message>
+    <message>
+        <source>Track a window so it follows the subject, or stabilize the clip.</source>
+        <translation>Стеження за вікном, щоб воно йшло за об'єктом, або стабілізація кліпу.</translation>
+    </message>
+    <message>
         <source>Reset</source>
         <translation>Скинути</translation>
     </message>
@@ -4163,6 +4187,10 @@ The program was probably closed by the system because the computer ran out of me
         <translation>Вікно</translation>
     </message>
     <message>
+        <source>Clear Track</source>
+        <translation>Очистити трек</translation>
+    </message>
+    <message>
         <source>Paste Grade</source>
         <translation>Вставити корекцію</translation>
     </message>
@@ -4173,6 +4201,289 @@ The program was probably closed by the system because the computer ran out of me
     <message>
         <source>Copy Grade</source>
         <translation>Копіювати корекцію</translation>
+    </message>
+</context>
+<context>
+    <name>kk::ColorTrackerPanel</name>
+    <message>
+        <source>Window</source>
+        <translation>Вікно</translation>
+    </message>
+    <message>
+        <source>Stabilizer</source>
+        <translation>Стабілізатор</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Pan</translation>
+    </message>
+    <message>
+        <source>The windows follow the subject sideways</source>
+        <translation>Вікна йдуть за об'єктом по горизонталі</translation>
+    </message>
+    <message>
+        <source>Tilt</source>
+        <translation>Tilt</translation>
+    </message>
+    <message>
+        <source>The windows follow the subject up and down</source>
+        <translation>Вікна йдуть за об'єктом по вертикалі</translation>
+    </message>
+    <message>
+        <source>Zoom</source>
+        <translation>Зум</translation>
+    </message>
+    <message>
+        <source>The windows grow and shrink with the subject (track again after switching on)</source>
+        <translation>Вікна збільшуються й зменшуються разом з об'єктом (після ввімкнення відстежте знову)</translation>
+    </message>
+    <message>
+        <source>Rotate</source>
+        <translation>Поворот</translation>
+    </message>
+    <message>
+        <source>The windows turn with the subject (track again after switching on)</source>
+        <translation>Вікна обертаються разом з об'єктом (після ввімкнення відстежте знову)</translation>
+    </message>
+    <message>
+        <source>3D</source>
+        <translation>3D</translation>
+    </message>
+    <message>
+        <source>Width and height follow the subject on their own (track again after switching on)</source>
+        <translation>Ширина й висота йдуть за об'єктом окремо (після ввімкнення відстежте знову)</translation>
+    </message>
+    <message>
+        <source>Clip</source>
+        <translation>Кліп</translation>
+    </message>
+    <message>
+        <source>A run tracks to the end (or start) of the clip</source>
+        <translation>Прохід відстежує до кінця (або початку) кліпу</translation>
+    </message>
+    <message>
+        <source>Frame</source>
+        <translation>Кадр</translation>
+    </message>
+    <message>
+        <source>A run tracks one frame, to correct a track step by step</source>
+        <translation>Прохід відстежує один кадр, щоб виправляти трек крок за кроком</translation>
+    </message>
+    <message>
+        <source>Track Reverse</source>
+        <translation>Трекінг назад</translation>
+    </message>
+    <message>
+        <source>Track Forward</source>
+        <translation>Трекінг уперед</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Стоп</translation>
+    </message>
+    <message>
+        <source>Clear Track</source>
+        <translation>Очистити трек</translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <translation>Режим</translation>
+    </message>
+    <message>
+        <source>Perspective</source>
+        <translation>Перспектива</translation>
+    </message>
+    <message>
+        <source>Similarity</source>
+        <translation>Подібність</translation>
+    </message>
+    <message>
+        <source>Translation</source>
+        <translation>Зсув</translation>
+    </message>
+    <message>
+        <source>Scale up to hide the empty edges the correction leaves</source>
+        <translation>Збільшити, щоб приховати порожні краї після корекції</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Згладжування</translation>
+    </message>
+    <message>
+        <source>0 keeps the camera movement fine, 1 follows only the slow drift</source>
+        <translation>0 зберігає дрібні рухи камери, 1 слідує лише повільному дрейфу</translation>
+    </message>
+    <message>
+        <source>Strength</source>
+        <translation>Сила</translation>
+    </message>
+    <message>
+        <source>Stabilize</source>
+        <translation>Стабілізувати</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Скасувати</translation>
+    </message>
+    <message>
+        <source>Reset Stabilization</source>
+        <translation>Скинути стабілізацію</translation>
+    </message>
+    <message>
+        <source>Tracker Pan</source>
+        <translation>Трекер: Pan</translation>
+    </message>
+    <message>
+        <source>Tracker Tilt</source>
+        <translation>Трекер: Tilt</translation>
+    </message>
+    <message>
+        <source>Tracker Zoom</source>
+        <translation>Трекер: зум</translation>
+    </message>
+    <message>
+        <source>Tracker Rotate</source>
+        <translation>Трекер: поворот</translation>
+    </message>
+    <message>
+        <source>Tracker 3D</source>
+        <translation>Трекер: 3D</translation>
+    </message>
+    <message>
+        <source>Stabilizer Mode</source>
+        <translation>Режим стабілізатора</translation>
+    </message>
+    <message>
+        <source>Stabilizer Zoom</source>
+        <translation>Зум стабілізатора</translation>
+    </message>
+    <message>
+        <source>Stabilizer Smooth</source>
+        <translation>Згладжування стабілізатора</translation>
+    </message>
+    <message>
+        <source>Stabilizer Strength</source>
+        <translation>Сила стабілізатора</translation>
+    </message>
+    <message>
+        <source>Track cleared.</source>
+        <translation>Трек очищено.</translation>
+    </message>
+    <message>
+        <source>Add a window to the node first (Windows palette), then track it.</source>
+        <translation>Спочатку додайте вікно до ноди (палітра «Вікна»), потім відстежте його.</translation>
+    </message>
+    <message>
+        <source>There is no clip to track.</source>
+        <translation>Немає кліпу для відстеження.</translation>
+    </message>
+    <message>
+        <source>Move the playhead onto the clip to track it.</source>
+        <translation>Перемістіть курсор відтворення на кліп, щоб відстежити його.</translation>
+    </message>
+    <message>
+        <source>The playhead is on the last frame; there is nothing to track.</source>
+        <translation>Курсор відтворення на останньому кадрі; відстежувати нічого.</translation>
+    </message>
+    <message>
+        <source>The playhead is on the first frame; there is nothing to track.</source>
+        <translation>Курсор відтворення на першому кадрі; відстежувати нічого.</translation>
+    </message>
+    <message>
+        <source>Cannot track: there is no playback engine.</source>
+        <translation>Неможливо відстежити: немає рушія відтворення.</translation>
+    </message>
+    <message>
+        <source>Cannot track: %1.</source>
+        <translation>Неможливо відстежити: %1.</translation>
+    </message>
+    <message>
+        <source>Cannot track: nothing to track.</source>
+        <translation>Неможливо відстежити: відстежувати нічого.</translation>
+    </message>
+    <message>
+        <source>Tracking forward...</source>
+        <translation>Трекінг уперед...</translation>
+    </message>
+    <message>
+        <source>Tracking in reverse...</source>
+        <translation>Трекінг назад...</translation>
+    </message>
+    <message>
+        <source>Tracking cancelled. The track is unchanged.</source>
+        <translation>Відстеження скасовано. Трек не змінено.</translation>
+    </message>
+    <message>
+        <source>Tracking failed: %1</source>
+        <translation>Не вдалося відстежити: %1</translation>
+    </message>
+    <message>
+        <source>nothing was found.</source>
+        <translation>нічого не знайдено.</translation>
+    </message>
+    <message>
+        <source>The node was removed; the track was dropped.</source>
+        <translation>Ноду видалено; трек відкинуто.</translation>
+    </message>
+    <message>
+        <source>Track Window</source>
+        <translation>Трекінг вікна</translation>
+    </message>
+    <message>
+        <source>Tracked %1 frames.</source>
+        <translation>Відстежено кадрів: %1.</translation>
+    </message>
+    <message>
+        <source>Tracking stopped after %1 frames.</source>
+        <translation>Відстеження зупинено після %1 кадрів.</translation>
+    </message>
+    <message>
+        <source>Tracked %1 frames, then stopped: %2</source>
+        <translation>Відстежено кадрів: %1, потім зупинено: %2</translation>
+    </message>
+    <message>
+        <source>The Mode changed since the analysis. Press Stabilize again.</source>
+        <translation>Режим змінено після аналізу. Натисніть «Стабілізувати» ще раз.</translation>
+    </message>
+    <message>
+        <source>Only clips of video files can be stabilized.</source>
+        <translation>Стабілізувати можна лише кліпи з відеофайлів.</translation>
+    </message>
+    <message>
+        <source>Select a clip to stabilize it.</source>
+        <translation>Виберіть кліп, щоб стабілізувати його.</translation>
+    </message>
+    <message>
+        <source>the media of the clip is missing</source>
+        <translation>медіа кліпу немає</translation>
+    </message>
+    <message>
+        <source>Cannot stabilize: %1.</source>
+        <translation>Неможливо стабілізувати: %1.</translation>
+    </message>
+    <message>
+        <source>Analysing the clip...</source>
+        <translation>Аналіз кліпу...</translation>
+    </message>
+    <message>
+        <source>Stabilization cancelled. The clip is unchanged.</source>
+        <translation>Стабілізацію скасовано. Кліп не змінено.</translation>
+    </message>
+    <message>
+        <source>Stabilize failed: %1.</source>
+        <translation>Не вдалося стабілізувати: %1.</translation>
+    </message>
+    <message>
+        <source>The clip was removed; the result was dropped.</source>
+        <translation>Кліп видалено; результат відкинуто.</translation>
+    </message>
+    <message>
+        <source>Stabilized.</source>
+        <translation>Стабілізовано.</translation>
+    </message>
+    <message>
+        <source>Reset Tracker</source>
+        <translation>Скинути трекер</translation>
     </message>
 </context>
 <context>
@@ -19725,6 +20036,13 @@ Trim the clips so the media covers the transition?</source>
     <message>
         <source>Delete Marker</source>
         <translation>Видалити маркер</translation>
+    </message>
+</context>
+<context>
+    <name>kk::TrackGraph</name>
+    <message>
+        <source>The track: Pan (red), Tilt (green), Zoom (blue), Rotate (yellow)</source>
+        <translation>Трек: Pan (червоний), Tilt (зелений), зум (синій), поворот (жовтий)</translation>
     </message>
 </context>
 <context>

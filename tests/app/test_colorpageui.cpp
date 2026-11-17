@@ -17,6 +17,7 @@
 #include "ui/color/ColorBrowsers.h"
 #include "ui/color/ColorFrameSource.h"
 #include "ui/color/ColorNodeEditor.h"
+#include "ui/color/ColorTracker.h"
 #include "ui/color/ColorPalettes.h"
 #include "ui/color/ColorSession.h"
 #include "ui/color/ColorViewerOverlay.h"
@@ -32,6 +33,7 @@
 
 #include <QAction>
 #include <QApplication>
+#include <QCheckBox>
 #include <QComboBox>
 #include <QFile>
 #include <QLabel>
@@ -48,7 +50,10 @@
 #include <QTreeWidget>
 #include <QUndoStack>
 
+#include <array>
+#include <future>
 #include <memory>
+#include <random>
 
 using namespace kk;
 namespace gk = kk::gradekeys;
@@ -736,6 +741,161 @@ private slots:
         page->showPalette(ColorPage::Palette::Primaries);
         page->restoreLayout(settings);
         QCOMPARE(page->currentPalette(), ColorPage::Palette::Blur);
+    }
+
+    void trackerPalette()
+    {
+        Fixture f;
+        f.showPage();
+        ColorPage* page = f.page();
+        auto* tab = page->findChild<QAbstractButton*>(QStringLiteral("ColorPaletteTab_6"));
+        QVERIFY(tab);
+        QCOMPARE(tab->text(), QStringLiteral("Tracker"));
+        tab->click();
+        QCOMPARE(page->currentPalette(), ColorPage::Palette::Tracker);
+        ColorTrackerPanel* tr = page->tracker();
+        QVERIFY(tr && tr->isVisible());
+        QCOMPARE(tr->mode(), ColorTrackerPanel::Mode::Window);
+        // The window's outline stays on the viewer while the Tracker palette is open.
+        QVERIFY(page->overlay()->windowControls());
+        // Defaults: Pan and Tilt on, Zoom, Rotate and 3D off, Clip mode.
+        QVERIFY(tr->panBox()->isChecked() && tr->tiltBox()->isChecked());
+        QVERIFY(!tr->zoomBox()->isChecked() && !tr->rotateBox()->isChecked()
+            && !tr->perspectiveBox()->isChecked());
+        QVERIFY(tr->clipModeButton()->isChecked() && !tr->frameModeButton()->isChecked());
+        // Nothing to track without a window.
+        QVERIFY(!tr->forwardButton()->isEnabled() && !tr->reverseButton()->isEnabled());
+        QVERIFY(!tr->clearButton()->isEnabled());
+        QVERIFY(!tr->trackFromPlayhead(true));
+        QVERIFY(!tr->status().isEmpty());
+
+        f.session()->addWindow(GradeWindowShape::Circle);
+        const quint64 clip = f.clips[0];
+        const quint64 node = f.session()->selectedNode();
+        f.session()->setWindowParams(0,
+            {{wk::CenterX, 0.5}, {wk::CenterY, 0.5}, {wk::Width, 0.3}, {wk::Height, 0.5}}, QStringLiteral("t"));
+        QVERIFY(tr->forwardButton()->isEnabled() && tr->reverseButton()->isEnabled());
+
+        // The checkboxes are saved in the node, one undo step each.
+        int steps = f.steps();
+        tr->zoomBox()->click();
+        QCOMPARE(f.steps(), steps + 1);
+        QVERIFY(f.grade(clip).node(node)->track.zoom);
+        tr->tiltBox()->click();
+        QVERIFY(!f.grade(clip).node(node)->track.tilt);
+        f.project.undoStack()->undo();
+        QVERIFY(f.grade(clip).node(node)->track.tilt && tr->tiltBox()->isChecked());
+        tr->zoomBox()->click();
+        QVERIFY(!f.grade(clip).node(node)->track.zoom);
+
+        // A picture that slides 1.5 px right and 0.5 px down every frame (320 x 180 timeline).
+        std::vector<std::array<double, 3>> waves; // random plane waves, wavelengths 5 to 20 px
+        std::mt19937 rng(99);
+        std::uniform_real_distribution<double> wl(5.0, 20.0), dir(0.0, 2 * M_PI);
+        for (int i = 0; i < 30; ++i) {
+            const double k = 2 * M_PI / wl(rng), a = dir(rng);
+            waves.push_back({k * std::cos(a), k * std::sin(a), dir(rng)});
+        }
+        tr->setFrameSourceOverride([waves](int64_t frame, QSize size) {
+            QImage img(size, QImage::Format_ARGB32_Premultiplied);
+            const double k = double(size.width()) / 320.0;
+            for (int y = 0; y < size.height(); ++y) {
+                auto* row = reinterpret_cast<QRgb*>(img.scanLine(y));
+                for (int x = 0; x < size.width(); ++x) {
+                    const double px = x / k - 1.5 * frame, py = y / k - 0.5 * frame;
+                    double v = 0.5;
+                    for (const auto& w : waves)
+                        v += 0.07 * std::sin(w[0] * px + w[1] * py + w[2]);
+                    const int g = std::clamp(int(v * 255.0), 0, 255);
+                    row[x] = qRgb(g, g, g);
+                }
+            }
+            auto fr = std::make_shared<RenderedFrame>();
+            fr->frame = frame;
+            fr->size = size;
+            fr->ok = true;
+            fr->image = img;
+            std::promise<RenderedFramePtr> p;
+            p.set_value(fr);
+            return p.get_future();
+        });
+        f.project.timeline()->setPlayhead(0);
+        steps = f.steps();
+        tr->forwardButton()->click();
+        QVERIFY(tr->isTracking());
+        QVERIFY(tr->stopButton()->isEnabled() && !tr->forwardButton()->isEnabled());
+        QTRY_VERIFY_WITH_TIMEOUT(!tr->isTracking(), 60000);
+        QCOMPARE(f.steps(), steps + 1);
+        const GradeTrack t = f.grade(clip).node(node)->track;
+        QCOMPARE(t.samples.size(), 50); // the clip's 50 frames
+        QVERIFY(tr->clearButton()->isEnabled());
+        // The picture slid 1.5 px of 320 per frame: the window followed.
+        const GradeNode* n = f.session()->currentNode();
+        const auto g = grademath::trackedWindowGeometry(*n, n->windows[0], 30, 320.0 / 180.0);
+        QVERIFY2(std::abs(g.cx - (0.5 + 45.0 / 320.0)) < 0.008, qPrintable(QString::number(g.cx)));
+        QVERIFY2(std::abs(g.cy - (0.5 + 15.0 / 180.0)) < 0.012, qPrintable(QString::number(g.cy)));
+        // The overlay draws the window where the track says (the Move handle of the shown
+        // window is hit there, and a drag there edits the stored window by the same amount).
+        f.project.timeline()->setPlayhead(30);
+        QCoreApplication::processEvents();
+        ColorViewerOverlay* ov = page->overlay();
+        const GradeWindow shownWindow = ov->shown(n->windows[0]);
+        QVERIFY(std::abs(shownWindow.value(wk::CenterX, 30) - g.cx) < 1e-9);
+        const QPointF centre = ov->handlePos(shownWindow, ColorViewerOverlay::Handle::Move);
+        QCOMPARE(ov->hitTest(centre).handle, ColorViewerOverlay::Handle::Move);
+        drag(ov, centre, centre + QPointF(20, 0));
+        const GradeNode* after = f.session()->currentNode();
+        const auto moved = grademath::trackedWindowGeometry(*after, after->windows[0], 30, 320.0 / 180.0);
+        QVERIFY(moved.cx > g.cx + 0.001);
+        QVERIFY(std::abs(after->windows[0].value(wk::CenterX, 0) - 0.5) > 0.001);
+        f.project.undoStack()->undo(); // the drag
+        // Undo takes the track away, redo brings it back.
+        f.project.undoStack()->undo();
+        QVERIFY(!f.grade(clip).node(node)->track.hasData());
+        f.project.undoStack()->redo();
+        QVERIFY(f.grade(clip).node(node)->track.hasData());
+        // Clear Track removes the frames and keeps the checkboxes.
+        steps = f.steps();
+        tr->clearButton()->click();
+        QCOMPARE(f.steps(), steps + 1);
+        QVERIFY(!f.grade(clip).node(node)->track.hasData());
+        QVERIFY(f.grade(clip).node(node)->track.pan);
+        QVERIFY(!tr->clearButton()->isEnabled());
+        // Frame mode: one run tracks one frame; Track Reverse works from the playhead.
+        f.project.timeline()->setPlayhead(10);
+        tr->frameModeButton()->click();
+        QVERIFY(tr->frameModeButton()->isChecked());
+        tr->forwardButton()->click();
+        QTRY_VERIFY_WITH_TIMEOUT(!tr->isTracking(), 60000);
+        QCOMPARE(f.grade(clip).node(node)->track.samples.size(), 2);
+        QCOMPARE(f.grade(clip).node(node)->track.firstFrame, int64_t(10));
+        tr->clearButton()->click();
+        tr->clipModeButton()->click();
+        f.project.timeline()->setPlayhead(25);
+        tr->reverseButton()->click();
+        QTRY_VERIFY_WITH_TIMEOUT(!tr->isTracking(), 60000);
+        QCOMPARE(f.grade(clip).node(node)->track.firstFrame, int64_t(0));
+        QCOMPARE(f.grade(clip).node(node)->track.samples.size(), 26);
+        // The graph exists; the Stabilizer mode shows its own controls (a solid clip cannot
+        // be stabilized: Stabilize is off).
+        QVERIFY(tr->graph());
+        tr->modeButton(ColorTrackerPanel::Mode::Stabilizer)->click();
+        QCOMPARE(tr->mode(), ColorTrackerPanel::Mode::Stabilizer);
+        QVERIFY(tr->stabilizerMode()->count() == 3);
+        QVERIFY(!tr->stabilizeButton()->isEnabled());
+        // The palette bar's Reset clears the tracker data of the node.
+        auto* reset = page->findChild<QToolButton*>(QStringLiteral("ColorPaletteReset"));
+        QVERIFY(reset);
+        reset->click();
+        QVERIFY(f.grade(clip).node(node)->track == GradeTrack {});
+        // The layout remembers the palette.
+        QSettings settings;
+        settings.beginGroup(QStringLiteral("colorTrackerLayoutTest"));
+        page->saveLayout(settings);
+        page->showPalette(ColorPage::Palette::Primaries);
+        QVERIFY(!page->overlay()->windowControls());
+        page->restoreLayout(settings);
+        QCOMPARE(page->currentPalette(), ColorPage::Palette::Tracker);
     }
 
     void lutBrowserAndKeyPanel()

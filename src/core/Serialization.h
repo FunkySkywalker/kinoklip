@@ -169,7 +169,9 @@ void animatedPathFromJson(const QJsonObject& o, AnimatedPath& path);
 /// when not default: "label", "enabled", "params" (ParamSet of gradekeys), "curves" ({"luma" |
 /// "red" | "green" | "blue" | "hueHue" | "hueSat" | "hueLum" | "lumSat" | "satSat": [[x, y],
 /// ...]}), "qualifier" (GradeQualifier fields), "windows" ([{"id", "shape", "enabled",
-/// "invert", "params", "points": [[x, y], ...]}]), "lut" (path), "lutInterp" ("trilinear")}.
+/// "invert", "params", "points": [[x, y], ...]}]), "track" ({"first", "pivot", "pan", "tilt",
+/// "zoom", "rotate", "perspective", "samples": dx, dy, sx, sy, rot per frame}), "lut" (path),
+/// "lutInterp" ("trilinear")}.
 [[nodiscard]] QJsonObject gradeToJson(const ClipGrade& grade);
 /// Decodes gradeToJson(); malformed nodes are dropped, ids repaired (unique, non-zero).
 [[nodiscard]] ClipGrade gradeFromJson(const QJsonObject& json);

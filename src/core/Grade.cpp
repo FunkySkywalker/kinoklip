@@ -241,9 +241,34 @@ bool GradeNode::hasKey() const
         windows.cbegin(), windows.cend(), [](const GradeWindow& w) { return w.isRenderable(); });
 }
 
+GradeTrackSample GradeTrack::at(int64_t frame) const
+{
+    if (samples.isEmpty())
+        return {};
+    const int64_t i = std::clamp<int64_t>(frame - firstFrame, 0, samples.size() - 1);
+    return samples[int(i)];
+}
+
+GradeTrackSample GradeTrack::applied(int64_t frame) const
+{
+    GradeTrackSample s = at(frame);
+    if (!pan)
+        s.dx = 0.0;
+    if (!tilt)
+        s.dy = 0.0;
+    if (!zoom) {
+        s.sx = s.sy = 1.0;
+    } else if (!perspective) {
+        s.sx = s.sy = std::sqrt(std::max(1e-6, s.sx * s.sy));
+    }
+    if (!rotate)
+        s.rot = 0.0;
+    return s;
+}
+
 bool GradeNode::isAnimated() const
 {
-    return params.isAnimated()
+    return track.hasData() || params.isAnimated()
         || std::any_of(windows.cbegin(), windows.cend(),
             [](const GradeWindow& w) { return w.params.isAnimated(); });
 }
@@ -251,6 +276,7 @@ bool GradeNode::isAnimated() const
 void GradeNode::shiftKeys(int64_t deltaFrames)
 {
     params.shiftKeys(deltaFrames);
+    track.firstFrame += deltaFrames;
     for (GradeWindow& w : windows)
         w.params.shiftKeys(deltaFrames);
 }
@@ -654,6 +680,7 @@ bool resetNode(ClipGrade& grade, quint64 id)
     n->curves = GradeCurves {};
     n->qualifier = GradeQualifier {};
     n->windows.clear();
+    n->track = GradeTrack {};
     n->lutPath.clear();
     n->lutInterpolation = LutInterpolation::Tetrahedral;
     return true;

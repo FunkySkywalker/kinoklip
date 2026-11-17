@@ -137,6 +137,29 @@ struct PictureGeometry
     double width = 1, height = 1; ///< size of the picture, pixels
 };
 
+/// Position, size and angle of a window (picture fractions, y down; degrees clockwise).
+struct WindowGeometry
+{
+    double cx = 0.5, cy = 0.5;
+    double width = 0.5, height = 0.5;
+    double rotation = 0.0;
+};
+
+/// The geometry of window @p w of @p node at @p localFrame as the picture shows it: the
+/// window's own values moved, scaled and turned by the node's tracker data (GradeTrack) about
+/// the track's pivot. @p aspect is picture width / height. Without tracker data: the window's
+/// values.
+[[nodiscard]] WindowGeometry trackedWindowGeometry(
+    const GradeNode& node, const GradeWindow& w, int64_t localFrame, double aspect);
+/// The inverse: the values a window must store so that it shows as @p shown at @p localFrame
+/// (what a drag in the viewer sets while a track is present).
+[[nodiscard]] WindowGeometry untrackedWindowGeometry(
+    const GradeTrack& track, const WindowGeometry& shown, int64_t localFrame, double aspect);
+/// A copy of @p w whose geometry keys are the constants of trackedWindowGeometry() (what the
+/// viewer overlay draws). @p w itself when the node has no tracker data.
+[[nodiscard]] GradeWindow trackedWindow(
+    const GradeNode& node, const GradeWindow& w, int64_t localFrame, double aspect);
+
 /// The renderable windows of @p node at @p localFrame (at most kMaxGradeWindows, polygons at
 /// most kMaxWindowPoints points) in the pixels of @p geometry.
 [[nodiscard]] std::vector<WindowValues> evaluateWindows(

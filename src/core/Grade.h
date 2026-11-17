@@ -252,6 +252,48 @@ enum class Wheel : quint8 {
 [[nodiscard]] std::pair<double, double> range(const QString& key);
 } // namespace gradekeys
 
+/// One frame of a node's tracker data (Color page Tracker palette): how the tracked subject
+/// moved, turned and grew since the frame the track started on. dx / dy are fractions of the
+/// picture width / height (x right, y down), sx / sy scale factors (1 = unchanged), rot degrees
+/// clockwise.
+struct GradeTrackSample
+{
+    double dx = 0.0;
+    double dy = 0.0;
+    double sx = 1.0;
+    double sy = 1.0;
+    double rot = 0.0;
+    friend bool operator==(const GradeTrackSample&, const GradeTrackSample&) = default;
+};
+
+/// The tracker data of a corrector node: its windows follow the subject. One sample per frame
+/// (clip-local frames for a clip grade, timeline frames for the timeline grade), held at both
+/// ends. The windows keep their own (keyframeable) values; the sample moves, scales and turns
+/// them about `pivot`, the picture fraction the track started from, so a window dragged
+/// afterwards still follows. Empty = no tracker data.
+struct GradeTrack
+{
+    int64_t firstFrame = 0; ///< frame of samples[0]
+    QVector<GradeTrackSample> samples;
+    QPointF pivot {0.5, 0.5}; ///< picture fractions, y down
+    // What the windows take from the track (the Tracker palette's checkboxes). Zoom, Rotate and
+    // 3D need a track made with them on.
+    bool pan = true;
+    bool tilt = true;
+    bool zoom = false;
+    bool rotate = false;
+    bool perspective = false; ///< 3D: Width and Height scale on their own
+    /// True when the node has tracked frames.
+    [[nodiscard]] bool hasData() const { return !samples.isEmpty(); }
+    [[nodiscard]] int64_t lastFrame() const { return firstFrame + samples.size() - 1; }
+    /// The raw sample at @p frame (held at the ends; the identity without data).
+    [[nodiscard]] GradeTrackSample at(int64_t frame) const;
+    /// The sample at @p frame with the checkboxes applied (an unchecked part stays neutral;
+    /// Zoom without 3D scales Width and Height alike).
+    [[nodiscard]] GradeTrackSample applied(int64_t frame) const;
+    friend bool operator==(const GradeTrack&, const GradeTrack&) = default;
+};
+
 /// One node of a grade.
 struct GradeNode
 {
@@ -263,6 +305,7 @@ struct GradeNode
     GradeCurves curves;
     GradeQualifier qualifier;
     QVector<GradeWindow> windows;
+    GradeTrack track; ///< tracker data: the windows follow the subject
     /// .cube LUT applied last in the node (empty = none); absolute path.
     QString lutPath;
     LutInterpolation lutInterpolation = LutInterpolation::Tetrahedral;

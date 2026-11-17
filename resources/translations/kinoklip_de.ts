@@ -396,6 +396,22 @@ Das Programm wurde wahrscheinlich vom System beendet, weil der Arbeitsspeicher d
         <source>/%1  [%2/%3]</source>
         <translation>/%1  [%2/%3]</translation>
     </message>
+    <message>
+        <source>a gradient window has no subject to follow</source>
+        <translation>ein Verlaufsfenster hat kein Motiv zum Verfolgen</translation>
+    </message>
+    <message>
+        <source>the picture has no size</source>
+        <translation>das Bild hat keine Größe</translation>
+    </message>
+    <message>
+        <source>the window is too small</source>
+        <translation>das Fenster ist zu klein</translation>
+    </message>
+    <message>
+        <source>the window is outside the picture</source>
+        <translation>das Fenster liegt außerhalb des Bildes</translation>
+    </message>
 </context>
 <context>
     <name>TimelineRepair</name>
@@ -4021,6 +4037,14 @@ Das Programm wurde wahrscheinlich vom System beendet, weil der Arbeitsspeicher d
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Tracker</source>
+        <translation>Tracker</translation>
+    </message>
+    <message>
+        <source>Track a window so it follows the subject, or stabilize the clip.</source>
+        <translation>Ein Fenster so verfolgen, dass es dem Motiv folgt, oder den Clip stabilisieren.</translation>
+    </message>
+    <message>
         <source>Reset</source>
         <translation>Zurücksetzen</translation>
     </message>
@@ -4158,6 +4182,10 @@ Das Programm wurde wahrscheinlich vom System beendet, weil der Arbeitsspeicher d
         <translation>Window</translation>
     </message>
     <message>
+        <source>Clear Track</source>
+        <translation>Spur löschen</translation>
+    </message>
+    <message>
         <source>Paste Grade</source>
         <translation>Farbkorrektur einfügen</translation>
     </message>
@@ -4168,6 +4196,289 @@ Das Programm wurde wahrscheinlich vom System beendet, weil der Arbeitsspeicher d
     <message>
         <source>Copy Grade</source>
         <translation>Farbkorrektur kopieren</translation>
+    </message>
+</context>
+<context>
+    <name>kk::ColorTrackerPanel</name>
+    <message>
+        <source>Window</source>
+        <translation>Fenster</translation>
+    </message>
+    <message>
+        <source>Stabilizer</source>
+        <translation>Stabilisator</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Pan</translation>
+    </message>
+    <message>
+        <source>The windows follow the subject sideways</source>
+        <translation>Die Fenster folgen dem Motiv seitwärts</translation>
+    </message>
+    <message>
+        <source>Tilt</source>
+        <translation>Tilt</translation>
+    </message>
+    <message>
+        <source>The windows follow the subject up and down</source>
+        <translation>Die Fenster folgen dem Motiv nach oben und unten</translation>
+    </message>
+    <message>
+        <source>Zoom</source>
+        <translation>Zoom</translation>
+    </message>
+    <message>
+        <source>The windows grow and shrink with the subject (track again after switching on)</source>
+        <translation>Die Fenster wachsen und schrumpfen mit dem Motiv (nach dem Einschalten neu verfolgen)</translation>
+    </message>
+    <message>
+        <source>Rotate</source>
+        <translation>Drehen</translation>
+    </message>
+    <message>
+        <source>The windows turn with the subject (track again after switching on)</source>
+        <translation>Die Fenster drehen sich mit dem Motiv (nach dem Einschalten neu verfolgen)</translation>
+    </message>
+    <message>
+        <source>3D</source>
+        <translation>3D</translation>
+    </message>
+    <message>
+        <source>Width and height follow the subject on their own (track again after switching on)</source>
+        <translation>Breite und Höhe folgen dem Motiv getrennt (nach dem Einschalten neu verfolgen)</translation>
+    </message>
+    <message>
+        <source>Clip</source>
+        <translation>Clip</translation>
+    </message>
+    <message>
+        <source>A run tracks to the end (or start) of the clip</source>
+        <translation>Ein Durchlauf verfolgt bis zum Ende (oder Anfang) des Clips</translation>
+    </message>
+    <message>
+        <source>Frame</source>
+        <translation>Frame</translation>
+    </message>
+    <message>
+        <source>A run tracks one frame, to correct a track step by step</source>
+        <translation>Ein Durchlauf verfolgt ein Bild, um eine Spur Schritt für Schritt zu korrigieren</translation>
+    </message>
+    <message>
+        <source>Track Reverse</source>
+        <translation>Rückwärts verfolgen</translation>
+    </message>
+    <message>
+        <source>Track Forward</source>
+        <translation>Vorwärts verfolgen</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Stopp</translation>
+    </message>
+    <message>
+        <source>Clear Track</source>
+        <translation>Spur löschen</translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <translation>Modus</translation>
+    </message>
+    <message>
+        <source>Perspective</source>
+        <translation>Perspektive</translation>
+    </message>
+    <message>
+        <source>Similarity</source>
+        <translation>Ähnlichkeit</translation>
+    </message>
+    <message>
+        <source>Translation</source>
+        <translation>Verschiebung</translation>
+    </message>
+    <message>
+        <source>Scale up to hide the empty edges the correction leaves</source>
+        <translation>Vergrößern, um die leeren Ränder der Korrektur zu verbergen</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Glättung</translation>
+    </message>
+    <message>
+        <source>0 keeps the camera movement fine, 1 follows only the slow drift</source>
+        <translation>0 behält die feine Kamerabewegung, 1 folgt nur der langsamen Drift</translation>
+    </message>
+    <message>
+        <source>Strength</source>
+        <translation>Stärke</translation>
+    </message>
+    <message>
+        <source>Stabilize</source>
+        <translation>Stabilisieren</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Abbrechen</translation>
+    </message>
+    <message>
+        <source>Reset Stabilization</source>
+        <translation>Stabilisierung zurücksetzen</translation>
+    </message>
+    <message>
+        <source>Tracker Pan</source>
+        <translation>Tracker Pan</translation>
+    </message>
+    <message>
+        <source>Tracker Tilt</source>
+        <translation>Tracker Tilt</translation>
+    </message>
+    <message>
+        <source>Tracker Zoom</source>
+        <translation>Tracker Zoom</translation>
+    </message>
+    <message>
+        <source>Tracker Rotate</source>
+        <translation>Tracker Drehen</translation>
+    </message>
+    <message>
+        <source>Tracker 3D</source>
+        <translation>Tracker 3D</translation>
+    </message>
+    <message>
+        <source>Stabilizer Mode</source>
+        <translation>Stabilisator-Modus</translation>
+    </message>
+    <message>
+        <source>Stabilizer Zoom</source>
+        <translation>Stabilisator-Zoom</translation>
+    </message>
+    <message>
+        <source>Stabilizer Smooth</source>
+        <translation>Stabilisator-Glättung</translation>
+    </message>
+    <message>
+        <source>Stabilizer Strength</source>
+        <translation>Stabilisator-Stärke</translation>
+    </message>
+    <message>
+        <source>Track cleared.</source>
+        <translation>Spur gelöscht.</translation>
+    </message>
+    <message>
+        <source>Add a window to the node first (Windows palette), then track it.</source>
+        <translation>Füge dem Node zuerst ein Fenster hinzu (Fenster-Palette) und verfolge es dann.</translation>
+    </message>
+    <message>
+        <source>There is no clip to track.</source>
+        <translation>Es gibt keinen Clip zum Verfolgen.</translation>
+    </message>
+    <message>
+        <source>Move the playhead onto the clip to track it.</source>
+        <translation>Setze den Abspielkopf auf den Clip, um ihn zu verfolgen.</translation>
+    </message>
+    <message>
+        <source>The playhead is on the last frame; there is nothing to track.</source>
+        <translation>Der Abspielkopf steht auf dem letzten Bild; es gibt nichts zu verfolgen.</translation>
+    </message>
+    <message>
+        <source>The playhead is on the first frame; there is nothing to track.</source>
+        <translation>Der Abspielkopf steht auf dem ersten Bild; es gibt nichts zu verfolgen.</translation>
+    </message>
+    <message>
+        <source>Cannot track: there is no playback engine.</source>
+        <translation>Verfolgen nicht möglich: Es gibt keine Wiedergabe-Engine.</translation>
+    </message>
+    <message>
+        <source>Cannot track: %1.</source>
+        <translation>Verfolgen nicht möglich: %1.</translation>
+    </message>
+    <message>
+        <source>Cannot track: nothing to track.</source>
+        <translation>Verfolgen nicht möglich: nichts zu verfolgen.</translation>
+    </message>
+    <message>
+        <source>Tracking forward...</source>
+        <translation>Verfolge vorwärts ...</translation>
+    </message>
+    <message>
+        <source>Tracking in reverse...</source>
+        <translation>Verfolge rückwärts ...</translation>
+    </message>
+    <message>
+        <source>Tracking cancelled. The track is unchanged.</source>
+        <translation>Verfolgung abgebrochen. Die Spur ist unverändert.</translation>
+    </message>
+    <message>
+        <source>Tracking failed: %1</source>
+        <translation>Verfolgung fehlgeschlagen: %1</translation>
+    </message>
+    <message>
+        <source>nothing was found.</source>
+        <translation>nichts wurde gefunden.</translation>
+    </message>
+    <message>
+        <source>The node was removed; the track was dropped.</source>
+        <translation>Der Node wurde entfernt; die Spur wurde verworfen.</translation>
+    </message>
+    <message>
+        <source>Track Window</source>
+        <translation>Fenster verfolgen</translation>
+    </message>
+    <message>
+        <source>Tracked %1 frames.</source>
+        <translation>%1 Bilder verfolgt.</translation>
+    </message>
+    <message>
+        <source>Tracking stopped after %1 frames.</source>
+        <translation>Verfolgung nach %1 Bildern gestoppt.</translation>
+    </message>
+    <message>
+        <source>Tracked %1 frames, then stopped: %2</source>
+        <translation>%1 Bilder verfolgt, dann gestoppt: %2</translation>
+    </message>
+    <message>
+        <source>The Mode changed since the analysis. Press Stabilize again.</source>
+        <translation>Der Modus wurde seit der Analyse geändert. Drücke erneut Stabilisieren.</translation>
+    </message>
+    <message>
+        <source>Only clips of video files can be stabilized.</source>
+        <translation>Nur Clips aus Videodateien können stabilisiert werden.</translation>
+    </message>
+    <message>
+        <source>Select a clip to stabilize it.</source>
+        <translation>Wähle einen Clip, um ihn zu stabilisieren.</translation>
+    </message>
+    <message>
+        <source>the media of the clip is missing</source>
+        <translation>die Medien des Clips fehlen</translation>
+    </message>
+    <message>
+        <source>Cannot stabilize: %1.</source>
+        <translation>Stabilisieren nicht möglich: %1.</translation>
+    </message>
+    <message>
+        <source>Analysing the clip...</source>
+        <translation>Clip wird analysiert ...</translation>
+    </message>
+    <message>
+        <source>Stabilization cancelled. The clip is unchanged.</source>
+        <translation>Stabilisierung abgebrochen. Der Clip ist unverändert.</translation>
+    </message>
+    <message>
+        <source>Stabilize failed: %1.</source>
+        <translation>Stabilisieren fehlgeschlagen: %1.</translation>
+    </message>
+    <message>
+        <source>The clip was removed; the result was dropped.</source>
+        <translation>Der Clip wurde entfernt; das Ergebnis wurde verworfen.</translation>
+    </message>
+    <message>
+        <source>Stabilized.</source>
+        <translation>Stabilisiert.</translation>
+    </message>
+    <message>
+        <source>Reset Tracker</source>
+        <translation>Tracker zurücksetzen</translation>
     </message>
 </context>
 <context>
@@ -19711,6 +20022,13 @@ Die Clips trimmen, damit die Medien den Übergang abdecken?</translation>
     <message>
         <source>Delete Marker</source>
         <translation>Marker löschen</translation>
+    </message>
+</context>
+<context>
+    <name>kk::TrackGraph</name>
+    <message>
+        <source>The track: Pan (red), Tilt (green), Zoom (blue), Rotate (yellow)</source>
+        <translation>Die Spur: Pan (rot), Tilt (grün), Zoom (blau), Drehen (gelb)</translation>
     </message>
 </context>
 <context>

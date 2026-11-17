@@ -139,6 +139,21 @@ public:
     /// Sets the enabled / invert flags of window @p windowId (0: selected).
     bool setWindowFlags(quint64 windowId, bool enabled, bool invert);
 
+    // ---- Tracker data (the Tracker palette) ----
+
+    /// The tracker data of the selected node (empty when there is none).
+    [[nodiscard]] GradeTrack track() const;
+    /// Replaces the tracker data of node @p nodeId (0: selected), one undo step labelled
+    /// @p label. An ungraded clip gets node 01.
+    bool setTrack(quint64 nodeId, const GradeTrack& track, const QString& label);
+    /// Removes the tracked frames of the selected node and keeps its checkboxes.
+    bool clearTrack();
+    /// What a track made now covers: the grade frames the clip (or the timeline) has and the
+    /// number to add to a grade frame to get the timeline frame. False without a grade.
+    bool trackRange(int64_t* firstFrame, int64_t* lastFrame, int64_t* timelineOffset) const;
+    /// Picture width / height the windows are graded on (the timeline frame).
+    [[nodiscard]] double pictureAspect() const;
+
     // ---- Clips strip ----
 
     /// Every graded-able clip of the timeline (video tracks, not subtitles) in timeline order

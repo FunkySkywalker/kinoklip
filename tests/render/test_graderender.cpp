@@ -211,6 +211,22 @@ class TestGradeRender : public QObject
                     {gk::MistScaling, 1.0}})});
         }
         {
+            // Tracker palette (spec 107): a tracked circle window, moved, grown and turned, on
+            // the GPU path and the CPU reference alike (both read the same evaluated window).
+            ClipGrade g = primariesGrade({{gk::GainR, 1.6}, {gk::GainG, 1.6}, {gk::GainB, 1.6}, {gk::BlurRadiusR, 1.0},
+                {gk::BlurRadiusG, 1.0}, {gk::BlurRadiusB, 1.0}, {gk::BlurScaling, 1.0}});
+            const quint64 circle = go::addWindow(g, g.nodes[0].id, GradeWindowShape::Linear);
+            g.window(circle)->params.setBase(wk::CenterX, 0.4);
+            g.window(circle)->params.setBase(wk::Width, 0.3);
+            g.window(circle)->params.setBase(wk::Height, 0.4);
+            g.window(circle)->params.setBase(wk::SoftOut, 0.05);
+            GradeTrack& t = g.nodes[0].track;
+            t.pivot = QPointF(0.4, 0.5);
+            t.zoom = t.rotate = true;
+            t.samples = {{0.2, 0.1, 1.3, 1.3, 25.0}};
+            out.append({QStringLiteral("tracked_window"), g});
+        }
+        {
             ClipGrade g = primariesGrade({});
             g.nodes[0].lutPath = m_lut3d;
             out.append({QStringLiteral("lut3d_tetrahedral"), g});

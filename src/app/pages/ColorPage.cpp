@@ -10,6 +10,7 @@
 #include "playback/PlaybackEngine.h"
 #include "ui/color/ColorBrowsers.h"
 #include "ui/color/ColorFrameSource.h"
+#include "ui/color/ColorTracker.h"
 #include "ui/color/ColorNodeEditor.h"
 #include "ui/color/ColorPalettes.h"
 #include "ui/color/ColorSession.h"
@@ -401,11 +402,15 @@ QWidget* ColorPage::buildPalettes()
     setPanelInfo(m_blur, tr("Blur"),
         tr("Blur, Sharpen and Mist the current node's picture; windows and the qualifier limit "
            "it."));
+    m_tracker = new ColorTrackerPanel(m_session, m_ctx.playback, m_ctx.project);
+    setPanelInfo(m_tracker, tr("Tracker"),
+        tr("Track a window so it follows the subject, or stabilize the clip."));
     m_paletteStack = new QStackedWidget;
     m_paletteStack->setObjectName(QStringLiteral("ColorPaletteStack"));
     for (QWidget* w : {static_cast<QWidget*>(m_primaries), static_cast<QWidget*>(m_curves),
              static_cast<QWidget*>(m_qualifier), static_cast<QWidget*>(m_windows),
-             static_cast<QWidget*>(m_luts), static_cast<QWidget*>(m_blur)})
+             static_cast<QWidget*>(m_luts), static_cast<QWidget*>(m_blur),
+             static_cast<QWidget*>(m_tracker)})
         m_paletteStack->addWidget(w);
     auto* box = new QWidget;
     box->setObjectName(QStringLiteral("ColorPalettes"));
@@ -414,7 +419,7 @@ QWidget* ColorPage::buildPalettes()
     l->setSpacing(0);
     m_paletteButtons = new QButtonGroup(this);
     QWidget* bar = tabRow(m_paletteButtons,
-        {tr("Primaries"), tr("Curves"), tr("Qualifier"), tr("Windows"), tr("LUTs"), tr("Blur")},
+        {tr("Primaries"), tr("Curves"), tr("Qualifier"), tr("Windows"), tr("LUTs"), tr("Blur"), tr("Tracker")},
         QStringLiteral("ColorPaletteTab_"), box);
     // The primaries reset sits at the right of the bar (like Resolve's palette reset).
     auto* reset = new QToolButton(bar);
@@ -449,6 +454,9 @@ QWidget* ColorPage::buildPalettes()
         case Palette::Blur:
             m_blur->resetAll();
             break;
+        case Palette::Tracker:
+            m_tracker->resetAll();
+            break;
         }
     });
     l->addWidget(bar);
@@ -466,7 +474,7 @@ void ColorPage::showPalette(Palette palette)
     m_paletteStack->setCurrentIndex(int(palette));
     if (QAbstractButton* b = m_paletteButtons->button(int(palette)); b && !b->isChecked())
         b->setChecked(true);
-    m_overlay->setWindowControls(palette == Palette::Windows);
+    m_overlay->setWindowControls(palette == Palette::Windows || palette == Palette::Tracker);
 }
 
 ColorPage::Palette ColorPage::currentPalette() const
@@ -900,7 +908,7 @@ void ColorPage::restoreLayout(const QSettings& settings)
     m_rows->restoreState(settings.value(QStringLiteral("rows")).toByteArray());
     m_top->restoreState(settings.value(QStringLiteral("top")).toByteArray());
     m_bottom->restoreState(settings.value(QStringLiteral("bottom")).toByteArray());
-    showPalette(Palette(std::clamp(settings.value(QStringLiteral("palette"), 0).toInt(), 0, 5)));
+    showPalette(Palette(std::clamp(settings.value(QStringLiteral("palette"), 0).toInt(), 0, 6)));
     m_primaries->setBarsMode(settings.value(QStringLiteral("bars"), false).toBool());
     const int right = std::clamp(settings.value(QStringLiteral("rightTab"), 0).toInt(), 0, 1);
     m_rightStack->setCurrentIndex(right);

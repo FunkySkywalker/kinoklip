@@ -74,6 +74,9 @@ Decisions:
 - **Blur palette** (spec 106): a corrector with blur values keeps `G` = primaries -> curves -> LUT
   on the whole picture, then the Blur, Sharpen and Mist stages (Gaussian per channel, sigma in
   fractions of the picture height), and mixes `O = I + (B - I) k`.
+- **Tracker palette** (spec 107): the node's tracker data (`GradeTrack`) moves, scales and turns
+  every window of the node about the track's pivot before the window matte is evaluated
+  (`grademath::trackedWindowGeometry`, used by the GPU pass, the CPU reference and the overlay).
 - **Parallel mixer**: the equal average of its inputs' outputs (at most 8 inputs).
 - **Layer mixer**: input 0 at the bottom; every further input `i` laid over the result `R` with
   its key: `R = (1 - k) R + k I_i + (O_i - I_i)` (= `mix(R, G_i, k)` without dividing by `k`).

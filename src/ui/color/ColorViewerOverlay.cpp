@@ -6,6 +6,7 @@
 #include "core/Project.h"
 #include "core/Timeline.h"
 #include "render/TimelineEval.h"
+#include "core/GradeMath.h"
 #include "ui/color/ColorSession.h"
 #include "ui/common/ClipGeometry.h"
 #include "ui/viewer/ViewerSurface.h"
@@ -142,6 +143,69 @@ std::optional<QTransform> ColorViewerOverlay::pictureToWidget(QSizeF* pictureSiz
     return QTransform::fromTranslate(-content.width() / 2, -content.height() / 2)
         * render::clipTransform(*clip, local, frame, true, m_project->timeline()->data().fps)
         * frameToWidget;
+}
+
+GradeWindow ColorViewerOverlay::shown(const GradeWindow& w) const
+{
+    const GradeNode* n = m_session ? m_session->currentNode() : nullptr;
+    QSizeF size;
+    if (!n || !n->track.hasData() || !pictureToWidget(&size) || size.height() <= 0)
+        return w;
+    return grademath::trackedWindow(
+        *n, w, m_session->gradeFrame(), size.width() / size.height());
+}
+
+bool ColorViewerOverlay::setShownParams(
+    const QVector<std::pair<QString, double>>& values, const QString& label)
+{
+    const GradeNode* n = m_session ? m_session->currentNode() : nullptr;
+    QSizeF size;
+    if (!n || !n->track.hasData() || !pictureToWidget(&size) || size.height() <= 0)
+        return m_session && m_session->setWindowParams(m_drag.window, values, label);
+    const int64_t f = m_session->gradeFrame();
+    const GradeWindow& w = m_pressWindow; // already shown
+    grademath::WindowGeometry g;
+    g.cx = w.value(wk::CenterX, f);
+    g.cy = w.value(wk::CenterY, f);
+    g.width = w.value(wk::Width, f);
+    g.height = w.value(wk::Height, f);
+    g.rotation = w.value(wk::Rotation, f);
+    bool centre = false;
+    for (const auto& [key, v] : values) {
+        if (key == wk::CenterX) {
+            g.cx = v;
+            centre = true;
+        } else if (key == wk::CenterY) {
+            g.cy = v;
+            centre = true;
+        } else if (key == wk::Width) {
+            g.width = v;
+        } else if (key == wk::Height) {
+            g.height = v;
+        } else if (key == wk::Rotation) {
+            g.rotation = v;
+        }
+    }
+    const grademath::WindowGeometry r
+        = grademath::untrackedWindowGeometry(n->track, g, f, size.width() / size.height());
+    QVector<std::pair<QString, double>> out;
+    for (const auto& [key, v] : values) {
+        if (key == wk::CenterX || key == wk::CenterY)
+            continue;
+        double stored = v;
+        if (key == wk::Width)
+            stored = r.width;
+        else if (key == wk::Height)
+            stored = r.height;
+        else if (key == wk::Rotation)
+            stored = r.rotation;
+        out.append(std::pair<QString, double>(key, stored));
+    }
+    if (centre) {
+        out.append(std::pair<QString, double>(wk::CenterX, r.cx));
+        out.append(std::pair<QString, double>(wk::CenterY, r.cy));
+    }
+    return m_session->setWindowParams(m_drag.window, out, label);
 }
 
 std::optional<QTransform> ColorViewerOverlay::windowToWidget(const GradeWindow& w) const
@@ -283,7 +347,9 @@ ColorViewerOverlay::HandleHit ColorViewerOverlay::hitTest(QPointF pos) const
         return hit;
     auto near = [&](QPointF p) { return !p.isNull() && length(p - pos) <= kHandlePick; };
     // The selected window's handles first.
-    if (const GradeWindow* w = m_session->window()) {
+    if (const GradeWindow* raw = m_session->window()) {
+        const GradeWindow shownWindow = shown(*raw);
+        const GradeWindow* w = &shownWindow;
         if (w->shape == GradeWindowShape::Polygon) {
             for (int i = 0; i < w->points.size(); ++i) {
                 if (near(handlePos(*w, Handle::Point, i)))
@@ -297,14 +363,15 @@ ColorViewerOverlay::HandleHit ColorViewerOverlay::hitTest(QPointF pos) const
         }
     }
     // Inside a window (the selected one first) moves it; a gradient is grabbed at its line.
-    QVector<const GradeWindow*> order;
+    QVector<GradeWindow> order;
     if (const GradeWindow* sel = m_session->window())
-        order.append(sel);
-    for (const GradeWindow& w : n->windows) {
-        if (!order.contains(&w))
-            order.append(&w);
+        order.append(shown(*sel));
+    for (const GradeWindow& raw : n->windows) {
+        if (raw.id != m_session->selectedWindow())
+            order.append(shown(raw));
     }
-    for (const GradeWindow* w : std::as_const(order)) {
+    for (const GradeWindow& shownWindow : std::as_const(order)) {
+        const GradeWindow* w = &shownWindow;
         const auto toW = windowToWidget(*w);
         if (!toW)
             continue;
@@ -434,7 +501,7 @@ void ColorViewerOverlay::paintEvent(QPaintEvent*)
     if (m_windowControls && m_session) {
         if (const GradeNode* n = m_session->currentNode()) {
             for (const GradeWindow& w : n->windows)
-                paintWindow(p, w, w.id == m_session->selectedWindow());
+                paintWindow(p, shown(w), w.id == m_session->selectedWindow());
         }
     }
     if (m_picking) {
@@ -479,7 +546,7 @@ void ColorViewerOverlay::mousePressEvent(QMouseEvent* event)
         if (!w || !toW)
             return;
         m_drag = hit;
-        m_pressWindow = *w;
+        m_pressWindow = shown(*w);
         m_pressToWidget = *toW;
         m_session->beginGesture(tr("Window"));
         return;
@@ -517,24 +584,21 @@ void ColorViewerOverlay::applyDrag(QPointF pos)
     switch (m_drag.handle) {
     case Handle::Move: {
         const QPointF d = picPos - picPress;
-        m_session->setWindowParams(m_drag.window,
+        setShownParams(
             {{wk::CenterX, cx + d.x() / size.width()}, {wk::CenterY, cy + d.y() / size.height()}},
             tr("Move Window"));
         break;
     }
     case Handle::Width:
-        m_session->setWindowParams(
-            m_drag.window, {{wk::Width, 2 * std::abs(lp.x()) / size.width()}}, tr("Window Size"));
+        setShownParams({{wk::Width, 2 * std::abs(lp.x()) / size.width()}}, tr("Window Size"));
         break;
     case Handle::Height:
-        m_session->setWindowParams(
-            m_drag.window, {{wk::Height, 2 * std::abs(lp.y()) / size.height()}}, tr("Window Size"));
+        setShownParams({{wk::Height, 2 * std::abs(lp.y()) / size.height()}}, tr("Window Size"));
         break;
     case Handle::Corner: {
         const QPointF lp0 = toLocal.map(picPress);
         const double k = length(lp) / std::max(1e-6, length(lp0));
-        m_session->setWindowParams(
-            m_drag.window, {{wk::Width, w0 * k}, {wk::Height, h0 * k}}, tr("Window Size"));
+        setShownParams({{wk::Width, w0 * k}, {wk::Height, h0 * k}}, tr("Window Size"));
         break;
     }
     case Handle::Rotate: {
@@ -545,7 +609,7 @@ void ColorViewerOverlay::applyDrag(QPointF pos)
         double deg = std::atan2(v.x(), -v.y()) * 180.0 / std::numbers::pi;
         if (QGuiApplication::keyboardModifiers() & Qt::ShiftModifier)
             deg = std::round(deg / 15.0) * 15.0;
-        m_session->setWindowParams(m_drag.window, {{wk::Rotation, deg}}, tr("Rotate Window"));
+        setShownParams({{wk::Rotation, deg}}, tr("Rotate Window"));
         break;
     }
     case Handle::Soft: {
@@ -648,9 +712,11 @@ void ColorViewerOverlay::mouseDoubleClickEvent(QMouseEvent* event)
     // Double-click on a polygon edge inserts a point there.
     if (!m_windowControls || !m_session)
         return;
-    const GradeWindow* w = m_session->window();
-    if (!w || w->shape != GradeWindowShape::Polygon || w->points.size() >= kMaxWindowPoints)
+    const GradeWindow* raw = m_session->window();
+    if (!raw || raw->shape != GradeWindowShape::Polygon || raw->points.size() >= kMaxWindowPoints)
         return;
+    const GradeWindow shownWindow = shown(*raw);
+    const GradeWindow* w = &shownWindow;
     const QPointF pos = event->position();
     int best = -1;
     double bestDist = 8.0;

@@ -529,6 +529,67 @@ bool ColorSession::setWindowFlags(quint64 windowId, bool enabled, bool invert)
     });
 }
 
+GradeTrack ColorSession::track() const
+{
+    const GradeNode* n = m_grade.node(m_selected);
+    return n ? n->track : GradeTrack {};
+}
+
+bool ColorSession::setTrack(quint64 nodeId, const GradeTrack& track, const QString& label)
+{
+    if (!hasGrade())
+        return false;
+    quint64 node = 0;
+    ClipGrade g = editableGrade(nodeId, &node);
+    GradeNode* n = g.node(node);
+    if (!n || n->isMixer())
+        return false;
+    n->track = track;
+    if (g == m_grade)
+        return false;
+    return commit(g, label);
+}
+
+bool ColorSession::clearTrack()
+{
+    GradeTrack t = track();
+    if (!t.hasData())
+        return false;
+    t.samples.clear();
+    t.firstFrame = 0;
+    return setTrack(0, t, tr("Clear Track"));
+}
+
+bool ColorSession::trackRange(int64_t* firstFrame, int64_t* lastFrame, int64_t* timelineOffset) const
+{
+    if (!hasGrade())
+        return false;
+    const TimelineData& data = m_ctx.project->timeline()->data();
+    int64_t first = 0, last = 0, offset = 0;
+    if (m_target == Target::Timeline) {
+        last = std::max<int64_t>(0, data.duration() - 1);
+    } else {
+        const ClipData* c = editops::clipById(data, m_clipId);
+        if (!c)
+            return false;
+        last = std::max<int64_t>(0, c->duration - 1);
+        offset = c->start;
+    }
+    if (firstFrame)
+        *firstFrame = first;
+    if (lastFrame)
+        *lastFrame = last;
+    if (timelineOffset)
+        *timelineOffset = offset;
+    return true;
+}
+
+double ColorSession::pictureAspect() const
+{
+    const TimelineData& data = m_ctx.project->timeline()->data();
+    return data.height > 0 ? double(data.width) / data.height : 16.0 / 9.0;
+}
+
 QVector<quint64> ColorSession::stripClips() const
 {
     struct Entry

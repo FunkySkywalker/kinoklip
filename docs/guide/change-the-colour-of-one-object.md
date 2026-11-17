@@ -106,15 +106,30 @@ The same window can blur part of the picture, for example a face or a licence pl
    only one way, **Scaling** makes the blur larger or smaller. The **Sharpen** and **Mist**
    buttons at the top of the palette sharpen the picture or add a soft glow in the same way.
 
-The window does not follow a moving face yet (see the tip below).
+## Make the window follow a moving face
+
+1. Put the playhead on the first frame where the face is, and draw the window around it (a
+   **Circle** works well) on its own node. Make the window a little smaller than the face.
+2. Open the **Tracker** palette (the tab after **Blur**) and press **Track Forward**. The window
+   follows the face to the end of the clip; the graph shows the track. **Track Reverse** does the
+   same backwards from the playhead.
+3. Switch on **Zoom** and **Rotate** before tracking if the face gets closer or turns (**3D**
+   lets width and height change on their own). Switch off **Pan** or **Tilt** to follow only
+   one direction.
+4. Play the clip: the **Blur** is under the window all the time, in the viewer and in the
+   export. If the window slips off, move the playhead there, fix the window and press **Track
+   Forward** again; **Frame** instead of **Clip** tracks one frame per press. **Clear Track**
+   starts over.
+
+The **Stabilizer** button at the top of the palette steadies the whole clip instead
+(**Stabilize**, then **Smooth**, **Strength** and **Zoom** to taste).
 
 ## Tips
 
 - **The node marks:** nodes with a qualifier show **Q**, nodes with a window **W**.
 - **Undo** any step with **Ctrl+Z**. To remove a node, select it and press **Delete**.
-- **A window does not follow movement yet** (there is no tracker). If the object moves, make
-  the window big enough to cover it for the whole clip, with a soft edge, or split the clip and
-  place the window again in each part.
+- **A window follows movement** with the Tracker palette (see above). If the tracking is lost
+  (a hand in front of the face), track up to there, place the window again and track on.
 - **Other node types:** **Alt+P** adds a parallel node (two nodes that both work on the same
   picture, their results mixed equally) and **Alt+L** a layer node (each node's change laid
   over the one before, the last on top). For most work, serial nodes are all you need.
