@@ -38,6 +38,9 @@ if [ -z "$NOTES" ]; then
     trap 'rm -f "$NOTES"' EXIT
     LAST="$(git describe --tags --abbrev=0 --match 'v*' "$COMMIT")"
     {
+        # The dev icon on top (resources/icons/app/kinoklip-dev.aseprite), from the dev build's commit.
+        echo "<img src=\"https://raw.githubusercontent.com/SeniorMatt/kinoklip/$COMMIT/resources/icons/app/kinoklip-dev-128.png\" width=\"96\" alt=\"Kinoklip Dev icon\">"
+        echo
         echo "**Development build, not tested.** $STAMP, built $(date -u +%F)."
         echo
         echo "For trying new work before the next release. It can break things: keep backups of"
@@ -53,10 +56,10 @@ git tag -f "$TAG" "$COMMIT" >/dev/null
 git push -q -f origin "refs/tags/$TAG"
 
 if gh release view "$TAG" >/dev/null 2>&1; then
-    gh release edit "$TAG" --title "Kinoklip dev build ($COMMIT)" --notes-file "$NOTES" \
+    gh release edit "$TAG" --title "Kinoklip Dev build ($COMMIT)" --notes-file "$NOTES" \
         --prerelease --latest=false --draft=false >/dev/null
 else
-    gh release create "$TAG" --verify-tag --title "Kinoklip dev build ($COMMIT)" \
+    gh release create "$TAG" --verify-tag --title "Kinoklip Dev build ($COMMIT)" \
         --notes-file "$NOTES" --prerelease --latest=false >/dev/null
 fi
 # The AppImage first, the .zsync last: an updater that reads the new .zsync finds the new file.

@@ -7,6 +7,7 @@ without Aseprite and run this script on the result:
 
     scripts/aseprite_to_png.py resources/icons/app/kinoklip.aseprite icon.png --scale 2
     scripts/make_app_icons.py icon.png
+    scripts/make_app_icons.py dev-icon.png kinoklip-dev   # the dev build's icon (kinoklip-dev.aseprite)
 
 (an Aseprite export at any integer scale works as well). Sizes that are multiples of 64 are
 scaled with nearest neighbour (crisp pixels); the small sizes (16, 24, 32, 48) are
@@ -23,9 +24,10 @@ OUT = Path(__file__).resolve().parent.parent / "resources" / "icons" / "app"
 
 
 def main() -> int:
-    if len(sys.argv) != 2:
+    if len(sys.argv) not in (2, 3):
         print(__doc__)
         return 2
+    name = sys.argv[2] if len(sys.argv) == 3 else "kinoklip"
     src = Image.open(sys.argv[1]).convert("RGBA")
     if src.width != src.height or src.width % GRID:
         print(f"expected a square export at a multiple of {GRID} px, got {src.size}")
@@ -36,8 +38,8 @@ def main() -> int:
         return 1
     for size in SIZES:
         method = Image.NEAREST if size % GRID == 0 else Image.BOX
-        art.resize((size, size), method).save(OUT / f"kinoklip-{size}.png", optimize=True)
-        print(OUT / f"kinoklip-{size}.png")
+        art.resize((size, size), method).save(OUT / f"{name}-{size}.png", optimize=True)
+        print(OUT / f"{name}-{size}.png")
     return 0
 
 
