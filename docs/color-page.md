@@ -71,6 +71,9 @@ Decisions:
 - **Corrector**: input `I`, graded `G` = primaries -> curves -> LUT; key `k` = qualifier of `I` x
   window matte x Mix; output `O = I + (G - I) k`. A bypassed node outputs `I` (and has key 0
   under a Layer mixer).
+- **Blur palette** (spec 106): a corrector with blur values keeps `G` = primaries -> curves -> LUT
+  on the whole picture, then the Blur, Sharpen and Mist stages (Gaussian per channel, sigma in
+  fractions of the picture height), and mixes `O = I + (B - I) k`.
 - **Parallel mixer**: the equal average of its inputs' outputs (at most 8 inputs).
 - **Layer mixer**: input 0 at the bottom; every further input `i` laid over the result `R` with
   its key: `R = (1 - k) R + k I_i + (O_i - I_i)` (= `mix(R, G_i, k)` without dividing by `k`).

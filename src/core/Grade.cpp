@@ -2,6 +2,8 @@
 // Grade — key defaults, node helpers and the graph operations of the Color page node editor.
 #include "core/Grade.h"
 
+#include "core/GradeMath.h"
+
 #include <QCoreApplication>
 #include <QHash>
 
@@ -134,14 +136,34 @@ double defaultValue(QStringView key)
         return 1.0;
     if (key == Pivot)
         return 0.435; // Resolve's default contrast pivot (log-ish mid grey)
+    if (key.startsWith(u"blur") || key.startsWith(u"sharp") || key.startsWith(u"mist")) {
+        if (key == SharpCoring || key == MistRadius)
+            return 0.0;
+        return 0.5; // radii, ratios, scalings, sharpen level, mist mix
+    }
     return 0.0;
+}
+
+const QVector<QString>& blurKeys()
+{
+    static const QVector<QString> keys = {BlurRadiusR, BlurRadiusG, BlurRadiusB, BlurRatio,
+        BlurScaling, SharpRadiusR, SharpRadiusG, SharpRadiusB, SharpRatio, SharpScaling,
+        SharpCoring, SharpLevel, MistRadius, MistRatio, MistScaling, MistMix};
+    return keys;
+}
+
+bool isBlurKey(QStringView key)
+{
+    return key.startsWith(u"blur") || key.startsWith(u"sharp") || key.startsWith(u"mist");
 }
 
 const QVector<QString>& allKeys()
 {
     static const QVector<QString> keys = {LiftR, LiftG, LiftB, LiftY, GammaR, GammaG, GammaB,
         GammaY, GainR, GainG, GainB, GainY, OffsetR, OffsetG, OffsetB, OffsetY, Contrast, Pivot,
-        Saturation, Hue, Temperature, Tint, LumMix, Mix};
+        Saturation, Hue, Temperature, Tint, LumMix, Mix, BlurRadiusR, BlurRadiusG, BlurRadiusB,
+        BlurRatio, BlurScaling, SharpRadiusR, SharpRadiusG, SharpRadiusB, SharpRatio, SharpScaling,
+        SharpCoring, SharpLevel, MistRadius, MistRatio, MistScaling, MistMix};
     return keys;
 }
 
@@ -159,6 +181,22 @@ QString label(const QString& key)
         }
     }
     const std::pair<const QString*, const char*> named[] = {
+        {&BlurRadiusR, QT_TRANSLATE_NOOP("kk::gradekeys", "Blur Radius R")},
+        {&BlurRadiusG, QT_TRANSLATE_NOOP("kk::gradekeys", "Blur Radius G")},
+        {&BlurRadiusB, QT_TRANSLATE_NOOP("kk::gradekeys", "Blur Radius B")},
+        {&BlurRatio, QT_TRANSLATE_NOOP("kk::gradekeys", "Blur H/V Ratio")},
+        {&BlurScaling, QT_TRANSLATE_NOOP("kk::gradekeys", "Blur Scaling")},
+        {&SharpRadiusR, QT_TRANSLATE_NOOP("kk::gradekeys", "Sharpen Radius R")},
+        {&SharpRadiusG, QT_TRANSLATE_NOOP("kk::gradekeys", "Sharpen Radius G")},
+        {&SharpRadiusB, QT_TRANSLATE_NOOP("kk::gradekeys", "Sharpen Radius B")},
+        {&SharpRatio, QT_TRANSLATE_NOOP("kk::gradekeys", "Sharpen H/V Ratio")},
+        {&SharpScaling, QT_TRANSLATE_NOOP("kk::gradekeys", "Sharpen Scaling")},
+        {&SharpCoring, QT_TRANSLATE_NOOP("kk::gradekeys", "Coring Softness")},
+        {&SharpLevel, QT_TRANSLATE_NOOP("kk::gradekeys", "Sharpen Level")},
+        {&MistRadius, QT_TRANSLATE_NOOP("kk::gradekeys", "Mist Radius")},
+        {&MistRatio, QT_TRANSLATE_NOOP("kk::gradekeys", "Mist H/V Ratio")},
+        {&MistScaling, QT_TRANSLATE_NOOP("kk::gradekeys", "Mist Scaling")},
+        {&MistMix, QT_TRANSLATE_NOOP("kk::gradekeys", "Mist Mix")},
         {&Contrast, QT_TRANSLATE_NOOP("kk::gradekeys", "Contrast")},
         {&Pivot, QT_TRANSLATE_NOOP("kk::gradekeys", "Pivot")},
         {&Saturation, QT_TRANSLATE_NOOP("kk::gradekeys", "Saturation")},
@@ -184,7 +222,7 @@ std::pair<double, double> range(const QString& key)
         return {-1.0, 1.0};
     if (key == Contrast || key == Saturation)
         return {0.0, 4.0};
-    if (key == Pivot || key == LumMix || key == Mix)
+    if (key == Pivot || key == LumMix || key == Mix || isBlurKey(key))
         return {0.0, 1.0};
     if (key == Hue)
         return {-180.0, 180.0};
@@ -427,12 +465,13 @@ bool isNodeIdentity(const GradeNode& node, int64_t localFrame)
     if (!node.lutPath.isEmpty() || !node.curves.isIdentity())
         return false;
     for (const QString& key : gradekeys::allKeys()) {
-        if (key == gradekeys::Pivot || key == gradekeys::LumMix || key == gradekeys::Mix)
-            continue; // only matter together with another value
+        if (key == gradekeys::Pivot || key == gradekeys::LumMix || key == gradekeys::Mix
+            || gradekeys::isBlurKey(key))
+            continue; // only matter together with another value (blur: checked below)
         if (node.value(key, localFrame) != gradekeys::defaultValue(key))
             return false;
     }
-    return true;
+    return !grademath::BlurValues::at(node, localFrame, 1080.0).active();
 }
 
 bool isIdentity(const ClipGrade& grade, int64_t localFrame)

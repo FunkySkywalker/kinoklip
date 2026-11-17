@@ -28,7 +28,7 @@ uniform sampler2D uCurves;
 uniform sampler3D uLut3d;
 uniform sampler2D uLut1d;
 uniform sampler2D uPoints;
-uniform int uMode;        // 0 = graded picture, 1 = the key (alpha for a Layer mixer)
+uniform int uMode;        // 0 = graded picture, 1 = the key (alpha for a Layer mixer), 2 = ungated
 uniform int uCorrects;
 uniform int uPrimaries;
 uniform vec4 uLift, uGamma, uGain, uOffset;
@@ -310,10 +310,29 @@ float windowsMatte(vec2 p)
     return m;
 }
 
+vec3 correct(vec3 c)
+{
+    vec3 g = c;
+    if (uCorrects != 0) {
+        if (uPrimaries != 0)
+            g = primaries(g);
+        if (uCurveMask != 0)
+            g = curves(g);
+        if (uLutMode != 0)
+            g = lut(g);
+    }
+    return g;
+}
+
 void main()
 {
     vec4 src = texelFetch(uInput, ivec2(gl_FragCoord.xy), 0);
     vec3 c = src.a > 0.0 ? src.rgb / src.a : vec3(0.0);
+    if (uMode == 2) {
+        // The node's colour corrections on the whole picture (a blur follows, the key mixes).
+        fragColor = vec4(correct(c) * src.a, src.a);
+        return;
+    }
     float key = uMix;
     if (uKeyed != 0)
         key *= qualifierKey(c) * windowsMatte(gl_FragCoord.xy);
@@ -322,14 +341,8 @@ void main()
         return;
     }
     vec3 g = c;
-    if (uCorrects != 0 && key > 0.0) {
-        if (uPrimaries != 0)
-            g = primaries(g);
-        if (uCurveMask != 0)
-            g = curves(g);
-        if (uLutMode != 0)
-            g = lut(g);
-    }
+    if (key > 0.0)
+        g = correct(c);
     vec3 o = c + (g - c) * key;
     fragColor = vec4(o * src.a, src.a);
 }
@@ -380,6 +393,73 @@ void main()
 }
 )";
 
+// Blur palette (grademath::BlurStage). One separable pass: the Gaussian of uRadius taps each
+// side along uDir on the premultiplied picture (edges clamped), the same weights as
+// grademath::blurKernel().
+const char* const kBlurSource = R"(
+uniform sampler2D uSrc;
+uniform ivec2 uDir;
+uniform int uRadius;
+uniform float uSigma;
+void main()
+{
+    ivec2 p = ivec2(gl_FragCoord.xy);
+    if (uRadius <= 0) {
+        fragColor = texelFetch(uSrc, p, 0);
+        return;
+    }
+    ivec2 hi = textureSize(uSrc, 0) - ivec2(1);
+    vec4 acc = vec4(0.0);
+    float sum = 0.0;
+    for (int k = -uRadius; k <= uRadius; ++k) {
+        float w = exp(-float(k * k) / (2.0 * uSigma * uSigma));
+        acc += w * texelFetch(uSrc, clamp(p + uDir * k, ivec2(0), hi), 0);
+        sum += w;
+    }
+    fragColor = acc / sum;
+}
+)";
+
+// Puts the blurred pictures back (blurCombine()): per channel c + (b - c) mix + (c - b) sharp
+// coring, b the straight colour of the blurred premultiplied picture of that channel.
+const std::string kBlurCombineSource = std::string(R"(
+uniform sampler2D uSrc, uB0, uB1, uB2;
+uniform vec3 uMix, uSharp;
+uniform float uCoring;
+void main()
+{
+    ivec2 p = ivec2(gl_FragCoord.xy);
+    vec4 s = texelFetch(uSrc, p, 0);
+    if (s.a <= 0.0) {
+        fragColor = s;
+        return;
+    }
+    vec3 c = s.rgb / s.a;
+    vec4 q0 = texelFetch(uB0, p, 0);
+    vec4 q1 = texelFetch(uB1, p, 0);
+    vec4 q2 = texelFetch(uB2, p, 0);
+    vec3 b = vec3(q0.a > 0.0 ? q0.r / q0.a : c.r, q1.a > 0.0 ? q1.g / q1.a : c.g,
+        q2.a > 0.0 ? q2.b / q2.a : c.b);
+    vec3 d = c - b;
+    vec3 core = uCoring > 0.0 ? smoothstep(vec3(0.0), vec3(uCoring * )") + std::to_string(kCoringRange) + R"(), abs(d)) : vec3(1.0);
+    vec3 o = c + (b - c) * uMix + d * uSharp * core;
+    fragColor = vec4(o * s.a, s.a);
+}
+)";
+
+// A node with a blur: out = in + (graded - in) key.
+const char* const kBlurMixSource = R"(
+uniform sampler2D uIn, uGraded, uKey;
+void main()
+{
+    ivec2 p = ivec2(gl_FragCoord.xy);
+    vec4 i = texelFetch(uIn, p, 0);
+    vec4 g = texelFetch(uGraded, p, 0);
+    float key = texelFetch(uKey, p, 0).r;
+    fragColor = vec4(i.rgb + (g.rgb - i.rgb) * key, i.a);
+}
+)";
+
 GLuint makeTexture(GlFunctions* gl, GLenum target)
 {
     GLuint tex = 0;
@@ -403,7 +483,10 @@ bool GlGrade::initialize(GlKit& kit, QString* why)
     QString log;
     if (!m_corrector.build(gl, "grade_corrector", kCorrectorSource.c_str(), &log)
         || !m_parallel.build(gl, "grade_parallel", kParallelSource, &log)
-        || !m_layer.build(gl, "grade_layer", kLayerSource, &log)) {
+        || !m_layer.build(gl, "grade_layer", kLayerSource, &log)
+        || !m_blur.build(gl, "grade_blur", kBlurSource, &log)
+        || !m_blurCombine.build(gl, "grade_blur_combine", kBlurCombineSource.c_str(), &log)
+        || !m_blurMix.build(gl, "grade_blur_mix", kBlurMixSource, &log)) {
         *why = log;
         return false;
     }
@@ -463,6 +546,23 @@ bool GlGrade::initialize(GlKit& kit, QString* why)
     m_layerConstAlpha = m_layer.uniform(gl, "uConstAlpha");
     m_layerUseKey = m_layer.uniform(gl, "uUseKey");
     m_layerOpaque = m_layer.uniform(gl, "uOpaque");
+    gl->glUseProgram(m_blur.id);
+    gl->glUniform1i(m_blur.uniform(gl, "uSrc"), 0);
+    m_blurDir = m_blur.uniform(gl, "uDir");
+    m_blurRadius = m_blur.uniform(gl, "uRadius");
+    m_blurSigma = m_blur.uniform(gl, "uSigma");
+    gl->glUseProgram(m_blurCombine.id);
+    gl->glUniform1i(m_blurCombine.uniform(gl, "uSrc"), 0);
+    gl->glUniform1i(m_blurCombine.uniform(gl, "uB0"), 1);
+    gl->glUniform1i(m_blurCombine.uniform(gl, "uB1"), 2);
+    gl->glUniform1i(m_blurCombine.uniform(gl, "uB2"), 3);
+    m_combineMix = m_blurCombine.uniform(gl, "uMix");
+    m_combineSharp = m_blurCombine.uniform(gl, "uSharp");
+    m_combineCoring = m_blurCombine.uniform(gl, "uCoring");
+    gl->glUseProgram(m_blurMix.id);
+    gl->glUniform1i(m_blurMix.uniform(gl, "uIn"), 0);
+    gl->glUniform1i(m_blurMix.uniform(gl, "uGraded"), 1);
+    gl->glUniform1i(m_blurMix.uniform(gl, "uKey"), 2);
     gl->glUseProgram(0);
 
     m_curveTex = makeTexture(gl, GL_TEXTURE_2D);
@@ -482,6 +582,9 @@ void GlGrade::destroy(GlKit& kit)
     m_corrector.destroy(gl);
     m_parallel.destroy(gl);
     m_layer.destroy(gl);
+    m_blur.destroy(gl);
+    m_blurCombine.destroy(gl);
+    m_blurMix.destroy(gl);
     for (GLuint* tex : {&m_curveTex, &m_lut3d, &m_lut1d, &m_pointsTex}) {
         if (*tex)
             gl->glDeleteTextures(1, tex);
@@ -552,9 +655,9 @@ void GlGrade::drawCorrector(GlKit& kit, const PreparedGradeNode& n, GLuint input
     const PrimaryValues& p = n.primaries;
     std::vector<int> ranges;
     uploadPoints(gl, n, ranges);
-    if (n.curves && mode == 0)
+    if (n.curves && mode != 1)
         uploadCurves(gl, *n.curves);
-    if (n.lut && mode == 0)
+    if (n.lut && mode != 1)
         uploadLut(gl, n.lut);
     gl->glUseProgram(m_corrector.id);
     kit.setFullscreen(m_corrector);
@@ -632,6 +735,45 @@ void GlGrade::drawCorrector(GlKit& kit, const PreparedGradeNode& n, GLuint input
     gl->glActiveTexture(GL_TEXTURE0);
 }
 
+PooledTarget GlGrade::blurStage(
+    GlKit& kit, GLuint source, const BlurStage& stage, const QSize& size)
+{
+    GlFunctions* gl = kit.gl();
+    PooledTarget blurred[3];
+    auto pass = [&](PooledTarget& target, GLuint from, bool horizontal, float sigma) {
+        kit.bindTarget(*target);
+        gl->glUseProgram(m_blur.id);
+        kit.setFullscreen(m_blur);
+        gl->glUniform2i(m_blurDir, horizontal ? 1 : 0, horizontal ? 0 : 1);
+        gl->glUniform1i(m_blurRadius, blurTapRadius(sigma));
+        gl->glUniform1f(m_blurSigma, sigma);
+        kit.bindTexture(0, from);
+        kit.setBlendOver(false);
+        kit.drawQuad();
+    };
+    const int groups = stage.uniformSigma() ? 1 : 3;
+    for (int g = 0; g < groups; ++g) {
+        PooledTarget horizontal = kit.acquire(size);
+        pass(horizontal, source, true, stage.sigmaH[g]);
+        blurred[g] = kit.acquire(size);
+        pass(blurred[g], horizontal->texture, false, stage.sigmaV[g]);
+    }
+    PooledTarget out = kit.acquire(size);
+    kit.bindTarget(*out);
+    gl->glUseProgram(m_blurCombine.id);
+    kit.setFullscreen(m_blurCombine);
+    gl->glUniform3f(m_combineMix, stage.mix[0], stage.mix[1], stage.mix[2]);
+    gl->glUniform3f(m_combineSharp, stage.sharp[0], stage.sharp[1], stage.sharp[2]);
+    gl->glUniform1f(m_combineCoring, stage.coring);
+    kit.bindTexture(0, source);
+    for (int ch = 0; ch < 3; ++ch)
+        kit.bindTexture(1 + ch, blurred[groups == 1 ? 0 : ch]->texture);
+    kit.setBlendOver(false);
+    kit.drawQuad();
+    gl->glActiveTexture(GL_TEXTURE0);
+    return out;
+}
+
 PooledTarget GlGrade::apply(GlKit& kit, const RenderTarget& input, const PreparedGrade& grade)
 {
     if (grade.identity || grade.output < 0)
@@ -658,10 +800,41 @@ PooledTarget GlGrade::apply(GlKit& kit, const RenderTarget& input, const Prepare
                 break;
             }
             constAlpha[i] = n.mix;
-            if (n.keyed && n.keyNeeded) {
+            if ((n.keyed && n.keyNeeded) || n.blurs) {
                 keyTargets[i] = kit.acquire(size);
                 kit.bindTarget(*keyTargets[i]);
                 drawCorrector(kit, n, in, 1);
+            }
+            if (n.blurs) {
+                // Colour corrections on the whole picture, the blur stages, then the key
+                // mixes the result with the input.
+                PooledTarget current;
+                GLuint picture = in;
+                if (n.corrects) {
+                    current = kit.acquire(size);
+                    kit.bindTarget(*current);
+                    drawCorrector(kit, n, in, 2);
+                    picture = current->texture;
+                }
+                for (const BlurStage& stage : n.blur.stages) {
+                    if (!stage.active())
+                        continue;
+                    PooledTarget next = blurStage(kit, picture, stage, size);
+                    current = std::move(next);
+                    picture = current->texture;
+                }
+                owned[i] = kit.acquire(size);
+                kit.bindTarget(*owned[i]);
+                gl->glUseProgram(m_blurMix.id);
+                kit.setFullscreen(m_blurMix);
+                kit.bindTexture(0, in);
+                kit.bindTexture(1, picture);
+                kit.bindTexture(2, keyTargets[i]->texture);
+                kit.setBlendOver(false);
+                kit.drawQuad();
+                gl->glActiveTexture(GL_TEXTURE0);
+                texture[i] = owned[i]->texture;
+                break;
             }
             if (!n.corrects)
                 break;

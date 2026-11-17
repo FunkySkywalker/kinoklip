@@ -38,6 +38,10 @@ struct PreparedGradeNode
     GradeQualifier qualifier;
     std::vector<grademath::WindowValues> windows;
     float mix = 1.0f;
+    /// The Blur palette of the node (radii in pixels of the prepared grid), applied after the
+    /// colour corrections to the whole picture and then limited by the key like them.
+    grademath::BlurValues blur;
+    bool blurs = false; ///< blur.active() and the node mix > 0
 };
 
 /// A grade ready to render at one frame.
@@ -59,6 +63,17 @@ struct PreparedGrade
 /// graph for one pixel. @p scratch holds one rgb triple + key per node (resized as needed).
 void gradePixel(
     const PreparedGrade& grade, float rgb[3], float px, float py, std::vector<float>& scratch);
+
+/// Gaussian blur of the premultiplied RGBA float image @p src (width @p w, height @p h, four
+/// floats per pixel, edges clamped) into @p dst: separable, @p sigmaH / @p sigmaV pixels (0 =
+/// none along that axis). The GPU blur pass runs the same kernel (grademath::blurKernel()).
+void gaussianBlurRgba(
+    const std::vector<float>& src, std::vector<float>& dst, int w, int h, float sigmaH, float sigmaV);
+
+/// Applies blur @p stage to straight colour @p rgb (w x h x 3 floats, in place); @p alpha (w x h,
+/// 0..1) weights the blur so transparent pixels do not leak into the picture.
+void applyBlurStage(const grademath::BlurStage& stage, std::vector<float>& rgb,
+    const std::vector<float>& alpha, int w, int h);
 
 /// Grades @p image (any format; converted to ARGB32_Premultiplied) in place on the CPU:
 /// colour un-premultiplied per pixel, graded, premultiplied again, rounded to 8 bits. Rows are

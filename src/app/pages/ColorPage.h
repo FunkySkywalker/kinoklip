@@ -33,6 +33,7 @@ class ColorSession;
 class ColorViewerOverlay;
 class KeyPanel;
 class LutBrowser;
+class BlurPanel;
 class PanelFrame;
 class PrimariesPanel;
 class QualifierPanel;
@@ -69,7 +70,8 @@ public:
         Curves,
         Qualifier,
         Windows,
-        Luts
+        Luts,
+        Blur
     };
 
     explicit ColorPage(AppContext& ctx, QWidget* parent = nullptr);
@@ -91,6 +93,7 @@ public:
     [[nodiscard]] QualifierPanel* qualifier() const { return m_qualifier; }
     [[nodiscard]] WindowsPanel* windows() const { return m_windows; }
     [[nodiscard]] LutBrowser* luts() const { return m_luts; }
+    [[nodiscard]] BlurPanel* blur() const { return m_blur; }
     [[nodiscard]] KeyPanel* keyPanel() const { return m_key; }
     [[nodiscard]] ScopesPanel* scopes() const { return m_scopes; }
     [[nodiscard]] ScopeFeeder* scopeFeeder() const { return m_feeder; }
@@ -159,6 +162,7 @@ private:
     QualifierPanel* m_qualifier = nullptr;
     WindowsPanel* m_windows = nullptr;
     LutBrowser* m_luts = nullptr;
+    BlurPanel* m_blur = nullptr;
     KeyPanel* m_key = nullptr;
     ColorGallery* m_gallery = nullptr;
     ColorClipStrip* m_strip = nullptr;

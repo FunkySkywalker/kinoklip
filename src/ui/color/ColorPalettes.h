@@ -18,6 +18,7 @@ class QComboBox;
 class QLabel;
 class QLineEdit;
 class QListWidget;
+class QStackedWidget;
 class QToolButton;
 class QTreeWidget;
 class QTreeWidgetItem;
@@ -204,6 +205,41 @@ private:
     QCheckBox* m_invert = nullptr;
     QWidget* m_matteArea = nullptr;
     QImage m_matte;
+    bool m_refreshing = false;
+};
+
+/// The Blur palette (Resolve's Blur / Sharpen / Mist): three modes with their Radius (Blur and
+/// Sharpen: R, G, B with a link button, 0.5 = no change), H/V Ratio and Scaling fields, the
+/// Sharpen Coring Softness and Level and the Mist Mix. They edit the selected node's blur
+/// parameters (gradekeys), which blur the node's picture inside its windows and qualifier; the
+/// palette bar's Reset sets all of them back.
+class BlurPanel : public QWidget
+{
+    Q_OBJECT
+public:
+    explicit BlurPanel(ColorSession* session, QWidget* parent = nullptr);
+
+    /// The field of parameter @p key (gradekeys::BlurRadiusR, ...), or nullptr.
+    [[nodiscard]] ValueField* field(const QString& key) const;
+    /// The mode buttons: 0 Blur, 1 Sharpen, 2 Mist.
+    [[nodiscard]] QToolButton* modeButton(int mode) const { return m_modeButtons[mode]; }
+    [[nodiscard]] int mode() const;
+    void setMode(int mode);
+    /// The R / G / B link button of the Blur radius (checked = a radius edit sets all three).
+    [[nodiscard]] QToolButton* linkButton(int mode) const { return m_links[mode]; }
+    /// Sets every blur parameter of the selected node back to its default.
+    void resetAll();
+
+private:
+    void bindField(ValueField* field, const QString& key);
+    void setValueOf(const QString& key, double value);
+    void refresh();
+
+    QPointer<ColorSession> m_session;
+    QToolButton* m_modeButtons[3] {};
+    QToolButton* m_links[2] {};
+    QStackedWidget* m_stack = nullptr;
+    QVector<std::pair<QString, ValueField*>> m_fields;
     bool m_refreshing = false;
 };
 

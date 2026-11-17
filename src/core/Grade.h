@@ -210,6 +210,29 @@ inline const QString Tint = QStringLiteral("tint"); ///< -1..1 (+ = magenta); de
 inline const QString LumMix = QStringLiteral("lumMix"); ///< 0..1; default 1
 inline const QString Mix = QStringLiteral("mix"); ///< 0..1 node opacity; default 1
 
+// Blur palette (Blur / Sharpen / Mist modes, see grademath::BlurValues). Radius 0.5 = no
+// change in the Blur and Sharpen modes; Mist radius 0 = none.
+inline const QString BlurRadiusR = QStringLiteral("blurRadiusR"); ///< 0..1; default 0.5
+inline const QString BlurRadiusG = QStringLiteral("blurRadiusG");
+inline const QString BlurRadiusB = QStringLiteral("blurRadiusB");
+inline const QString BlurRatio = QStringLiteral("blurRatio"); ///< H/V ratio 0..1; default 0.5
+inline const QString BlurScaling = QStringLiteral("blurScaling"); ///< 0..1; default 0.5 (x1)
+inline const QString SharpRadiusR = QStringLiteral("sharpRadiusR"); ///< 0..1; default 0.5
+inline const QString SharpRadiusG = QStringLiteral("sharpRadiusG");
+inline const QString SharpRadiusB = QStringLiteral("sharpRadiusB");
+inline const QString SharpRatio = QStringLiteral("sharpRatio"); ///< default 0.5
+inline const QString SharpScaling = QStringLiteral("sharpScaling"); ///< default 0.5
+inline const QString SharpCoring = QStringLiteral("sharpCoring"); ///< Coring Softness; default 0
+inline const QString SharpLevel = QStringLiteral("sharpLevel"); ///< 0..1; default 0.5
+inline const QString MistRadius = QStringLiteral("mistRadius"); ///< 0..1; default 0 (none)
+inline const QString MistRatio = QStringLiteral("mistRatio"); ///< default 0.5
+inline const QString MistScaling = QStringLiteral("mistScaling"); ///< default 0.5
+inline const QString MistMix = QStringLiteral("mistMix"); ///< 0..1; default 0.5
+/// The blur palette keys (every key above from BlurRadiusR on), in palette order.
+[[nodiscard]] const QVector<QString>& blurKeys();
+/// True for a blur palette key.
+[[nodiscard]] bool isBlurKey(QStringView key);
+
 /// The four colour wheels (Primaries palette), in palette order.
 enum class Wheel : quint8 {
     Lift,

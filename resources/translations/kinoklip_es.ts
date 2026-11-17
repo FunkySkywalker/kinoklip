@@ -3092,6 +3092,69 @@ Probablemente el sistema cerró el programa porque el equipo se quedó sin memor
     </message>
 </context>
 <context>
+    <name>kk::BlurPanel</name>
+    <message>
+        <source>Blur</source>
+        <translation type="unfinished">Desenfoque</translation>
+    </message>
+    <message>
+        <source>Sharpen</source>
+        <translation type="unfinished">Enfocar</translation>
+    </message>
+    <message>
+        <source>Mist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Link</source>
+        <translation type="unfinished">Vincular</translation>
+    </message>
+    <message>
+        <source>Edit Radius R, G and B together</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Radius R</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Radius G</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Radius B</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>H/V Ratio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Scaling</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Coring Softness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation type="unfinished">Nivel</translation>
+    </message>
+    <message>
+        <source>Radius</source>
+        <translation type="unfinished">Radio</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation type="unfinished">Mezcla</translation>
+    </message>
+    <message>
+        <source>Reset Blur</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>kk::BugReportDialog</name>
     <message>
         <source>Report a Bug or Inconsistency</source>
@@ -3948,6 +4011,14 @@ Probablemente el sistema cerró el programa porque el equipo se quedó sin memor
     <message>
         <source>Browser of .cube look-up tables; apply one to the current node.</source>
         <translation>Explorador de tablas de consulta .cube; aplicar una al nodo actual.</translation>
+    </message>
+    <message>
+        <source>Blur</source>
+        <translation type="unfinished">Desenfoque</translation>
+    </message>
+    <message>
+        <source>Blur, Sharpen and Mist the current node&apos;s picture; windows and the qualifier limit it.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Reset</source>
@@ -21116,6 +21187,70 @@ Abrir un clip multicámara del panel de medios o mover el cabezal de reproducci�
     <message>
         <source>Offset</source>
         <translation>Offset</translation>
+    </message>
+    <message>
+        <source>Blur Radius R</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Blur Radius G</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Blur Radius B</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Blur H/V Ratio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Blur Scaling</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sharpen Radius R</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sharpen Radius G</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sharpen Radius B</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sharpen H/V Ratio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sharpen Scaling</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Coring Softness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sharpen Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mist Radius</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mist H/V Ratio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mist Scaling</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mist Mix</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Contrast</source>

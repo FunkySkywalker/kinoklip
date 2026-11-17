@@ -95,6 +95,19 @@ Click **Invert** to change everything *outside* the window instead.
 In a node with both a qualifier and a window, only the colours you picked *inside* the window
 change. That is how you change the blue shirt but not the blue car behind it.
 
+## Blur or sharpen the window
+
+The same window can blur part of the picture, for example a face or a licence plate:
+
+1. Draw the window as above (Circle or Polygon) on its own node.
+2. Click **Blur** in the bar above the palettes and raise **Radius**. Only the inside of the
+   window gets blurred. Click **Invert** on the window to blur everything *except* it.
+3. **Radius** 0.5 changes nothing; below it the picture is sharpened instead. **H/V Ratio** blurs
+   only one way, **Scaling** makes the blur larger or smaller. The **Sharpen** and **Mist**
+   buttons at the top of the palette sharpen the picture or add a soft glow in the same way.
+
+The window does not follow a moving face yet (see the tip below).
+
 ## Tips
 
 - **The node marks:** nodes with a qualifier show **Q**, nodes with a window **W**.

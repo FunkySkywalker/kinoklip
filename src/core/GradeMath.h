@@ -150,6 +150,66 @@ struct PictureGeometry
 /// Union matte of @p windows at pixel centre (@p px, @p py): 1 without windows.
 [[nodiscard]] float windowsMatte(const std::vector<WindowValues>& windows, float px, float py);
 
+// ---- Blur palette (Blur / Sharpen / Mist) ----
+
+/// Blur radius at full strength (radius 1) as a fraction of the picture height, so the look is
+/// the same at every resolution (about 32 px on a 1080 line picture).
+inline constexpr float kBlurMaxSigma = 0.03f;
+/// The fixed radius of the unsharp mask, fraction of the picture height.
+inline constexpr float kSharpSigma = 0.003f;
+/// Unsharp strength at radius 0 (Blur mode) or 1 (Sharpen mode, level 0.5).
+inline constexpr float kSharpGain = 2.0f;
+/// Widths of a Gaussian below this (pixels) are not blurred.
+inline constexpr float kMinBlurSigma = 0.05f;
+/// Most taps on each side of the centre.
+inline constexpr int kMaxBlurTaps = 256;
+/// Coring: details below coringSoftness * this (0..1 of full scale) are not sharpened.
+inline constexpr float kCoringRange = 0.1f;
+
+/// One step of the Blur palette on a node's picture: per colour channel a Gaussian of
+/// sigmaH x sigmaV pixels (0 = none) of the node's picture, put back as
+///   out = c + (b - c) mix + (c - b) sharp coring(|c - b|)
+/// (b = the blurred channel; mix 1, sharp 0 = a blur; mix 0, sharp > 0 = an unsharp mask).
+struct BlurStage
+{
+    float sigmaH[3] = {0, 0, 0};
+    float sigmaV[3] = {0, 0, 0};
+    float mix[3] = {0, 0, 0};
+    float sharp[3] = {0, 0, 0};
+    float coring = 0.0f; ///< 0..1 (Coring Softness)
+
+    /// True if the stage changes the picture.
+    [[nodiscard]] bool active() const;
+    /// True if the three channels use the same sigmas (one blur serves all of them).
+    [[nodiscard]] bool uniformSigma() const;
+};
+
+/// The Blur palette of a node at one frame: the Blur, Sharpen and Mist stages in that order.
+/// Radius 0.5 is neutral in Blur and Sharpen mode; above it Blur blurs and Sharpen sharpens,
+/// below it Blur sharpens and Sharpen blurs; Mist (a soft glow mixed over the picture) starts
+/// at radius 0. H/V Ratio 0.5 blurs both ways, 0 only horizontally, 1 only vertically.
+/// Scaling 0.5 = the nominal size (0 none, 1 twice).
+struct BlurValues
+{
+    std::array<BlurStage, 3> stages;
+
+    /// True if any stage changes the picture.
+    [[nodiscard]] bool active() const;
+    /// The values of @p node at @p localFrame for a picture @p pictureHeight pixels high.
+    [[nodiscard]] static BlurValues at(
+        const GradeNode& node, int64_t localFrame, double pictureHeight);
+};
+
+/// Taps on each side of the centre of a Gaussian of @p sigma pixels (0 = none).
+[[nodiscard]] int blurTapRadius(float sigma);
+/// Normalised weights (2 radius + 1 of them) of a Gaussian of @p sigma pixels.
+[[nodiscard]] std::vector<float> blurKernel(float sigma);
+/// Coring factor of detail @p detail (0..1): smoothstep(0, coring * kCoringRange, |detail|), 1
+/// when coring is 0.
+[[nodiscard]] float coringFactor(float detail, float coring);
+/// One channel of a stage: colour @p c with blurred colour @p b.
+[[nodiscard]] float blurCombine(float c, float b, float mix, float sharp, float coring);
+
 /// Layer mixer step: lays node output @p o (fed from @p in, key @p alpha) over @p result:
 /// result = (1 - alpha) result + alpha in + (o - in), per channel, in place. Equals
 /// mix(result, graded, alpha) when o = mix(in, graded, alpha), with no division by alpha.

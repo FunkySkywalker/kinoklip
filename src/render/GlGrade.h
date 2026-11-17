@@ -44,6 +44,9 @@ private:
         GLint winRotSoft = -1, winPoints = -1;
     };
 
+    /// One Blur palette stage on @p source (premultiplied picture): a new target.
+    PooledTarget blurStage(
+        GlKit& kit, GLuint source, const grademath::BlurStage& stage, const QSize& size);
     void drawCorrector(GlKit& kit, const PreparedGradeNode& node, GLuint input, int mode);
     void uploadCurves(GlFunctions* gl, const grademath::CurveTables& tables);
     void uploadLut(GlFunctions* gl, const std::shared_ptr<const CubeLut>& lut);
@@ -56,6 +59,10 @@ private:
     GLint m_parallelCount = -1;
     GlProgram m_layer;
     GLint m_layerConstAlpha = -1, m_layerUseKey = -1, m_layerOpaque = -1;
+
+    GlProgram m_blur, m_blurCombine, m_blurMix;
+    GLint m_blurDir = -1, m_blurRadius = -1, m_blurSigma = -1;
+    GLint m_combineMix = -1, m_combineSharp = -1, m_combineCoring = -1;
 
     GLuint m_curveTex = 0; ///< kCurveTableSize x kGradeCurveCount, R32F
     GLuint m_lut3d = 0;

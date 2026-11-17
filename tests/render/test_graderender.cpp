@@ -189,6 +189,28 @@ class TestGradeRender : public QObject
             out.append({QStringLiteral("polygon_gradient"), p});
         }
         {
+            // Blur palette (spec 106): the three modes, per-channel radii, a window and its
+            // inverse, after the colour corrections.
+            out.append({QStringLiteral("blur_radius"),
+                primariesGrade({{gk::BlurRadiusR, 1.0}, {gk::BlurRadiusG, 1.0},
+                    {gk::BlurRadiusB, 1.0}, {gk::BlurScaling, 1.0}})});
+            ClipGrade g = primariesGrade({{gk::BlurRadiusR, 1.0}, {gk::BlurRadiusG, 0.8},
+                {gk::BlurRadiusB, 0.6}, {gk::BlurScaling, 1.0}, {gk::BlurRatio, 0.3},
+                {gk::Saturation, 1.4}});
+            const quint64 n = g.nodes[0].id;
+            const quint64 circle = go::addWindow(g, n, GradeWindowShape::Circle);
+            g.window(circle)->params.setBase(wk::Width, 0.4);
+            g.window(circle)->params.setBase(wk::SoftOut, 0.1);
+            out.append({QStringLiteral("blur_circle_window"), g});
+            g.window(circle)->invert = true;
+            out.append({QStringLiteral("blur_inverted_window"), g});
+            out.append({QStringLiteral("sharpen_mist"),
+                primariesGrade({{gk::SharpRadiusR, 1.0}, {gk::SharpRadiusG, 1.0},
+                    {gk::SharpRadiusB, 1.0}, {gk::SharpLevel, 1.0}, {gk::SharpScaling, 1.0},
+                    {gk::SharpCoring, 0.2}, {gk::MistRadius, 0.8}, {gk::MistMix, 0.7},
+                    {gk::MistScaling, 1.0}})});
+        }
+        {
             ClipGrade g = primariesGrade({});
             g.nodes[0].lutPath = m_lut3d;
             out.append({QStringLiteral("lut3d_tetrahedral"), g});
@@ -308,6 +330,45 @@ private slots:
             applyGrade(grade, 0, reference);
             QVERIFY2(maxDiff(graded, reference) <= 1, qPrintable(name));
         }
+    }
+
+    void blurWindowOnlyBlursInside()
+    {
+        // The owner's tutorial: a circle window, Radius up: only inside the window blurs; the
+        // inverted window blurs everything else.
+        QImage stripes(96, 96, QImage::Format_ARGB32_Premultiplied);
+        for (int y = 0; y < 96; ++y)
+            for (int x = 0; x < 96; ++x)
+                stripes.setPixelColor(x, y, ((x / 2 + y / 2) % 2) ? Qt::white : Qt::black);
+        ClipGrade g = primariesGrade({{gk::BlurRadiusR, 1.0}, {gk::BlurRadiusG, 1.0},
+            {gk::BlurRadiusB, 1.0}, {gk::BlurScaling, 1.0}});
+        const quint64 circle = go::addWindow(g, g.nodes[0].id, GradeWindowShape::Circle);
+        g.window(circle)->params.setBase(wk::Width, 0.3);
+        g.window(circle)->params.setBase(wk::Height, 0.3);
+        g.window(circle)->params.setBase(wk::SoftOut, 0.01);
+        auto spread = [](const QImage& img, const QRect& r) {
+            int lo = 255, hi = 0;
+            for (int y = r.top(); y < r.bottom(); ++y)
+                for (int x = r.left(); x < r.right(); ++x) {
+                    lo = std::min(lo, qRed(img.pixel(x, y)));
+                    hi = std::max(hi, qRed(img.pixel(x, y)));
+                }
+            return hi - lo;
+        };
+        const QRect inside(40, 40, 16, 16), outside(2, 2, 16, 16);
+        QImage graded = stripes.copy();
+        applyGrade(g, 0, graded);
+        QVERIFY(spread(graded, inside) < 40); // blurred to grey
+        QCOMPARE(spread(graded, outside), 255); // untouched
+        g.window(circle)->invert = true;
+        graded = stripes.copy();
+        applyGrade(g, 0, graded);
+        QCOMPARE(spread(graded, inside), 255);
+        QVERIFY(spread(graded, outside) < 40);
+        // Radius 0.5 (the default) changes nothing, whatever the window.
+        QImage same = stripes.copy();
+        applyGrade(primariesGrade({}), 0, same);
+        QCOMPARE(same, stripes);
     }
 
     void gpuAndCpuBackendsAgree()

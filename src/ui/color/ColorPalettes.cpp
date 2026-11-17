@@ -24,6 +24,7 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QSettings>
+#include <QStackedWidget>
 #include <QStandardPaths>
 #include <QToolBar>
 #include <QToolButton>
@@ -964,6 +965,183 @@ void KeyPanel::paintEvent(QPaintEvent*)
     const QRect target(area.center() - QPoint(s.width() / 2, s.height() / 2), s);
     p.setRenderHint(QPainter::SmoothPixmapTransform);
     p.drawImage(target, m_matte);
+}
+
+// ---- BlurPanel ----
+
+namespace {
+
+/// The radius keys that the link button of a mode moves together.
+const QStringList& radiusGroup(int mode)
+{
+    static const QStringList blur = {
+        gradekeys::BlurRadiusR, gradekeys::BlurRadiusG, gradekeys::BlurRadiusB};
+    static const QStringList sharp = {
+        gradekeys::SharpRadiusR, gradekeys::SharpRadiusG, gradekeys::SharpRadiusB};
+    static const QStringList none;
+    return mode == 0 ? blur : (mode == 1 ? sharp : none);
+}
+
+} // namespace
+
+BlurPanel::BlurPanel(ColorSession* session, QWidget* parent)
+    : QWidget(parent)
+    , m_session(session)
+{
+    markVimForm(this);
+    setObjectName(QStringLiteral("BlurPanel"));
+    auto* layout = new QVBoxLayout(this);
+    layout->setContentsMargins(6, 2, 6, 4);
+    layout->setSpacing(3);
+    auto* modes = new QHBoxLayout;
+    auto* group = new QButtonGroup(this);
+    const QString names[3] = {tr("Blur"), tr("Sharpen"), tr("Mist")};
+    for (int i = 0; i < 3; ++i) {
+        m_modeButtons[i] = toolButton(names[i], this, true);
+        m_modeButtons[i]->setObjectName(QStringLiteral("BlurMode_") + QString::number(i));
+        group->addButton(m_modeButtons[i], i);
+        modes->addWidget(m_modeButtons[i]);
+    }
+    modes->addStretch(1);
+    m_modeButtons[0]->setChecked(true);
+    layout->addLayout(modes);
+    m_stack = new QStackedWidget(this);
+    layout->addWidget(m_stack, 1);
+    connect(group, &QButtonGroup::idClicked, m_stack, &QStackedWidget::setCurrentIndex);
+
+    struct Spec
+    {
+        const QString* key;
+        QString label;
+        double step;
+    };
+    namespace gk = gradekeys;
+    auto addPage = [&](int mode, const QVector<Spec>& specs, bool radiusRow) {
+        auto* page = new QWidget;
+        auto* grid = new QGridLayout(page);
+        grid->setContentsMargins(0, 2, 0, 0);
+        grid->setHorizontalSpacing(8);
+        grid->setVerticalSpacing(3);
+        int row = 0;
+        for (const Spec& s : specs) {
+            grid->addWidget(new QLabel(s.label, page), row, 0);
+            ValueField* f = makeField(page, 0.0, 1.0, s.step, 2);
+            f->setObjectName(QStringLiteral("Blur_") + *s.key);
+            grid->addWidget(f, row, 1);
+            bindField(f, *s.key);
+            if (radiusRow && row == 0) {
+                m_links[mode] = toolButton(tr("Link"), page, true);
+                m_links[mode]->setObjectName(QStringLiteral("BlurLink_") + QString::number(mode));
+                m_links[mode]->setChecked(true);
+                m_links[mode]->setToolTip(tr("Edit Radius R, G and B together"));
+                grid->addWidget(m_links[mode], 0, 2, 3, 1, Qt::AlignTop);
+            }
+            ++row;
+        }
+        grid->setColumnStretch(3, 1);
+        grid->setRowStretch(row, 1);
+        m_stack->addWidget(page);
+    };
+    addPage(0,
+        {{&gk::BlurRadiusR, tr("Radius R"), 0.005}, {&gk::BlurRadiusG, tr("Radius G"), 0.005},
+            {&gk::BlurRadiusB, tr("Radius B"), 0.005}, {&gk::BlurRatio, tr("H/V Ratio"), 0.005},
+            {&gk::BlurScaling, tr("Scaling"), 0.005}},
+        true);
+    addPage(1,
+        {{&gk::SharpRadiusR, tr("Radius R"), 0.005}, {&gk::SharpRadiusG, tr("Radius G"), 0.005},
+            {&gk::SharpRadiusB, tr("Radius B"), 0.005}, {&gk::SharpRatio, tr("H/V Ratio"), 0.005},
+            {&gk::SharpScaling, tr("Scaling"), 0.005},
+            {&gk::SharpCoring, tr("Coring Softness"), 0.005},
+            {&gk::SharpLevel, tr("Level"), 0.005}},
+        true);
+    addPage(2,
+        {{&gk::MistRadius, tr("Radius"), 0.005}, {&gk::MistRatio, tr("H/V Ratio"), 0.005},
+            {&gk::MistScaling, tr("Scaling"), 0.005}, {&gk::MistMix, tr("Mix"), 0.005}},
+        false);
+
+    if (m_session) {
+        connect(m_session, &ColorSession::gradeChanged, this, &BlurPanel::refresh);
+        connect(m_session, &ColorSession::selectedNodeChanged, this, &BlurPanel::refresh);
+        connect(m_session, &ColorSession::clipChanged, this, &BlurPanel::refresh);
+    }
+    refresh();
+}
+
+int BlurPanel::mode() const
+{
+    return m_stack->currentIndex();
+}
+
+void BlurPanel::setMode(int mode)
+{
+    mode = std::clamp(mode, 0, 2);
+    m_stack->setCurrentIndex(mode);
+    m_modeButtons[mode]->setChecked(true);
+}
+
+ValueField* BlurPanel::field(const QString& key) const
+{
+    for (const auto& [k, f] : m_fields) {
+        if (k == key)
+            return f;
+    }
+    return nullptr;
+}
+
+void BlurPanel::setValueOf(const QString& key, double value)
+{
+    if (m_refreshing || !m_session)
+        return;
+    const QString label = gradekeys::label(key);
+    for (int mode = 0; mode < 2; ++mode) {
+        const QStringList& group = radiusGroup(mode);
+        if (group.contains(key) && m_links[mode] && m_links[mode]->isChecked()) {
+            QVector<std::pair<QString, double>> values;
+            for (const QString& k : group)
+                values.append({k, value});
+            m_session->setParams(0, values, label);
+            return;
+        }
+    }
+    m_session->setParam(0, key, value, label);
+}
+
+void BlurPanel::bindField(ValueField* f, const QString& key)
+{
+    connect(f, &ValueField::scrubStarted, this, [this, key] {
+        if (m_session)
+            m_session->beginGesture(gradekeys::label(key));
+    });
+    connect(f, &ValueField::valueScrubbed, this, [this, key](double v) { setValueOf(key, v); });
+    connect(f, &ValueField::scrubFinished, this, [this] {
+        if (m_session)
+            m_session->endGesture();
+    });
+    connect(f, &ValueField::valueCommitted, this, [this, key](double v) { setValueOf(key, v); });
+    m_fields.append({key, f});
+}
+
+void BlurPanel::resetAll()
+{
+    if (!m_session || !m_session->currentNode())
+        return;
+    QVector<std::pair<QString, double>> values;
+    for (const QString& key : gradekeys::blurKeys())
+        values.append({key, gradekeys::defaultValue(key)});
+    m_session->setParams(0, values, tr("Reset Blur"));
+}
+
+void BlurPanel::refresh()
+{
+    m_refreshing = true;
+    const GradeNode* n = m_session ? m_session->currentNode() : nullptr;
+    setEnabled(n && !n->isMixer());
+    const int64_t frame = m_session ? m_session->gradeFrame() : 0;
+    for (const auto& [key, f] : std::as_const(m_fields)) {
+        if (!f->isScrubbing())
+            f->setValue(n ? n->value(key, frame) : gradekeys::defaultValue(key));
+    }
+    m_refreshing = false;
 }
 
 } // namespace kk

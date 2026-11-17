@@ -514,3 +514,146 @@ void layerOver(float result[3], const float in[3], const float o[3], float alpha
 }
 
 } // namespace kk::grademath
+
+namespace kk::grademath {
+
+bool BlurStage::active() const
+{
+    for (int ch = 0; ch < 3; ++ch) {
+        if ((sigmaH[ch] > 0.0f || sigmaV[ch] > 0.0f) && (mix[ch] > 0.0f || sharp[ch] > 0.0f))
+            return true;
+    }
+    return false;
+}
+
+bool BlurStage::uniformSigma() const
+{
+    for (int ch = 1; ch < 3; ++ch) {
+        if (sigmaH[ch] != sigmaH[0] || sigmaV[ch] != sigmaV[0])
+            return false;
+    }
+    return true;
+}
+
+bool BlurValues::active() const
+{
+    return std::any_of(stages.begin(), stages.end(), [](const BlurStage& s) { return s.active(); });
+}
+
+namespace {
+
+/// Writes the signed radius @p radius (0.5 = none) of channel @p ch into @p s: positive blurs
+/// (@p blurWhenHigh) or sharpens.
+void setChannel(BlurStage& s, int ch, float amount, bool highBlurs, float blurSigma,
+    float sharpSigma, float sharpStrength, float hFactor, float vFactor)
+{
+    float sigma = 0.0f;
+    float mix = 0.0f;
+    float sharp = 0.0f;
+    if (amount != 0.0f) {
+        if ((amount > 0.0f) == highBlurs) {
+            sigma = std::abs(amount) * blurSigma;
+            mix = 1.0f;
+        } else {
+            sigma = sharpSigma;
+            sharp = std::abs(amount) * sharpStrength;
+        }
+    }
+    s.sigmaH[ch] = sigma * hFactor >= kMinBlurSigma ? sigma * hFactor : 0.0f;
+    s.sigmaV[ch] = sigma * vFactor >= kMinBlurSigma ? sigma * vFactor : 0.0f;
+    s.mix[ch] = mix;
+    s.sharp[ch] = sharp;
+    if (s.sigmaH[ch] == 0.0f && s.sigmaV[ch] == 0.0f)
+        s.mix[ch] = s.sharp[ch] = 0.0f;
+}
+
+} // namespace
+
+BlurValues BlurValues::at(const GradeNode& node, int64_t f, double pictureHeight)
+{
+    namespace gk = gradekeys;
+    auto v = [&](const QString& key) { return float(node.value(key, f)); };
+    auto unit = [&](const QString& key) { return std::clamp(v(key), 0.0f, 1.0f); };
+    const float maxSigma = kBlurMaxSigma * float(pictureHeight);
+    const float sharpSigma = kSharpSigma * float(pictureHeight);
+    BlurValues out;
+    auto axes = [&](const QString& ratioKey, const QString& scalingKey, float& h, float& vv,
+                    float& scale) {
+        const float ratio = unit(ratioKey);
+        h = std::min(1.0f, 2.0f * (1.0f - ratio));
+        vv = std::min(1.0f, 2.0f * ratio);
+        scale = 2.0f * unit(scalingKey);
+    };
+    float h = 1, vv = 1, scale = 1;
+    // Blur: radius above 0.5 blurs, below sharpens.
+    {
+        axes(gk::BlurRatio, gk::BlurScaling, h, vv, scale);
+        const QString* keys[3] = {&gk::BlurRadiusR, &gk::BlurRadiusG, &gk::BlurRadiusB};
+        for (int ch = 0; ch < 3; ++ch) {
+            const float amount = std::clamp((v(*keys[ch]) - 0.5f) * 2.0f, -1.0f, 1.0f);
+            setChannel(out.stages[0], ch, amount, true, maxSigma * scale, sharpSigma * scale,
+                kSharpGain, h, vv);
+        }
+    }
+    // Sharpen: radius above 0.5 sharpens (strength by Level), below blurs.
+    {
+        axes(gk::SharpRatio, gk::SharpScaling, h, vv, scale);
+        const QString* keys[3] = {&gk::SharpRadiusR, &gk::SharpRadiusG, &gk::SharpRadiusB};
+        const float level = unit(gk::SharpLevel) * 2.0f;
+        for (int ch = 0; ch < 3; ++ch) {
+            const float amount = std::clamp((v(*keys[ch]) - 0.5f) * 2.0f, -1.0f, 1.0f);
+            setChannel(out.stages[1], ch, amount, false, maxSigma * scale, sharpSigma * scale,
+                kSharpGain * level, h, vv);
+        }
+        out.stages[1].coring = unit(gk::SharpCoring);
+    }
+    // Mist: a blur mixed over the picture.
+    {
+        axes(gk::MistRatio, gk::MistScaling, h, vv, scale);
+        const float radius = unit(gk::MistRadius);
+        const float mix = unit(gk::MistMix);
+        for (int ch = 0; ch < 3; ++ch) {
+            setChannel(out.stages[2], ch, radius, true, maxSigma * scale, 0.0f, 0.0f, h, vv);
+            out.stages[2].mix[ch] *= mix;
+        }
+    }
+    return out;
+}
+
+int blurTapRadius(float sigma)
+{
+    if (!(sigma >= kMinBlurSigma))
+        return 0;
+    return std::min(int(std::ceil(3.0f * sigma)), kMaxBlurTaps);
+}
+
+std::vector<float> blurKernel(float sigma)
+{
+    const int r = blurTapRadius(sigma);
+    std::vector<float> w(size_t(2 * r + 1), 1.0f);
+    if (r == 0)
+        return w;
+    float sum = 0.0f;
+    for (int k = -r; k <= r; ++k) {
+        w[size_t(k + r)] = std::exp(-float(k * k) / (2.0f * sigma * sigma));
+        sum += w[size_t(k + r)];
+    }
+    for (float& x : w)
+        x /= sum;
+    return w;
+}
+
+float coringFactor(float detail, float coring)
+{
+    if (coring <= 0.0f)
+        return 1.0f;
+    return smoothStep(0.0f, coring * kCoringRange, std::abs(detail));
+}
+
+float blurCombine(float c, float b, float mix, float sharp, float coring)
+{
+    const float d = c - b;
+    return c + (b - c) * mix + d * sharp * coringFactor(d, coring);
+}
+
+} // namespace kk::grademath

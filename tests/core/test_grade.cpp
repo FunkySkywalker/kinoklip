@@ -568,6 +568,108 @@ private slots:
         QVERIFY(!editops::canJoin(other, t.clips[0].id, t.clips[1].id));
     }
 
+    // ---- Blur palette ----
+
+    void blurValuesMath()
+    {
+        GradeNode n;
+        // Defaults: nothing to do.
+        QVERIFY(!BlurValues::at(n, 0, 1080).active());
+        QVERIFY(go::isNodeIdentity(n, 0));
+        // Radius above 0.5 blurs, sigma grows with the radius and the picture height.
+        n.params.setBase(gk::BlurRadiusR, 0.75);
+        n.params.setBase(gk::BlurRadiusG, 0.75);
+        n.params.setBase(gk::BlurRadiusB, 0.75);
+        BlurValues v = BlurValues::at(n, 0, 1080);
+        QVERIFY(v.active() && v.stages[0].active() && !v.stages[1].active());
+        QVERIFY(!go::isNodeIdentity(n, 0));
+        QCOMPARE(v.stages[0].sigmaH[0], 0.5f * kBlurMaxSigma * 1080.0f);
+        QCOMPARE(v.stages[0].mix[0], 1.0f);
+        QVERIFY(v.stages[0].uniformSigma());
+        QCOMPARE(BlurValues::at(n, 0, 2160).stages[0].sigmaH[0], 2.0f * v.stages[0].sigmaH[0]);
+        // Radius below 0.5 sharpens in Blur mode (an unsharp mask).
+        n.params.setBase(gk::BlurRadiusR, 0.0);
+        v = BlurValues::at(n, 0, 1080);
+        QCOMPARE(v.stages[0].mix[0], 0.0f);
+        QVERIFY(v.stages[0].sharp[0] > 0.0f);
+        QVERIFY(!v.stages[0].uniformSigma());
+        // H/V ratio 0 blurs only horizontally; 1 only vertically.
+        n.params.setBase(gk::BlurRadiusR, 1.0);
+        n.params.setBase(gk::BlurRatio, 0.0);
+        v = BlurValues::at(n, 0, 1080);
+        QVERIFY(v.stages[0].sigmaH[1] > 0.0f);
+        QCOMPARE(v.stages[0].sigmaV[1], 0.0f);
+        n.params.setBase(gk::BlurRatio, 1.0);
+        v = BlurValues::at(n, 0, 1080);
+        QCOMPARE(v.stages[0].sigmaH[1], 0.0f);
+        QVERIFY(v.stages[0].sigmaV[1] > 0.0f);
+        // Mist needs its radius; Sharpen sharpens above 0.5.
+        GradeNode m;
+        m.params.setBase(gk::MistMix, 1.0);
+        QVERIFY(!BlurValues::at(m, 0, 1080).active());
+        m.params.setBase(gk::MistRadius, 0.5);
+        QVERIFY(BlurValues::at(m, 0, 1080).stages[2].active());
+        m.params.setBase(gk::MistRadius, 0.0);
+        m.params.setBase(gk::SharpRadiusG, 1.0);
+        const BlurStage s = BlurValues::at(m, 0, 1080).stages[1];
+        QVERIFY(s.sharp[1] > 0.0f && s.sharp[0] == 0.0f);
+        // Keyframed radius.
+        GradeNode k;
+        k.params.values[gk::BlurRadiusR].setKey(0, 0.5);
+        k.params.values[gk::BlurRadiusR].setKey(10, 1.0);
+        QVERIFY(!BlurValues::at(k, 0, 1080).active());
+        QVERIFY(BlurValues::at(k, 10, 1080).active());
+    }
+
+    void blurKernelAndCoring()
+    {
+        QCOMPARE(blurTapRadius(0.0f), 0);
+        QCOMPARE(blurTapRadius(2.0f), 6);
+        QCOMPARE(blurTapRadius(1e6f), kMaxBlurTaps);
+        const std::vector<float> w = blurKernel(2.0f);
+        QCOMPARE(int(w.size()), 13);
+        float sum = 0.0f;
+        for (const float x : w)
+            sum += x;
+        QVERIFY(std::abs(sum - 1.0f) < 1e-5f);
+        QVERIFY(w[6] > w[5] && w[5] > w[4]); // bell shaped
+        QCOMPARE(w[5], w[7]);
+        QCOMPARE(coringFactor(0.01f, 0.0f), 1.0f);
+        QCOMPARE(coringFactor(0.0f, 0.5f), 0.0f);
+        QCOMPARE(coringFactor(0.5f, 0.5f), 1.0f);
+        // Blur and unsharp combination.
+        QCOMPARE(blurCombine(0.8f, 0.4f, 1.0f, 0.0f, 0.0f), 0.4f);
+        QVERIFY(std::abs(blurCombine(0.8f, 0.4f, 0.0f, 1.0f, 0.0f) - 1.2f) < 1e-6f);
+        QCOMPARE(blurCombine(0.8f, 0.4f, 0.0f, 0.0f, 0.0f), 0.8f);
+    }
+
+    void blurSerializationAndReset()
+    {
+        ClipGrade g;
+        const quint64 a = go::initialize(g);
+        g.node(a)->params.setBase(gk::BlurRadiusG, 0.8);
+        g.node(a)->params.setBase(gk::SharpCoring, 0.3);
+        g.node(a)->params.setBase(gk::MistRadius, 0.4);
+        g.node(a)->params.values[gk::BlurScaling].setKey(0, 0.2);
+        g.node(a)->params.values[gk::BlurScaling].setKey(5, 0.9);
+        QCOMPARE(serialization::gradeFromJson(serialization::gradeToJson(g)), g);
+        // A project saved before the palette has no blur keys and still reads as no blur.
+        ClipGrade old;
+        go::initialize(old);
+        const ClipGrade back = serialization::gradeFromJson(serialization::gradeToJson(old));
+        QVERIFY(!BlurValues::at(back.nodes[0], 0, 1080).active());
+        QVERIFY(go::isNodeIdentity(back.nodes[0], 0));
+        // Reset node clears the blur.
+        QVERIFY(go::resetNode(g, a));
+        QVERIFY(!BlurValues::at(*g.node(a), 0, 1080).active());
+        // Every blur key is listed for keyframing and has a label and range.
+        for (const QString& key : gk::blurKeys()) {
+            QVERIFY(gk::allKeys().contains(key));
+            QVERIFY(gk::label(key) != key);
+            QCOMPARE(gk::range(key), (std::pair<double, double> {0.0, 1.0}));
+        }
+    }
+
     // ---- Serialization ----
 
     void serializationRoundTrip()

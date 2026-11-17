@@ -681,6 +681,63 @@ private slots:
         QCOMPARE(int(f.grade(f.clips[0]).nodes.size()), nodes);
     }
 
+    void blurPalette()
+    {
+        Fixture f;
+        f.showPage();
+        ColorPage* page = f.page();
+        auto* tab = page->findChild<QAbstractButton*>(QStringLiteral("ColorPaletteTab_5"));
+        QVERIFY(tab);
+        QCOMPARE(tab->text(), QStringLiteral("Blur"));
+        tab->click();
+        QCOMPARE(page->currentPalette(), ColorPage::Palette::Blur);
+        BlurPanel* blur = page->blur();
+        QVERIFY(blur && blur->isVisible());
+        const int steps = f.steps();
+        // Radius R with the link on moves R, G and B together, as one undo step.
+        ValueField* radius = blur->field(gk::BlurRadiusR);
+        QVERIFY(radius && blur->linkButton(0)->isChecked());
+        Q_EMIT radius->valueCommitted(0.9);
+        QCOMPARE(f.steps(), steps + 1);
+        const GradeNode* n = f.session()->currentNode();
+        QVERIFY(n);
+        for (const QString& key : {gk::BlurRadiusR, gk::BlurRadiusG, gk::BlurRadiusB})
+            QCOMPARE(n->value(key, 0), 0.9);
+        QCOMPARE(blur->field(gk::BlurRadiusB)->value(), 0.9);
+        // Unlinked, one channel moves alone.
+        blur->linkButton(0)->setChecked(false);
+        Q_EMIT blur->field(gk::BlurRadiusG)->valueCommitted(0.3);
+        QCOMPARE(f.session()->currentNode()->value(gk::BlurRadiusG, 0), 0.3);
+        QCOMPARE(f.session()->currentNode()->value(gk::BlurRadiusR, 0), 0.9);
+        // Sharpen and Mist pages edit their own keys.
+        blur->modeButton(1)->click();
+        QCOMPARE(blur->mode(), 1);
+        Q_EMIT blur->field(gk::SharpCoring)->valueCommitted(0.4);
+        blur->modeButton(2)->click();
+        Q_EMIT blur->field(gk::MistRadius)->valueCommitted(0.6);
+        Q_EMIT blur->field(gk::MistMix)->valueCommitted(0.8);
+        QCOMPARE(f.session()->currentNode()->value(gk::SharpCoring, 0), 0.4);
+        QCOMPARE(f.session()->currentNode()->value(gk::MistRadius, 0), 0.6);
+        QCOMPARE(f.session()->currentNode()->value(gk::MistMix, 0), 0.8);
+        // The palette bar's Reset puts every blur value back; one undo step brings them back.
+        auto* reset = page->findChild<QToolButton*>(QStringLiteral("ColorPaletteReset"));
+        QVERIFY(reset);
+        const int before = f.steps();
+        reset->click();
+        QCOMPARE(f.steps(), before + 1);
+        for (const QString& key : gk::blurKeys())
+            QCOMPARE(f.session()->currentNode()->value(key, 0), gk::defaultValue(key));
+        f.project.undoStack()->undo();
+        QCOMPARE(f.session()->currentNode()->value(gk::MistRadius, 0), 0.6);
+        // The layout remembers the palette.
+        QSettings settings;
+        settings.beginGroup(QStringLiteral("colorBlurLayoutTest"));
+        page->saveLayout(settings);
+        page->showPalette(ColorPage::Palette::Primaries);
+        page->restoreLayout(settings);
+        QCOMPARE(page->currentPalette(), ColorPage::Palette::Blur);
+    }
+
     void lutBrowserAndKeyPanel()
     {
         Fixture f;
