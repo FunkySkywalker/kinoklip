@@ -548,8 +548,7 @@ public:
         m_scale = new QComboBox;
         m_scale->setObjectName(QStringLiteral("UiScale"));
         m_scale->addItem(tr("Automatic (system)"), QStringLiteral("auto"));
-        for (const char* factor : {"1", "1.25", "1.5", "1.75", "2"}) {
-            const QString value = QLatin1String(factor);
+        for (const QString& value : uiScaleFactors()) {
             m_scale->addItem(QStringLiteral("%1%").arg(qRound(value.toDouble() * 100)), value);
         }
         const QString scale
@@ -829,7 +828,9 @@ public:
         s.setValue(QStringLiteral("edit/trimToolSlideInNameBar"), m_slideInName->isChecked());
         s.setValue(QStringLiteral("edit/twoUpProgramLook"), m_twoUpLook->isChecked());
         s.setValue(QStringLiteral("edit/syncLockNewTracks"), m_syncLockNew->isChecked());
-        s.setValue(QLatin1String(prefs::kZoomAnchor), m_zoom->currentData());
+        EditBehaviour::setZoomAnchor(m_zoom->currentData().toString() == QLatin1String("mouse")
+                ? ZoomAnchor::Cursor
+                : ZoomAnchor::Playhead);
         EditBehaviour::setWheelScheme(WheelScheme(m_wheel->currentData().toInt()));
     }
 
@@ -894,11 +895,10 @@ public:
 
     void apply() override
     {
-        QSettings s;
-        s.setValue(QStringLiteral("edit/timelineTabs"), m_tabs->isChecked());
+        EditBehaviour::setTimelineTabs(m_tabs->isChecked());
         prefs::setShowDefaultSmartBins(m_smartBins->isChecked());
         prefs::setImportIntoMasterBin(m_importTarget->currentData().toBool());
-        s.setValue(QStringLiteral("edit/rulerPressJumpsPlayhead"), m_rulerJumps->isChecked());
+        EditBehaviour::setRulerPressJumpsPlayhead(m_rulerJumps->isChecked());
     }
 
 private:
@@ -978,7 +978,7 @@ public:
             QStringLiteral("playback/postrollMs"), qRound(m_postroll->value() * kMsPerSecond));
         s.setValue(QStringLiteral("playback/returnAfterPlayAround"), m_return->isChecked());
         s.setValue(QStringLiteral("playback/restartAtEnd"), m_restart->isChecked());
-        s.setValue(QStringLiteral("playback/stopOnPlayheadMove"), m_stopOnMove->isChecked());
+        PlaybackBehaviour::setStopOnPlayheadMove(m_stopOnMove->isChecked());
         s.setValue(QStringLiteral("playback/stopOnEdit"), m_afterEdit->currentData().toBool());
     }
 
@@ -1132,6 +1132,17 @@ void registerStandardSettingsPages(SettingsPageRegistry& registry, ActionRegistr
     add("keyboard", tr("Keyboard"), "input-keyboard", 150, user,
         [keyboard, vimMode, actions](
             QWidget* parent) { return new KeyboardPage(keyboard, vimMode, actions, parent); });
+}
+
+QString hwAccelDisplayName(prefs::HwAccel mode)
+{
+    return hwAccelLabel(mode);
+}
+
+QStringList uiScaleFactors()
+{
+    return {QStringLiteral("1"), QStringLiteral("1.25"), QStringLiteral("1.5"),
+        QStringLiteral("1.75"), QStringLiteral("2")};
 }
 
 void applyHwAccelPreference()

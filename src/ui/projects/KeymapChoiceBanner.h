@@ -18,7 +18,9 @@ class ActionRegistry;
 /// shouldOffer() is true on the very first start only: no keyboard profile was ever chosen
 /// (QSettings "keymap/profile" unset) and the bar was never shown. The bar records itself as
 /// shown ("keymap/choiceOffered") the first time it appears, so a user who ignores it and goes
-/// on is not asked again; Keyboard Customization offers the same presets at any time.
+/// on is not asked again; Keyboard Customization offers the same presets at any time. It is
+/// not offered once the welcome window ("welcome/shown", src/app/WelcomeDialog), which asks the
+/// same question, has been shown.
 class KeymapChoiceBanner : public QFrame
 {
     Q_OBJECT

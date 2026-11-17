@@ -69,6 +69,11 @@ PlaybackBehaviour PlaybackBehaviour::fromSettings()
     return b;
 }
 
+void PlaybackBehaviour::setStopOnPlayheadMove(bool on)
+{
+    QSettings().setValue(QStringLiteral("playback/stopOnPlayheadMove"), on);
+}
+
 PlaybackEngine::PlaybackEngine(QObject* parent)
     : PlaybackEngine(Options {}, parent)
 { }

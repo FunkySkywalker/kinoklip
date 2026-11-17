@@ -62,6 +62,10 @@ KeymapChoiceBanner::KeymapChoiceBanner(ActionRegistry& registry, QWidget* parent
 bool KeymapChoiceBanner::shouldOffer()
 {
     const QSettings settings;
+    // The welcome window (src/app/WelcomeDialog) asks the same question; whoever saw it is not
+    // asked again here.
+    if (settings.value(QStringLiteral("welcome/shown"), 0).toInt() > 0)
+        return false;
     return !settings.contains(kProfileKey) && !settings.value(kOfferedKey, false).toBool();
 }
 

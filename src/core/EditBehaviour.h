@@ -87,6 +87,10 @@ struct EditBehaviour
     static void setZoomAnchor(ZoomAnchor anchor);
     /// Stores the wheel scheme (QSettings "edit/wheelScheme").
     static void setWheelScheme(WheelScheme scheme);
+    /// Stores timelineTabs ("edit/timelineTabs").
+    static void setTimelineTabs(bool on);
+    /// Stores rulerPressJumpsPlayhead ("edit/rulerPressJumpsPlayhead").
+    static void setRulerPressJumpsPlayhead(bool on);
 
     /// Sync Lock of tracks added from now on (QSettings "edit/syncLockNewTracks", default on;
     /// spec 97.6). Existing tracks and loaded projects keep their own state.

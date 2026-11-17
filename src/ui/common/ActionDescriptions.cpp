@@ -663,6 +663,8 @@ const Description kDescriptions[] = {
         QT_TRANSLATE_NOOP("kk::ActionDescriptions", "Opens the Kinoklip guide.")},
     {"help.getting_started",
         QT_TRANSLATE_NOOP("kk::ActionDescriptions", "Opens the getting-started page of the guide.")},
+    {"help.welcome",
+        QT_TRANSLATE_NOOP("kk::ActionDescriptions", "Opens the welcome window: a few questions about the menu layout, keys, timeline behaviour and other choices that differ from DaVinci Resolve.")},
     {"help.report_bug",
         QT_TRANSLATE_NOOP("kk::ActionDescriptions", "Shows what a bug report would contain and opens the report form on GitHub.")},
     {"help.export_log",

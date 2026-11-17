@@ -57,6 +57,8 @@ struct PlaybackBehaviour
     /// "playback/postrollMs", "playback/returnAfterPlayAround", "playback/stopOnPlayheadMove",
     /// "playback/stopOnEdit"), defaults where unset.
     [[nodiscard]] static PlaybackBehaviour fromSettings();
+    /// Stores stopOnPlayheadMove ("playback/stopOnPlayheadMove").
+    static void setStopOnPlayheadMove(bool on);
 };
 
 /// Plays a kk::Timeline (the program, or the private one-clip timeline of a SourcePlayer).

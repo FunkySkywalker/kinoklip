@@ -537,6 +537,7 @@ Menu helpMenu()
         A("help.guide_context", "Help for This…"),
         A("help.guide", "Guide…"),
         A("help.getting_started", "Getting Started"),
+        A("help.welcome", "Welcome…"),
         S(),
         A("help.report_bug", "Report a Bug…"),
         A("help.community", "Discord Community"),

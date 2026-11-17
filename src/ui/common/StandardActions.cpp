@@ -491,6 +491,8 @@ const ActionSpec kActions[] = {
     {"help", "help.guide_context",    QT_TRANSLATE_NOOP("kk::StandardActions", "&Help for This…")},
     {"help", "help.guide",            QT_TRANSLATE_NOOP("kk::StandardActions", "&Guide…")},
     {"help", "help.getting_started",  QT_TRANSLATE_NOOP("kk::StandardActions", "Getting &Started")},
+    // The first-start window with the choices Kinoklip offers beyond Resolve (src/app/WelcomeDialog).
+    {"help", "help.welcome",          QT_TRANSLATE_NOOP("kk::StandardActions", "&Welcome…")},
     {"help", "-"},
     // Opens GitHub's report form in the browser, with system info only if the user chooses
     // (src/app/BugReportDialog, docs/privacy.md).

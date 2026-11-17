@@ -10,7 +10,7 @@ Resolve's documentation).
 - **likely**: believed correct, not verified against a running Resolve;
 - **unsure**: best guess; please correct in the keymap file (and here) if it differs.
 
-Counts: 362 commands; sure 106, likely 115, unsure 141.
+Counts: 363 commands; sure 106, likely 115, unsure 142.
 
 Mouse (EditBehaviour, Preferences > Editing): wheel scrolls the tracks vertically, Ctrl+wheel
 scrolls the timeline horizontally, Alt+wheel zooms the timeline (around the playhead by default;
@@ -458,6 +458,7 @@ that every command has an entry and that no key is used twice.
 | Help for This (opens the user guide's article for the effect, panel or page you are on) | `help.guide_context` | `F1` | unsure | Kinoklip's in-app help; F1 is the usual help key and is free in Resolve's Windows defaults as we know them |
 | Guide (search the user guide's articles) | `help.guide` | (none) | unsure | Kinoklip's in-app help; no default key |
 | Getting Started (the guide's first article) | `help.getting_started` | (none) | unsure | Kinoklip's in-app help; no default key |
+| Welcome (opens the first-start window that sets the choices Kinoklip offers beyond Resolve) | `help.welcome` | (none) | unsure | Kinoklip's own; Resolve has no such command; no default key |
 | Report a Bug or Inconsistency (opens GitHub's report form, system info only if you choose) | `help.report_bug` | (none) | unsure | Kinoklip's own; Resolve has no such command; no default key |
 | Export Log File (saves the session's messages, decoders and playback statistics as a text file for a bug report) | `help.export_log` | (none) | unsure | Kinoklip's own; Resolve has no such command; no default key |
 | Join the Community on Discord (opens the invite in the browser) | `help.community` | (none) | unsure | Kinoklip's own; Resolve has no such command; no default key |

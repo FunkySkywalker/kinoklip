@@ -6,6 +6,7 @@
 #include "app/AutosaveController.h"
 #include "app/BugReportDialog.h"
 #include "app/InterfaceBar.h"
+#include "app/WelcomeDialog.h"
 #include "app/LogExportDialog.h"
 #include "app/PageBar.h"
 #include "app/ProjectController.h"
@@ -708,23 +709,44 @@ void MainWindow::connectAppActions()
     }
 
     // ---- Dialogs (src/ui/dialogs) ----
-    connectDialogActions(m_ctx, this, [this] {
-        if (m_autosave)
-            m_autosave->setIntervalMinutes(prefs::autosaveMinutes());
-        applyRuntimePreferences(m_ctx.playback);
-        applyLocalControlPreference();
-        if (m_ctx.media) // cache folder may have moved (Preferences > Media Storage)
-            m_ctx.media->preferencesChanged();
-        m_editPage->timeline()->applyPreferences(); // timeline tabs on / off
-        m_editPage->mediaPool()->applyPreferences(); // default smart bins on / off
-        if (m_mediaPage)
-            m_mediaPage->mediaPool()->applyPreferences();
-        if (m_cutPage)
-            m_cutPage->mediaPool()->applyPreferences();
-        if (m_compositingPage)
-            m_compositingPage->mediaPool()->applyPreferences();
-    });
+    connectDialogActions(m_ctx, this, [this] { applyStoredPreferences(); });
+    connect(actions.action(QStringLiteral("help.welcome")), &QAction::triggered, this,
+        [this] { showWelcome(); });
     applyRuntimePreferences(m_ctx.playback); // stored choices from start-up on
+}
+
+void MainWindow::applyStoredPreferences()
+{
+    if (m_autosave)
+        m_autosave->setIntervalMinutes(prefs::autosaveMinutes());
+    applyRuntimePreferences(m_ctx.playback);
+    applyLocalControlPreference();
+    if (m_ctx.media) // cache folder may have moved (Preferences > Media Storage)
+        m_ctx.media->preferencesChanged();
+    m_editPage->timeline()->applyPreferences(); // timeline tabs on / off
+    m_editPage->mediaPool()->applyPreferences(); // default smart bins on / off
+    if (m_mediaPage)
+        m_mediaPage->mediaPool()->applyPreferences();
+    if (m_cutPage)
+        m_cutPage->mediaPool()->applyPreferences();
+    if (m_compositingPage)
+        m_compositingPage->mediaPool()->applyPreferences();
+}
+
+WelcomeDialog* MainWindow::showWelcome()
+{
+    // A window still open is raised; a closed one is replaced, so it shows what is stored now.
+    for (WelcomeDialog* old : findChildren<WelcomeDialog*>()) {
+        if (old->isVisible()) {
+            old->raise();
+            return old;
+        }
+        old->deleteLater();
+    }
+    auto* welcome = new WelcomeDialog(*m_ctx.actions, this);
+    connect(welcome, &WelcomeDialog::applied, this, [this] { applyStoredPreferences(); });
+    welcome->open();
+    return welcome;
 }
 
 void MainWindow::connectPanelToggles()

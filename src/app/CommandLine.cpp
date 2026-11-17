@@ -33,6 +33,9 @@ bool parseCommandLine(const QStringList& arguments, CommandLineOptions& options,
         QStringLiteral("target"));
     const QCommandLineOption resetLayout(QStringLiteral("reset-layout"),
         QCoreApplication::translate("kk::CommandLine", "Ignore the saved window layout."));
+    const QCommandLineOption noWelcome(QStringLiteral("no-welcome"),
+        QCoreApplication::translate("kk::CommandLine",
+            "Do not show the welcome window (also: environment variable KK_NO_WELCOME)."));
     const QCommandLineOption renderFrame(QStringLiteral("render-frame"),
         QCoreApplication::translate("kk::CommandLine",
             "Render one timeline frame of <project> to an image, then exit. Usage: "
@@ -84,6 +87,7 @@ bool parseCommandLine(const QStringList& arguments, CommandLineOptions& options,
     parser.addOption(style);
     parser.addOption(colorScheme);
     parser.addOption(resetLayout);
+    parser.addOption(noWelcome);
     parser.addOption(renderFrame);
 
     parser.process(arguments); // exits on --help / --version / unknown options
@@ -91,6 +95,7 @@ bool parseCommandLine(const QStringList& arguments, CommandLineOptions& options,
     QStringList positional = parser.positionalArguments();
     options.checkTls = parser.isSet(checkTls);
     options.resetLayout = parser.isSet(resetLayout);
+    options.noWelcome = parser.isSet(noWelcome);
     options.style = parser.value(style);
     options.colorScheme = parser.value(colorScheme);
     options.language = parser.value(lang);

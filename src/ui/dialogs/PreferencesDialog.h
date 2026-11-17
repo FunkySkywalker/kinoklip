@@ -72,6 +72,13 @@ private:
     QStringList m_groupIds; ///< "system", "user" (tab order)
 };
 
+/// The fixed interface scale factors offered next to "Automatic" ("1", "1.25", ... "2"), as
+/// stored in prefs::kUiScale. Shared by Preferences and the welcome window.
+[[nodiscard]] QStringList uiScaleFactors();
+
+/// The display name of a hardware decoding choice ("Automatic", "VA-API (Intel, AMD)", ...).
+[[nodiscard]] QString hwAccelDisplayName(prefs::HwAccel mode);
+
 /// Registers the standard pages with @p registry. @p actions (optional) provides the
 /// Keyboard Customization action for the "keyboard" page's button.
 void registerStandardSettingsPages(

@@ -2762,6 +2762,10 @@ Das Programm wurde wahrscheinlich vom System beendet, weil der Arbeitsspeicher d
         <translation>Öffnet die Einstiegsseite der Anleitung.</translation>
     </message>
     <message>
+        <source>Opens the welcome window: a few questions about the menu layout, keys, timeline behaviour and other choices that differ from DaVinci Resolve.</source>
+        <translation>Öffnet das Willkommensfenster: einige Fragen zu Menülayout, Tasten, Timeline-Verhalten und anderen Einstellungen, die sich von DaVinci Resolve unterscheiden.</translation>
+    </message>
+    <message>
         <source>Shows what a bug report would contain and opens the report form on GitHub.</source>
         <translation>Zeigt, was ein Fehlerbericht enthalten würde, und öffnet das Berichtsformular auf GitHub.</translation>
     </message>
@@ -4564,6 +4568,10 @@ Das Programm wurde wahrscheinlich vom System beendet, weil der Arbeitsspeicher d
     <message>
         <source>Ignore the saved window layout.</source>
         <translation>Das gespeicherte Fensterlayout ignorieren.</translation>
+    </message>
+    <message>
+        <source>Do not show the welcome window (also: environment variable KK_NO_WELCOME).</source>
+        <translation>Das Willkommensfenster nicht anzeigen (auch: Umgebungsvariable KK_NO_WELCOME).</translation>
     </message>
     <message>
         <source>Render one timeline frame of &lt;project&gt; to an image, then exit. Usage: --render-frame project.kkproj &lt;frame&gt; &lt;out.png&gt;</source>
@@ -18763,6 +18771,10 @@ Kinoklip neu starten, um sie anzuwenden.</translation>
         <translation>&amp;Erste Schritte</translation>
     </message>
     <message>
+        <source>&amp;Welcome…</source>
+        <translation>&amp;Willkommen…</translation>
+    </message>
+    <message>
         <source>&amp;Report a Bug or Inconsistency…</source>
         <translation>&amp;Fehler oder Unstimmigkeit melden…</translation>
     </message>
@@ -21325,6 +21337,217 @@ Einen Multicam-Clip aus dem Medienpool öffnen oder den Abspielkopf über einen 
     <message>
         <source>The take was added to the media pool; its track is gone or locked.</source>
         <translation>Der Take wurde zum Medienpool hinzugefügt; seine Spur ist weg oder gesperrt.</translation>
+    </message>
+</context>
+<context>
+    <name>kk::WelcomeDialog</name>
+    <message>
+        <source>Welcome to %1</source>
+        <translation>Willkommen bei %1</translation>
+    </message>
+    <message>
+        <source>Skip</source>
+        <translation>Überspringen</translation>
+    </message>
+    <message>
+        <source>Close this window and change nothing. Help &gt; Welcome opens it again.</source>
+        <translation>Dieses Fenster schließen, ohne etwas zu ändern. Hilfe &gt; Willkommen öffnet es wieder.</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Zurück</translation>
+    </message>
+    <message>
+        <source>Next</source>
+        <translation>Weiter</translation>
+    </message>
+    <message>
+        <source>Finish</source>
+        <translation>Fertig</translation>
+    </message>
+    <message>
+        <source>It works like DaVinci Resolve. These few questions are about what is different here. Nothing changes unless you choose it.</source>
+        <translation>Es funktioniert wie DaVinci Resolve. Diese wenigen Fragen betreffen das, was hier anders ist. Nichts ändert sich, wenn Sie es nicht wählen.</translation>
+    </message>
+    <message>
+        <source>Look</source>
+        <translation>Aussehen</translation>
+    </message>
+    <message>
+        <source>System default</source>
+        <translation>Systemstandard</translation>
+    </message>
+    <message>
+        <source>Language</source>
+        <translation>Sprache</translation>
+    </message>
+    <message>
+        <source>System</source>
+        <translation>System</translation>
+    </message>
+    <message>
+        <source>Colour theme</source>
+        <translation>Farbschema</translation>
+    </message>
+    <message>
+        <source>Automatic (system)</source>
+        <translation>Automatisch (System)</translation>
+    </message>
+    <message>
+        <source>Interface scale</source>
+        <translation>Oberflächenskalierung</translation>
+    </message>
+    <message>
+        <source>The language and the scale apply after a restart. Change all of this later in Preferences &gt; User &gt; UI Settings (the theme is under Appearance there, or in the Workspace menu).</source>
+        <translation>Sprache und Skalierung gelten nach einem Neustart. Alles lässt sich später unter Einstellungen &gt; Benutzer &gt; Oberflächeneinstellungen ändern (das Farbschema dort unter Erscheinungsbild oder im Menü Workspace).</translation>
+    </message>
+    <message>
+        <source>Menus and keys</source>
+        <translation>Menüs und Tasten</translation>
+    </message>
+    <message>
+        <source>Resolve</source>
+        <translation>Resolve</translation>
+    </message>
+    <message>
+        <source>Streamlined</source>
+        <translation>Verschlankt</translation>
+    </message>
+    <message>
+        <source>Menu layout</source>
+        <translation>Menülayout</translation>
+    </message>
+    <message>
+        <source>%1 (default)</source>
+        <translation>%1 (Standard)</translation>
+    </message>
+    <message>
+        <source>Keyboard</source>
+        <translation>Tastatur</translation>
+    </message>
+    <message>
+        <source>Coming from another editor? Use its keys.</source>
+        <translation>Von einem anderen Editor gewechselt? Dessen Tasten verwenden.</translation>
+    </message>
+    <message>
+        <source>Vim mode</source>
+        <translation>Vim-Modus</translation>
+    </message>
+    <message>
+        <source>Vim</source>
+        <translation>Vim</translation>
+    </message>
+    <message>
+        <source>Vim keys for editing (h, j, k, l, i, Esc). Off unless you know Vim.</source>
+        <translation>Vim-Tasten zum Bearbeiten (h, j, k, l, i, Esc). Aus, wenn Sie Vim nicht kennen.</translation>
+    </message>
+    <message>
+        <source>Change these later in Preferences &gt; User &gt; UI Settings (menu layout) and Preferences &gt; User &gt; Keyboard (Vim mode); the keyboard profile is under Keyboard Customization in the first menu.</source>
+        <translation>Später änderbar unter Einstellungen &gt; Benutzer &gt; Oberflächeneinstellungen (Menülayout) und Einstellungen &gt; Benutzer &gt; Tastatur (Vim-Modus); das Tastaturprofil im ersten Menü unter Tastaturanpassung.</translation>
+    </message>
+    <message>
+        <source>Shorter menus grouped by task, with plain names, and one menu per page. The commands and their keys are the same.</source>
+        <translation>Kürzere Menüs nach Aufgaben gruppiert, mit einfachen Namen und einem Menü pro Seite. Die Befehle und ihre Tasten sind gleich.</translation>
+    </message>
+    <message>
+        <source>The menus as in DaVinci Resolve.</source>
+        <translation>Die Menüs wie in DaVinci Resolve.</translation>
+    </message>
+    <message>
+        <source>Timeline</source>
+        <translation>Timeline</translation>
+    </message>
+    <message>
+        <source>Animate timeline edits</source>
+        <translation>Timeline-Edits animieren</translation>
+    </message>
+    <message>
+        <source>Animations</source>
+        <translation>Animationen</translation>
+    </message>
+    <message>
+        <source>Playhead</source>
+        <translation>Abspielkopf</translation>
+    </message>
+    <message>
+        <source>Mouse pointer</source>
+        <translation>Mauszeiger</translation>
+    </message>
+    <message>
+        <source>Timeline zooms around</source>
+        <translation>Timeline zoomt um</translation>
+    </message>
+    <message>
+        <source>Resolve (Alt zooms, Ctrl scrolls time, Shift track height)</source>
+        <translation>Resolve (Alt zoomt, Strg scrollt die Zeit, Umschalt die Spurhöhe)</translation>
+    </message>
+    <message>
+        <source>Classic (Ctrl zooms, Shift scrolls time)</source>
+        <translation>Klassisch (Strg zoomt, Umschalt scrollt die Zeit)</translation>
+    </message>
+    <message>
+        <source>Mouse wheel</source>
+        <translation>Mausrad</translation>
+    </message>
+    <message>
+        <source>Show open timelines as tabs</source>
+        <translation>Geöffnete Timelines als Reiter anzeigen</translation>
+    </message>
+    <message>
+        <source>Timelines</source>
+        <translation>Timelines</translation>
+    </message>
+    <message>
+        <source>Pressing the ruler moves the playhead there at once</source>
+        <translation>Ein Druck auf das Lineal bewegt den Abspielkopf sofort dorthin</translation>
+    </message>
+    <message>
+        <source>Timeline ruler</source>
+        <translation>Timeline-Lineal</translation>
+    </message>
+    <message>
+        <source>Stop playback when the playhead is moved</source>
+        <translation>Die Wiedergabe stoppen, wenn der Abspielkopf bewegt wird</translation>
+    </message>
+    <message>
+        <source>Moving the playhead</source>
+        <translation>Abspielkopf bewegen</translation>
+    </message>
+    <message>
+        <source>Resolve keeps the playhead where it is when zooming and carries on playing when you move it. Change these later in Preferences &gt; User: Animations in UI Settings; zoom and wheel in Editing; tabs and ruler in Timeline and Media Pool; the playhead in Playback Settings.</source>
+        <translation>Resolve behält beim Zoomen den Abspielkopf an seiner Stelle und spielt weiter, wenn man ihn bewegt. Später änderbar unter Einstellungen &gt; Benutzer: Animationen unter Oberflächeneinstellungen; Zoom und Mausrad unter Bearbeitung; Reiter und Lineal unter Timeline und Medienpool; der Abspielkopf unter Wiedergabeeinstellungen.</translation>
+    </message>
+    <message>
+        <source>Hardware decoding</source>
+        <translation>Hardware-Dekodierung</translation>
+    </message>
+    <message>
+        <source>Uses the graphics card to play video. Automatic is right for most computers.</source>
+        <translation>Nutzt die Grafikkarte zum Abspielen von Video. Automatisch passt für die meisten Computer.</translation>
+    </message>
+    <message>
+        <source>Show a system notification when renders finish</source>
+        <translation>Eine Systembenachrichtigung anzeigen, wenn Renderings fertig sind</translation>
+    </message>
+    <message>
+        <source>Notifications</source>
+        <translation>Benachrichtigungen</translation>
+    </message>
+    <message>
+        <source>Change these later in Preferences &gt; System &gt; Decode Options and Preferences &gt; User &gt; UI Settings. Help &gt; Welcome opens this window again.</source>
+        <translation>Später änderbar unter Einstellungen &gt; System &gt; Dekodierungsoptionen und Einstellungen &gt; Benutzer &gt; Oberflächeneinstellungen. Hilfe &gt; Willkommen öffnet dieses Fenster wieder.</translation>
+    </message>
+    <message>
+        <source>Keyboard Profile</source>
+        <translation>Tastaturprofil</translation>
+    </message>
+    <message>
+        <source>Restart Required</source>
+        <translation>Neustart erforderlich</translation>
+    </message>
+    <message>
+        <source>Restart %1 to apply: %2.</source>
+        <translation>Starten Sie %1 neu, um dies anzuwenden: %2.</translation>
     </message>
 </context>
 <context>

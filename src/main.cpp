@@ -9,6 +9,7 @@
 #include "app/Screenshot.h"
 #include "app/SettingsTransferDialog.h"
 #include "app/Theme.h"
+#include "app/WelcomeDialog.h"
 #include "core/EditBehaviour.h"
 #include "core/MemoryBudget.h"
 #include "core/MemoryGuard.h"
@@ -325,6 +326,11 @@ int main(int argc, char** argv)
     // by preference, the last project). Offscreen runs (CI, scripted checks) never get the Project
     // Manager: nobody could close it.
     kk::ProjectController* projects = window.projectController();
+    // First start (or the first after an update that adds questions): the welcome window opens
+    // over the editor; the Project Manager waits until it is closed.
+    kk::WelcomeDialog* welcome = nullptr;
+    if (kk::WelcomeDialog::wantedAtStartup(options.noWelcome, QGuiApplication::platformName()))
+        welcome = window.showWelcome();
     if (!options.projectFile.isEmpty()) {
         projects->openFile(options.projectFile, false); // offers that project's autosave
     } else if (projects->offerRecovery()) {
@@ -332,7 +338,12 @@ int main(int argc, char** argv)
     } else if (!kk::prefs::startupShowsProjectManager()) {
         projects->openLastProject();
     } else if (QGuiApplication::platformName() != QLatin1String("offscreen")) {
-        projects->showProjectManager();
+        if (welcome) {
+            QObject::connect(welcome, &QDialog::finished, projects,
+                [projects] { projects->showProjectManager(); });
+        } else {
+            projects->showProjectManager();
+        }
     }
     // A render that started and never finished: the kernel most likely killed the program.
     if (const QString killed = kk::memguard::takeInterruptedRender(); !killed.isEmpty()) {

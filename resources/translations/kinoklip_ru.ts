@@ -2765,6 +2765,10 @@ The program was probably closed by the system because the computer ran out of me
         <translation>Открывает страницу руководства для начала работы.</translation>
     </message>
     <message>
+        <source>Opens the welcome window: a few questions about the menu layout, keys, timeline behaviour and other choices that differ from DaVinci Resolve.</source>
+        <translation>Открывает окно приветствия: несколько вопросов о раскладке меню, клавишах, поведении таймлайна и других настройках, которые отличаются от DaVinci Resolve.</translation>
+    </message>
+    <message>
         <source>Shows what a bug report would contain and opens the report form on GitHub.</source>
         <translation>Показывает, что содержал бы отчёт об ошибке, и открывает форму отчёта на GitHub.</translation>
     </message>
@@ -4569,6 +4573,10 @@ The program was probably closed by the system because the computer ran out of me
     <message>
         <source>Ignore the saved window layout.</source>
         <translation>Игнорировать сохраненную компоновку окон.</translation>
+    </message>
+    <message>
+        <source>Do not show the welcome window (also: environment variable KK_NO_WELCOME).</source>
+        <translation>Не показывать окно приветствия (также: переменная окружения KK_NO_WELCOME).</translation>
     </message>
     <message>
         <source>Render one timeline frame of &lt;project&gt; to an image, then exit. Usage: --render-frame project.kkproj &lt;frame&gt; &lt;out.png&gt;</source>
@@ -18777,6 +18785,10 @@ Restart Kinoklip to apply them.</source>
         <translation>Начало &amp;работы</translation>
     </message>
     <message>
+        <source>&amp;Welcome…</source>
+        <translation>&amp;Приветствие…</translation>
+    </message>
+    <message>
         <source>&amp;Report a Bug or Inconsistency…</source>
         <translation>&amp;Сообщить об ошибке или несоответствии…</translation>
     </message>
@@ -21340,6 +21352,217 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
     <message>
         <source>The take was added to the media pool; its track is gone or locked.</source>
         <translation>Дубль добавлен в медиапул; его дорожка исчезла или заблокирована.</translation>
+    </message>
+</context>
+<context>
+    <name>kk::WelcomeDialog</name>
+    <message>
+        <source>Welcome to %1</source>
+        <translation>Добро пожаловать в %1</translation>
+    </message>
+    <message>
+        <source>Skip</source>
+        <translation>Пропустить</translation>
+    </message>
+    <message>
+        <source>Close this window and change nothing. Help &gt; Welcome opens it again.</source>
+        <translation>Закрыть окно, ничего не меняя. Справка &gt; Приветствие открывает его снова.</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Назад</translation>
+    </message>
+    <message>
+        <source>Next</source>
+        <translation>Далее</translation>
+    </message>
+    <message>
+        <source>Finish</source>
+        <translation>Готово</translation>
+    </message>
+    <message>
+        <source>It works like DaVinci Resolve. These few questions are about what is different here. Nothing changes unless you choose it.</source>
+        <translation>Работает как DaVinci Resolve. Эти несколько вопросов о том, что здесь иначе. Ничего не изменится, пока вы сами не выберете.</translation>
+    </message>
+    <message>
+        <source>Look</source>
+        <translation>Внешний вид</translation>
+    </message>
+    <message>
+        <source>System default</source>
+        <translation>Системный по умолчанию</translation>
+    </message>
+    <message>
+        <source>Language</source>
+        <translation>Язык</translation>
+    </message>
+    <message>
+        <source>System</source>
+        <translation>Система</translation>
+    </message>
+    <message>
+        <source>Colour theme</source>
+        <translation>Цветовая тема</translation>
+    </message>
+    <message>
+        <source>Automatic (system)</source>
+        <translation>Автоматически (системный)</translation>
+    </message>
+    <message>
+        <source>Interface scale</source>
+        <translation>Масштаб интерфейса</translation>
+    </message>
+    <message>
+        <source>The language and the scale apply after a restart. Change all of this later in Preferences &gt; User &gt; UI Settings (the theme is under Appearance there, or in the Workspace menu).</source>
+        <translation>Язык и масштаб применяются после перезапуска. Всё это можно изменить позже в Настройки &gt; Пользователь &gt; Настройки интерфейса (тема там в разделе Внешний вид или в меню Workspace).</translation>
+    </message>
+    <message>
+        <source>Menus and keys</source>
+        <translation>Меню и клавиши</translation>
+    </message>
+    <message>
+        <source>Resolve</source>
+        <translation>Resolve</translation>
+    </message>
+    <message>
+        <source>Streamlined</source>
+        <translation>Упрощенный</translation>
+    </message>
+    <message>
+        <source>Menu layout</source>
+        <translation>Макет меню</translation>
+    </message>
+    <message>
+        <source>%1 (default)</source>
+        <translation>%1 (по умолчанию)</translation>
+    </message>
+    <message>
+        <source>Keyboard</source>
+        <translation>Клавиатура</translation>
+    </message>
+    <message>
+        <source>Coming from another editor? Use its keys.</source>
+        <translation>Пришли из другого редактора? Используйте его клавиши.</translation>
+    </message>
+    <message>
+        <source>Vim mode</source>
+        <translation>Режим Vim</translation>
+    </message>
+    <message>
+        <source>Vim</source>
+        <translation>Vim</translation>
+    </message>
+    <message>
+        <source>Vim keys for editing (h, j, k, l, i, Esc). Off unless you know Vim.</source>
+        <translation>Клавиши Vim для монтажа (h, j, k, l, i, Esc). Выключено, если вы не знаете Vim.</translation>
+    </message>
+    <message>
+        <source>Change these later in Preferences &gt; User &gt; UI Settings (menu layout) and Preferences &gt; User &gt; Keyboard (Vim mode); the keyboard profile is under Keyboard Customization in the first menu.</source>
+        <translation>Позже это можно изменить в Настройки &gt; Пользователь &gt; Настройки интерфейса (раскладка меню) и Настройки &gt; Пользователь &gt; Клавиатура (режим Vim); профиль клавиатуры в первом меню: Настройка клавиатуры.</translation>
+    </message>
+    <message>
+        <source>Shorter menus grouped by task, with plain names, and one menu per page. The commands and their keys are the same.</source>
+        <translation>Более короткие меню, сгруппированные по задачам, с простыми названиями и одним меню на страницу. Команды и их клавиши те же.</translation>
+    </message>
+    <message>
+        <source>The menus as in DaVinci Resolve.</source>
+        <translation>Меню как в DaVinci Resolve.</translation>
+    </message>
+    <message>
+        <source>Timeline</source>
+        <translation>Таймлайн</translation>
+    </message>
+    <message>
+        <source>Animate timeline edits</source>
+        <translation>Анимировать правки на таймлайне</translation>
+    </message>
+    <message>
+        <source>Animations</source>
+        <translation>Анимации</translation>
+    </message>
+    <message>
+        <source>Playhead</source>
+        <translation>Указатель воспроизведения</translation>
+    </message>
+    <message>
+        <source>Mouse pointer</source>
+        <translation>Указатель мыши</translation>
+    </message>
+    <message>
+        <source>Timeline zooms around</source>
+        <translation>Масштабировать таймлайн относительно</translation>
+    </message>
+    <message>
+        <source>Resolve (Alt zooms, Ctrl scrolls time, Shift track height)</source>
+        <translation>Resolve (Alt — масштаб, Ctrl — время, Shift — высота дорожки)</translation>
+    </message>
+    <message>
+        <source>Classic (Ctrl zooms, Shift scrolls time)</source>
+        <translation>Classic (Ctrl — масштаб, Shift — время)</translation>
+    </message>
+    <message>
+        <source>Mouse wheel</source>
+        <translation>Колесо мыши</translation>
+    </message>
+    <message>
+        <source>Show open timelines as tabs</source>
+        <translation>Показывать открытые таймлайны во вкладках</translation>
+    </message>
+    <message>
+        <source>Timelines</source>
+        <translation>Таймлайны</translation>
+    </message>
+    <message>
+        <source>Pressing the ruler moves the playhead there at once</source>
+        <translation>Нажатие на линейку сразу перемещает указатель воспроизведения туда</translation>
+    </message>
+    <message>
+        <source>Timeline ruler</source>
+        <translation>Линейка таймлайна</translation>
+    </message>
+    <message>
+        <source>Stop playback when the playhead is moved</source>
+        <translation>Останавливать воспроизведение при перемещении указателя воспроизведения</translation>
+    </message>
+    <message>
+        <source>Moving the playhead</source>
+        <translation>Перемещение указателя воспроизведения</translation>
+    </message>
+    <message>
+        <source>Resolve keeps the playhead where it is when zooming and carries on playing when you move it. Change these later in Preferences &gt; User: Animations in UI Settings; zoom and wheel in Editing; tabs and ruler in Timeline and Media Pool; the playhead in Playback Settings.</source>
+        <translation>Resolve при масштабировании оставляет указатель воспроизведения на месте и продолжает воспроизведение, когда вы его двигаете. Позже это можно изменить в Настройки &gt; Пользователь: анимации в Настройки интерфейса; масштаб и колесо в Монтаж; вкладки и линейка в Таймлайн и медиапул; указатель в Настройки воспроизведения.</translation>
+    </message>
+    <message>
+        <source>Hardware decoding</source>
+        <translation>Аппаратное декодирование</translation>
+    </message>
+    <message>
+        <source>Uses the graphics card to play video. Automatic is right for most computers.</source>
+        <translation>Использует видеокарту для воспроизведения видео. «Автоматически» подходит большинству компьютеров.</translation>
+    </message>
+    <message>
+        <source>Show a system notification when renders finish</source>
+        <translation>Показывать системное уведомление по окончании рендера</translation>
+    </message>
+    <message>
+        <source>Notifications</source>
+        <translation>Уведомления</translation>
+    </message>
+    <message>
+        <source>Change these later in Preferences &gt; System &gt; Decode Options and Preferences &gt; User &gt; UI Settings. Help &gt; Welcome opens this window again.</source>
+        <translation>Позже это можно изменить в Настройки &gt; Система &gt; Параметры декодирования и Настройки &gt; Пользователь &gt; Настройки интерфейса. Справка &gt; Приветствие открывает это окно снова.</translation>
+    </message>
+    <message>
+        <source>Keyboard Profile</source>
+        <translation>Профиль клавиатуры</translation>
+    </message>
+    <message>
+        <source>Restart Required</source>
+        <translation>Требуется перезапуск</translation>
+    </message>
+    <message>
+        <source>Restart %1 to apply: %2.</source>
+        <translation>Перезапустите %1, чтобы применить: %2.</translation>
     </message>
 </context>
 <context>

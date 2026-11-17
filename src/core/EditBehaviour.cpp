@@ -71,6 +71,16 @@ void EditBehaviour::setWheelScheme(WheelScheme scheme)
         scheme == WheelScheme::Classic ? QStringLiteral("classic") : QStringLiteral("resolve"));
 }
 
+void EditBehaviour::setTimelineTabs(bool on)
+{
+    QSettings().setValue(QStringLiteral("edit/timelineTabs"), on);
+}
+
+void EditBehaviour::setRulerPressJumpsPlayhead(bool on)
+{
+    QSettings().setValue(QStringLiteral("edit/rulerPressJumpsPlayhead"), on);
+}
+
 void EditBehaviour::migrateSettings()
 {
     QSettings s;

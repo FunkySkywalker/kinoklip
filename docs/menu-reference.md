@@ -1,4 +1,4 @@
-367 menu entries in 13 menus; 53 panels
+368 menu entries in 13 menus; 53 panels
 
 # Menu and panel reference
 
@@ -428,6 +428,7 @@ Shortcuts are the defaults of the Resolve keymap (Windows); another keyboard pro
 | Help for This… | F1 | Opens the guide page about the panel or page under the pointer. |
 | Guide… |  | Opens the Kinoklip guide. |
 | Getting Started |  | Opens the getting-started page of the guide. |
+| Welcome… |  | Opens the welcome window: a few questions about the menu layout, keys, timeline behaviour and other choices that differ from DaVinci Resolve. |
 | Report a Bug or Inconsistency… |  | Shows what a bug report would contain and opens the report form on GitHub. |
 | Join the Community on Discord |  | Opens the Kinoklip community on Discord in the web browser. |
 | Export Log File… |  | Saves what Kinoklip did in this session (system facts, decoder for each file, playback statistics, warnings) as a text file to attach to a bug report. |
@@ -530,7 +531,7 @@ Shortcuts are the defaults of the Resolve keymap (Windows); another keyboard pro
 
 # Streamlined menu layout
 
-Preferences > UI Settings > Menu layout offers the menus above (Resolve, the default) or this arrangement (Streamlined): 367 commands in 15 tables (menus, page menus and the last table), no menu longer than 12 entries, grouped by task, with plain names. The commands, their keys and descriptions are the same in both. The page menu (Cut, Nodes or Grade) is shown on its page only; the tables below list all three. Commands that are on no menu are in the last table.
+Preferences > UI Settings > Menu layout offers the menus above (Resolve, the default) or this arrangement (Streamlined): 368 commands in 15 tables (menus, page menus and the last table), no menu longer than 12 entries, grouped by task, with plain names. The commands, their keys and descriptions are the same in both. The page menu (Cut, Nodes or Grade) is shown on its page only; the tables below list all three. Commands that are on no menu are in the last table.
 
 ## Streamlined Kinoklip
 
@@ -865,6 +866,7 @@ Preferences > UI Settings > Menu layout offers the menus above (Resolve, the def
 | Help for This… | F1 | Opens the guide page about the panel or page under the pointer. |
 | Guide… |  | Opens the Kinoklip guide. |
 | Getting Started |  | Opens the getting-started page of the guide. |
+| Welcome… |  | Opens the welcome window: a few questions about the menu layout, keys, timeline behaviour and other choices that differ from DaVinci Resolve. |
 | Report a Bug… |  | Shows what a bug report would contain and opens the report form on GitHub. |
 | Discord Community |  | Opens the Kinoklip community on Discord in the web browser. |
 | Export Log File… |  | Saves what Kinoklip did in this session (system facts, decoder for each file, playback statistics, warnings) as a text file to attach to a bug report. |

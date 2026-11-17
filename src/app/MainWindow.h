@@ -33,6 +33,7 @@ class MediaPage;
 class PageBar;
 class ProjectController;
 class ViewerTransport;
+class WelcomeDialog;
 class VimController;
 namespace live {
 class LiveServer;
@@ -99,6 +100,11 @@ public:
     /// Shows the window: restored geometry if available, otherwise maximised.
     void showRestored();
 
+    /// Opens the welcome window (Help > Welcome, and the first start): not blocking, closes
+    /// itself; its choices are applied to this window through the same code as Preferences.
+    /// A window that is already open is raised and returned.
+    WelcomeDialog* showWelcome();
+
     /// The arrangement of the menu bar in use (Preferences > UI Settings > Menu layout).
     [[nodiscard]] menulayout::Layout menuLayout() const { return m_menuLayout; }
     /// Rebuilds the menu bar in @p layout at once, without touching the stored preference
@@ -111,6 +117,10 @@ protected:
     void changeEvent(QEvent* event) override;
 
 private:
+    /// Re-reads the stored preferences into the running window (after Preferences or the
+    /// welcome window saved).
+    void applyStoredPreferences();
+
     struct PageEntry
     {
         Page* page;
