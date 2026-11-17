@@ -12,6 +12,22 @@ Download `Kinoklip-x86_64.AppImage` from the [latest release](https://github.com
 If double-clicking shows nothing, install `fuse3` (or `libfuse2` on older distributions), or run it with
 `--appimage-extract-and-run`.
 
+## Dev build (help with testing)
+
+<p align="center"><img src="../resources/icons/app/kinoklip-dev-128.png" width="96" alt="Kinoklip Dev"></p>
+
+<p align="center"><a href="https://github.com/SeniorMatt/kinoklip/releases/download/dev/KinoklipDev-x86_64.AppImage"><b>Download Kinoklip Dev</b></a></p>
+
+The next version, built from the newest code before it is tested. It has the features that are not
+released yet and may have new bugs, so keep backups of your projects. It installs next to the normal
+Kinoklip as "Kinoklip Dev" with this red icon, and the two share their settings. Open it with Gear
+Lever to get each new dev build in one click; the version shows the build, for example
+`1.9.0-faea4fd`. The [dev release page](https://github.com/SeniorMatt/kinoklip/releases/tag/dev) lists
+what is new.
+
+Found a bug or something that works differently from Resolve? Please
+[open an issue](https://github.com/SeniorMatt/kinoklip/issues/new/choose) and say which build you used.
+
 ## Nix / NixOS
 
 The repository is a Nix flake (x86_64 and aarch64 Linux), built from source with nixpkgs libraries:

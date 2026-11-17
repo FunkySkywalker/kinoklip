@@ -43,6 +43,9 @@ Download the AppImage from the [latest release](https://github.com/SeniorMatt/ki
 and open it with [Gear Lever](https://flathub.org/apps/it.mijorus.gearlever), or make it executable
 and double-click it. On Nix: `nix run github:SeniorMatt/kinoklip`.
 
+Want to help test the next version? Get the
+[dev build](docs/install.md#dev-build-help-with-testing).
+
 More ways (NixOS, Arch Linux, building from source): [docs/install.md](docs/install.md).
 
 ## Status
