@@ -670,6 +670,142 @@ private slots:
         }
     }
 
+    // ---- RGB Mixer palette ----
+
+    void rgbMixerMath()
+    {
+        GradeNode n;
+        MixerValues v = MixerValues::at(n, 0);
+        QVERIFY(v.isIdentity() && !v.mono && !v.preserveLum);
+        QVERIFY(go::isNodeIdentity(n, 0));
+        float c[3] = {0.2f, 0.5f, 0.9f};
+        applyMixer(v, c);
+        QCOMPARE(c[0], 0.2f);
+        QCOMPARE(c[2], 0.9f);
+        // Swapping the red and blue rows swaps the channels.
+        n.params.setBase(gk::MixerRR, 0.0);
+        n.params.setBase(gk::MixerRB, 1.0);
+        n.params.setBase(gk::MixerBB, 0.0);
+        n.params.setBase(gk::MixerBR, 1.0);
+        v = MixerValues::at(n, 0);
+        QVERIFY(!v.isIdentity());
+        QVERIFY(!go::isNodeIdentity(n, 0));
+        applyMixer(v, c);
+        QCOMPARE(c[0], 0.9f);
+        QCOMPARE(c[1], 0.5f);
+        QCOMPARE(c[2], 0.2f);
+        // Negative weights are allowed and not clamped in matrix mode.
+        GradeNode neg;
+        neg.params.setBase(gk::MixerRG, -1.0);
+        float d[3] = {0.5f, 0.5f, 0.5f};
+        applyMixer(MixerValues::at(neg, 0), d);
+        QCOMPARE(d[0], 0.0f);
+        neg.params.setBase(gk::MixerRG, -2.0);
+        applyMixer(MixerValues::at(neg, 0), d);
+        QVERIFY(d[0] < 0.0f);
+    }
+
+    void rgbMixerMonochromeAndPreserve()
+    {
+        // Monochrome with the default weights is Rec. 709 luma on the primaries (0.3 / 0.59 /
+        // 0.11 are the Rec. 601-style defaults, so compare with its own weights).
+        GradeNode n;
+        n.params.setBase(gk::MixerMono, 1.0);
+        const MixerValues v = MixerValues::at(n, 0);
+        QVERIFY(v.mono && !v.isIdentity());
+        float r[3] = {1, 0, 0}, g[3] = {0, 1, 0}, b[3] = {0, 0, 1};
+        applyMixer(v, r);
+        applyMixer(v, g);
+        applyMixer(v, b);
+        QVERIFY(std::abs(r[0] - 0.3f) < 1e-6f && r[1] == r[0] && r[2] == r[0]);
+        QVERIFY(std::abs(g[0] - 0.59f) < 1e-6f);
+        QVERIFY(std::abs(b[2] - 0.11f) < 1e-6f);
+        // Rec. 709 weights typed in give Rec. 709 luma.
+        n.params.setBase(gk::MixerMonoR, double(kLumaR));
+        n.params.setBase(gk::MixerMonoG, double(kLumaG));
+        n.params.setBase(gk::MixerMonoB, double(kLumaB));
+        float c[3] = {0.3f, 0.6f, 0.2f};
+        const float y = luma(c);
+        applyMixer(MixerValues::at(n, 0), c);
+        QVERIFY(std::abs(c[0] - y) < 1e-6f);
+        // A negative result floors at 0 (darktable process_gray).
+        n.params.setBase(gk::MixerMonoR, -1.0);
+        n.params.setBase(gk::MixerMonoG, 0.0);
+        n.params.setBase(gk::MixerMonoB, 0.0);
+        float e[3] = {0.5f, 0.5f, 0.5f};
+        applyMixer(MixerValues::at(n, 0), e);
+        QCOMPARE(e[1], 0.0f);
+        // Preserve Luminance in Monochrome: weights act as shares (divided by their sum).
+        n.params.setBase(gk::MixerPreserve, 1.0);
+        n.params.setBase(gk::MixerMonoR, 0.6);
+        n.params.setBase(gk::MixerMonoG, 0.6);
+        n.params.setBase(gk::MixerMonoB, 0.0);
+        float w[3] = {1.0f, 1.0f, 1.0f};
+        applyMixer(MixerValues::at(n, 0), w);
+        QVERIFY(std::abs(w[0] - 1.0f) < 1e-6f);
+        // Preserve Luminance in matrix mode keeps luma709 for any matrix.
+        GradeNode m;
+        const double vals[9] = {0.9, -0.4, 1.2, 0.3, 1.6, -0.2, -0.5, 0.8, 0.7};
+        const QString* keys[9] = {&gk::MixerRR, &gk::MixerRG, &gk::MixerRB, &gk::MixerGR,
+            &gk::MixerGG, &gk::MixerGB, &gk::MixerBR, &gk::MixerBG, &gk::MixerBB};
+        for (int i = 0; i < 9; ++i)
+            m.params.setBase(*keys[i], vals[i]);
+        m.params.setBase(gk::MixerPreserve, 1.0);
+        const MixerValues mv = MixerValues::at(m, 0);
+        quint32 seed = 12345;
+        auto rnd = [&seed] {
+            seed = seed * 1664525u + 1013904223u;
+            return float(seed >> 8) / float(1 << 24);
+        };
+        int checked = 0;
+        for (int i = 0; i < 100; ++i) {
+            float in[3] = {rnd(), rnd(), rnd()};
+            float out[3] = {in[0], in[1], in[2]};
+            applyMixer(mv, out);
+            // Only where the unscaled mix has positive luma the rule applies.
+            float raw[3];
+            for (int r = 0; r < 3; ++r)
+                raw[r] = mv.m[r * 3] * in[0] + mv.m[r * 3 + 1] * in[1] + mv.m[r * 3 + 2] * in[2];
+            if (luma(raw) <= kMixerEpsilon)
+                continue;
+            ++checked;
+            QVERIFY(std::abs(luma(out) - luma(in)) < 1e-4f);
+        }
+        QVERIFY(checked > 30);
+    }
+
+    void rgbMixerKeyframesSerializationAndReset()
+    {
+        GradeNode k;
+        k.params.values[gk::MixerRG].setKey(0, 0.0);
+        k.params.values[gk::MixerRG].setKey(10, 1.0);
+        QVERIFY(go::isNodeIdentity(k, 0));
+        QVERIFY(!go::isNodeIdentity(k, 10));
+        QVERIFY(std::abs(MixerValues::at(k, 5).m[1] - 0.5f) < 1e-5f);
+        ClipGrade g;
+        const quint64 a = go::initialize(g);
+        g.node(a)->params.setBase(gk::MixerBR, 0.6);
+        g.node(a)->params.setBase(gk::MixerMono, 1.0);
+        g.node(a)->params.setBase(gk::MixerPreserve, 1.0);
+        g.node(a)->params.values[gk::MixerMonoG].setKey(0, 0.2);
+        g.node(a)->params.values[gk::MixerMonoG].setKey(5, 0.9);
+        const ClipGrade back = serialization::gradeFromJson(serialization::gradeToJson(g));
+        QCOMPARE(back, g);
+        QVERIFY(MixerValues::at(back.nodes[0], 0).mono);
+        QVERIFY(MixerValues::at(back.nodes[0], 0).preserveLum);
+        // A project saved before the palette reads as identity.
+        ClipGrade old;
+        go::initialize(old);
+        QVERIFY(MixerValues::at(old.nodes[0], 0).isIdentity());
+        QVERIFY(go::resetNode(g, a));
+        QVERIFY(MixerValues::at(*g.node(a), 0).isIdentity());
+        for (const QString& key : gk::rgbMixerKeys()) {
+            QVERIFY(gk::allKeys().contains(key));
+            QVERIFY(gk::label(key) != key);
+        }
+        QCOMPARE(gk::range(gk::MixerRG), (std::pair<double, double> {-2.0, 2.0}));
+    }
+
     // ---- Serialization ----
 
     void serializationRoundTrip()

@@ -281,6 +281,23 @@ class TestGradeRender : public QObject
             out.append({QStringLiteral("tracked_window"), g});
         }
         {
+            // RGB Mixer (spec 109): a cross mix, Monochrome, Preserve Luminance (both modes),
+            // after the primaries and before the curves.
+            out.append({QStringLiteral("mixer_matrix"),
+                primariesGrade({{gk::MixerRR, 0.4}, {gk::MixerRG, 0.7}, {gk::MixerRB, -0.1},
+                    {gk::MixerGR, 0.2}, {gk::MixerBB, 1.3}, {gk::MixerBR, 0.5},
+                    {gk::Saturation, 1.2}})});
+            out.append({QStringLiteral("mixer_mono"),
+                primariesGrade({{gk::MixerMono, 1.0}, {gk::MixerMonoR, 0.6},
+                    {gk::MixerMonoG, 0.7}, {gk::MixerMonoB, -0.2}})});
+            out.append({QStringLiteral("mixer_mono_preserve"),
+                primariesGrade({{gk::MixerMono, 1.0}, {gk::MixerPreserve, 1.0},
+                    {gk::MixerMonoR, 0.6}, {gk::MixerMonoG, 0.7}, {gk::MixerMonoB, -0.2}})});
+            out.append({QStringLiteral("mixer_preserve"),
+                primariesGrade({{gk::MixerPreserve, 1.0}, {gk::MixerRG, 0.9}, {gk::MixerGG, 0.3},
+                    {gk::MixerBR, 0.8}, {gk::Contrast, 1.2}})});
+        }
+        {
             ClipGrade g = primariesGrade({});
             g.nodes[0].lutPath = m_lut3d;
             out.append({QStringLiteral("lut3d_tetrahedral"), g});

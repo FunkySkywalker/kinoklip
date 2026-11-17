@@ -4050,6 +4050,14 @@ The program was probably closed by the system because the computer ran out of me
         <translation>Отслеживание окна, чтобы оно следовало за объектом, или стабилизация клипа.</translation>
     </message>
     <message>
+        <source>RGB Mixer</source>
+        <translation>RGB-микшер</translation>
+    </message>
+    <message>
+        <source>Mix the red, green and blue channels of the current node, or make it monochrome.</source>
+        <translation>Смешивает красный, зелёный и синий каналы текущего нода или делает его монохромным.</translation>
+    </message>
+    <message>
         <source>Reset</source>
         <translation>Сброс</translation>
     </message>
@@ -17042,6 +17050,33 @@ The timelines that use the project settings are converted: clips, markers and ef
     </message>
 </context>
 <context>
+    <name>kk::RgbMixerPanel</name>
+    <message>
+        <source>Red</source>
+        <translation>Красный</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Зелёный</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Синий</translation>
+    </message>
+    <message>
+        <source>Monochrome</source>
+        <translation>Монохром</translation>
+    </message>
+    <message>
+        <source>Preserve Luminance</source>
+        <translation>Сохранять яркость</translation>
+    </message>
+    <message>
+        <source>Reset RGB Mixer</source>
+        <translation>Сбросить RGB-микшер</translation>
+    </message>
+</context>
+<context>
     <name>kk::ScopesPanel</name>
     <message>
         <source>Waveform</source>
@@ -21696,6 +21731,62 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
     <message>
         <source>Mist Mix</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Red Output: Red</source>
+        <translation>Красный выход: Красный</translation>
+    </message>
+    <message>
+        <source>Red Output: Green</source>
+        <translation>Красный выход: Зелёный</translation>
+    </message>
+    <message>
+        <source>Red Output: Blue</source>
+        <translation>Красный выход: Синий</translation>
+    </message>
+    <message>
+        <source>Green Output: Red</source>
+        <translation>Зелёный выход: Красный</translation>
+    </message>
+    <message>
+        <source>Green Output: Green</source>
+        <translation>Зелёный выход: Зелёный</translation>
+    </message>
+    <message>
+        <source>Green Output: Blue</source>
+        <translation>Зелёный выход: Синий</translation>
+    </message>
+    <message>
+        <source>Blue Output: Red</source>
+        <translation>Синий выход: Красный</translation>
+    </message>
+    <message>
+        <source>Blue Output: Green</source>
+        <translation>Синий выход: Зелёный</translation>
+    </message>
+    <message>
+        <source>Blue Output: Blue</source>
+        <translation>Синий выход: Синий</translation>
+    </message>
+    <message>
+        <source>Monochrome Red</source>
+        <translation>Монохром: Красный</translation>
+    </message>
+    <message>
+        <source>Monochrome Green</source>
+        <translation>Монохром: Зелёный</translation>
+    </message>
+    <message>
+        <source>Monochrome Blue</source>
+        <translation>Монохром: Синий</translation>
+    </message>
+    <message>
+        <source>Monochrome</source>
+        <translation>Монохром</translation>
+    </message>
+    <message>
+        <source>Preserve Luminance</source>
+        <translation>Сохранять яркость</translation>
     </message>
     <message>
         <source>Contrast</source>

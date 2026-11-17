@@ -250,4 +250,41 @@ private:
     bool m_refreshing = false;
 };
 
+/// The RGB Mixer palette (Resolve's RGB Mixer): three output tabs Red / Green / Blue, each with
+/// three sliders (how much of the input Red, Green, Blue goes into that output channel), a
+/// Monochrome check box (the tabs give way to one Gray row of weights) and a Preserve Luminance
+/// check box. They edit the selected node's mixer parameters (gradekeys); the palette bar's
+/// Reset sets all of them back.
+class RgbMixerPanel : public QWidget
+{
+    Q_OBJECT
+public:
+    explicit RgbMixerPanel(ColorSession* session, QWidget* parent = nullptr);
+
+    /// The field of parameter @p key (gradekeys::MixerRR, ...), or nullptr.
+    [[nodiscard]] ValueField* field(const QString& key) const;
+    /// The output tab buttons: 0 Red, 1 Green, 2 Blue.
+    [[nodiscard]] QToolButton* tabButton(int output) const { return m_tabs[output]; }
+    [[nodiscard]] QCheckBox* monochrome() const { return m_mono; }
+    [[nodiscard]] QCheckBox* preserveLuminance() const { return m_preserve; }
+    /// The page shown: 0..2 an output tab, 3 the Gray row (Monochrome on).
+    [[nodiscard]] int page() const;
+    /// Sets every mixer parameter of the selected node back to its default.
+    void resetAll();
+
+private:
+    void bindField(ValueField* field, const QString& key);
+    void setValueOf(const QString& key, double value);
+    void refresh();
+
+    QPointer<ColorSession> m_session;
+    QToolButton* m_tabs[3] {};
+    QCheckBox* m_mono = nullptr;
+    QCheckBox* m_preserve = nullptr;
+    QStackedWidget* m_stack = nullptr;
+    int m_tab = 0;
+    QVector<std::pair<QString, ValueField*>> m_fields;
+    bool m_refreshing = false;
+};
+
 } // namespace kk

@@ -136,6 +136,17 @@ double defaultValue(QStringView key)
         return 1.0;
     if (key == Pivot)
         return 0.435; // Resolve's default contrast pivot (log-ish mid grey)
+    if (key.startsWith(u"mixer")) {
+        if (key == MixerRR || key == MixerGG || key == MixerBB)
+            return 1.0;
+        if (key == MixerMonoR)
+            return 0.3;
+        if (key == MixerMonoG)
+            return 0.59;
+        if (key == MixerMonoB)
+            return 0.11;
+        return 0.0;
+    }
     if (key.startsWith(u"blur") || key.startsWith(u"sharp") || key.startsWith(u"mist")) {
         if (key == SharpCoring || key == MistRadius)
             return 0.0;
@@ -152,6 +163,18 @@ const QVector<QString>& blurKeys()
     return keys;
 }
 
+const QVector<QString>& rgbMixerKeys()
+{
+    static const QVector<QString> keys = {MixerRR, MixerRG, MixerRB, MixerGR, MixerGG, MixerGB,
+        MixerBR, MixerBG, MixerBB, MixerMonoR, MixerMonoG, MixerMonoB, MixerMono, MixerPreserve};
+    return keys;
+}
+
+bool isRgbMixerKey(QStringView key)
+{
+    return key.startsWith(u"mixer");
+}
+
 bool isBlurKey(QStringView key)
 {
     return key.startsWith(u"blur") || key.startsWith(u"sharp") || key.startsWith(u"mist");
@@ -163,7 +186,9 @@ const QVector<QString>& allKeys()
         GammaY, GainR, GainG, GainB, GainY, OffsetR, OffsetG, OffsetB, OffsetY, Contrast, Pivot,
         Saturation, Hue, Temperature, Tint, LumMix, Mix, BlurRadiusR, BlurRadiusG, BlurRadiusB,
         BlurRatio, BlurScaling, SharpRadiusR, SharpRadiusG, SharpRadiusB, SharpRatio, SharpScaling,
-        SharpCoring, SharpLevel, MistRadius, MistRatio, MistScaling, MistMix};
+        SharpCoring, SharpLevel, MistRadius, MistRatio, MistScaling, MistMix, MixerRR, MixerRG, MixerRB,
+        MixerGR, MixerGG, MixerGB, MixerBR, MixerBG, MixerBB, MixerMonoR, MixerMonoG, MixerMonoB,
+        MixerMono, MixerPreserve};
     return keys;
 }
 
@@ -197,6 +222,20 @@ QString label(const QString& key)
         {&MistRatio, QT_TRANSLATE_NOOP("kk::gradekeys", "Mist H/V Ratio")},
         {&MistScaling, QT_TRANSLATE_NOOP("kk::gradekeys", "Mist Scaling")},
         {&MistMix, QT_TRANSLATE_NOOP("kk::gradekeys", "Mist Mix")},
+        {&MixerRR, QT_TRANSLATE_NOOP("kk::gradekeys", "Red Output: Red")},
+        {&MixerRG, QT_TRANSLATE_NOOP("kk::gradekeys", "Red Output: Green")},
+        {&MixerRB, QT_TRANSLATE_NOOP("kk::gradekeys", "Red Output: Blue")},
+        {&MixerGR, QT_TRANSLATE_NOOP("kk::gradekeys", "Green Output: Red")},
+        {&MixerGG, QT_TRANSLATE_NOOP("kk::gradekeys", "Green Output: Green")},
+        {&MixerGB, QT_TRANSLATE_NOOP("kk::gradekeys", "Green Output: Blue")},
+        {&MixerBR, QT_TRANSLATE_NOOP("kk::gradekeys", "Blue Output: Red")},
+        {&MixerBG, QT_TRANSLATE_NOOP("kk::gradekeys", "Blue Output: Green")},
+        {&MixerBB, QT_TRANSLATE_NOOP("kk::gradekeys", "Blue Output: Blue")},
+        {&MixerMonoR, QT_TRANSLATE_NOOP("kk::gradekeys", "Monochrome Red")},
+        {&MixerMonoG, QT_TRANSLATE_NOOP("kk::gradekeys", "Monochrome Green")},
+        {&MixerMonoB, QT_TRANSLATE_NOOP("kk::gradekeys", "Monochrome Blue")},
+        {&MixerMono, QT_TRANSLATE_NOOP("kk::gradekeys", "Monochrome")},
+        {&MixerPreserve, QT_TRANSLATE_NOOP("kk::gradekeys", "Preserve Luminance")},
         {&Contrast, QT_TRANSLATE_NOOP("kk::gradekeys", "Contrast")},
         {&Pivot, QT_TRANSLATE_NOOP("kk::gradekeys", "Pivot")},
         {&Saturation, QT_TRANSLATE_NOOP("kk::gradekeys", "Saturation")},
@@ -224,6 +263,10 @@ std::pair<double, double> range(const QString& key)
         return {0.0, 4.0};
     if (key == Pivot || key == LumMix || key == Mix || isBlurKey(key))
         return {0.0, 1.0};
+    if (key == MixerMono || key == MixerPreserve)
+        return {0.0, 1.0};
+    if (isRgbMixerKey(key))
+        return {-2.0, 2.0};
     if (key == Hue)
         return {-180.0, 180.0};
     return {-1.0, 1.0}; // temperature, tint
@@ -492,12 +535,13 @@ bool isNodeIdentity(const GradeNode& node, int64_t localFrame)
         return false;
     for (const QString& key : gradekeys::allKeys()) {
         if (key == gradekeys::Pivot || key == gradekeys::LumMix || key == gradekeys::Mix
-            || gradekeys::isBlurKey(key))
-            continue; // only matter together with another value (blur: checked below)
+            || gradekeys::isBlurKey(key) || gradekeys::isRgbMixerKey(key))
+            continue; // only matter together with another value (blur, mixer: checked below)
         if (node.value(key, localFrame) != gradekeys::defaultValue(key))
             return false;
     }
-    return !grademath::BlurValues::at(node, localFrame, 1080.0).active();
+    return !grademath::BlurValues::at(node, localFrame, 1080.0).active()
+        && grademath::MixerValues::at(node, localFrame).isIdentity();
 }
 
 bool isIdentity(const ClipGrade& grade, int64_t localFrame)

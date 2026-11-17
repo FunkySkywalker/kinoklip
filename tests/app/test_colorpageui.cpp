@@ -838,6 +838,61 @@ private slots:
         QCOMPARE(page->currentPalette(), ColorPage::Palette::Blur);
     }
 
+    void rgbMixerPalette()
+    {
+        Fixture f;
+        f.showPage();
+        ColorPage* page = f.page();
+        auto* tab = page->findChild<QAbstractButton*>(QStringLiteral("ColorPaletteTab_7"));
+        QVERIFY(tab);
+        QCOMPARE(tab->text(), QStringLiteral("RGB Mixer"));
+        tab->click();
+        QCOMPARE(page->currentPalette(), ColorPage::Palette::RgbMixer);
+        RgbMixerPanel* mixer = page->rgbMixer();
+        QVERIFY(mixer && mixer->isVisible());
+        // Nine fields in three tabs, identity at the start.
+        const QString keys[9] = {gk::MixerRR, gk::MixerRG, gk::MixerRB, gk::MixerGR, gk::MixerGG,
+            gk::MixerGB, gk::MixerBR, gk::MixerBG, gk::MixerBB};
+        for (int i = 0; i < 9; ++i) {
+            QVERIFY(mixer->field(keys[i]));
+            QCOMPARE(mixer->field(keys[i])->value(), i % 4 == 0 ? 1.0 : 0.0);
+        }
+        QCOMPARE(mixer->page(), 0);
+        // Typing a value is one undo step (the first edit makes the node).
+        const int steps = f.steps();
+        Q_EMIT mixer->field(gk::MixerBR)->valueCommitted(0.75);
+        QCOMPARE(f.steps(), steps + 1);
+        QCOMPARE(f.session()->currentNode()->value(gk::MixerBR, 0), 0.75);
+        mixer->tabButton(2)->click();
+        QCOMPARE(mixer->page(), 2);
+        // Monochrome swaps the tabs for the Gray row; Preserve Luminance is a check box.
+        mixer->monochrome()->setChecked(true);
+        QCOMPARE(f.session()->currentNode()->value(gk::MixerMono, 0), 1.0);
+        QCOMPARE(mixer->page(), 3);
+        QVERIFY(mixer->field(gk::MixerMonoR));
+        QCOMPARE(mixer->field(gk::MixerMonoG)->value(), 0.59);
+        mixer->preserveLuminance()->setChecked(true);
+        QCOMPARE(f.session()->currentNode()->value(gk::MixerPreserve, 0), 1.0);
+        // The palette bar's Reset restores the identity as one undo step.
+        auto* reset = page->findChild<QToolButton*>(QStringLiteral("ColorPaletteReset"));
+        QVERIFY(reset);
+        const int before = f.steps();
+        reset->click();
+        QCOMPARE(f.steps(), before + 1);
+        for (const QString& key : gk::rgbMixerKeys())
+            QCOMPARE(f.session()->currentNode()->value(key, 0), gk::defaultValue(key));
+        QVERIFY(!mixer->monochrome()->isChecked());
+        QCOMPARE(mixer->field(gk::MixerBR)->value(), 0.0);
+        f.project.undoStack()->undo();
+        QCOMPARE(f.session()->currentNode()->value(gk::MixerBR, 0), 0.75);
+        QSettings settings;
+        settings.beginGroup(QStringLiteral("colorMixerLayoutTest"));
+        page->saveLayout(settings);
+        page->showPalette(ColorPage::Palette::Primaries);
+        page->restoreLayout(settings);
+        QCOMPARE(page->currentPalette(), ColorPage::Palette::RgbMixer);
+    }
+
     void trackerPalette()
     {
         Fixture f;

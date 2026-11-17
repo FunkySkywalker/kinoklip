@@ -1341,4 +1341,151 @@ void BlurPanel::refresh()
     m_refreshing = false;
 }
 
+// ---- RgbMixerPanel ----
+
+RgbMixerPanel::RgbMixerPanel(ColorSession* session, QWidget* parent)
+    : QWidget(parent)
+    , m_session(session)
+{
+    markVimForm(this);
+    setObjectName(QStringLiteral("RgbMixerPanel"));
+    namespace gk = gradekeys;
+    auto* layout = new QVBoxLayout(this);
+    layout->setContentsMargins(6, 2, 6, 4);
+    layout->setSpacing(3);
+    auto* top = new QHBoxLayout;
+    auto* group = new QButtonGroup(this);
+    const QString names[3] = {tr("Red"), tr("Green"), tr("Blue")};
+    for (int i = 0; i < 3; ++i) {
+        m_tabs[i] = toolButton(names[i], this, true);
+        m_tabs[i]->setObjectName(QStringLiteral("RgbMixerTab_") + QString::number(i));
+        group->addButton(m_tabs[i], i);
+        top->addWidget(m_tabs[i]);
+    }
+    m_tabs[0]->setChecked(true);
+    top->addSpacing(12);
+    m_mono = new QCheckBox(tr("Monochrome"), this);
+    m_mono->setObjectName(QStringLiteral("RgbMixerMonochrome"));
+    m_preserve = new QCheckBox(tr("Preserve Luminance"), this);
+    m_preserve->setObjectName(QStringLiteral("RgbMixerPreserve"));
+    top->addWidget(m_mono);
+    top->addWidget(m_preserve);
+    top->addStretch(1);
+    layout->addLayout(top);
+    m_stack = new QStackedWidget(this);
+    layout->addWidget(m_stack, 1);
+    connect(group, &QButtonGroup::idClicked, this, [this](int id) {
+        m_tab = id;
+        refresh();
+    });
+
+    struct Spec
+    {
+        const QString* key;
+        QString label;
+    };
+    auto addPage = [&](const QVector<Spec>& specs) {
+        auto* page = new QWidget;
+        auto* grid = new QGridLayout(page);
+        grid->setContentsMargins(0, 2, 0, 0);
+        grid->setHorizontalSpacing(8);
+        grid->setVerticalSpacing(3);
+        int row = 0;
+        for (const Spec& s : specs) {
+            grid->addWidget(new QLabel(s.label, page), row, 0);
+            ValueField* f = makeField(page, -2.0, 2.0, 0.01, 2);
+            f->setObjectName(QStringLiteral("RgbMixer_") + *s.key);
+            grid->addWidget(f, row, 1);
+            bindField(f, *s.key);
+            ++row;
+        }
+        grid->setColumnStretch(2, 1);
+        grid->setRowStretch(row, 1);
+        m_stack->addWidget(page);
+    };
+    addPage({{&gk::MixerRR, tr("Red")}, {&gk::MixerRG, tr("Green")}, {&gk::MixerRB, tr("Blue")}});
+    addPage({{&gk::MixerGR, tr("Red")}, {&gk::MixerGG, tr("Green")}, {&gk::MixerGB, tr("Blue")}});
+    addPage({{&gk::MixerBR, tr("Red")}, {&gk::MixerBG, tr("Green")}, {&gk::MixerBB, tr("Blue")}});
+    addPage({{&gk::MixerMonoR, tr("Red")}, {&gk::MixerMonoG, tr("Green")},
+        {&gk::MixerMonoB, tr("Blue")}});
+
+    connect(m_mono, &QCheckBox::toggled, this, [this](bool on) {
+        setValueOf(gradekeys::MixerMono, on ? 1.0 : 0.0);
+    });
+    connect(m_preserve, &QCheckBox::toggled, this, [this](bool on) {
+        setValueOf(gradekeys::MixerPreserve, on ? 1.0 : 0.0);
+    });
+    if (m_session) {
+        connect(m_session, &ColorSession::gradeChanged, this, &RgbMixerPanel::refresh);
+        connect(m_session, &ColorSession::selectedNodeChanged, this, &RgbMixerPanel::refresh);
+        connect(m_session, &ColorSession::clipChanged, this, &RgbMixerPanel::refresh);
+    }
+    refresh();
+}
+
+int RgbMixerPanel::page() const
+{
+    return m_stack->currentIndex();
+}
+
+ValueField* RgbMixerPanel::field(const QString& key) const
+{
+    for (const auto& [k, f] : m_fields) {
+        if (k == key)
+            return f;
+    }
+    return nullptr;
+}
+
+void RgbMixerPanel::setValueOf(const QString& key, double value)
+{
+    if (m_refreshing || !m_session)
+        return;
+    m_session->setParam(0, key, value, gradekeys::label(key));
+}
+
+void RgbMixerPanel::bindField(ValueField* f, const QString& key)
+{
+    connect(f, &ValueField::scrubStarted, this, [this, key] {
+        if (m_session)
+            m_session->beginGesture(gradekeys::label(key));
+    });
+    connect(f, &ValueField::valueScrubbed, this, [this, key](double v) { setValueOf(key, v); });
+    connect(f, &ValueField::scrubFinished, this, [this] {
+        if (m_session)
+            m_session->endGesture();
+    });
+    connect(f, &ValueField::valueCommitted, this, [this, key](double v) { setValueOf(key, v); });
+    m_fields.append({key, f});
+}
+
+void RgbMixerPanel::resetAll()
+{
+    if (!m_session || !m_session->currentNode())
+        return;
+    QVector<std::pair<QString, double>> values;
+    for (const QString& key : gradekeys::rgbMixerKeys())
+        values.append({key, gradekeys::defaultValue(key)});
+    m_session->setParams(0, values, tr("Reset RGB Mixer"));
+}
+
+void RgbMixerPanel::refresh()
+{
+    m_refreshing = true;
+    const GradeNode* n = m_session ? m_session->currentNode() : nullptr;
+    setEnabled(n && !n->isMixer());
+    const int64_t frame = m_session ? m_session->gradeFrame() : 0;
+    for (const auto& [key, f] : std::as_const(m_fields)) {
+        if (!f->isScrubbing())
+            f->setValue(n ? n->value(key, frame) : gradekeys::defaultValue(key));
+    }
+    const bool mono = n && n->value(gradekeys::MixerMono, frame) >= 0.5;
+    m_mono->setChecked(mono);
+    m_preserve->setChecked(n && n->value(gradekeys::MixerPreserve, frame) >= 0.5);
+    for (QToolButton* t : m_tabs)
+        t->setEnabled(!mono);
+    m_stack->setCurrentIndex(mono ? 3 : m_tab);
+    m_refreshing = false;
+}
+
 } // namespace kk

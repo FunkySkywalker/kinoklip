@@ -32,6 +32,9 @@ struct PreparedGradeNode
     bool keyNeeded = false;
     grademath::PrimaryValues primaries;
     bool primariesIdentity = true;
+    /// The RGB Mixer of the node (after the primaries, before the curves).
+    grademath::MixerValues mixer;
+    bool mixes = false; ///< not mixer.isIdentity()
     std::shared_ptr<const grademath::CurveTables> curves; ///< null = identity
     std::shared_ptr<const CubeLut> lut; ///< null = none (or unreadable)
     bool tetrahedral = true;

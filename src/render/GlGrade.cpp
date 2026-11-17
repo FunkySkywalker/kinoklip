@@ -38,6 +38,9 @@ uniform int uPrimaries;
 uniform vec4 uLift, uGamma, uGain, uOffset;
 uniform float uContrast, uPivot, uSaturation, uTemperature, uTint, uLumMix;
 uniform mat3 uHue;
+uniform int uMixer;       // RGB Mixer: 0 off, else bit 0 on, bit 1 Monochrome, bit 2 Preserve Luminance
+uniform mat3 uMixM;       // row-major on the CPU (out = M * in)
+uniform vec3 uMixGrey;
 uniform int uCurveMask;
 uniform int uLutMode;     // 0 none, 1 1D, 2 3D trilinear, 3 3D tetrahedral
 uniform float uLutN;
@@ -102,6 +105,28 @@ vec3 primaries(vec3 c)
     c = uHue * c;
     float y3 = luma(c);
     return y3 + (c - y3) * uSaturation;
+}
+
+// Mirrors grademath::applyMixer (CPU); darktable channelmixer.c process_gray for Monochrome.
+vec3 mixer(vec3 c)
+{
+    bool mono = (uMixer & 2) != 0;
+    bool keep = (uMixer & 4) != 0;
+    if (mono) {
+        vec3 w = uMixGrey;
+        float sum = w.r + w.g + w.b;
+        if (keep && abs(sum) > 1e-5)
+            w /= sum;
+        float g = max(dot(w, c), 0.0);
+        return vec3(g);
+    }
+    vec3 o = uMixM * c;
+    if (keep) {
+        float yOut = luma(o);
+        if (yOut > 1e-5)
+            o *= luma(c) / yOut;
+    }
+    return o;
 }
 
 float curve(int index, float x)
@@ -348,6 +373,8 @@ vec3 correct(vec3 c)
     if (uCorrects != 0) {
         if (uPrimaries != 0)
             g = primaries(g);
+        if (uMixer != 0)
+            g = mixer(g);
         if (uCurveMask != 0)
             g = curves(g);
         if (uLutMode != 0)
@@ -614,6 +641,9 @@ bool GlGrade::initialize(GlKit& kit, QString* why)
     m_u.tint = u("uTint");
     m_u.lumMix = u("uLumMix");
     m_u.hue = u("uHue");
+    m_u.mixer = u("uMixer");
+    m_u.mixM = u("uMixM");
+    m_u.mixGrey = u("uMixGrey");
     m_u.curveMask = u("uCurveMask");
     m_u.lutMode = u("uLutMode");
     m_u.lutN = u("uLutN");
@@ -808,6 +838,10 @@ void GlGrade::drawCorrector(
     gl->glUniform1f(m_u.tint, p.tint);
     gl->glUniform1f(m_u.lumMix, p.lumMix);
     gl->glUniformMatrix3fv(m_u.hue, 1, GL_TRUE, p.hueMatrix); // row-major on the CPU
+    gl->glUniform1i(m_u.mixer,
+        n.mixes ? (1 | (n.mixer.mono ? 2 : 0) | (n.mixer.preserveLum ? 4 : 0)) : 0);
+    gl->glUniformMatrix3fv(m_u.mixM, 1, GL_TRUE, n.mixer.m); // row-major on the CPU
+    gl->glUniform3f(m_u.mixGrey, n.mixer.grey[0], n.mixer.grey[1], n.mixer.grey[2]);
     gl->glUniform1i(m_u.curveMask, n.curves ? n.curves->mask() : 0);
     int lutMode = 0;
     if (n.lut)

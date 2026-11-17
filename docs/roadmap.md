@@ -166,7 +166,7 @@ Beginner and intermediate tutorial workflows for Resolve's Color, Fairlight and 
 - [ ] Color: Curves: Sat vs Lum curve, Soft Clip, and picking a colour or luma from the viewer to add curve points
 - [ ] Color: Color Warper palette (Hue - Sat and Chroma - Luma grids)
 - [ ] Color: HDR palette (zones: Global, Shadow, Light, Highlight, Specular)
-- [ ] Color: RGB Mixer palette (Red / Green / Blue output sliders, Monochrome, Preserve Luminance)
+- [x] Color: RGB Mixer palette (Red / Green / Blue output sliders, Monochrome, Preserve Luminance; spec 109; keyframes, undo, same maths on GPU and CPU)
 - [ ] Color: Motion Effects palette: temporal and spatial Noise Reduction with Better / Faster modes
 - [ ] Color: Magic Mask palette: draw a stroke on a person or object and it follows (local open model, optional)
 - [ ] Color: Color Match palette: Shot Match to another clip, and a colour chart

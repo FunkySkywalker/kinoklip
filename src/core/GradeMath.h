@@ -65,6 +65,32 @@ struct PrimaryValues
 /// the grey axis, saturation around Rec. 709 luma. No clamping.
 void applyPrimaries(const PrimaryValues& p, float rgb[3]);
 
+/// RGB Mixer palette of a node at one frame (row-major: out = m * in; row 0 makes the red
+/// output). Monochrome replaces the matrix by one grey weighting of R, G and B.
+struct MixerValues
+{
+    float m[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
+    bool mono = false;
+    float grey[3] = {0.3f, 0.59f, 0.11f};
+    bool preserveLum = false;
+
+    /// The values of @p node at frame @p localFrame.
+    [[nodiscard]] static MixerValues at(const GradeNode& node, int64_t localFrame);
+    /// True if applyMixer() changes nothing.
+    [[nodiscard]] bool isIdentity() const;
+};
+
+/// Smallest luminance / weight sum the Preserve Luminance rescale divides by.
+inline constexpr float kMixerEpsilon = 1e-5f;
+
+/// Applies the RGB Mixer to straight RGB @p rgb in place. Matrix mode: out = M in. Monochrome
+/// (maths of darktable's channelmixer.c process_gray: weighted sum replicated into all three
+/// channels, no clamp except a floor at 0): grey = max(w . in, 0). Preserve Luminance (our rule,
+/// the exact Resolve rule is not public): matrix mode scales the result by luma(in) / luma(out)
+/// when luma(out) > epsilon; Monochrome divides the weights by their sum, so the sliders act as
+/// shares of one whole (when the sum is above epsilon).
+void applyMixer(const MixerValues& v, float rgb[3]);
+
 /// One lift / gamma / gain transfer: pow(max(gain * (x + lift * (1 - x)), 0), 2^(-2 gamma)).
 [[nodiscard]] float liftGammaGain(float x, float lift, float gamma, float gain);
 

@@ -283,6 +283,30 @@ inline const QString MistRadius = QStringLiteral("mistRadius"); ///< 0..1; defau
 inline const QString MistRatio = QStringLiteral("mistRatio"); ///< default 0.5
 inline const QString MistScaling = QStringLiteral("mistScaling"); ///< default 0.5
 inline const QString MistMix = QStringLiteral("mistMix"); ///< 0..1; default 0.5
+// RGB Mixer palette (see grademath::MixerValues). Mixer<Out><In>: how much of input channel
+// In goes into output channel Out; defaults are the identity matrix. Range -2..2.
+inline const QString MixerRR = QStringLiteral("mixerRR"); ///< default 1
+inline const QString MixerRG = QStringLiteral("mixerRG"); ///< default 0
+inline const QString MixerRB = QStringLiteral("mixerRB");
+inline const QString MixerGR = QStringLiteral("mixerGR");
+inline const QString MixerGG = QStringLiteral("mixerGG"); ///< default 1
+inline const QString MixerGB = QStringLiteral("mixerGB");
+inline const QString MixerBR = QStringLiteral("mixerBR");
+inline const QString MixerBG = QStringLiteral("mixerBG");
+inline const QString MixerBB = QStringLiteral("mixerBB"); ///< default 1
+// Monochrome grey weights (used only while Monochrome is on); defaults sum to 1.
+inline const QString MixerMonoR = QStringLiteral("mixerMonoR"); ///< default 0.3
+inline const QString MixerMonoG = QStringLiteral("mixerMonoG"); ///< default 0.59
+inline const QString MixerMonoB = QStringLiteral("mixerMonoB"); ///< default 0.11
+// The two check boxes, stored as 0 / 1 parameters (on from 0.5 up) so they keyframe and undo
+// like the sliders.
+inline const QString MixerMono = QStringLiteral("mixerMono"); ///< Monochrome; default 0
+inline const QString MixerPreserve = QStringLiteral("mixerPreserve"); ///< Preserve Luminance
+/// The RGB Mixer keys (every key above from MixerRR on), in palette order.
+[[nodiscard]] const QVector<QString>& rgbMixerKeys();
+/// True for an RGB Mixer key.
+[[nodiscard]] bool isRgbMixerKey(QStringView key);
+
 /// The blur palette keys (every key above from BlurRadiusR on), in palette order.
 [[nodiscard]] const QVector<QString>& blurKeys();
 /// True for a blur palette key.

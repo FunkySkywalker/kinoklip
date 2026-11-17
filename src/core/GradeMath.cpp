@@ -103,6 +103,60 @@ bool PrimaryValues::isIdentity() const
         && tint == 0.0f;
 }
 
+MixerValues MixerValues::at(const GradeNode& node, int64_t f)
+{
+    namespace gk = gradekeys;
+    MixerValues v;
+    const QString* const keys[9] = {&gk::MixerRR, &gk::MixerRG, &gk::MixerRB, &gk::MixerGR,
+        &gk::MixerGG, &gk::MixerGB, &gk::MixerBR, &gk::MixerBG, &gk::MixerBB};
+    for (int i = 0; i < 9; ++i)
+        v.m[i] = float(node.value(*keys[i], f));
+    v.grey[0] = float(node.value(gk::MixerMonoR, f));
+    v.grey[1] = float(node.value(gk::MixerMonoG, f));
+    v.grey[2] = float(node.value(gk::MixerMonoB, f));
+    v.mono = node.value(gk::MixerMono, f) >= 0.5;
+    v.preserveLum = node.value(gk::MixerPreserve, f) >= 0.5;
+    return v;
+}
+
+bool MixerValues::isIdentity() const
+{
+    if (mono)
+        return false;
+    const float id[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
+    return std::equal(std::begin(id), std::end(id), std::begin(m));
+}
+
+void applyMixer(const MixerValues& v, float c[3])
+{
+    if (v.mono) {
+        float w[3] = {v.grey[0], v.grey[1], v.grey[2]};
+        if (v.preserveLum) {
+            const float sum = w[0] + w[1] + w[2];
+            if (std::fabs(sum) > kMixerEpsilon)
+                for (float& x : w)
+                    x /= sum;
+        }
+        const float g = std::max(w[0] * c[0] + w[1] * c[1] + w[2] * c[2], 0.0f);
+        c[0] = c[1] = c[2] = g;
+        return;
+    }
+    const float in[3] = {c[0], c[1], c[2]};
+    float out[3];
+    for (int r = 0; r < 3; ++r)
+        out[r] = v.m[r * 3] * in[0] + v.m[r * 3 + 1] * in[1] + v.m[r * 3 + 2] * in[2];
+    if (v.preserveLum) {
+        const float yIn = luma(in);
+        const float yOut = luma(out);
+        if (yOut > kMixerEpsilon) {
+            const float k = yIn / yOut;
+            for (float& x : out)
+                x *= k;
+        }
+    }
+    std::copy(out, out + 3, c);
+}
+
 float liftGammaGain(float x, float lift, float gamma, float gain)
 {
     const float v = std::max(gain * (x + lift * (1.0f - x)), 0.0f);

@@ -4045,6 +4045,14 @@ Das Programm wurde wahrscheinlich vom System beendet, weil der Arbeitsspeicher d
         <translation>Ein Fenster so verfolgen, dass es dem Motiv folgt, oder den Clip stabilisieren.</translation>
     </message>
     <message>
+        <source>RGB Mixer</source>
+        <translation>RGB-Mixer</translation>
+    </message>
+    <message>
+        <source>Mix the red, green and blue channels of the current node, or make it monochrome.</source>
+        <translation>Rot-, Grün- und Blaukanal des aktuellen Nodes mischen oder ihn einfarbig machen.</translation>
+    </message>
+    <message>
         <source>Reset</source>
         <translation>Zurücksetzen</translation>
     </message>
@@ -17029,6 +17037,33 @@ Die Timelines, die die Projekteinstellungen verwenden, werden umgerechnet: Clips
     </message>
 </context>
 <context>
+    <name>kk::RgbMixerPanel</name>
+    <message>
+        <source>Red</source>
+        <translation>Rot</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Grün</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Blau</translation>
+    </message>
+    <message>
+        <source>Monochrome</source>
+        <translation>Monochrom</translation>
+    </message>
+    <message>
+        <source>Preserve Luminance</source>
+        <translation>Luminanz beibehalten</translation>
+    </message>
+    <message>
+        <source>Reset RGB Mixer</source>
+        <translation>RGB-Mixer zurücksetzen</translation>
+    </message>
+</context>
+<context>
     <name>kk::ScopesPanel</name>
     <message>
         <source>Waveform</source>
@@ -21681,6 +21716,62 @@ Einen Multicam-Clip aus dem Medienpool öffnen oder den Abspielkopf über einen 
     <message>
         <source>Mist Mix</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Red Output: Red</source>
+        <translation>Rot-Ausgang: Rot</translation>
+    </message>
+    <message>
+        <source>Red Output: Green</source>
+        <translation>Rot-Ausgang: Grün</translation>
+    </message>
+    <message>
+        <source>Red Output: Blue</source>
+        <translation>Rot-Ausgang: Blau</translation>
+    </message>
+    <message>
+        <source>Green Output: Red</source>
+        <translation>Grün-Ausgang: Rot</translation>
+    </message>
+    <message>
+        <source>Green Output: Green</source>
+        <translation>Grün-Ausgang: Grün</translation>
+    </message>
+    <message>
+        <source>Green Output: Blue</source>
+        <translation>Grün-Ausgang: Blau</translation>
+    </message>
+    <message>
+        <source>Blue Output: Red</source>
+        <translation>Blau-Ausgang: Rot</translation>
+    </message>
+    <message>
+        <source>Blue Output: Green</source>
+        <translation>Blau-Ausgang: Grün</translation>
+    </message>
+    <message>
+        <source>Blue Output: Blue</source>
+        <translation>Blau-Ausgang: Blau</translation>
+    </message>
+    <message>
+        <source>Monochrome Red</source>
+        <translation>Monochrom: Rot</translation>
+    </message>
+    <message>
+        <source>Monochrome Green</source>
+        <translation>Monochrom: Grün</translation>
+    </message>
+    <message>
+        <source>Monochrome Blue</source>
+        <translation>Monochrom: Blau</translation>
+    </message>
+    <message>
+        <source>Monochrome</source>
+        <translation>Monochrom</translation>
+    </message>
+    <message>
+        <source>Preserve Luminance</source>
+        <translation>Luminanz beibehalten</translation>
     </message>
     <message>
         <source>Contrast</source>

@@ -70,12 +70,15 @@ Decisions:
   polygons, Bezier windows, key mixers and splitter / combiner nodes: later.
 
 ### Node semantics (identical on GPU and CPU)
-- **Corrector**: input `I`, graded `G` = primaries -> curves -> LUT; key `k` = qualifier of `I` x
+- **Corrector**: input `I`, graded `G` = primaries -> RGB Mixer -> curves -> LUT; key `k` = qualifier of `I` x
   window matte x Mix; output `O = I + (G - I) k`. A bypassed node outputs `I` (and has key 0
   under a Layer mixer).
 - **Blur palette** (spec 106): a corrector with blur values keeps `G` = primaries -> curves -> LUT
   on the whole picture, then the Blur, Sharpen and Mist stages (Gaussian per channel, sigma in
   fractions of the picture height), and mixes `O = I + (B - I) k`.
+- **RGB Mixer palette** (spec 109): `G` = primaries -> RGB Mixer -> curves -> LUT; the mixer is a 3 x 3
+  matrix (out = M in), or with Monochrome one grey weighting of R, G, B; Preserve Luminance rescales
+  to the input's Rec. 709 luma. The values are node params (`mixer*` keys), no format change.
 - **Tracker palette** (spec 107): the node's tracker data (`GradeTrack`) moves, scales and turns
   every window of the node about the track's pivot before the window matte is evaluated
   (`grademath::trackedWindowGeometry`, used by the GPU pass, the CPU reference and the overlay).

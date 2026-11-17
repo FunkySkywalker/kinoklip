@@ -36,7 +36,7 @@ Every missing piece has a line in [roadmap.md](roadmap.md) under "Next version (
 | C20 | Hue vs Hue, Hue vs Sat, Hue vs Lum, Lum vs Sat, Sat vs Sat | partly | Sat vs Lum curve; picking a colour from the viewer to add the three points |
 | C21 | Color Warper (Hue - Sat grid, Chroma - Luma grid) | missing | Color Warper palette |
 | C22 | HDR palette (zones, Global, Shadow, Light, Highlight, Specular) | missing | HDR palette |
-| C23 | RGB Mixer | missing | RGB Mixer palette (Red / Green / Blue output sliders, Monochrome, Preserve Luminance) |
+| C23 | RGB Mixer | works | Spec 109: Red / Green / Blue output tabs with three sliders each, Monochrome, Preserve Luminance; not done: HSV / HSL mixer spaces |
 | C24 | Motion Effects: Temporal and Spatial Noise Reduction, Motion Estimation | partly | Edit page Noise Reduction effect (spatial); no Motion Effects palette, no temporal noise reduction, no Better / Faster modes |
 | C25 | Magic Mask (draw a stroke on a person or object, it follows) | missing | Magic Mask palette; the optional Background Removal model only cuts a person out on the Edit page |
 | C26 | Color match / Shot Match to another clip | missing | Color Match palette (Shot Match, Color Chart); Color Stabilizer is another effect |
