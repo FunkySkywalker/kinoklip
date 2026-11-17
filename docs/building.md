@@ -2,7 +2,7 @@
 
 ## Primary: the Arch Linux container (Qt 6.12, KDE Frameworks 6, Breeze)
 
-The real KDE Breeze look (Breeze widget style, KDE colour schemes, Breeze icons; [docs/archive/plan.md](archive/plan.md) section 4)
+The real KDE Breeze look (Breeze widget style, KDE colour schemes, Breeze icons; [the original plan](archive/plan.md), section 4)
 needs Qt >= 6.6 and KDE Frameworks 6, so the main toolchain is the podman container `kk-arch`
 (Arch Linux: latest Qt 6, KF6, Breeze, FFmpeg, clang; the repository is mounted at the same
 path). Packages it needs: `base-devel cmake ninja qt6-base qt6-multimedia qt6-svg
@@ -89,7 +89,7 @@ KK_NO_OPENGL=1 ./build/kinoklip                     # force the raster viewer fa
 (`src/app/commands/`) headless, on Qt's offscreen platform (no display needed), and exits.
 `--json` prints the result as JSON; exit code 0 = done, 1 = the command failed, 2 = wrong command
 line; messages and progress go to stderr. The window opens only when the first argument is not a
-command (a project file, an option, nothing). Guide: [docs/guide/control-kinoklip-from-the-command-line.md](guide/control-kinoklip-from-the-command-line.md).
+command (a project file, an option, nothing). Guide: [Control Kinoklip from the command line](guide/control-kinoklip-from-the-command-line.md).
 ```sh
 ./build/kinoklip commands [--json]                  # every command (with --json: every option)
 ./build/kinoklip help clip add                      # options of one command
@@ -104,7 +104,7 @@ transition add / set / remove; effect add / stack / set / remove / enable / list
 generator add; keyframe set / list / delete; track list / add / set; export otio / edl; import otio;
 frame export / view; transition list; session info; project save; render. `--live` after a command runs it in the
 open window (Preferences > Local Control). `kinoklip mcp` serves the same commands to an AI
-assistant (MCP) on stdin / stdout, see [docs/guide/control-kinoklip-from-an-ai-assistant.md](guide/control-kinoklip-from-an-ai-assistant.md). The older options above
+assistant (MCP) on stdin / stdout, see [Control Kinoklip from an AI assistant (MCP)](guide/control-kinoklip-from-an-ai-assistant.md). The older options above
 (`--render`, `--render-frame`, `--screenshot`, ...) are unchanged. Tests: `test_commands` (the
 layer), `test_cli` (the built binary as a process) and `test_livecontrol` (the open window).
 

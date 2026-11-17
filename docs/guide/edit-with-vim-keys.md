@@ -9,7 +9,7 @@ it works with every keyboard profile (Resolve, Premiere Pro, ...): it does not r
 
 This page explains the whole of it, area by area. A one-page list of the keys is the
 [Vim cheat sheet](vim-cheat-sheet.md); the full generated table is
-[docs/keymaps/vim-keys.md](../keymaps/vim-keys.md), and it is also in the app under
+[Vim keys](../keymaps/vim-keys.md), and it is also in the app under
 **Keyboard Customization > Vim keys**.
 
 **Contents.** Turn it on and the modes; Esc; the leader key; the timeline as a text (motions,

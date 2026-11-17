@@ -18,7 +18,7 @@ the only release artefact.
 ## Build
 
 Before a release build run the memory checks (`scripts/check_leaks.sh`, `ctest -L soak`;
-[docs/contributing.md](../../docs/contributing.md#memory-leaks)).
+[Contributing](../../docs/contributing.md#memory-leaks)).
 
 ```sh
 # in the container (repository mounted at the same path):

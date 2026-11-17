@@ -2,7 +2,7 @@
 
 The `.kinoklip` container: one ZIP file (stored entries, ZIP64) with the project document,
 a manifest and every media file, read in place. Format, crash safety and the reasons behind
-them: [docs/single-file-project.md](../../docs/single-file-project.md).
+them: [Single-file projects (`.kinoklip`)](../../docs/single-file-project.md).
 Namespace `kk::pack`. Depends only on QtCore (the media engine uses `EmbeddedMedia.h`); no UI.
 
 | File | What |

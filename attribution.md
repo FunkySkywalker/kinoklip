@@ -1,7 +1,7 @@
 # Attribution
 
 Every non-code asset in this repository and in the release bundles, with its author and licence.
-Rules for adding assets: [docs/clean-room.md](docs/clean-room.md).
+Rules for adding assets: [Clean-room policy](docs/clean-room.md).
 
 ## In this repository
 

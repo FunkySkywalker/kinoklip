@@ -3,7 +3,7 @@
 ## Current state (2026-11-09)
 - Published: 1.1.6-beta.1. Main is clean; unreleased on main: bundled fallback libraries, start-failure dialog, the "Why use Kinoklip over Resolve?" readme section, agent guide and recovery notes.
 - Open branch `searchbox`: Media Pool search box squeezed by the thumbnail slider, not merged.
-- Next version: nothing started; the list is in [docs/roadmap.md](docs/roadmap.md).
+- Next version: nothing started; the list is in [Kinoklip roadmap](docs/roadmap.md).
 - Pending owner decisions are in the handoff note at the bottom.
 
 (newest at the bottom; times are local)

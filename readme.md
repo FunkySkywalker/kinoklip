@@ -46,7 +46,7 @@ and double-click it. On Nix: `nix run github:SeniorMatt/kinoklip`.
 Want to help test the next version? Get the
 [dev build](docs/install.md#dev-build-help-with-testing).
 
-More ways (NixOS, Arch Linux, building from source): [docs/install.md](docs/install.md).
+More ways (NixOS, Arch Linux, building from source): [Installing Kinoklip](docs/install.md).
 
 ## Status
 
@@ -105,7 +105,7 @@ GPL: forks must replace them, see [logo-license.md](logo-license.md).
 
 Kinoklip is an independent project, not affiliated with Blackmagic Design, and is written clean-room
 without any Blackmagic code or assets. Trademarks, the clean-room rules, codec patents and the
-warranty: [docs/legal.md](docs/legal.md).
+warranty: [legal notes](docs/legal.md).
 
 ## AI disclosure
 

@@ -8,11 +8,11 @@
 - **Clean room.** Kinoklip is written from general knowledge of how Resolve behaves and from public,
   open specifications. It contains no Blackmagic code, icons, images, fonts, presets, LUTs or
   documentation text, and Resolve is never installed, run or decompiled to build it. The rules and
-  their limits are in [docs/clean-room.md](docs/clean-room.md); every asset and its licence is in
+  their limits are in [Clean-room policy](clean-room.md); every asset and its licence is in
   [attribution.md](attribution.md).
 - **Privacy.** Kinoklip collects and sends nothing about you: no telemetry, analytics or automatic
   crash reports. A bug report shares system info only when you choose to, see
-  [docs/privacy.md](docs/privacy.md).
+  [Privacy](privacy.md).
 - **No warranty.** Kinoklip is provided "as is", without any warranty, as stated in the GPL
   (sections 15 and 16 of [license.md](license.md)).
 - **Codecs and patents.** The AppImage includes FFmpeg with open-source codec libraries, so common
