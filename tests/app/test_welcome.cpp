@@ -118,7 +118,7 @@ private slots:
         QVERIFY(!back->isEnabled());
         QCOMPARE(next->text(), QStringLiteral("Next"));
         // The first page: icon and "Welcome to <name>".
-        QVERIFY(!field<QLabel>(d, "WelcomeIcon")->pixmap().isNull());
+        QVERIFY(d->findChild<QWidget*>(QStringLiteral("WelcomeIcon")));
         QVERIFY(field<QLabel>(d, "WelcomeGreeting")->text().startsWith(QStringLiteral("Welcome to ")));
         next->click();
         QCOMPARE(d->currentPage(), 1);

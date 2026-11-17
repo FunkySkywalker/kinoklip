@@ -4,6 +4,7 @@
 
 #include "app/AppInfo.h"
 #include "app/Theme.h"
+#include "app/WelcomeAnimations.h"
 #include "core/EditBehaviour.h"
 #include "core/Preferences.h"
 #include "core/Translations.h"
@@ -21,6 +22,7 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QFormLayout>
+#include <QFrame>
 #include <QGuiApplication>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -41,7 +43,7 @@ constexpr char WelcomeDialog::kSuppressEnv[];
 
 namespace {
 
-constexpr QSize kDialogSize {640, 480};
+constexpr QSize kDialogSize {720, 700};
 
 QString plain(const QString& menuTitle)
 {
@@ -62,6 +64,37 @@ QLabel* dim(const QString& text)
     label->setWordWrap(true);
     label->setForegroundRole(QPalette::PlaceholderText);
     return label;
+}
+
+/// The note at the foot of a page: dimmed, smaller, centred.
+QLabel* note(const QString& text)
+{
+    QLabel* label = dim(text);
+    label->setAlignment(Qt::AlignHCenter);
+    QFont small = label->font();
+    small.setPointSizeF(small.pointSizeF() * 0.9);
+    label->setFont(small);
+    return label;
+}
+
+/// Adds @p form to @p page as a centred column of fixed width, so the labels and fields sit in
+/// the middle of the window instead of along its left edge.
+void addCentered(QWidget* page, QFormLayout* form)
+{
+    form->setLabelAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    auto* column = new QWidget;
+    column->setLayout(form);
+    // Hints under a field use the field column's width, not the field's.
+    for (int row = 0; row < form->rowCount(); ++row)
+        if (auto* item = form->itemAt(row, QFormLayout::FieldRole))
+            if (auto* hint = qobject_cast<QLabel*>(item->widget()); hint && hint->wordWrap())
+                hint->setMinimumWidth(320);
+    column->setFixedWidth(500);
+    auto* row = new QHBoxLayout;
+    row->addStretch(1);
+    row->addWidget(column);
+    row->addStretch(1);
+    static_cast<QVBoxLayout*>(page->layout())->addLayout(row);
 }
 
 QComboBox* choice(const char* objectName)
@@ -93,27 +126,71 @@ WelcomeDialog::WelcomeDialog(ActionRegistry& registry, QWidget* parent)
         metrics::kSpaceXl, metrics::kSpaceXl, metrics::kSpaceXl, metrics::kSpaceL);
     layout->setSpacing(metrics::kSpaceL);
 
+    // The app icon (the dev icon in a dev build), the greeting and the steps, centred above a
+    // card that holds the pages; the buttons sit below a hairline. welcomeanim animates it all.
+    // The 32 px pixel art drawn from the 512 px file: no smoothing, crisp edges.
+    m_icon = new welcomeanim::IconBadge(QPixmap(appinfo::devBuildCommit().isEmpty()
+            ? QStringLiteral(":/icons/app/kinoklip-512.png")
+            : QStringLiteral(":/icons/app/kinoklip-dev-512.png")), 88);
+    auto* greeting = new QLabel(tr("Welcome to %1").arg(appinfo::displayName()));
+    greeting->setObjectName(QStringLiteral("WelcomeGreeting"));
+    greeting->setAlignment(Qt::AlignHCenter);
+    QFont big = greeting->font();
+    big.setWeight(QFont::DemiBold);
+    big.setPointSizeF(big.pointSizeF() * 2.0);
+    greeting->setFont(big);
+    QLabel* intro = dim(tr("It works like DaVinci Resolve. These few questions are about what "
+                           "is different here. Nothing changes unless you choose it."));
+    intro->setAlignment(Qt::AlignHCenter);
+    m_step = new welcomeanim::StepIndicator(4);
+    layout->addWidget(m_icon, 0, Qt::AlignHCenter);
+    layout->addSpacing(metrics::kSpaceS);
+    layout->addWidget(greeting);
+    layout->addWidget(intro);
+    layout->addSpacing(metrics::kSpaceS);
+    layout->addWidget(m_step, 0, Qt::AlignHCenter);
+
+    auto* card = new welcomeanim::Card;
+    card->setObjectName(QStringLiteral("WelcomeCard"));
+    auto* cardLayout = new QVBoxLayout(card);
+    cardLayout->setContentsMargins(
+        metrics::kSpaceXl, metrics::kSpaceL, metrics::kSpaceXl, metrics::kSpaceL);
     m_pages = new QStackedWidget;
     m_pages->addWidget(lookPage());
     m_pages->addWidget(menusPage());
     m_pages->addWidget(timelinePage());
     m_pages->addWidget(systemPage());
-    layout->addWidget(m_pages, 1);
+    cardLayout->addWidget(m_pages);
+    layout->addWidget(card, 1);
 
+    auto* footer = new QWidget;
+    auto* footerLayout = new QVBoxLayout(footer);
+    footerLayout->setContentsMargins(0, 0, 0, 0);
+    footerLayout->setSpacing(metrics::kSpaceL);
+    auto* rule = new QFrame;
+    rule->setFrameShape(QFrame::HLine);
+    rule->setFrameShadow(QFrame::Plain);
+    rule->setForegroundRole(QPalette::Mid);
+    footerLayout->addWidget(rule);
     auto* buttons = new QHBoxLayout;
     auto* skip = new QPushButton(tr("Skip"));
     skip->setObjectName(QStringLiteral("WelcomeSkip"));
+    skip->setFlat(true);
     skip->setToolTip(tr("Close this window and change nothing. Help > Welcome opens it again."));
     m_back = new QPushButton(tr("Back"));
     m_back->setObjectName(QStringLiteral("WelcomeBack"));
     m_next = new QPushButton(tr("Next"));
     m_next->setObjectName(QStringLiteral("WelcomeNext"));
     m_next->setDefault(true);
+    m_next->setMinimumWidth(110);
+    m_back->setMinimumWidth(110);
     buttons->addWidget(skip);
     buttons->addStretch(1);
     buttons->addWidget(m_back);
     buttons->addWidget(m_next);
-    layout->addLayout(buttons);
+    footerLayout->addLayout(buttons);
+    layout->addWidget(footer);
+    m_revealed = {greeting, intro, m_step, card, footer};
     connect(skip, &QPushButton::clicked, this, &WelcomeDialog::skip);
     connect(m_back, &QPushButton::clicked, this, &WelcomeDialog::back);
     connect(m_next, &QPushButton::clicked, this, &WelcomeDialog::next);
@@ -148,14 +225,20 @@ int WelcomeDialog::currentPage() const
 void WelcomeDialog::showEvent(QShowEvent* event)
 {
     QDialog::showEvent(event);
+    if (!event->spontaneous() && !m_didReveal) {
+        m_didReveal = true;
+        welcomeanim::reveal(m_icon, m_revealed);
+    }
     QSettings().setValue(QLatin1String(kShownKey), kVersion);
 }
 
 void WelcomeDialog::showPage(int index)
 {
-    m_pages->setCurrentIndex(std::clamp(index, 0, m_pages->count() - 1));
+    index = std::clamp(index, 0, m_pages->count() - 1);
+    welcomeanim::slideTo(m_pages, index, index > m_pages->currentIndex());
     m_back->setEnabled(currentPage() > 0);
     m_next->setText(currentPage() == pageCount() - 1 ? tr("Finish") : tr("Next"));
+    m_step->setCurrent(currentPage());
 }
 
 void WelcomeDialog::next()
@@ -191,39 +274,14 @@ QWidget* WelcomeDialog::makePage(const QString& title, QWidget* header)
     font.setBold(true);
     font.setPointSizeF(font.pointSizeF() * 1.3);
     heading->setFont(font);
+    heading->setAlignment(Qt::AlignHCenter);
     layout->addWidget(heading);
     return page;
 }
 
 QWidget* WelcomeDialog::lookPage()
 {
-    // The app icon (the dev icon in a dev build) and the greeting.
-    auto* header = new QWidget;
-    auto* row = new QHBoxLayout(header);
-    row->setContentsMargins(0, 0, 0, 0);
-    row->setSpacing(metrics::kSpaceL);
-    auto* icon = new QLabel;
-    icon->setObjectName(QStringLiteral("WelcomeIcon"));
-    icon->setPixmap(QPixmap(appinfo::devBuildCommit().isEmpty()
-            ? QStringLiteral(":/icons/app/kinoklip-64.png")
-            : QStringLiteral(":/icons/app/kinoklip-dev-64.png")));
-    icon->setAlignment(Qt::AlignTop);
-    auto* greeting = new QLabel(tr("Welcome to %1").arg(appinfo::displayName()));
-    greeting->setObjectName(QStringLiteral("WelcomeGreeting"));
-    QFont big = greeting->font();
-    big.setBold(true);
-    big.setPointSizeF(big.pointSizeF() * 1.8);
-    greeting->setFont(big);
-    auto* intro = dim(tr("It works like DaVinci Resolve. These few questions are about what "
-                         "is different here. Nothing changes unless you choose it."));
-    auto* text = new QVBoxLayout;
-    text->setSpacing(metrics::kSpaceS);
-    text->addWidget(greeting);
-    text->addWidget(intro);
-    row->addWidget(icon);
-    row->addLayout(text, 1);
-
-    QWidget* page = makePage(tr("Look"), header);
+    QWidget* page = makePage(tr("Look"));
     auto* form = new QFormLayout;
     form->setHorizontalSpacing(metrics::kSpaceL);
     form->setVerticalSpacing(metrics::kSpaceM);
@@ -254,9 +312,9 @@ QWidget* WelcomeDialog::lookPage()
             QSettings().value(QLatin1String(prefs::kUiScale), QStringLiteral("auto")).toString())));
     form->addRow(tr("Interface scale"), m_scale);
 
-    static_cast<QVBoxLayout*>(page->layout())->addLayout(form);
+    addCentered(page, form);
     static_cast<QVBoxLayout*>(page->layout())->addStretch(1);
-    page->layout()->addWidget(dim(tr("The language and the scale apply after a restart. Change all "
+    page->layout()->addWidget(note(tr("The language and the scale apply after a restart. Change all "
                                      "of this later in Preferences > User > UI Settings (the "
                                      "theme is under Appearance there, or in the Workspace "
                                      "menu).")));
@@ -305,9 +363,9 @@ QWidget* WelcomeDialog::menusPage()
     form->addRow(QString(),
         dim(tr("Vim keys for editing (h, j, k, l, i, Esc). Off unless you know Vim.")));
 
-    static_cast<QVBoxLayout*>(page->layout())->addLayout(form);
+    addCentered(page, form);
     static_cast<QVBoxLayout*>(page->layout())->addStretch(1);
-    page->layout()->addWidget(dim(tr("Change these later in Preferences > User > UI Settings "
+    page->layout()->addWidget(note(tr("Change these later in Preferences > User > UI Settings "
                                      "(menu layout) and Preferences > User > Keyboard (Vim mode); "
                                      "the keyboard profile is under Keyboard Customization in the first menu.")));
     return page;
@@ -368,9 +426,9 @@ QWidget* WelcomeDialog::timelinePage()
             playback.stopOnPlayheadMove);
     form->addRow(tr("Moving the playhead"), m_stopOnMove);
 
-    static_cast<QVBoxLayout*>(page->layout())->addLayout(form);
+    addCentered(page, form);
     static_cast<QVBoxLayout*>(page->layout())->addStretch(1);
-    page->layout()->addWidget(dim(tr("Resolve keeps the playhead where it is when zooming and "
+    page->layout()->addWidget(note(tr("Resolve keeps the playhead where it is when zooming and "
                                      "carries on playing when you move it. Change these later in "
                                      "Preferences > User: Animations in UI Settings; zoom and "
                                      "wheel in Editing; tabs and ruler in Timeline and Media "
@@ -399,9 +457,9 @@ QWidget* WelcomeDialog::systemPage()
         prefs::renderNotificationsEnabled());
     form->addRow(tr("Notifications"), m_notify);
 
-    static_cast<QVBoxLayout*>(page->layout())->addLayout(form);
+    addCentered(page, form);
     static_cast<QVBoxLayout*>(page->layout())->addStretch(1);
-    page->layout()->addWidget(dim(tr("Change these later in Preferences > System > Decode "
+    page->layout()->addWidget(note(tr("Change these later in Preferences > System > Decode "
                                      "Options and Preferences > User > UI Settings. Help > "
                                      "Welcome opens this window again.")));
     return page;

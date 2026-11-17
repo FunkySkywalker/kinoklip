@@ -3,6 +3,7 @@
 #include "app/Screenshot.h"
 
 #include "app/BugReportDialog.h"
+#include "app/WelcomeDialog.h"
 #include "app/MainWindow.h"
 #include "app/ProjectController.h"
 #include "app/ScreenshotAudio.h"
@@ -381,6 +382,13 @@ int runScreenshot(MainWindow& window, const QString& target, const QString& pngP
     } else if (target == QLatin1String("bug-report")) {
         // Help > Report a Bug or Inconsistency (what this machine would share).
         dialog = std::make_unique<BugReportDialog>(bugreport::collect(), &window);
+    } else if (base == QLatin1String("welcome")) {
+        // The first-start welcome window; "welcome:N" shows page N (1-based).
+        auto welcome = std::make_unique<WelcomeDialog>(*ctx.actions, &window);
+        for (int page = 1; page < section.toInt(); ++page)
+            welcome->next();
+        dialog = std::move(welcome);
+        delayMs = kDialogSettleDelayMs;
     } else if (target == QLatin1String("keyboard")) {
         dialog = std::make_unique<KeyboardCustomizationDialog>(*ctx.actions, &window);
     } else if (base == QLatin1String("keyboard")) {

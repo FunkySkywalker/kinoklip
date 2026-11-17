@@ -5,6 +5,7 @@
 #pragma once
 
 #include <QDialog>
+#include <QList>
 #include <QString>
 #include <QStringList>
 
@@ -17,6 +18,10 @@ class QStackedWidget;
 namespace kk {
 
 class ActionRegistry;
+namespace welcomeanim {
+class IconBadge;
+class StepIndicator;
+} // namespace welcomeanim
 
 /// Four pages: Look (language, colour theme, interface scale), Menus and keys (menu layout,
 /// keyboard profile, Vim mode), Timeline (animations, zoom anchor, mouse wheel, tabs, ruler,
@@ -83,6 +88,10 @@ private:
     QStackedWidget* m_pages = nullptr;
     QPushButton* m_back = nullptr;
     QPushButton* m_next = nullptr;
+    welcomeanim::StepIndicator* m_step = nullptr; ///< the step pill under the greeting
+    welcomeanim::IconBadge* m_icon = nullptr;
+    QList<QWidget*> m_revealed; ///< faded in one after another when the window opens
+    bool m_didReveal = false;
     QStringList m_restartNeeded;
 
     // Look
