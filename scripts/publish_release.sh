@@ -23,7 +23,11 @@ if ! git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
 fi
 echo "Tag $tag -> $(git rev-list -n1 "$tag")"
 git push origin "$tag"
-gh release create "$tag" --latest --title "$title" --notes-file "$notes" \
+# The page: a centred header (scripts/release_notes.sh) and the lists of docs/releases/<tag>.md.
+page="$(mktemp)"
+trap 'rm -f "$page"' EXIT
+scripts/release_notes.sh "$tag" >"$page"
+gh release create "$tag" --latest --title "$title" --notes-file "$page" \
     dist/Kinoklip-x86_64.AppImage dist/Kinoklip-x86_64.AppImage.zsync dist/SHA256SUMS.txt
 
 # ARM64: only the release file is built on GitHub (free ARM runner); it is added to this release
