@@ -3,15 +3,13 @@
 
 #include "ui/common/UiAnimation.h"
 
-#include <QGraphicsOpacityEffect>
 #include <QPainter>
 #include <QPainterPath>
 #include <QPointer>
-#include <QPropertyAnimation>
 #include <QStackedWidget>
-#include <QTimer>
 #include <QVariantAnimation>
 
+#include <algorithm>
 #include <cmath>
 
 namespace kk::welcomeanim {
@@ -20,12 +18,12 @@ namespace {
 // Calm and a little slow, like KDE's Welcome Center: small moves, long soft fades, no bounce.
 constexpr int kDot = 6; // dot diameter
 constexpr int kPitch = 14; // distance between dot centres
-constexpr int kSlideDistance = 18; // how far a page drifts while it fades
-constexpr int kSlideMs = 620;
+constexpr int kLeaveDistance = 12; // how far the old page drifts while it fades out
+constexpr int kLeaveMs = 220;
 constexpr int kStepMs = 480;
-constexpr int kIconMs = 900;
-constexpr int kFadeMs = 760;
-constexpr int kStaggerMs = 130;
+constexpr int kRise = 10;
+constexpr int kEnterMs = 520;
+constexpr int kStaggerMs = 70;
 
 /// @p ms at the user's animation speed.
 int scaled(int ms)
@@ -33,14 +31,13 @@ int scaled(int ms)
     return std::max(1, qRound(ms / uianim::speed()));
 }
 
-/// The two page pictures of a running page change, drawn over the stacked widget.
-class SlideOverlay : public QWidget
+/// The old page's picture, fading out over the new page (which is still invisible).
+class LeaveOverlay : public QWidget
 {
 public:
-    SlideOverlay(QWidget* parent, QPixmap from, QPixmap to, bool forward)
+    LeaveOverlay(QWidget* parent, QPixmap from, bool forward)
         : QWidget(parent)
         , m_from(std::move(from))
-        , m_to(std::move(to))
         , m_dir(forward ? 1 : -1)
     {
         setAttribute(Qt::WA_TransparentForMouseEvents);
@@ -56,23 +53,103 @@ protected:
     void paintEvent(QPaintEvent*) override
     {
         QPainter p(this);
-        p.fillRect(rect(), Card::fill(palette()));
-        // The old page drifts away and fades in the first half; the new one drifts in and
-        // fades up in the second half, overlapping a little in the middle.
-        const QEasingCurve soft(QEasingCurve::InOutSine);
-        const double out = soft.valueForProgress(std::clamp(m_t / 0.55, 0.0, 1.0));
-        const double in = soft.valueForProgress(std::clamp((m_t - 0.35) / 0.65, 0.0, 1.0));
-        p.setOpacity(1.0 - out);
-        p.drawPixmap(QPointF(-m_dir * kSlideDistance * out, 0), m_from);
-        p.setOpacity(in);
-        p.drawPixmap(QPointF(m_dir * kSlideDistance * (1.0 - in), 0), m_to);
+        const double e = QEasingCurve(QEasingCurve::InOutSine).valueForProgress(m_t);
+        p.setOpacity(1.0 - e);
+        p.drawPixmap(QPointF(-m_dir * kLeaveDistance * e, 0), m_from);
     }
 
 private:
     QPixmap m_from;
-    QPixmap m_to;
     int m_dir;
     double m_t = 0;
+};
+
+/// A running cascade. Lives under the stacked widget; deleting it puts every element back.
+class Entrance : public QObject
+{
+public:
+    Entrance(QObject* owner, const QList<Group>& groups, int leadMs)
+        : QObject(owner)
+        , m_lead(leadMs)
+    {
+        for (const Group& group : groups) {
+            Item item;
+            for (QWidget* w : group) {
+                if (auto* icon = dynamic_cast<IconBadge*>(w)) {
+                    icon->setProgress(0);
+                    item.icons << icon;
+                } else {
+                    auto* effect = new FadeRise(kRise, w);
+                    effect->setProgress(0);
+                    w->setGraphicsEffect(effect);
+                    item.widgets << QPointer<QWidget>(w);
+                }
+            }
+            m_items << item;
+        }
+        const int total = m_lead + int(m_items.size() - 1) * kStaggerMs + kEnterMs;
+        auto* anim = new QVariantAnimation(this);
+        anim->setDuration(scaled(total));
+        anim->setStartValue(0.0);
+        anim->setEndValue(double(total));
+        anim->setEasingCurve(QEasingCurve::Linear);
+        connect(anim, &QVariantAnimation::valueChanged, this,
+            [this](const QVariant& v) { step(v.toDouble()); });
+        connect(anim, &QVariantAnimation::finished, this, [this] {
+            step(1e9);
+            deleteLater();
+        });
+        anim->start();
+    }
+    ~Entrance() override
+    {
+        for (Item& item : m_items)
+            finishItem(item);
+    }
+
+private:
+    struct Item
+    {
+        QList<QPointer<QWidget>> widgets;
+        QList<IconBadge*> icons;
+        bool done = false;
+    };
+    void finishItem(Item& item)
+    {
+        if (item.done)
+            return;
+        item.done = true;
+        for (const QPointer<QWidget>& w : item.widgets)
+            if (w)
+                w->setGraphicsEffect(nullptr); // an effect renders through a pixmap: dropped when done
+        for (IconBadge* icon : item.icons)
+            icon->setProgress(1);
+    }
+    /// @p ms in animation time (unscaled).
+    void step(double ms)
+    {
+        const QEasingCurve curve(QEasingCurve::OutCubic);
+        for (qsizetype i = 0; i < m_items.size(); ++i) {
+            Item& item = m_items[i];
+            if (item.done)
+                continue;
+            const double t = std::clamp((ms - m_lead - i * kStaggerMs) / kEnterMs, 0.0, 1.0);
+            if (t >= 1.0) {
+                finishItem(item);
+                continue;
+            }
+            const double e = curve.valueForProgress(t);
+            for (const QPointer<QWidget>& w : item.widgets)
+                if (w)
+                    if (auto* effect = dynamic_cast<FadeRise*>(w->graphicsEffect()))
+                        effect->setProgress(e);
+            for (IconBadge* icon : item.icons)
+                icon->setProgress(e);
+        }
+    }
+
+    QList<Item> m_items;
+    int m_lead;
 };
 
 } // namespace
@@ -185,9 +262,48 @@ void IconBadge::paintEvent(QPaintEvent*)
     p.drawPixmap(target, m_art, QRectF(m_art.rect()));
 }
 
-// --- page slide and reveal -------------------------------------------------------------------
+// --- FadeRise, page change and entrance ---------------------------------------------------------
 
-void slideTo(QStackedWidget* pages, int index, bool forward)
+FadeRise::FadeRise(int rise, QObject* parent)
+    : QGraphicsEffect(parent)
+    , m_rise(rise)
+{
+}
+
+void FadeRise::setProgress(double t)
+{
+    m_t = t;
+    update();
+}
+
+QRectF FadeRise::boundingRectFor(const QRectF& rect) const
+{
+    return rect.adjusted(0, 0, 0, m_rise);
+}
+
+void FadeRise::draw(QPainter* painter)
+{
+    QPoint offset;
+    const QPixmap source = sourcePixmap(Qt::LogicalCoordinates, &offset, PadToEffectiveBoundingRect);
+    if (source.isNull())
+        return;
+    painter->save();
+    painter->setOpacity(painter->opacity() * m_t);
+    painter->drawPixmap(offset + QPoint(0, qRound(m_rise * (1.0 - m_t))), source);
+    painter->restore();
+}
+
+void enter(QWidget* owner, const QList<Group>& groups, int leadMs)
+{
+    if (!uianim::enabled() || groups.isEmpty())
+        return;
+    for (QObject* child : owner->children())
+        if (auto* old = dynamic_cast<Entrance*>(child))
+            delete old;
+    new Entrance(owner, groups, leadMs);
+}
+
+void changePage(QStackedWidget* pages, int index, bool forward, const QList<Group>& groups)
 {
     if (index == pages->currentIndex())
         return;
@@ -197,71 +313,27 @@ void slideTo(QStackedWidget* pages, int index, bool forward)
     }
     // A change while one runs: the running one ends at once, this one starts from there.
     for (QObject* child : pages->children())
-        if (auto* old = dynamic_cast<SlideOverlay*>(child))
+        if (auto* old = dynamic_cast<LeaveOverlay*>(child))
             delete old;
-    // Pictures on the card colour (the pages themselves are transparent over the card).
-    const auto picture = [pages](QWidget* page) {
-        const qreal dpr = pages->devicePixelRatioF();
-        QPixmap pixmap(page->size() * dpr);
-        pixmap.setDevicePixelRatio(dpr);
-        pixmap.fill(Card::fill(pages->palette()));
-        page->render(&pixmap, QPoint(), QRegion(), QWidget::DrawChildren);
-        return pixmap;
-    };
-    QPixmap from = picture(pages->currentWidget());
+    const qreal dpr = pages->devicePixelRatioF();
+    QPixmap from(pages->currentWidget()->size() * dpr);
+    from.setDevicePixelRatio(dpr);
+    from.fill(Qt::transparent);
+    pages->currentWidget()->render(&from, QPoint(), QRegion(), QWidget::DrawChildren);
+    enter(pages, groups, kLeaveMs); // hides the new page's elements at once
     pages->setCurrentIndex(index);
-    QPixmap to = picture(pages->currentWidget());
-    auto* overlay = new SlideOverlay(pages, std::move(from), std::move(to), forward);
+    auto* overlay = new LeaveOverlay(pages, std::move(from), forward);
     overlay->show();
     overlay->raise();
     auto* anim = new QVariantAnimation(overlay);
-    anim->setDuration(scaled(kSlideMs));
-    anim->setEasingCurve(QEasingCurve::Linear); // the overlay eases each half itself
+    anim->setDuration(scaled(kLeaveMs));
+    anim->setEasingCurve(QEasingCurve::Linear); // the overlay eases itself
     anim->setStartValue(0.0);
     anim->setEndValue(1.0);
     QObject::connect(anim, &QVariantAnimation::valueChanged, overlay,
         [overlay](const QVariant& v) { overlay->setProgress(v.toDouble()); });
     QObject::connect(anim, &QVariantAnimation::finished, overlay, &QObject::deleteLater);
     anim->start(QAbstractAnimation::DeleteWhenStopped);
-}
-
-void reveal(IconBadge* icon, const QList<QWidget*>& widgets)
-{
-    if (!uianim::enabled()) {
-        icon->setProgress(1);
-        return;
-    }
-    icon->setProgress(0);
-    auto* pop = new QVariantAnimation(icon);
-    pop->setDuration(scaled(kIconMs));
-    pop->setEasingCurve(QEasingCurve::OutCubic);
-    pop->setStartValue(0.0);
-    pop->setEndValue(1.0);
-    QObject::connect(pop, &QVariantAnimation::valueChanged, icon,
-        [icon](const QVariant& v) { icon->setProgress(v.toDouble()); });
-    pop->start(QAbstractAnimation::DeleteWhenStopped);
-
-    int delay = 220;
-    for (QWidget* widget : widgets) {
-        auto* effect = new QGraphicsOpacityEffect(widget);
-        effect->setOpacity(0);
-        widget->setGraphicsEffect(effect);
-        QPointer<QWidget> guard(widget);
-        QTimer::singleShot(scaled(delay), widget, [guard, effect] {
-            if (!guard)
-                return;
-            auto* fade = new QPropertyAnimation(effect, "opacity", guard);
-            fade->setDuration(scaled(kFadeMs));
-            fade->setEasingCurve(QEasingCurve::OutCubic);
-            fade->setStartValue(0.0);
-            fade->setEndValue(1.0);
-            // Dropped when done: an opacity effect renders the widget through a pixmap.
-            QObject::connect(fade, &QPropertyAnimation::finished, guard,
-                [guard] { if (guard) guard->setGraphicsEffect(nullptr); });
-            fade->start(QAbstractAnimation::DeleteWhenStopped);
-        });
-        delay += kStaggerMs;
-    }
 }
 
 } // namespace kk::welcomeanim

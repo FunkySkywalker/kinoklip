@@ -10,6 +10,7 @@ static void initKinoklipResources()
 {
     Q_INIT_RESOURCE(resources);
     Q_INIT_RESOURCE(guide); // resources/guide.qrc: the user guide's index (src/ui/help)
+    Q_INIT_RESOURCE(welcome); // resources/welcome.qrc: the welcome window's picture
 }
 
 namespace kk {

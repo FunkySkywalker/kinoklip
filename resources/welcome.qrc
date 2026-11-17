@@ -1,0 +1,7 @@
+<!DOCTYPE RCC>
+<!-- The picture on the welcome window's Look page (docs/images/readme/themes.png at 1040 px, JPEG). -->
+<RCC version="1.0">
+    <qresource prefix="/">
+        <file>welcome/themes.jpg</file>
+    </qresource>
+</RCC>

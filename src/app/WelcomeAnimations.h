@@ -1,10 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // WelcomeAnimations -- the moving parts of the welcome window: the step dots, the card the pages
-// sit on, the page slide and the opening reveal. Calm and a little slow, like KDE's Welcome Center.
+// sit on, the page change and the cascade in which a page's elements enter one after another.
+// Calm and a little slow, like KDE's Welcome Center: small moves, soft fades, no bounce.
 // Everything follows uianim::enabled() and uianim::speed(): with animations off (or offscreen,
 // as in tests and screenshots) each change shows its end state at once.
 #pragma once
 
+#include <QGraphicsEffect>
+#include <QList>
 #include <QPixmap>
 #include <QWidget>
 
@@ -63,12 +66,35 @@ private:
     double m_t = 1;
 };
 
-/// Switches @p pages to @p index: the old page slides out and fades while the new one slides in
-/// from the side the user moves to (@p forward: from the right). Instant when animations are off.
-void slideTo(QStackedWidget* pages, int index, bool forward);
+/// Opacity plus a small vertical offset for an element that enters: at progress 0 it is
+/// invisible and @p rise pixels low, at 1 it is drawn as it is.
+class FadeRise : public QGraphicsEffect
+{
+public:
+    explicit FadeRise(int rise, QObject* parent = nullptr);
+    void setProgress(double t);
 
-/// The opening: @p icon fades in, then each of @p widgets fades in a little after the one
-/// before it. Instant when animations are off.
-void reveal(IconBadge* icon, const QList<QWidget*>& widgets);
+protected:
+    void draw(QPainter* painter) override;
+    QRectF boundingRectFor(const QRectF& rect) const override;
+
+private:
+    int m_rise;
+    double m_t = 0;
+};
+
+/// Widgets that enter together (a form row's label and field). An IconBadge in a group scales
+/// and fades by itself instead of rising.
+using Group = QList<QWidget*>;
+
+/// Cascade: the groups enter one after another (about 70 ms apart, after @p leadMs), each fading
+/// in while rising 10 px. They are hidden at once; the effects are removed when each is done.
+/// A cascade already running under @p owner ends first. Does nothing when animations are off.
+void enter(QWidget* owner, const QList<Group>& groups, int leadMs = 0);
+
+/// Switches @p pages to @p index: the old page fades out as one picture while drifting a little
+/// toward the side it leaves to (@p forward: left), then @p groups of the new page cascade in.
+/// Instant when animations are off.
+void changePage(QStackedWidget* pages, int index, bool forward, const QList<Group>& groups);
 
 } // namespace kk::welcomeanim

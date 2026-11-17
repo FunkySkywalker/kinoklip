@@ -472,6 +472,13 @@ The program was probably closed by the system because the computer ran out of me
     </message>
 </context>
 <context>
+    <name>WelcomeHeroes</name>
+    <message>
+        <source>Render finished</source>
+        <translation>Рендер завершён</translation>
+    </message>
+</context>
+<context>
     <name>kk</name>
     <message>
         <source>Timeline</source>
@@ -28461,10 +28468,6 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
         <translation>Готово</translation>
     </message>
     <message>
-        <source>It works like DaVinci Resolve. These few questions are about what is different here. Nothing changes unless you choose it.</source>
-        <translation>Работает как DaVinci Resolve. Эти несколько вопросов о том, что здесь иначе. Ничего не изменится, пока вы сами не выберете.</translation>
-    </message>
-    <message>
         <source>Look</source>
         <translation>Внешний вид</translation>
     </message>
@@ -28493,10 +28496,6 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
         <translation>Масштаб интерфейса</translation>
     </message>
     <message>
-        <source>The language and the scale apply after a restart. Change all of this later in Preferences &gt; User &gt; UI Settings (the theme is under Appearance there, or in the Workspace menu).</source>
-        <translation>Язык и масштаб применяются после перезапуска. Всё это можно изменить позже в Настройки &gt; Пользователь &gt; Настройки интерфейса (тема там в разделе Внешний вид или в меню Workspace).</translation>
-    </message>
-    <message>
         <source>Menus and keys</source>
         <translation>Меню и клавиши</translation>
     </message>
@@ -28521,28 +28520,12 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
         <translation>Клавиатура</translation>
     </message>
     <message>
-        <source>Coming from another editor? Use its keys.</source>
-        <translation>Пришли из другого редактора? Используйте его клавиши.</translation>
-    </message>
-    <message>
         <source>Vim mode</source>
         <translation>Режим Vim</translation>
     </message>
     <message>
         <source>Vim</source>
         <translation>Vim</translation>
-    </message>
-    <message>
-        <source>Vim keys for editing (h, j, k, l, i, Esc). Off unless you know Vim.</source>
-        <translation>Клавиши Vim для монтажа (h, j, k, l, i, Esc). Выключено, если вы не знаете Vim.</translation>
-    </message>
-    <message>
-        <source>Change these later in Preferences &gt; User &gt; UI Settings (menu layout) and Preferences &gt; User &gt; Keyboard (Vim mode); the keyboard profile is under Keyboard Customization in the first menu.</source>
-        <translation>Позже это можно изменить в Настройки &gt; Пользователь &gt; Настройки интерфейса (раскладка меню) и Настройки &gt; Пользователь &gt; Клавиатура (режим Vim); профиль клавиатуры в первом меню: Настройка клавиатуры.</translation>
-    </message>
-    <message>
-        <source>Shorter menus grouped by task, with plain names, and one menu per page. The commands and their keys are the same.</source>
-        <translation>Более короткие меню, сгруппированные по задачам, с простыми названиями и одним меню на страницу. Команды и их клавиши те же.</translation>
     </message>
     <message>
         <source>The menus as in DaVinci Resolve.</source>
@@ -28557,8 +28540,60 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
         <translation>Анимировать правки на таймлайне</translation>
     </message>
     <message>
+        <source>Go back to the previous page.</source>
+        <translation>Вернуться на предыдущую страницу.</translation>
+    </message>
+    <message>
+        <source>Save your choices and close this window. Help &gt; Welcome opens it again.</source>
+        <translation>Сохранить ваш выбор и закрыть это окно. Справка &gt; Приветствие открывает его снова.</translation>
+    </message>
+    <message>
+        <source>Go to the next page.</source>
+        <translation>Перейти на следующую страницу.</translation>
+    </message>
+    <message>
+        <source>Works like DaVinci Resolve. A few choices and you&apos;re ready.</source>
+        <translation>Работает как DaVinci Resolve. Несколько вопросов, и всё готово.</translation>
+    </message>
+    <message>
+        <source>The language of the menus and dialogs. It applies after a restart. Change it later in Preferences &gt; User &gt; UI Settings.</source>
+        <translation>Язык меню и диалогов. Применяется после перезапуска. Позже это можно изменить в Настройки &gt; Пользователь &gt; Настройки интерфейса.</translation>
+    </message>
+    <message>
+        <source>The colours of the whole window, dark or light. Change it later in the Workspace menu or in Preferences &gt; User &gt; UI Settings.</source>
+        <translation>Цвета всего окна, тёмные или светлые. Позже это можно изменить в меню «Рабочее пространство» или в Настройки &gt; Пользователь &gt; Настройки интерфейса.</translation>
+    </message>
+    <message>
+        <source>Follows the scale of your desktop.</source>
+        <translation>Следует масштабу вашего рабочего стола.</translation>
+    </message>
+    <message>
+        <source>Makes everything bigger or smaller. It applies after a restart. Change it later in Preferences &gt; User &gt; UI Settings.</source>
+        <translation>Делает всё крупнее или мельче. Применяется после перезапуска. Позже это можно изменить в Настройки &gt; Пользователь &gt; Настройки интерфейса.</translation>
+    </message>
+    <message>
         <source>Animations</source>
         <translation>Анимации</translation>
+    </message>
+    <message>
+        <source>Clips glide and settle after an edit instead of jumping. Turn it off for instant changes. Change it later in Preferences &gt; User &gt; UI Settings.</source>
+        <translation>Клипы плавно скользят и встают на место после правки, а не прыгают. Отключите для мгновенных изменений. Позже это можно изменить в Настройки &gt; Пользователь &gt; Настройки интерфейса.</translation>
+    </message>
+    <message>
+        <source>Shorter menus grouped by task, with plain names. The commands and their keys are the same.</source>
+        <translation>Более короткие меню, сгруппированные по задачам, с простыми названиями. Команды и их клавиши те же.</translation>
+    </message>
+    <message>
+        <source>How the menus are arranged. The picture above shows the menu titles. Change it later in Preferences &gt; User &gt; UI Settings.</source>
+        <translation>Как устроены меню. Картинка выше показывает названия меню. Позже это можно изменить в Настройки &gt; Пользователь &gt; Настройки интерфейса.</translation>
+    </message>
+    <message>
+        <source>Coming from another editor? Use its keys. Change it later in Keyboard Customization, in the first menu.</source>
+        <translation>Пришли из другого редактора? Используйте его клавиши. Позже это можно изменить в Настройка клавиатуры, в первом меню.</translation>
+    </message>
+    <message>
+        <source>Edit with the Vim keys h, j, k, l, i and Esc. Leave it off unless you know Vim. Change it later in Preferences &gt; User &gt; Keyboard.</source>
+        <translation>Правка клавишами Vim: h, j, k, l, i и Esc. Оставьте выключенным, если не знаете Vim. Позже это можно изменить в Настройки &gt; Пользователь &gt; Клавиатура.</translation>
     </message>
     <message>
         <source>Playhead</source>
@@ -28569,8 +28604,20 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
         <translation>Указатель мыши</translation>
     </message>
     <message>
+        <source>Zooming keeps the playhead where it is, like Resolve.</source>
+        <translation>При масштабировании указатель воспроизведения остаётся на месте, как в Resolve.</translation>
+    </message>
+    <message>
+        <source>Zooming keeps the point under the mouse pointer where it is.</source>
+        <translation>При масштабировании точка под указателем мыши остаётся на месте.</translation>
+    </message>
+    <message>
         <source>Timeline zooms around</source>
         <translation>Масштабировать таймлайн относительно</translation>
+    </message>
+    <message>
+        <source>Which point stays in place when you zoom the timeline. Change it later in Preferences &gt; User &gt; Editing.</source>
+        <translation>Какая точка остаётся на месте при масштабировании таймлайна. Позже это можно изменить в Настройки &gt; Пользователь &gt; Монтаж.</translation>
     </message>
     <message>
         <source>Resolve (Alt zooms, Ctrl scrolls time, Shift track height)</source>
@@ -28581,8 +28628,20 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
         <translation>Classic (Ctrl — масштаб, Shift — время)</translation>
     </message>
     <message>
+        <source>The wheel as in DaVinci Resolve.</source>
+        <translation>Колесо как в DaVinci Resolve.</translation>
+    </message>
+    <message>
+        <source>The wheel as in most other editors.</source>
+        <translation>Колесо как в большинстве других редакторов.</translation>
+    </message>
+    <message>
         <source>Mouse wheel</source>
         <translation>Колесо мыши</translation>
+    </message>
+    <message>
+        <source>What the mouse wheel does on the timeline, alone and with Alt, Ctrl or Shift. Change it later in Preferences &gt; User &gt; Editing.</source>
+        <translation>Что делает колесо мыши на таймлайне, само по себе и с Alt, Ctrl или Shift. Позже это можно изменить в Настройки &gt; Пользователь &gt; Монтаж.</translation>
     </message>
     <message>
         <source>Show open timelines as tabs</source>
@@ -28593,12 +28652,20 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
         <translation>Таймлайны</translation>
     </message>
     <message>
+        <source>Open timelines appear as tabs above the timeline. Change it later in Preferences &gt; User &gt; Timeline and Media Pool.</source>
+        <translation>Открытые таймлайны отображаются вкладками над таймлайном. Позже это можно изменить в Настройки &gt; Пользователь &gt; Таймлайн и медиапул.</translation>
+    </message>
+    <message>
         <source>Pressing the ruler moves the playhead there at once</source>
         <translation>Нажатие на линейку сразу перемещает указатель воспроизведения туда</translation>
     </message>
     <message>
         <source>Timeline ruler</source>
         <translation>Линейка таймлайна</translation>
+    </message>
+    <message>
+        <source>The playhead jumps to the point you press on the ruler, with no need to drag. Change it later in Preferences &gt; User &gt; Timeline and Media Pool.</source>
+        <translation>Указатель воспроизведения прыгает в точку, на которую вы нажали на линейке, без перетаскивания. Позже это можно изменить в Настройки &gt; Пользователь &gt; Таймлайн и медиапул.</translation>
     </message>
     <message>
         <source>Stop playback when the playhead is moved</source>
@@ -28609,16 +28676,20 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
         <translation>Перемещение указателя воспроизведения</translation>
     </message>
     <message>
-        <source>Resolve keeps the playhead where it is when zooming and carries on playing when you move it. Change these later in Preferences &gt; User: Animations in UI Settings; zoom and wheel in Editing; tabs and ruler in Timeline and Media Pool; the playhead in Playback Settings.</source>
-        <translation>Resolve при масштабировании оставляет указатель воспроизведения на месте и продолжает воспроизведение, когда вы его двигаете. Позже это можно изменить в Настройки &gt; Пользователь: анимации в Настройки интерфейса; масштаб и колесо в Монтаж; вкладки и линейка в Таймлайн и медиапул; указатель в Настройки воспроизведения.</translation>
+        <source>Playback stops when you move the playhead. Off keeps playing, as in Resolve. Change it later in Preferences &gt; User &gt; Playback Settings.</source>
+        <translation>Воспроизведение останавливается, когда вы двигаете указатель. Если выключено, оно продолжается, как в Resolve. Позже это можно изменить в Настройки &gt; Пользователь &gt; Настройки воспроизведения.</translation>
+    </message>
+    <message>
+        <source>Uses the graphics card to play video. Automatic is right for most computers. Change it later in Preferences &gt; System &gt; Decode Options.</source>
+        <translation>Использует видеокарту для воспроизведения видео. «Автоматически» подходит большинству компьютеров. Позже это можно изменить в Настройки &gt; Система &gt; Параметры декодирования.</translation>
+    </message>
+    <message>
+        <source>Your desktop shows a message when a render is done. Change it later in Preferences &gt; User &gt; UI Settings.</source>
+        <translation>Рабочий стол показывает сообщение, когда рендер готов. Позже это можно изменить в Настройки &gt; Пользователь &gt; Настройки интерфейса.</translation>
     </message>
     <message>
         <source>Hardware decoding</source>
         <translation>Аппаратное декодирование</translation>
-    </message>
-    <message>
-        <source>Uses the graphics card to play video. Automatic is right for most computers.</source>
-        <translation>Использует видеокарту для воспроизведения видео. «Автоматически» подходит большинству компьютеров.</translation>
     </message>
     <message>
         <source>Show a system notification when renders finish</source>
@@ -28627,10 +28698,6 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
     <message>
         <source>Notifications</source>
         <translation>Уведомления</translation>
-    </message>
-    <message>
-        <source>Change these later in Preferences &gt; System &gt; Decode Options and Preferences &gt; User &gt; UI Settings. Help &gt; Welcome opens this window again.</source>
-        <translation>Позже это можно изменить в Настройки &gt; Система &gt; Параметры декодирования и Настройки &gt; Пользователь &gt; Настройки интерфейса. Справка &gt; Приветствие открывает это окно снова.</translation>
     </message>
     <message>
         <source>Keyboard Profile</source>

@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// The welcome window (docs/behavior-spec.md section 110): the four pages, every choice reaches the
+// The welcome window (docs/behavior-spec.md section 110): the five pages, every choice reaches the
 // setting Preferences uses, Skip and Next-Next-Next-Finish leave the settings alone, it shows
 // once, Help > Welcome reopens it, the suppress switches, and the keyboard banner steps aside.
 #include "app/CommandLine.h"
 #include "app/MainWindow.h"
 #include "app/Theme.h"
 #include "app/WelcomeDialog.h"
+#include "app/WelcomeHeroes.h"
 #include "core/EditBehaviour.h"
 #include "core/Preferences.h"
 #include "core/Project.h"
@@ -17,6 +18,7 @@
 #include "ui/common/MenuLayouts.h"
 #include "ui/common/Resources.h"
 #include "ui/common/StandardActions.h"
+#include "ui/common/UiAnimation.h"
 #include "ui/common/VimOptions.h"
 #include "ui/dialogs/PreferencesDialog.h"
 #include "ui/projects/KeymapChoiceBanner.h"
@@ -25,11 +27,13 @@
 #include <QApplication>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QFormLayout>
 #include <QLabel>
 #include <QMenu>
 #include <QMenuBar>
 #include <QPushButton>
 #include <QSettings>
+#include <QStackedWidget>
 #include <QStandardPaths>
 #include <QTest>
 
@@ -105,12 +109,12 @@ private slots:
 
     void init() { QSettings().clear(); }
 
-    void fourPagesWithBackNextFinish()
+    void fivePagesWithBackNextFinish()
     {
         Fixture f;
         WelcomeDialog* d = f.window->showWelcome();
         QVERIFY(d->isVisible());
-        QCOMPARE(d->pageCount(), 4);
+        QCOMPARE(d->pageCount(), 5);
         QCOMPARE(d->currentPage(), 0);
         auto* back = field<QPushButton>(d, "WelcomeBack");
         auto* next = field<QPushButton>(d, "WelcomeNext");
@@ -125,10 +129,11 @@ private slots:
         QVERIFY(back->isEnabled());
         next->click();
         next->click();
-        QCOMPARE(d->currentPage(), 3);
+        next->click();
+        QCOMPARE(d->currentPage(), 4);
         QCOMPARE(next->text(), QStringLiteral("Finish"));
         back->click();
-        QCOMPARE(d->currentPage(), 2);
+        QCOMPARE(d->currentPage(), 3);
         QCOMPARE(next->text(), QStringLiteral("Next"));
         d->reject();
     }
@@ -138,7 +143,7 @@ private slots:
         Fixture f;
         const auto before = stored();
         WelcomeDialog* d = f.window->showWelcome();
-        for (int i = 0; i < 4; ++i)
+        for (int i = 0; i < 5; ++i)
             field<QPushButton>(d, "WelcomeNext")->click();
         QVERIFY(!d->isVisible());
         QCOMPARE(stored(), before);
@@ -233,14 +238,70 @@ private slots:
         QCOMPARE(field<QComboBox>(d, "WelcomeMenuLayout")->currentData().toString(),
             menulayout::layoutId(menulayout::Layout::Streamlined));
         QVERIFY(!field<QCheckBox>(d, "WelcomeTabs")->isChecked());
-        // The preview names the menus of the chosen layout.
-        auto* preview = field<QLabel>(d, "WelcomeMenuPreview");
-        const QString streamlined = preview->text();
+        // The picture names the menus of the chosen layout.
+        auto* hero = dynamic_cast<welcomeanim::MenusHero*>(
+            d->findChild<QWidget*>(QStringLiteral("WelcomeMenusHero")));
+        QVERIFY(hero);
+        const QStringList streamlined = hero->titles();
         pick(field<QComboBox>(d, "WelcomeMenuLayout"), menulayout::layoutId(menulayout::Layout::Resolve));
-        QVERIFY(preview->text() != streamlined);
-        QVERIFY(preview->text().contains(QStringLiteral("Trim")));
+        QVERIFY(hero->titles() != streamlined);
+        QVERIFY(hero->titles().contains(QStringLiteral("Trim")));
+        // Vim mode swaps the keycaps; the zoom choice reaches the timeline picture.
+        field<QCheckBox>(d, "WelcomeVim")->setChecked(true);
+        QVERIFY(hero->vim());
+        pick(field<QComboBox>(d, "WelcomeZoom"), QStringLiteral("mouse"));
+        auto* timeline = dynamic_cast<welcomeanim::TimelineHero*>(
+            d->findChild<QWidget*>(QStringLiteral("WelcomeTimelineHero")));
+        QVERIFY(timeline && timeline->zoomAroundMouse());
         d->reject();
         menulayout::setLayout(menulayout::Layout::Resolve);
+    }
+
+    void onlyTheFirstPageHasTheHeaderAndEveryFieldHasATooltip()
+    {
+        Fixture f;
+        WelcomeDialog* d = f.window->showWelcome();
+        auto* pages = d->findChild<QStackedWidget*>();
+        QVERIFY(pages);
+        for (int i = 0; i < pages->count(); ++i) {
+            QWidget* page = pages->widget(i);
+            const bool header = page->findChild<QWidget*>(QStringLiteral("WelcomeIcon"))
+                || page->findChild<QLabel*>(QStringLiteral("WelcomeGreeting"));
+            QCOMPARE(header, i == 0);
+        }
+        for (auto* combo : d->findChildren<QComboBox*>())
+            QVERIFY2(!combo->toolTip().isEmpty(), qPrintable(combo->objectName()));
+        for (auto* check : d->findChildren<QCheckBox*>())
+            QVERIFY2(!check->toolTip().isEmpty(), qPrintable(check->objectName()));
+        for (auto* button : d->findChildren<QPushButton*>())
+            QVERIFY2(!button->toolTip().isEmpty(), qPrintable(button->objectName()));
+        // A form row's label shows the same tooltip as its field.
+        auto* zoom = field<QComboBox>(d, "WelcomeZoom");
+        auto* form = qobject_cast<QFormLayout*>(zoom->parentWidget()->layout());
+        QVERIFY(form);
+        QCOMPARE(form->labelForField(zoom)->toolTip(), zoom->toolTip());
+        d->reject();
+    }
+
+    void entrancesRunAndLeaveNothingBehind()
+    {
+        Fixture f;
+        uianim::setEnabled(true);
+        WelcomeDialog* d = f.window->showWelcome();
+        auto* next = field<QPushButton>(d, "WelcomeNext");
+        next->click();
+        next->click(); // a change while the cascade of the last one still runs
+        QCOMPARE(d->currentPage(), 2);
+        QTest::qWait(1500);
+        for (QWidget* w : d->findChildren<QWidget*>())
+            QVERIFY2(!w->graphicsEffect(), qPrintable(w->objectName()));
+        field<QPushButton>(d, "WelcomeBack")->click();
+        QTest::qWait(1200);
+        QCOMPARE(d->currentPage(), 1);
+        for (QWidget* w : d->findChildren<QWidget*>())
+            QVERIFY2(!w->graphicsEffect(), qPrintable(w->objectName()));
+        d->reject();
+        uianim::setEnabled(false);
     }
 
     void showsOnce()

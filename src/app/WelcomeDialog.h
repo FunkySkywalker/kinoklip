@@ -4,6 +4,8 @@
 // differently from DaVinci Resolve or offers on top of it (docs/behavior-spec.md section 110).
 #pragma once
 
+#include "app/WelcomeAnimations.h"
+
 #include <QDialog>
 #include <QList>
 #include <QString>
@@ -20,16 +22,20 @@ namespace kk {
 class ActionRegistry;
 namespace welcomeanim {
 class IconBadge;
+class MenusHero;
 class StepIndicator;
+class SystemHero;
+class TimelineHero;
 } // namespace welcomeanim
 
-/// Four pages: Look (language, colour theme, interface scale), Menus and keys (menu layout,
-/// keyboard profile, Vim mode), Timeline (animations, zoom anchor, mouse wheel, tabs, ruler,
-/// stop on playhead move) and System (hardware decoding, render notifications). Every field
+/// Five pages: Welcome (the big header, language), Look (colour theme, interface scale,
+/// animations), Menus and keys (menu layout, keyboard profile, Vim mode), Timeline (zoom anchor,
+/// mouse wheel, tabs, ruler, stop on playhead move) and System (hardware decoding, render
+/// notifications). Each page after the first has a title and a picture; every field has a
+/// tooltip that says what it does and where to change it later. Every field
 /// starts at what is stored now, so Next, Next, Next, Finish changes nothing; Finish stores
 /// only the fields that were changed, through the same code the Preferences pages use, and
 /// emits applied() so the window re-reads them. Skip (or closing the window) stores nothing.
-/// Every page says where the choice lives in Preferences.
 ///
 /// The window records itself as shown ("welcome/shown" = kVersion) when it appears; raise
 /// kVersion to show it once more after a change big enough to need new questions.
@@ -76,7 +82,8 @@ protected:
     void showEvent(QShowEvent* event) override;
 
 private:
-    QWidget* makePage(const QString& title, QWidget* header = nullptr);
+    QWidget* makePage(const QString& title, QWidget* hero);
+    QWidget* welcomePage();
     QWidget* lookPage();
     QWidget* menusPage();
     QWidget* timelinePage();
@@ -88,23 +95,26 @@ private:
     QStackedWidget* m_pages = nullptr;
     QPushButton* m_back = nullptr;
     QPushButton* m_next = nullptr;
-    welcomeanim::StepIndicator* m_step = nullptr; ///< the step pill under the greeting
+    welcomeanim::StepIndicator* m_step = nullptr; ///< the step dots in the footer
     welcomeanim::IconBadge* m_icon = nullptr;
-    QList<QWidget*> m_revealed; ///< faded in one after another when the window opens
+    welcomeanim::MenusHero* m_menusHero = nullptr;
+    welcomeanim::TimelineHero* m_timelineHero = nullptr;
+    welcomeanim::SystemHero* m_systemHero = nullptr;
+    QList<QList<welcomeanim::Group>> m_groups; ///< per page: what enters one after another
     bool m_didReveal = false;
     QStringList m_restartNeeded;
 
-    // Look
+    // Welcome
     QComboBox* m_language = nullptr;
+    // Look
     QComboBox* m_theme = nullptr;
     QComboBox* m_scale = nullptr;
+    QCheckBox* m_animate = nullptr;
     // Menus and keys
     QComboBox* m_menuLayout = nullptr;
-    QLabel* m_menuPreview = nullptr;
     QComboBox* m_keymap = nullptr;
     QCheckBox* m_vim = nullptr;
     // Timeline
-    QCheckBox* m_animate = nullptr;
     QComboBox* m_zoom = nullptr;
     QComboBox* m_wheel = nullptr;
     QCheckBox* m_tabs = nullptr;

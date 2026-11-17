@@ -464,6 +464,13 @@ Probablemente el sistema cerró el programa porque el equipo se quedó sin memor
     </message>
 </context>
 <context>
+    <name>WelcomeHeroes</name>
+    <message>
+        <source>Render finished</source>
+        <translation>Renderizado terminado</translation>
+    </message>
+</context>
+<context>
     <name>kk</name>
     <message>
         <source>Timeline</source>
@@ -28441,10 +28448,6 @@ Abrir un clip multicámara del panel de medios o mover el cabezal de reproducci�
         <translation>Terminar</translation>
     </message>
     <message>
-        <source>It works like DaVinci Resolve. These few questions are about what is different here. Nothing changes unless you choose it.</source>
-        <translation>Funciona como DaVinci Resolve. Estas pocas preguntas tratan de lo que es distinto aquí. Nada cambia si no lo eliges.</translation>
-    </message>
-    <message>
         <source>Look</source>
         <translation>Aspecto</translation>
     </message>
@@ -28473,10 +28476,6 @@ Abrir un clip multicámara del panel de medios o mover el cabezal de reproducci�
         <translation>Escala de la interfaz</translation>
     </message>
     <message>
-        <source>The language and the scale apply after a restart. Change all of this later in Preferences &gt; User &gt; UI Settings (the theme is under Appearance there, or in the Workspace menu).</source>
-        <translation>El idioma y la escala se aplican tras reiniciar. Puedes cambiarlo todo más tarde en Preferencias &gt; Usuario &gt; Ajustes de interfaz (el tema está allí en Apariencia, o en el menú Workspace).</translation>
-    </message>
-    <message>
         <source>Menus and keys</source>
         <translation>Menús y teclas</translation>
     </message>
@@ -28501,28 +28500,12 @@ Abrir un clip multicámara del panel de medios o mover el cabezal de reproducci�
         <translation>Teclado</translation>
     </message>
     <message>
-        <source>Coming from another editor? Use its keys.</source>
-        <translation>¿Vienes de otro editor? Usa sus teclas.</translation>
-    </message>
-    <message>
         <source>Vim mode</source>
         <translation>Modo Vim</translation>
     </message>
     <message>
         <source>Vim</source>
         <translation>Vim</translation>
-    </message>
-    <message>
-        <source>Vim keys for editing (h, j, k, l, i, Esc). Off unless you know Vim.</source>
-        <translation>Teclas de Vim para editar (h, j, k, l, i, Esc). Desactivado si no conoces Vim.</translation>
-    </message>
-    <message>
-        <source>Change these later in Preferences &gt; User &gt; UI Settings (menu layout) and Preferences &gt; User &gt; Keyboard (Vim mode); the keyboard profile is under Keyboard Customization in the first menu.</source>
-        <translation>Puedes cambiarlo en Preferencias &gt; Usuario &gt; Ajustes de interfaz (diseño de menús) y Preferencias &gt; Usuario &gt; Teclado (modo Vim); el perfil de teclado está en el primer menú: Personalización del teclado.</translation>
-    </message>
-    <message>
-        <source>Shorter menus grouped by task, with plain names, and one menu per page. The commands and their keys are the same.</source>
-        <translation>Menús más cortos agrupados por tarea, con nombres sencillos y un menú por página. Los comandos y sus teclas son los mismos.</translation>
     </message>
     <message>
         <source>The menus as in DaVinci Resolve.</source>
@@ -28537,8 +28520,60 @@ Abrir un clip multicámara del panel de medios o mover el cabezal de reproducci�
         <translation>Animar ediciones de la línea de tiempo</translation>
     </message>
     <message>
+        <source>Go back to the previous page.</source>
+        <translation>Volver a la página anterior.</translation>
+    </message>
+    <message>
+        <source>Save your choices and close this window. Help &gt; Welcome opens it again.</source>
+        <translation>Guardar tus elecciones y cerrar esta ventana. Ayuda &gt; Bienvenida la abre de nuevo.</translation>
+    </message>
+    <message>
+        <source>Go to the next page.</source>
+        <translation>Ir a la página siguiente.</translation>
+    </message>
+    <message>
+        <source>Works like DaVinci Resolve. A few choices and you&apos;re ready.</source>
+        <translation>Funciona como DaVinci Resolve. Unas pocas elecciones y listo.</translation>
+    </message>
+    <message>
+        <source>The language of the menus and dialogs. It applies after a restart. Change it later in Preferences &gt; User &gt; UI Settings.</source>
+        <translation>El idioma de los menús y diálogos. Se aplica tras reiniciar. Puedes cambiarlo en Preferencias &gt; Usuario &gt; Ajustes de interfaz.</translation>
+    </message>
+    <message>
+        <source>The colours of the whole window, dark or light. Change it later in the Workspace menu or in Preferences &gt; User &gt; UI Settings.</source>
+        <translation>Los colores de toda la ventana, oscuros o claros. Puedes cambiarlo en el menú Espacio de trabajo o en Preferencias &gt; Usuario &gt; Ajustes de interfaz.</translation>
+    </message>
+    <message>
+        <source>Follows the scale of your desktop.</source>
+        <translation>Sigue la escala de tu escritorio.</translation>
+    </message>
+    <message>
+        <source>Makes everything bigger or smaller. It applies after a restart. Change it later in Preferences &gt; User &gt; UI Settings.</source>
+        <translation>Hace todo más grande o más pequeño. Se aplica tras reiniciar. Puedes cambiarlo en Preferencias &gt; Usuario &gt; Ajustes de interfaz.</translation>
+    </message>
+    <message>
         <source>Animations</source>
         <translation>Animaciones</translation>
+    </message>
+    <message>
+        <source>Clips glide and settle after an edit instead of jumping. Turn it off for instant changes. Change it later in Preferences &gt; User &gt; UI Settings.</source>
+        <translation>Los clips se deslizan y se asientan tras una edición en lugar de saltar. Desactívalo para cambios instantáneos. Puedes cambiarlo en Preferencias &gt; Usuario &gt; Ajustes de interfaz.</translation>
+    </message>
+    <message>
+        <source>Shorter menus grouped by task, with plain names. The commands and their keys are the same.</source>
+        <translation>Menús más cortos agrupados por tarea, con nombres sencillos. Los comandos y sus teclas son los mismos.</translation>
+    </message>
+    <message>
+        <source>How the menus are arranged. The picture above shows the menu titles. Change it later in Preferences &gt; User &gt; UI Settings.</source>
+        <translation>Cómo se organizan los menús. La imagen de arriba muestra los títulos de los menús. Puedes cambiarlo en Preferencias &gt; Usuario &gt; Ajustes de interfaz.</translation>
+    </message>
+    <message>
+        <source>Coming from another editor? Use its keys. Change it later in Keyboard Customization, in the first menu.</source>
+        <translation>¿Vienes de otro editor? Usa sus teclas. Puedes cambiarlo en Personalización del teclado, en el primer menú.</translation>
+    </message>
+    <message>
+        <source>Edit with the Vim keys h, j, k, l, i and Esc. Leave it off unless you know Vim. Change it later in Preferences &gt; User &gt; Keyboard.</source>
+        <translation>Edita con las teclas de Vim h, j, k, l, i y Esc. Déjalo desactivado si no conoces Vim. Puedes cambiarlo en Preferencias &gt; Usuario &gt; Teclado.</translation>
     </message>
     <message>
         <source>Playhead</source>
@@ -28549,8 +28584,20 @@ Abrir un clip multicámara del panel de medios o mover el cabezal de reproducci�
         <translation>Puntero del ratón</translation>
     </message>
     <message>
+        <source>Zooming keeps the playhead where it is, like Resolve.</source>
+        <translation>Al hacer zoom, el cabezal se queda donde está, como en Resolve.</translation>
+    </message>
+    <message>
+        <source>Zooming keeps the point under the mouse pointer where it is.</source>
+        <translation>Al hacer zoom, el punto bajo el puntero del ratón se queda donde está.</translation>
+    </message>
+    <message>
         <source>Timeline zooms around</source>
         <translation>La línea de tiempo hace zoom alrededor de</translation>
+    </message>
+    <message>
+        <source>Which point stays in place when you zoom the timeline. Change it later in Preferences &gt; User &gt; Editing.</source>
+        <translation>Qué punto se queda en su sitio al hacer zoom en la línea de tiempo. Puedes cambiarlo en Preferencias &gt; Usuario &gt; Edición.</translation>
     </message>
     <message>
         <source>Resolve (Alt zooms, Ctrl scrolls time, Shift track height)</source>
@@ -28561,8 +28608,20 @@ Abrir un clip multicámara del panel de medios o mover el cabezal de reproducci�
         <translation>Clásico (Ctrl hace zoom, Mayús desplaza el tiempo)</translation>
     </message>
     <message>
+        <source>The wheel as in DaVinci Resolve.</source>
+        <translation>La rueda como en DaVinci Resolve.</translation>
+    </message>
+    <message>
+        <source>The wheel as in most other editors.</source>
+        <translation>La rueda como en la mayoría de los demás editores.</translation>
+    </message>
+    <message>
         <source>Mouse wheel</source>
         <translation>Rueda del ratón</translation>
+    </message>
+    <message>
+        <source>What the mouse wheel does on the timeline, alone and with Alt, Ctrl or Shift. Change it later in Preferences &gt; User &gt; Editing.</source>
+        <translation>Qué hace la rueda del ratón en la línea de tiempo, sola y con Alt, Ctrl o Mayús. Puedes cambiarlo en Preferencias &gt; Usuario &gt; Edición.</translation>
     </message>
     <message>
         <source>Show open timelines as tabs</source>
@@ -28573,12 +28632,20 @@ Abrir un clip multicámara del panel de medios o mover el cabezal de reproducci�
         <translation>Líneas de tiempo</translation>
     </message>
     <message>
+        <source>Open timelines appear as tabs above the timeline. Change it later in Preferences &gt; User &gt; Timeline and Media Pool.</source>
+        <translation>Las líneas de tiempo abiertas aparecen como pestañas sobre la línea de tiempo. Puedes cambiarlo en Preferencias &gt; Usuario &gt; Línea de tiempo y panel de medios.</translation>
+    </message>
+    <message>
         <source>Pressing the ruler moves the playhead there at once</source>
         <translation>Pulsar en la regla mueve allí el cabezal de reproducción al instante</translation>
     </message>
     <message>
         <source>Timeline ruler</source>
         <translation>Regla de la línea de tiempo</translation>
+    </message>
+    <message>
+        <source>The playhead jumps to the point you press on the ruler, with no need to drag. Change it later in Preferences &gt; User &gt; Timeline and Media Pool.</source>
+        <translation>El cabezal salta al punto que pulsas en la regla, sin necesidad de arrastrar. Puedes cambiarlo en Preferencias &gt; Usuario &gt; Línea de tiempo y panel de medios.</translation>
     </message>
     <message>
         <source>Stop playback when the playhead is moved</source>
@@ -28589,16 +28656,20 @@ Abrir un clip multicámara del panel de medios o mover el cabezal de reproducci�
         <translation>Mover el cabezal de reproducción</translation>
     </message>
     <message>
-        <source>Resolve keeps the playhead where it is when zooming and carries on playing when you move it. Change these later in Preferences &gt; User: Animations in UI Settings; zoom and wheel in Editing; tabs and ruler in Timeline and Media Pool; the playhead in Playback Settings.</source>
-        <translation>Resolve mantiene el cabezal en su sitio al hacer zoom y sigue reproduciendo cuando lo mueves. Puedes cambiarlo en Preferencias &gt; Usuario: animaciones en Ajustes de interfaz; zoom y rueda en Edición; pestañas y regla en Línea de tiempo y panel de medios; el cabezal en Ajustes de reproducción.</translation>
+        <source>Playback stops when you move the playhead. Off keeps playing, as in Resolve. Change it later in Preferences &gt; User &gt; Playback Settings.</source>
+        <translation>La reproducción se detiene al mover el cabezal. Desactivado sigue reproduciendo, como en Resolve. Puedes cambiarlo en Preferencias &gt; Usuario &gt; Ajustes de reproducción.</translation>
+    </message>
+    <message>
+        <source>Uses the graphics card to play video. Automatic is right for most computers. Change it later in Preferences &gt; System &gt; Decode Options.</source>
+        <translation>Usa la tarjeta gráfica para reproducir vídeo. Automático es lo adecuado para la mayoría de los equipos. Puedes cambiarlo en Preferencias &gt; Sistema &gt; Opciones de decodificación.</translation>
+    </message>
+    <message>
+        <source>Your desktop shows a message when a render is done. Change it later in Preferences &gt; User &gt; UI Settings.</source>
+        <translation>Tu escritorio muestra un mensaje cuando termina un renderizado. Puedes cambiarlo en Preferencias &gt; Usuario &gt; Ajustes de interfaz.</translation>
     </message>
     <message>
         <source>Hardware decoding</source>
         <translation>Decodificación por hardware</translation>
-    </message>
-    <message>
-        <source>Uses the graphics card to play video. Automatic is right for most computers.</source>
-        <translation>Usa la tarjeta gráfica para reproducir vídeo. Automático es lo adecuado para la mayoría de los equipos.</translation>
     </message>
     <message>
         <source>Show a system notification when renders finish</source>
@@ -28607,10 +28678,6 @@ Abrir un clip multicámara del panel de medios o mover el cabezal de reproducci�
     <message>
         <source>Notifications</source>
         <translation>Notificaciones</translation>
-    </message>
-    <message>
-        <source>Change these later in Preferences &gt; System &gt; Decode Options and Preferences &gt; User &gt; UI Settings. Help &gt; Welcome opens this window again.</source>
-        <translation>Puedes cambiarlo en Preferencias &gt; Sistema &gt; Opciones de decodificación y Preferencias &gt; Usuario &gt; Ajustes de interfaz. Ayuda &gt; Bienvenida abre esta ventana de nuevo.</translation>
     </message>
     <message>
         <source>Keyboard Profile</source>
