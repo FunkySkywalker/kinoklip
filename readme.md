@@ -7,7 +7,8 @@
 <a href="https://github.com/SeniorMatt/kinoklip/releases/latest">Download</a> &nbsp;·&nbsp;
 <a href="docs/guide/readme.md">Guide</a> &nbsp;·&nbsp;
 <a href="https://seniormatt.github.io/kinoklip/">Website</a> &nbsp;·&nbsp;
-<a href="https://discord.gg/pCeHnvDn3x">Discord</a>
+<a href="https://discord.gg/pCeHnvDn3x">Discord</a> &nbsp;·&nbsp;
+<a href="https://ko-fi.com/seniormatthew">Support</a>
 </h3>
 
 <a href="docs/images/readme/themes.png"><img src="docs/images/readme/themes.png" width="100%" alt="The Edit page of Kinoklip in the Breeze Dark colour scheme on the left and Breeze Light on the right, divided by a diagonal line"></a>
