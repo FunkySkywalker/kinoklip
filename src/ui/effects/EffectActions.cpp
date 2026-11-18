@@ -11,6 +11,7 @@
 #include "core/ParamKeys.h"
 #include "core/Project.h"
 #include "core/SelectionModel.h"
+#include "core/MacroFiles.h"
 #include "core/TitlePresets.h"
 #include "core/VideoEffectKeys.h"
 #include "ui/common/AppContext.h"
@@ -132,6 +133,20 @@ int64_t defaultGeneratorFrames(Rational fps)
 std::optional<ClipData> makeGeneratorClip(
     const QString& descriptorId, Rational fps, QSizeF frameSize)
 {
+    if (descriptorId.startsWith(macrofiles::kIdPrefix)) {
+        // A macro saved as a title (spec 120): a transparent clip whose composition is the macro.
+        const QString path = macrofiles::pathOfId(descriptorId);
+        const auto macro = path.isEmpty() ? std::nullopt : macrofiles::load(path);
+        if (!macro)
+            return std::nullopt;
+        ClipData clip;
+        clip.name = macro->name;
+        clip.duration = defaultGeneratorFrames(fps);
+        clip.kind = ClipKind::Solid;
+        clip.solidColor = QColor(0, 0, 0, 0);
+        clip.composition = macrofiles::titleComposition(*macro);
+        return clip;
+    }
     const EffectRegistry& registry = EffectRegistry::instance();
     const EffectDescriptor* desc = registry.find(descriptorId);
     if (!desc)
@@ -313,9 +328,11 @@ quint64 addGeneratorClip(Project& project, const QString& descriptorId, int64_t 
 {
     const EffectRegistry& registry = EffectRegistry::instance();
     const EffectDescriptor* desc = registry.find(descriptorId);
-    if (!desc
-        || (desc->category != EffectCategory::Title && desc->category != EffectCategory::Generator
-            && desc->category != EffectCategory::Effects))
+    const bool macroTitle = descriptorId.startsWith(macrofiles::kIdPrefix);
+    if (!macroTitle
+        && (!desc
+            || (desc->category != EffectCategory::Title && desc->category != EffectCategory::Generator
+                && desc->category != EffectCategory::Effects)))
         return 0;
     const TimelineData& current = project.timeline()->data();
     const int64_t length
@@ -350,7 +367,7 @@ quint64 addGeneratorClip(Project& project, const QString& descriptorId, int64_t 
     if (prepare)
         prepare(clip);
 
-    project.beginEdit(tr("Add %1").arg(desc->name));
+    project.beginEdit(tr("Add %1").arg(desc ? desc->name : clip.name));
     TimelineData& data = project.timeline()->mutableData();
     if (target >= int(data.videoTracks.size()))
         target = editops::addTrack(data, TrackType::Video);
@@ -364,6 +381,12 @@ bool activate(AppContext& ctx, const QString& descriptorId)
     if (!ctx.project)
         return false;
     Project& project = *ctx.project;
+    if (descriptorId.startsWith(macrofiles::kIdPrefix)) {
+        const quint64 id = addGeneratorClip(project, descriptorId, project.timeline()->playhead());
+        if (id && ctx.selection)
+            ctx.selection->selectClip(id);
+        return id != 0;
+    }
     const EffectDescriptor* desc = EffectRegistry::instance().find(descriptorId);
     if (!desc)
         return false;

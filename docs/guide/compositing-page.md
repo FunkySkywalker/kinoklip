@@ -250,6 +250,20 @@ parameters as `Blur1.Size`. Functions: sin, cos, tan, asin, acos, atan, atan2, s
 ceil, round, fract, sign, min, max, clamp, mix, step, smoothstep, fmod, noise, rand, deg, rad and `if(test, a, b)`.
 A formula with a mistake does nothing, and Kinoklip tells you when one would make a circle.
 
+## Groups, macros, instances and underlays
+
+- **Group:** select nodes and press **Ctrl+G** (or right-click > **Group**). The nodes get a frame with a title. Double-click
+  the title (or **Collapse Group**) to fold them into one tile; links to the nodes end on the tile. **Ctrl+Shift+G** takes the
+  nodes out again. Moving the group moves everything in it.
+- **Macro:** right-click a group > **Make Macro...**, name it and tick the parameters it should show (parameters you
+  published are ticked for you). The macro's Inspector then has those controls, and they drive the nodes inside.
+- **Save Macro as Title...** puts the macro in the Effects Library under **Titles > Macros**. Double-click it there (or drag it
+  onto the timeline) to get a clip that shows the macro's picture. **Insert Macro** on the node editor background puts it into the
+  open composition.
+- **Create Instance** (right-click a node) makes a copy that shares the settings of the original: change the original and the
+  instance follows. **Make Independent** cuts it loose.
+- **Add Underlay** puts a coloured box behind nodes to keep them apart visually; the nodes on it move with it.
+
 ## Sound
 
 The Compositing page plays the same sound as the Edit page: the timeline's mix, so a clip on a

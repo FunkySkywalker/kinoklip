@@ -3,6 +3,7 @@
 #include "ui/comp/CompSession.h"
 
 #include "core/CompLinks.h"
+#include "core/MacroFiles.h"
 #include "core/Modifiers.h"
 
 #include "core/CompOps.h"
@@ -301,6 +302,146 @@ bool CompSession::setMediaInSource(quint64 id, const QString& mediaId)
     });
 }
 
+quint64 CompSession::groupSelection()
+{
+    const QVector<quint64> ids = m_selNodes;
+    quint64 made = 0;
+    edit(tr("Group"), [&](Composition& c) {
+        made = compgroups::makeGroup(c, ids);
+        return made != 0;
+    });
+    if (made)
+        setSelection({made}, {}, made);
+    return made;
+}
+
+bool CompSession::ungroupSelection()
+{
+    const QVector<quint64> ids = m_selNodes;
+    const int64_t frame = compFrame();
+    QVector<quint64> freed;
+    const bool done = edit(tr("Ungroup"), [&](Composition& c) {
+        bool any = false;
+        for (const quint64 id : ids) {
+            const CompNode* g = c.node(id);
+            if (!g || !compgroups::isGroup(*g))
+                continue;
+            freed += compgroups::members(c, id, false);
+            any = compgroups::ungroup(c, id, frame) || any;
+        }
+        return any;
+    });
+    if (done && !freed.isEmpty())
+        setSelection(freed, {}, freed.last());
+    return done;
+}
+
+bool CompSession::setGroupCollapsed(quint64 id, bool collapsed)
+{
+    const bool done = edit(collapsed ? tr("Collapse Group") : tr("Expand Group"),
+        [&](Composition& c) { return compgroups::setCollapsed(c, id, collapsed); });
+    return done;
+}
+
+bool CompSession::toggleGroupCollapsed(quint64 id)
+{
+    const CompNode* g = m_comp.node(id);
+    return g && compgroups::isGroup(*g) && setGroupCollapsed(id, !g->collapsed);
+}
+
+bool CompSession::makeMacro(
+    quint64 group, const QString& name, const QVector<compgroups::ControlPick>& picks)
+{
+    const int64_t frame = compFrame();
+    return edit(tr("Make Macro"),
+        [&](Composition& c) { return compgroups::makeMacro(c, group, name, picks, frame); });
+}
+
+bool CompSession::removeMacroControl(quint64 macro, const QString& key)
+{
+    const int64_t frame = compFrame();
+    return edit(tr("Remove Macro Control"),
+        [&](Composition& c) { return compgroups::removeControl(c, macro, key, frame); });
+}
+
+QString CompSession::saveMacro(quint64 group, const QString& name, QString* error)
+{
+    auto file = macrofiles::fromGroup(m_comp, group);
+    if (!file) {
+        if (error)
+            *error = tr("Select a group or a macro");
+        return {};
+    }
+    if (!name.trimmed().isEmpty())
+        file->name = name.trimmed();
+    return macrofiles::save(*file, error);
+}
+
+quint64 CompSession::insertMacro(const QString& path, QPointF position)
+{
+    const auto file = macrofiles::load(path);
+    if (!file)
+        return 0;
+    quint64 group = 0;
+    edit(tr("Insert Macro"), [&](Composition& c) {
+        group = macrofiles::insert(c, *file, position);
+        return group != 0;
+    });
+    if (group)
+        setSelection({group}, {}, group);
+    return group;
+}
+
+quint64 CompSession::makeInstance(quint64 original, QPointF position)
+{
+    quint64 made = 0;
+    edit(tr("Create Instance"), [&](Composition& c) {
+        made = compgroups::makeInstance(c, original, position);
+        return made != 0;
+    });
+    if (made)
+        setSelection({made}, {}, made);
+    return made;
+}
+
+bool CompSession::makeIndependent(quint64 instance)
+{
+    return edit(tr("Make Independent"),
+        [&](Composition& c) { return compgroups::makeIndependent(c, instance); });
+}
+
+quint64 CompSession::addUnderlay(QRectF rect)
+{
+    const QVector<quint64> ids = m_selNodes;
+    quint64 id = 0;
+    edit(tr("Add Underlay"), [&](Composition& c) {
+        QRectF box = rect;
+        if (box.isEmpty()) {
+            for (const quint64 nid : ids) {
+                const CompNode* n = c.node(nid);
+                if (n && !compgroups::hiddenBy(c, *n))
+                    box |= QRectF(n->position, QSizeF(3.4, 1.0));
+            }
+            if (!box.isEmpty())
+                box.adjust(-0.6, -1.4, 0.6, 0.6);
+            else
+                box = QRectF(c.viewCentre - QPointF(4, 2.5), QSizeF(8, 5));
+        }
+        CompNote note;
+        note.id = id = c.allocateId();
+        note.position = box.topLeft();
+        note.size = box.size();
+        note.underlay = true;
+        note.text = tr("Underlay");
+        note.color = QColor(80, 120, 170, 90);
+        c.notes.append(note);
+        return true;
+    });
+    if (id)
+        setSelection({}, {id}, 0);
+    return id;
+}
+
 bool CompSession::addModifier(quint64 id, const QString& key, ModifierKind kind)
 {
     if (id == 0 && key.isEmpty()) {
@@ -362,8 +503,23 @@ bool CompSession::disconnectInput(quint64 toId, const QString& port)
 
 bool CompSession::moveSelection(QPointF delta, quint64 insertTo, const QString& insertPort)
 {
-    const QVector<quint64> nodes = m_selNodes;
+    // A group moves with everything in it, an underlay with the nodes it covers.
+    QVector<quint64> nodes = compgroups::withMembers(m_comp, m_selNodes);
     const QVector<quint64> notes = m_selNotes;
+    for (const CompNote& note : m_comp.notes) {
+        if (!note.underlay || !notes.contains(note.id))
+            continue;
+        const QRectF box(note.position, note.size);
+        for (const CompNode& n : m_comp.nodes) {
+            if (box.contains(n.position + QPointF(1.7, 0.5)) && !nodes.contains(n.id)
+                && !compgroups::hiddenBy(m_comp, n))
+                nodes.append(n.id);
+        }
+    }
+    for (const quint64 id : compgroups::withMembers(m_comp, nodes)) {
+        if (!nodes.contains(id))
+            nodes.append(id);
+    }
     const bool snap = m_snap;
     const bool inserting = insertTo && nodes.size() == 1 && notes.isEmpty();
     return edit(inserting ? tr("Insert Node") : tr("Move Nodes"), [&](Composition& c) {

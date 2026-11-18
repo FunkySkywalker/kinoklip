@@ -45,7 +45,7 @@ NodeTypeInfo toInfo(const NodeDescriptor& d)
     info.outputCount = d.outputs;
     info.outputKind = d.outputKind;
     info.params = d.params;
-    info.singleton = d.id == nodetypes::MediaOut;
+    info.singleton = d.id == nodetypes::MediaOut || d.id == nodetypes::Group;
     info.main = d.mainInput;
     return info;
 }
@@ -184,8 +184,8 @@ Composition defaultComposition()
 quint64 addNode(Composition& comp, const QString& type, QPointF position)
 {
     const NodeTypeInfo* info = nodeType(type);
-    if (!info)
-        return 0;
+    if (!info || type == nodetypes::Group)
+        return 0; // groups are made from nodes (compgroups::makeGroup())
     if (info->singleton) {
         for (const CompNode& n : comp.nodes)
             if (n.type == type)

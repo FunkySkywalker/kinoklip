@@ -3,6 +3,7 @@
 #include "ui/effects/EffectsLibraryPanel.h"
 
 #include "core/AudioTransitions.h"
+#include "core/MacroFiles.h"
 #include "core/EffectRegistry.h"
 #include "core/Preferences.h"
 #include "core/Project.h"
@@ -17,6 +18,8 @@
 #include "ui/help/Guide.h"
 
 #include <QApplication>
+#include <QFile>
+#include <QFileSystemWatcher>
 #include <QHeaderView>
 #include <QKeyEvent>
 #include <QLineEdit>
@@ -474,8 +477,56 @@ EffectsLibraryPanel::EffectsLibraryPanel(AppContext& ctx, QWidget* parent)
     });
 }
 
+void EffectsLibraryPanel::refreshMacros()
+{
+    QTreeWidgetItem* titles = nullptr;
+    for (int i = 0; i < m_tree->topLevelItemCount(); ++i) {
+        if (m_tree->topLevelItem(i)->data(0, kCategoryRole).toInt() == int(EffectCategory::Title))
+            titles = m_tree->topLevelItem(i);
+    }
+    if (!titles)
+        return;
+    endHover();
+    // Drop the old folder and build it again.
+    for (int i = titles->childCount() - 1; i >= 0; --i) {
+        if (titles->child(i)->data(0, kFolderRole).toString() == QLatin1String("macros"))
+            delete titles->takeChild(i);
+    }
+    const QVector<macrofiles::Entry> macros = macrofiles::list();
+    if (macros.isEmpty())
+        return;
+    auto* folder = new QTreeWidgetItem(titles, {tr("Macros")});
+    folder->setFlags(Qt::ItemIsEnabled);
+    folder->setData(0, kFolderRole, QStringLiteral("macros"));
+    folder->setToolTip(0, tr("Macros saved from the Compositing page"));
+    const QIcon glyph = categoryGlyph(EffectCategory::Title);
+    for (const macrofiles::Entry& e : macros) {
+        auto* item = new QTreeWidgetItem(folder, {e.name});
+        item->setIcon(0, glyph);
+        item->setData(0, kDescriptorRole, e.id());
+        item->setToolTip(0, tr("A macro saved as a title. Double-click adds it to the timeline at the playhead."));
+        item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled);
+    }
+    folder->setExpanded(true);
+    setFilterText(m_search->text());
+}
+
 QMenu* EffectsLibraryPanel::createContextMenu(const QString& descriptorId)
 {
+    if (descriptorId.startsWith(macrofiles::kIdPrefix)) {
+        auto* menu = new QMenu(this);
+        QAction* add = menu->addAction(tr("Add at Playhead"), this, [this, descriptorId] { activate(descriptorId); });
+        add->setObjectName(QStringLiteral("ApplyLibraryEntry"));
+        QAction* remove = menu->addAction(tr("Delete Macro"), this, [this, descriptorId] {
+            const QString path = macrofiles::pathOfId(descriptorId);
+            if (!path.isEmpty())
+                QFile::remove(path);
+            refreshMacros();
+        });
+        remove->setObjectName(QStringLiteral("DeleteMacroEntry"));
+        remove->setToolTip(tr("Deletes the saved macro file; titles already on the timeline are not changed"));
+        return menu;
+    }
     const EffectDescriptor* d = EffectRegistry::instance().find(descriptorId);
     if (!d)
         return nullptr;
@@ -603,6 +654,10 @@ void EffectsLibraryPanel::populate()
         audio->setData(0, Qt::UserRole, int(EffectCategory::AudioEffect));
     }
     m_categories->setCurrentItem(toolbox);
+    refreshMacros();
+    // Macros saved from the Compositing page appear (and deleted ones go) as the folder changes.
+    m_macroWatcher = new QFileSystemWatcher({macrofiles::directory()}, this);
+    connect(m_macroWatcher, &QFileSystemWatcher::directoryChanged, this, [this] { refreshMacros(); });
 }
 
 bool EffectsLibraryPanel::livePreviewEnabled() const
@@ -614,7 +669,8 @@ void EffectsLibraryPanel::hoverAt(QPoint viewportPos)
 {
     QTreeWidgetItem* item = m_tree->itemAt(viewportPos);
     const QString id = item ? item->data(0, kDescriptorRole).toString() : QString();
-    if (id.isEmpty() || !livePreviewEnabled() || !isVisible()) {
+    if (id.isEmpty() || id.startsWith(macrofiles::kIdPrefix) || !livePreviewEnabled()
+        || !isVisible()) {
         endHover();
         return;
     }

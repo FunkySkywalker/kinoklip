@@ -2,6 +2,7 @@
 // CompInspector: parameter modifiers (spec 119): the right-click menu of a number row (Modify
 // With, Connect To, Publish, Remove), formulas typed into value fields, and the Modifiers
 // sections that show the controls of every modifier of the node.
+#include "core/CompGroups.h"
 #include "core/CompLinks.h"
 #include "core/Expression.h"
 #include "core/Modifiers.h"
@@ -369,6 +370,71 @@ void CompInspector::buildModifiers(QVBoxLayout* layout, const CompNode& node)
             m_modifierBoxes.append(box);
         }
     }
+}
+
+void CompInspector::buildGroupSection(QVBoxLayout* layout, const CompNode& node)
+{
+    const bool group = compgroups::isGroup(node);
+    if (!group && node.instanceOf == 0)
+        return;
+    auto* box = new ParamGroupBox(group ? (node.macro ? tr("Macro") : tr("Group")) : tr("Instance"));
+    box->setObjectName(QStringLiteral("CompGroupSection"));
+    m_groupSection = box;
+    const quint64 id = node.id;
+    const Composition& comp = m_session->composition();
+    if (group) {
+        const int count = compgroups::members(comp, id, true).size();
+        auto* text = new QLabel(tr("%1 node(s) inside").arg(count));
+        text->setObjectName(QStringLiteral("CompGroupMembers"));
+        text->setToolTip(tr("The nodes in this group. Select the group and use Collapse Group or double-click to show or hide them."));
+        box->addWidgetRow(tr("Members"), text);
+        auto* row = new QWidget;
+        auto* h = new QHBoxLayout(row);
+        h->setContentsMargins(0, 0, 0, 0);
+        auto* make = new QPushButton(node.macro ? tr("Edit Controls...") : tr("Make Macro..."));
+        make->setObjectName(QStringLiteral("CompMakeMacro"));
+        make->setToolTip(tr("Chooses which parameters of the nodes inside the group the macro shows as controls"));
+        h->addWidget(make);
+        auto* save = new QPushButton(tr("Save as Title..."));
+        save->setObjectName(QStringLiteral("CompSaveMacro"));
+        save->setToolTip(tr("Saves the group as a title in the Effects Library"));
+        h->addWidget(save);
+        auto* un = new QPushButton(tr("Ungroup"));
+        un->setObjectName(QStringLiteral("CompUngroup"));
+        un->setToolTip(tr("Takes the nodes out of the group"));
+        h->addWidget(un);
+        box->addWidgetRow(QString(), row);
+        connect(make, &QPushButton::clicked, this, [this, id] { emit makeMacroRequested(id); });
+        connect(save, &QPushButton::clicked, this, [this, id] { emit saveMacroRequested(id); });
+        connect(un, &QPushButton::clicked, this, [this, id] {
+            m_session->setSelection({id}, {}, id);
+            m_session->ungroupSelection();
+        });
+        if (node.macro) {
+            // Remove a control: one button per control.
+            for (const MacroControl& c : node.controls) {
+                auto* remove = new QToolButton;
+                remove->setObjectName(QStringLiteral("CompRemoveControl:") + c.key);
+                remove->setText(tr("Remove"));
+                remove->setToolTip(tr("Takes this control off the macro; the parameter inside keeps its value"));
+                box->addWidgetRow(c.label, remove);
+                connect(remove, &QToolButton::clicked, this,
+                    [this, id, key = c.key] { m_session->removeMacroControl(id, key); });
+            }
+        }
+    } else {
+        const CompNode* original = comp.node(node.instanceOf);
+        auto* text = new QLabel(original ? tr("Settings of %1").arg(original->name) : tr("(the original is missing)"));
+        text->setObjectName(QStringLiteral("CompInstanceOf"));
+        text->setToolTip(tr("This node shows the settings of its original: change them there"));
+        box->addWidgetRow(tr("Instance of"), text);
+        auto* indep = new QPushButton(tr("Make Independent"));
+        indep->setObjectName(QStringLiteral("CompMakeIndependent"));
+        indep->setToolTip(tr("Cuts the instance loose: it keeps a copy of the settings and has its own from now on"));
+        box->addWidgetRow(QString(), indep);
+        connect(indep, &QPushButton::clicked, this, [this, id] { m_session->makeIndependent(id); });
+    }
+    layout->addWidget(box);
 }
 
 } // namespace kk

@@ -75,9 +75,19 @@ public:
     /// The Modifiers sections: one ParamGroupBox per modifier of the shown node, in node order
     /// (objectName "CompModifier:<id>"). Empty when the node has no modifiers.
     [[nodiscard]] QVector<ParamGroupBox*> modifierGroups() const { return m_modifierBoxes; }
+    /// The Group / Macro / Instance section (members, Make Macro, Ungroup, Make Independent), or
+    /// null for other nodes (objectName "CompGroupSection").
+    [[nodiscard]] QWidget* groupSection() const { return m_groupSection; }
     /// The header's enable toggle (tests).
     [[nodiscard]] QCheckBox* enableToggle() const { return m_enable; }
 
+signals:
+    /// "Make Macro..." / "Save Macro as Title..." was pressed for group @p group (the page owns the
+    /// dialogs).
+    void makeMacroRequested(quint64 group);
+    void saveMacroRequested(quint64 group);
+
+public:
     // ---- ParamEditHost ----
     [[nodiscard]] const ClipData* clip(quint64 clipId) const override;
     [[nodiscard]] int64_t localFrame(quint64 clipId) const override;
@@ -123,10 +133,13 @@ private:
     void fillSourcePicker(const CompNode& node);
     /// Adds the Modifiers sections of @p node to @p layout (CompInspectorModifiers.cpp).
     void buildModifiers(QVBoxLayout* layout, const CompNode& node);
+    /// Group, Macro and Instance rows of @p node (spec 120).
+    void buildGroupSection(QVBoxLayout* layout, const CompNode& node);
     /// The shown node's parameter @p key and its partner of a point (centerX <-> centerY), or "".
     [[nodiscard]] QString partnerKey(const QString& key) const;
     QVector<ParamGroupBox*> m_modifierBoxes;
     QString m_modSignature; ///< what the Modifiers sections were built from
+    QWidget* m_groupSection = nullptr;
     void fillFollowPicker(const CompNode& node);
     ParamGroupBox* m_audioGroup = nullptr;
     QComboBox* m_audioMode = nullptr; ///< audioPicker()

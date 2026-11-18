@@ -9,11 +9,13 @@
 #include "app/Theme.h"
 #include "app/pages/CompositingPage.h"
 #include "compositing/tracking/TrackStore.h"
+#include "core/CompGroups.h"
 #include "core/CompLinks.h"
 #include "core/CompOps.h"
 #include "core/EditOps.h"
 #include "core/KeyframeOps.h"
 #include "core/MediaPool.h"
+#include "core/MacroFiles.h"
 #include "core/Modifiers.h"
 #include "core/NodeRegistry.h"
 #include "core/Project.h"
@@ -33,12 +35,15 @@
 #include "ui/comp/CompTransport.h"
 #include "ui/comp/CompViewer.h"
 #include "ui/comp/CompViewerOverlay.h"
+#include "ui/comp/MakeMacroDialog.h"
 #include "ui/comp/NodeEditor.h"
 #include "ui/comp/NodeLibrary.h"
 #include "ui/comp/TrackerPanel.h"
 #include "ui/inspector/ParamGroupBox.h"
 #include "ui/inspector/ParamRows.h"
 #include "ui/inspector/ValueField.h"
+#include "ui/effects/EffectActions.h"
+#include "ui/effects/EffectsLibraryPanel.h"
 #include "ui/keyframes/CurveView.h"
 #include "ui/keyframes/KeyframeCommands.h"
 #include "ui/keyframes/KeyframeItemModel.h"
@@ -53,6 +58,7 @@
 #include <QComboBox>
 #include <QDir>
 #include <QDoubleSpinBox>
+#include <QInputDialog>
 #include <QLabel>
 #include <QLineEdit>
 #include <QListWidget>
@@ -61,6 +67,7 @@
 #include <QMouseEvent>
 #include <QRegularExpression>
 #include <QProgressBar>
+#include <QPushButton>
 #include <QSettings>
 #include <QShortcut>
 #include <QKeyEvent>
@@ -69,6 +76,7 @@
 #include <QStandardPaths>
 #include <QTest>
 #include <QToolBar>
+#include <QTreeWidget>
 #include <QToolButton>
 #include <QUndoStack>
 
@@ -1143,6 +1151,252 @@ private slots:
         host->setParamExpression(
             [&] { ParamRef r; r.key = nodekeys::Size; return r; }(), ParamDescriptor {}, QString());
         QVERIFY(!modifiers::first(f.comp().node(a)->params, nodekeys::Size, ModifierKind::Expression));
+    }
+
+    void groupsCollapseMoveAndUngroup()
+    {
+        // Spec 120.1 / 120.2: Ctrl+G groups the selected nodes; a collapsed group is one tile (its
+        // members are hidden, links end on it); a double-click opens and closes it; the group moves
+        // with everything in it; Ctrl+Shift+G ungroups.
+        Fixture f;
+        f.project.timeline()->setPlayhead(20);
+        f.showPage();
+        const quint64 a = f.session()->addNode(nodetypes::Transform);
+        const quint64 b = f.session()->addNode(nodetypes::Transform);
+        const QPointF posA = f.comp().node(a)->position, posB = f.comp().node(b)->position;
+        f.session()->setSelection({a, b}, {}, b);
+        int before = f.steps();
+        f.key(Qt::Key_G, Qt::ControlModifier);
+        QCOMPARE(f.steps(), before + 1);
+        const quint64 g = f.nodeOfType(nodetypes::Group);
+        QVERIFY(g);
+        QCOMPARE(f.comp().node(a)->group, g);
+        QCOMPARE(f.comp().node(b)->group, g);
+        QCOMPARE(f.session()->currentNode(), g);
+        // Expanded: the group is a frame with a title bar over its members, which stay clickable.
+        NodeEditor* ed = f.editor();
+        const CompNode& gn = *f.comp().node(g);
+        QVERIFY(ed->groupFrame(gn).contains(ed->tileRect(*f.comp().node(a))));
+        QVERIFY(ed->groupFrame(gn).contains(ed->tileRect(*f.comp().node(b))));
+        QCOMPARE(ed->hitTest(ed->tileRect(*f.comp().node(a)).center()).node, a);
+        QCOMPARE(ed->hitTest(ed->tileRect(gn).center()).node, g);
+        QVERIFY(!ed->isHidden(*f.comp().node(a)));
+        // Collapse with the context menu entry, one undo step.
+        before = f.steps();
+        f.session()->setSelection({g}, {}, g);
+        {
+            std::unique_ptr<QMenu> menu(ed->buildContextMenu(ed->tileRect(gn).center(), ed));
+            auto* act = menu->findChild<QAction*>(QStringLiteral("CollapseGroupAction"));
+            QVERIFY(act && act->text() == QStringLiteral("Collapse Group") && !act->toolTip().isEmpty());
+            QVERIFY(menu->findChild<QAction*>(QStringLiteral("UngroupAction")));
+            QVERIFY(menu->findChild<QAction*>(QStringLiteral("MakeMacroAction")));
+            QVERIFY(menu->findChild<QAction*>(QStringLiteral("SaveMacroAction")));
+            act->trigger();
+        }
+        QCOMPARE(f.steps(), before + 1);
+        QVERIFY(f.comp().node(g)->collapsed);
+        QVERIFY(ed->isHidden(*f.comp().node(a)) && ed->isHidden(*f.comp().node(b)));
+        QCOMPARE(ed->tileRect(*f.comp().node(a)), ed->tileRect(*f.comp().node(g)));
+        // The hidden members cannot be hit; the group tile can; a box select skips them.
+        QCOMPARE(ed->hitTest(ed->tileRect(*f.comp().node(g)).center()).node, g);
+        // Double-click the tile: expands. Again: collapses.
+        const QPoint tile = ed->tileRect(*f.comp().node(g)).center().toPoint();
+        QTest::mouseDClick(ed, Qt::LeftButton, Qt::NoModifier, tile);
+        QVERIFY(!f.comp().node(g)->collapsed);
+        QTest::mouseDClick(ed, Qt::LeftButton, Qt::NoModifier, ed->tileRect(*f.comp().node(g)).center().toPoint());
+        QVERIFY(f.comp().node(g)->collapsed);
+        f.project.undoStack()->undo();
+        QVERIFY(!f.comp().node(g)->collapsed);
+        // Moving the group moves the members (live too: tileRect follows the drag).
+        f.session()->setSelection({g}, {}, g);
+        QVERIFY(f.session()->moveSelection(QPointF(3, 2)));
+        QCOMPARE(f.comp().node(a)->position, posA + QPointF(3, 2));
+        QCOMPARE(f.comp().node(b)->position, posB + QPointF(3, 2));
+        f.project.undoStack()->undo();
+        QCOMPARE(f.comp().node(a)->position, posA);
+        // Ctrl+Shift+G ungroups: the group node goes, the members stay and are selected (the step
+        // count is the stack's index here: an undone step was replaced).
+        before = f.project.undoStack()->index();
+        f.session()->setSelection({g}, {}, g);
+        f.key(Qt::Key_G, Qt::ControlModifier | Qt::ShiftModifier);
+        QCOMPARE(f.project.undoStack()->index(), before + 1);
+        QVERIFY(!f.comp().node(g));
+        QCOMPARE(f.comp().node(a)->group, quint64(0));
+        QCOMPARE(f.session()->selectedNodes().size(), 2);
+        // Deleting a group frees its members as well.
+        f.session()->setSelection({a, b}, {}, b);
+        const quint64 g2 = f.session()->groupSelection();
+        QVERIFY(g2);
+        f.session()->setSelection({g2}, {}, g2);
+        QVERIFY(f.session()->deleteSelection());
+        QVERIFY(f.comp().node(a) && f.comp().node(b));
+        QCOMPARE(f.comp().node(a)->group, quint64(0));
+    }
+
+    void macroDialogInspectorAndTitle()
+    {
+        // Spec 120.3 / 120.4 / 120.5: Make Macro asks which parameters become controls; the macro's
+        // Inspector shows them and they drive the inner parameters; the macro is saved as a title in
+        // the Effects Library and adds a clip with its composition.
+        QStandardPaths::setTestModeEnabled(true);
+        QDir(macrofiles::directory()).removeRecursively();
+        Fixture f;
+        f.project.timeline()->setPlayhead(20);
+        f.showPage();
+        const quint64 a = f.session()->addNode(nodetypes::Background);
+        const quint64 b = f.session()->addNode(nodetypes::Transform);
+        f.session()->setSelection({a, b}, {}, b);
+        const quint64 g = f.session()->groupSelection();
+        QVERIFY(g);
+        CompInspector* inspector = f.page()->inspector();
+        QCOMPARE(inspector->shownNode(), g);
+        QVERIFY(inspector->groupSection());
+        auto* members = inspector->groupSection()->findChild<QLabel*>(QStringLiteral("CompGroupMembers"));
+        QVERIFY(members && members->text().contains(QLatin1Char('2')) && !members->toolTip().isEmpty());
+        // The button opens the dialog (a child of the page); tick Size and press Ok.
+        auto* make = inspector->groupSection()->findChild<QPushButton*>(QStringLiteral("CompMakeMacro"));
+        QVERIFY(make && !make->toolTip().isEmpty());
+        make->click();
+        auto* dialog = f.page()->findChild<MakeMacroDialog*>(QStringLiteral("MakeMacroDialog"));
+        QVERIFY(dialog);
+        QCOMPARE(dialog->nameField()->text(), f.comp().node(g)->name);
+        QVERIFY(!dialog->nameField()->toolTip().isEmpty() && !dialog->tree()->toolTip().isEmpty());
+        QVERIFY(dialog->picks().isEmpty());
+        QVERIFY(dialog->setTicked(b, nodekeys::Size, true));
+        QVERIFY(!dialog->setTicked(b, QStringLiteral("nothing"), true));
+        dialog->nameField()->setText(QStringLiteral("Zoomer"));
+        const int before = f.steps();
+        dialog->accept();
+        QCOMPARE(f.steps(), before + 1);
+        const CompNode& m = *f.comp().node(g);
+        QVERIFY(m.macro);
+        QCOMPARE(m.name, QStringLiteral("Zoomer"));
+        QCOMPARE(m.controls.size(), 1);
+        // The Inspector shows the control as a row and the Group section has its Remove button.
+        QCOMPARE(inspector->shownNode(), g);
+        QCOMPARE(inspector->group()->rows().size(), 1);
+        QCOMPARE(inspector->group()->rows().first()->ref().key, m.controls[0].key);
+        QVERIFY(inspector->groupSection()->findChild<QToolButton*>(QStringLiteral("CompRemoveControl:") + m.controls[0].key));
+        // Editing the control drives the inner parameter.
+        f.session()->edit(QStringLiteral("Set"), [&](Composition& c) {
+            c.node(g)->params.setBase(c.node(g)->controls[0].key, 3.0);
+            return true;
+        });
+        QCOMPARE(complinks::resolved(f.comp(), 20).node(b)->params.value(nodekeys::Size, 20, 0), 3.0);
+        // Save as a title: the input dialog opens; Ok writes the file.
+        auto* save = inspector->groupSection()->findChild<QPushButton*>(QStringLiteral("CompSaveMacro"));
+        QVERIFY(save && !save->toolTip().isEmpty());
+        save->click();
+        auto* ask = f.page()->findChild<QInputDialog*>(QStringLiteral("SaveMacroDialog"));
+        QVERIFY(ask);
+        QCOMPARE(ask->textValue(), QStringLiteral("Zoomer"));
+        ask->setTextValue(QStringLiteral("Zoomer Title"));
+        ask->accept();
+        QCOMPARE(macrofiles::list().size(), 1);
+        QCOMPARE(macrofiles::list().first().name, QStringLiteral("Zoomer Title"));
+        // The Effects library lists it under Titles and adds it at the playhead.
+        EffectsLibraryPanel library(f.ctx);
+        library.refreshMacros();
+        const QString id = macrofiles::list().first().id();
+        QVERIFY(library.visibleDescriptorIds().contains(id));
+        std::unique_ptr<QMenu> menu(library.createContextMenu(id));
+        QVERIFY(menu && menu->findChild<QAction*>(QStringLiteral("DeleteMacroEntry")));
+        const int clipsBefore = f.project.timeline()->data().videoTracks[0].clips.size()
+            + (f.project.timeline()->data().videoTracks.size() > 1 ? f.project.timeline()->data().videoTracks[1].clips.size() : 0);
+        QVERIFY(effectactions::activate(f.ctx, id));
+        int clipsAfter = 0;
+        const ClipData* made = nullptr;
+        for (const TrackData& t : f.project.timeline()->data().videoTracks)
+            for (const ClipData& c : t.clips) {
+                ++clipsAfter;
+                if (c.name == QStringLiteral("Zoomer Title"))
+                    made = &c;
+            }
+        QCOMPARE(clipsAfter, clipsBefore + 1);
+        QVERIFY(made && made->composition);
+        QVERIFY(made->composition->node(made->composition->mediaOutId)->inputs.value(nodeports::Input).isConnected());
+        QVERIFY(std::any_of(made->composition->nodes.cbegin(), made->composition->nodes.cend(),
+            [](const CompNode& n) { return n.macro && n.controls.size() == 1; }));
+        // Remove a control through the Inspector: the inner parameter keeps its value.
+        auto* remove = inspector->groupSection()->findChild<QToolButton*>(QStringLiteral("CompRemoveControl:") + f.comp().node(g)->controls[0].key);
+        QVERIFY(remove);
+        remove->click();
+        QVERIFY(!f.comp().node(g)->macro);
+        QCOMPARE(f.comp().node(b)->params.value(nodekeys::Size, 20, 0), 3.0);
+        // The library entry can be deleted again.
+        {
+            std::unique_ptr<QMenu> m2(library.createContextMenu(id));
+            m2->findChild<QAction*>(QStringLiteral("DeleteMacroEntry"))->trigger();
+        }
+        QVERIFY(!library.visibleDescriptorIds().contains(id));
+        QCOMPARE(macrofiles::list().size(), 0);
+    }
+
+    void instancesAndUnderlays()
+    {
+        // Spec 120.6 / 120.7: an instance shows its original's settings and cannot be edited; an
+        // underlay carries the nodes on it.
+        Fixture f;
+        f.project.timeline()->setPlayhead(20);
+        f.showPage();
+        const quint64 a = f.session()->addNode(nodetypes::Transform);
+        f.session()->edit(QStringLiteral("Set"), [a](Composition& c) {
+            c.node(a)->params.setBase(nodekeys::Size, 1.75);
+            return true;
+        });
+        f.session()->setSelection({a}, {}, a);
+        {
+            std::unique_ptr<QMenu> menu(f.editor()->buildContextMenu(
+                f.editor()->tileRect(*f.comp().node(a)).center(), f.editor()));
+            auto* act = menu->findChild<QAction*>(QStringLiteral("CreateInstanceAction"));
+            QVERIFY(act && !act->toolTip().isEmpty());
+            QVERIFY(menu->findChild<QAction*>(QStringLiteral("GroupAction")));
+            QVERIFY(menu->findChild<QAction*>(QStringLiteral("UnderlayAction")));
+            QVERIFY(!menu->findChild<QAction*>(QStringLiteral("MakeIndependentAction")));
+            act->trigger();
+        }
+        const quint64 inst = f.session()->currentNode();
+        QVERIFY(inst != a);
+        QCOMPARE(f.comp().node(inst)->instanceOf, a);
+        CompInspector* inspector = f.page()->inspector();
+        QCOMPARE(inspector->shownNode(), inst);
+        QVERIFY(inspector->groupSection());
+        QVERIFY(!inspector->group()->isEnabled()); // the settings are the original's
+        auto* of = inspector->groupSection()->findChild<QLabel*>(QStringLiteral("CompInstanceOf"));
+        QVERIFY(of && of->text().contains(f.comp().node(a)->name));
+        QCOMPARE(complinks::resolved(f.comp(), 20).node(inst)->params.value(nodekeys::Size, 20, 0), 1.75);
+        // Make Independent: its own copy.
+        auto* indep = inspector->groupSection()->findChild<QPushButton*>(QStringLiteral("CompMakeIndependent"));
+        QVERIFY(indep && !indep->toolTip().isEmpty());
+        indep->click();
+        QCOMPARE(f.comp().node(inst)->instanceOf, quint64(0));
+        QVERIFY(inspector->group()->isEnabled());
+        QVERIFY(!inspector->groupSection());
+        QCOMPARE(f.comp().node(inst)->params.value(nodekeys::Size, 20, 0), 1.75);
+        // An underlay around the selection: the nodes on it move with it, and only its title strip is
+        // grabbed.
+        f.session()->setSelection({a, inst}, {}, inst);
+        const quint64 u = f.session()->addUnderlay();
+        QVERIFY(u);
+        const CompNote* note = nullptr;
+        for (const CompNote& n : f.comp().notes)
+            if (n.id == u)
+                note = &n;
+        QVERIFY(note && note->underlay);
+        QVERIFY(QRectF(note->position, note->size).contains(QRectF(f.comp().node(a)->position, QSizeF(3.4, 1))));
+        QVERIFY(QRectF(note->position, note->size).contains(QRectF(f.comp().node(inst)->position, QSizeF(3.4, 1))));
+        const QPointF posA = f.comp().node(a)->position;
+        const QPointF inside = f.editor()->fromGrid(note->position + QPointF(0.5, 3.5));
+        QCOMPARE(f.editor()->hitTest(f.editor()->tileRect(*f.comp().node(a)).center()).node, a);
+        const QPointF strip = f.editor()->fromGrid(note->position + QPointF(1.0, 0.4));
+        QCOMPARE(f.editor()->hitTest(strip).kind, NodeEditor::Hit::Kind::Note);
+        Q_UNUSED(inside);
+        f.session()->setSelection({}, {u}, 0);
+        QVERIFY(f.session()->moveSelection(QPointF(2, 1)));
+        QCOMPARE(f.comp().node(a)->position, posA + QPointF(2, 1));
+        // The underlay is saved with the project.
+        const Composition back = serialization::compositionFromJson(serialization::compositionToJson(f.comp()));
+        QVERIFY(back.notes.last().underlay);
     }
 
     void viewerBezierAndTextPathHandles()

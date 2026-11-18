@@ -35,7 +35,23 @@ QJsonObject nodeToJson(const CompNode& n, bool pictureOnly)
             o[QLatin1String("color")] = n.color.name(QColor::HexArgb);
         if (n.thumbnail)
             o[QLatin1String("thumb")] = true;
+        if (n.group != 0)
+            o[QLatin1String("group")] = qint64(n.group);
+        if (n.collapsed)
+            o[QLatin1String("collapsed")] = true;
+        if (n.macro)
+            o[QLatin1String("macro")] = true;
+        if (!n.controls.isEmpty()) {
+            QJsonArray controls;
+            for (const MacroControl& c : n.controls)
+                controls.append(QJsonObject {{QLatin1String("key"), c.key},
+                    {QLatin1String("label"), c.label}, {QLatin1String("node"), qint64(c.node)},
+                    {QLatin1String("param"), c.paramKey}});
+            o[QLatin1String("controls")] = controls;
+        }
     }
+    if (n.instanceOf != 0)
+        o[QLatin1String("instanceOf")] = qint64(n.instanceOf);
     if (!n.enabled)
         o[QLatin1String("enabled")] = false;
     if (n.params != ParamSet {})
@@ -69,6 +85,20 @@ CompNode nodeFromJson(const QJsonObject& o)
             n.color = c;
     }
     n.thumbnail = o.value(QLatin1String("thumb")).toBool(false);
+    n.group = quint64(o.value(QLatin1String("group")).toInteger());
+    n.collapsed = o.value(QLatin1String("collapsed")).toBool(false);
+    n.macro = o.value(QLatin1String("macro")).toBool(false);
+    for (const QJsonValue& cv : o.value(QLatin1String("controls")).toArray()) {
+        const QJsonObject co = cv.toObject();
+        MacroControl c;
+        c.key = co.value(QLatin1String("key")).toString();
+        c.label = co.value(QLatin1String("label")).toString();
+        c.node = quint64(co.value(QLatin1String("node")).toInteger());
+        c.paramKey = co.value(QLatin1String("param")).toString();
+        if (!c.key.isEmpty())
+            n.controls.append(c);
+    }
+    n.instanceOf = quint64(o.value(QLatin1String("instanceOf")).toInteger());
     n.params = paramSetFromJson(o.value(QLatin1String("params")).toObject());
     const QJsonObject inputs = o.value(QLatin1String("inputs")).toObject();
     for (auto it = inputs.constBegin(); it != inputs.constEnd(); ++it) {
@@ -124,6 +154,8 @@ QJsonObject compositionToJson(const Composition& comp, bool pictureOnly)
                 {QLatin1String("text"), n.text}};
             if (n.color.isValid())
                 no[QLatin1String("color")] = variantToJson(n.color);
+            if (n.underlay)
+                no[QLatin1String("underlay")] = true;
             notes.append(no);
         }
         o[QLatin1String("notes")] = notes;
@@ -156,6 +188,14 @@ Composition compositionFromJson(const QJsonObject& o)
         maxId = std::max(maxId, n.id);
         comp.nodes.append(std::move(n));
     }
+    // Group / instance references to nodes that do not exist are dropped, and a group cannot
+    // contain itself.
+    for (CompNode& n : comp.nodes) {
+        if (n.group != 0 && (!ids.contains(n.group) || n.group == n.id))
+            n.group = 0;
+        if (n.instanceOf != 0 && (!ids.contains(n.instanceOf) || n.instanceOf == n.id))
+            n.instanceOf = 0;
+    }
     // Links to nodes that do not exist are dropped (a hand-edited or damaged file).
     for (CompNode& n : comp.nodes)
         n.inputs.removeIf([&ids](QMap<QString, NodeLink>::iterator it) {
@@ -171,6 +211,7 @@ Composition compositionFromJson(const QJsonObject& o)
         note.text = no.value(QLatin1String("text")).toString();
         if (no.contains(QLatin1String("color")))
             note.color = variantFromJson(no.value(QLatin1String("color"))).value<QColor>();
+        note.underlay = no.value(QLatin1String("underlay")).toBool(false);
         maxId = std::max(maxId, note.id);
         comp.notes.append(note);
     }

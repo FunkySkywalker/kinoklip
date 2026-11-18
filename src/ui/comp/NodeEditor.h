@@ -115,8 +115,14 @@ public:
 
     // ---- Geometry (widget pixels; public for tests and the viewers' drop logic) ----
 
-    /// Tile rectangle of @p node.
+    /// Tile rectangle of @p node. A node hidden inside a collapsed group (spec 120) has the
+    /// group's tile (so links to it end there); an expanded group's "tile" is the title bar of
+    /// its frame.
     [[nodiscard]] QRectF tileRect(const CompNode& node) const;
+    /// The frame an expanded group draws around its members (widget pixels), title bar included.
+    [[nodiscard]] QRectF groupFrame(const CompNode& group) const;
+    /// True if @p node is not drawn because a collapsed group hides it.
+    [[nodiscard]] bool isHidden(const CompNode& node) const;
     /// Centre of input @p port of @p node (null point if the type has no such port).
     [[nodiscard]] QPointF inputPos(const CompNode& node, const QString& port) const;
     /// Centre of the output port of @p node.
@@ -167,6 +173,10 @@ public:
     [[nodiscard]] double lastPaintMs() const { return m_lastPaintMs; }
 
 signals:
+    /// "Make Macro..." / "Save Macro as Title..." was chosen on group @p group: the page asks for
+    /// the controls or the name (it owns the dialogs).
+    void makeMacroRequested(quint64 group);
+    void saveMacroRequested(quint64 group);
     /// The user changed the view (pan / zoom); the page stores it in the session.
     void viewChanged(QPointF centre, double zoom);
 
@@ -227,6 +237,8 @@ private:
     void closeFind();
     /// Replace With / Set Color / Tile Picture entries of a node's context menu.
     void addNodeMenuItems(QMenu* menu, const CompNode& node);
+    /// Group / Macro / Instance / Underlay entries of a node's context menu (spec 120).
+    void addGroupMenuItems(QMenu* menu, const CompNode* node);
     void scheduleTilePictures();
     void collectTilePictures();
 
@@ -235,6 +247,7 @@ private:
     void paintLinks(QPainter& p, const QRectF& visible) const;
     void paintTile(QPainter& p, const CompNode& node, const compadapter::NodeTypeInfo* info) const;
     void paintNote(QPainter& p, const CompNote& note) const;
+    void paintGroupFrame(QPainter& p, const CompNode& group) const;
     void paintDragOverlay(QPainter& p) const;
 
     QPointer<CompSession> m_session;

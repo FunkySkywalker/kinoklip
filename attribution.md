@@ -117,6 +117,14 @@ and the F-Curve Noise and Cycles modifiers (strength, scale, depth, repeat modes
 Publish features of the public Fusion reference manual. The expression evaluator, the noise functions and the link
 resolving are written for Kinoklip; no code was taken from any of these projects.
 
+### Groups, macros, instances and underlays (Compositing page)
+`src/core/CompGroups.*`, `src/core/MacroFiles.*`. The design was studied in Natron (GPL-2.0-or-later): group nodes with
+published parameters that are saved as reusable plugins (PyPlugs), and in Blender (GPL-2.0-or-later): node groups with
+an interface of exposed sockets. Names and behaviour follow the Group, Macro, Underlay and Instance features of the public
+Fusion reference manual. The graph stays flat with a group as a container, a macro control is a number on the macro node
+that the inner parameter is connected to (spec 119); the code was written for Kinoklip and nothing was taken from the
+projects above.
+
 ### Keyframe loops
 The extrapolation modes of animated values (`src/core/Animation.cpp`, `AnimatedValue::extrapolatedValue()`)
 follow the documented behaviour of Blender's F-Curve Cycles modifier (GPL-2.0-or-later: Repeat Motion, Repeat

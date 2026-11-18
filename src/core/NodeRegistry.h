@@ -120,6 +120,7 @@ struct NodeDescriptor
 namespace nodetypes {
 inline const QString MediaIn = QStringLiteral("media_in");
 inline const QString MediaOut = QStringLiteral("media_out");
+inline const QString Group = QStringLiteral("group"); ///< Group / Macro (spec 120)
 inline const QString Merge = QStringLiteral("merge");
 inline const QString Dissolve = QStringLiteral("dissolve");
 inline const QString Transform = QStringLiteral("transform");

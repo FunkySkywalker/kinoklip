@@ -13,7 +13,9 @@
 #include "ui/common/PanelSplitter.h"
 #include "ui/common/StandardActions.h"
 #include "ui/common/TimelineCommandSuspension.h"
+#include "core/CompGroups.h"
 #include "ui/comp/CompAdapter.h"
+#include "ui/comp/MakeMacroDialog.h"
 #include "ui/comp/CompInspector.h"
 #include "ui/comp/CompSession.h"
 #include "ui/comp/CompTransport.h"
@@ -27,6 +29,8 @@
 #include <QAction>
 #include <QApplication>
 #include <QHBoxLayout>
+#include <QInputDialog>
+#include <QMessageBox>
 #include <QHideEvent>
 #include <QSettings>
 #include <QShowEvent>
@@ -159,10 +163,46 @@ CompositingPage::CompositingPage(AppContext& ctx, QWidget* parent)
     // Disables the hidden Edit page timeline's commands while the page is shown (spec 42b.22).
     new TimelineCommandSuspension(this, ctx.actions, keptCommandIds());
     connect(m_editor, &NodeEditor::viewChanged, m_session, &CompSession::setViewState);
+    connect(m_editor, &NodeEditor::makeMacroRequested, this, &CompositingPage::makeMacro);
+    connect(m_editor, &NodeEditor::saveMacroRequested, this, &CompositingPage::saveMacro);
+    connect(m_inspector, &CompInspector::makeMacroRequested, this, &CompositingPage::makeMacro);
+    connect(m_inspector, &CompInspector::saveMacroRequested, this, &CompositingPage::saveMacro);
     connectActions();
 }
 
 CompositingPage::~CompositingPage() = default;
+
+void CompositingPage::makeMacro(quint64 group)
+{
+    const CompNode* g = m_session->composition().node(group);
+    if (!g || !compgroups::isGroup(*g))
+        return;
+    auto* dialog = new MakeMacroDialog(m_session->composition(), group, this);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    connect(dialog, &QDialog::accepted, this, [this, group, dialog] {
+        m_session->makeMacro(group, dialog->macroName(), dialog->picks());
+    });
+    dialog->open();
+}
+
+void CompositingPage::saveMacro(quint64 group)
+{
+    const CompNode* g = m_session->composition().node(group);
+    if (!g || !compgroups::isGroup(*g))
+        return;
+    auto* dialog = new QInputDialog(this);
+    dialog->setObjectName(QStringLiteral("SaveMacroDialog"));
+    dialog->setWindowTitle(tr("Save Macro as Title"));
+    dialog->setLabelText(tr("Name of the title in the Effects Library"));
+    dialog->setTextValue(g->name);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    connect(dialog, &QInputDialog::accepted, this, [this, group, dialog] {
+        QString error;
+        if (m_session->saveMacro(group, dialog->textValue(), &error).isEmpty())
+            QMessageBox::warning(this, tr("Save Macro as Title"), error);
+    });
+    dialog->open();
+}
 
 QWidget* CompositingPage::buildToolBar()
 {

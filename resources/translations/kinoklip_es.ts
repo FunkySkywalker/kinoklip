@@ -24,7 +24,7 @@
     <name>Expression</name>
     <message>
         <source>Unexpected &quot;%1&quot;</source>
-        <translation>Carácter inesperado "%1"</translation>
+        <translation>Carácter inesperado &quot;%1&quot;</translation>
     </message>
     <message>
         <source>The formula is nested too deeply</source>
@@ -32,7 +32,7 @@
     </message>
     <message>
         <source>Expected &quot;:&quot;</source>
-        <translation>Se esperaba ":"</translation>
+        <translation>Se esperaba &quot;:&quot;</translation>
     </message>
     <message>
         <source>The formula ends too early</source>
@@ -40,15 +40,15 @@
     </message>
     <message>
         <source>Expected &quot;)&quot;</source>
-        <translation>Se esperaba ")"</translation>
+        <translation>Se esperaba &quot;)&quot;</translation>
     </message>
     <message>
         <source>Bad number &quot;%1&quot;</source>
-        <translation>Número no válido "%1"</translation>
+        <translation>Número no válido &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Unknown function &quot;%1&quot;</source>
-        <translation>Función desconocida "%1"</translation>
+        <translation>Función desconocida &quot;%1&quot;</translation>
     </message>
     <message>
         <source>%1 takes %2 argument(s)</source>
@@ -10068,6 +10068,90 @@ Gracias por ver</translation>
         <source>Connected To</source>
         <translation>Conectado a</translation>
     </message>
+    <message>
+        <source>Macro</source>
+        <translation>Macro</translation>
+    </message>
+    <message>
+        <source>Group</source>
+        <translation>Grupo</translation>
+    </message>
+    <message>
+        <source>Instance</source>
+        <translation>Instancia</translation>
+    </message>
+    <message>
+        <source>%1 node(s) inside</source>
+        <translation>%1 nodo(s) dentro</translation>
+    </message>
+    <message>
+        <source>The nodes in this group. Select the group and use Collapse Group or double-click to show or hide them.</source>
+        <translation>Los nodos de este grupo. Selecciona el grupo y usa Contraer grupo o haz doble clic para mostrarlos u ocultarlos.</translation>
+    </message>
+    <message>
+        <source>Members</source>
+        <translation>Miembros</translation>
+    </message>
+    <message>
+        <source>Edit Controls...</source>
+        <translation>Editar controles...</translation>
+    </message>
+    <message>
+        <source>Make Macro...</source>
+        <translation>Crear macro...</translation>
+    </message>
+    <message>
+        <source>Chooses which parameters of the nodes inside the group the macro shows as controls</source>
+        <translation>Elige qué parámetros de los nodos del grupo muestra el macro como controles</translation>
+    </message>
+    <message>
+        <source>Save as Title...</source>
+        <translation>Guardar como título...</translation>
+    </message>
+    <message>
+        <source>Saves the group as a title in the Effects Library</source>
+        <translation>Guarda el grupo como título en la biblioteca de efectos</translation>
+    </message>
+    <message>
+        <source>Ungroup</source>
+        <translation>Desagrupar</translation>
+    </message>
+    <message>
+        <source>Takes the nodes out of the group</source>
+        <translation>Saca los nodos del grupo</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>Quitar</translation>
+    </message>
+    <message>
+        <source>Takes this control off the macro; the parameter inside keeps its value</source>
+        <translation>Quita este control del macro; el parámetro interior conserva su valor</translation>
+    </message>
+    <message>
+        <source>Settings of %1</source>
+        <translation>Ajustes de %1</translation>
+    </message>
+    <message>
+        <source>(the original is missing)</source>
+        <translation>(falta el original)</translation>
+    </message>
+    <message>
+        <source>This node shows the settings of its original: change them there</source>
+        <translation>Este nodo muestra los ajustes de su original: cámbialos allí</translation>
+    </message>
+    <message>
+        <source>Instance of</source>
+        <translation>Instancia de</translation>
+    </message>
+    <message>
+        <source>Make Independent</source>
+        <translation>Hacer independiente</translation>
+    </message>
+    <message>
+        <source>Cuts the instance loose: it keeps a copy of the settings and has its own from now on</source>
+        <translation>Suelta la instancia: conserva una copia de los ajustes y tiene los suyos desde ahora</translation>
+    </message>
 </context>
 <context>
     <name>kk::CompSession</name>
@@ -10086,6 +10170,54 @@ Gracias por ver</translation>
     <message>
         <source>Change MediaIn Source</source>
         <translation>Cambiar origen de MediaIn</translation>
+    </message>
+    <message>
+        <source>Group</source>
+        <translation>Grupo</translation>
+    </message>
+    <message>
+        <source>Ungroup</source>
+        <translation>Desagrupar</translation>
+    </message>
+    <message>
+        <source>Collapse Group</source>
+        <translation>Contraer grupo</translation>
+    </message>
+    <message>
+        <source>Expand Group</source>
+        <translation>Expandir grupo</translation>
+    </message>
+    <message>
+        <source>Make Macro</source>
+        <translation>Crear macro</translation>
+    </message>
+    <message>
+        <source>Remove Macro Control</source>
+        <translation>Quitar control del macro</translation>
+    </message>
+    <message>
+        <source>Select a group or a macro</source>
+        <translation>Selecciona un grupo o un macro</translation>
+    </message>
+    <message>
+        <source>Insert Macro</source>
+        <translation>Insertar macro</translation>
+    </message>
+    <message>
+        <source>Create Instance</source>
+        <translation>Crear instancia</translation>
+    </message>
+    <message>
+        <source>Make Independent</source>
+        <translation>Hacer independiente</translation>
+    </message>
+    <message>
+        <source>Add Underlay</source>
+        <translation>Añadir fondo</translation>
+    </message>
+    <message>
+        <source>Underlay</source>
+        <translation>Fondo</translation>
     </message>
     <message>
         <source>Modify With %1</source>
@@ -10446,6 +10578,14 @@ Gracias por ver</translation>
     <message>
         <source>The node graph of the open clip: select, move, connect and edit nodes.</source>
         <translation>El gráfico de nodos del clip abierto: seleccionar, mover, conectar y editar nodos.</translation>
+    </message>
+    <message>
+        <source>Save Macro as Title</source>
+        <translation>Guardar macro como título</translation>
+    </message>
+    <message>
+        <source>Name of the title in the Effects Library</source>
+        <translation>Nombre del título en la biblioteca de efectos</translation>
     </message>
     <message>
         <source>Add %1 after the selected node</source>
@@ -15392,6 +15532,26 @@ Gracias por ver</translation>
         <translation>Mostrar la entrada bajo el puntero aplicada al fotograma en el visor de la línea de tiempo</translation>
     </message>
     <message>
+        <source>Macros</source>
+        <translation>Macros</translation>
+    </message>
+    <message>
+        <source>Macros saved from the Compositing page</source>
+        <translation>Macros guardados desde la página de composición</translation>
+    </message>
+    <message>
+        <source>A macro saved as a title. Double-click adds it to the timeline at the playhead.</source>
+        <translation>Un macro guardado como título. Doble clic lo añade a la línea de tiempo en el cursor.</translation>
+    </message>
+    <message>
+        <source>Delete Macro</source>
+        <translation>Eliminar macro</translation>
+    </message>
+    <message>
+        <source>Deletes the saved macro file; titles already on the timeline are not changed</source>
+        <translation>Elimina el archivo del macro guardado; los títulos ya en la línea de tiempo no cambian</translation>
+    </message>
+    <message>
         <source>Add to Selected Edit Point</source>
         <translation>Añadir al punto de edición seleccionado</translation>
     </message>
@@ -18106,6 +18266,29 @@ También se puede hacer doble clic en el encabezado o arrastrarlo fuera del pane
     <message>
         <source>%1 (Read-Only)</source>
         <translation>%1 (solo lectura)</translation>
+    </message>
+</context>
+<context>
+    <name>kk::MakeMacroDialog</name>
+    <message>
+        <source>Make Macro</source>
+        <translation>Crear macro</translation>
+    </message>
+    <message>
+        <source>Name of the macro</source>
+        <translation>Nombre del macro</translation>
+    </message>
+    <message>
+        <source>The macro&apos;s name. It is also the name of the title when you save it to the Effects Library.</source>
+        <translation>El nombre del macro. También es el nombre del título al guardarlo en la biblioteca de efectos.</translation>
+    </message>
+    <message>
+        <source>Controls: tick the parameters the macro shows</source>
+        <translation>Controles: marca los parámetros que muestra el macro</translation>
+    </message>
+    <message>
+        <source>Every ticked parameter becomes a control on the macro; the parameter inside follows it. Published parameters are ticked for you.</source>
+        <translation>Cada parámetro marcado se convierte en un control del macro; el parámetro interior lo sigue. Los parámetros publicados ya vienen marcados.</translation>
     </message>
 </context>
 <context>
@@ -21258,6 +21441,90 @@ Importar archivos con %1 o soltarlos aquí.</translation>
         <translation>Añadir nodo</translation>
     </message>
     <message>
+        <source>Add Underlay</source>
+        <translation>Añadir fondo</translation>
+    </message>
+    <message>
+        <source>A box behind nodes: the nodes on it move with it</source>
+        <translation>Una caja detrás de nodos: los nodos encima se mueven con ella</translation>
+    </message>
+    <message>
+        <source>Insert Macro</source>
+        <translation>Insertar macro</translation>
+    </message>
+    <message>
+        <source>Expand Group</source>
+        <translation>Expandir grupo</translation>
+    </message>
+    <message>
+        <source>Collapse Group</source>
+        <translation>Contraer grupo</translation>
+    </message>
+    <message>
+        <source>Shows the nodes inside the group, or hides them behind one tile (double-click does the same)</source>
+        <translation>Muestra los nodos del grupo o los oculta tras un solo mosaico (el doble clic hace lo mismo)</translation>
+    </message>
+    <message>
+        <source>Ungroup	Ctrl+Shift+G</source>
+        <translation>Desagrupar	Ctrl+Mayús+G</translation>
+    </message>
+    <message>
+        <source>Takes the nodes out of the group</source>
+        <translation>Saca los nodos del grupo</translation>
+    </message>
+    <message>
+        <source>Edit Macro Controls...</source>
+        <translation>Editar controles del macro...</translation>
+    </message>
+    <message>
+        <source>Make Macro...</source>
+        <translation>Crear macro...</translation>
+    </message>
+    <message>
+        <source>Chooses which parameters of the nodes inside the group the macro shows as its own controls</source>
+        <translation>Elige qué parámetros de los nodos del grupo muestra el macro como controles propios</translation>
+    </message>
+    <message>
+        <source>Save Macro as Title...</source>
+        <translation>Guardar macro como título...</translation>
+    </message>
+    <message>
+        <source>Saves the group as a title in the Effects Library, to use on any clip</source>
+        <translation>Guarda el grupo como título en la biblioteca de efectos, para usarlo en cualquier clip</translation>
+    </message>
+    <message>
+        <source>Group	Ctrl+G</source>
+        <translation>Agrupar	Ctrl+G</translation>
+    </message>
+    <message>
+        <source>Puts the selected nodes in a group</source>
+        <translation>Pone los nodos seleccionados en un grupo</translation>
+    </message>
+    <message>
+        <source>Create Instance</source>
+        <translation>Crear instancia</translation>
+    </message>
+    <message>
+        <source>A copy that shares this node&apos;s settings: change the original and the copy follows</source>
+        <translation>Una copia que comparte los ajustes de este nodo: cambia el original y la copia lo sigue</translation>
+    </message>
+    <message>
+        <source>Make Independent</source>
+        <translation>Hacer independiente</translation>
+    </message>
+    <message>
+        <source>Cuts the instance loose: it keeps a copy of the settings and has its own from now on</source>
+        <translation>Suelta la instancia: conserva una copia de los ajustes y tiene los suyos desde ahora</translation>
+    </message>
+    <message>
+        <source>Underlay Around Selection</source>
+        <translation>Fondo alrededor de la selección</translation>
+    </message>
+    <message>
+        <source>A box behind the selected nodes: they move with it</source>
+        <translation>Una caja detrás de los nodos seleccionados: se mueven con ella</translation>
+    </message>
+    <message>
         <source>Replace With</source>
         <translation>Reemplazar con</translation>
     </message>
@@ -21304,6 +21571,18 @@ Importar archivos con %1 o soltarlos aquí.</translation>
     <message>
         <source>Select a clip on the Edit page</source>
         <translation>Seleccionar un clip en la página Edición</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <translation>%1 (%2)</translation>
+    </message>
+    <message>
+        <source>%1 (Macro)</source>
+        <translation>%1 (Macro)</translation>
+    </message>
+    <message>
+        <source>Underlay</source>
+        <translation>Fondo</translation>
     </message>
     <message>
         <source>Note</source>
@@ -21618,6 +21897,14 @@ Importar archivos con %1 o soltarlos aquí.</translation>
     <message>
         <source> X</source>
         <translation> X</translation>
+    </message>
+    <message>
+        <source>Group</source>
+        <translation>Grupo</translation>
+    </message>
+    <message>
+        <source>Holds other nodes together: a frame around them, or one tile; with controls it is a Macro</source>
+        <translation>Reúne otros nodos: un marco a su alrededor o un solo mosaico; con controles es un macro</translation>
     </message>
     <message>
         <source>Patterns</source>

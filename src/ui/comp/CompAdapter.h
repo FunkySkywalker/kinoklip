@@ -49,7 +49,7 @@ struct NodeTypeInfo
     int outputCount = 1; ///< 0 for MediaOut
     PortKind outputKind = PortKind::Image; ///< Mask for the mask nodes
     QVector<ParamDescriptor> params;
-    bool singleton = false; ///< only one per composition (MediaOut)
+    bool singleton = false; ///< only one per composition (MediaOut), or not made from the library (Group)
     QString main; ///< the main image input (pass-through, "add after"), or empty
 
     /// Index of input port @p id, or -1.

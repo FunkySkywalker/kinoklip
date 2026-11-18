@@ -10078,6 +10078,90 @@ Thank you for watching</source>
         <source>Connected To</source>
         <translation>Соединено с</translation>
     </message>
+    <message>
+        <source>Macro</source>
+        <translation>Макрос</translation>
+    </message>
+    <message>
+        <source>Group</source>
+        <translation>Группа</translation>
+    </message>
+    <message>
+        <source>Instance</source>
+        <translation>Экземпляр</translation>
+    </message>
+    <message>
+        <source>%1 node(s) inside</source>
+        <translation>Узлов внутри: %1</translation>
+    </message>
+    <message>
+        <source>The nodes in this group. Select the group and use Collapse Group or double-click to show or hide them.</source>
+        <translation>Узлы этой группы. Выберите группу и используйте «Свернуть группу» или двойной щелчок, чтобы показать или скрыть их.</translation>
+    </message>
+    <message>
+        <source>Members</source>
+        <translation>Состав</translation>
+    </message>
+    <message>
+        <source>Edit Controls...</source>
+        <translation>Изменить элементы управления...</translation>
+    </message>
+    <message>
+        <source>Make Macro...</source>
+        <translation>Создать макрос...</translation>
+    </message>
+    <message>
+        <source>Chooses which parameters of the nodes inside the group the macro shows as controls</source>
+        <translation>Выбирает, какие параметры узлов группы макрос показывает как элементы управления</translation>
+    </message>
+    <message>
+        <source>Save as Title...</source>
+        <translation>Сохранить как титр...</translation>
+    </message>
+    <message>
+        <source>Saves the group as a title in the Effects Library</source>
+        <translation>Сохраняет группу как титр в библиотеке эффектов</translation>
+    </message>
+    <message>
+        <source>Ungroup</source>
+        <translation>Разгруппировать</translation>
+    </message>
+    <message>
+        <source>Takes the nodes out of the group</source>
+        <translation>Выводит узлы из группы</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>Удалить</translation>
+    </message>
+    <message>
+        <source>Takes this control off the macro; the parameter inside keeps its value</source>
+        <translation>Убирает этот элемент из макроса; внутренний параметр сохраняет значение</translation>
+    </message>
+    <message>
+        <source>Settings of %1</source>
+        <translation>Настройки %1</translation>
+    </message>
+    <message>
+        <source>(the original is missing)</source>
+        <translation>(оригинал отсутствует)</translation>
+    </message>
+    <message>
+        <source>This node shows the settings of its original: change them there</source>
+        <translation>Этот узел показывает настройки оригинала: меняйте их там</translation>
+    </message>
+    <message>
+        <source>Instance of</source>
+        <translation>Экземпляр от</translation>
+    </message>
+    <message>
+        <source>Make Independent</source>
+        <translation>Сделать независимым</translation>
+    </message>
+    <message>
+        <source>Cuts the instance loose: it keeps a copy of the settings and has its own from now on</source>
+        <translation>Отсоединяет экземпляр: он сохраняет копию настроек и дальше имеет свои</translation>
+    </message>
 </context>
 <context>
     <name>kk::CompSession</name>
@@ -10096,6 +10180,54 @@ Thank you for watching</source>
     <message>
         <source>Change MediaIn Source</source>
         <translation>Изменить источник MediaIn</translation>
+    </message>
+    <message>
+        <source>Group</source>
+        <translation>Группа</translation>
+    </message>
+    <message>
+        <source>Ungroup</source>
+        <translation>Разгруппировать</translation>
+    </message>
+    <message>
+        <source>Collapse Group</source>
+        <translation>Свернуть группу</translation>
+    </message>
+    <message>
+        <source>Expand Group</source>
+        <translation>Развернуть группу</translation>
+    </message>
+    <message>
+        <source>Make Macro</source>
+        <translation>Создать макрос</translation>
+    </message>
+    <message>
+        <source>Remove Macro Control</source>
+        <translation>Удалить элемент макроса</translation>
+    </message>
+    <message>
+        <source>Select a group or a macro</source>
+        <translation>Выберите группу или макрос</translation>
+    </message>
+    <message>
+        <source>Insert Macro</source>
+        <translation>Вставить макрос</translation>
+    </message>
+    <message>
+        <source>Create Instance</source>
+        <translation>Создать экземпляр</translation>
+    </message>
+    <message>
+        <source>Make Independent</source>
+        <translation>Сделать независимым</translation>
+    </message>
+    <message>
+        <source>Add Underlay</source>
+        <translation>Добавить подложку</translation>
+    </message>
+    <message>
+        <source>Underlay</source>
+        <translation>Подложка</translation>
     </message>
     <message>
         <source>Modify With %1</source>
@@ -10456,6 +10588,14 @@ Thank you for watching</source>
     <message>
         <source>The node graph of the open clip: select, move, connect and edit nodes.</source>
         <translation>Граф нод открытого клипа: выбор, перемещение, соединение и редактирование нод.</translation>
+    </message>
+    <message>
+        <source>Save Macro as Title</source>
+        <translation>Сохранить макрос как титр</translation>
+    </message>
+    <message>
+        <source>Name of the title in the Effects Library</source>
+        <translation>Название титра в библиотеке эффектов</translation>
     </message>
     <message>
         <source>Add %1 after the selected node</source>
@@ -15403,6 +15543,26 @@ Thank you for watching</source>
         <translation>Показывать элемент под курсором примененным к кадру в окне просмотра таймлайна</translation>
     </message>
     <message>
+        <source>Macros</source>
+        <translation>Макросы</translation>
+    </message>
+    <message>
+        <source>Macros saved from the Compositing page</source>
+        <translation>Макросы, сохранённые со страницы композитинга</translation>
+    </message>
+    <message>
+        <source>A macro saved as a title. Double-click adds it to the timeline at the playhead.</source>
+        <translation>Макрос, сохранённый как титр. Двойной щелчок добавляет его на таймлайн в позиции указателя.</translation>
+    </message>
+    <message>
+        <source>Delete Macro</source>
+        <translation>Удалить макрос</translation>
+    </message>
+    <message>
+        <source>Deletes the saved macro file; titles already on the timeline are not changed</source>
+        <translation>Удаляет сохранённый файл макроса; титры, уже лежащие на таймлайне, не меняются</translation>
+    </message>
+    <message>
         <source>Add to Selected Edit Point</source>
         <translation>Добавить к выбранной точке монтажа</translation>
     </message>
@@ -18120,6 +18280,29 @@ You can also double-click the header, or drag the header out of the panel.</sour
     <message>
         <source>%1 (Read-Only)</source>
         <translation>%1 (только для чтения)</translation>
+    </message>
+</context>
+<context>
+    <name>kk::MakeMacroDialog</name>
+    <message>
+        <source>Make Macro</source>
+        <translation>Создать макрос</translation>
+    </message>
+    <message>
+        <source>Name of the macro</source>
+        <translation>Название макроса</translation>
+    </message>
+    <message>
+        <source>The macro&apos;s name. It is also the name of the title when you save it to the Effects Library.</source>
+        <translation>Название макроса. Это же название титра при сохранении в библиотеку эффектов.</translation>
+    </message>
+    <message>
+        <source>Controls: tick the parameters the macro shows</source>
+        <translation>Элементы управления: отметьте параметры, которые показывает макрос</translation>
+    </message>
+    <message>
+        <source>Every ticked parameter becomes a control on the macro; the parameter inside follows it. Published parameters are ticked for you.</source>
+        <translation>Каждый отмеченный параметр становится элементом макроса; внутренний параметр следует за ним. Опубликованные параметры уже отмечены.</translation>
     </message>
 </context>
 <context>
@@ -21275,6 +21458,90 @@ Import files with %1 or drop them here.</source>
         <translation>Добавить ноду</translation>
     </message>
     <message>
+        <source>Add Underlay</source>
+        <translation>Добавить подложку</translation>
+    </message>
+    <message>
+        <source>A box behind nodes: the nodes on it move with it</source>
+        <translation>Рамка за узлами: узлы на ней двигаются вместе с ней</translation>
+    </message>
+    <message>
+        <source>Insert Macro</source>
+        <translation>Вставить макрос</translation>
+    </message>
+    <message>
+        <source>Expand Group</source>
+        <translation>Развернуть группу</translation>
+    </message>
+    <message>
+        <source>Collapse Group</source>
+        <translation>Свернуть группу</translation>
+    </message>
+    <message>
+        <source>Shows the nodes inside the group, or hides them behind one tile (double-click does the same)</source>
+        <translation>Показывает узлы группы или прячет их за одной плиткой (двойной щелчок делает то же)</translation>
+    </message>
+    <message>
+        <source>Ungroup	Ctrl+Shift+G</source>
+        <translation>Разгруппировать	Ctrl+Shift+G</translation>
+    </message>
+    <message>
+        <source>Takes the nodes out of the group</source>
+        <translation>Выводит узлы из группы</translation>
+    </message>
+    <message>
+        <source>Edit Macro Controls...</source>
+        <translation>Изменить элементы макроса...</translation>
+    </message>
+    <message>
+        <source>Make Macro...</source>
+        <translation>Создать макрос...</translation>
+    </message>
+    <message>
+        <source>Chooses which parameters of the nodes inside the group the macro shows as its own controls</source>
+        <translation>Выбирает, какие параметры узлов группы макрос показывает как собственные элементы</translation>
+    </message>
+    <message>
+        <source>Save Macro as Title...</source>
+        <translation>Сохранить макрос как титр...</translation>
+    </message>
+    <message>
+        <source>Saves the group as a title in the Effects Library, to use on any clip</source>
+        <translation>Сохраняет группу как титр в библиотеке эффектов для использования на любом клипе</translation>
+    </message>
+    <message>
+        <source>Group	Ctrl+G</source>
+        <translation>Сгруппировать	Ctrl+G</translation>
+    </message>
+    <message>
+        <source>Puts the selected nodes in a group</source>
+        <translation>Помещает выбранные узлы в группу</translation>
+    </message>
+    <message>
+        <source>Create Instance</source>
+        <translation>Создать экземпляр</translation>
+    </message>
+    <message>
+        <source>A copy that shares this node&apos;s settings: change the original and the copy follows</source>
+        <translation>Копия с общими настройками этого узла: измените оригинал, и копия последует за ним</translation>
+    </message>
+    <message>
+        <source>Make Independent</source>
+        <translation>Сделать независимым</translation>
+    </message>
+    <message>
+        <source>Cuts the instance loose: it keeps a copy of the settings and has its own from now on</source>
+        <translation>Отсоединяет экземпляр: он сохраняет копию настроек и дальше имеет свои</translation>
+    </message>
+    <message>
+        <source>Underlay Around Selection</source>
+        <translation>Подложка вокруг выделенного</translation>
+    </message>
+    <message>
+        <source>A box behind the selected nodes: they move with it</source>
+        <translation>Рамка за выбранными узлами: они двигаются вместе с ней</translation>
+    </message>
+    <message>
         <source>Replace With</source>
         <translation>Заменить на</translation>
     </message>
@@ -21321,6 +21588,18 @@ Import files with %1 or drop them here.</source>
     <message>
         <source>Select a clip on the Edit page</source>
         <translation>Выберите клип на странице «Монтаж»</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <translation>%1 (%2)</translation>
+    </message>
+    <message>
+        <source>%1 (Macro)</source>
+        <translation>%1 (макрос)</translation>
+    </message>
+    <message>
+        <source>Underlay</source>
+        <translation>Подложка</translation>
     </message>
     <message>
         <source>Note</source>
@@ -21635,6 +21914,14 @@ Import files with %1 or drop them here.</source>
     <message>
         <source> X</source>
         <translation> X</translation>
+    </message>
+    <message>
+        <source>Group</source>
+        <translation>Группа</translation>
+    </message>
+    <message>
+        <source>Holds other nodes together: a frame around them, or one tile; with controls it is a Macro</source>
+        <translation>Объединяет другие узлы: рамка вокруг них или одна плитка; с элементами управления это макрос</translation>
     </message>
     <message>
         <source>Patterns</source>

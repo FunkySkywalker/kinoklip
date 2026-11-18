@@ -24,7 +24,7 @@
     <name>Expression</name>
     <message>
         <source>Unexpected &quot;%1&quot;</source>
-        <translation>Unerwartetes Zeichen "%1"</translation>
+        <translation>Unerwartetes Zeichen &quot;%1&quot;</translation>
     </message>
     <message>
         <source>The formula is nested too deeply</source>
@@ -32,7 +32,7 @@
     </message>
     <message>
         <source>Expected &quot;:&quot;</source>
-        <translation>":" erwartet</translation>
+        <translation>&quot;:&quot; erwartet</translation>
     </message>
     <message>
         <source>The formula ends too early</source>
@@ -40,15 +40,15 @@
     </message>
     <message>
         <source>Expected &quot;)&quot;</source>
-        <translation>")" erwartet</translation>
+        <translation>&quot;)&quot; erwartet</translation>
     </message>
     <message>
         <source>Bad number &quot;%1&quot;</source>
-        <translation>Ungültige Zahl "%1"</translation>
+        <translation>Ungültige Zahl &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Unknown function &quot;%1&quot;</source>
-        <translation>Unbekannte Funktion "%1"</translation>
+        <translation>Unbekannte Funktion &quot;%1&quot;</translation>
     </message>
     <message>
         <source>%1 takes %2 argument(s)</source>
@@ -187,7 +187,7 @@
     </message>
     <message>
         <source>Offers the parameter in the Connect To lists and on a Macro.</source>
-        <translation>Bietet den Parameter in den Listen "Verbinden mit" und an einem Makro an.</translation>
+        <translation>Bietet den Parameter in den Listen &quot;Verbinden mit&quot; und an einem Makro an.</translation>
     </message>
     <message>
         <source>Offset</source>
@@ -10068,6 +10068,90 @@ Danke fürs Zuschauen</translation>
         <source>Connected To</source>
         <translation>Verbunden mit</translation>
     </message>
+    <message>
+        <source>Macro</source>
+        <translation>Makro</translation>
+    </message>
+    <message>
+        <source>Group</source>
+        <translation>Gruppe</translation>
+    </message>
+    <message>
+        <source>Instance</source>
+        <translation>Instanz</translation>
+    </message>
+    <message>
+        <source>%1 node(s) inside</source>
+        <translation>%1 Node(s) darin</translation>
+    </message>
+    <message>
+        <source>The nodes in this group. Select the group and use Collapse Group or double-click to show or hide them.</source>
+        <translation>Die Nodes dieser Gruppe. Gruppe wählen und "Gruppe einklappen" oder Doppelklick nutzen, um sie zu zeigen oder zu verbergen.</translation>
+    </message>
+    <message>
+        <source>Members</source>
+        <translation>Mitglieder</translation>
+    </message>
+    <message>
+        <source>Edit Controls...</source>
+        <translation>Regler bearbeiten...</translation>
+    </message>
+    <message>
+        <source>Make Macro...</source>
+        <translation>Makro erstellen...</translation>
+    </message>
+    <message>
+        <source>Chooses which parameters of the nodes inside the group the macro shows as controls</source>
+        <translation>Wählt, welche Parameter der Nodes in der Gruppe das Makro als Regler zeigt</translation>
+    </message>
+    <message>
+        <source>Save as Title...</source>
+        <translation>Als Titel speichern...</translation>
+    </message>
+    <message>
+        <source>Saves the group as a title in the Effects Library</source>
+        <translation>Speichert die Gruppe als Titel in der Effektbibliothek</translation>
+    </message>
+    <message>
+        <source>Ungroup</source>
+        <translation>Gruppierung aufheben</translation>
+    </message>
+    <message>
+        <source>Takes the nodes out of the group</source>
+        <translation>Nimmt die Nodes aus der Gruppe</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>Entfernen</translation>
+    </message>
+    <message>
+        <source>Takes this control off the macro; the parameter inside keeps its value</source>
+        <translation>Entfernt diesen Regler vom Makro; der Parameter darin behält seinen Wert</translation>
+    </message>
+    <message>
+        <source>Settings of %1</source>
+        <translation>Einstellungen von %1</translation>
+    </message>
+    <message>
+        <source>(the original is missing)</source>
+        <translation>(das Original fehlt)</translation>
+    </message>
+    <message>
+        <source>This node shows the settings of its original: change them there</source>
+        <translation>Dieser Node zeigt die Einstellungen seines Originals: dort ändern</translation>
+    </message>
+    <message>
+        <source>Instance of</source>
+        <translation>Instanz von</translation>
+    </message>
+    <message>
+        <source>Make Independent</source>
+        <translation>Unabhängig machen</translation>
+    </message>
+    <message>
+        <source>Cuts the instance loose: it keeps a copy of the settings and has its own from now on</source>
+        <translation>Löst die Instanz: Sie behält eine Kopie der Einstellungen und hat ab jetzt eigene</translation>
+    </message>
 </context>
 <context>
     <name>kk::CompSession</name>
@@ -10086,6 +10170,54 @@ Danke fürs Zuschauen</translation>
     <message>
         <source>Change MediaIn Source</source>
         <translation>MediaIn-Quelle ändern</translation>
+    </message>
+    <message>
+        <source>Group</source>
+        <translation>Gruppe</translation>
+    </message>
+    <message>
+        <source>Ungroup</source>
+        <translation>Gruppierung aufheben</translation>
+    </message>
+    <message>
+        <source>Collapse Group</source>
+        <translation>Gruppe einklappen</translation>
+    </message>
+    <message>
+        <source>Expand Group</source>
+        <translation>Gruppe ausklappen</translation>
+    </message>
+    <message>
+        <source>Make Macro</source>
+        <translation>Makro erstellen</translation>
+    </message>
+    <message>
+        <source>Remove Macro Control</source>
+        <translation>Makro-Regler entfernen</translation>
+    </message>
+    <message>
+        <source>Select a group or a macro</source>
+        <translation>Eine Gruppe oder ein Makro wählen</translation>
+    </message>
+    <message>
+        <source>Insert Macro</source>
+        <translation>Makro einfügen</translation>
+    </message>
+    <message>
+        <source>Create Instance</source>
+        <translation>Instanz erstellen</translation>
+    </message>
+    <message>
+        <source>Make Independent</source>
+        <translation>Unabhängig machen</translation>
+    </message>
+    <message>
+        <source>Add Underlay</source>
+        <translation>Unterlage hinzufügen</translation>
+    </message>
+    <message>
+        <source>Underlay</source>
+        <translation>Unterlage</translation>
     </message>
     <message>
         <source>Modify With %1</source>
@@ -10446,6 +10578,14 @@ Danke fürs Zuschauen</translation>
     <message>
         <source>The node graph of the open clip: select, move, connect and edit nodes.</source>
         <translation>Der Node-Graph des geöffneten Clips: Nodes wählen, verschieben, verbinden und bearbeiten.</translation>
+    </message>
+    <message>
+        <source>Save Macro as Title</source>
+        <translation>Makro als Titel speichern</translation>
+    </message>
+    <message>
+        <source>Name of the title in the Effects Library</source>
+        <translation>Name des Titels in der Effektbibliothek</translation>
     </message>
     <message>
         <source>Add %1 after the selected node</source>
@@ -15392,6 +15532,26 @@ Danke fürs Zuschauen</translation>
         <translation>Den Eintrag unter dem Mauszeiger auf das Bild im Timeline-Viewer angewendet zeigen</translation>
     </message>
     <message>
+        <source>Macros</source>
+        <translation>Makros</translation>
+    </message>
+    <message>
+        <source>Macros saved from the Compositing page</source>
+        <translation>Von der Compositing-Seite gespeicherte Makros</translation>
+    </message>
+    <message>
+        <source>A macro saved as a title. Double-click adds it to the timeline at the playhead.</source>
+        <translation>Ein als Titel gespeichertes Makro. Doppelklick fügt es an der Abspielposition in die Timeline ein.</translation>
+    </message>
+    <message>
+        <source>Delete Macro</source>
+        <translation>Makro löschen</translation>
+    </message>
+    <message>
+        <source>Deletes the saved macro file; titles already on the timeline are not changed</source>
+        <translation>Löscht die gespeicherte Makrodatei; Titel, die schon auf der Timeline liegen, bleiben unverändert</translation>
+    </message>
+    <message>
         <source>Add to Selected Edit Point</source>
         <translation>Zum gewählten Schnittpunkt hinzufügen</translation>
     </message>
@@ -18106,6 +18266,29 @@ Auch ein Doppelklick auf die Kopfzeile oder Herausziehen der Kopfzeile aus dem P
     <message>
         <source>%1 (Read-Only)</source>
         <translation>%1 (schreibgeschützt)</translation>
+    </message>
+</context>
+<context>
+    <name>kk::MakeMacroDialog</name>
+    <message>
+        <source>Make Macro</source>
+        <translation>Makro erstellen</translation>
+    </message>
+    <message>
+        <source>Name of the macro</source>
+        <translation>Name des Makros</translation>
+    </message>
+    <message>
+        <source>The macro&apos;s name. It is also the name of the title when you save it to the Effects Library.</source>
+        <translation>Der Name des Makros. Er ist auch der Name des Titels, wenn du ihn in der Effektbibliothek speicherst.</translation>
+    </message>
+    <message>
+        <source>Controls: tick the parameters the macro shows</source>
+        <translation>Regler: Parameter wählen, die das Makro zeigt</translation>
+    </message>
+    <message>
+        <source>Every ticked parameter becomes a control on the macro; the parameter inside follows it. Published parameters are ticked for you.</source>
+        <translation>Jeder angehakte Parameter wird ein Regler am Makro; der Parameter darin folgt ihm. Veröffentlichte Parameter sind schon angehakt.</translation>
     </message>
 </context>
 <context>
@@ -21258,6 +21441,90 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
         <translation>Node hinzufügen</translation>
     </message>
     <message>
+        <source>Add Underlay</source>
+        <translation>Unterlage hinzufügen</translation>
+    </message>
+    <message>
+        <source>A box behind nodes: the nodes on it move with it</source>
+        <translation>Ein Kasten hinter Nodes: die Nodes darauf bewegen sich mit</translation>
+    </message>
+    <message>
+        <source>Insert Macro</source>
+        <translation>Makro einfügen</translation>
+    </message>
+    <message>
+        <source>Expand Group</source>
+        <translation>Gruppe ausklappen</translation>
+    </message>
+    <message>
+        <source>Collapse Group</source>
+        <translation>Gruppe einklappen</translation>
+    </message>
+    <message>
+        <source>Shows the nodes inside the group, or hides them behind one tile (double-click does the same)</source>
+        <translation>Zeigt die Nodes in der Gruppe oder verbirgt sie hinter einer Kachel (Doppelklick macht dasselbe)</translation>
+    </message>
+    <message>
+        <source>Ungroup	Ctrl+Shift+G</source>
+        <translation>Gruppierung aufheben	Strg+Umschalt+G</translation>
+    </message>
+    <message>
+        <source>Takes the nodes out of the group</source>
+        <translation>Nimmt die Nodes aus der Gruppe</translation>
+    </message>
+    <message>
+        <source>Edit Macro Controls...</source>
+        <translation>Makro-Regler bearbeiten...</translation>
+    </message>
+    <message>
+        <source>Make Macro...</source>
+        <translation>Makro erstellen...</translation>
+    </message>
+    <message>
+        <source>Chooses which parameters of the nodes inside the group the macro shows as its own controls</source>
+        <translation>Wählt, welche Parameter der Nodes in der Gruppe das Makro als eigene Regler zeigt</translation>
+    </message>
+    <message>
+        <source>Save Macro as Title...</source>
+        <translation>Makro als Titel speichern...</translation>
+    </message>
+    <message>
+        <source>Saves the group as a title in the Effects Library, to use on any clip</source>
+        <translation>Speichert die Gruppe als Titel in der Effektbibliothek, zur Verwendung auf jedem Clip</translation>
+    </message>
+    <message>
+        <source>Group	Ctrl+G</source>
+        <translation>Gruppieren	Strg+G</translation>
+    </message>
+    <message>
+        <source>Puts the selected nodes in a group</source>
+        <translation>Legt die gewählten Nodes in eine Gruppe</translation>
+    </message>
+    <message>
+        <source>Create Instance</source>
+        <translation>Instanz erstellen</translation>
+    </message>
+    <message>
+        <source>A copy that shares this node&apos;s settings: change the original and the copy follows</source>
+        <translation>Eine Kopie, die die Einstellungen dieses Nodes teilt: Original ändern, die Kopie folgt</translation>
+    </message>
+    <message>
+        <source>Make Independent</source>
+        <translation>Unabhängig machen</translation>
+    </message>
+    <message>
+        <source>Cuts the instance loose: it keeps a copy of the settings and has its own from now on</source>
+        <translation>Löst die Instanz: Sie behält eine Kopie der Einstellungen und hat ab jetzt eigene</translation>
+    </message>
+    <message>
+        <source>Underlay Around Selection</source>
+        <translation>Unterlage um die Auswahl</translation>
+    </message>
+    <message>
+        <source>A box behind the selected nodes: they move with it</source>
+        <translation>Ein Kasten hinter den gewählten Nodes: sie bewegen sich mit</translation>
+    </message>
+    <message>
         <source>Replace With</source>
         <translation>Ersetzen durch</translation>
     </message>
@@ -21304,6 +21571,18 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
     <message>
         <source>Select a clip on the Edit page</source>
         <translation>Einen Clip auf der Edit-Seite wählen</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <translation>%1 (%2)</translation>
+    </message>
+    <message>
+        <source>%1 (Macro)</source>
+        <translation>%1 (Makro)</translation>
+    </message>
+    <message>
+        <source>Underlay</source>
+        <translation>Unterlage</translation>
     </message>
     <message>
         <source>Note</source>
@@ -21618,6 +21897,14 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
     <message>
         <source> X</source>
         <translation> X</translation>
+    </message>
+    <message>
+        <source>Group</source>
+        <translation>Gruppe</translation>
+    </message>
+    <message>
+        <source>Holds other nodes together: a frame around them, or one tile; with controls it is a Macro</source>
+        <translation>Hält andere Nodes zusammen: ein Rahmen um sie oder eine Kachel; mit Reglern ist es ein Makro</translation>
     </message>
     <message>
         <source>Patterns</source>
@@ -31421,7 +31708,7 @@ Einen Multicam-Clip aus dem Medienpool öffnen oder den Abspielkopf über einen 
     </message>
     <message>
         <source>Offers the parameter in the Connect To lists and on a Macro.</source>
-        <translation>Bietet den Parameter in den Listen "Verbinden mit" und an einem Makro an.</translation>
+        <translation>Bietet den Parameter in den Listen &quot;Verbinden mit&quot; und an einem Makro an.</translation>
     </message>
 </context>
 <context>

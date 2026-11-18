@@ -2,12 +2,14 @@
 // Parameter links: resolving, cycle checks and Connect To. See CompLinks.h.
 #include "core/CompLinks.h"
 
+#include "core/CompGroups.h"
 #include "core/Expression.h"
 #include "core/Modifiers.h"
 #include "core/NodeRegistry.h"
 
 #include <QSet>
 
+#include <algorithm>
 #include <functional>
 
 namespace kk::complinks {
@@ -96,6 +98,10 @@ struct Resolver
 
 QString paramLabel(const CompNode& node, const QString& key)
 {
+    for (const MacroControl& c : node.controls) {
+        if (c.key == key)
+            return c.label;
+    }
     if (const NodeDescriptor* d = NodeRegistry::instance().find(node.type)) {
         if (const ParamDescriptor* p = d->param(key))
             return p->label;
@@ -164,6 +170,10 @@ std::optional<ParamTarget> findReference(
                 return ParamTarget {node->id, p.key};
         }
     }
+    for (const MacroControl& c : node->controls) {
+        if (squeezed(c.label) == want || squeezed(c.key) == want)
+            return ParamTarget {node->id, c.key};
+    }
     for (auto it = node->params.values.cbegin(); it != node->params.values.cend(); ++it) {
         if (!modifiers::isControlKey(it.key()) && squeezed(it.key()) == want)
             return ParamTarget {node->id, it.key()};
@@ -173,6 +183,8 @@ std::optional<ParamTarget> findReference(
 
 bool hasLinks(const Composition& comp)
 {
+    if (compgroups::hasInstances(comp))
+        return true;
     for (const CompNode& n : comp.nodes) {
         for (auto it = n.params.values.cbegin(); it != n.params.values.cend(); ++it) {
             for (const ParamModifier& m : it->modifiers) {
@@ -194,6 +206,7 @@ bool hasLinks(const Composition& comp)
 Composition resolved(const Composition& comp, double frame)
 {
     Composition out = comp;
+    compgroups::applyInstances(out);
     Resolver r {out, frame, {}, {}};
     for (CompNode& n : out.nodes) {
         for (const QString& key : modifiers::modifiedKeys(n.params))
@@ -254,7 +267,10 @@ LinkError connectParam(
         return LinkError::ToItself;
     const NodeDescriptor* td = NodeRegistry::instance().find(t->type);
     const ParamDescriptor* tp = td ? td->param(target.key) : nullptr;
-    if (!tp || !tp->isScalar())
+    const bool macroControl = t->macro
+        && std::any_of(t->controls.cbegin(), t->controls.cend(),
+            [&](const MacroControl& c) { return c.key == target.key; });
+    if (!macroControl && (!tp || !tp->isScalar()))
         return LinkError::NotNumber;
     if (dependsOn(comp, target, ParamTarget {node, key}))
         return LinkError::Cycle;

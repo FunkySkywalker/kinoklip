@@ -3,6 +3,9 @@
 // Painting is in NodeEditorPaint.cpp.
 #include "ui/comp/NodeEditor.h"
 
+#include "core/CompGroups.h"
+#include "core/MacroFiles.h"
+
 #include "core/CompOps.h"
 #include "core/NodeRegistry.h"
 #include "ui/common/ActionRegistry.h"
@@ -13,6 +16,7 @@
 #include <QAction>
 #include <QApplication>
 #include <QColorDialog>
+#include <QDir>
 #include <QHelpEvent>
 #include <QContextMenuEvent>
 #include <QDrag>
@@ -41,6 +45,18 @@ namespace {
 bool isFindKey(const QKeyEvent* e)
 {
     return e->key() == Qt::Key_F && (e->modifiers() & ~Qt::KeypadModifier) == Qt::ControlModifier;
+}
+
+/// Ctrl+G groups the selected nodes, Ctrl+Shift+G ungroups (panel-local, spec 120).
+bool isGroupKey(const QKeyEvent* e)
+{
+    return e->key() == Qt::Key_G && (e->modifiers() & ~Qt::KeypadModifier) == Qt::ControlModifier;
+}
+
+bool isUngroupKey(const QKeyEvent* e)
+{
+    return e->key() == Qt::Key_G
+        && (e->modifiers() & ~Qt::KeypadModifier) == (Qt::ControlModifier | Qt::ShiftModifier);
 }
 
 bool isPasteSettingsKey(const QKeyEvent* e)
@@ -192,7 +208,48 @@ QPointF NodeEditor::pastePosition() const
 
 bool NodeEditor::isMoving(quint64 nodeId) const
 {
-    return m_drag == Drag::Move && m_session && m_session->selectedNodes().contains(nodeId);
+    if (m_drag != Drag::Move || !m_session)
+        return false;
+    const QVector<quint64>& selected = m_session->selectedNodes();
+    if (selected.contains(nodeId))
+        return true;
+    // The members of a moving group, and the nodes under a moving underlay, go with it.
+    const Composition& c = m_session->composition();
+    const CompNode* n = c.node(nodeId);
+    if (!n)
+        return false;
+    for (quint64 g = n->group; g != 0;) {
+        if (selected.contains(g))
+            return true;
+        const CompNode* parent = c.node(g);
+        g = parent ? parent->group : 0;
+    }
+    for (const CompNote& note : c.notes) {
+        if (note.underlay && m_session->selectedNotes().contains(note.id)
+            && QRectF(note.position, note.size).contains(n->position + QPointF(1.7, 0.5)))
+            return true;
+    }
+    return false;
+}
+
+bool NodeEditor::isHidden(const CompNode& node) const
+{
+    return m_session && compgroups::hiddenBy(m_session->composition(), node) != nullptr;
+}
+
+QRectF NodeEditor::groupFrame(const CompNode& group) const
+{
+    const Composition& c = m_session->composition();
+    QRectF bounds;
+    for (const CompNode& n : c.nodes) {
+        if (n.group != group.id || n.id == group.id)
+            continue;
+        bounds |= tileRect(n);
+    }
+    if (bounds.isNull())
+        return QRectF(fromGrid(livePosition(group)), QSizeF(kTileWidth, 1.0) * (kUnitPx * m_zoom));
+    const double s = kUnitPx * m_zoom;
+    return bounds.adjusted(-0.5 * s, -1.4 * s, 0.5 * s, 0.5 * s);
 }
 
 QPointF NodeEditor::livePosition(const CompNode& node) const
@@ -203,6 +260,14 @@ QPointF NodeEditor::livePosition(const CompNode& node) const
 QRectF NodeEditor::tileRect(const CompNode& node) const
 {
     const double s = kUnitPx * m_zoom;
+    if (m_session) {
+        if (const CompNode* hidden = compgroups::hiddenBy(m_session->composition(), node))
+            return tileRect(*hidden);
+        if (compgroups::isGroup(node) && !node.collapsed) {
+            const QRectF frame = groupFrame(node);
+            return QRectF(frame.topLeft(), QSizeF(frame.width(), 0.9 * s));
+        }
+    }
     return QRectF(fromGrid(livePosition(node)), QSizeF(kTileWidth * s, s));
 }
 
@@ -304,6 +369,8 @@ NodeEditor::Hit NodeEditor::linkAt(QPointF pos, quint64 exclude) const
             const CompNode* from = c.node(it->nodeId);
             if (!from || (exclude && (to.id == exclude || from->id == exclude)))
                 continue;
+            if (const CompNode* g = compgroups::hiddenBy(c, to); g && g == compgroups::hiddenBy(c, *from))
+                continue; // both inside one collapsed group: not drawn
             const QPointF a = outputPos(*from), d = inputPos(to, it.key());
             QRectF box = QRectF(a, d).normalized().adjusted(-60, -60, 60, 60);
             if (!box.contains(pos))
@@ -334,6 +401,8 @@ NodeEditor::Hit NodeEditor::hitTest(QPointF pos) const
     // Tiles drawn last are on top: search backwards.
     for (auto it = c.nodes.crbegin(); it != c.nodes.crend(); ++it) {
         const CompNode& n = *it;
+        if (isHidden(n))
+            continue;
         const QRectF r = tileRect(n);
         if (!r.adjusted(-portR, -portR, portR, portR).contains(pos))
             continue;
@@ -358,7 +427,9 @@ NodeEditor::Hit NodeEditor::hitTest(QPointF pos) const
         const QPointF p = m_drag == Drag::Move && m_session->selectedNotes().contains(it->id)
             ? it->position + m_moveDelta
             : it->position;
-        if (QRectF(fromGrid(p), it->size * s).contains(pos))
+        // An underlay is grabbed by its title strip only: the nodes on it stay clickable.
+        const QSizeF size = it->underlay ? QSizeF(it->size.width(), 0.9) : it->size;
+        if (QRectF(fromGrid(p), size * s).contains(pos))
             return Hit {Hit::Kind::Note, 0, {}, it->id};
     }
     return linkAt(pos);
@@ -425,7 +496,8 @@ bool NodeEditor::event(QEvent* event)
         auto* key = static_cast<QKeyEvent*>(event);
         // Find (Ctrl+F) and Paste Settings (Ctrl+Shift+V) belong to the editor only while it
         // has the focus; a key the keymap gives to a comp command stays that command's.
-        if (actionForKey(key).isEmpty() && (isFindKey(key) || isPasteSettingsKey(key))) {
+        if (actionForKey(key).isEmpty()
+            && (isFindKey(key) || isPasteSettingsKey(key) || isGroupKey(key) || isUngroupKey(key))) {
             event->accept();
             return true;
         }
@@ -472,6 +544,16 @@ void NodeEditor::keyPressEvent(QKeyEvent* event)
     if (isPasteSettingsKey(event)) {
         if (m_session)
             m_session->pasteSettings();
+        return;
+    }
+    if (isGroupKey(event)) {
+        if (m_session)
+            m_session->groupSelection();
+        return;
+    }
+    if (isUngroupKey(event)) {
+        if (m_session)
+            m_session->ungroupSelection();
         return;
     }
     QWidget::keyPressEvent(event);
@@ -711,7 +793,12 @@ void NodeEditor::mouseDoubleClickEvent(QMouseEvent* event)
         return;
     }
     if (hit.kind == Hit::Kind::Tile) {
-        startRename(hit.node);
+        // A group opens and closes with a double-click, other nodes rename.
+        const CompNode* n = m_session ? m_session->composition().node(hit.node) : nullptr;
+        if (n && compgroups::isGroup(*n))
+            m_session->toggleGroupCollapsed(hit.node);
+        else
+            startRename(hit.node);
         return;
     }
     QWidget::mouseDoubleClickEvent(event);
@@ -736,7 +823,7 @@ void NodeEditor::finishBox(Qt::KeyboardModifiers mods)
     const double s = kUnitPx * m_zoom;
     if (box.width() >= 2 || box.height() >= 2) {
         for (const CompNode& n : c.nodes)
-            if (box.intersects(tileRect(n)) && !nodes.contains(n.id))
+            if (!isHidden(n) && box.intersects(tileRect(n)) && !nodes.contains(n.id))
                 nodes.append(n.id);
         for (const CompNote& n : c.notes)
             if (box.intersects(QRectF(fromGrid(n.position), n.size * s)) && !notes.contains(n.id))
@@ -879,6 +966,7 @@ QMenu* NodeEditor::buildContextMenu(QPointF pos, QWidget* parent)
         menu->addSeparator();
         if (n)
             addNodeMenuItems(menu, *n);
+        addGroupMenuItems(menu, n);
         menu->addSeparator();
         add("comp.cut");
         add("comp.copy");
@@ -908,7 +996,7 @@ QMenu* NodeEditor::buildContextMenu(QPointF pos, QWidget* parent)
     for (const QString& category : compadapter::categories()) {
         QMenu* sub = addMenu->addMenu(category);
         for (const compadapter::NodeTypeInfo& info : compadapter::nodeTypes()) {
-            if (info.category != category)
+            if (info.category != category || info.singleton)
                 continue;
             const QString type = info.type;
             sub->addAction(info.name, this, [this, type, at] { m_session->addNodeAt(type, at); });
@@ -916,6 +1004,23 @@ QMenu* NodeEditor::buildContextMenu(QPointF pos, QWidget* parent)
     }
     add("comp.select_node");
     add("comp.add_note");
+    {
+        QAction* underlay = menu->addAction(tr("Add Underlay"), this, [this, at = toGrid(pos)] {
+            m_session->addUnderlay(QRectF(at - QPointF(4, 0.5), QSizeF(8, 5)));
+        });
+        underlay->setObjectName(QStringLiteral("AddUnderlayAction"));
+        underlay->setToolTip(tr("A box behind nodes: the nodes on it move with it"));
+        if (!QDir(macrofiles::directory()).isEmpty()) {
+            QMenu* macros = menu->addMenu(tr("Insert Macro"));
+            macros->setObjectName(QStringLiteral("InsertMacroMenu"));
+            for (const macrofiles::Entry& e : macrofiles::list())
+                macros->addAction(e.name, this, [this, path = e.path, at = toGrid(pos)] {
+                    m_session->insertMacro(path, at);
+                });
+            if (macros->isEmpty())
+                menu->removeAction(macros->menuAction());
+        }
+    }
     menu->addSeparator();
     add("comp.paste");
     add("comp.select_all");
@@ -923,6 +1028,50 @@ QMenu* NodeEditor::buildContextMenu(QPointF pos, QWidget* parent)
     add("comp.fit");
     add("comp.snap_grid");
     return menu;
+}
+
+void NodeEditor::addGroupMenuItems(QMenu* menu, const CompNode* node)
+{
+    if (!node)
+        return;
+    menu->addSeparator();
+    const quint64 id = node->id;
+    if (compgroups::isGroup(*node)) {
+        QAction* fold = menu->addAction(node->collapsed ? tr("Expand Group") : tr("Collapse Group"),
+            this, [this, id] { m_session->toggleGroupCollapsed(id); });
+        fold->setObjectName(QStringLiteral("CollapseGroupAction"));
+        fold->setToolTip(tr("Shows the nodes inside the group, or hides them behind one tile (double-click does the same)"));
+        QAction* un = menu->addAction(tr("Ungroup\tCtrl+Shift+G"), this, [this] { m_session->ungroupSelection(); });
+        un->setObjectName(QStringLiteral("UngroupAction"));
+        un->setToolTip(tr("Takes the nodes out of the group"));
+        QAction* mk = menu->addAction(node->macro ? tr("Edit Macro Controls...") : tr("Make Macro..."), this,
+            [this, id] { emit makeMacroRequested(id); });
+        mk->setObjectName(QStringLiteral("MakeMacroAction"));
+        mk->setToolTip(tr("Chooses which parameters of the nodes inside the group the macro shows as its own controls"));
+        QAction* save = menu->addAction(tr("Save Macro as Title..."), this, [this, id] { emit saveMacroRequested(id); });
+        save->setObjectName(QStringLiteral("SaveMacroAction"));
+        save->setToolTip(tr("Saves the group as a title in the Effects Library, to use on any clip"));
+        return;
+    }
+    QAction* group = menu->addAction(tr("Group\tCtrl+G"), this, [this] { m_session->groupSelection(); });
+    group->setObjectName(QStringLiteral("GroupAction"));
+    group->setToolTip(tr("Puts the selected nodes in a group"));
+    if (node->type != nodetypes::MediaIn && node->type != nodetypes::MediaOut) {
+        QAction* inst = menu->addAction(tr("Create Instance"), this, [this, id] {
+            const CompNode* n = m_session->composition().node(id);
+            m_session->makeInstance(id, (n ? n->position : QPointF()) + QPointF(0.5, 1.5));
+        });
+        inst->setObjectName(QStringLiteral("CreateInstanceAction"));
+        inst->setToolTip(tr("A copy that shares this node's settings: change the original and the copy follows"));
+    }
+    if (node->instanceOf != 0) {
+        QAction* indep = menu->addAction(tr("Make Independent"), this, [this, id] { m_session->makeIndependent(id); });
+        indep->setObjectName(QStringLiteral("MakeIndependentAction"));
+        indep->setToolTip(tr("Cuts the instance loose: it keeps a copy of the settings and has its own from now on"));
+    }
+    QAction* under = menu->addAction(tr("Underlay Around Selection"), this, [this] { m_session->addUnderlay(); });
+    under->setObjectName(QStringLiteral("UnderlayAction"));
+    under->setToolTip(tr("A box behind the selected nodes: they move with it"));
 }
 
 void NodeEditor::addNodeMenuItems(QMenu* menu, const CompNode& node)

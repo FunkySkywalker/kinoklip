@@ -5,6 +5,8 @@
 #include "ui/comp/CompSession.h"
 #include "ui/comp/NodeEditor.h"
 
+#include "core/CompGroups.h"
+
 #include <QElapsedTimer>
 #include <QPaintEvent>
 #include <QPainter>
@@ -90,6 +92,10 @@ void NodeEditor::paintEvent(QPaintEvent* event)
     const Composition& c = m_session->composition();
     for (const CompNote& note : c.notes)
         paintNote(p, note);
+    for (const CompNode& n : c.nodes) {
+        if (compgroups::isGroup(n) && !n.collapsed && !isHidden(n))
+            paintGroupFrame(p, n);
+    }
     paintLinks(p, visible);
     // One font for every tile name (the size follows the zoom), set once per paint.
     m_tileFont = font();
@@ -99,6 +105,8 @@ void NodeEditor::paintEvent(QPaintEvent* event)
     m_tileMetrics = &metrics;
     const QRectF cull = visible.adjusted(-kUnitPx, -kUnitPx, kUnitPx, kUnitPx);
     for (const CompNode& n : c.nodes) {
+        if (isHidden(n) || (compgroups::isGroup(n) && !n.collapsed))
+            continue; // hidden by a collapsed group / an expanded group is its frame
         if (tileRect(n).intersects(cull))
             paintTile(p, n, compadapter::nodeType(n.type));
     }
@@ -142,6 +150,8 @@ void NodeEditor::paintLinks(QPainter& p, const QRectF& visible) const
             const CompNode* from = c.node(it->nodeId);
             if (!from)
                 continue;
+            if (const CompNode* g = compgroups::hiddenBy(c, to); g && g == compgroups::hiddenBy(c, *from))
+                continue; // both inside one collapsed group
             const QPointF a = outputPos(*from), d = inputPos(to, it.key());
             if (!QRectF(a, d).normalized().adjusted(-60, -60, 60, 60).intersects(visible))
                 continue;
@@ -222,10 +232,13 @@ void NodeEditor::paintTile(
         // Point-based drawText (no rectangle layout); elide only names that do not fit.
         p.setPen(node.enabled ? sc.textOn(fill) : sc.textDisabled);
         const double room = r.right() - textLeft - h * 0.6;
-        double w = m_tileMetrics->horizontalAdvance(node.name);
-        QString text = node.name;
+        QString label = node.name;
+        if (compgroups::isGroup(node)) // a collapsed group: its name and how many nodes it holds
+            label = tr("%1 (%2)").arg(node.name).arg(compgroups::members(m_session->composition(), node.id, true).size());
+        double w = m_tileMetrics->horizontalAdvance(label);
+        QString text = label;
         if (w > room) {
-            text = m_tileMetrics->elidedText(node.name, Qt::ElideRight, room);
+            text = m_tileMetrics->elidedText(label, Qt::ElideRight, room);
             w = m_tileMetrics->horizontalAdvance(text);
         }
         p.drawText(QPointF((textLeft + r.right()) / 2 - w / 2,
@@ -284,6 +297,30 @@ void NodeEditor::paintTile(
     }
 }
 
+void NodeEditor::paintGroupFrame(QPainter& p, const CompNode& group) const
+{
+    const SchemeColors& sc = schemeColors();
+    const QRectF frame = groupFrame(group);
+    const bool selected = m_session->selectedNodes().contains(group.id);
+    const QColor base = group.color.isValid() ? group.color : (group.macro ? sc.positive : sc.highlight);
+    p.setPen(QPen(selected ? sc.selection : withAlpha(base, 200), selected ? 2.0 : 1.0));
+    p.setBrush(withAlpha(base, 28));
+    p.drawRoundedRect(frame, 6, 6);
+    const QRectF title = tileRect(group);
+    p.setPen(Qt::NoPen);
+    p.setBrush(withAlpha(base, 70));
+    p.drawRoundedRect(title, 6, 6);
+    if (m_zoom >= kMinTextZoom) {
+        p.setPen(sc.text);
+        QFont bold = m_tileFont;
+        bold.setBold(true);
+        p.setFont(bold);
+        p.drawText(title.adjusted(8, 0, -8, 0), Qt::AlignLeft | Qt::AlignVCenter,
+            group.macro ? tr("%1 (Macro)").arg(group.name) : group.name);
+        p.setFont(m_tileFont);
+    }
+}
+
 void NodeEditor::paintNote(QPainter& p, const CompNote& note) const
 {
     const SchemeColors& sc = schemeColors();
@@ -294,6 +331,18 @@ void NodeEditor::paintNote(QPainter& p, const CompNote& note) const
     const QRectF r(fromGrid(pos), note.size * s);
     const bool selected = m_session->selectedNotes().contains(note.id);
     const QColor base = note.color.isValid() ? note.color : sc.neutral;
+    if (note.underlay) {
+        // An Underlay: a see-through box behind the nodes with its title on top.
+        p.setPen(QPen(selected ? sc.selection : withAlpha(base, 200), selected ? 2.0 : 1.0, Qt::DashLine));
+        p.setBrush(withAlpha(base, 70));
+        p.drawRoundedRect(r, 4, 4);
+        if (m_zoom >= kMinTextZoom) {
+            p.setPen(sc.text);
+            p.drawText(r.adjusted(8, 4, -8, -4), Qt::AlignLeft | Qt::AlignTop,
+                note.text.isEmpty() ? tr("Underlay") : note.text);
+        }
+        return;
+    }
     p.setPen(QPen(selected ? sc.selection : withAlpha(base, 180), selected ? 2.0 : 1.0));
     p.setBrush(withAlpha(mixColors(sc.view, base, 0.25), 230));
     p.drawRoundedRect(r, 3, 3);

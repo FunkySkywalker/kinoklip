@@ -2,6 +2,9 @@
 // CompOps implementation (pure functions on Composition values).
 #include "core/CompOps.h"
 
+#include "core/CompGroups.h"
+#include "core/CompLinks.h"
+
 #include <QHash>
 #include <QSet>
 
@@ -308,6 +311,41 @@ int removeNodes(Composition& comp, const QVector<quint64>& ids)
     }
     if (removed.isEmpty())
         return 0;
+    // Groups, macros and instances (spec 120): the members of a removed group stay and leave it,
+    // the controls of a removed macro are cut loose (the inner parameters keep their values) and
+    // an instance of a removed node keeps what it showed.
+    for (const quint64 id : QVector<quint64>(removed.cbegin(), removed.cend())) {
+        const CompNode* g = comp.node(id);
+        if (!g)
+            continue;
+        if (g->macro) {
+            for (const MacroControl& c : g->controls) {
+                CompNode* inner = comp.node(c.node);
+                if (inner && !removed.contains(inner->id))
+                    complinks::disconnectParam(comp, inner->id, c.paramKey, 0);
+            }
+        }
+    }
+    for (CompNode& n : comp.nodes) {
+        if (removed.contains(n.id))
+            continue;
+        if (n.instanceOf != 0 && removed.contains(n.instanceOf)) {
+            if (const CompNode* src = comp.node(n.instanceOf)) {
+                n.params = src->params;
+                n.path = src->path;
+                n.mediaId = src->mediaId;
+            }
+            n.instanceOf = 0;
+        }
+        if (n.group != 0 && removed.contains(n.group)) {
+            const CompNode* g = comp.node(n.group);
+            n.group = g ? g->group : 0;
+            while (n.group != 0 && removed.contains(n.group)) {
+                const CompNode* up = comp.node(n.group);
+                n.group = up ? up->group : 0;
+            }
+        }
+    }
     // What an input reading a removed node reads instead: that node's main input, following
     // further removed nodes (a removed chain collapses to what fed it).
     const auto replacement = [&](NodeLink link) -> std::optional<NodeLink> {
@@ -560,7 +598,8 @@ bool setEnabled(Composition& comp, quint64 node, bool enabled)
 QVector<CompNode> copyNodes(const Composition& comp, const QVector<quint64>& ids)
 {
     QSet<quint64> set;
-    for (quint64 id : ids) {
+    // A group is copied with everything inside it.
+    for (quint64 id : compgroups::withMembers(comp, ids)) {
         if (id != comp.mediaOutId)
             set.insert(id);
     }
@@ -569,6 +608,8 @@ QVector<CompNode> copyNodes(const Composition& comp, const QVector<quint64>& ids
         if (!set.contains(n.id) || n.type == nodetypes::MediaOut)
             continue;
         CompNode copy = n;
+        if (!set.contains(copy.group))
+            copy.group = 0; // its group is not copied: it goes to the top level
         copy.inputs.removeIf(
             [&set](QMap<QString, NodeLink>::iterator it) { return !set.contains(it->nodeId); });
         out.append(std::move(copy));
@@ -605,6 +646,19 @@ QVector<quint64> pasteNodes(Composition& comp, const QVector<CompNode>& nodes, Q
                 ++it;
             }
         }
+        // Groups and instances follow the copies.
+        n.group = idMap.value(n.group, 0);
+        if (n.instanceOf != 0)
+            n.instanceOf = idMap.value(n.instanceOf, n.instanceOf); // a copy of the original, or the original
+        for (qsizetype c = n.controls.size() - 1; c >= 0; --c) {
+            const auto mappedNode = idMap.constFind(n.controls[c].node);
+            if (mappedNode == idMap.constEnd())
+                n.controls.removeAt(c); // its inner node was not copied
+            else
+                n.controls[c].node = *mappedNode;
+        }
+        if (n.macro && n.controls.isEmpty())
+            n.macro = false;
         // Parameter links (Connect To) between pasted nodes follow the copies.
         for (AnimatedValue& v : n.params.values) {
             for (ParamModifier& m : v.modifiers) {

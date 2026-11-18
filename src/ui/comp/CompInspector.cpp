@@ -4,6 +4,7 @@
 
 #include "compositing/tracking/TrackFollow.h"
 #include "compositing/tracking/TrackLink.h"
+#include "core/CompGroups.h"
 #include "core/MediaPool.h"
 #include "core/Modifiers.h"
 #include "core/NodeRegistry.h"
@@ -101,6 +102,11 @@ CompInspector::CompInspector(AppContext& ctx, CompSession* session, QWidget* par
                 = node ? compadapter::nodeType(node->type) : nullptr;
             if (!info || node->locked)
                 return false;
+            if (node->macro) { // a macro's controls go back to the values they have by default
+                for (const ParamDescriptor& d : compgroups::controlDescriptors(c, *node))
+                    node->params.setBase(d.key, d.def);
+                return true;
+            }
             node->params = {};
             for (const ParamDescriptor& p : info->params) {
                 if (p.isScalar())
@@ -142,6 +148,10 @@ void CompInspector::rebuild()
     // The Modifiers sections follow the modifiers (added, removed, connected elsewhere).
     QString signature;
     if (n) {
+        signature += QString::number(n->instanceOf) + QLatin1Char('#') + (n->macro ? QLatin1Char('M') : QLatin1Char('-'));
+        for (const MacroControl& c : n->controls)
+            signature += c.key + c.label + QString::number(c.node) + QLatin1Char(';');
+        signature += QString::number(compgroups::members(m_session->composition(), n->id, false).size());
         for (const QString& key : modifiers::modifiedKeys(n->params)) {
             for (const ParamModifier& m : n->params.values.value(key).modifiers)
                 signature += key + QLatin1Char('/') + m.id + QLatin1Char('/') + modifierKindId(m.kind)
@@ -159,6 +169,7 @@ void CompInspector::rebuild()
         m_tracker->hide();
         delete m_scroll->takeWidget();
         m_group = nullptr;
+        m_groupSection = nullptr;
         m_modifierBoxes.clear();
         m_settings = nullptr;
         m_source = nullptr;
@@ -172,8 +183,13 @@ void CompInspector::rebuild()
             const compadapter::NodeTypeInfo* info = compadapter::nodeType(n->type);
             m_group = new ParamGroupBox(info ? info->name : n->type);
             m_group->setObjectName(QStringLiteral("CompNodeParams"));
+            QVector<ParamDescriptor> descs;
+            if (info)
+                descs = info->params;
+            if (n->macro) // a macro shows its controls instead of parameters of its own
+                descs = compgroups::controlDescriptors(m_session->composition(), *n);
             if (info) {
-                for (const ParamDescriptor& desc : info->params) {
+                for (const ParamDescriptor& desc : descs) {
                     if (desc.hidden)
                         continue;
                     ParamRef ref;
@@ -193,6 +209,7 @@ void CompInspector::rebuild()
                 m_tracker->show();
             }
             l->addWidget(m_group);
+            buildGroupSection(l, *n);
             buildModifiers(l, *n);
             const QVector<ParamDescriptor> common
                 = NodeRegistry::instance().commonControls(n->type);
@@ -274,7 +291,7 @@ void CompInspector::rebuild()
                         return true;
                     });
                 });
-            } else if (!info || info->params.isEmpty()) {
+            } else if (descs.isEmpty()) {
                 // MediaIn / MediaOut: no empty group to unfold, a plain note instead.
                 m_group->hide();
                 l->addWidget(createPlaceholderContent(tr("This node has no parameters")));
@@ -369,7 +386,7 @@ void CompInspector::rebuild()
         m_enable->setEnabled(n->id != m_session->composition().mediaOutId);
         m_reset->setEnabled(!n->locked);
         if (m_group)
-            m_group->setEnabled(!n->locked);
+            m_group->setEnabled(!n->locked && n->instanceOf == 0); // an instance's settings are the original's
         if (m_settings)
             m_settings->setEnabled(!n->locked);
         if (m_source)

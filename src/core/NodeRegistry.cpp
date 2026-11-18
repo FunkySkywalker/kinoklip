@@ -435,6 +435,15 @@ NodeRegistry::NodeRegistry()
         add(d);
     }
 
+    {
+        // A container of other nodes (spec 120): no ports, never evaluated; made by Group.
+        NodeDescriptor d = node(nodetypes::Group, tr("Group"), QStringLiteral("Grp"),
+            QStringLiteral("Group"), C::InputOutput,
+            tr("Holds other nodes together: a frame around them, or one tile; with controls it is a Macro"));
+        d.outputs = 0;
+        add(d);
+    }
+
     // ---- Composite ----
     {
         NodeDescriptor d = node(nodetypes::Merge, tr("Merge"), QStringLiteral("Mrg"),

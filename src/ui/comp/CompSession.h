@@ -3,6 +3,7 @@
 // selection, what each viewer shows, and every editing command of the node editor.
 #pragma once
 
+#include "core/CompGroups.h"
 #include "core/Composition.h"
 #include "core/ParamModifier.h"
 
@@ -10,6 +11,7 @@
 #include <QObject>
 #include <QPair>
 #include <QPointF>
+#include <QRectF>
 #include <QSet>
 #include <QSize>
 #include <QVector>
@@ -149,6 +151,36 @@ public:
     bool pasteSettings();
     /// True if the node clipboard holds a node of the same type as a selected node.
     [[nodiscard]] bool canPasteSettings() const;
+
+    // ---- Groups, macros, instances and underlays (spec 120; each one undo step) ----
+
+    /// Groups the selected nodes (compgroups::makeGroup()) and selects the new Group node.
+    /// Returns its id, 0 when nothing could be grouped.
+    quint64 groupSelection();
+    /// Dissolves the selected groups; their members stay selected. False when none is selected.
+    bool ungroupSelection();
+    /// Collapses or expands group @p id.
+    bool setGroupCollapsed(quint64 id, bool collapsed);
+    /// Collapses an expanded group, expands a collapsed one.
+    bool toggleGroupCollapsed(quint64 id);
+    /// Makes group @p group a macro named @p name with the controls @p picks (compgroups::makeMacro()).
+    bool makeMacro(quint64 group, const QString& name, const QVector<compgroups::ControlPick>& picks);
+    /// Removes control @p key from macro @p macro (the inner parameter keeps its value).
+    bool removeMacroControl(quint64 macro, const QString& key);
+    /// Saves group / macro @p group as a macro file and with it a title of the Effects Library
+    /// (macrofiles::save()); not an undo step. Returns the path, or an empty string with
+    /// @p error set.
+    QString saveMacro(quint64 group, const QString& name, QString* error = nullptr);
+    /// Puts the saved macro in @p path into the composition at @p position (grid units) and
+    /// selects its group. Returns the group's id, 0 on failure.
+    quint64 insertMacro(const QString& path, QPointF position);
+    /// An instance of node @p original at @p position (compgroups::makeInstance()); selects it.
+    quint64 makeInstance(quint64 original, QPointF position);
+    /// Cuts instance @p instance loose from its original.
+    bool makeIndependent(quint64 instance);
+    /// Adds an Underlay: a box behind the nodes it covers, which move with it. @p rect (grid
+    /// units) empty = around the selected nodes, else a box at the view centre.
+    quint64 addUnderlay(QRectF rect = {});
 
     // ---- Parameter modifiers (spec 119; each one undo step) ----
 

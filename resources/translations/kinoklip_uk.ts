@@ -5,7 +5,7 @@
     <name>CompInspector</name>
     <message>
         <source>A parameter cannot be connected to itself</source>
-        <translation>Параметр не можна з'єднати сам із собою</translation>
+        <translation>Параметр не можна з&apos;єднати сам із собою</translation>
     </message>
     <message>
         <source>That would make a circle: the other parameter already reads this one</source>
@@ -13,7 +13,7 @@
     </message>
     <message>
         <source>Only number parameters can be connected</source>
-        <translation>З'єднувати можна лише числові параметри</translation>
+        <translation>З&apos;єднувати можна лише числові параметри</translation>
     </message>
     <message>
         <source>That parameter no longer exists</source>
@@ -103,7 +103,7 @@
     </message>
     <message>
         <source>Connect To</source>
-        <translation>З'єднати з</translation>
+        <translation>З&apos;єднати з</translation>
     </message>
     <message>
         <source>Cycle</source>
@@ -187,7 +187,7 @@
     </message>
     <message>
         <source>Offers the parameter in the Connect To lists and on a Macro.</source>
-        <translation>Пропонує параметр у списках «З'єднати з» і в макросі.</translation>
+        <translation>Пропонує параметр у списках «З&apos;єднати з» і в макросі.</translation>
     </message>
     <message>
         <source>Offset</source>
@@ -219,7 +219,7 @@
     </message>
     <message>
         <source>Reads the value this many frames later (negative: earlier)</source>
-        <translation>Читає значення на стільки кадрів пізніше (від'ємне: раніше)</translation>
+        <translation>Читає значення на стільки кадрів пізніше (від&apos;ємне: раніше)</translation>
     </message>
     <message>
         <source>Relative</source>
@@ -9952,7 +9952,7 @@ Thank you for watching</source>
     </message>
     <message>
         <source>Connected to %1</source>
-        <translation>З'єднано з %1</translation>
+        <translation>З&apos;єднано з %1</translation>
     </message>
     <message>
         <source>(missing)</source>
@@ -10000,7 +10000,7 @@ Thank you for watching</source>
     </message>
     <message>
         <source>Connect To</source>
-        <translation>З'єднати з</translation>
+        <translation>З&apos;єднати з</translation>
     </message>
     <message>
         <source>Makes this value follow another node&apos;s parameter</source>
@@ -10020,7 +10020,7 @@ Thank you for watching</source>
     </message>
     <message>
         <source>Disconnect</source>
-        <translation>Від'єднати</translation>
+        <translation>Від&apos;єднати</translation>
     </message>
     <message>
         <source>Remove %1</source>
@@ -10028,7 +10028,7 @@ Thank you for watching</source>
     </message>
     <message>
         <source>Cuts the link and keeps the value it showed</source>
-        <translation>Розриває зв'язок і зберігає показане значення</translation>
+        <translation>Розриває зв&apos;язок і зберігає показане значення</translation>
     </message>
     <message>
         <source>Takes this modifier off the parameter</source>
@@ -10044,7 +10044,7 @@ Thank you for watching</source>
     </message>
     <message>
         <source>Disconnect: cut the link and keep the value it showed</source>
-        <translation>Від'єднати: розірвати зв'язок і зберегти показане значення</translation>
+        <translation>Від&apos;єднати: розірвати зв&apos;язок і зберегти показане значення</translation>
     </message>
     <message>
         <source>Remove this modifier</source>
@@ -10076,7 +10076,91 @@ Thank you for watching</source>
     </message>
     <message>
         <source>Connected To</source>
-        <translation>З'єднано з</translation>
+        <translation>З&apos;єднано з</translation>
+    </message>
+    <message>
+        <source>Macro</source>
+        <translation>Макрос</translation>
+    </message>
+    <message>
+        <source>Group</source>
+        <translation>Група</translation>
+    </message>
+    <message>
+        <source>Instance</source>
+        <translation>Екземпляр</translation>
+    </message>
+    <message>
+        <source>%1 node(s) inside</source>
+        <translation>Вузлів усередині: %1</translation>
+    </message>
+    <message>
+        <source>The nodes in this group. Select the group and use Collapse Group or double-click to show or hide them.</source>
+        <translation>Вузли цієї групи. Виберіть групу й скористайтеся «Згорнути групу» або подвійним клацанням, щоб показати чи сховати їх.</translation>
+    </message>
+    <message>
+        <source>Members</source>
+        <translation>Склад</translation>
+    </message>
+    <message>
+        <source>Edit Controls...</source>
+        <translation>Змінити елементи керування...</translation>
+    </message>
+    <message>
+        <source>Make Macro...</source>
+        <translation>Створити макрос...</translation>
+    </message>
+    <message>
+        <source>Chooses which parameters of the nodes inside the group the macro shows as controls</source>
+        <translation>Обирає, які параметри вузлів групи макрос показує як елементи керування</translation>
+    </message>
+    <message>
+        <source>Save as Title...</source>
+        <translation>Зберегти як титр...</translation>
+    </message>
+    <message>
+        <source>Saves the group as a title in the Effects Library</source>
+        <translation>Зберігає групу як титр у бібліотеці ефектів</translation>
+    </message>
+    <message>
+        <source>Ungroup</source>
+        <translation>Розгрупувати</translation>
+    </message>
+    <message>
+        <source>Takes the nodes out of the group</source>
+        <translation>Виводить вузли з групи</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>Видалити</translation>
+    </message>
+    <message>
+        <source>Takes this control off the macro; the parameter inside keeps its value</source>
+        <translation>Прибирає цей елемент із макросу; внутрішній параметр зберігає значення</translation>
+    </message>
+    <message>
+        <source>Settings of %1</source>
+        <translation>Налаштування %1</translation>
+    </message>
+    <message>
+        <source>(the original is missing)</source>
+        <translation>(оригінал відсутній)</translation>
+    </message>
+    <message>
+        <source>This node shows the settings of its original: change them there</source>
+        <translation>Цей вузол показує налаштування оригіналу: змінюйте їх там</translation>
+    </message>
+    <message>
+        <source>Instance of</source>
+        <translation>Екземпляр від</translation>
+    </message>
+    <message>
+        <source>Make Independent</source>
+        <translation>Зробити незалежним</translation>
+    </message>
+    <message>
+        <source>Cuts the instance loose: it keeps a copy of the settings and has its own from now on</source>
+        <translation>Від'єднує екземпляр: він зберігає копію налаштувань і далі має власні</translation>
     </message>
 </context>
 <context>
@@ -10096,6 +10180,54 @@ Thank you for watching</source>
     <message>
         <source>Change MediaIn Source</source>
         <translation>Змінити джерело MediaIn</translation>
+    </message>
+    <message>
+        <source>Group</source>
+        <translation>Група</translation>
+    </message>
+    <message>
+        <source>Ungroup</source>
+        <translation>Розгрупувати</translation>
+    </message>
+    <message>
+        <source>Collapse Group</source>
+        <translation>Згорнути групу</translation>
+    </message>
+    <message>
+        <source>Expand Group</source>
+        <translation>Розгорнути групу</translation>
+    </message>
+    <message>
+        <source>Make Macro</source>
+        <translation>Створити макрос</translation>
+    </message>
+    <message>
+        <source>Remove Macro Control</source>
+        <translation>Видалити елемент макросу</translation>
+    </message>
+    <message>
+        <source>Select a group or a macro</source>
+        <translation>Виберіть групу або макрос</translation>
+    </message>
+    <message>
+        <source>Insert Macro</source>
+        <translation>Вставити макрос</translation>
+    </message>
+    <message>
+        <source>Create Instance</source>
+        <translation>Створити екземпляр</translation>
+    </message>
+    <message>
+        <source>Make Independent</source>
+        <translation>Зробити незалежним</translation>
+    </message>
+    <message>
+        <source>Add Underlay</source>
+        <translation>Додати підложку</translation>
+    </message>
+    <message>
+        <source>Underlay</source>
+        <translation>Підложка</translation>
     </message>
     <message>
         <source>Modify With %1</source>
@@ -10456,6 +10588,14 @@ Thank you for watching</source>
     <message>
         <source>The node graph of the open clip: select, move, connect and edit nodes.</source>
         <translation>Граф нод відкритого кліпу: вибирайте, переміщуйте, з’єднуйте й редагуйте ноди.</translation>
+    </message>
+    <message>
+        <source>Save Macro as Title</source>
+        <translation>Зберегти макрос як титр</translation>
+    </message>
+    <message>
+        <source>Name of the title in the Effects Library</source>
+        <translation>Назва титру в бібліотеці ефектів</translation>
     </message>
     <message>
         <source>Add %1 after the selected node</source>
@@ -15403,6 +15543,26 @@ Thank you for watching</source>
         <translation>Показувати запис під вказівником, застосований до кадру у вікні перегляду таймлайну</translation>
     </message>
     <message>
+        <source>Macros</source>
+        <translation>Макроси</translation>
+    </message>
+    <message>
+        <source>Macros saved from the Compositing page</source>
+        <translation>Макроси, збережені зі сторінки композитингу</translation>
+    </message>
+    <message>
+        <source>A macro saved as a title. Double-click adds it to the timeline at the playhead.</source>
+        <translation>Макрос, збережений як титр. Подвійне клацання додає його на таймлайн у позиції курсора.</translation>
+    </message>
+    <message>
+        <source>Delete Macro</source>
+        <translation>Видалити макрос</translation>
+    </message>
+    <message>
+        <source>Deletes the saved macro file; titles already on the timeline are not changed</source>
+        <translation>Видаляє збережений файл макросу; титри, що вже лежать на таймлайні, не змінюються</translation>
+    </message>
+    <message>
         <source>Add to Selected Edit Point</source>
         <translation>Додати до вибраної точки монтажу</translation>
     </message>
@@ -18120,6 +18280,29 @@ You can also double-click the header, or drag the header out of the panel.</sour
     <message>
         <source>%1 (Read-Only)</source>
         <translation>%1 (лише читання)</translation>
+    </message>
+</context>
+<context>
+    <name>kk::MakeMacroDialog</name>
+    <message>
+        <source>Make Macro</source>
+        <translation>Створити макрос</translation>
+    </message>
+    <message>
+        <source>Name of the macro</source>
+        <translation>Назва макросу</translation>
+    </message>
+    <message>
+        <source>The macro&apos;s name. It is also the name of the title when you save it to the Effects Library.</source>
+        <translation>Назва макросу. Це ж назва титру під час збереження в бібліотеку ефектів.</translation>
+    </message>
+    <message>
+        <source>Controls: tick the parameters the macro shows</source>
+        <translation>Елементи керування: позначте параметри, які показує макрос</translation>
+    </message>
+    <message>
+        <source>Every ticked parameter becomes a control on the macro; the parameter inside follows it. Published parameters are ticked for you.</source>
+        <translation>Кожен позначений параметр стає елементом макросу; внутрішній параметр слідує за ним. Опубліковані параметри вже позначені.</translation>
     </message>
 </context>
 <context>
@@ -21275,6 +21458,90 @@ Import files with %1 or drop them here.</source>
         <translation>Додати ноду</translation>
     </message>
     <message>
+        <source>Add Underlay</source>
+        <translation>Додати підложку</translation>
+    </message>
+    <message>
+        <source>A box behind nodes: the nodes on it move with it</source>
+        <translation>Рамка позаду вузлів: вузли на ній рухаються разом із нею</translation>
+    </message>
+    <message>
+        <source>Insert Macro</source>
+        <translation>Вставити макрос</translation>
+    </message>
+    <message>
+        <source>Expand Group</source>
+        <translation>Розгорнути групу</translation>
+    </message>
+    <message>
+        <source>Collapse Group</source>
+        <translation>Згорнути групу</translation>
+    </message>
+    <message>
+        <source>Shows the nodes inside the group, or hides them behind one tile (double-click does the same)</source>
+        <translation>Показує вузли групи або ховає їх за однією плиткою (подвійне клацання робить те саме)</translation>
+    </message>
+    <message>
+        <source>Ungroup	Ctrl+Shift+G</source>
+        <translation>Розгрупувати	Ctrl+Shift+G</translation>
+    </message>
+    <message>
+        <source>Takes the nodes out of the group</source>
+        <translation>Виводить вузли з групи</translation>
+    </message>
+    <message>
+        <source>Edit Macro Controls...</source>
+        <translation>Змінити елементи макросу...</translation>
+    </message>
+    <message>
+        <source>Make Macro...</source>
+        <translation>Створити макрос...</translation>
+    </message>
+    <message>
+        <source>Chooses which parameters of the nodes inside the group the macro shows as its own controls</source>
+        <translation>Обирає, які параметри вузлів групи макрос показує як власні елементи</translation>
+    </message>
+    <message>
+        <source>Save Macro as Title...</source>
+        <translation>Зберегти макрос як титр...</translation>
+    </message>
+    <message>
+        <source>Saves the group as a title in the Effects Library, to use on any clip</source>
+        <translation>Зберігає групу як титр у бібліотеці ефектів для використання на будь-якому кліпі</translation>
+    </message>
+    <message>
+        <source>Group	Ctrl+G</source>
+        <translation>Згрупувати	Ctrl+G</translation>
+    </message>
+    <message>
+        <source>Puts the selected nodes in a group</source>
+        <translation>Поміщає вибрані вузли в групу</translation>
+    </message>
+    <message>
+        <source>Create Instance</source>
+        <translation>Створити екземпляр</translation>
+    </message>
+    <message>
+        <source>A copy that shares this node&apos;s settings: change the original and the copy follows</source>
+        <translation>Копія зі спільними налаштуваннями цього вузла: змініть оригінал, і копія піде за ним</translation>
+    </message>
+    <message>
+        <source>Make Independent</source>
+        <translation>Зробити незалежним</translation>
+    </message>
+    <message>
+        <source>Cuts the instance loose: it keeps a copy of the settings and has its own from now on</source>
+        <translation>Від'єднує екземпляр: він зберігає копію налаштувань і далі має власні</translation>
+    </message>
+    <message>
+        <source>Underlay Around Selection</source>
+        <translation>Підложка навколо виділеного</translation>
+    </message>
+    <message>
+        <source>A box behind the selected nodes: they move with it</source>
+        <translation>Рамка позаду вибраних вузлів: вони рухаються разом із нею</translation>
+    </message>
+    <message>
         <source>Replace With</source>
         <translation>Замінити на</translation>
     </message>
@@ -21321,6 +21588,18 @@ Import files with %1 or drop them here.</source>
     <message>
         <source>Select a clip on the Edit page</source>
         <translation>Виберіть кліп на сторінці Монтаж</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <translation>%1 (%2)</translation>
+    </message>
+    <message>
+        <source>%1 (Macro)</source>
+        <translation>%1 (макрос)</translation>
+    </message>
+    <message>
+        <source>Underlay</source>
+        <translation>Підложка</translation>
     </message>
     <message>
         <source>Note</source>
@@ -21635,6 +21914,14 @@ Import files with %1 or drop them here.</source>
     <message>
         <source> X</source>
         <translation> X</translation>
+    </message>
+    <message>
+        <source>Group</source>
+        <translation>Група</translation>
+    </message>
+    <message>
+        <source>Holds other nodes together: a frame around them, or one tile; with controls it is a Macro</source>
+        <translation>Об'єднує інші вузли: рамка навколо них або одна плитка; з елементами керування це макрос</translation>
     </message>
     <message>
         <source>Patterns</source>
@@ -31305,7 +31592,7 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
     </message>
     <message>
         <source>Reads the value this many frames later (negative: earlier)</source>
-        <translation>Читає значення на стільки кадрів пізніше (від'ємне: раніше)</translation>
+        <translation>Читає значення на стільки кадрів пізніше (від&apos;ємне: раніше)</translation>
     </message>
     <message>
         <source>Number In 1</source>
@@ -31405,7 +31692,7 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
     </message>
     <message>
         <source>Connect To</source>
-        <translation>З'єднати з</translation>
+        <translation>З&apos;єднати з</translation>
     </message>
     <message>
         <source>Publish</source>
@@ -31441,7 +31728,7 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
     </message>
     <message>
         <source>Offers the parameter in the Connect To lists and on a Macro.</source>
-        <translation>Пропонує параметр у списках «З'єднати з» і в макросі.</translation>
+        <translation>Пропонує параметр у списках «З&apos;єднати з» і в макросі.</translation>
     </message>
 </context>
 <context>

@@ -4,6 +4,7 @@
 // a DropPlan; the same plan drives the ghost preview while dragging and the edit on drop, so
 // what the user sees is exactly what they get.
 #include "core/EffectRegistry.h"
+#include "core/MacroFiles.h"
 #include "core/MediaPool.h"
 #include "core/Project.h"
 #include "core/SelectionModel.h"
@@ -267,11 +268,12 @@ TimelineWidget::DropPlan TimelineWidget::planDrop(
         return plan;
     const QString effectId = QString::fromUtf8(mime->data(QLatin1String(mime::Effect))).trimmed();
     const EffectDescriptor* desc = EffectRegistry::instance().find(effectId);
-    if (!desc)
+    const bool macroTitle = effectId.startsWith(macrofiles::kIdPrefix); // a saved macro (spec 120)
+    if (!desc && !macroTitle)
         return plan;
     plan.effectId = effectId;
 
-    switch (desc->category) {
+    switch (macroTitle ? EffectCategory::Title : desc->category) {
     case EffectCategory::Generator:
     case EffectCategory::Title:
     case EffectCategory::Effects: {

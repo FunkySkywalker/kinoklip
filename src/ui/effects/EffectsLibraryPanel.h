@@ -8,6 +8,7 @@
 #include <functional>
 
 class QAction;
+class QFileSystemWatcher;
 class QLineEdit;
 class QMenu;
 class QTreeWidget;
@@ -89,7 +90,13 @@ protected:
     bool eventFilter(QObject* watched, QEvent* event) override;
     void hideEvent(QHideEvent* event) override;
 
+public:
+    /// Rebuilds the saved macros under Titles (spec 120): one entry per file of
+    /// macrofiles::directory(), id "macro:<file>". Called when the folder changes.
+    void refreshMacros();
+
 private:
+    QFileSystemWatcher* m_macroWatcher = nullptr;
     void populate();
     /// Bolds the project's standard video and audio transition (Set as Standard Transition).
     void markStandardTransitions();

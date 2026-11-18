@@ -27,6 +27,18 @@ struct NodeLink
 
 /// One node of a composition. `type` is a NodeRegistry descriptor id ("media_in", "merge",
 /// "transform", or "fx:<EffectRegistry id>" for every Edit page video effect used as a node).
+/// A control a Macro shows (spec 120): a number on the macro node (ParamSet key @p key) to which
+/// parameter @p paramKey of the member node @p node is connected.
+struct MacroControl
+{
+    QString key; ///< key of the number in the macro node's ParamSet ("c1", "c2", ...)
+    QString label; ///< what the Inspector shows
+    quint64 node = 0; ///< the member node whose parameter it drives
+    QString paramKey; ///< that parameter
+
+    friend bool operator==(const MacroControl&, const MacroControl&) = default;
+};
+
 struct CompNode
 {
     quint64 id = 0; ///< unique within the composition (Composition::allocateId())
@@ -48,6 +60,17 @@ struct CompNode
     /// keyframes in comp frames). Points are mask-local frame pixels (timeline pixels, origin
     /// at the node's centre, y down), like MaskData::path.
     AnimatedPath path;
+    /// Group / Macro (spec 120): the Group node this node is inside (0 = top level). The graph
+    /// stays flat; a group only decides what the node editor draws and what moves together.
+    quint64 group = 0;
+    /// Group node only: draw it as one tile and hide its members.
+    bool collapsed = false;
+    /// Group node only: it is a Macro (it has controls).
+    bool macro = false;
+    /// Macro node only: its published controls (numbers in params under MacroControl::key).
+    QVector<MacroControl> controls;
+    /// Instance (spec 120): the node whose parameters this node uses (0 = an ordinary node).
+    quint64 instanceOf = 0;
 
     friend bool operator==(const CompNode&, const CompNode&) = default;
 };
@@ -60,6 +83,8 @@ struct CompNote
     QSizeF size;
     QString text;
     QColor color;
+    /// An Underlay (spec 120): drawn behind the nodes it covers, which move with it.
+    bool underlay = false;
 
     friend bool operator==(const CompNote&, const CompNote&) = default;
 };

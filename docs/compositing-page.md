@@ -231,6 +231,31 @@ Edit page Inspector is untouched. The Modifiers sections are built from `modifie
 the Inspector rebuilds when the set of modifiers changes. `CompSession::addModifier()` is the one command behind the menu
 and the Modifiers folder of the Nodes library.
 
+## Groups, macros, instances and underlays (1.11, spec 120)
+
+A Group is a container, not a sub-graph: `CompNode::group` says which Group node a node is in, `collapsed` says whether
+the editor draws the group as one tile. Evaluation never looks at it (the Group node has no ports and nothing reads it),
+so rendering, links and undo are unchanged and a grouped composition renders exactly like the ungrouped one. The editor
+decides everything else: `compgroups::hiddenBy()` is the outermost collapsed group of a node, `NodeEditor::tileRect()`
+gives a hidden node its group's tile (so links end there), `hitTest()` and box select skip hidden nodes, and
+`CompSession::moveSelection()` moves `compgroups::withMembers()` (and the nodes on a selected Underlay).
+`compops::copyNodes()` / `pasteNodes()` / `removeNodes()` know about groups (members copied with the group, `group`
+remapped, members freed when the group is deleted).
+
+A Macro is a Group whose `controls` (`MacroControl`: key, label, member node, parameter) are numbers on the macro node
+(`ParamSet` keys "c1", "c2", ...); `compgroups::makeMacro()` connects the inner parameter to the control with a Connect To
+modifier, so everything in spec 119 (keyframes on the control, formulas, resolving per frame) applies, and a control
+needs no renderer support. `complinks::connectParam()` and `findReference()` accept macro controls although they have no
+node descriptor; the Inspector builds their rows from `compgroups::controlDescriptors()` (the inner descriptor under the
+control's key and label). A macro saved as a title is `macrofiles::MacroFile` (the group node first, then its members; ids
+inside the file are kept and remapped by `compops::pasteNodes()` on insert); `titleComposition()` builds the default
+composition with the macro inserted and its output node connected to MediaOut, and `effectactions::makeGeneratorClip()` turns
+a "macro:<name>" id of the Effects Library into a transparent Solid clip with that composition.
+
+An Instance has `instanceOf`; `compgroups::applyInstances()` (called first by `complinks::resolved()`, and `hasLinks()` is true
+when an instance exists) copies the original's params, path and media into it on the render copy. An Underlay is a `CompNote`
+with `underlay` set; the editor draws it first and hit-tests only its title strip.
+
 ## Motion Blur (1.7, spec 94)
 
 Common Controls of Merge and Transform only (`NodeRegistry::commonControls()`): `ccMotionBlur`

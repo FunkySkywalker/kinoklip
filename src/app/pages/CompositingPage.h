@@ -98,6 +98,12 @@ private:
     void setNodeCommandsEnabled(bool enabled);
     /// Opens the "Select Node" popup over the node editor.
     void showSelectNode();
+    /// "Make Macro..." (spec 120): opens the controls dialog for group @p group; Ok makes the
+    /// macro (one undo step). The dialog does not block: it is a child named "MakeMacroDialog".
+    void makeMacro(quint64 group);
+    /// "Save Macro as Title...": asks for the title's name (a child QInputDialog named
+    /// "SaveMacroDialog"), writes the macro file; the Effects Library lists it at once.
+    void saveMacro(quint64 group);
 
     AppContext& m_ctx;
     CompSession* m_session = nullptr;
