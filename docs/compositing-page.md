@@ -82,7 +82,7 @@ general knowledge of node compositors, our own drawing, names and icons; never R
 - **Color**: Color Corrector (the Color Balance / Levels / Saturation set in one node),
   Channel Booleans (copy / swap channels, alpha from luma).
 - **Tracking**: Tracker (point tracker, see "Tracker" below), Planar Tracker.
-- Later: B-spline / paint, particles, 3D, expressions, modifiers.
+- Later: paint, particles, 3D (the older lines of the roadmap, from the Spline panel to the node editor extras, are all made: spec 123).
 
 ## Data model and evaluation
 - `src/core/Composition.h`: value types (Composition, CompNode, NodeLink, CompNote). A clip
