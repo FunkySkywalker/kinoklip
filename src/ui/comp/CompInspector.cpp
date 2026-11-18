@@ -2,6 +2,7 @@
 // CompInspector implementation: the stand-in clip, the header and the edit protocol.
 #include "ui/comp/CompInspector.h"
 
+#include "compositing/tracking/TrackFollow.h"
 #include "compositing/tracking/TrackLink.h"
 #include "core/MediaPool.h"
 #include "core/NodeRegistry.h"
@@ -153,6 +154,7 @@ void CompInspector::rebuild()
         m_soundOffset = nullptr;
         m_follow = nullptr;
         m_followButton = nullptr;
+        m_followPosition = m_followSize = m_followAngle = m_followPoints = nullptr;
         if (n) {
             const compadapter::NodeTypeInfo* info = compadapter::nodeType(n->type);
             m_group = new ParamGroupBox(info ? info->name : n->type);
@@ -283,6 +285,40 @@ void CompInspector::rebuild()
                                               "the track's movement"));
                 h->addWidget(m_followButton);
                 l->addWidget(row);
+                // What the node takes from the track: its position, and where it has them its
+                // size, angle and (path shapes) the points of the shape.
+                auto* what = new QWidget;
+                auto* wh = new QHBoxLayout(what);
+                wh->setContentsMargins(
+                    metrics::kSpaceM, 0, metrics::kSpaceM, metrics::kSpaceS);
+                const auto tick = [&](const QString& name, const QString& text, const QString& tip,
+                                      bool on) {
+                    auto* box = new QCheckBox(text);
+                    box->setObjectName(name);
+                    box->setToolTip(tip);
+                    box->setChecked(on);
+                    wh->addWidget(box);
+                    return box;
+                };
+                m_followPosition = tick(QStringLiteral("CompFollowPosition"), tr("Position"),
+                    tr("Follow the position of the track"), true);
+                if (tracking::canFollowSize(*n))
+                    m_followSize = tick(QStringLiteral("CompFollowSize"), tr("Size"),
+                        tr("Follow the scale of the track (a Planar Tracker, or a Tracker with "
+                           "two or more patterns)"),
+                        false);
+                if (tracking::canFollowAngle(*n))
+                    m_followAngle = tick(QStringLiteral("CompFollowAngle"), tr("Angle"),
+                        tr("Follow the rotation of the track (a Planar Tracker, or a Tracker with "
+                           "two or more patterns)"),
+                        false);
+                if (tracking::hasPathPoints(*n))
+                    m_followPoints = tick(QStringLiteral("CompFollowPoints"), tr("Points"),
+                        tr("Move the points of the shape (shape keyframes) and leave the node's "
+                           "own Center, Size and Angle alone"),
+                        false);
+                wh->addStretch(1);
+                l->addWidget(what);
                 connect(m_followButton, &QToolButton::clicked, this, [this] {
                     if (!m_session || !m_follow || m_follow->currentData().isNull())
                         return;
@@ -290,11 +326,18 @@ void CompInspector::rebuild()
                     const quint64 source = m_follow->currentData().toULongLong();
                     const int64_t frame = m_session->compFrame();
                     const CompNode* from = m_session->composition().node(source);
+                    tracking::FollowOptions o;
+                    o.position = !m_followPosition || m_followPosition->isChecked();
+                    o.size = m_followSize && m_followSize->isChecked();
+                    o.angle = m_followAngle && m_followAngle->isChecked();
+                    o.points = m_followPoints && m_followPoints->isChecked();
+                    const QSize frameSize = m_session->frameSize();
                     m_session->edit(tr("Connect to %1").arg(from ? from->name : QString()),
-                        [target, source, frame](Composition& c) {
+                        [=](Composition& c) {
                             CompNode* t = c.node(target);
                             const CompNode* s = c.node(source);
-                            return t && s && tracking::linkToTrack(*t, *s, frame);
+                            return t && s
+                                && tracking::followTrack(*t, *s, frame, QSizeF(frameSize), o);
                         });
                 });
             }

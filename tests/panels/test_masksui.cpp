@@ -5,7 +5,10 @@
 // (docs/behavior-spec.md section 27).
 #include "PanelTestUtils.h"
 #include "app/Theme.h"
+#include "core/EffectTrack.h"
 #include "core/KeyframeOps.h"
+#include "core/MatchMove.h"
+#include "core/VideoEffectKeys.h"
 #include "core/Mask.h"
 #include "core/ParamKeys.h"
 #include "core/Timeline.h"
@@ -164,6 +167,56 @@ private slots:
             QStringLiteral("keyframe:mask-shape:%1").arg(bezierId)));
         QCOMPARE(f.selection.activeMask(), bezierId);
         saveScreenshot(panel, QStringLiteral("inspector-masks"));
+    }
+
+    void inspectorFollowsMatchMove()
+    {
+        // Spec 117.6: the mask group follows a tracked Match Move effect of the clip.
+        PanelFixture f;
+        const quint64 id = f.addClip(kV1, 0, 100, ClipKind::Solid);
+        TimelineData& tl = f.project.timeline()->mutableData();
+        ClipData* clip = &tl.videoTracks[0].clips[0];
+        EffectInstance fx;
+        fx.id = tl.allocateId();
+        fx.type = QLatin1String(fxid::MatchMove);
+        std::vector<double> seconds;
+        std::vector<float> values;
+        for (int fr = 0; fr < 100; ++fr) {
+            seconds.push_back(double(fr) / 25.0);
+            values.push_back(float(0.4 + 0.002 * fr));
+            values.push_back(0.5f);
+        }
+        const efftrack::Table table(
+            matchmove::signature(fx.params), 0.0, matchmove::kPointStride, seconds, values);
+        fx.params.setStatic(fxkeys::TrackData, efftrack::encode(table));
+        clip->effects.push_back(fx);
+        InspectorPanel panel(f.ctx);
+        panel.resize(380, 900);
+        f.selection.selectClip(id);
+        panel.findChild<QToolButton*>(QStringLiteral("add-mask:ellipse"))->click();
+        const quint64 maskId = f.clip(id)->masks[0].id;
+        auto* pick = panel.findChild<QComboBox*>(QStringLiteral("mask-track:%1").arg(maskId));
+        auto* apply
+            = panel.findChild<QToolButton*>(QStringLiteral("mask-track-apply:%1").arg(maskId));
+        QVERIFY(pick && apply);
+        QCOMPARE(pick->count(), 1);
+        QVERIFY(!panel.findChild<QCheckBox*>(QStringLiteral("mask-track-points:%1").arg(maskId)));
+        QVERIFY(!pick->toolTip().isEmpty() && !apply->toolTip().isEmpty());
+        const int before = f.project.undoStack()->count();
+        const double x0 = f.clip(id)->masks[0].value(maskkeys::PosX, 0);
+        apply->click();
+        QCOMPARE(f.project.undoStack()->count(), before + 1);
+        const MaskData& m = f.clip(id)->masks[0];
+        QVERIFY(m.params.values.value(maskkeys::PosX).isAnimated());
+        QVERIFY(std::abs(m.value(maskkeys::PosX, 0) - x0) < 1e-3);
+        // 0.002 of the 1920 px width per frame.
+        QVERIFY(std::abs(m.value(maskkeys::PosX, 50) - (x0 + 50 * 0.002 * 1920)) < 0.5);
+        f.project.undoStack()->undo();
+        QVERIFY(!f.clip(id)->masks[0].params.values.value(maskkeys::PosX).isAnimated());
+        // A polygon mask also offers Points.
+        panel.findChild<QToolButton*>(QStringLiteral("add-mask:polygon"))->click();
+        const quint64 polyId = f.clip(id)->masks.back().id;
+        QVERIFY(panel.findChild<QCheckBox*>(QStringLiteral("mask-track-points:%1").arg(polyId)));
     }
 
     void inspectorEditsMasks()

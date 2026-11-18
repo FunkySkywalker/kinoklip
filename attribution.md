@@ -95,6 +95,14 @@ tangent with its baseline on the curve; frame layout wraps greedily at the frame
 text-on-path layout; Glaxnimate's text-on-path (GPL-3.0-or-later) was read for how glyphs follow a curve. No code
 was copied. The control list follows the Text+ tool of the public Fusion reference manual.
 
+### Bezier mask, Roto Assist and mask tracking (Compositing page)
+`src/compositing/RotoAssist.*` (Sobel edge snapping), `src/compositing/tracking/TrackFollow.*` (a track's move, turn
+and scale applied to a node's keys or the points of a shape; reuses `matchmove::motionBetween()`). The feature set
+(smooth and corner points, inserting a point on the curve, a mask that follows a tracker, snapping roto points to
+edges) is common to Blender's mask editor and Natron's Roto (both GPL-2.0-or-later); their public documentation could
+not be read in full while writing this, and no code was taken from either. The Bezier point maths reuses the Edit
+page mask code (`core/Mask.*`).
+
 ### Keyframe loops
 The extrapolation modes of animated values (`src/core/Animation.cpp`, `AnimatedValue::extrapolatedValue()`)
 follow the documented behaviour of Blender's F-Curve Cycles modifier (GPL-2.0-or-later: Repeat Motion, Repeat

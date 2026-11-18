@@ -1081,6 +1081,61 @@ private slots:
         QVERIFY(overlay->handlePos(CompViewerOverlay::Handle::Centre));
     }
 
+    void followTrackRowOffersSizeAngleAndPoints()
+    {
+        // Spec 117.4: the Follow Track row has Position / Size / Angle / Points as the node allows.
+        Fixture f;
+        f.project.timeline()->setPlayhead(20);
+        f.showPage();
+        const quint64 in = f.nodeNamed(QStringLiteral("MediaIn1"));
+        f.session()->setSelection({in});
+        f.session()->addNode(nodetypes::PlanarTracker);
+        const quint64 pt = f.nodeOfType(nodetypes::PlanarTracker);
+        f.session()->setSelection({in});
+        f.session()->addNode(nodetypes::PolygonMask);
+        const quint64 poly = f.nodeOfType(nodetypes::PolygonMask);
+        const int64_t frame = f.session()->compFrame();
+        f.session()->edit(QStringLiteral("Track"), [&](Composition& c) {
+            // A plane that turns 30 degrees counter-clockwise and grows by half over 10 frames.
+            for (int i = 0; i <= 10; ++i) {
+                const double a = 30.0 * i / 10 * M_PI / 180.0, s = 1.0 + 0.05 * i;
+                const double xs[4] = {-1, 1, 1, -1}, ys[4] = {1, 1, -1, -1};
+                for (int k = 0; k < 4; ++k) {
+                    // A square of 200 px turned on the picture (not in normalised units).
+                    const double x = 100 * s * (xs[k] * std::cos(a) - ys[k] * std::sin(a))
+                        / f.session()->frameSize().width();
+                    const double y = 100 * s * (xs[k] * std::sin(a) + ys[k] * std::cos(a))
+                        / f.session()->frameSize().height();
+                    c.node(pt)->params.animated(nodekeys::planarCorner(k, false), 0.5)
+                        .setKey(frame + i, 0.5 + x, Interp::Linear);
+                    c.node(pt)->params.animated(nodekeys::planarCorner(k, true), 0.5)
+                        .setKey(frame + i, 0.5 + y, Interp::Linear);
+                }
+            }
+            return true;
+        });
+        f.session()->setSelection({poly});
+        CompInspector* inspector = f.page()->inspector();
+        QVERIFY(inspector->followPicker() && inspector->followButton());
+        QVERIFY(inspector->followPosition() && inspector->followPosition()->isChecked());
+        QVERIFY(inspector->followSize() && inspector->followAngle() && inspector->followPoints());
+        QVERIFY(!inspector->followSize()->toolTip().isEmpty());
+        inspector->followSize()->setChecked(true);
+        inspector->followAngle()->setChecked(true);
+        const int before = f.steps();
+        inspector->followButton()->click();
+        QCOMPARE(f.steps(), before + 1);
+        const ParamSet& p = f.comp().node(poly)->params;
+        QVERIFY(std::abs(p.value(nodekeys::Size, frame + 10, 0) - 1.5) < 0.02);
+        QVERIFY(std::abs(p.value(nodekeys::Angle, frame + 10, 0) - 30.0) < 0.5);
+        // A Merge has no points; a Text without the Path layout neither.
+        f.session()->setSelection({in});
+        f.session()->addNode(nodetypes::Text);
+        f.session()->setSelection({f.nodeOfType(nodetypes::Text)});
+        QVERIFY(inspector->followPicker());
+        QVERIFY(!inspector->followPoints() && !inspector->followSize() && inspector->followAngle());
+    }
+
     void pointFollowerFromTheViewerMenu()
     {
         // Spec 117.5: a point of a Bezier mask follows a track from the viewer.

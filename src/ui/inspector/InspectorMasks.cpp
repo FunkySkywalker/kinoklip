@@ -2,7 +2,11 @@
 // InspectorMasks — the Masks section of the Inspector's Video tab: add buttons per shape type,
 // one group per mask (enable, on-screen edit, reorder, delete, keyframe diamonds, the
 // "builtin.mask" descriptor rows and the shape keyframe row). Part of InspectorPanel.
+#include "compositing/tracking/TrackFollow.h"
 #include "core/EditOps.h"
+#include "core/EffectTrack.h"
+#include "core/MatchMove.h"
+#include "core/VideoEffectKeys.h"
 #include "core/KeyframeOps.h"
 #include "core/Plural.h"
 #include "core/Project.h"
@@ -16,6 +20,7 @@
 #include "ui/inspector/ParamRows.h"
 
 #include <QCheckBox>
+#include <QComboBox>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QToolButton>
@@ -196,6 +201,83 @@ void InspectorPanel::buildMasksSection(const ClipData& c)
                             frame);
                     });
             });
+        }
+
+        // The Mask Tracker: the mask follows the track of one of the clip's Match Move effects
+        // (made with that effect's Track buttons) with its position, size and angle, or its points.
+        {
+            auto* picker = new QComboBox;
+            picker->setObjectName(QStringLiteral("mask-track:%1").arg(maskId));
+            picker->setToolTip(tr("A Match Move effect of this clip that has been tracked"));
+            int number = 0;
+            for (const EffectInstance& fx : c.effects) {
+                if (fx.type != QLatin1String(fxid::MatchMove))
+                    continue;
+                ++number;
+                if (matchmove::isActive(fx))
+                    picker->addItem(tr("Match Move %1").arg(number), qulonglong(fx.id));
+            }
+            if (picker->count() > 0) {
+                auto* row = new QWidget;
+                auto* rowLayout = new QHBoxLayout(row);
+                rowLayout->setContentsMargins(0, 0, 0, 0);
+                rowLayout->addWidget(picker, 1);
+                const auto tick = [&](const QString& name, const QString& text, const QString& tip,
+                                      bool on) {
+                    auto* box = new QCheckBox(text, row);
+                    box->setObjectName(name.arg(maskId));
+                    box->setToolTip(tip);
+                    box->setChecked(on);
+                    rowLayout->addWidget(box);
+                    return box;
+                };
+                QCheckBox* pos = tick(QStringLiteral("mask-track-position:%1"), tr("Position"),
+                    tr("Follow the position of the track"), true);
+                QCheckBox* size = tick(QStringLiteral("mask-track-size:%1"), tr("Size"),
+                    tr("Follow the scale of the track (a region track)"), false);
+                QCheckBox* angle = tick(QStringLiteral("mask-track-angle:%1"), tr("Angle"),
+                    tr("Follow the rotation of the track (a region track)"), false);
+                QCheckBox* points = nullptr;
+                if (mask.isPathShape())
+                    points = tick(QStringLiteral("mask-track-points:%1"), tr("Points"),
+                        tr("Move the points of the shape (shape keyframes) and leave the mask's "
+                           "own position, size and angle alone"),
+                        false);
+                auto* go = new QToolButton(row);
+                go->setObjectName(QStringLiteral("mask-track-apply:%1").arg(maskId));
+                go->setText(tr("Track Mask"));
+                go->setToolTip(tr("Copy the track into keyframes of this mask, keeping its place "
+                                  "at the playhead and following the track's movement"));
+                rowLayout->addWidget(go);
+                group->addWidgetRow(tr("Follow Track"), row);
+                connect(go, &QToolButton::clicked, this,
+                    [this, clipId, maskId, picker, pos, size, angle, points] {
+                        const ClipData* cd = clip(clipId);
+                        if (!cd || picker->currentData().isNull())
+                            return;
+                        const quint64 effectId = picker->currentData().toULongLong();
+                        tracking::FollowOptions o;
+                        o.position = pos->isChecked();
+                        o.size = size->isChecked();
+                        o.angle = angle->isChecked();
+                        o.points = points && points->isChecked();
+                        const int64_t frame = localFrame(clipId);
+                        const TimelineData& tl = m_ctx.project->timeline()->data();
+                        const QSizeF frameSize(tl.width, tl.height);
+                        const Rational fps = tl.fps;
+                        editClip(tr("Track Mask"), clipId, [=](ClipData& target) {
+                            MaskData* m = paramaccess::mask(target, maskId);
+                            const EffectInstance* fx = nullptr;
+                            for (const EffectInstance& e : target.effects) {
+                                if (e.id == effectId)
+                                    fx = &e;
+                            }
+                            if (m && fx)
+                                tracking::followMatchMove(
+                                    *m, target, *fx, frame, frameSize, fps, o);
+                        });
+                    });
+            }
         }
 
         group->setHeaderRefresh([this, enable, edit, diamond, shapeInfo, shapeKey, keyed, clipId,

@@ -211,6 +211,14 @@ move looks the same with Motion Blur on or off.
   Refraction say how many pixels a bright map moves them.
 - **Vector Distort** (Warp): like Displace, but the second picture's red and green are a vector (half grey is no
   movement) and Vector Range is how far a full value goes.
+- **Bezier** (Mask): a closed curve for cutting out an object. Drag a point to move it, drag its handles to bend the
+  curve, double-click a point to make it smooth or sharp, double-click the curve to add a point and press **Delete** to
+  remove the selected one. Turn on **Roto Assist** and the points snap to the nearest edge of the picture. Right-click a
+  point and choose **Follow Track** to make that one point follow a Tracker or Planar Tracker.
+- **Make a mask follow a moving object:** track the object with a Tracker or Planar Tracker, select the mask, pick
+  the tracker in **Follow Track** and tick what should follow (**Position**, **Size**, **Angle**, or **Points** to move
+  the points of the shape instead of the mask), then press **Connect**. On the Edit page the same row sits in each
+  mask's group (**Track Mask**) and uses a tracked Match Move effect of the clip.
 - **Corner Positioner** (Transform): drag the four corners in the viewer (or type them) to pin the picture to a
   new quadrilateral in perspective.
 

@@ -59,7 +59,10 @@ general knowledge of node compositors, our own drawing, names and icons; never R
   Write On; spec section 116), Noise / Fast Noise.
 - **Masks**: Rectangle (with Corner Radius), Ellipse, Polygon, B-Spline (points with weights, animated as one
   shape); each with soft edge, invert, level, paint mode, centre / size / angle; masks plug into any node's mask
-  input (the Paint Mode says how a mask joins the one plugged into it). Spec section 92.
+  input (the Paint Mode says how a mask joins the one plugged into it). Spec section 92. **Bezier**: a closed curve with
+  tangent handles on every point, Roto Assist (points snap to picture edges), double-click to add or smooth a point;
+  masks and shapes can follow a track with position, size, angle or their points (Mask Tracker, Point Follower; also
+  on the Edit page through a Match Move effect). Spec section 117, `src/compositing/tracking/TrackFollow.*`.
 - **Matte**: Luma Keyer (channel, low / high, soft range, invert), Delta Keyer (screen colour key with gain,
   balance, pre-matte soft range, clean background / foreground, matte thresholds and despill; pre-matte blur and
   erode, matte blur, erode / dilate, restore fringe, spill method, fringe controls, replace mode, garbage and
@@ -185,7 +188,8 @@ the renderers.
 
 **Not done yet.** Polygon regions (a bounding plane from more than four points), motion
 prediction for very fast movement, per-frame manual correction with re-tracking from the
-corrected frame, a live (re-resolving) link, linking sizes and angles, and tracking of masks.
+corrected frame, and a live (re-resolving) link. Size, angle and shape points can be
+followed (`TrackFollow`, spec 117).
 
 ## Motion Blur (1.7, spec 94)
 

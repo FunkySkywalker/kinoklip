@@ -62,6 +62,12 @@ public:
     /// follow, and the button that connects it (writes the track into its keyframes), else null.
     [[nodiscard]] QComboBox* followPicker() const { return m_follow; }
     [[nodiscard]] QToolButton* followButton() const { return m_followButton; }
+    /// What the connection takes from the track: the checkboxes of the Follow Track row (null when
+    /// the node has no such thing: Size / Angle / Points).
+    [[nodiscard]] QCheckBox* followPosition() const { return m_followPosition; }
+    [[nodiscard]] QCheckBox* followSize() const { return m_followSize; }
+    [[nodiscard]] QCheckBox* followAngle() const { return m_followAngle; }
+    [[nodiscard]] QCheckBox* followPoints() const { return m_followPoints; }
     /// The Tracker controls (a Tracker node must be shown to see them).
     [[nodiscard]] TrackerPanel* trackerPanel() const { return m_tracker; }
     /// The header's enable toggle (tests).
@@ -110,6 +116,10 @@ private:
     QDoubleSpinBox* m_soundOffset = nullptr; ///< soundOffset()
     QComboBox* m_follow = nullptr; ///< followPicker()
     QToolButton* m_followButton = nullptr; ///< followButton()
+    QCheckBox* m_followPosition = nullptr;
+    QCheckBox* m_followSize = nullptr;
+    QCheckBox* m_followAngle = nullptr;
+    QCheckBox* m_followPoints = nullptr;
     QWidget* m_empty = nullptr;
     TrackerPanel* m_tracker = nullptr; ///< owned by the inspector, shown inside the scroll area
     int m_openEdits = 0;
