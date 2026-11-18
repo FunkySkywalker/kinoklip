@@ -5,10 +5,26 @@
 #include "core/Rational.h"
 
 #include <QString>
+#include <QVector>
+
+#include <algorithm>
 
 #include <cstdint>
 
 namespace kk::media {
+
+/// One audio stream of a file (MediaInfo::audioStreams), in file order among the decodable
+/// audio streams. Its position in the list is the "audio track" number used by clips.
+struct AudioStreamInfo
+{
+    QString codec; ///< FFmpeg short codec name
+    int channels = 0;
+    int sampleRate = 0; ///< Hz, as stored
+    QString title; ///< the stream's "title" tag (OBS: track names), or empty
+    QString language; ///< the stream's "language" tag, or empty
+
+    friend bool operator==(const AudioStreamInfo&, const AudioStreamInfo&) = default;
+};
 
 /// Technical description of one media file, as returned by probe() and VideoDecoder::info().
 ///
@@ -30,6 +46,14 @@ struct MediaInfo
     int64_t durationUs = 0; ///< length in microseconds (video stream if any, else audio)
     int audioChannels = 0; ///< channels of the audio stream as stored in the file
     int audioSampleRate = 0; ///< Hz, as stored in the file (decoders always output 48 kHz)
+    /// Every audio stream of the file (the fields above describe the primary one). Empty in
+    /// projects saved before several audio tracks were supported: see audioTrackCount().
+    QVector<AudioStreamInfo> audioStreams;
+    /// Number of audio tracks (streams) the file has: 0 without audio, at least 1 with.
+    [[nodiscard]] int audioTrackCount() const
+    {
+        return hasAudio ? std::max<int>(1, int(audioStreams.size())) : 0;
+    }
     QString videoCodec; ///< FFmpeg short codec name ("h264", "prores", "png", ...)
     QString audioCodec; ///< FFmpeg short codec name ("aac", "mp3", "pcm_s16le", ...)
     QString container; ///< container/format name ("mp4", "mov", "matroska", "png", ...)

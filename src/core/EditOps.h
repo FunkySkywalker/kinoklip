@@ -51,12 +51,17 @@ using TrackFilter = std::function<bool(TrackRef ref, const TrackData& track)>;
 
 // ---- Placing clips ----
 
+
 /// A clip together with its destination track, for multi-track insert/overwrite.
 struct PlacedClip
 {
     TrackRef track;
     ClipData clip; ///< clip.start = destination frame; clip.id = 0 lets EditOps allocate one
 };
+
+/// Adds tracks (empty, at the top) until every track of @p clips exists: a file with several
+/// audio tracks places its extra audio clips on tracks above the destination.
+void ensureTracks(TimelineData& data, const QVector<PlacedClip>& clips);
 
 /// Which tracks an insert ripples (shifts to the right).
 enum class RippleScope {

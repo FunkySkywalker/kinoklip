@@ -13,6 +13,7 @@
 #include "core/Multicam.h"
 #include "core/ParamKeys.h"
 #include "core/Retime.h"
+#include "media/WaveformData.h"
 #include "ui/common/Icons.h"
 #include "ui/common/SchemeColors.h"
 #include "ui/common/SourceTimecode.h"
@@ -233,7 +234,9 @@ QString TimelinePainter::clipPreviewPath(const ClipData& clip, const MediaItem* 
         return nestedPreviewPath(clip.multicamAngle >= 0
                 ? multicamViewKey(clip.nestedUid, clip.multicamAngle)
                 : clip.nestedUid);
-    return item ? item->path : QString();
+    if (!item)
+        return {};
+    return clip.audioStream >= 0 ? media::waveformPath(item->path, clip.audioStream) : item->path;
 }
 
 // ---- Entry point ----

@@ -37,9 +37,10 @@ public:
     AudioDecoder(const AudioDecoder&) = delete;
     AudioDecoder& operator=(const AudioDecoder&) = delete;
 
-    /// Opens the primary audio stream of `path`.
+    /// Opens an audio stream of `path`: the primary one, or with @p audioTrack >= 0 that audio
+    /// track (0-based among the file's audio streams; a missing one gives the primary).
     /// @return false (with a message in `*error`) if the file cannot be read or has no audio.
-    [[nodiscard]] bool open(const QString& path, QString* error = nullptr);
+    [[nodiscard]] bool open(const QString& path, QString* error = nullptr, int audioTrack = -1);
 
     /// Releases the file. Called automatically by the destructor.
     void close();

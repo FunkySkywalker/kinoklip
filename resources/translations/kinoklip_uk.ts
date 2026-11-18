@@ -60,7 +60,7 @@
     </message>
     <message>
         <source>Unknown name &quot;%1&quot;</source>
-        <translation>Невідоме ім'я «%1»</translation>
+        <translation>Невідоме ім&apos;я «%1»</translation>
     </message>
     <message>
         <source>The formula is empty</source>
@@ -8646,6 +8646,22 @@ Thank you for watching</source>
     <message>
         <source>Source:</source>
         <translation>Джерело:</translation>
+    </message>
+    <message>
+        <source>Track %1</source>
+        <translation>Трек %1</translation>
+    </message>
+    <message>
+        <source>%1 ch</source>
+        <translation>%1 кан.</translation>
+    </message>
+    <message>
+        <source>Edits that bring this file in (insert, overwrite, append, drag and drop) make one audio clip for each ticked track. Clips already on the timeline keep their track.</source>
+        <translation>Під час додавання цього файлу (вставлення, перезапис, додавання в кінець, перетягування) для кожної позначеної доріжки створюється окремий аудіокліп. Кліпи, що вже лежать на таймлайні, зберігають свою доріжку.</translation>
+    </message>
+    <message>
+        <source>Audio tracks:</source>
+        <translation>Аудіодоріжки:</translation>
     </message>
     <message>
         <source>Default (as in the file)</source>
@@ -18749,6 +18765,14 @@ You can also double-click the header, or drag the header out of the panel.</sour
         <translation>Тека</translation>
     </message>
     <message>
+        <source>%n audio track</source>
+        <translation>%n аудіодоріжка</translation>
+    </message>
+    <message>
+        <source>%n audio tracks</source>
+        <translation>%n аудіодоріжок</translation>
+    </message>
+    <message>
         <source>Multicam Clip</source>
         <translation>Кліп мультикамери</translation>
     </message>
@@ -21076,6 +21100,18 @@ Import files with %1 or drop them here.</source>
         <translation>%1 Гц</translation>
     </message>
     <message>
+        <source>Audio tracks</source>
+        <translation>Аудіодоріжки</translation>
+    </message>
+    <message>
+        <source>%1 ch</source>
+        <translation>%1 кан.</translation>
+    </message>
+    <message>
+        <source>Audio track %1</source>
+        <translation>Аудіодоріжка %1</translation>
+    </message>
+    <message>
         <source>Clip color</source>
         <translation>Колір кліпу</translation>
     </message>
@@ -22545,7 +22581,7 @@ Import files with %1 or drop them here.</source>
     </message>
     <message>
         <source>Pushes the values away from mid grey (0.5), or towards it when negative</source>
-        <translation>Відсуває значення від середнього сірого (0,5), а при від'ємних наближає до нього</translation>
+        <translation>Відсуває значення від середнього сірого (0,5), а при від&apos;ємних наближає до нього</translation>
     </message>
     <message>
         <source>Adds the same amount to every value</source>
@@ -22569,7 +22605,7 @@ Import files with %1 or drop them here.</source>
     </message>
     <message>
         <source>Multiplies the colour by the alpha: the edges and soft parts get darker</source>
-        <translation>Множить колір на альфу: краї та м'які ділянки темнішають</translation>
+        <translation>Множить колір на альфу: краї та м&apos;які ділянки темнішають</translation>
     </message>
     <message>
         <source>Alpha Divide</source>
@@ -22577,7 +22613,7 @@ Import files with %1 or drop them here.</source>
     </message>
     <message>
         <source>Divides the colour by the alpha: the edges and soft parts get brighter. Alpha Multiply undoes it</source>
-        <translation>Ділить колір на альфу: краї та м'які ділянки світлішають. Множення на альфу це скасовує</translation>
+        <translation>Ділить колір на альфу: краї та м&apos;які ділянки світлішають. Множення на альфу це скасовує</translation>
     </message>
     <message>
         <source>Channel Mapper</source>
@@ -22593,7 +22629,7 @@ Import files with %1 or drop them here.</source>
     </message>
     <message>
         <source>How much of the input&apos;s %1 goes into the output&apos;s %2 (1 = all of it, 0 = none, negative inverts)</source>
-        <translation>Скільки %1 входу потрапляє в %2 виходу (1 = усе, 0 = нічого, від'ємне інвертує)</translation>
+        <translation>Скільки %1 входу потрапляє в %2 виходу (1 = усе, 0 = нічого, від&apos;ємне інвертує)</translation>
     </message>
     <message>
         <source>%1 Offset</source>

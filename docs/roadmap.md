@@ -182,6 +182,7 @@ Beginner and intermediate tutorial workflows for Resolve's Color, Fairlight and 
 - [ ] Compositing: build a transition on the page (MediaIn1 / MediaIn2 composite), Loader and Saver nodes, Time Speed and Time Stretcher nodes
 - [x] Compositing: Vector Motion Blur, Custom Tool (pixel expressions), Color Curves, Hue Curves, Brightness Contrast, Alpha Multiply / Divide and Channel Mapper nodes
 - [x] Compositing: viewer Onion Skin, Region of Interest, Rulers, safe area overlay, and Proxy / Auto Proxy / High Quality / Motion Blur toggle buttons with a disk cache
+- [x] Audio: files with several audio tracks (an OBS recording with game, mic and Discord): every stream becomes its own linked audio clip on consecutive tracks on every kind of edit, the Media Pool and the metadata show the track count, Clip Attributes chooses the tracks, the project stores the stream per clip, and the waveforms, meters, Audio page and render play the right one (spec 126)
 - [ ] Audio: noise reduction with a local, open model (RNNoise / DeepFilterNet, spectral gate fallback)
 - [ ] Audio: Effects Library and Inspector on the Audio page, effect slots on mixer tracks
 - [ ] Audio: Normalize a whole track or bus / the main mix to a loudness target in one step

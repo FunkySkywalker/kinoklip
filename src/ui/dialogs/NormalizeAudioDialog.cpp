@@ -86,6 +86,7 @@ NormalizeAudioDialog::NormalizeAudioDialog(
             s.startUs = std::max<int64_t>(0, std::min(a, b)); // reverse clips run backwards
             s.endUs = std::max(a, b);
             s.attributes = c->attributes;
+            s.audioStream = c->audioStream;
         }
         m_sources.push_back(s);
     }

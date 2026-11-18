@@ -42,10 +42,27 @@ fi
 # The real-world set (<outdir>/realworld/, test_realworld) has its own version stamp, so adding
 # to it never regenerates the fixtures below.
 bash "$ROOT/scripts/make_realworld_media.sh" "$OUT"
+# Files with several audio streams (tests/timeline/test_multiaudio.cpp): their own small stamp,
+# so adding them never regenerates the fixtures below. multi_audio.mkv = 2 s 320x240 video and
+# three mono PCM tracks (440, 880 and 1760 Hz; titles Game, Mic, Discord); one_audio.mkv = the
+# same with the 440 Hz track only.
+mkdir -p "$OUT"
+if [[ ! -f "$OUT/.multiaudio-v1" ]]; then
+    MA=(ffmpeg -hide_banner -loglevel error -nostdin -y -f lavfi -i "testsrc2=s=320x240:r=25:d=2")
+    for hz in 440 880 1760; do
+        MA+=(-f lavfi -i "sine=frequency=$hz:sample_rate=48000:duration=2")
+    done
+    "${MA[@]}" -map 0:v -map 1:a -map 2:a -map 3:a -c:v libx264 -preset veryfast \
+        -pix_fmt yuv420p -threads 2 -c:a pcm_s16le -ac 1 \
+        -metadata:s:a:0 title=Game -metadata:s:a:1 title=Mic -metadata:s:a:2 title=Discord \
+        -disposition:a:0 default "$OUT/multi_audio.mkv"
+    "${MA[@]}" -map 0:v -map 1:a -c:v libx264 -preset veryfast -pix_fmt yuv420p -threads 2 \
+        -c:a pcm_s16le -ac 1 "$OUT/one_audio.mkv"
+    touch "$OUT/.multiaudio-v1"
+fi
 if [[ -f "$STAMP" ]]; then
     exit 0
 fi
-mkdir -p "$OUT"
 
 # Serialise concurrent runs; the second runner waits and then sees the stamp.
 if command -v flock > /dev/null; then

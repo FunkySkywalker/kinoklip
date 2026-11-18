@@ -342,7 +342,14 @@ void MediaCache::invalidate(const QString& path)
             }
         }
         m_waveforms.remove(path);
-        m_failed.removeIf(isForPath);
+        const QString trackPrefix = path + QChar(0x1f);
+        for (const QString& key : m_waveforms.keys()) {
+            if (key.startsWith(trackPrefix))
+                m_waveforms.remove(key);
+        }
+        m_failed.removeIf([&](const QString& key) {
+            return isForPath(key) || key.startsWith(QLatin1String("w|") + trackPrefix);
+        });
     }
     const std::lock_guard lock(m_decoderMutex);
     m_idleDecoders.remove_if([&](const auto& entry) { return entry.first == path; });
@@ -648,19 +655,23 @@ void MediaCache::closeIdleDecoders()
 
 // ---- Waveform jobs --------------------------------------------------------------------------
 
-void MediaCache::runWaveformJob(const QString& path)
+void MediaCache::runWaveformJob(const QString& requested)
 {
+    QString path;
+    int audioTrack = -1;
+    splitWaveformPath(requested, &path, &audioTrack);
     std::shared_ptr<WaveformData> data;
     if (!m_cancelled) {
         const QString directory = diskDirectory(path, "waveforms");
-        const QString file
-            = directory.isEmpty() ? QString() : directory + QStringLiteral("/waveform.cwwf");
+        const QString name = audioTrack < 0 ? QStringLiteral("waveform.cwwf")
+                                            : QStringLiteral("waveform-a%1.cwwf").arg(audioTrack);
+        const QString file = directory.isEmpty() ? QString() : directory + QLatin1Char('/') + name;
         if (!file.isEmpty()) {
             data = loadWaveform(file);
         }
         if (!data) {
             QString error;
-            data = computeWaveform(path, &m_cancelled, &error);
+            data = computeWaveform(path, &m_cancelled, &error, audioTrack);
             if (!data) {
                 qCDebug(lcMedia) << "no waveform for" << path << ":" << error;
             } else if (!file.isEmpty() && QDir().mkpath(directory)) {
@@ -670,7 +681,8 @@ void MediaCache::runWaveformJob(const QString& path)
     }
     std::shared_ptr<const WaveformData> result = std::move(data);
     QMetaObject::invokeMethod(
-        this, [this, path, result] { finishWaveform(path, result); }, Qt::QueuedConnection);
+        this, [this, requested, result] { finishWaveform(requested, result); },
+        Qt::QueuedConnection);
 }
 
 void MediaCache::finishWaveform(

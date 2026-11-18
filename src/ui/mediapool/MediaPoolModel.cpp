@@ -401,6 +401,9 @@ MediaPoolModel::Row MediaPoolModel::makeRow(const MediaItem& item, bool power)
         row.audioText = QStringLiteral("%1 ch, %2 kHz")
                             .arg(info.audioChannels)
                             .arg(info.audioSampleRate / 1000.0, 0, 'g', 3);
+        if (info.audioTrackCount() > 1) // e.g. an OBS recording: game, mic and Discord
+            row.audioText += QStringLiteral(", ")
+                + plural(info.audioTrackCount(), tr("%n audio track"), tr("%n audio tracks"));
     }
     row.clipColorId = findClipColor(item.clipColor) ? item.clipColor : QString();
     row.clipColor = clipColorValue(row.clipColorId);

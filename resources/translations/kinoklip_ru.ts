@@ -8648,6 +8648,22 @@ Thank you for watching</source>
         <translation>Источник:</translation>
     </message>
     <message>
+        <source>Track %1</source>
+        <translation>Трек %1</translation>
+    </message>
+    <message>
+        <source>%1 ch</source>
+        <translation>%1 кан.</translation>
+    </message>
+    <message>
+        <source>Edits that bring this file in (insert, overwrite, append, drag and drop) make one audio clip for each ticked track. Clips already on the timeline keep their track.</source>
+        <translation>При добавлении этого файла (вставка, перезапись, добавление в конец, перетаскивание) для каждой отмеченной дорожки создаётся отдельный аудиоклип. Клипы, уже лежащие на таймлайне, сохраняют свою дорожку.</translation>
+    </message>
+    <message>
+        <source>Audio tracks:</source>
+        <translation>Аудиодорожки:</translation>
+    </message>
+    <message>
         <source>Default (as in the file)</source>
         <translation>По умолчанию (как в файле)</translation>
     </message>
@@ -18749,6 +18765,14 @@ You can also double-click the header, or drag the header out of the panel.</sour
         <translation>Папка</translation>
     </message>
     <message>
+        <source>%n audio track</source>
+        <translation>%n аудиодорожка</translation>
+    </message>
+    <message>
+        <source>%n audio tracks</source>
+        <translation>%n аудиодорожек</translation>
+    </message>
+    <message>
         <source>Multicam Clip</source>
         <translation>Мультикамера</translation>
     </message>
@@ -21074,6 +21098,18 @@ Import files with %1 or drop them here.</source>
     <message>
         <source>%1 Hz</source>
         <translation>%1 Hz</translation>
+    </message>
+    <message>
+        <source>Audio tracks</source>
+        <translation>Аудиодорожки</translation>
+    </message>
+    <message>
+        <source>%1 ch</source>
+        <translation>%1 кан.</translation>
+    </message>
+    <message>
+        <source>Audio track %1</source>
+        <translation>Аудиодорожка %1</translation>
     </message>
     <message>
         <source>Clip color</source>

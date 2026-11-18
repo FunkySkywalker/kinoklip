@@ -560,6 +560,8 @@ QJsonObject attributesToJson(const ClipAttributes& a)
         o[QLatin1String("left")] = a.left;
         o[QLatin1String("right")] = a.right;
     }
+    if (a.audioTracks != 0)
+        o[QLatin1String("audioTracks")] = QString::number(a.audioTracks);
     if (a.overrideTimecode)
         o[QLatin1String("startTimecode")] = qint64(a.startTimecodeFrames);
     return o;
@@ -588,6 +590,7 @@ ClipAttributes attributesFromJson(const QJsonObject& o)
     a.channelFormat = channelFormatFromString(o.value(QLatin1String("channelFormat")).toString());
     a.left = o.value(QLatin1String("left")).toInt(0);
     a.right = o.value(QLatin1String("right")).toInt(1);
+    a.audioTracks = o.value(QLatin1String("audioTracks")).toString().toULongLong();
     if (o.contains(QLatin1String("startTimecode"))) {
         a.overrideTimecode = true;
         a.startTimecodeFrames
@@ -628,6 +631,8 @@ QJsonObject clipToJson(const ClipData& clip)
     o[QLatin1String("enabled")] = clip.enabled;
     if (clip.linkGroup != 0)
         o[QLatin1String("linkGroup")] = qint64(clip.linkGroup);
+    if (clip.audioStream >= 0)
+        o[QLatin1String("audioStream")] = clip.audioStream;
     if (clip.cacheOutput)
         o[QLatin1String("cacheOutput")] = true;
     if (clip.fadeInFrames > 0)
@@ -735,6 +740,7 @@ ClipData clipFromJson(const QJsonObject& o)
     }
     c.enabled = o.value(QLatin1String("enabled")).toBool(true);
     c.linkGroup = quint64(o.value(QLatin1String("linkGroup")).toInteger());
+    c.audioStream = o.value(QLatin1String("audioStream")).toInt(-1);
     c.cacheOutput = o.value(QLatin1String("cacheOutput")).toBool(false);
     c.fadeInFrames = std::max<int64_t>(0, o.value(QLatin1String("fadeIn")).toInteger());
     c.fadeOutFrames = std::max<int64_t>(0, o.value(QLatin1String("fadeOut")).toInteger());
@@ -963,6 +969,20 @@ QJsonObject mediaInfoToJson(const media::MediaInfo& info)
     };
     if (!info.startTimecode.isEmpty())
         o[QLatin1String("timecode")] = info.startTimecode;
+    if (info.audioStreams.size() > 1) { // one stream is what projects without the list mean
+        QJsonArray streams;
+        for (const media::AudioStreamInfo& s : info.audioStreams) {
+            QJsonObject so {{QLatin1String("codec"), s.codec},
+                {QLatin1String("channels"), s.channels},
+                {QLatin1String("sampleRate"), s.sampleRate}};
+            if (!s.title.isEmpty())
+                so[QLatin1String("title")] = s.title;
+            if (!s.language.isEmpty())
+                so[QLatin1String("language")] = s.language;
+            streams.append(so);
+        }
+        o[QLatin1String("audioStreams")] = streams;
+    }
     return o;
 }
 
@@ -987,6 +1007,16 @@ media::MediaInfo mediaInfoFromJson(const QJsonObject& o)
     info.audioCodec = o.value(QLatin1String("audioCodec")).toString();
     info.container = o.value(QLatin1String("container")).toString();
     info.startTimecode = o.value(QLatin1String("timecode")).toString();
+    for (const QJsonValue& v : o.value(QLatin1String("audioStreams")).toArray()) {
+        const QJsonObject so = v.toObject();
+        media::AudioStreamInfo s;
+        s.codec = so.value(QLatin1String("codec")).toString();
+        s.channels = so.value(QLatin1String("channels")).toInt();
+        s.sampleRate = so.value(QLatin1String("sampleRate")).toInt();
+        s.title = so.value(QLatin1String("title")).toString();
+        s.language = so.value(QLatin1String("language")).toString();
+        info.audioStreams.append(s);
+    }
     return info;
 }
 

@@ -11,7 +11,7 @@ bool sameMediaInfo(const media::MediaInfo& a, const media::MediaInfo& b)
         && a.height == b.height && a.rotation == b.rotation && a.frameRate == b.frameRate
         && a.durationUs == b.durationUs && a.audioChannels == b.audioChannels
         && a.audioSampleRate == b.audioSampleRate && a.videoCodec == b.videoCodec
-        && a.audioCodec == b.audioCodec && a.container == b.container;
+        && a.audioCodec == b.audioCodec && a.audioStreams == b.audioStreams && a.container == b.container;
 }
 
 bool operator==(const MediaItem& a, const MediaItem& b)

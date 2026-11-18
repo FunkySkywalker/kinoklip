@@ -825,6 +825,14 @@ QVector<quint64> pasteClips(TimelineData& data, const Clipboard& clipboard, int6
 
 // ---- Tracks ----
 
+void ensureTracks(TimelineData& data, const QVector<PlacedClip>& clips)
+{
+    for (const PlacedClip& p : clips) {
+        while (p.track.index >= 0 && int(data.tracks(p.track.type).size()) <= p.track.index)
+            addTrack(data, p.track.type);
+    }
+}
+
 int addTrack(TimelineData& data, TrackType type, int index)
 {
     auto& list = data.tracks(type);

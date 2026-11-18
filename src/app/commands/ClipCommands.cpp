@@ -174,14 +174,17 @@ CommandResult runAdd(CommandContext& ctx, const CommandArgs& args)
             QStringLiteral("%1 has nothing to place on %2 (or would contain this timeline)")
                 .arg(item->name, trackText));
     for (const ops::PlacedClip& p : std::as_const(clips)) {
-        if (d.track(p.track)->locked)
+        const TrackData* track = d.track(p.track); // (more audio tracks than exist: created below)
+        if (track && track->locked)
             return fail(
                 "track_locked", QStringLiteral("track %1 is locked").arg(trackName(p.track)));
     }
     int64_t start = at.value_or(0);
     if (!at) {
-        for (const ops::PlacedClip& p : std::as_const(clips))
-            start = std::max(start, d.track(p.track)->end());
+        for (const ops::PlacedClip& p : std::as_const(clips)) {
+            if (const TrackData* track = d.track(p.track))
+                start = std::max(start, track->end());
+        }
     }
     for (ops::PlacedClip& p : clips)
         p.clip.start = start;
@@ -189,6 +192,7 @@ CommandResult runAdd(CommandContext& ctx, const CommandArgs& args)
     QVector<quint64> ids;
     const bool insert = args.boolean(QStringLiteral("insert"));
     const bool changed = runEdit(&project, QStringLiteral("Add Clip"), [&](TimelineData& data) {
+        ops::ensureTracks(data, clips);
         ids = insert ? ops::insertClips(data, clips, ops::RippleScope::AllTracks)
                      : ops::overwriteClips(data, clips);
         if (ids.size() > 1)

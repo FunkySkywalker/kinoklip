@@ -77,6 +77,7 @@ struct AudioMixer::Decoder
     std::unique_ptr<AudioMixer> nested;
     const TimelineData* nestedTimeline = nullptr;
     QString path;
+    int audioStream = -1; ///< the clip's audio track the decoder was opened on
     qint64 lastUsedMs = 0;
     qint64 failedAtMs = -1;
     /// Retimed clips: recently read source samples and the time stretch state, valid for the
@@ -181,18 +182,19 @@ AudioMixer::Decoder* AudioMixer::decoderFor(const ClipData& clip, const NestedTi
         slot = std::make_unique<Decoder>();
     Decoder& d = *slot;
     d.lastUsedMs = now;
-    if (d.path != path) { // new clip, or its media was relinked
+    if (d.path != path || d.audioStream != clip.audioStream) { // new clip, relinked, or other track
         d.decoder.reset();
         d.cache.clear();
         d.failedAtMs = -1;
         d.path = path;
+        d.audioStream = clip.audioStream;
     }
     if (!d.decoder) {
         if (d.failedAtMs >= 0 && now - d.failedAtMs < kRetryFailedMs)
             return nullptr;
         auto decoder = std::make_unique<media::AudioDecoder>();
         QString error;
-        if (!decoder->open(path, &error)) {
+        if (!decoder->open(path, &error, clip.audioStream)) {
             if (d.failedAtMs < 0)
                 qCWarning(lcRender) << "audio: cannot open" << path << ":" << error;
             d.failedAtMs = now;

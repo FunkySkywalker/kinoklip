@@ -16,8 +16,8 @@ namespace ops = editops;
 namespace {
 
 /// The groups' clips moved by @p at frames; @p groupOf receives each clip's group index.
-QVector<ops::PlacedClip> flatten(
-    const SourceGroups& groups, int64_t at, QVector<int>* groupOf, bool videoOnly = false)
+QVector<ops::PlacedClip> flatten(const SourceGroups& groups, int64_t at, QVector<int>* groupOf,
+    bool videoOnly = false, TimelineData* createTracks = nullptr)
 {
     QVector<ops::PlacedClip> out;
     for (int g = 0; g < groups.size(); ++g) {
@@ -30,6 +30,8 @@ QVector<ops::PlacedClip> flatten(
                 groupOf->append(g);
         }
     }
+    if (createTracks) // files with several audio tracks place clips on tracks above the target
+        ops::ensureTracks(*createTracks, out);
     return out;
 }
 
@@ -76,23 +78,33 @@ void liftOntoFreeTrack(TimelineData& data, QVector<ops::PlacedClip>& clips, Trac
         return;
     int64_t start = std::numeric_limits<int64_t>::max();
     int64_t end = 0;
+    int highest = lowest;
     for (const ops::PlacedClip& p : clips) {
         if (p.track.type != type)
             continue;
         start = std::min(start, p.clip.start);
         end = std::max(end, p.clip.start + p.clip.duration);
+        highest = std::max(highest, p.track.index);
     }
+    const int tracks = highest - lowest + 1; // a file with several audio tracks needs them all
     const auto& list = data.tracks(type);
+    const auto usable = [&](int i) {
+        return i >= int(list.size())
+            || (!list[size_t(i)].locked && rangeFree(list[size_t(i)], start, end));
+    };
     int index = std::max(0, lowest);
-    while (index < int(list.size())
-        && (list[size_t(index)].locked || !rangeFree(list[size_t(index)], start, end)))
-        ++index;
-    if (index >= int(list.size()))
-        index = ops::addTrack(data, type);
+    for (;; ++index) {
+        bool all = true;
+        for (int k = 0; k < tracks && all; ++k)
+            all = usable(index + k);
+        if (all || index >= int(list.size()))
+            break;
+    }
     for (ops::PlacedClip& p : clips) {
         if (p.track.type == type)
-            p.track.index = index;
+            p.track.index = index + (p.track.index - lowest);
     }
+    ops::ensureTracks(data, clips);
 }
 
 /// Places @p clips with overwriteClips() and links the groups.
@@ -120,9 +132,14 @@ Result placeOnTopImpl(
     if (clips.isEmpty())
         return {};
     // A destination may be "one above the top track": then a new track is needed anyway.
+    // (only the lowest destination of a type counts: more audio tracks of a file stack above it)
     for (const ops::PlacedClip& p : clips) {
-        if (p.track.index < 0 || p.track.index > int(data.tracks(p.track.type).size())
-            || p.clip.duration < 1)
+        int lowest = p.track.index;
+        for (const ops::PlacedClip& q : clips) {
+            if (q.track.type == p.track.type)
+                lowest = std::min(lowest, q.track.index);
+        }
+        if (lowest < 0 || lowest > int(data.tracks(p.track.type).size()) || p.clip.duration < 1)
             return {};
     }
     liftOntoFreeTrack(data, clips, TrackType::Video);
@@ -177,7 +194,7 @@ Result smartInsert(TimelineData& data, const SourceGroups& groups, int64_t playh
 {
     const int64_t at = nearestEditPoint(data, playhead);
     QVector<int> groupOf;
-    const QVector<ops::PlacedClip> clips = flatten(groups, at, &groupOf);
+    QVector<ops::PlacedClip> clips = flatten(groups, at, &groupOf, false, &data);
     Result r;
     if (clips.isEmpty())
         return r;
@@ -194,13 +211,13 @@ Result append(TimelineData& data, const SourceGroups& groups)
 {
     const int64_t at = data.duration();
     QVector<int> groupOf;
-    return overwriteAndLink(data, flatten(groups, at, &groupOf), groupOf, at);
+    return overwriteAndLink(data, flatten(groups, at, &groupOf, false, &data), groupOf, at);
 }
 
 Result rippleOverwrite(TimelineData& data, const SourceGroups& groups, int64_t playhead)
 {
     QVector<int> groupOf;
-    QVector<ops::PlacedClip> clips = flatten(groups, 0, &groupOf);
+    QVector<ops::PlacedClip> clips = flatten(groups, 0, &groupOf, false, &data);
     if (clips.isEmpty())
         return {};
     // The clip that is replaced: under the playhead on the destination video track, else the

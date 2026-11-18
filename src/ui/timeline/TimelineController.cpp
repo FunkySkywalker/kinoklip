@@ -314,8 +314,29 @@ QVector<ops::PlacedClip> TimelineController::makeMediaClips(
         && audioTrack < int(data.audioTracks.size());
     if (video)
         clips.append({TrackRef {TrackType::Video, videoTrack}, base});
-    if (audio)
-        clips.append({TrackRef {TrackType::Audio, audioTrack}, base});
+    if (audio) {
+        // A file with several audio tracks (OBS: game, mic, Discord): one audio clip per used
+        // track, on consecutive audio tracks from the target; the callers create the missing
+        // tracks (editops::ensureTracks). A single-stream file keeps audioStream -1.
+        const int available = info.audioTrackCount();
+        QVector<int> used;
+        for (int t = 0; t < available; ++t) {
+            if (audioTrackUsed(item.attributes, t))
+                used.append(t);
+        }
+        if (used.isEmpty()) // a mask that names no track of this file: all of them
+            for (int t = 0; t < available; ++t)
+                used.append(t);
+        if (available <= 1) {
+            clips.append({TrackRef {TrackType::Audio, audioTrack}, base});
+        } else {
+            for (int k = 0; k < used.size(); ++k) {
+                ClipData c = base;
+                c.audioStream = used[k];
+                clips.append({TrackRef {TrackType::Audio, audioTrack + k}, c});
+            }
+        }
+    }
     return clips;
 }
 
@@ -462,6 +483,7 @@ QVector<quint64> TimelineController::insertSource(const QString& mediaId, int64_
             m_targetAudio);
         if (clips.isEmpty())
             return false;
+        ops::ensureTracks(data, clips);
         int64_t frames = clips.front().clip.duration;
         if (mode == SourceEditMode::FitToFill)
             frames = fixedFrames;

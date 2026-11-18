@@ -106,8 +106,12 @@ FormatContextPtr openInput(const QString& path, QString* error);
 /// Index of the primary video stream, or -1. Cover art (attached pictures) is ignored.
 int findVideoStream(const AVFormatContext* fmt);
 
-/// Index of the primary audio stream, or -1.
-int findAudioStream(const AVFormatContext* fmt);
+/// Index (in the file) of the primary audio stream, or -1. With @p ordinal >= 0: the
+/// ordinal-th decodable audio stream (0-based, in file order); a missing one gives the primary.
+int findAudioStream(const AVFormatContext* fmt, int ordinal = -1);
+
+/// Number of decodable audio streams in the file.
+int countAudioStreams(const AVFormatContext* fmt);
 
 /// Creates and opens a decoder for `stream`.
 /// @param threadCount 0 = automatic (one per core), otherwise the exact number of threads.

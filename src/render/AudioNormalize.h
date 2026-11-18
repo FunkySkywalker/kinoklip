@@ -39,6 +39,7 @@ struct Source
     int64_t startUs = 0; ///< first source microsecond of the clip
     int64_t endUs = 0; ///< end of the clip's source range (exclusive)
     ClipAttributes attributes; ///< channel routing (Clip Attributes)
+    int audioStream = -1; ///< ClipData::audioStream
 };
 
 /// Levels of one clip's source audio (before the clip's own volume).

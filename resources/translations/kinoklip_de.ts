@@ -8639,6 +8639,22 @@ Danke fürs Zuschauen</translation>
         <translation>Quelle:</translation>
     </message>
     <message>
+        <source>Track %1</source>
+        <translation>Spur %1</translation>
+    </message>
+    <message>
+        <source>%1 ch</source>
+        <translation>%1 Kan.</translation>
+    </message>
+    <message>
+        <source>Edits that bring this file in (insert, overwrite, append, drag and drop) make one audio clip for each ticked track. Clips already on the timeline keep their track.</source>
+        <translation>Beim Einfügen dieser Datei (Einfügen, Überschreiben, Anhängen, Ziehen und Ablegen) entsteht für jede markierte Spur ein eigener Audioclip. Clips, die schon auf der Timeline liegen, behalten ihre Spur.</translation>
+    </message>
+    <message>
+        <source>Audio tracks:</source>
+        <translation>Audiospuren:</translation>
+    </message>
+    <message>
         <source>Default (as in the file)</source>
         <translation>Standard (wie in der Datei)</translation>
     </message>
@@ -18735,6 +18751,14 @@ Auch ein Doppelklick auf die Kopfzeile oder Herausziehen der Kopfzeile aus dem P
         <translation>Ordner</translation>
     </message>
     <message>
+        <source>%n audio track</source>
+        <translation>%n Audiospur</translation>
+    </message>
+    <message>
+        <source>%n audio tracks</source>
+        <translation>%n Audiospuren</translation>
+    </message>
+    <message>
         <source>Multicam Clip</source>
         <translation>Multicam-Clip</translation>
     </message>
@@ -21059,6 +21083,18 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
     <message>
         <source>%1 Hz</source>
         <translation>%1 Hz</translation>
+    </message>
+    <message>
+        <source>Audio tracks</source>
+        <translation>Audiospuren</translation>
+    </message>
+    <message>
+        <source>%1 ch</source>
+        <translation>%1 Kan.</translation>
+    </message>
+    <message>
+        <source>Audio track %1</source>
+        <translation>Audiospur %1</translation>
     </message>
     <message>
         <source>Clip color</source>

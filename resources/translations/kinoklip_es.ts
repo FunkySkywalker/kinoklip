@@ -8639,6 +8639,22 @@ Gracias por ver</translation>
         <translation>Fuente:</translation>
     </message>
     <message>
+        <source>Track %1</source>
+        <translation>Pista %1</translation>
+    </message>
+    <message>
+        <source>%1 ch</source>
+        <translation>%1 can.</translation>
+    </message>
+    <message>
+        <source>Edits that bring this file in (insert, overwrite, append, drag and drop) make one audio clip for each ticked track. Clips already on the timeline keep their track.</source>
+        <translation>Las ediciones que traen este archivo (insertar, sobrescribir, añadir al final, arrastrar y soltar) crean un clip de audio por cada pista marcada. Los clips que ya están en la línea de tiempo conservan su pista.</translation>
+    </message>
+    <message>
+        <source>Audio tracks:</source>
+        <translation>Pistas de audio:</translation>
+    </message>
+    <message>
         <source>Default (as in the file)</source>
         <translation>Predeterminado (como en el archivo)</translation>
     </message>
@@ -18735,6 +18751,14 @@ También se puede hacer doble clic en el encabezado o arrastrarlo fuera del pane
         <translation>Carpeta</translation>
     </message>
     <message>
+        <source>%n audio track</source>
+        <translation>%n pista de audio</translation>
+    </message>
+    <message>
+        <source>%n audio tracks</source>
+        <translation>%n pistas de audio</translation>
+    </message>
+    <message>
         <source>Multicam Clip</source>
         <translation>Clip multicámara</translation>
     </message>
@@ -21059,6 +21083,18 @@ Importar archivos con %1 o soltarlos aquí.</translation>
     <message>
         <source>%1 Hz</source>
         <translation>%1 Hz</translation>
+    </message>
+    <message>
+        <source>Audio tracks</source>
+        <translation>Pistas de audio</translation>
+    </message>
+    <message>
+        <source>%1 ch</source>
+        <translation>%1 can.</translation>
+    </message>
+    <message>
+        <source>Audio track %1</source>
+        <translation>Pista de audio %1</translation>
     </message>
     <message>
         <source>Clip color</source>

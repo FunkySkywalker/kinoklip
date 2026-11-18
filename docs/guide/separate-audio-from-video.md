@@ -36,6 +36,22 @@ The picture and the sound are now two separate clips.
 To join them again, select both (click one, **Ctrl**-click the other) and choose **Clip > Link
 Clips** (**Ctrl+Alt+L**).
 
+## Files with several audio tracks
+
+Some recordings carry more than one sound track: an OBS recording can have the game, your
+microphone and Discord on separate tracks. The Media Pool shows how many ("3 audio tracks") and
+the Metadata panel lists each one.
+
+When you put such a file on the timeline (drag it, or use Insert, Overwrite or Append), each
+sound track becomes its own audio clip on its own audio track: A1, A2, A3 ... New audio tracks
+are made if you need them. All of the clips are linked to the picture, so they move, trim, cut
+and delete together. To change one of them, for example to turn the game sound down, **Alt**-click
+that clip, or unlink them as above.
+
+To bring in only some of the tracks, select the file in the Media Pool, choose **Clip > Clip
+Attributes**, open the **Audio** tab and untick the tracks you do not want. This only changes
+what you put on the timeline from then on; clips that are already there stay as they are.
+
 ## Tips
 
 - **Use only the sound of a video file** (or only its picture): put the clip on the timeline,

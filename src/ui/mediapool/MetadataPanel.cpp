@@ -355,6 +355,16 @@ void MetadataPanel::fillDetails(const QVector<const MediaItem*>& items)
         addRow(tr("Audio codec"), info.audioCodec);
         addRow(tr("Audio channels"), QString::number(info.audioChannels));
         addRow(tr("Sample rate"), tr("%1 Hz").arg(info.audioSampleRate));
+        if (info.audioTrackCount() > 1) {
+            addRow(tr("Audio tracks"), QString::number(info.audioTrackCount()));
+            for (int t = 0; t < info.audioStreams.size(); ++t) {
+                const media::AudioStreamInfo& s = info.audioStreams[t];
+                QStringList parts {s.codec, tr("%1 ch").arg(s.channels)};
+                if (!s.title.isEmpty())
+                    parts.prepend(s.title);
+                addRow(tr("Audio track %1").arg(t + 1), parts.join(QStringLiteral(", ")));
+            }
+        }
     }
     addRow(tr("Clip color"), clipColorName(item->clipColor));
     QStringList flags;

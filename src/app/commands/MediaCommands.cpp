@@ -25,6 +25,8 @@ QJsonObject mediaToJson(const Project& project, const MediaItem& item)
         {QStringLiteral("hasVideo"), info.hasVideo}, {QStringLiteral("hasAudio"), info.hasAudio},
         {QStringLiteral("durationUs"), qint64(info.durationUs)},
         {QStringLiteral("duration"), timecode::format(usToFrames(info.durationUs, fps), fps)}};
+    if (info.hasAudio)
+        o.insert(QStringLiteral("audioTracks"), info.audioTrackCount());
     if (info.hasVideo) {
         o.insert(QStringLiteral("width"), info.displayWidth);
         o.insert(QStringLiteral("height"), info.displayHeight);

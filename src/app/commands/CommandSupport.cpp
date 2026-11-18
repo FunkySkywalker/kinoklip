@@ -82,7 +82,8 @@ QJsonObject clipToJson(const TimelineData& data, TrackRef track, const ClipData&
             clip.audio.value(keys::PitchSemitones, 0)
                 + clip.audio.value(keys::PitchCents, 0) / 100.0},
         {QStringLiteral("volumeDb"), volume}, {QStringLiteral("transform"), transform},
-        {QStringLiteral("linkGroup"), qint64(clip.linkGroup)}};
+        {QStringLiteral("linkGroup"), qint64(clip.linkGroup)},
+        {QStringLiteral("audioStream"), clip.audioStream}};
     static const char* const kinds[]
         = {"media", "title", "solid", "nested", "adjustment", "generator", "subtitle"};
     o.insert(QStringLiteral("kind"), QString::fromLatin1(kinds[int(clip.kind)]));

@@ -54,7 +54,7 @@ Measurement measure(const Source& source, const std::atomic<bool>* cancel,
 {
     Measurement result;
     media::AudioDecoder decoder;
-    if (!decoder.open(source.path, &result.error))
+    if (!decoder.open(source.path, &result.error, source.audioStream))
         return result;
     decoder.setChannelMapping(source.attributes);
     constexpr int rate = media::AudioDecoder::kSampleRate;

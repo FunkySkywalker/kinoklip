@@ -460,7 +460,12 @@
         "remove sound",
         "delete audio",
         "linked selection",
-        "alt click"
+        "alt click",
+        "several audio tracks",
+        "multiple audio tracks",
+        "obs",
+        "audio streams",
+        "game and mic"
       ],
       "contexts": [
         "action:clip.link",

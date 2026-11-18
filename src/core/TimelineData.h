@@ -189,6 +189,10 @@ struct ClipData
     /// resampled (pitch follows the speed).
     bool pitchCorrection = true;
     bool enabled = true;
+    /// Audio clips of media with several audio tracks: the track (0-based among the file's
+    /// audio streams) this clip plays. -1 = the file's primary stream (single-stream files and
+    /// every project saved before this existed).
+    int audioStream = -1;
     quint64 linkGroup = 0; ///< V+A clips from the same source share a non-zero group id
 
     ParamSet transform; ///< keys::PosX ... keys::CropB, statics keys::FlipH/FlipV/ZoomLinked

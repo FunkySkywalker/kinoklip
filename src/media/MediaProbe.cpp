@@ -218,6 +218,21 @@ MediaInfo infoFromFormatContext(const AVFormatContext* fmt, const QString& path)
         info.audioCodec = QString::fromUtf8(avcodec_get_name(par->codec_id));
         info.audioChannels = par->ch_layout.nb_channels;
         info.audioSampleRate = par->sample_rate;
+        for (unsigned i = 0; i < fmt->nb_streams; ++i) {
+            const AVStream* st = fmt->streams[i];
+            if (st->codecpar->codec_type != AVMEDIA_TYPE_AUDIO
+                || !avcodec_find_decoder(st->codecpar->codec_id))
+                continue;
+            AudioStreamInfo s;
+            s.codec = QString::fromUtf8(avcodec_get_name(st->codecpar->codec_id));
+            s.channels = st->codecpar->ch_layout.nb_channels;
+            s.sampleRate = st->codecpar->sample_rate;
+            if (const AVDictionaryEntry* e = av_dict_get(st->metadata, "title", nullptr, 0))
+                s.title = QString::fromUtf8(e->value);
+            if (const AVDictionaryEntry* e = av_dict_get(st->metadata, "language", nullptr, 0))
+                s.language = QString::fromUtf8(e->value);
+            info.audioStreams.append(s);
+        }
     }
 
     // Duration: the length of the primary stream (video, else audio) measured from media

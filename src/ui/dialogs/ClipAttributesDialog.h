@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // ClipAttributesDialog — Clip > Clip Attributes (media pool items and timeline clips): how the
 // file is interpreted. Video: pixel aspect, data levels, field order / deinterlacing,
-// rotation. Audio: channel format and routing. Timecode: start timecode override.
+// rotation. Audio: the audio tracks of the file to use, channel format and routing. Timecode: start timecode override.
 #pragma once
 
 #include "core/ClipAttributes.h"
@@ -9,6 +9,7 @@
 
 #include <QDialog>
 #include <QStringList>
+#include <QVector>
 
 class QButtonGroup;
 class QCheckBox;
@@ -51,6 +52,9 @@ public:
     [[nodiscard]] QComboBox* leftBox() const { return m_left; }
     [[nodiscard]] QComboBox* rightBox() const { return m_right; }
     [[nodiscard]] QPushButton* swapButton() const { return m_swap; }
+    /// One box per audio track of the file (empty for files with one): ticked = new edits
+    /// bring the track in.
+    [[nodiscard]] const QVector<QCheckBox*>& audioTrackBoxes() const { return m_audioTrackBoxes; }
     [[nodiscard]] QCheckBox* timecodeBox() const { return m_overrideTc; }
     [[nodiscard]] QLineEdit* timecodeEdit() const { return m_timecode; }
 
@@ -79,6 +83,7 @@ private:
     QLabel* m_rightLabel = nullptr;
     QComboBox* m_right = nullptr;
     QPushButton* m_swap = nullptr;
+    QVector<QCheckBox*> m_audioTrackBoxes;
     QCheckBox* m_overrideTc = nullptr;
     QLineEdit* m_timecode = nullptr;
 };

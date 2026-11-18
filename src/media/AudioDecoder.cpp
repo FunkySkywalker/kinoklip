@@ -71,6 +71,7 @@ struct AudioDecoder::Impl
     CodecContextPtr codec;
     AVStream* stream = nullptr;
     int streamIndex = -1;
+    int audioOrdinal = -1;
     PacketPtr packet;
     FramePtr frame;
     SwrContextPtr swr;
@@ -118,7 +119,7 @@ bool AudioDecoder::Impl::openFile(const QString& path, QString* error)
         return false;
     }
     info = infoFromFormatContext(fmt.get(), path);
-    streamIndex = findAudioStream(fmt.get());
+    streamIndex = findAudioStream(fmt.get(), audioOrdinal);
     if (streamIndex < 0) {
         setError(error, QStringLiteral("No audio stream"));
         return false;
@@ -381,9 +382,10 @@ AudioDecoder::AudioDecoder()
 
 AudioDecoder::~AudioDecoder() = default;
 
-bool AudioDecoder::open(const QString& path, QString* error)
+bool AudioDecoder::open(const QString& path, QString* error, int audioTrack)
 {
     close();
+    m_impl->audioOrdinal = audioTrack;
     if (!m_impl->openFile(path, error)) {
         close();
         return false;

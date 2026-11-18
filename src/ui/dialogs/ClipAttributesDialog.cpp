@@ -14,6 +14,8 @@
 #include "ui/common/MediaImport.h"
 #include "ui/common/TimecodeFormat.h"
 
+#include <algorithm>
+
 #include <QButtonGroup>
 #include <QCheckBox>
 #include <QComboBox>
@@ -250,6 +252,43 @@ QWidget* ClipAttributesDialog::buildAudioTab(const MediaItem& item)
             : tr("No audio channels"));
     form->addRow(tr("Source:"), source);
 
+    // Files with several audio tracks (OBS: game, mic, Discord): which ones new edits bring in,
+    // one clip per ticked track.
+    const media::MediaInfo& info = item.info;
+    if (info.audioTrackCount() > 1) {
+        auto* tracks = new QWidget;
+        auto* column = new QVBoxLayout(tracks);
+        column->setContentsMargins(0, 0, 0, 0);
+        for (int t = 0; t < info.audioTrackCount(); ++t) {
+            QString text = tr("Track %1").arg(t + 1);
+            if (t < info.audioStreams.size()) {
+                const media::AudioStreamInfo& s = info.audioStreams[t];
+                QStringList parts {s.codec, tr("%1 ch").arg(s.channels)};
+                if (!s.title.isEmpty())
+                    parts.prepend(s.title);
+                text += QStringLiteral(": ") + parts.join(QStringLiteral(", "));
+            }
+            auto* box = new QCheckBox(text);
+            box->setObjectName(QStringLiteral("AudioTrack%1").arg(t + 1));
+            box->setChecked(audioTrackUsed(a, t));
+            box->setToolTip(tr("Edits that bring this file in (insert, overwrite, append, drag "
+                               "and drop) make one audio clip for each ticked track. Clips "
+                               "already on the timeline keep their track."));
+            connect(box, &QCheckBox::toggled, this, [this, box](bool on) {
+                if (on)
+                    return;
+                // At least one track stays in use.
+                const bool any = std::any_of(m_audioTrackBoxes.cbegin(), m_audioTrackBoxes.cend(),
+                    [](const QCheckBox* b) { return b->isChecked(); });
+                if (!any)
+                    box->setChecked(true);
+            });
+            column->addWidget(box);
+            m_audioTrackBoxes.append(box);
+        }
+        form->addRow(tr("Audio tracks:"), tracks);
+    }
+
     m_format = new QComboBox;
     m_format->setObjectName(QStringLiteral("ChannelFormat"));
     m_format->addItem(tr("Default (as in the file)"), int(ChannelFormat::Auto));
@@ -345,6 +384,18 @@ ClipAttributes ClipAttributesDialog::result() const
     } else {
         a.left = m_left->currentData().toInt();
         a.right = a.channelFormat == ChannelFormat::Stereo ? m_right->currentData().toInt() : 1;
+    }
+    a.audioTracks = 0; // all
+    if (!m_audioTrackBoxes.isEmpty()) {
+        quint64 mask = 0;
+        bool all = true;
+        for (int t = 0; t < m_audioTrackBoxes.size() && t < 64; ++t) {
+            if (m_audioTrackBoxes[t]->isChecked())
+                mask |= quint64(1) << t;
+            else
+                all = false;
+        }
+        a.audioTracks = all ? 0 : mask;
     }
     a.overrideTimecode = m_overrideTc->isChecked();
     if (a.overrideTimecode) {

@@ -226,8 +226,13 @@ TimelineWidget::DropPlan TimelineWidget::planDrop(
             QVector<ops::PlacedClip> group = m_controller->makeMediaClips(*item, s.inUs, s.outUs,
                 videoTrack >= nv ? std::min(0, nv - 1) : videoTrack,
                 audioTrack >= na ? std::min(0, na - 1) : audioTrack);
-            for (ops::PlacedClip& p : group)
-                p.track.index = p.track.type == TrackType::Video ? videoTrack : audioTrack;
+            // (a file with several audio tracks has clips on the tracks above the first)
+            const int firstAudio = audioTrack >= na ? std::min(0, na - 1) : audioTrack;
+            for (ops::PlacedClip& p : group) {
+                p.track.index = p.track.type == TrackType::Video
+                    ? videoTrack
+                    : audioTrack + (p.track.index - firstAudio);
+            }
             if (group.isEmpty())
                 continue;
             if (at < 0)
@@ -412,6 +417,7 @@ bool TimelineWidget::executeDrop(const DropPlan& plan)
         for (int i = 0; i < plan.newSubtitleTracks; ++i)
             ops::addTrack(data, TrackType::Subtitle);
         for (const auto& group : plan.groups) {
+            ops::ensureTracks(data, group); // more audio tracks of a file than the timeline has
             // Captions of a subtitle file keep their own timing: always overwrite.
             const bool captions = group.front().track.type == TrackType::Subtitle;
             const QVector<quint64> ids = plan.insert && !captions

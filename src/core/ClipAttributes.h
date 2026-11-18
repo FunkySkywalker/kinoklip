@@ -76,6 +76,9 @@ struct ClipAttributes
     ChannelFormat channelFormat = ChannelFormat::Auto;
     int left = 0; ///< source channel of the left output (Mono: the channel), or kMuted...
     int right = 1; ///< source channel of the right output (Stereo), or kMutedChannel
+    /// Which audio tracks (streams) of the file new edits bring in: bit n = track n (0-based).
+    /// 0 = all of them (the default). Does not change clips that are already on the timeline.
+    quint64 audioTracks = 0;
 
     // ---- Timecode ----
     bool overrideTimecode = false;
@@ -97,6 +100,13 @@ struct ClipAttributes
 
     friend bool operator==(const ClipAttributes&, const ClipAttributes&) = default;
 };
+
+/// True when audio track @p track (0-based) is used by new edits under @p attributes.
+[[nodiscard]] inline bool audioTrackUsed(const ClipAttributes& attributes, int track)
+{
+    return track >= 0 && track < 64
+        && (attributes.audioTracks == 0 || (attributes.audioTracks >> track) & 1u);
+}
 
 /// Normalises a rotation in degrees to 0, 90, 180 or 270 (nearest quarter turn).
 [[nodiscard]] int normalizedRotation(int degrees);

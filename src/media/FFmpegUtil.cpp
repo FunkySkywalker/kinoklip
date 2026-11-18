@@ -346,9 +346,30 @@ int findVideoStream(const AVFormatContext* fmt)
     return findStream(fmt, AVMEDIA_TYPE_VIDEO);
 }
 
-int findAudioStream(const AVFormatContext* fmt)
+int findAudioStream(const AVFormatContext* fmt, int ordinal)
 {
+    if (ordinal >= 0) {
+        int n = 0;
+        for (unsigned i = 0; i < fmt->nb_streams; ++i) {
+            const AVStream* st = fmt->streams[i];
+            if (st->codecpar->codec_type != AVMEDIA_TYPE_AUDIO || !avcodec_find_decoder(st->codecpar->codec_id))
+                continue;
+            if (n++ == ordinal)
+                return int(i);
+        }
+    }
     return findStream(fmt, AVMEDIA_TYPE_AUDIO);
+}
+
+int countAudioStreams(const AVFormatContext* fmt)
+{
+    int n = 0;
+    for (unsigned i = 0; i < fmt->nb_streams; ++i) {
+        const AVStream* st = fmt->streams[i];
+        if (st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && avcodec_find_decoder(st->codecpar->codec_id))
+            ++n;
+    }
+    return n;
 }
 
 CodecContextPtr openDecoder(const AVStream* stream, int threadCount, QString* error,

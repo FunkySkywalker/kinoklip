@@ -69,8 +69,26 @@ inline constexpr int kWaveformPeaksPerSecond = 200;
 /// entire file — roughly 50-200× real time); call it from a worker thread.
 /// `cancel` (optional) is polled regularly; when it becomes true the function returns nullptr.
 /// @return nullptr (with `*error` set) if the file has no decodable audio or was cancelled.
-std::shared_ptr<WaveformData> computeWaveform(
-    const QString& path, const std::atomic<bool>* cancel = nullptr, QString* error = nullptr);
+/// @param audioTrack the file's audio track to measure (AudioDecoder::open()); -1 = primary.
+std::shared_ptr<WaveformData> computeWaveform(const QString& path,
+    const std::atomic<bool>* cancel = nullptr, QString* error = nullptr, int audioTrack = -1);
+
+/// The "path" a waveform request uses for audio track @p audioTrack of @p path (MediaCache::
+/// waveform() and the timeline's WaveformProvider): @p path itself for the primary stream
+/// (-1), else the path with the track appended after a separator.
+[[nodiscard]] inline QString waveformPath(const QString& path, int audioTrack)
+{
+    return audioTrack < 0 || path.isEmpty()
+        ? path
+        : path + QChar(0x1f) + QString::number(audioTrack);
+}
+/// Splits a waveformPath() into the file and its audio track (-1).
+inline void splitWaveformPath(const QString& qualified, QString* path, int* audioTrack)
+{
+    const qsizetype at = qualified.lastIndexOf(QChar(0x1f));
+    *path = at < 0 ? qualified : qualified.left(at);
+    *audioTrack = at < 0 ? -1 : qualified.mid(at + 1).toInt();
+}
 
 /// Writes `data` to `filePath` in Kinoklip's small binary waveform format. Returns success.
 bool saveWaveform(const WaveformData& data, const QString& filePath);

@@ -139,10 +139,10 @@ qint64 WaveformData::memoryBytes() const
 }
 
 std::shared_ptr<WaveformData> computeWaveform(
-    const QString& path, const std::atomic<bool>* cancel, QString* error)
+    const QString& path, const std::atomic<bool>* cancel, QString* error, int audioTrack)
 {
     AudioDecoder decoder;
-    if (!decoder.open(path, error)) {
+    if (!decoder.open(path, error, audioTrack)) {
         return nullptr;
     }
     constexpr int kSamplesPerPeak = AudioDecoder::kSampleRate / kWaveformPeaksPerSecond;
