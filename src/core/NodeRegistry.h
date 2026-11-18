@@ -42,7 +42,9 @@ enum class NodeCategory : quint8 {
     Generator, ///< Background, Text, Fast Noise
     Mask, ///< Rectangle, Ellipse, Polygon
     Color, ///< Color Corrector, Channel Booleans
-    Matte, ///< Luma Keyer, Delta Keyer
+    Matte, ///< Luma Keyer, Delta Keyer, Ultra Keyer, Matte Control
+    Filter, ///< Soft Glow, Light Wrap
+    Warp, ///< Grid Warp, Displace, Vector Distort
     Effect ///< every EffectRegistry video effect ("fx:<id>")
 };
 
@@ -61,7 +63,9 @@ enum class ViewerControls : quint8 {
     Tracker,
     /// The four corner points of a region (nodekeys::planarCorner()) joined by a quad, each
     /// corner draggable, the whole quad movable: Planar Tracker.
-    Planar
+    Planar,
+    /// The control grid of Grid Warp: every grid point draggable (nodekeys::gridKey()).
+    Grid
 };
 
 /// Describes one node type.
@@ -128,6 +132,13 @@ inline const QString BSplineMask = QStringLiteral("bspline_mask");
 inline const QString LumaKeyer = QStringLiteral("luma_keyer");
 inline const QString DeltaKeyer = QStringLiteral("delta_keyer");
 inline const QString CornerPositioner = QStringLiteral("corner_positioner");
+inline const QString SoftGlow = QStringLiteral("soft_glow");
+inline const QString LightWrap = QStringLiteral("light_wrap");
+inline const QString GridWarp = QStringLiteral("grid_warp");
+inline const QString Displace = QStringLiteral("displace");
+inline const QString VectorDistort = QStringLiteral("vector_distort");
+inline const QString UltraKeyer = QStringLiteral("ultra_keyer");
+inline const QString MatteControl = QStringLiteral("matte_control");
 inline const QString ColorCorrector = QStringLiteral("color_corrector");
 inline const QString ChannelBooleans = QStringLiteral("channel_booleans");
 /// Prefix of the effect nodes: "fx:" + EffectRegistry id.
@@ -142,6 +153,13 @@ inline const QString Foreground = QStringLiteral("foreground");
 inline const QString Mask = QStringLiteral("mask");
 /// Tracker: the picture the point is followed in (the main input when not connected).
 inline const QString Source = QStringLiteral("source");
+/// Displace and Vector Distort: the picture that holds the displacement / the vectors.
+inline const QString Map = QStringLiteral("map");
+/// Keyers and Matte Control: masks that take the matte out (Garbage) or keep it (Solid), and the
+/// Delta Keyer's clean plate (a picture of the screen without the subject).
+inline const QString GarbageMatte = QStringLiteral("garbageMatte");
+inline const QString SolidMatte = QStringLiteral("solidMatte");
+inline const QString CleanPlate = QStringLiteral("cleanPlate");
 } // namespace nodeports
 
 /// Parameter keys of the built-in nodes (see NodeDescriptor for the units).
@@ -242,6 +260,81 @@ inline const QString CleanForeground = QStringLiteral("cleanForeground"); ///< 0
 inline const QString MatteLow = QStringLiteral("matteLow"); ///< Matte Threshold Low
 inline const QString MatteHigh = QStringLiteral("matteHigh"); ///< Matte Threshold High
 inline const QString Despill = QStringLiteral("despill"); ///< 0..1
+// Soft Glow (Gain above): Filter (blurfilters::), size, passes, colour channels and scale.
+inline const QString BlurFilter = QStringLiteral("blurFilter"); ///< choice (blurfilters::)
+inline const QString NumPasses = QStringLiteral("numPasses"); ///< Multi-Box passes
+inline const QString GlowThreshold = QStringLiteral("glowThreshold"); ///< brightness above which pixels glow
+inline const QString GlowSize = QStringLiteral("glowSize"); ///< timeline px (X when unlocked)
+inline const QString GlowSizeY = QStringLiteral("glowSizeY"); ///< timeline px, used when Lock X/Y is off
+inline const QString LockXY = QStringLiteral("lockXY"); ///< bool
+inline const QString GlowRed = QStringLiteral("glowRed"); ///< bool: colour channels the glow has
+inline const QString GlowGreen = QStringLiteral("glowGreen");
+inline const QString GlowBlue = QStringLiteral("glowBlue");
+inline const QString GlowAlpha = QStringLiteral("glowAlpha");
+inline const QString GlowScaleR = QStringLiteral("glowScaleR"); ///< Color Scale per channel
+inline const QString GlowScaleG = QStringLiteral("glowScaleG");
+inline const QString GlowScaleB = QStringLiteral("glowScaleB");
+inline const QString GlowScaleA = QStringLiteral("glowScaleA");
+// Light Wrap (Saturation above).
+inline const QString WrapIntensity = QStringLiteral("wrapIntensity"); ///< 0..4
+inline const QString WrapDiffuse = QStringLiteral("wrapDiffuse"); ///< timeline px, blur of the wrap
+inline const QString WrapFgBlur = QStringLiteral("wrapFgBlur"); ///< timeline px, blur of the matte
+inline const QString WrapBgBlur = QStringLiteral("wrapBgBlur"); ///< timeline px, blur of the background
+inline const QString WrapLumaTolerance = QStringLiteral("wrapLumaTolerance"); ///< 0..1
+inline const QString WrapLumaBased = QStringLiteral("wrapLumaBased"); ///< bool
+inline const QString WrapGlow = QStringLiteral("wrapGlow"); ///< bool: not limited to the foreground
+inline const QString WrapOnly = QStringLiteral("wrapOnly"); ///< bool: the wrap alone
+inline const QString WrapUseConstant = QStringLiteral("wrapUseConstant"); ///< bool
+inline const QString WrapColor = QStringLiteral("wrapColor"); ///< colour of Use Constant Color
+inline const QString WrapMerge = QStringLiteral("wrapMerge"); ///< choice (wrapmerges::)
+// Displace (Edges above, CenterX / CenterY for Radial) and Vector Distort.
+inline const QString DisplaceType = QStringLiteral("displaceType"); ///< choice (displacetypes::)
+inline const QString DisplaceXChannel = QStringLiteral("displaceXChannel"); ///< choice (channelsources::, red..luma)
+inline const QString DisplaceYChannel = QStringLiteral("displaceYChannel");
+inline const QString DisplaceXRefraction = QStringLiteral("displaceXRefraction"); ///< timeline px
+inline const QString DisplaceYRefraction = QStringLiteral("displaceYRefraction");
+inline const QString DisplaceOffset = QStringLiteral("displaceOffset"); ///< map value that moves nothing
+inline const QString DisplaceLightPower = QStringLiteral("displaceLightPower");
+inline const QString DisplaceLightAngle = QStringLiteral("displaceLightAngle");
+inline const QString VectorRange = QStringLiteral("vectorRange"); ///< timeline px
+inline const QString VectorMultiplier = QStringLiteral("vectorMultiplier");
+inline const QString VectorSteps = QStringLiteral("vectorSteps");
+// Grid Warp: Columns / Rows (core/VideoEffectKeys4.h names, redeclared here), points in px.
+inline constexpr int kGridMaxSide = 9;
+inline const QString Columns = QStringLiteral("columns");
+inline const QString Rows = QStringLiteral("rows");
+/// Movement in timeline px of grid point (@p row, @p column) on x or y (row 0 at the top).
+inline QString gridKey(int row, int column, int axis)
+{
+    return QStringLiteral("grid%1%2%3").arg(row).arg(column).arg(axis == 0 ? 'X' : 'Y');
+}
+// Keyers and Matte Control (Invert, Gain, KeyBalance, PreSoft, CleanBackground, CleanForeground,
+// MatteLow, MatteHigh, Despill above; BlurFilter and NumPasses of Soft Glow below the matte blur).
+inline const QString PreBlur = QStringLiteral("preBlur"); ///< px, blur of the picture the key reads
+inline const QString PreMatteErode = QStringLiteral("preMatteErode"); ///< px, + grows the matte
+inline const QString PreMatteBlur = QStringLiteral("preMatteBlur"); ///< px
+inline const QString MatteBlur = QStringLiteral("matteBlur"); ///< px
+inline const QString MatteErode = QStringLiteral("matteErode"); ///< px, + dilates, - erodes
+inline const QString MatteGamma = QStringLiteral("matteGamma");
+inline const QString RestoreFringe = QStringLiteral("restoreFringe"); ///< 0..1
+inline const QString SpillMethod = QStringLiteral("spillMethod"); ///< choice (spillmethods::)
+inline const QString FringeGamma = QStringLiteral("fringeGamma");
+inline const QString FringeSize = QStringLiteral("fringeSize"); ///< -1..1
+inline const QString FringeShape = QStringLiteral("fringeShape"); ///< -1..1
+inline const QString FringeCyanRed = QStringLiteral("fringeCyanRed"); ///< -1..1
+inline const QString FringeMagentaGreen = QStringLiteral("fringeMagentaGreen");
+inline const QString FringeYellowBlue = QStringLiteral("fringeYellowBlue");
+inline const QString ReplaceMode = QStringLiteral("replaceMode"); ///< choice (replacemodes::)
+inline const QString ReplaceColor = QStringLiteral("replaceColor");
+inline const QString SolidInvert = QStringLiteral("solidInvert"); ///< bool
+inline const QString GarbageInvert = QStringLiteral("garbageInvert"); ///< bool
+inline const QString ViewMode = QStringLiteral("viewMode"); ///< choice (viewmodes::)
+inline const QString UkRedLevel = QStringLiteral("ukRedLevel"); ///< Ultra Keyer difference levels
+inline const QString UkGreenLevel = QStringLiteral("ukGreenLevel");
+inline const QString UkBlueLevel = QStringLiteral("ukBlueLevel");
+inline const QString MatteSeparation = QStringLiteral("matteSeparation"); ///< 0..1
+inline const QString PreMatteSize = QStringLiteral("preMatteSize"); ///< px, closes holes
+inline const QString SubtractBackground = QStringLiteral("subtractBackground"); ///< bool
 // Color Corrector.
 inline const QString Lift = QStringLiteral("lift"); ///< added to the shadows, -1..1
 inline const QString Gamma = QStringLiteral("gamma"); ///< midtone power, 1 = unchanged
@@ -396,6 +489,56 @@ inline const QString Stabilize = QStringLiteral("stabilize"); ///< the input can
 /// plane), Stabilize is "steady" (it cancels that).
 inline const QString CornerPin = QStringLiteral("cornerPin");
 } // namespace trackmodes
+
+/// Blur filters of Soft Glow and the matte blurs (the choice list order).
+namespace blurfilters {
+inline const QString Box = QStringLiteral("box");
+inline const QString Bartlett = QStringLiteral("bartlett");
+inline const QString MultiBox = QStringLiteral("multibox");
+inline const QString Gaussian = QStringLiteral("gaussian");
+[[nodiscard]] QStringList ids();
+/// Index in ids() (Gaussian for unknown values).
+[[nodiscard]] int index(const QString& id);
+} // namespace blurfilters
+
+/// Displace types.
+namespace displacetypes {
+inline const QString XY = QStringLiteral("xy");
+inline const QString Radial = QStringLiteral("radial");
+} // namespace displacetypes
+
+/// Spill suppression methods of the keyers (choice order).
+namespace spillmethods {
+inline const QString None = QStringLiteral("none");
+inline const QString Rare = QStringLiteral("rare");
+inline const QString Medium = QStringLiteral("medium");
+inline const QString WellDone = QStringLiteral("welldone");
+inline const QString Burnt = QStringLiteral("burnt");
+[[nodiscard]] int index(const QString& id);
+} // namespace spillmethods
+
+/// Replace modes of the keyers (choice order).
+namespace replacemodes {
+inline const QString None = QStringLiteral("none");
+inline const QString Source = QStringLiteral("source");
+inline const QString Hard = QStringLiteral("hard");
+inline const QString Soft = QStringLiteral("soft");
+[[nodiscard]] int index(const QString& id);
+} // namespace replacemodes
+
+/// What a keyer shows (choice order).
+namespace viewmodes {
+inline const QString Final = QStringLiteral("final");
+inline const QString PreMatte = QStringLiteral("preMatte");
+inline const QString Matte = QStringLiteral("matte");
+[[nodiscard]] int index(const QString& id);
+} // namespace viewmodes
+
+/// Light Wrap Highlight Merge operations.
+namespace wrapmerges {
+inline const QString Add = QStringLiteral("add");
+inline const QString Screen = QStringLiteral("screen");
+} // namespace wrapmerges
 
 /// Channel Booleans sources, in the order of the choice list.
 namespace channelsources {

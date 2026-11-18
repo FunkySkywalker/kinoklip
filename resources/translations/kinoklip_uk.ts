@@ -20780,6 +20780,14 @@ Import files with %1 or drop them here.</source>
         <translation>Матте</translation>
     </message>
     <message>
+        <source>Filter</source>
+        <translation>Фільтр</translation>
+    </message>
+    <message>
+        <source>Warp</source>
+        <translation>Спотворення</translation>
+    </message>
+    <message>
         <source>Effects</source>
         <translation>Ефекти</translation>
     </message>
@@ -21380,8 +21388,136 @@ Import files with %1 or drop them here.</source>
         <translation>Усунення відблисків екрана</translation>
     </message>
     <message>
+        <source>Soft Glow</source>
+        <translation>М'яке світіння</translation>
+    </message>
+    <message>
+        <source>A soft glow around the bright parts of the picture</source>
+        <translation>М'яке світіння навколо яскравих частин зображення</translation>
+    </message>
+    <message>
+        <source>Box</source>
+        <translation>Прямокутне</translation>
+    </message>
+    <message>
+        <source>Bartlett</source>
+        <translation>Бартлетт</translation>
+    </message>
+    <message>
+        <source>Multi-box</source>
+        <translation>Мультибокс</translation>
+    </message>
+    <message>
+        <source>Threshold</source>
+        <translation>Поріг</translation>
+    </message>
+    <message>
+        <source>Lock X/Y</source>
+        <translation>Зв'язати X/Y</translation>
+    </message>
+    <message>
+        <source>Glow Size</source>
+        <translation>Розмір світіння</translation>
+    </message>
+    <message>
+        <source>Glow Size Y</source>
+        <translation>Розмір світіння за Y</translation>
+    </message>
+    <message>
+        <source>Num Passes</source>
+        <translation>Кількість проходів</translation>
+    </message>
+    <message>
+        <source>Glow Red</source>
+        <translation>Світіння червоного</translation>
+    </message>
+    <message>
+        <source>Glow Green</source>
+        <translation>Світіння зеленого</translation>
+    </message>
+    <message>
+        <source>Glow Blue</source>
+        <translation>Світіння синього</translation>
+    </message>
+    <message>
+        <source>Glow Alpha</source>
+        <translation>Світіння альфи</translation>
+    </message>
+    <message>
+        <source>Color Scale Red</source>
+        <translation>Масштаб кольору: червоний</translation>
+    </message>
+    <message>
+        <source>Color Scale Green</source>
+        <translation>Масштаб кольору: зелений</translation>
+    </message>
+    <message>
+        <source>Color Scale Blue</source>
+        <translation>Масштаб кольору: синій</translation>
+    </message>
+    <message>
+        <source>Color Scale Alpha</source>
+        <translation>Масштаб кольору: альфа</translation>
+    </message>
+    <message>
+        <source>Light Wrap</source>
+        <translation>Обтікання світлом</translation>
+    </message>
+    <message>
+        <source>Lets the light of the background spill over the edges of the foreground</source>
+        <translation>Пропускає світло тла на краї переднього плану</translation>
+    </message>
+    <message>
+        <source>Intensity</source>
+        <translation>Інтенсивність</translation>
+    </message>
+    <message>
+        <source>Diffuse</source>
+        <translation>Розсіювання</translation>
+    </message>
+    <message>
+        <source>Foreground Blur</source>
+        <translation>Розмиття переднього плану</translation>
+    </message>
+    <message>
+        <source>Background Blur</source>
+        <translation>Розмиття тла</translation>
+    </message>
+    <message>
+        <source>Luma Tolerance</source>
+        <translation>Допуск за яскравістю</translation>
+    </message>
+    <message>
+        <source>Luminance Based Wrap</source>
+        <translation>Обтікання за яскравістю</translation>
+    </message>
+    <message>
+        <source>Enable Glow</source>
+        <translation>Увімкнути світіння</translation>
+    </message>
+    <message>
+        <source>Generate Wrap Only</source>
+        <translation>Лише обтікання</translation>
+    </message>
+    <message>
+        <source>Highlight Merge</source>
+        <translation>Змішування відблисків</translation>
+    </message>
+    <message>
         <source>Add</source>
         <translation>Додати</translation>
+    </message>
+    <message>
+        <source>Screen</source>
+        <translation>Екран</translation>
+    </message>
+    <message>
+        <source>Use Constant Highlight</source>
+        <translation>Постійний колір відблиску</translation>
+    </message>
+    <message>
+        <source>Constant</source>
+        <translation>Постійний</translation>
     </message>
     <message>
         <source>Angle</source>

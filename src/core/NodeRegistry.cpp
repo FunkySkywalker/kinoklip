@@ -200,6 +200,32 @@ int filtermethods::index(const QString& method)
     return i < 0 ? 1 : i; // Linear
 }
 
+int spillmethods::index(const QString& id)
+{
+    return std::max(0, int(QStringList {None, Rare, Medium, WellDone, Burnt}.indexOf(id)));
+}
+
+int replacemodes::index(const QString& id)
+{
+    return std::max(0, int(QStringList {None, Source, Hard, Soft}.indexOf(id)));
+}
+
+int viewmodes::index(const QString& id)
+{
+    return std::max(0, int(QStringList {Final, PreMatte, Matte}.indexOf(id)));
+}
+
+QStringList blurfilters::ids()
+{
+    return {Box, Bartlett, MultiBox, Gaussian};
+}
+
+int blurfilters::index(const QString& id)
+{
+    const int i = int(ids().indexOf(id));
+    return i < 0 ? 3 : i; // Gaussian
+}
+
 int channelsources::index(const QString& source)
 {
     static const QStringList sources {Red, Green, Blue, Alpha, Luma, Black, White};
@@ -314,6 +340,10 @@ QString NodeRegistry::categoryName(NodeCategory category)
         return tr("Color");
     case NodeCategory::Matte:
         return tr("Matte");
+    case NodeCategory::Filter:
+        return tr("Filter");
+    case NodeCategory::Warp:
+        return tr("Warp");
     case NodeCategory::Effect:
         return tr("Effects");
     }
@@ -692,6 +722,55 @@ NodeRegistry::NodeRegistry()
             number(k::MatteHigh, tr("Matte Threshold High"), 0, 1, 1, 0.01),
             number(k::Despill, tr("Despill"), 0, 1, 1, 0.01),
             boolean(k::Invert, tr("Invert"), false)};
+        add(d);
+    }
+
+    // ---- Filter ----
+    {
+        NodeDescriptor d = node(nodetypes::SoftGlow, tr("Soft Glow"), QStringLiteral("SGl"),
+            QStringLiteral("SoftGlow"), C::Filter,
+            tr("A soft glow around the bright parts of the picture"));
+        d.inputs = {inputPort(), maskPort()};
+        d.mainInput = nodeports::Input;
+        d.params = {choice(k::BlurFilter, tr("Filter"), blurfilters::ids(),
+                        {tr("Box"), tr("Bartlett"), tr("Multi-box"), tr("Gaussian")},
+                        blurfilters::Gaussian),
+            number(k::GlowThreshold, tr("Threshold"), 0, 4, 0.5, 0.01),
+            number(k::Gain, tr("Gain"), 0, 10, 1, 0.01),
+            boolean(k::LockXY, tr("Lock X/Y"), true),
+            number(k::GlowSize, tr("Glow Size"), 0, 500, 20, 0.5, kPx),
+            number(k::GlowSizeY, tr("Glow Size Y"), 0, 500, 20, 0.5, kPx),
+            integer(k::NumPasses, tr("Num Passes"), 1, 10, 4),
+            boolean(k::GlowRed, tr("Glow Red"), true),
+            boolean(k::GlowGreen, tr("Glow Green"), true),
+            boolean(k::GlowBlue, tr("Glow Blue"), true),
+            boolean(k::GlowAlpha, tr("Glow Alpha"), true),
+            number(k::GlowScaleR, tr("Color Scale Red"), 0, 4, 1, 0.01),
+            number(k::GlowScaleG, tr("Color Scale Green"), 0, 4, 1, 0.01),
+            number(k::GlowScaleB, tr("Color Scale Blue"), 0, 4, 1, 0.01),
+            number(k::GlowScaleA, tr("Color Scale Alpha"), 0, 4, 1, 0.01)};
+        add(d);
+    }
+    {
+        NodeDescriptor d = node(nodetypes::LightWrap, tr("Light Wrap"), QStringLiteral("LWr"),
+            QStringLiteral("LightWrap"), C::Filter,
+            tr("Lets the light of the background spill over the edges of the foreground"));
+        d.inputs = {inputPort(),
+            port(nodeports::Background, tr("Background"), PortKind::Image, true), maskPort()};
+        d.mainInput = nodeports::Input;
+        d.params = {number(k::WrapIntensity, tr("Intensity"), 0, 4, 0.5, 0.01),
+            number(k::WrapDiffuse, tr("Diffuse"), 0, 300, 15, 0.5, kPx),
+            number(k::WrapFgBlur, tr("Foreground Blur"), 0, 300, 10, 0.5, kPx),
+            number(k::WrapBgBlur, tr("Background Blur"), 0, 300, 0, 0.5, kPx),
+            number(k::Saturation, tr("Saturation"), 0, 4, 1, 0.01),
+            number(k::WrapLumaTolerance, tr("Luma Tolerance"), 0, 1, 0, 0.01),
+            boolean(k::WrapLumaBased, tr("Luminance Based Wrap"), true),
+            boolean(k::WrapGlow, tr("Enable Glow"), false),
+            boolean(k::WrapOnly, tr("Generate Wrap Only"), false),
+            choice(k::WrapMerge, tr("Highlight Merge"),
+                {wrapmerges::Add, wrapmerges::Screen}, {tr("Add"), tr("Screen")}, wrapmerges::Add),
+            boolean(k::WrapUseConstant, tr("Use Constant Highlight"), false),
+            color(k::WrapColor, tr("Constant"), QColor(255, 255, 255))};
         add(d);
     }
 

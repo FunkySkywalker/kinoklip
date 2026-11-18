@@ -22,7 +22,7 @@ namespace {
 constexpr NodeCategory kCategoryOrder[]
     = {NodeCategory::InputOutput, NodeCategory::Composite, NodeCategory::Transform,
         NodeCategory::Generator, NodeCategory::Mask, NodeCategory::Color, NodeCategory::Matte,
-        NodeCategory::Effect};
+        NodeCategory::Filter, NodeCategory::Warp, NodeCategory::Effect};
 
 LinkRole roleOf(const NodePort& port)
 {

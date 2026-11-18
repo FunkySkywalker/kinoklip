@@ -177,6 +177,13 @@ move looks the same with Motion Blur on or off.
   Balance weights the two other channels, Pre-Matte Soft Range softens the edge, Clean Background and Clean
   Foreground push the matte to fully out or fully in, Matte Threshold Low / High set the final range, and Despill
   removes the screen colour from the edges.
+- **Soft Glow** (Filter): lights up the bright parts of the picture with a soft halo. Threshold says how bright a
+  pixel must be to glow, Gain how strong the glow is, Glow Size how far it spreads (turn Lock X/Y off to give the
+  two directions their own sizes), and Filter chooses the blur. Color Scale tints the glow.
+- **Light Wrap** (Filter): connect the keyed foreground to Input and the background picture to Background. The
+  background's light spills over the inside of the foreground's edge so the cut-out sits in the scene; raise
+  Intensity, then use Diffuse for how soft the wrap is and Foreground Blur for how far it reaches in. Put the result
+  over the background with a Merge. Enable Glow lets the light also spill outside the foreground.
 - **Corner Positioner** (Transform): drag the four corners in the viewer (or type them) to pin the picture to a
   new quadrilateral in perspective.
 

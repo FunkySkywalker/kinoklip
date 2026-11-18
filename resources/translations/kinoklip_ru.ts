@@ -20780,6 +20780,14 @@ Import files with %1 or drop them here.</source>
         <translation>Маска</translation>
     </message>
     <message>
+        <source>Filter</source>
+        <translation>Фильтр</translation>
+    </message>
+    <message>
+        <source>Warp</source>
+        <translation>Искажение</translation>
+    </message>
+    <message>
         <source>Effects</source>
         <translation>Эффекты</translation>
     </message>
@@ -21380,8 +21388,136 @@ Import files with %1 or drop them here.</source>
         <translation>Подавление отсвета</translation>
     </message>
     <message>
+        <source>Soft Glow</source>
+        <translation>Мягкое свечение</translation>
+    </message>
+    <message>
+        <source>A soft glow around the bright parts of the picture</source>
+        <translation>Мягкое свечение вокруг ярких частей изображения</translation>
+    </message>
+    <message>
+        <source>Box</source>
+        <translation>Прямоугольное</translation>
+    </message>
+    <message>
+        <source>Bartlett</source>
+        <translation>Бартлетт</translation>
+    </message>
+    <message>
+        <source>Multi-box</source>
+        <translation>Мультибокс</translation>
+    </message>
+    <message>
+        <source>Threshold</source>
+        <translation>Порог</translation>
+    </message>
+    <message>
+        <source>Lock X/Y</source>
+        <translation>Связать X/Y</translation>
+    </message>
+    <message>
+        <source>Glow Size</source>
+        <translation>Размер свечения</translation>
+    </message>
+    <message>
+        <source>Glow Size Y</source>
+        <translation>Размер свечения по Y</translation>
+    </message>
+    <message>
+        <source>Num Passes</source>
+        <translation>Число проходов</translation>
+    </message>
+    <message>
+        <source>Glow Red</source>
+        <translation>Свечение красного</translation>
+    </message>
+    <message>
+        <source>Glow Green</source>
+        <translation>Свечение зелёного</translation>
+    </message>
+    <message>
+        <source>Glow Blue</source>
+        <translation>Свечение синего</translation>
+    </message>
+    <message>
+        <source>Glow Alpha</source>
+        <translation>Свечение альфы</translation>
+    </message>
+    <message>
+        <source>Color Scale Red</source>
+        <translation>Масштаб цвета: красный</translation>
+    </message>
+    <message>
+        <source>Color Scale Green</source>
+        <translation>Масштаб цвета: зелёный</translation>
+    </message>
+    <message>
+        <source>Color Scale Blue</source>
+        <translation>Масштаб цвета: синий</translation>
+    </message>
+    <message>
+        <source>Color Scale Alpha</source>
+        <translation>Масштаб цвета: альфа</translation>
+    </message>
+    <message>
+        <source>Light Wrap</source>
+        <translation>Обтекание светом</translation>
+    </message>
+    <message>
+        <source>Lets the light of the background spill over the edges of the foreground</source>
+        <translation>Пропускает свет фона на края переднего плана</translation>
+    </message>
+    <message>
+        <source>Intensity</source>
+        <translation>Интенсивность</translation>
+    </message>
+    <message>
+        <source>Diffuse</source>
+        <translation>Рассеивание</translation>
+    </message>
+    <message>
+        <source>Foreground Blur</source>
+        <translation>Размытие переднего плана</translation>
+    </message>
+    <message>
+        <source>Background Blur</source>
+        <translation>Размытие фона</translation>
+    </message>
+    <message>
+        <source>Luma Tolerance</source>
+        <translation>Допуск по яркости</translation>
+    </message>
+    <message>
+        <source>Luminance Based Wrap</source>
+        <translation>Обтекание по яркости</translation>
+    </message>
+    <message>
+        <source>Enable Glow</source>
+        <translation>Включить свечение</translation>
+    </message>
+    <message>
+        <source>Generate Wrap Only</source>
+        <translation>Только обтекание</translation>
+    </message>
+    <message>
+        <source>Highlight Merge</source>
+        <translation>Смешивание бликов</translation>
+    </message>
+    <message>
         <source>Add</source>
         <translation>Добавить</translation>
+    </message>
+    <message>
+        <source>Screen</source>
+        <translation>Экран</translation>
+    </message>
+    <message>
+        <source>Use Constant Highlight</source>
+        <translation>Постоянный цвет блика</translation>
+    </message>
+    <message>
+        <source>Constant</source>
+        <translation>Постоянный</translation>
     </message>
     <message>
         <source>Angle</source>

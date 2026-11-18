@@ -20763,6 +20763,14 @@ Importar archivos con %1 o soltarlos aquí.</translation>
         <translation>Matte</translation>
     </message>
     <message>
+        <source>Filter</source>
+        <translation>Filtro</translation>
+    </message>
+    <message>
+        <source>Warp</source>
+        <translation>Deformar</translation>
+    </message>
+    <message>
         <source>Effects</source>
         <translation>Efectos</translation>
     </message>
@@ -21363,8 +21371,136 @@ Importar archivos con %1 o soltarlos aquí.</translation>
         <translation>Despill</translation>
     </message>
     <message>
+        <source>Soft Glow</source>
+        <translation>Resplandor suave</translation>
+    </message>
+    <message>
+        <source>A soft glow around the bright parts of the picture</source>
+        <translation>Un resplandor suave alrededor de las partes brillantes de la imagen</translation>
+    </message>
+    <message>
+        <source>Box</source>
+        <translation>Caja</translation>
+    </message>
+    <message>
+        <source>Bartlett</source>
+        <translation>Bartlett</translation>
+    </message>
+    <message>
+        <source>Multi-box</source>
+        <translation>Multicaja</translation>
+    </message>
+    <message>
+        <source>Threshold</source>
+        <translation>Umbral</translation>
+    </message>
+    <message>
+        <source>Lock X/Y</source>
+        <translation>Bloquear X/Y</translation>
+    </message>
+    <message>
+        <source>Glow Size</source>
+        <translation>Tamaño del resplandor</translation>
+    </message>
+    <message>
+        <source>Glow Size Y</source>
+        <translation>Tamaño del resplandor Y</translation>
+    </message>
+    <message>
+        <source>Num Passes</source>
+        <translation>Número de pasadas</translation>
+    </message>
+    <message>
+        <source>Glow Red</source>
+        <translation>Resplandor rojo</translation>
+    </message>
+    <message>
+        <source>Glow Green</source>
+        <translation>Resplandor verde</translation>
+    </message>
+    <message>
+        <source>Glow Blue</source>
+        <translation>Resplandor azul</translation>
+    </message>
+    <message>
+        <source>Glow Alpha</source>
+        <translation>Resplandor alfa</translation>
+    </message>
+    <message>
+        <source>Color Scale Red</source>
+        <translation>Escala de color rojo</translation>
+    </message>
+    <message>
+        <source>Color Scale Green</source>
+        <translation>Escala de color verde</translation>
+    </message>
+    <message>
+        <source>Color Scale Blue</source>
+        <translation>Escala de color azul</translation>
+    </message>
+    <message>
+        <source>Color Scale Alpha</source>
+        <translation>Escala de color alfa</translation>
+    </message>
+    <message>
+        <source>Light Wrap</source>
+        <translation>Envoltura de luz</translation>
+    </message>
+    <message>
+        <source>Lets the light of the background spill over the edges of the foreground</source>
+        <translation>Deja que la luz del fondo se derrame sobre los bordes del primer plano</translation>
+    </message>
+    <message>
+        <source>Intensity</source>
+        <translation>Intensidad</translation>
+    </message>
+    <message>
+        <source>Diffuse</source>
+        <translation>Difusión</translation>
+    </message>
+    <message>
+        <source>Foreground Blur</source>
+        <translation>Desenfoque del primer plano</translation>
+    </message>
+    <message>
+        <source>Background Blur</source>
+        <translation>Desenfoque del fondo</translation>
+    </message>
+    <message>
+        <source>Luma Tolerance</source>
+        <translation>Tolerancia de luma</translation>
+    </message>
+    <message>
+        <source>Luminance Based Wrap</source>
+        <translation>Envoltura basada en luminancia</translation>
+    </message>
+    <message>
+        <source>Enable Glow</source>
+        <translation>Activar resplandor</translation>
+    </message>
+    <message>
+        <source>Generate Wrap Only</source>
+        <translation>Generar solo la envoltura</translation>
+    </message>
+    <message>
+        <source>Highlight Merge</source>
+        <translation>Fusión de luces</translation>
+    </message>
+    <message>
         <source>Add</source>
         <translation>Sumar</translation>
+    </message>
+    <message>
+        <source>Screen</source>
+        <translation>Trama</translation>
+    </message>
+    <message>
+        <source>Use Constant Highlight</source>
+        <translation>Usar luz constante</translation>
+    </message>
+    <message>
+        <source>Constant</source>
+        <translation>Constante</translation>
     </message>
     <message>
         <source>Angle</source>

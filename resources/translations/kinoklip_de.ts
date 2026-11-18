@@ -20763,6 +20763,14 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
         <translation>Matte</translation>
     </message>
     <message>
+        <source>Filter</source>
+        <translation>Filter</translation>
+    </message>
+    <message>
+        <source>Warp</source>
+        <translation>Verzerren</translation>
+    </message>
+    <message>
         <source>Effects</source>
         <translation>Effekte</translation>
     </message>
@@ -21363,8 +21371,136 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
         <translation>Despill</translation>
     </message>
     <message>
+        <source>Soft Glow</source>
+        <translation>Weiches Leuchten</translation>
+    </message>
+    <message>
+        <source>A soft glow around the bright parts of the picture</source>
+        <translation>Ein weiches Leuchten um die hellen Teile des Bildes</translation>
+    </message>
+    <message>
+        <source>Box</source>
+        <translation>Box</translation>
+    </message>
+    <message>
+        <source>Bartlett</source>
+        <translation>Bartlett</translation>
+    </message>
+    <message>
+        <source>Multi-box</source>
+        <translation>Multi-Box</translation>
+    </message>
+    <message>
+        <source>Threshold</source>
+        <translation>Schwellwert</translation>
+    </message>
+    <message>
+        <source>Lock X/Y</source>
+        <translation>X/Y koppeln</translation>
+    </message>
+    <message>
+        <source>Glow Size</source>
+        <translation>Leuchtgröße</translation>
+    </message>
+    <message>
+        <source>Glow Size Y</source>
+        <translation>Leuchtgröße Y</translation>
+    </message>
+    <message>
+        <source>Num Passes</source>
+        <translation>Anzahl Durchgänge</translation>
+    </message>
+    <message>
+        <source>Glow Red</source>
+        <translation>Rot leuchten</translation>
+    </message>
+    <message>
+        <source>Glow Green</source>
+        <translation>Grün leuchten</translation>
+    </message>
+    <message>
+        <source>Glow Blue</source>
+        <translation>Blau leuchten</translation>
+    </message>
+    <message>
+        <source>Glow Alpha</source>
+        <translation>Alpha leuchten</translation>
+    </message>
+    <message>
+        <source>Color Scale Red</source>
+        <translation>Farbskalierung Rot</translation>
+    </message>
+    <message>
+        <source>Color Scale Green</source>
+        <translation>Farbskalierung Grün</translation>
+    </message>
+    <message>
+        <source>Color Scale Blue</source>
+        <translation>Farbskalierung Blau</translation>
+    </message>
+    <message>
+        <source>Color Scale Alpha</source>
+        <translation>Farbskalierung Alpha</translation>
+    </message>
+    <message>
+        <source>Light Wrap</source>
+        <translation>Lichtumhüllung</translation>
+    </message>
+    <message>
+        <source>Lets the light of the background spill over the edges of the foreground</source>
+        <translation>Lässt das Licht des Hintergrunds über die Kanten des Vordergrunds fallen</translation>
+    </message>
+    <message>
+        <source>Intensity</source>
+        <translation>Intensität</translation>
+    </message>
+    <message>
+        <source>Diffuse</source>
+        <translation>Streuung</translation>
+    </message>
+    <message>
+        <source>Foreground Blur</source>
+        <translation>Vordergrund-Unschärfe</translation>
+    </message>
+    <message>
+        <source>Background Blur</source>
+        <translation>Hintergrund-Unschärfe</translation>
+    </message>
+    <message>
+        <source>Luma Tolerance</source>
+        <translation>Luma-Toleranz</translation>
+    </message>
+    <message>
+        <source>Luminance Based Wrap</source>
+        <translation>Helligkeitsbasierte Umhüllung</translation>
+    </message>
+    <message>
+        <source>Enable Glow</source>
+        <translation>Leuchten aktivieren</translation>
+    </message>
+    <message>
+        <source>Generate Wrap Only</source>
+        <translation>Nur Umhüllung erzeugen</translation>
+    </message>
+    <message>
+        <source>Highlight Merge</source>
+        <translation>Lichter verrechnen</translation>
+    </message>
+    <message>
         <source>Add</source>
         <translation>Addieren</translation>
+    </message>
+    <message>
+        <source>Screen</source>
+        <translation>Negativ multiplizieren</translation>
+    </message>
+    <message>
+        <source>Use Constant Highlight</source>
+        <translation>Konstante Lichtfarbe verwenden</translation>
+    </message>
+    <message>
+        <source>Constant</source>
+        <translation>Konstante</translation>
     </message>
     <message>
         <source>Angle</source>

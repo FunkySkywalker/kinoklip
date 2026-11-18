@@ -60,6 +60,9 @@ general knowledge of node compositors, our own drawing, names and icons; never R
   input (the Paint Mode says how a mask joins the one plugged into it). Spec section 92.
 - **Matte**: Luma Keyer (channel, low / high, soft range, invert), Delta Keyer (screen colour key with gain,
   balance, pre-matte soft range, clean background / foreground, matte thresholds and despill).
+- **Filter**: Soft Glow (threshold, gain, filter, glow size X / Y, colour scale and channels) and Light Wrap
+  (the background's light spilling over the foreground's edges); spec section 113. The float reference maths is
+  `src/render/CompFilterMath.*`, the GPU passes `src/render/GlCompFilters.*`.
 - **Corner Positioner** (Transform): four corner points and a perspective warp, with draggable corner handles in
   the viewer.
 - **Effects**: every Edit page video effect (62 today: keys, colour, blur, light, stylize,

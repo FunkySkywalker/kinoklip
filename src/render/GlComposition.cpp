@@ -357,7 +357,8 @@ bool GlComposition::initialize(GlKit& kit, QString* why)
         || !build(kit, m_paintMask, "comp.paintmask", kPaintMaskFragment, why)
         || !build(kit, m_noise, "comp.noise", kNoiseFragment, why)
         || !build(kit, m_warp, "comp.warp", kWarpFragment, why)
-        || !build(kit, m_resample, "comp.resample", resample.constData(), why))
+        || !build(kit, m_resample, "comp.resample", resample.constData(), why)
+        || !m_fx.initialize(kit, why))
         return false;
     m_resampleInverse = m_resample.uniform(gl, "uInvMatrix");
     m_resampleEdges = m_resample.uniform(gl, "uEdges");
@@ -411,6 +412,7 @@ void GlComposition::destroy(GlKit& kit)
 {
     for (GlProgram* p : {&m_merge, &m_mix, &m_corrector, &m_channels, &m_noise, &m_warp, &m_resample})
         p->destroy(kit.gl());
+    m_fx.destroy(kit);
     m_stack.clear();
 }
 
@@ -441,6 +443,13 @@ GLuint GlComposition::textureOf(GlKit& kit, int owner) const
         return kit.transparentTexture();
     const Slot& s = m_stack[size_t(m_depth)][size_t(owner)];
     return s.own ? s.own->texture : kit.transparentTexture();
+}
+
+const RenderTarget* GlComposition::targetOf(int owner) const
+{
+    if (owner < 0)
+        return nullptr;
+    return m_stack[size_t(m_depth)][size_t(owner)].own.get();
 }
 
 void GlComposition::release(int owner)
@@ -592,6 +601,8 @@ void GlComposition::evalNode(GlKit& kit, const CompEval& ev, int index)
     } else if (n.type == nodetypes::ColorCorrector || n.type == nodetypes::ChannelBooleans
         || n.type == nodetypes::LumaKeyer || n.type == nodetypes::DeltaKeyer) {
         out = colorNode(kit, ev, n, mainOwner);
+    } else if (n.type == nodetypes::SoftGlow || n.type == nodetypes::LightWrap) {
+        out = filterNode(kit, ev, n, mainOwner);
     } else if (!d->effectId.isEmpty()) {
         out = effectNode(kit, ev, n, mainOwner);
     }
@@ -1026,6 +1037,22 @@ PooledTarget GlComposition::colorNode(GlKit& kit, const CompEval& ev, const Comp
     kit.bindTexture(0, textureOf(kit, input));
     kit.drawQuad();
     return out;
+}
+
+PooledTarget GlComposition::filterNode(
+    GlKit& kit, const CompEval& ev, const CompNode& n, int input)
+{
+    const RenderTarget* in = targetOf(input);
+    if (!in)
+        return {};
+    if (n.type == nodetypes::SoftGlow) {
+        const compmath::SoftGlowParams g = compmath::softGlowParams(n.params, ev.compFrame);
+        return m_fx.softGlow(kit, *in, g, ev.scale);
+    }
+    const RenderTarget* bg = targetOf(inputOwner(n, nodeports::Background));
+    if (!bg)
+        return {};
+    return m_fx.lightWrap(kit, *in, *bg, compmath::lightWrapParams(n.params, ev.compFrame), ev.scale);
 }
 
 PooledTarget GlComposition::effectNode(GlKit& kit, const CompEval& ev, const CompNode& n, int input)

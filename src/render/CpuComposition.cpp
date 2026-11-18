@@ -5,6 +5,7 @@
 
 #include "core/CompOps.h"
 #include "core/NodeRegistry.h"
+#include "render/CompFilterMath.h"
 #include "render/CompMath.h"
 #include "render/EffectMath.h"
 #include "render/Generators.h"
@@ -404,6 +405,15 @@ private:
         } else if (n.type == nodetypes::DeltaKeyer && !in.isNull()) {
             const compmath::DeltaKeyParams k = compmath::deltaKeyParams(n.params, f);
             out = pointwise(in, [&k](float* px) { compmath::deltaKey(k, px); });
+        } else if (n.type == nodetypes::SoftGlow && !in.isNull()) {
+            const compmath::SoftGlowParams g = compmath::softGlowParams(n.params, f);
+            out = compmath::toImage(compmath::softGlow(compmath::toFloat(in), g, s));
+        } else if (n.type == nodetypes::LightWrap && !in.isNull()) {
+            const QImage bg = input(n, nodeports::Background, depth);
+            if (!bg.isNull()) {
+                out = compmath::toImage(compmath::lightWrap(compmath::toFloat(in),
+                    compmath::toFloat(bg), compmath::lightWrapParams(n.params, f), s));
+            }
         } else if (!d->effectId.isEmpty() && !in.isNull()) {
             if (fxmath::isPointEffect(d->effectId)) {
                 out = in.copy();

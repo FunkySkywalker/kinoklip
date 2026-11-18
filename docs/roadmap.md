@@ -172,7 +172,7 @@ Beginner and intermediate tutorial workflows for Resolve's Color, Fairlight and 
 - [ ] Compositing: Bezier mask with tangent handles and Roto assist, Point Follower, and mask tracking (a Mask Tracker moves a mask, polygon points, size and angle; also on the Edit page)
 - [ ] Compositing: Planar Tracker Track Mask input, several trackers in one Tracker node (rotation and scale from two patterns), and Follow Track for size and angle
 - [ ] Compositing: Ultra Keyer, Delta Keyer advanced tabs (Pre-Matte Blur, Erode / Dilate, Matte Blur, Fringe, Replace Mode), Matte Control (Garbage and Solid masks, Restore Fringe) and a Clean Plate input
-- [ ] Compositing: Light Wrap and Soft Glow nodes
+- [x] Compositing: Light Wrap and Soft Glow nodes
 - [ ] Compositing: particles: pEmitter, pRender, pMerge, pGravity, pTurbulence
 - [ ] Compositing: 3D: Image Plane 3D, Text3D, Shape3D, Merge3D, Camera3D, lights, Renderer3D and a 3D viewer
 - [ ] Compositing: Paint node (Stroke, Clone, Eraser, Smear, stroke duration) and Magic Mask / Object Removal in the node graph (optional local open model)

@@ -65,6 +65,16 @@ Gain / Balance / Clean / Threshold remap, a linear soft range for the luma key, 
 B-spline basis (with point weights as a rational B-spline) and a signed-distance rounded rectangle. No code or
 formula was taken from Natron, Kdenlive / MLT or any other project.
 
+### Soft Glow and Light Wrap (Compositing page)
+`src/render/CompFilterMath.*` and `GlCompFilters.*`. Soft Glow follows the control list of Fusion's Soft Glow
+tool in the public Fusion reference manual (Filter, Threshold, Gain, Glow Size, Num Passes, Color Scale). The public
+manuals describe no Light Wrap tool in Fusion; its control set (Intensity, Diffuse, Generate Wrap Only, Enable Glow,
+foreground and background blur, Saturation, Luma Tolerance, luminance-based wrap, highlight merge, constant colour)
+is that of the Natron `LightWrap` plugin's documentation (GPL-2.0-or-later); the implementation is our own, the
+usual blurred-matte technique, no Natron code was copied. Blender's Glare node (GPL-2.0-or-later) was read for how
+a glow's threshold, gain and size controls behave. The blur filters (box, Bartlett as two boxes, multi-box,
+Gaussian) are the standard definitions.
+
 ### Keyframe loops
 The extrapolation modes of animated values (`src/core/Animation.cpp`, `AnimatedValue::extrapolatedValue()`)
 follow the documented behaviour of Blender's F-Curve Cycles modifier (GPL-2.0-or-later: Repeat Motion, Repeat

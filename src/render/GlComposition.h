@@ -6,6 +6,7 @@
 
 #include "core/Composition.h"
 #include "render/CompMath.h"
+#include "render/GlCompFilters.h"
 #include "render/GlEffects.h"
 #include "render/GlGenerators.h"
 #include "render/GlKit.h"
@@ -136,11 +137,16 @@ private:
     PooledTarget maskNode(GlKit& kit, const CompEval& ev, const CompNode& n, int input);
     PooledTarget colorNode(GlKit& kit, const CompEval& ev, const CompNode& n, int input);
     PooledTarget effectNode(GlKit& kit, const CompEval& ev, const CompNode& n, int input);
+    /// Soft Glow, Light Wrap and the other nodes of GlCompFilters.
+    PooledTarget filterNode(GlKit& kit, const CompEval& ev, const CompNode& n, int input);
+    /// The target of slot @p owner, nullptr when it is transparent.
+    [[nodiscard]] const RenderTarget* targetOf(int owner) const;
 
     std::function<GlEffect*(const QString&)> m_effects;
     GlMasks* m_masks = nullptr;
     GlGenerators* m_generators = nullptr;
 
+    GlCompFilters m_fx;
     GlProgram m_merge;
     GLint m_mergeFgMatrix = -1, m_mergeMode = -1, m_mergeOpacity = -1, m_mergeHasFg = -1,
           m_mergeHasMask = -1;
