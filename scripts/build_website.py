@@ -32,24 +32,37 @@ RELEASES = os.path.join(REPO, "docs", "releases")
 SHOTS = os.path.join(REPO, "docs", "images", "readme")  # the readme's screenshots, also used on the site
 GITHUB = "https://github.com/SeniorMatt/kinoklip"
 
-# Guide articles by topic. Anything not listed ends up under "More".
+# The guide: a short path for beginners first, then reference groups. Anything not listed ends up under "More".
+START = ["install-kinoklip", "getting-started", "import-your-clips", "cut-and-arrange-clips", "colour-correct-a-clip",
+         "export-for-youtube"]
+# Shown on the guide's front page as the tasks people ask for most (also listed in their group).
+COMMON = ["add-a-title", "transitions", "fade-audio-and-add-music", "change-clip-speed", "remove-a-green-screen",
+          "add-subtitles", "vertical-video", "smooth-playback"]
 GROUPS = [
-    ("Start here", ["getting-started", "use-the-shortcuts-of-your-old-editor", "smooth-playback"]),
-    ("Editing", ["change-clip-speed", "freeze-a-frame", "transitions", "fade-to-black", "zoom-crop-and-picture-in-picture",
-                 "keyframe-animation", "stabilize-a-shaky-clip", "track-and-warp-a-picture", "hide-part-of-the-picture",
-                 "change-the-frame-rate-of-a-timeline", "vertical-video"]),
-    ("Titles, subtitles and effects", ["add-layers-to-a-title", "emoji-in-titles-and-captions", "type-text-on-with-write-on",
-                                       "add-subtitles", "test-patterns-and-looks", "camera-and-screen-looks",
-                                       "sharpen-repair-and-damage-effects", "effects-that-use-other-frames"]),
-    ("Compositing and color", ["compositing-page", "remove-a-green-screen", "remove-a-background", "colour-correct-a-clip",
-                               "change-the-colour-of-one-object", "use-a-lut"]),
+    ("Start here", START),
+    ("Editing", ["add-a-title", "transitions", "fade-to-black", "change-clip-speed", "freeze-a-frame",
+                 "zoom-crop-and-picture-in-picture", "keyframe-animation", "stabilize-a-shaky-clip",
+                 "track-and-warp-a-picture", "hide-part-of-the-picture", "vertical-video",
+                 "change-the-frame-rate-of-a-timeline"]),
+    ("Titles and subtitles", ["add-layers-to-a-title", "emoji-in-titles-and-captions", "type-text-on-with-write-on",
+                              "add-subtitles"]),
+    ("Effects and looks", ["test-patterns-and-looks", "camera-and-screen-looks", "sharpen-repair-and-damage-effects",
+                           "effects-that-use-other-frames"]),
+    ("Color and compositing", ["change-the-colour-of-one-object", "use-a-lut", "use-agx", "compositing-page",
+                               "remove-a-green-screen", "remove-a-background"]),
     ("Audio", ["record-a-voice-over", "fade-audio-and-add-music", "even-out-clip-volumes",
                "change-pitch-and-equalize-a-clip", "separate-audio-from-video"]),
-    ("Deliver and exchange", ["export-for-youtube", "move-a-timeline-to-another-editor"]),
-    ("Keyboard", ["vim-quick-start", "edit-with-vim-keys", "vim-cheat-sheet"]),
+    ("Export and exchange", ["move-a-timeline-to-another-editor"]),
+    ("Keyboard", ["use-the-shortcuts-of-your-old-editor", "vim-quick-start", "vim-cheat-sheet", "edit-with-vim-keys"]),
     ("Automation", ["control-kinoklip-from-the-command-line", "control-kinoklip-from-an-ai-assistant"]),
-    ("Settings and help", ["move-your-settings-to-another-computer", "send-a-log-file-with-a-bug-report"]),
+    ("Settings and troubleshooting", ["smooth-playback", "send-a-log-file-with-a-bug-report",
+                                      "move-your-settings-to-another-computer"]),
 ]
+# Old article ids that were merged into another one keep a page that sends the reader on: {old id: new id}.
+# "readme" is the guide's start page in the app's index.
+REDIRECTS = {"readme": ""}
+# The screenshots of the app that the site's own pages use (from docs/images/readme).
+SITE_SHOTS = ["edit.png", "color.png", "compositing.png"]
 
 VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr", "path", "circle", "rect", "line", "stop"}
 
@@ -110,7 +123,7 @@ class Site:
         depth = rel.count("/")
         root = root if root is not None else "../" * depth
         ctx = {"root": root, "version": self.version, "version_short": self.version_short}
-        for k in ("features", "guide", "download", "report"):
+        for k in ("features", "guide", "download", "report", "releases"):
             ctx["cur_" + k] = ' aria-current="page"' if nav == k else ""
         ctx.update(extra or {})
         if body_is_template:
@@ -184,7 +197,19 @@ def normalize_md(text):
 def render_md(text):
     md = markdown.Markdown(extensions=["tables", "fenced_code", "toc", "sane_lists", "attr_list"],
                            extension_configs={"toc": {"slugify": gh_slug, "permalink": False}})
-    return md.convert(normalize_md(text))
+    out = md.convert(normalize_md(text))
+    toc = []
+    for t in md.toc_tokens:
+        if t["level"] == 1:
+            for c in t["children"]:
+                toc.append((c["id"], c["name"], c["level"]))
+            continue
+        toc.append((t["id"], t["name"], t["level"]))
+        for c in t.get("children", []):
+            if c["level"] == 3:
+                toc.append((c["id"], c["name"], c["level"]))
+    md.reset()
+    return out, toc
 
 
 class LinkFixer:
@@ -229,6 +254,12 @@ class LinkFixer:
 
 # ---------------------------------------------------------------- guide
 
+def plain_text(htmltext):
+    t = re.sub(r"<(script|style)[^>]*>.*?</\1>", " ", htmltext, flags=re.S)
+    t = re.sub(r"<[^>]+>", " ", t)
+    return re.sub(r"\s+", " ", html.unescape(t)).strip()
+
+
 def build_guide(site, warnings):
     index = json.loads(read(os.path.join(GUIDE, "index.json")))
     articles = index["articles"]
@@ -245,81 +276,155 @@ def build_guide(site, warnings):
             warnings.append("%s is not in index.json; using its first paragraph as summary" % f)
     by_id = {a["id"]: a for a in articles}
     article_files = {os.path.join(GUIDE, a["file"]): a["id"] for a in articles}
-    order = []
     groups = []
-    for name, ids in GROUPS:
-        ids = [i for i in ids if i in by_id]
-        groups.append((name, ids))
-        order += ids
-    rest = [a["id"] for a in articles if a["id"] not in order]
-    if rest:
-        groups.append(("More", rest))
-        order += rest
+    seen = set()
     for name, ids in GROUPS:
         for i in ids:
             if i not in by_id:
                 warnings.append("guide group names unknown article: " + i)
+        ids = [i for i in ids if i in by_id]
+        groups.append((name, ids))
+        seen.update(ids)
+    rest = [a["id"] for a in articles if a["id"] not in seen]
+    if rest:
+        groups.append(("More", rest))
+    start = [i for i in START if i in by_id]
 
-    # images
     shutil.copytree(os.path.join(GUIDE, "images"), os.path.join(site.out, "guide", "images"), dirs_exist_ok=True)
 
-    # index page
-    data = [{"id": a["id"], "title": a["title"], "summary": a["summary"], "keywords": a.get("keywords", [])} for a in articles]
-    parts = []
-    for name, ids in groups:
-        items = "\n".join(
-            '<li data-gid="%s"><a href="%s/"><strong>%s</strong><span>%s</span></a></li>'
-            % (i, i, html.escape(by_id[i]["title"]), html.escape(by_id[i]["summary"])) for i in ids)
-        parts.append('<section class="g-group" aria-labelledby="g-%s"><h2 id="g-%s">%s</h2><ul class="g-list">\n%s\n</ul></section>'
-                     % (gh_slug(name), gh_slug(name), html.escape(name), items))
-    blob = json.dumps(data).replace("</", "<\\/")
-    body = """<section class="page-head"><div class="wrap">
-<p class="kicker">Guide</p>
-<h1>How to use Kinoklip</h1>
-<p class="lead">Short how-to articles, step by step. Kinoklip is laid out like DaVinci Resolve with the same shortcuts, so most Resolve tutorials for the Edit page also work here. New? Start with <a href="getting-started/">Getting started</a>.</p>
-<div class="search" role="search"><label class="sr" for="guide-q" style="position:absolute;left:-9999px">Search the guide</label><input id="guide-q" type="search" data-search placeholder="Search the guide: green screen, export, LUT, voice-over..." autocomplete="off"></div>
-<p class="search-count" data-search-count role="status" aria-live="polite"></p>
-</div></section>
-<section class="section tight" style="padding-top:0"><div class="wrap">
-%s
-<p class="muted" style="margin-top:56px">Press <kbd>F1</kbd> in Kinoklip to open the article about what you are working on. Every shortcut is in the <a href="%s/blob/main/docs/keymap-resolve-windows.md">Resolve keymap</a>; the other editors' presets are in <a href="%s/blob/main/docs/keymaps/readme.md">keymaps</a>.</p>
-</div></section>
-<script type="application/json" id="guide-data">%s</script>""" % ("\n".join(parts), GITHUB, GITHUB, blob)
-    site.page("guide/index.html", "Guide - Kinoklip", "How to use Kinoklip: short step-by-step articles for the Edit, Compositing, Color, Audio and Deliver pages.", body, nav="guide")
-
-    # sidebar (relative to the article page: ../<id>/)
-    def sidebar(current):
-        out = ['<aside class="side"><details open><summary>All articles</summary><nav aria-label="Guide articles"><a href="../">Guide home and search</a>']
-        for name, ids in groups:
-            out.append("<h2>%s</h2>" % html.escape(name))
-            for i in ids:
-                cur = ' aria-current="page"' if i == current else ""
-                out.append('<a href="../%s/"%s>%s</a>' % (i, cur, html.escape(by_id[i]["title"])))
-        out.append("</nav></details></aside>")
-        return "\n".join(out)
-
-    for n, aid in enumerate(order):
-        a = by_id[aid]
+    # the page of every article, rendered first so the search index can use the text
+    pages = {}
+    for aid, a in by_id.items():
         src = read(os.path.join(GUIDE, a["file"]))
         src = re.sub(r"\A\s*# .*\n", "", src, count=1)
         fixer = LinkFixer(GUIDE, "../../", article_files, warnings)
-        content = fixer.apply(render_md(src))
-        prev = by_id[order[n - 1]] if n > 0 else None
-        nxt = by_id[order[n + 1]] if n + 1 < len(order) else None
-        pager = '<nav class="pager" aria-label="Next and previous article">%s%s</nav>' % (
-            '<a class="btn btn-quiet" href="../%s/">&larr; %s</a>' % (prev["id"], html.escape(prev["title"])) if prev else "<span></span>",
-            '<a class="btn btn-quiet" href="../%s/">%s &rarr;</a>' % (nxt["id"], html.escape(nxt["title"])) if nxt else "")
+        content, toc = render_md(src)
+        pages[aid] = (fixer.apply(content), toc)
+
+    # search index
+    data = []
+    for aid, a in by_id.items():
+        content, toc = pages[aid]
+        data.append({"id": aid, "title": a["title"], "summary": a["summary"], "keywords": a.get("keywords", []),
+                     "headings": [{"t": re.sub(r"<[^>]+>", "", n), "a": i} for i, n, lv in toc],
+                     "text": plain_text(content)})
+    write(os.path.join(site.out, "guide", "search.json"), json.dumps(data, ensure_ascii=False, separators=(",", ":")))
+
+    # front page of the guide
+    def link(i):
+        return '<a href="%s/">%s</a>' % (i, html.escape(by_id[i]["title"]))
+    path = "\n".join('<li><div><a href="%s/">%s</a><span>%s</span></div></li>'
+                     % (i, html.escape(by_id[i]["title"]), html.escape(by_id[i]["summary"])) for i in start)
+    common = "\n".join("<li>%s</li>" % link(i) for i in COMMON if i in by_id)
+    ref = []
+    for name, ids in groups:
+        if name == "Start here":
+            continue
+        ref.append('<section><h3>%s</h3><ul>%s</ul></section>' % (html.escape(name), "".join("<li>%s</li>" % link(i) for i in ids)))
+    body = """<section class="guide-head"><div class="wrap">
+<h1>Guide</h1>
+<p class="lead">How to use Kinoklip, one task at a time. Kinoklip is laid out like DaVinci Resolve and has the same shortcuts, so most Resolve tutorials for the Edit page work here too.</p>
+<div class="search" role="search"><label for="guide-q" class="sr" style="position:absolute;left:-9999px">Search the guide</label><input id="guide-q" type="search" data-search data-autofill placeholder="Search the guide: green screen, export, LUT, voice-over" autocomplete="off"><ul class="results" hidden></ul></div>
+<p class="muted small" style="margin-top:8px">Press <kbd>/</kbd> on any guide page to search. In Kinoklip, <kbd>F1</kbd> opens the article about what you are working on.</p>
+</div></section>
+<section class="section"><div class="wrap">
+<h2>Start here</h2>
+<p class="muted narrow">New to Kinoklip? Read these six in order. They take you from the download to a finished video.</p>
+<ol class="path">
+%s
+</ol>
+</div></section>
+<section class="section"><div class="wrap">
+<h2>Common tasks</h2>
+<ul class="plain cols-list">
+%s
+</ul>
+</div></section>
+<section class="section"><div class="wrap">
+<h2>Reference</h2>
+<p class="muted narrow">Every article, by subject. Every shortcut is in the <a href="%s/blob/main/docs/keymap-resolve-windows.md">Resolve keymap</a>; the other editors' presets are in <a href="%s/blob/main/docs/keymaps/readme.md">keymaps</a>, and every menu entry is in the <a href="%s/blob/main/docs/menu-reference.md">menu reference</a>.</p>
+<div class="refgroups">
+%s
+</div>
+</div></section>""" % (path, common, GITHUB, GITHUB, GITHUB, "\n".join(ref))
+    site.page("guide/index.html", "Guide - Kinoklip", "How to use Kinoklip: a short path from install to export, and articles by subject.", body, nav="guide")
+
+    def group_of(aid):
+        for name, ids in groups:
+            if aid in ids:
+                return name
+        return ""
+
+    def sidebar(current):
+        cur_group = group_of(current)
+        out = ['<aside class="side"><div class="search" role="search"><label for="side-q" style="position:absolute;left:-9999px">Search the guide</label>'
+               '<input id="side-q" type="search" data-search placeholder="Search (press /)" autocomplete="off"><ul class="results" hidden></ul></div>'
+               '<details class="navbox" open><summary>Guide contents</summary><nav aria-label="Guide articles"><a href="../">Guide home</a>']
+        for name, ids in groups:
+            opened = " open" if name == cur_group or name == "Start here" else ""
+            out.append("<details%s><summary>%s</summary>" % (opened, html.escape(name)))
+            for i in ids:
+                cur = ' aria-current="page"' if i == current and name == cur_group else ""
+                out.append('<a href="../%s/"%s>%s</a>' % (i, cur, html.escape(by_id[i]["title"])))
+            out.append("</details>")
+        out.append("</nav></details></aside>")
+        return "\n".join(out)
+
+    for aid, a in by_id.items():
+        content, toc = pages[aid]
+        in_start = aid in start
+        if in_start:
+            n = start.index(aid)
+            crumb = '<a href="../">Guide</a> / Start here, step %d of %d' % (n + 1, len(start))
+            prev = by_id[start[n - 1]] if n > 0 else None
+            nxt = by_id[start[n + 1]] if n + 1 < len(start) else None
+            pager = '<nav class="pager" aria-label="Previous and next step">%s%s</nav>' % (
+                '<a href="../%s/"><small>Previous</small>%s</a>' % (prev["id"], html.escape(prev["title"])) if prev else "<span></span>",
+                '<a class="next" href="../%s/"><small>Next</small>%s</a>' % (nxt["id"], html.escape(nxt["title"])) if nxt else "")
+        else:
+            crumb = '<a href="../">Guide</a> / %s' % html.escape(group_of(aid) or "More")
+            pager = ""
+        heads = [(i, nme) for i, nme, lv in toc if lv == 2]
+        toc_html = ""
+        inline = ""
+        if len(heads) >= 3:
+            links = "".join('<a href="#%s">%s</a>' % (i, re.sub(r"<[^>]+>", "", nme)) for i, nme in heads)
+            toc_html = '<aside class="toc" aria-label="On this page"><h2>On this page</h2>%s</aside>' % links
+            inline = '<details class="toc-inline"><summary>On this page</summary>%s</details>' % links
         body = """<div class="wrap"><div class="guide-layout">
 %s
 <article class="prose">
-<p style="margin:0 0 8px"><a href="../">&larr; Guide</a></p>
+<p class="crumb">%s</p>
 <h1>%s</h1>
 %s
 %s
+%s
 <p class="edit-link">Found a mistake? <a href="%s/blob/main/docs/guide/%s">Edit this article on GitHub</a>.</p>
-</article></div></div>""" % (sidebar(aid), html.escape(a["title"]), content, pager, GITHUB, a["file"])
+</article>
+%s
+</div></div>""" % (sidebar(aid), crumb, html.escape(a["title"]), inline, content, pager, GITHUB, a["file"], toc_html)
         site.page("guide/%s/index.html" % aid, "%s - Kinoklip guide" % a["title"], a["summary"], body, nav="guide")
+
+    # redirects for ids that moved
+    for old, new in REDIRECTS.items():
+        if old in by_id:
+            warnings.append("redirect id %s is also an article" % old)
+            continue
+        target = "../%s/" % new if new else "../"
+        label = by_id[new]["title"] if new else "the guide"
+        body = """<section class="page-head"><div class="wrap"><h1>This page has moved</h1>
+<p class="lead">It is now <a href="%s">%s</a>.</p></div></section>""" % (target, html.escape(label))
+        site.page("guide/%s/index.html" % old, "Moved - Kinoklip guide", "This guide page has moved.", body, nav="guide",
+                  extra={})
+        redirect_head(site, "guide/%s/index.html" % old, target)
     return by_id
+
+
+def redirect_head(site, rel, target):
+    path = os.path.join(site.out, rel)
+    text = read(path)
+    text = text.replace("<title>", '<meta http-equiv="refresh" content="0; url=%s">\n<link rel="canonical" href="%s">\n<title>' % (target, target), 1)
+    write(path, text)
 
 
 # ---------------------------------------------------------------- releases
@@ -383,7 +488,7 @@ def build_releases(site, article_files, warnings):
     for n, (key, base, path) in enumerate(items):
         text = read(path)
         fixer = LinkFixer(RELEASES, "../", article_files, warnings)
-        content = fixer.apply(render_md(text))
+        content = fixer.apply(render_md(text)[0])
         ver = base[1:]
         first = re.search(r"^### (.+)$", text, re.M)
         sub = html.escape(re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", first.group(1))) if first else ""
@@ -391,11 +496,11 @@ def build_releases(site, article_files, warnings):
         parts.append('<details class="rel" id="%s"%s><summary><b>%s</b>%s<span>%s</span></summary><div class="prose">%s</div></details>'
                      % (base, " open" if n == 0 else "", html.escape(ver), pill, sub, content))
     body = """<section class="page-head"><div class="wrap">
-<p class="kicker">Releases</p><h1>Release notes</h1>
+<h1>Release notes</h1>
 <p class="lead">What changed in each version, newest first. To get a version, see the <a href="../download/">download page</a> or the <a href="%s/releases">releases on GitHub</a>.</p>
 </div></section>
-<section class="section tight" style="padding-top:8px"><div class="wrap" style="max-width:920px">%s</div></section>""" % (GITHUB, "\n".join(parts))
-    site.page("releases/index.html", "Release notes - Kinoklip", "What changed in each Kinoklip release.", body)
+<section class="section" style="border-top:0"><div class="wrap">%s</div></section>""" % (GITHUB, "\n".join(parts))
+    site.page("releases/index.html", "Release notes - Kinoklip", "What changed in each Kinoklip release.", body, nav="releases")
     return items
 
 
@@ -411,9 +516,8 @@ def build(out, base):
         shutil.copytree(os.path.join(SRC, d), os.path.join(out, d))
     shots = os.path.join(out, "static", "shots")
     os.makedirs(shots)
-    for f in sorted(os.listdir(SHOTS)):
-        if f.endswith(".png"):
-            shutil.copy(os.path.join(SHOTS, f), os.path.join(shots, f))
+    for f in SITE_SHOTS:
+        shutil.copy(os.path.join(SHOTS, f), os.path.join(shots, f))
     write(os.path.join(out, ".nojekyll"), "")
 
     by_id = build_guide(site, warnings)
@@ -423,16 +527,18 @@ def build(out, base):
 
     def tpl(name):
         return read(os.path.join(SRC, "pages", name + ".html"))
-    site.page("index.html", "Kinoklip: a free video editor for Linux, laid out like Resolve",
+    site.page("index.html", "Kinoklip: a free video editor for Linux, laid out like DaVinci Resolve",
               "Kinoklip is a free, open source Qt and FFmpeg video editor for Linux with DaVinci Resolve's layout and shortcuts.",
               tpl("home"), body_is_template=True, extra={"highlights": latest})
     site.page("features/index.html", "Features - Kinoklip", "Editing, compositing, color, audio, export, performance, Vim mode, command line and keymaps in Kinoklip.",
               tpl("features"), nav="features", body_is_template=True)
     site.page("download/index.html", "Download Kinoklip for Linux", "Download the Kinoklip AppImage, how to run it, and what your computer needs.",
               tpl("download"), nav="download", body_is_template=True)
+    site.page("about/index.html", "About this project - Kinoklip", "What Kinoklip is, how it is made, and how to reach the people behind it.",
+              tpl("about"), body_is_template=True)
     site.page("report-a-bug/index.html", "Report a bug - Kinoklip", "How to report a Kinoklip bug: save a log file, then open a prefilled GitHub issue.",
               tpl("report"), nav="report", body_is_template=True)
-    notfound = """<section class="page-head"><div class="wrap"><p class="kicker">404</p><h1>This page is not here</h1>
+    notfound = """<section class="page-head"><div class="wrap"><h1>This page is not here</h1>
 <p class="lead">The page may have moved. Try the <a href="{{root}}">home page</a> or the <a href="{{root}}guide/">guide</a>.</p></div></section>"""
     site.page("404.html", "Page not found - Kinoklip", "Page not found.", notfound, root=base, body_is_template=True)
 
