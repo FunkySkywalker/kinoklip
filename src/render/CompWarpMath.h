@@ -55,6 +55,22 @@ void vectorAt(const VectorDistortParams& v, const FImage& map, double x, double 
 [[nodiscard]] FImage vectorDistort(
     const FImage& in, const FImage& map, const VectorDistortParams& v, double scale);
 
+// ---- Vector Motion Blur (spec 123) ----
+
+/// Blur along the vectors of a second picture (the vector convention of Vector Distort: red and
+/// green 0.5 = no motion, Vector Range px for a channel value of 0 or 1).
+struct VectorBlurParams
+{
+    float range = 32; ///< timeline px a channel value of 0 or 1 stands for
+    float scale = 1; ///< multiplies the vector length
+    float bias = 0; ///< -1 .. 1: 0 blurs both ways, 1 only behind the motion (against the vector)
+    int samples = 16;
+    int edges = 0;
+};
+[[nodiscard]] VectorBlurParams vectorBlurParams(const ParamSet& p, int64_t frame);
+[[nodiscard]] FImage vectorMotionBlur(
+    const FImage& in, const FImage& map, const VectorBlurParams& v, double scale);
+
 // ---- Grid Warp ----
 
 /// The grid of the Warper effect: displacement per grid point in content units (x across,

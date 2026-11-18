@@ -132,6 +132,9 @@ viewer and transport features of the public Fusion reference manual (ROI, onion 
 render) were looked at (both GPL-2.0-or-later); the code, the tints and the cache format are written for Kinoklip and nothing
 was taken from them.
 
+### Compositing colour nodes and Vector Motion Blur (Brightness Contrast, Alpha Multiply / Divide, Channel Mapper, Color Curves, Hue Curves, Custom Tool)
+`src/render/CompColorMath.*`, `GlCompColor.*`, `CompWarpMath.*` (vectorMotionBlur), `src/core/Expression.*` (compilePixel(), toGlsl()). The control sets follow the public Fusion reference manual in outline. The ideas were taken from the documented behaviour of Blender's compositor nodes (Bright / Contrast, Alpha Convert, RGB Curves, Hue Correct, Vector Blur; GPL-2.0-or-later) and Natron's shuffle, colour-matrix and expression nodes (GPL-2.0-or-later): a per-pixel formula language compiled once and run on the CPU and, as generated GLSL, on the GPU; a channel matrix; curves baked into tables; a blur that averages samples along a motion vector. The curve nodes reuse Kinoklip's own Color page curve tables. The code was written for Kinoklip and nothing was copied from those projects (their source files were not read for this batch, only their documentation).
+
 ### Keyframe loops
 The extrapolation modes of animated values (`src/core/Animation.cpp`, `AnimatedValue::extrapolatedValue()`)
 follow the documented behaviour of Blender's F-Curve Cycles modifier (GPL-2.0-or-later: Repeat Motion, Repeat

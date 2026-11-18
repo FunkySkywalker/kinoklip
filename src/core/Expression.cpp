@@ -25,7 +25,7 @@ enum class Op : quint8 {
     Num, Var, Ref, Neg, Not, Add, Sub, Mul, Div, Mod, Pow, Lt, Gt, Le, Ge, Eq, Ne, And, Or, Cond, Call
 };
 
-enum Var { VarTime, VarValue, VarN1, VarN2, VarN3, VarPi, VarE };
+enum Var { VarTime, VarValue, VarN1, VarN2, VarN3, VarPi, VarE, VarPixel = 100 };
 
 enum class Fn : quint8 {
     Sin, Cos, Tan, Asin, Acos, Atan, Atan2, Sqrt, Abs, Pow, Exp, Log, Log10, Floor, Ceil, Round,
@@ -71,8 +71,51 @@ double smoothNoise(double x)
     return a + (b - a) * s;
 }
 
-double callFn(Fn fn, const double* a)
+/// Value of @p x as the shader computes it for pixel programs (see Program::compilePixel()).
+double pixelPow(double x, double y)
 {
+    if (x >= 0.0)
+        return std::pow(x, y);
+    const double r = std::round(y);
+    if (r != y)
+        return 0.0;
+    return std::fmod(std::abs(r), 2.0) == 1.0 ? -std::pow(-x, y) : std::pow(-x, y);
+}
+
+double pixelRound(double x)
+{
+    return x >= 0.0 ? std::floor(x + 0.5) : -std::floor(-x + 0.5);
+}
+
+double callPixelFn(Fn fn, const double* a)
+{
+    switch (fn) {
+    case Fn::Asin: return std::asin(std::clamp(a[0], -1.0, 1.0));
+    case Fn::Acos: return std::acos(std::clamp(a[0], -1.0, 1.0));
+    case Fn::Atan2: return a[0] == 0.0 && a[1] == 0.0 ? 0.0 : std::atan2(a[0], a[1]);
+    case Fn::Sqrt: return a[0] > 0.0 ? std::sqrt(a[0]) : 0.0;
+    case Fn::Pow: return pixelPow(a[0], a[1]);
+    case Fn::Exp: return std::exp(std::min(a[0], 80.0));
+    case Fn::Log: return a[0] > 0.0 ? std::log(a[0]) : 0.0;
+    case Fn::Log10: return a[0] > 0.0 ? std::log10(a[0]) : 0.0;
+    case Fn::Round: return pixelRound(a[0]);
+    case Fn::Fmod: return a[1] == 0.0 ? 0.0 : std::fmod(a[0], a[1]);
+    default: break;
+    }
+    return 0.0;
+}
+
+double callFn(Fn fn, const double* a, bool pixel = false)
+{
+    if (pixel) {
+        switch (fn) {
+        case Fn::Asin: case Fn::Acos: case Fn::Atan2: case Fn::Sqrt: case Fn::Pow: case Fn::Exp:
+        case Fn::Log: case Fn::Log10: case Fn::Round: case Fn::Fmod:
+            return callPixelFn(fn, a);
+        default:
+            break;
+        }
+    }
     switch (fn) {
     case Fn::Sin: return std::sin(a[0]);
     case Fn::Cos: return std::cos(a[0]);
@@ -141,7 +184,8 @@ double evalNode(const Program::Node& n, const Program::Inputs& in)
         case VarN2: return in.n[1];
         case VarN3: return in.n[2];
         case VarPi: return kPi;
-        default: return 2.718281828459045;
+        case VarE: return 2.718281828459045;
+        default: return in.vars ? in.vars[n.index - VarPixel] : 0.0;
         }
     case Op::Ref: return in.refs ? in.refs[n.index] : 0.0;
     case Op::Neg: return -kid(0);
@@ -151,13 +195,17 @@ double evalNode(const Program::Node& n, const Program::Inputs& in)
     case Op::Mul: return kid(0) * kid(1);
     case Op::Div: {
         const double d = kid(1);
-        return d == 0.0 ? std::numeric_limits<double>::quiet_NaN() : kid(0) / d;
+        if (d == 0.0)
+            return in.pixel ? 0.0 : std::numeric_limits<double>::quiet_NaN();
+        return kid(0) / d;
     }
     case Op::Mod: {
         const double d = kid(1);
-        return d == 0.0 ? std::numeric_limits<double>::quiet_NaN() : std::fmod(kid(0), d);
+        if (d == 0.0)
+            return in.pixel ? 0.0 : std::numeric_limits<double>::quiet_NaN();
+        return std::fmod(kid(0), d);
     }
-    case Op::Pow: return std::pow(kid(0), kid(1));
+    case Op::Pow: return in.pixel ? pixelPow(kid(0), kid(1)) : std::pow(kid(0), kid(1));
     case Op::Lt: return kid(0) < kid(1) ? 1.0 : 0.0;
     case Op::Gt: return kid(0) > kid(1) ? 1.0 : 0.0;
     case Op::Le: return kid(0) <= kid(1) ? 1.0 : 0.0;
@@ -171,7 +219,7 @@ double evalNode(const Program::Node& n, const Program::Inputs& in)
         double a[3] = {0, 0, 0};
         for (size_t i = 0; i < n.kids.size() && i < 3; ++i)
             a[i] = evalNode(*n.kids[i], in);
-        return callFn(n.fn, a);
+        return callFn(n.fn, a, in.pixel);
     }
     }
     return 0.0;
@@ -181,6 +229,16 @@ double evalNode(const Program::Node& n, const Program::Inputs& in)
 
 double Program::evaluate(const Inputs& in) const
 {
+    const double v = m_root ? evalNode(*m_root, in) : 0.0;
+    return std::isfinite(v) ? v : 0.0;
+}
+
+double Program::evaluatePixel(double time, const double* vars) const
+{
+    Inputs in;
+    in.time = time;
+    in.vars = vars;
+    in.pixel = true;
     const double v = m_root ? evalNode(*m_root, in) : 0.0;
     return std::isfinite(v) ? v : 0.0;
 }
@@ -197,8 +255,9 @@ QStringList Program::functionNames()
 class Parser
 {
 public:
-    explicit Parser(const QString& text)
+    explicit Parser(const QString& text, const QStringList* pixelVars = nullptr)
         : m_t(text)
+        , m_pixelVars(pixelVars)
     { }
 
     std::unique_ptr<Program::Node> parse(QStringList* refs, QString* error)
@@ -426,6 +485,11 @@ private:
                     fail(QCoreApplication::translate("Expression", "Unknown function \"%1\"").arg(name));
                     return make(Op::Num);
                 }
+                if (m_pixelVars && (info->fn == Fn::Noise || info->fn == Fn::Rand)) {
+                    fail(QCoreApplication::translate(
+                             "Expression", "%1 is not available in a Custom Tool").arg(name));
+                    return make(Op::Num);
+                }
                 auto n = make(Op::Call);
                 n->fn = info->fn;
                 skip();
@@ -444,6 +508,22 @@ private:
                              .arg(name)
                              .arg(info->args));
                 return n;
+            }
+            if (m_pixelVars) {
+                const QString low = name.toLower();
+                if (low == QLatin1String("pi") || low == QLatin1String("e")) {
+                    auto n = make(Op::Var);
+                    n->index = low == QLatin1String("pi") ? VarPi : VarE;
+                    return n;
+                }
+                if (low == QLatin1String("frame"))
+                    return pixelVar(m_pixelVars->indexOf(QStringLiteral("time")));
+                for (int i = 0; i < m_pixelVars->size(); ++i) {
+                    if (m_pixelVars->at(i).compare(name, Qt::CaseInsensitive) == 0)
+                        return pixelVar(i);
+                }
+                fail(QCoreApplication::translate("Expression", "Unknown name \"%1\"").arg(name));
+                return make(Op::Num);
             }
             static const QHash<QString, int> vars = {{QStringLiteral("time"), VarTime},
                 {QStringLiteral("frame"), VarTime}, {QStringLiteral("value"), VarValue},
@@ -469,10 +549,18 @@ private:
         return make(Op::Num);
     }
 
+    NodeP pixelVar(int i)
+    {
+        auto n = make(Op::Var);
+        n->index = VarPixel + std::max(i, 0);
+        return n;
+    }
+
     QString m_t;
     int m_i = 0;
     QString m_error;
     QStringList* m_refs = nullptr;
+    const QStringList* m_pixelVars = nullptr; ///< pixel programs: the variable names
 };
 
 std::shared_ptr<const Program> Program::compile(const QString& text, QString* error)
@@ -510,6 +598,177 @@ std::shared_ptr<const Program> Program::compile(const QString& text, QString* er
         cache.clear();
     cache.insert(src, p);
     return p;
+}
+
+std::shared_ptr<const Program> Program::compilePixel(
+    const QString& text, const QStringList& variables, QString* error)
+{
+    static QMutex mutex;
+    static QHash<QString, std::shared_ptr<const Program>> cache;
+    const QString src = text.trimmed();
+    if (src.isEmpty()) {
+        if (error)
+            *error = QCoreApplication::translate("Expression", "The formula is empty");
+        return nullptr;
+    }
+    if (src.size() > kMaxLength) {
+        if (error)
+            *error = QCoreApplication::translate("Expression", "The formula is too long");
+        return nullptr;
+    }
+    const QString key = variables.join(QLatin1Char(',')) + QLatin1Char('|') + src;
+    {
+        QMutexLocker lock(&mutex);
+        const auto it = cache.constFind(key);
+        if (it != cache.constEnd())
+            return *it;
+    }
+    std::shared_ptr<Program> p(new Program);
+    p->m_pixel = true;
+    Parser parser(src, &variables);
+    QString why;
+    p->m_root = parser.parse(&p->m_refs, &why);
+    if (!p->m_root) {
+        if (error)
+            *error = why;
+        return nullptr;
+    }
+    QMutexLocker lock(&mutex);
+    if (cache.size() > 512)
+        cache.clear();
+    cache.insert(key, p);
+    return p;
+}
+
+namespace {
+
+QString glslNumber(double v)
+{
+    QString s = QString::number(v, 'g', 9);
+    if (!s.contains(QLatin1Char('.')) && !s.contains(QLatin1Char('e')) && !s.contains(QLatin1Char('n')))
+        s += QStringLiteral(".0");
+    return s;
+}
+
+QString glslOf(const Program::Node& n, const QStringList& vars)
+{
+    const auto kid = [&](size_t i) { return glslOf(*n.kids[i], vars); };
+    const auto bin = [&](const char* op) {
+        return QStringLiteral("(%1 %2 %3)").arg(kid(0), QLatin1String(op), kid(1));
+    };
+    const auto cmp = [&](const char* op) {
+        return QStringLiteral("((%1 %2 %3) ? 1.0 : 0.0)").arg(kid(0), QLatin1String(op), kid(1));
+    };
+    switch (n.op) {
+    case Op::Num: return QStringLiteral("(%1)").arg(glslNumber(n.num));
+    case Op::Var:
+        if (n.index == VarPi)
+            return QStringLiteral("(3.14159265)");
+        if (n.index == VarE)
+            return QStringLiteral("(2.71828183)");
+        return QStringLiteral("v_%1").arg(vars.value(n.index - VarPixel));
+    case Op::Ref: return QStringLiteral("0.0");
+    case Op::Neg: return QStringLiteral("(-%1)").arg(kid(0));
+    case Op::Not: return QStringLiteral("((%1 == 0.0) ? 1.0 : 0.0)").arg(kid(0));
+    case Op::Add: return bin("+");
+    case Op::Sub: return bin("-");
+    case Op::Mul: return bin("*");
+    case Op::Div: return QStringLiteral("kk_div(%1, %2)").arg(kid(0), kid(1));
+    case Op::Mod: return QStringLiteral("kk_fmod(%1, %2)").arg(kid(0), kid(1));
+    case Op::Pow: return QStringLiteral("kk_pow(%1, %2)").arg(kid(0), kid(1));
+    case Op::Lt: return cmp("<");
+    case Op::Gt: return cmp(">");
+    case Op::Le: return cmp("<=");
+    case Op::Ge: return cmp(">=");
+    case Op::Eq: return cmp("==");
+    case Op::Ne: return cmp("!=");
+    case Op::And:
+        return QStringLiteral("(((%1 != 0.0) && (%2 != 0.0)) ? 1.0 : 0.0)").arg(kid(0), kid(1));
+    case Op::Or:
+        return QStringLiteral("(((%1 != 0.0) || (%2 != 0.0)) ? 1.0 : 0.0)").arg(kid(0), kid(1));
+    case Op::Cond:
+        return QStringLiteral("((%1 != 0.0) ? %2 : %3)").arg(kid(0), kid(1), kid(2));
+    case Op::Call: {
+        QStringList args;
+        for (size_t i = 0; i < n.kids.size(); ++i)
+            args.append(kid(i));
+        const QString a = args.join(QStringLiteral(", "));
+        switch (n.fn) {
+        case Fn::Sin: return QStringLiteral("sin(%1)").arg(a);
+        case Fn::Cos: return QStringLiteral("cos(%1)").arg(a);
+        case Fn::Tan: return QStringLiteral("tan(%1)").arg(a);
+        case Fn::Asin: return QStringLiteral("asin(clamp(%1, -1.0, 1.0))").arg(a);
+        case Fn::Acos: return QStringLiteral("acos(clamp(%1, -1.0, 1.0))").arg(a);
+        case Fn::Atan: return QStringLiteral("atan(%1)").arg(a);
+        case Fn::Atan2: return QStringLiteral("kk_atan2(%1)").arg(a);
+        case Fn::Sqrt: return QStringLiteral("kk_sqrt(%1)").arg(a);
+        case Fn::Abs: return QStringLiteral("abs(%1)").arg(a);
+        case Fn::Pow: return QStringLiteral("kk_pow(%1)").arg(a);
+        case Fn::Exp: return QStringLiteral("exp(min(%1, 80.0))").arg(a);
+        case Fn::Log: return QStringLiteral("kk_log(%1)").arg(a);
+        case Fn::Log10: return QStringLiteral("(kk_log(%1) * 0.4342944819)").arg(a);
+        case Fn::Floor: return QStringLiteral("floor(%1)").arg(a);
+        case Fn::Ceil: return QStringLiteral("ceil(%1)").arg(a);
+        case Fn::Round: return QStringLiteral("kk_round(%1)").arg(a);
+        case Fn::Fract: return QStringLiteral("kk_fract(%1)").arg(a);
+        case Fn::Sign: return QStringLiteral("sign(%1)").arg(a);
+        case Fn::Min: return QStringLiteral("min(%1)").arg(a);
+        case Fn::Max: return QStringLiteral("max(%1)").arg(a);
+        case Fn::Clamp: return QStringLiteral("kk_clamp(%1)").arg(a);
+        case Fn::Mix: return QStringLiteral("mix(%1)").arg(a);
+        case Fn::Step: return QStringLiteral("kk_step(%1)").arg(a);
+        case Fn::Smoothstep: return QStringLiteral("kk_smoothstep(%1)").arg(a);
+        case Fn::Fmod: return QStringLiteral("kk_fmod(%1)").arg(a);
+        case Fn::Deg: return QStringLiteral("((%1) * 57.2957795)").arg(a);
+        case Fn::Rad: return QStringLiteral("((%1) * 0.0174532925)").arg(a);
+        case Fn::If: return QStringLiteral("kk_if(%1)").arg(a);
+        case Fn::Noise:
+        case Fn::Rand: break;
+        }
+        return QStringLiteral("0.0");
+    }
+    }
+    return QStringLiteral("0.0");
+}
+
+} // namespace
+
+QString Program::toGlsl(const QStringList& variables) const
+{
+    return QStringLiteral("kk_finite(%1)").arg(m_root ? glslOf(*m_root, variables) : QStringLiteral("0.0"));
+}
+
+QString Program::pixelGlslHelpers()
+{
+    return QStringLiteral(R"(
+float kk_div(float a, float b) { return b == 0.0 ? 0.0 : a / b; }
+float kk_fmod(float a, float b) { return b == 0.0 ? 0.0 : a - b * trunc(a / b); }
+float kk_pow(float x, float y)
+{
+    if (x >= 0.0)
+        return pow(x, y);
+    float r = floor(y + 0.5);
+    if (r != y)
+        return 0.0;
+    float p = pow(-x, y);
+    return mod(abs(r), 2.0) == 1.0 ? -p : p;
+}
+float kk_atan2(float a, float b) { return (a == 0.0 && b == 0.0) ? 0.0 : atan(a, b); }
+float kk_sqrt(float a) { return a > 0.0 ? sqrt(a) : 0.0; }
+float kk_log(float a) { return a > 0.0 ? log(a) : 0.0; }
+float kk_round(float x) { return x >= 0.0 ? floor(x + 0.5) : -floor(-x + 0.5); }
+float kk_fract(float x) { return x - floor(x); }
+float kk_clamp(float x, float a, float b) { return clamp(x, min(a, b), max(a, b)); }
+float kk_step(float e, float x) { return x < e ? 0.0 : 1.0; }
+float kk_smoothstep(float a, float b, float x)
+{
+    float w = b - a;
+    float t = w == 0.0 ? (x < a ? 0.0 : 1.0) : clamp((x - a) / w, 0.0, 1.0);
+    return t * t * (3.0 - 2.0 * t);
+}
+float kk_if(float c, float a, float b) { return c != 0.0 ? a : b; }
+float kk_finite(float x) { return (x == x && abs(x) < 3.0e38) ? x : 0.0; }
+)");
 }
 
 } // namespace kk::expr

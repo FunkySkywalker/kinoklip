@@ -51,8 +51,16 @@
         <translation>Función desconocida &quot;%1&quot;</translation>
     </message>
     <message>
+        <source>%1 is not available in a Custom Tool</source>
+        <translation>%1 no está disponible en una Herramienta personalizada</translation>
+    </message>
+    <message>
         <source>%1 takes %2 argument(s)</source>
         <translation>%1 toma %2 argumento(s)</translation>
+    </message>
+    <message>
+        <source>Unknown name &quot;%1&quot;</source>
+        <translation>Nombre desconocido «%1»</translation>
     </message>
     <message>
         <source>The formula is empty</source>
@@ -22481,6 +22489,246 @@ Importar archivos con %1 o soltarlos aquí.</translation>
     <message>
         <source>To Alpha</source>
         <translation>A alfa</translation>
+    </message>
+    <message>
+        <source>Brightness Contrast</source>
+        <translation>Brillo y contraste</translation>
+    </message>
+    <message>
+        <source>Gain, lift, gamma, contrast, brightness and saturation of the picture</source>
+        <translation>Ganancia, elevación, gamma, contraste, brillo y saturación de la imagen</translation>
+    </message>
+    <message>
+        <source>Apply the controls to the red channel</source>
+        <translation>Aplicar los controles al canal rojo</translation>
+    </message>
+    <message>
+        <source>Apply the controls to the green channel</source>
+        <translation>Aplicar los controles al canal verde</translation>
+    </message>
+    <message>
+        <source>Apply the controls to the blue channel</source>
+        <translation>Aplicar los controles al canal azul</translation>
+    </message>
+    <message>
+        <source>Apply the controls to the alpha channel as well</source>
+        <translation>Aplicar los controles también al canal alfa</translation>
+    </message>
+    <message>
+        <source>Multiplies the values: brightens the highlights most</source>
+        <translation>Multiplica los valores: aclara más las luces altas</translation>
+    </message>
+    <message>
+        <source>Raises (or lowers) the blacks; white stays white</source>
+        <translation>Sube (o baja) los negros; el blanco sigue siendo blanco</translation>
+    </message>
+    <message>
+        <source>Above 1 brightens the middle tones, below 1 darkens them</source>
+        <translation>Por encima de 1 aclara los medios tonos, por debajo los oscurece</translation>
+    </message>
+    <message>
+        <source>Pushes the values away from mid grey (0.5), or towards it when negative</source>
+        <translation>Aleja los valores del gris medio (0,5), o los acerca si es negativo</translation>
+    </message>
+    <message>
+        <source>Adds the same amount to every value</source>
+        <translation>Suma la misma cantidad a cada valor</translation>
+    </message>
+    <message>
+        <source>0 is grey, 1 leaves the colour as it is, above 1 is more vivid</source>
+        <translation>0 es gris, 1 deja el color igual, por encima de 1 es más vivo</translation>
+    </message>
+    <message>
+        <source>The value that becomes black: everything below it is stretched out of the picture</source>
+        <translation>El valor que se vuelve negro: todo lo inferior se estira fuera de la imagen</translation>
+    </message>
+    <message>
+        <source>The value that becomes white: everything above it is stretched out of the picture</source>
+        <translation>El valor que se vuelve blanco: todo lo superior se estira fuera de la imagen</translation>
+    </message>
+    <message>
+        <source>Alpha Multiply</source>
+        <translation>Multiplicar alfa</translation>
+    </message>
+    <message>
+        <source>Multiplies the colour by the alpha: the edges and soft parts get darker</source>
+        <translation>Multiplica el color por el alfa: los bordes y las partes suaves se oscurecen</translation>
+    </message>
+    <message>
+        <source>Alpha Divide</source>
+        <translation>Dividir alfa</translation>
+    </message>
+    <message>
+        <source>Divides the colour by the alpha: the edges and soft parts get brighter. Alpha Multiply undoes it</source>
+        <translation>Divide el color por el alfa: los bordes y las partes suaves se aclaran. Multiplicar alfa lo deshace</translation>
+    </message>
+    <message>
+        <source>Channel Mapper</source>
+        <translation>Mapeador de canales</translation>
+    </message>
+    <message>
+        <source>Builds each of red, green, blue and alpha from a mix of the four input channels</source>
+        <translation>Construye rojo, verde, azul y alfa a partir de una mezcla de los cuatro canales de entrada</translation>
+    </message>
+    <message>
+        <source>%1 from %2</source>
+        <translation>%1 desde %2</translation>
+    </message>
+    <message>
+        <source>How much of the input&apos;s %1 goes into the output&apos;s %2 (1 = all of it, 0 = none, negative inverts)</source>
+        <translation>Cuánto del %1 de la entrada pasa al %2 de la salida (1 = todo, 0 = nada, negativo invierte)</translation>
+    </message>
+    <message>
+        <source>%1 Offset</source>
+        <translation>Desplazamiento de %1</translation>
+    </message>
+    <message>
+        <source>Added to the output&apos;s %1 after the mix</source>
+        <translation>Se suma al %1 de la salida después de la mezcla</translation>
+    </message>
+    <message>
+        <source>Color Curves</source>
+        <translation>Curvas de color</translation>
+    </message>
+    <message>
+        <source>Tone curves for the luminance, red, green, blue and alpha channels</source>
+        <translation>Curvas tonales para luminancia, rojo, verde, azul y alfa</translation>
+    </message>
+    <message>
+        <source>Curve applied to all three colour channels: click to add a point, drag to bend it</source>
+        <translation>Curva aplicada a los tres canales de color: haz clic para añadir un punto, arrastra para curvarla</translation>
+    </message>
+    <message>
+        <source>Curve of the red channel</source>
+        <translation>Curva del canal rojo</translation>
+    </message>
+    <message>
+        <source>Curve of the green channel</source>
+        <translation>Curva del canal verde</translation>
+    </message>
+    <message>
+        <source>Curve of the blue channel</source>
+        <translation>Curva del canal azul</translation>
+    </message>
+    <message>
+        <source>Curve of the alpha channel</source>
+        <translation>Curva del canal alfa</translation>
+    </message>
+    <message>
+        <source>Hue Curves</source>
+        <translation>Curvas de tono</translation>
+    </message>
+    <message>
+        <source>Changes hue, saturation or brightness of selected colours with curves</source>
+        <translation>Cambia el tono, la saturación o el brillo de colores elegidos con curvas</translation>
+    </message>
+    <message>
+        <source>Hue vs Hue</source>
+        <translation>Tono vs tono</translation>
+    </message>
+    <message>
+        <source>Shifts the hue of the colours at the curve&apos;s hue (the middle line leaves them; up or down turns them)</source>
+        <translation>Desplaza el tono de los colores en el tono de la curva (la línea central los deja; arriba o abajo los gira)</translation>
+    </message>
+    <message>
+        <source>Hue vs Sat</source>
+        <translation>Tono vs saturación</translation>
+    </message>
+    <message>
+        <source>Saturation of the colours at the curve&apos;s hue (the middle line is no change, the bottom is grey, the top doubles it)</source>
+        <translation>Saturación de los colores en el tono de la curva (la línea central no cambia nada, abajo es gris, arriba la duplica)</translation>
+    </message>
+    <message>
+        <source>Hue vs Lum</source>
+        <translation>Tono vs luminancia</translation>
+    </message>
+    <message>
+        <source>Brightness of the colours at the curve&apos;s hue (the middle line is no change)</source>
+        <translation>Brillo de los colores en el tono de la curva (la línea central no cambia nada)</translation>
+    </message>
+    <message>
+        <source>Lum vs Sat</source>
+        <translation>Luminancia vs saturación</translation>
+    </message>
+    <message>
+        <source>Saturation by brightness: dark to bright from left to right</source>
+        <translation>Saturación según el brillo: de oscuro a claro de izquierda a derecha</translation>
+    </message>
+    <message>
+        <source>Sat vs Sat</source>
+        <translation>Saturación vs saturación</translation>
+    </message>
+    <message>
+        <source>Saturation by saturation: grey to vivid from left to right</source>
+        <translation>Saturación según la saturación: de gris a vivo de izquierda a derecha</translation>
+    </message>
+    <message>
+        <source>Custom Tool</source>
+        <translation>Herramienta personalizada</translation>
+    </message>
+    <message>
+        <source>Computes red, green, blue and alpha of every pixel from formulas</source>
+        <translation>Calcula rojo, verde, azul y alfa de cada píxel a partir de fórmulas</translation>
+    </message>
+    <message>
+        <source>Image 2</source>
+        <translation>Imagen 2</translation>
+    </message>
+    <message>
+        <source>Variables: x y (position 0 to 1, y up), w h (frame size), time, r1 g1 b1 a1 (Input), r2 g2 b2 a2 (Image 2), n1 to n8, i1 to i4</source>
+        <translation>Variables: x y (posición de 0 a 1, y hacia arriba), w h (tamaño del fotograma), time, r1 g1 b1 a1 (entrada), r2 g2 b2 a2 (imagen 2), n1 a n8, i1 a i4</translation>
+    </message>
+    <message>
+        <source>Number %1</source>
+        <translation>Número %1</translation>
+    </message>
+    <message>
+        <source>A value the formulas read as n%1; it can be keyframed</source>
+        <translation>Un valor que las fórmulas leen como n%1; se puede animar con fotogramas clave</translation>
+    </message>
+    <message>
+        <source>Intermediate %1</source>
+        <translation>Intermedio %1</translation>
+    </message>
+    <message>
+        <source>A formula whose result the channel formulas read as i%1 (it may use i1 to i%2). %3</source>
+        <translation>Una fórmula cuyo resultado leen las fórmulas de canal como i%1 (puede usar i1 a i%2). %3</translation>
+    </message>
+    <message>
+        <source>Formula for the %1 channel, 0 to 1 (straight colour). Operators + - * / % ^ and comparisons, functions such as sin, pow, clamp, mix, smoothstep, if. %2</source>
+        <translation>Fórmula del canal %1, de 0 a 1 (color directo). Operadores + - * / % ^ y comparaciones, funciones como sin, pow, clamp, mix, smoothstep, if. %2</translation>
+    </message>
+    <message>
+        <source>Vector Motion Blur</source>
+        <translation>Desenfoque de movimiento por vectores</translation>
+    </message>
+    <message>
+        <source>Blurs the picture along motion vectors stored in a second picture&apos;s red and green</source>
+        <translation>Desenfoca la imagen a lo largo de vectores de movimiento guardados en el rojo y el verde de una segunda imagen</translation>
+    </message>
+    <message>
+        <source>How many pixels of motion a red or green value of 0 or 1 stands for (0.5 is no motion)</source>
+        <translation>Cuántos píxeles de movimiento representa un valor de rojo o verde de 0 o 1 (0,5 es sin movimiento)</translation>
+    </message>
+    <message>
+        <source>Multiplies the length of the blur</source>
+        <translation>Multiplica la longitud del desenfoque</translation>
+    </message>
+    <message>
+        <source>0 blurs both ways along the vector, 1 only behind the motion, -1 only ahead of it</source>
+        <translation>0 desenfoca en ambos sentidos a lo largo del vector, 1 solo detrás del movimiento, -1 solo por delante</translation>
+    </message>
+    <message>
+        <source>Samples</source>
+        <translation>Muestras</translation>
+    </message>
+    <message>
+        <source>How many pictures are averaged along the vector: more is smoother and slower</source>
+        <translation>Cuántas imágenes se promedian a lo largo del vector: más es más suave y más lento</translation>
+    </message>
+    <message>
+        <source>What shows where the blur reaches outside the picture</source>
+        <translation>Qué se muestra donde el desenfoque sale de la imagen</translation>
     </message>
     <message>
         <source>Luma Keyer</source>

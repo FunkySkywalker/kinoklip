@@ -5,6 +5,7 @@
 
 #include "core/CompOps.h"
 #include "core/NodeRegistry.h"
+#include "render/CompColorMath.h"
 #include "render/CompFilterMath.h"
 #include "render/CompMatteMath.h"
 #include "render/CompMath.h"
@@ -434,6 +435,34 @@ private:
                 out = compmath::toImage(compmath::lightWrap(compmath::toFloat(in),
                     compmath::toFloat(bg), compmath::lightWrapParams(n.params, f), s));
             }
+        } else if (n.type == nodetypes::BrightnessContrast && !in.isNull()) {
+            const compmath::BrightnessContrastParams b
+                = compmath::brightnessContrastParams(n.params, f);
+            if (!b.isIdentity())
+                out = pointwise(in, [&b](float* px) { compmath::applyBrightnessContrast(b, px); });
+        } else if (n.type == nodetypes::AlphaMultiply && !in.isNull()) {
+            out = pointwise(in, [](float* px) { compmath::alphaMultiply(px); });
+        } else if (n.type == nodetypes::AlphaDivide && !in.isNull()) {
+            out = pointwise(in, [](float* px) { compmath::alphaDivide(px); });
+        } else if (n.type == nodetypes::ChannelMapper && !in.isNull()) {
+            const compmath::ChannelMapperParams c = compmath::channelMapperParams(n.params, f);
+            if (!c.isIdentity())
+                out = pointwise(in, [&c](float* px) { compmath::applyChannelMapper(c, px); });
+        } else if ((n.type == nodetypes::ColorCurves || n.type == nodetypes::HueCurves)
+            && !in.isNull()) {
+            const compmath::CurvesNodeParams c = n.type == nodetypes::ColorCurves
+                ? compmath::colorCurvesParams(n.params)
+                : compmath::hueCurvesParams(n.params);
+            if (!c.isIdentity())
+                out = pointwise(in, [&c](float* px) { compmath::applyCurvesNode(c, px); });
+        } else if (n.type == nodetypes::CustomTool && !in.isNull()) {
+            out = customTool(n, in, input(n, nodeports::Image2, depth), f);
+        } else if (n.type == nodetypes::VectorMotionBlur && !in.isNull()) {
+            const QImage map = input(n, nodeports::Map, depth);
+            if (!map.isNull()) {
+                out = compmath::toImage(compmath::vectorMotionBlur(compmath::toFloat(in),
+                    compmath::toFloat(map), compmath::vectorBlurParams(n.params, f), s));
+            }
         } else if (n.type == nodetypes::GridWarp && !in.isNull()) {
             out = compmath::toImage(compmath::gridWarp(compmath::toFloat(in),
                 compmath::gridWarpParams(n.params, f, s, in.width(), in.height())));
@@ -557,6 +586,44 @@ private:
                 for (int i = 0; i < 4; ++i)
                     c[i] = np.color1[size_t(i)] + (np.color2[size_t(i)] - np.color1[size_t(i)]) * v;
                 po[x] = pack(c);
+            }
+        }
+        return out;
+    }
+
+    /// The Custom Tool (spec 124): the formulas of the node for every pixel of @p in.
+    QImage customTool(const CompNode& n, const QImage& in, const QImage& second, int64_t f)
+    {
+        const compmath::CustomToolParams c = compmath::customToolParams(n.params, f);
+        if (c.isIdentity())
+            return {};
+        QImage out = in.copy();
+        const double w = m_ev.frame.width(), h = m_ev.frame.height();
+        for (int y = 0; y < out.height(); ++y) {
+            QRgb* p = reinterpret_cast<QRgb*>(out.scanLine(y));
+            const QRgb* p2 = second.isNull()
+                ? nullptr
+                : reinterpret_cast<const QRgb*>(second.constScanLine(y));
+            const double fy = 1.0 - (y + 0.5) / out.height();
+            for (int x = 0; x < out.width(); ++x) {
+                float a[4], b[4] = {0, 0, 0, 0}, r[4];
+                unpack(p[x], a);
+                if (a[3] > 0) {
+                    for (int i = 0; i < 3; ++i)
+                        a[i] /= a[3];
+                }
+                if (p2) {
+                    unpack(p2[x], b);
+                    if (b[3] > 0) {
+                        for (int i = 0; i < 3; ++i)
+                            b[i] /= b[3];
+                    }
+                }
+                compmath::customToolPixel(
+                    c, double(f), (x + 0.5) / out.width(), fy, w, h, a, b, r);
+                for (int i = 0; i < 3; ++i)
+                    r[i] = std::clamp(r[i], 0.0f, 1.0f) * r[3];
+                p[x] = pack(r);
             }
         }
         return out;

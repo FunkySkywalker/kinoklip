@@ -80,7 +80,9 @@ general knowledge of node compositors, our own drawing, names and icons; never R
   distort, time) as a node with one image input and a mask input, generated from the
   EffectRegistry (type `fx:<id>`), so new effects appear on both pages.
 - **Color**: Color Corrector (the Color Balance / Levels / Saturation set in one node),
-  Channel Booleans (copy / swap channels, alpha from luma).
+  Channel Booleans (copy / swap channels, alpha from luma), Brightness Contrast, Alpha Multiply, Alpha Divide, Channel Mapper (a 4 x 4 channel mix),
+  Color Curves, Hue Curves and the Custom Tool (a formula per pixel, GLSL generated from `core/Expression.*`); spec section 124.
+  Maths `src/render/CompColorMath.*`, GPU `src/render/GlCompColor.*`. **Vector Motion Blur** (Filter) blurs along the vectors of a second picture.
 - **Tracking**: Tracker (point tracker, see "Tracker" below), Planar Tracker.
 - Later: paint, particles, 3D (the older lines of the roadmap, from the Spline panel to the node editor extras, are all made: spec 123).
 

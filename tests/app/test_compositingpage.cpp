@@ -526,6 +526,53 @@ private slots:
         QCOMPARE(f.comp().node(id)->mediaId, logoId);
     }
 
+    void colourNodesHaveTooltipsAndFormulaEditsAreUndoSteps()
+    {
+        // Spec 124: the new colour nodes show every control with a tooltip; a formula typed
+        // into the Custom Tool is one undo step; the curve nodes show curve editors.
+        Fixture f;
+        f.project.timeline()->setPlayhead(20);
+        f.showPage();
+        f.session()->setSelection({f.nodeNamed(QStringLiteral("MediaIn1"))});
+        for (const QString& type : {nodetypes::BrightnessContrast, nodetypes::ChannelMapper,
+                 nodetypes::ColorCurves, nodetypes::HueCurves, nodetypes::CustomTool,
+                 nodetypes::VectorMotionBlur}) {
+            const quint64 id = f.session()->addNode(type);
+            QVERIFY(id);
+            f.session()->setSelection({id});
+            QCOMPARE(f.page()->inspector()->shownNode(), id);
+            ParamGroupBox* group = f.page()->inspector()->group();
+            QVERIFY(group && !group->rows().isEmpty());
+            for (ParamRow* row : group->rows()) {
+                QVERIFY2(!row->descriptor().tooltip.isEmpty(), qPrintable(type + row->descriptor().key));
+                bool shown = false;
+                for (QWidget* w : row->vimWidgets())
+                    shown = shown || w->toolTip().contains(row->descriptor().tooltip);
+                QVERIFY2(shown, qPrintable(type + row->descriptor().key));
+            }
+            if (type == nodetypes::CustomTool) {
+                QLineEdit* red = group->findChild<QLineEdit*>(QStringLiteral("text:") + nodekeys::CustomRed);
+                QVERIFY(red);
+                QCOMPARE(red->text(), QStringLiteral("r1"));
+                const int before = f.steps();
+                red->setText(QStringLiteral("1 - r1"));
+                emit red->editingFinished();
+                QCOMPARE(f.steps(), before + 1);
+                QCOMPARE(f.comp().node(id)->params.staticValue(nodekeys::CustomRed).toString(),
+                    QStringLiteral("1 - r1"));
+                f.project.undo();
+                QVERIFY(f.comp().node(id)->params.staticValue(nodekeys::CustomRed).toString()
+                    != QStringLiteral("1 - r1"));
+            }
+            if (type == nodetypes::ColorCurves || type == nodetypes::HueCurves) {
+                int curves = 0;
+                for (ParamRow* row : group->rows())
+                    curves += row->descriptor().type == ParamType::Curve;
+                QCOMPARE(curves, 5);
+            }
+        }
+    }
+
     void inspectorNoteForNodesWithoutParameters()
     {
         // Polish: MediaIn / MediaOut have no parameters; the Inspector says so instead of an

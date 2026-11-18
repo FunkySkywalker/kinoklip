@@ -51,8 +51,16 @@
         <translation>Неизвестная функция «%1»</translation>
     </message>
     <message>
+        <source>%1 is not available in a Custom Tool</source>
+        <translation>%1 недоступна в Custom Tool</translation>
+    </message>
+    <message>
         <source>%1 takes %2 argument(s)</source>
         <translation>%1 принимает аргументов: %2</translation>
+    </message>
+    <message>
+        <source>Unknown name &quot;%1&quot;</source>
+        <translation>Неизвестное имя «%1»</translation>
     </message>
     <message>
         <source>The formula is empty</source>
@@ -22498,6 +22506,246 @@ Import files with %1 or drop them here.</source>
     <message>
         <source>To Alpha</source>
         <translation>В альфа-канал</translation>
+    </message>
+    <message>
+        <source>Brightness Contrast</source>
+        <translation>Яркость и контраст</translation>
+    </message>
+    <message>
+        <source>Gain, lift, gamma, contrast, brightness and saturation of the picture</source>
+        <translation>Усиление, подъём, гамма, контраст, яркость и насыщенность изображения</translation>
+    </message>
+    <message>
+        <source>Apply the controls to the red channel</source>
+        <translation>Применять настройки к красному каналу</translation>
+    </message>
+    <message>
+        <source>Apply the controls to the green channel</source>
+        <translation>Применять настройки к зелёному каналу</translation>
+    </message>
+    <message>
+        <source>Apply the controls to the blue channel</source>
+        <translation>Применять настройки к синему каналу</translation>
+    </message>
+    <message>
+        <source>Apply the controls to the alpha channel as well</source>
+        <translation>Применять настройки и к альфа-каналу</translation>
+    </message>
+    <message>
+        <source>Multiplies the values: brightens the highlights most</source>
+        <translation>Умножает значения: сильнее всего осветляет света</translation>
+    </message>
+    <message>
+        <source>Raises (or lowers) the blacks; white stays white</source>
+        <translation>Поднимает (или опускает) чёрное; белое остаётся белым</translation>
+    </message>
+    <message>
+        <source>Above 1 brightens the middle tones, below 1 darkens them</source>
+        <translation>Больше 1 осветляет средние тона, меньше 1 затемняет</translation>
+    </message>
+    <message>
+        <source>Pushes the values away from mid grey (0.5), or towards it when negative</source>
+        <translation>Отодвигает значения от среднего серого (0,5), а при отрицательных приближает к нему</translation>
+    </message>
+    <message>
+        <source>Adds the same amount to every value</source>
+        <translation>Прибавляет одно и то же число к каждому значению</translation>
+    </message>
+    <message>
+        <source>0 is grey, 1 leaves the colour as it is, above 1 is more vivid</source>
+        <translation>0 — серый, 1 оставляет цвет как есть, больше 1 — ярче</translation>
+    </message>
+    <message>
+        <source>The value that becomes black: everything below it is stretched out of the picture</source>
+        <translation>Значение, которое станет чёрным: всё, что ниже, выходит за пределы изображения</translation>
+    </message>
+    <message>
+        <source>The value that becomes white: everything above it is stretched out of the picture</source>
+        <translation>Значение, которое станет белым: всё, что выше, выходит за пределы изображения</translation>
+    </message>
+    <message>
+        <source>Alpha Multiply</source>
+        <translation>Умножение на альфу</translation>
+    </message>
+    <message>
+        <source>Multiplies the colour by the alpha: the edges and soft parts get darker</source>
+        <translation>Умножает цвет на альфу: края и мягкие участки темнеют</translation>
+    </message>
+    <message>
+        <source>Alpha Divide</source>
+        <translation>Деление на альфу</translation>
+    </message>
+    <message>
+        <source>Divides the colour by the alpha: the edges and soft parts get brighter. Alpha Multiply undoes it</source>
+        <translation>Делит цвет на альфу: края и мягкие участки светлеют. Умножение на альфу это отменяет</translation>
+    </message>
+    <message>
+        <source>Channel Mapper</source>
+        <translation>Микшер каналов</translation>
+    </message>
+    <message>
+        <source>Builds each of red, green, blue and alpha from a mix of the four input channels</source>
+        <translation>Строит красный, зелёный, синий и альфа-канал из смеси четырёх входных каналов</translation>
+    </message>
+    <message>
+        <source>%1 from %2</source>
+        <translation>%1 из %2</translation>
+    </message>
+    <message>
+        <source>How much of the input&apos;s %1 goes into the output&apos;s %2 (1 = all of it, 0 = none, negative inverts)</source>
+        <translation>Сколько %1 входа попадает в %2 выхода (1 = всё, 0 = ничего, отрицательное значение инвертирует)</translation>
+    </message>
+    <message>
+        <source>%1 Offset</source>
+        <translation>Смещение: %1</translation>
+    </message>
+    <message>
+        <source>Added to the output&apos;s %1 after the mix</source>
+        <translation>Прибавляется к %1 выхода после смешивания</translation>
+    </message>
+    <message>
+        <source>Color Curves</source>
+        <translation>Цветовые кривые</translation>
+    </message>
+    <message>
+        <source>Tone curves for the luminance, red, green, blue and alpha channels</source>
+        <translation>Тоновые кривые для яркости, красного, зелёного, синего и альфа-каналов</translation>
+    </message>
+    <message>
+        <source>Curve applied to all three colour channels: click to add a point, drag to bend it</source>
+        <translation>Кривая для всех трёх цветовых каналов: щёлкните, чтобы добавить точку, перетащите, чтобы изогнуть</translation>
+    </message>
+    <message>
+        <source>Curve of the red channel</source>
+        <translation>Кривая красного канала</translation>
+    </message>
+    <message>
+        <source>Curve of the green channel</source>
+        <translation>Кривая зелёного канала</translation>
+    </message>
+    <message>
+        <source>Curve of the blue channel</source>
+        <translation>Кривая синего канала</translation>
+    </message>
+    <message>
+        <source>Curve of the alpha channel</source>
+        <translation>Кривая альфа-канала</translation>
+    </message>
+    <message>
+        <source>Hue Curves</source>
+        <translation>Кривые оттенка</translation>
+    </message>
+    <message>
+        <source>Changes hue, saturation or brightness of selected colours with curves</source>
+        <translation>Меняет оттенок, насыщенность или яркость выбранных цветов с помощью кривых</translation>
+    </message>
+    <message>
+        <source>Hue vs Hue</source>
+        <translation>Оттенок — оттенок</translation>
+    </message>
+    <message>
+        <source>Shifts the hue of the colours at the curve&apos;s hue (the middle line leaves them; up or down turns them)</source>
+        <translation>Сдвигает оттенок цветов при оттенке кривой (средняя линия оставляет их, вверх или вниз поворачивает)</translation>
+    </message>
+    <message>
+        <source>Hue vs Sat</source>
+        <translation>Оттенок — насыщ.</translation>
+    </message>
+    <message>
+        <source>Saturation of the colours at the curve&apos;s hue (the middle line is no change, the bottom is grey, the top doubles it)</source>
+        <translation>Насыщенность цветов при оттенке кривой (средняя линия — без изменений, низ — серый, верх — вдвое)</translation>
+    </message>
+    <message>
+        <source>Hue vs Lum</source>
+        <translation>Оттенок — яркость</translation>
+    </message>
+    <message>
+        <source>Brightness of the colours at the curve&apos;s hue (the middle line is no change)</source>
+        <translation>Яркость цветов при оттенке кривой (средняя линия — без изменений)</translation>
+    </message>
+    <message>
+        <source>Lum vs Sat</source>
+        <translation>Яркость — насыщ.</translation>
+    </message>
+    <message>
+        <source>Saturation by brightness: dark to bright from left to right</source>
+        <translation>Насыщенность по яркости: от тёмного к светлому слева направо</translation>
+    </message>
+    <message>
+        <source>Sat vs Sat</source>
+        <translation>Насыщ. — насыщ.</translation>
+    </message>
+    <message>
+        <source>Saturation by saturation: grey to vivid from left to right</source>
+        <translation>Насыщенность по насыщенности: от серого к яркому слева направо</translation>
+    </message>
+    <message>
+        <source>Custom Tool</source>
+        <translation>Custom Tool</translation>
+    </message>
+    <message>
+        <source>Computes red, green, blue and alpha of every pixel from formulas</source>
+        <translation>Вычисляет красный, зелёный, синий и альфа каждого пикселя по формулам</translation>
+    </message>
+    <message>
+        <source>Image 2</source>
+        <translation>Изображение 2</translation>
+    </message>
+    <message>
+        <source>Variables: x y (position 0 to 1, y up), w h (frame size), time, r1 g1 b1 a1 (Input), r2 g2 b2 a2 (Image 2), n1 to n8, i1 to i4</source>
+        <translation>Переменные: x y (позиция от 0 до 1, y вверх), w h (размер кадра), time, r1 g1 b1 a1 (вход), r2 g2 b2 a2 (изображение 2), n1–n8, i1–i4</translation>
+    </message>
+    <message>
+        <source>Number %1</source>
+        <translation>Число %1</translation>
+    </message>
+    <message>
+        <source>A value the formulas read as n%1; it can be keyframed</source>
+        <translation>Значение, которое формулы читают как n%1; его можно анимировать ключами</translation>
+    </message>
+    <message>
+        <source>Intermediate %1</source>
+        <translation>Промежуточное %1</translation>
+    </message>
+    <message>
+        <source>A formula whose result the channel formulas read as i%1 (it may use i1 to i%2). %3</source>
+        <translation>Формула, результат которой формулы каналов читают как i%1 (может использовать i1–i%2). %3</translation>
+    </message>
+    <message>
+        <source>Formula for the %1 channel, 0 to 1 (straight colour). Operators + - * / % ^ and comparisons, functions such as sin, pow, clamp, mix, smoothstep, if. %2</source>
+        <translation>Формула для канала %1, от 0 до 1 (прямой цвет). Операторы + - * / % ^ и сравнения, функции sin, pow, clamp, mix, smoothstep, if и другие. %2</translation>
+    </message>
+    <message>
+        <source>Vector Motion Blur</source>
+        <translation>Размытие движения по векторам</translation>
+    </message>
+    <message>
+        <source>Blurs the picture along motion vectors stored in a second picture&apos;s red and green</source>
+        <translation>Размывает изображение вдоль векторов движения, записанных в красном и зелёном втором изображении</translation>
+    </message>
+    <message>
+        <source>How many pixels of motion a red or green value of 0 or 1 stands for (0.5 is no motion)</source>
+        <translation>Скольким пикселям движения соответствует значение красного или зелёного 0 или 1 (0,5 — нет движения)</translation>
+    </message>
+    <message>
+        <source>Multiplies the length of the blur</source>
+        <translation>Умножает длину размытия</translation>
+    </message>
+    <message>
+        <source>0 blurs both ways along the vector, 1 only behind the motion, -1 only ahead of it</source>
+        <translation>0 размывает в обе стороны вдоль вектора, 1 — только позади движения, −1 — только впереди</translation>
+    </message>
+    <message>
+        <source>Samples</source>
+        <translation>Выборки</translation>
+    </message>
+    <message>
+        <source>How many pictures are averaged along the vector: more is smoother and slower</source>
+        <translation>Сколько изображений усредняется вдоль вектора: больше — плавнее и медленнее</translation>
+    </message>
+    <message>
+        <source>What shows where the blur reaches outside the picture</source>
+        <translation>Что показывается там, где размытие выходит за пределы изображения</translation>
     </message>
     <message>
         <source>Luma Keyer</source>

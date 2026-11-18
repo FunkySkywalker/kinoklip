@@ -241,6 +241,18 @@ move looks the same with Motion Blur on or off.
 - **Corner Positioner** (Transform): drag the four corners in the viewer (or type them) to pin the picture to a
   new quadrilateral in perspective.
 
+## Colour nodes and the Custom Tool
+
+The **Color** folder of the Nodes library has more than the Color Corrector:
+
+- **Brightness Contrast:** Gain, Lift, Gamma, Contrast, Brightness and Saturation, with switches for the channels they change.
+- **Alpha Multiply** and **Alpha Divide:** multiply the colour by the alpha, or divide it by it (the way to colour-correct a soft edge without darkening it: Divide, correct, Multiply).
+- **Channel Mapper:** each of red, green, blue and alpha is a mix of the four input channels. Swap red and blue by putting 1 in "Red from Blue" and "Blue from Red" and 0 in the two that were 1.
+- **Color Curves** and **Hue Curves:** click in a curve to add a point and drag it. Color Curves has luminance, red, green, blue and alpha; Hue Curves changes the hue, saturation or brightness of the colours you pick with the curve (the middle line means no change).
+- **Custom Tool:** type a formula for red, green, blue and alpha, for example `1 - r1` (invert) or `r1 * x` (a ramp across the picture). `r1 g1 b1 a1` are the colours of the input, `r2 ...` of Image 2, `x` and `y` the position from 0 to 1, `n1` to `n8` the Number controls (they can be keyframed) and `i1` to `i4` the Intermediate formulas. Point the cursor at a field for the list of variables.
+
+**Vector Motion Blur** (Filter) blurs a picture along motion vectors that you plug into Vectors (red and green, 0.5 is no motion).
+
 ## Modifiers, links and formulas
 
 Right-click the name or the number of a parameter in the Inspector:

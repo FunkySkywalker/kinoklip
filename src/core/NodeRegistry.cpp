@@ -3,6 +3,7 @@
 // nodes. Behaviour: docs/behavior-spec.md section 42a.
 #include "core/NodeRegistry.h"
 
+#include "core/CurveParam.h"
 #include "core/EffectBuilders.h"
 
 #include <QCoreApplication>
@@ -26,6 +27,13 @@ NodePort port(const QString& id, const QString& label, PortKind kind, bool requi
     bool analysisOnly = false)
 {
     return NodePort {id, label, kind, required, analysisOnly};
+}
+
+/// @p p with the tooltip @p text.
+ParamDescriptor tip(ParamDescriptor p, const QString& text)
+{
+    p.tooltip = text;
+    return p;
 }
 
 NodePort maskPort()
@@ -835,6 +843,134 @@ NodeRegistry::NodeRegistry()
             choice(k::ToGreen, tr("To Green"), values, labels, channelsources::Green),
             choice(k::ToBlue, tr("To Blue"), values, labels, channelsources::Blue),
             choice(k::ToAlpha, tr("To Alpha"), values, labels, channelsources::Alpha)};
+        add(d);
+    }
+
+    // ---- Colour nodes of spec 123 ----
+    {
+        NodeDescriptor d = node(nodetypes::BrightnessContrast, tr("Brightness Contrast"),
+            QStringLiteral("BC"), QStringLiteral("BrightnessContrast"), C::Color,
+            tr("Gain, lift, gamma, contrast, brightness and saturation of the picture"));
+        d.inputs = {inputPort(), maskPort()};
+        d.mainInput = nodeports::Input;
+        d.params = {tip(boolean(k::BcRed, tr("Red"), true), tr("Apply the controls to the red channel")),
+            tip(boolean(k::BcGreen, tr("Green"), true), tr("Apply the controls to the green channel")),
+            tip(boolean(k::BcBlue, tr("Blue"), true), tr("Apply the controls to the blue channel")),
+            tip(boolean(k::BcAlpha, tr("Alpha"), false), tr("Apply the controls to the alpha channel as well")),
+            tip(number(k::BcGain, tr("Gain"), 0, 10, 1, 0.01), tr("Multiplies the values: brightens the highlights most")),
+            tip(number(k::BcLift, tr("Lift"), -1, 1, 0, 0.01), tr("Raises (or lowers) the blacks; white stays white")),
+            tip(number(k::BcGamma, tr("Gamma"), 0.1, 10, 1, 0.01), tr("Above 1 brightens the middle tones, below 1 darkens them")),
+            tip(number(k::BcContrast, tr("Contrast"), -1, 4, 0, 0.01), tr("Pushes the values away from mid grey (0.5), or towards it when negative")),
+            tip(number(k::BcBrightness, tr("Brightness"), -1, 1, 0, 0.01), tr("Adds the same amount to every value")),
+            tip(number(k::Saturation, tr("Saturation"), 0, 4, 1, 0.01), tr("0 is grey, 1 leaves the colour as it is, above 1 is more vivid")),
+            tip(number(k::BcLow, tr("Low"), 0, 1, 0, 0.001), tr("The value that becomes black: everything below it is stretched out of the picture")),
+            tip(number(k::BcHigh, tr("High"), 0, 1, 1, 0.001), tr("The value that becomes white: everything above it is stretched out of the picture"))};
+        add(d);
+    }
+    {
+        NodeDescriptor d = node(nodetypes::AlphaMultiply, tr("Alpha Multiply"), QStringLiteral("AMu"),
+            QStringLiteral("AlphaMultiply"), C::Color,
+            tr("Multiplies the colour by the alpha: the edges and soft parts get darker"));
+        d.inputs = {inputPort(), maskPort()};
+        d.mainInput = nodeports::Input;
+        add(d);
+    }
+    {
+        NodeDescriptor d = node(nodetypes::AlphaDivide, tr("Alpha Divide"), QStringLiteral("ADv"),
+            QStringLiteral("AlphaDivide"), C::Color,
+            tr("Divides the colour by the alpha: the edges and soft parts get brighter. Alpha Multiply undoes it"));
+        d.inputs = {inputPort(), maskPort()};
+        d.mainInput = nodeports::Input;
+        add(d);
+    }
+    {
+        NodeDescriptor d = node(nodetypes::ChannelMapper, tr("Channel Mapper"), QStringLiteral("ChM"),
+            QStringLiteral("ChannelMapper"), C::Color,
+            tr("Builds each of red, green, blue and alpha from a mix of the four input channels"));
+        d.inputs = {inputPort(), maskPort()};
+        d.mainInput = nodeports::Input;
+        const QStringList names {tr("Red"), tr("Green"), tr("Blue"), tr("Alpha")};
+        for (int o = 0; o < 4; ++o) {
+            for (int i = 0; i < 4; ++i) {
+                d.params.append(tip(number(k::mapperKey(o, i),
+                                        tr("%1 from %2").arg(names[o], names[i]), -4, 4,
+                                        o == i ? 1 : 0, 0.01),
+                    tr("How much of the input's %1 goes into the output's %2 (1 = all of it, 0 = none, negative inverts)")
+                        .arg(names[i].toLower(), names[o].toLower())));
+            }
+            d.params.append(tip(number(k::mapperOffsetKey(o), tr("%1 Offset").arg(names[o]), -1, 1, 0, 0.01),
+                tr("Added to the output's %1 after the mix").arg(names[o].toLower())));
+        }
+        add(d);
+    }
+    {
+        NodeDescriptor d = node(nodetypes::ColorCurves, tr("Color Curves"), QStringLiteral("CCv"),
+            QStringLiteral("ColorCurves"), C::Color,
+            tr("Tone curves for the luminance, red, green, blue and alpha channels"));
+        d.inputs = {inputPort(), maskPort()};
+        d.mainInput = nodeports::Input;
+        const QString identity = kk::curve::identityText();
+        d.params = {tip(builders::curve(k::CurveLuma, tr("Luminance"), identity), tr("Curve applied to all three colour channels: click to add a point, drag to bend it")),
+            tip(builders::curve(k::CurveRed, tr("Red"), identity), tr("Curve of the red channel")),
+            tip(builders::curve(k::CurveGreen, tr("Green"), identity), tr("Curve of the green channel")),
+            tip(builders::curve(k::CurveBlue, tr("Blue"), identity), tr("Curve of the blue channel")),
+            tip(builders::curve(k::CurveAlpha, tr("Alpha"), identity), tr("Curve of the alpha channel"))};
+        add(d);
+    }
+    {
+        NodeDescriptor d = node(nodetypes::HueCurves, tr("Hue Curves"), QStringLiteral("HCv"),
+            QStringLiteral("HueCurves"), C::Color,
+            tr("Changes hue, saturation or brightness of selected colours with curves"));
+        d.inputs = {inputPort(), maskPort()};
+        d.mainInput = nodeports::Input;
+        const QString flat = QStringLiteral("0,0.5 1,0.5");
+        d.params = {tip(builders::curve(k::CurveHueHue, tr("Hue vs Hue"), flat), tr("Shifts the hue of the colours at the curve's hue (the middle line leaves them; up or down turns them)")),
+            tip(builders::curve(k::CurveHueSat, tr("Hue vs Sat"), flat), tr("Saturation of the colours at the curve's hue (the middle line is no change, the bottom is grey, the top doubles it)")),
+            tip(builders::curve(k::CurveHueLum, tr("Hue vs Lum"), flat), tr("Brightness of the colours at the curve's hue (the middle line is no change)")),
+            tip(builders::curve(k::CurveLumSat, tr("Lum vs Sat"), flat), tr("Saturation by brightness: dark to bright from left to right")),
+            tip(builders::curve(k::CurveSatSat, tr("Sat vs Sat"), flat), tr("Saturation by saturation: grey to vivid from left to right"))};
+        add(d);
+    }
+    {
+        NodeDescriptor d = node(nodetypes::CustomTool, tr("Custom Tool"), QStringLiteral("Cus"),
+            QStringLiteral("CustomTool"), C::Color,
+            tr("Computes red, green, blue and alpha of every pixel from formulas"));
+        d.inputs = {inputPort(), port(nodeports::Image2, tr("Image 2"), PortKind::Image, false),
+            maskPort()};
+        d.mainInput = nodeports::Input;
+        const QString vars = tr("Variables: x y (position 0 to 1, y up), w h (frame size), time, "
+                                "r1 g1 b1 a1 (Input), r2 g2 b2 a2 (Image 2), n1 to n8, i1 to i4");
+        for (int i = 0; i < 8; ++i) {
+            d.params.append(tip(number(k::customNumberKey(i), tr("Number %1").arg(i + 1), -1000, 1000, 0, 0.01),
+                tr("A value the formulas read as n%1; it can be keyframed").arg(i + 1)));
+        }
+        for (int i = 0; i < 4; ++i) {
+            d.params.append(tip(text(k::customInterKey(i), tr("Intermediate %1").arg(i + 1), QString()),
+                tr("A formula whose result the channel formulas read as i%1 (it may use i1 to i%2). %3")
+                    .arg(i + 1).arg(i).arg(vars)));
+        }
+        const QStringList chans {tr("Red"), tr("Green"), tr("Blue"), tr("Alpha")};
+        const QStringList defs {QStringLiteral("r1"), QStringLiteral("g1"), QStringLiteral("b1"), QStringLiteral("a1")};
+        const QList<QString> keys {k::CustomRed, k::CustomGreen, k::CustomBlue, k::CustomAlpha};
+        for (int i = 0; i < 4; ++i) {
+            d.params.append(tip(text(keys[i], chans[i], defs[i]),
+                tr("Formula for the %1 channel, 0 to 1 (straight colour). Operators + - * / % ^ and comparisons, functions such as sin, pow, clamp, mix, smoothstep, if. %2")
+                    .arg(chans[i].toLower(), vars)));
+        }
+        add(d);
+    }
+    {
+        NodeDescriptor d = node(nodetypes::VectorMotionBlur, tr("Vector Motion Blur"),
+            QStringLiteral("VMB"), QStringLiteral("VectorMotionBlur"), C::Filter,
+            tr("Blurs the picture along motion vectors stored in a second picture's red and green"));
+        d.inputs = {inputPort(), port(nodeports::Map, tr("Vectors"), PortKind::Image, true),
+            maskPort()};
+        d.mainInput = nodeports::Input;
+        d.params = {tip(number(k::VectorRange, tr("Vector Range"), 0, 2000, 32, 0.5, kPx), tr("How many pixels of motion a red or green value of 0 or 1 stands for (0.5 is no motion)")),
+            tip(number(k::VmbScale, tr("Scale"), 0, 8, 1, 0.01), tr("Multiplies the length of the blur")),
+            tip(number(k::VmbBias, tr("Center Bias"), -1, 1, 0, 0.01), tr("0 blurs both ways along the vector, 1 only behind the motion, -1 only ahead of it")),
+            tip(integer(k::VmbSamples, tr("Samples"), 2, 64, 16), tr("How many pictures are averaged along the vector: more is smoother and slower")),
+            tip(edgesParam(), tr("What shows where the blur reaches outside the picture"))};
         add(d);
     }
 

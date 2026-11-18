@@ -8,6 +8,7 @@
 #include "render/CompMath.h"
 #include "render/GlCompFilters.h"
 #include "render/GlCompMatte.h"
+#include "render/GlCompColor.h"
 #include "render/GlCompWarp.h"
 #include "render/GlEffects.h"
 #include "render/GlGenerators.h"
@@ -150,6 +151,7 @@ private:
 
     GlCompFilters m_fx;
     GlCompWarp m_fxWarp;
+    GlCompColor m_fxColor;
     GlCompMatte m_fxMatte;
     GlProgram m_merge;
     GLint m_mergeFgMatrix = -1, m_mergeMode = -1, m_mergeOpacity = -1, m_mergeHasFg = -1,

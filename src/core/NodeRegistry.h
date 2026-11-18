@@ -149,6 +149,15 @@ inline const QString UltraKeyer = QStringLiteral("ultra_keyer");
 inline const QString MatteControl = QStringLiteral("matte_control");
 inline const QString ColorCorrector = QStringLiteral("color_corrector");
 inline const QString ChannelBooleans = QStringLiteral("channel_booleans");
+// Spec 123.
+inline const QString BrightnessContrast = QStringLiteral("brightness_contrast");
+inline const QString AlphaMultiply = QStringLiteral("alpha_multiply");
+inline const QString AlphaDivide = QStringLiteral("alpha_divide");
+inline const QString ChannelMapper = QStringLiteral("channel_mapper");
+inline const QString ColorCurves = QStringLiteral("color_curves");
+inline const QString HueCurves = QStringLiteral("hue_curves");
+inline const QString CustomTool = QStringLiteral("custom_tool");
+inline const QString VectorMotionBlur = QStringLiteral("vector_motion_blur");
 /// Prefix of the effect nodes: "fx:" + EffectRegistry id.
 inline const QString EffectPrefix = QStringLiteral("fx:");
 } // namespace nodetypes
@@ -166,6 +175,8 @@ inline const QString Source = QStringLiteral("source");
 inline const QString TrackMask = QStringLiteral("trackMask");
 /// Displace and Vector Distort: the picture that holds the displacement / the vectors.
 inline const QString Map = QStringLiteral("map");
+/// Custom Tool: the optional second picture (r2 g2 b2 a2).
+inline const QString Image2 = QStringLiteral("image2");
 /// Keyers and Matte Control: masks that take the matte out (Garbage) or keep it (Solid), and the
 /// Delta Keyer's clean plate (a picture of the screen without the subject).
 inline const QString GarbageMatte = QStringLiteral("garbageMatte");
@@ -351,6 +362,51 @@ inline const QString DisplaceLightAngle = QStringLiteral("displaceLightAngle");
 inline const QString VectorRange = QStringLiteral("vectorRange"); ///< timeline px
 inline const QString VectorMultiplier = QStringLiteral("vectorMultiplier");
 inline const QString VectorSteps = QStringLiteral("vectorSteps");
+// Vector Motion Blur (VectorRange above; Edges).
+inline const QString VmbScale = QStringLiteral("vmbScale"); ///< multiplies the vector length
+inline const QString VmbBias = QStringLiteral("vmbBias"); ///< -1..1: where along the vector
+inline const QString VmbSamples = QStringLiteral("vmbSamples"); ///< 2..64
+// Brightness Contrast (Saturation above).
+inline const QString BcRed = QStringLiteral("bcRed");
+inline const QString BcGreen = QStringLiteral("bcGreen");
+inline const QString BcBlue = QStringLiteral("bcBlue");
+inline const QString BcAlpha = QStringLiteral("bcAlpha");
+inline const QString BcGain = QStringLiteral("bcGain");
+inline const QString BcLift = QStringLiteral("bcLift");
+inline const QString BcGamma = QStringLiteral("bcGamma");
+inline const QString BcContrast = QStringLiteral("bcContrast");
+inline const QString BcBrightness = QStringLiteral("bcBrightness");
+inline const QString BcLow = QStringLiteral("bcLow");
+inline const QString BcHigh = QStringLiteral("bcHigh");
+/// Channel Mapper: output channel @p out (0 R, 1 G, 2 B, 3 A) takes @p in times this number.
+inline QString mapperKey(int out, int in)
+{
+    return QStringLiteral("map%1%2").arg(QLatin1Char("RGBA"[out]), QLatin1Char("RGBA"[in]));
+}
+/// Channel Mapper: added to output channel @p out.
+inline QString mapperOffsetKey(int out)
+{
+    return QStringLiteral("mapOffset%1").arg(QLatin1Char("RGBA"[out]));
+}
+// Color Curves and Hue Curves: Curve statics (core/CurveParam.h text, x and y 0..1).
+inline const QString CurveLuma = QStringLiteral("curveLuma");
+inline const QString CurveRed = QStringLiteral("curveRed");
+inline const QString CurveGreen = QStringLiteral("curveGreen");
+inline const QString CurveBlue = QStringLiteral("curveBlue");
+inline const QString CurveAlpha = QStringLiteral("curveAlpha");
+inline const QString CurveHueHue = QStringLiteral("curveHueHue");
+inline const QString CurveHueSat = QStringLiteral("curveHueSat");
+inline const QString CurveHueLum = QStringLiteral("curveHueLum");
+inline const QString CurveLumSat = QStringLiteral("curveLumSat");
+inline const QString CurveSatSat = QStringLiteral("curveSatSat");
+// Custom Tool: Numbers 1 to 8 (keyframeable), Intermediate 1 to 4 and the four channel
+// formulas (strings).
+inline QString customNumberKey(int i) { return QStringLiteral("customN%1").arg(i + 1); }
+inline QString customInterKey(int i) { return QStringLiteral("customI%1").arg(i + 1); }
+inline const QString CustomRed = QStringLiteral("customR");
+inline const QString CustomGreen = QStringLiteral("customG");
+inline const QString CustomBlue = QStringLiteral("customB");
+inline const QString CustomAlpha = QStringLiteral("customA");
 // Grid Warp: Columns / Rows (core/VideoEffectKeys4.h names, redeclared here), points in px.
 inline constexpr int kGridMaxSide = 9;
 inline const QString Columns = QStringLiteral("columns");

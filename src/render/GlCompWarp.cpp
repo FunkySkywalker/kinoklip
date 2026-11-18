@@ -77,6 +77,32 @@ void main()
 }
 )";
 
+const char* const kBlurFragment = R"(
+uniform sampler2D uTex;
+uniform sampler2D uSecond;
+uniform float uF;       // range * scale * image scale * 2
+uniform int uSamples;
+uniform float uBias;
+uniform int uEdges;
+void main()
+{
+    ivec2 sz = textureSize(uTex, 0);
+    vec2 pc = floor(vUv * vec2(sz)) + 0.5;
+    vec4 m = texture(uSecond, pc / vec2(sz));
+    vec2 v = m.a > 0.0 ? (m.rg / m.a - 0.5) * uF : vec2(0.0);
+    if (v.x == 0.0 && v.y == 0.0) {
+        fragColor = kkResample(uTex, pc / vec2(sz), uEdges, 1);
+        return;
+    }
+    vec4 acc = vec4(0.0);
+    for (int i = 0; i < uSamples; ++i) {
+        float t = (float(i) + 0.5) / float(uSamples) - 0.5 + 0.5 * uBias;
+        acc += kkResample(uTex, (pc + vec2(v.x, -v.y) * t) / vec2(sz), uEdges, 1);
+    }
+    fragColor = acc / float(uSamples);
+}
+)";
+
 const char* const kGridFragment = R"(
 uniform sampler2D uTex;
 uniform int uCols;
@@ -143,8 +169,13 @@ bool GlCompWarp::initialize(GlKit& kit, QString* why)
     const QByteArray resample(compmath::kResampleGlsl);
     if (!buildWith(kit, m_displace, "compwarp.displace", resample + kDisplaceFragment, why)
         || !buildWith(kit, m_vector, "compwarp.vector", resample + kVectorFragment, why)
+        || !buildWith(kit, m_blur, "compwarp.blur", resample + kBlurFragment, why)
         || !buildWith(kit, m_grid, "compwarp.grid", kGridFragment, why))
         return false;
+    m_bF = m_blur.uniform(gl, "uF");
+    m_bSamples = m_blur.uniform(gl, "uSamples");
+    m_bBias = m_blur.uniform(gl, "uBias");
+    m_bEdges = m_blur.uniform(gl, "uEdges");
     m_dA = m_displace.uniform(gl, "uA");
     m_dCh = m_displace.uniform(gl, "uCh");
     m_dB = m_displace.uniform(gl, "uB");
@@ -159,7 +190,7 @@ bool GlCompWarp::initialize(GlKit& kit, QString* why)
 
 void GlCompWarp::destroy(GlKit& kit)
 {
-    for (GlProgram* p : {&m_displace, &m_vector, &m_grid})
+    for (GlProgram* p : {&m_displace, &m_vector, &m_grid, &m_blur})
         p->destroy(kit.gl());
 }
 
@@ -195,6 +226,25 @@ PooledTarget GlCompWarp::vectorDistort(GlKit& kit, const RenderTarget& in, const
     gl->glUniform1f(m_vF, float(double(v.range) * v.multiplier * scale * 2.0));
     gl->glUniform1i(m_vSteps, v.steps);
     gl->glUniform1i(m_vEdges, v.edges);
+    kit.bindTexture(0, in.texture);
+    kit.bindTexture(1, map.texture);
+    kit.drawQuad();
+    return out;
+}
+
+PooledTarget GlCompWarp::vectorMotionBlur(GlKit& kit, const RenderTarget& in,
+    const RenderTarget& map, const compmath::VectorBlurParams& v, double scale)
+{
+    GlFunctions* gl = kit.gl();
+    PooledTarget out = kit.acquire(in.size);
+    kit.bindTarget(*out);
+    kit.setBlendOver(false);
+    gl->glUseProgram(m_blur.id);
+    kit.setFullscreen(m_blur);
+    gl->glUniform1f(m_bF, float(double(v.range) * v.scale * scale * 2.0));
+    gl->glUniform1i(m_bSamples, v.samples);
+    gl->glUniform1f(m_bBias, v.bias);
+    gl->glUniform1i(m_bEdges, v.edges);
     kit.bindTexture(0, in.texture);
     kit.bindTexture(1, map.texture);
     kit.drawQuad();

@@ -74,6 +74,9 @@ struct ParamDescriptor
     /// The Inspector does not list the parameter (stored data such as a track, or the points
     /// of a warp that have their own controls). It is still saved, keyframed and copied.
     bool hidden = false;
+    /// What the control does (translated, optional): the Inspector shows it as the tooltip of
+    /// the label and the editor. Nodes of the Compositing page fill it (spec 123).
+    QString tooltip;
 
     /// The value shown for stored value @p stored (and back: the same negation).
     [[nodiscard]] double displayed(double stored) const

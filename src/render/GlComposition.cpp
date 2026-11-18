@@ -320,6 +320,7 @@ bool GlComposition::initialize(GlKit& kit, QString* why)
         || !build(kit, m_warp, "comp.warp", kWarpFragment, why)
         || !build(kit, m_resample, "comp.resample", resample.constData(), why)
         || !m_fx.initialize(kit, why) || !m_fxWarp.initialize(kit, why)
+        || !m_fxColor.initialize(kit, why)
         || !m_fxMatte.initialize(kit, why))
         return false;
     m_resampleInverse = m_resample.uniform(gl, "uInvMatrix");
@@ -372,6 +373,7 @@ void GlComposition::destroy(GlKit& kit)
         p->destroy(kit.gl());
     m_fx.destroy(kit);
     m_fxWarp.destroy(kit);
+    m_fxColor.destroy(kit);
     m_fxMatte.destroy(kit);
     m_stack.clear();
 }
@@ -559,12 +561,16 @@ void GlComposition::evalNode(GlKit& kit, const CompEval& ev, int index)
         out = maskNode(kit, ev, n, mainOwner);
         handledMask = true; // the mask port of a mask node combines (union), see maskNode()
     } else if (n.type == nodetypes::ColorCorrector || n.type == nodetypes::ChannelBooleans
-        || n.type == nodetypes::LumaKeyer) {
+        || n.type == nodetypes::LumaKeyer || n.type == nodetypes::BrightnessContrast
+        || n.type == nodetypes::AlphaMultiply || n.type == nodetypes::AlphaDivide
+        || n.type == nodetypes::ChannelMapper || n.type == nodetypes::ColorCurves
+        || n.type == nodetypes::HueCurves || n.type == nodetypes::CustomTool) {
         out = colorNode(kit, ev, n, mainOwner);
     } else if (n.type == nodetypes::SoftGlow || n.type == nodetypes::LightWrap
         || n.type == nodetypes::Displace || n.type == nodetypes::VectorDistort
         || n.type == nodetypes::GridWarp || n.type == nodetypes::DeltaKeyer
-        || n.type == nodetypes::UltraKeyer || n.type == nodetypes::MatteControl) {
+        || n.type == nodetypes::UltraKeyer || n.type == nodetypes::MatteControl
+        || n.type == nodetypes::VectorMotionBlur) {
         out = filterNode(kit, ev, n, mainOwner);
     } else if (!d->effectId.isEmpty()) {
         out = effectNode(kit, ev, n, mainOwner);
@@ -948,6 +954,9 @@ PooledTarget GlComposition::colorNode(GlKit& kit, const CompEval& ev, const Comp
     if (input < 0)
         return {};
     GlFunctions* gl = kit.gl();
+    const RenderTarget* inTarget = targetOf(input);
+    if (!inTarget)
+        return {};
     if (n.type == nodetypes::ColorCorrector) {
         const compmath::CorrectorParams c = compmath::correctorParams(n.params, ev.compFrame);
         if (c.isIdentity())
@@ -962,6 +971,31 @@ PooledTarget GlComposition::colorNode(GlKit& kit, const CompEval& ev, const Comp
         kit.bindTexture(0, textureOf(kit, input));
         kit.drawQuad();
         return out;
+    }
+    if (n.type == nodetypes::BrightnessContrast) {
+        const compmath::BrightnessContrastParams b
+            = compmath::brightnessContrastParams(n.params, ev.compFrame);
+        return b.isIdentity() ? PooledTarget() : m_fxColor.brightnessContrast(kit, *inTarget, b);
+    }
+    if (n.type == nodetypes::AlphaMultiply || n.type == nodetypes::AlphaDivide)
+        return m_fxColor.alpha(kit, *inTarget, n.type == nodetypes::AlphaDivide);
+    if (n.type == nodetypes::ChannelMapper) {
+        const compmath::ChannelMapperParams c = compmath::channelMapperParams(n.params, ev.compFrame);
+        return c.isIdentity() ? PooledTarget() : m_fxColor.channelMapper(kit, *inTarget, c);
+    }
+    if (n.type == nodetypes::ColorCurves || n.type == nodetypes::HueCurves) {
+        const compmath::CurvesNodeParams c = n.type == nodetypes::ColorCurves
+            ? compmath::colorCurvesParams(n.params)
+            : compmath::hueCurvesParams(n.params);
+        return c.isIdentity() ? PooledTarget() : m_fxColor.curves(kit, *inTarget, c);
+    }
+    if (n.type == nodetypes::CustomTool) {
+        const compmath::CustomToolParams c = compmath::customToolParams(n.params, ev.compFrame);
+        if (c.isIdentity())
+            return {};
+        const RenderTarget* second = targetOf(inputOwner(n, nodeports::Image2));
+        return m_fxColor.customTool(kit, *inTarget, second, c, n.params,
+            double(ev.compFrame), ev.frame);
     }
     if (n.type == nodetypes::LumaKeyer) {
         const compmath::LumaKeyParams k = compmath::lumaKeyParams(n.params, ev.compFrame);
@@ -1011,6 +1045,13 @@ PooledTarget GlComposition::filterNode(
             compmath::keyerParams(n.params, ev.compFrame,
                 n.type == nodetypes::UltraKeyer ? compmath::UltraKind : compmath::DeltaKind),
             ev.scale);
+    }
+    if (n.type == nodetypes::VectorMotionBlur) {
+        const RenderTarget* map = targetOf(inputOwner(n, nodeports::Map));
+        if (!map)
+            return {};
+        return m_fxWarp.vectorMotionBlur(
+            kit, *in, *map, compmath::vectorBlurParams(n.params, ev.compFrame), ev.scale);
     }
     if (n.type == nodetypes::GridWarp) {
         return m_fxWarp.gridWarp(kit, *in,

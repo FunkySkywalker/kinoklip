@@ -1040,7 +1040,7 @@ bool ParamRow::vimSetInterp(Ease ease)
     return true;
 }
 
-ParamRow* ParamRow::create(const ParamRef& ref, const ParamDescriptor& desc, ParamEditHost& host,
+static ParamRow* createRow(const ParamRef& ref, const ParamDescriptor& desc, ParamEditHost& host,
     QGridLayout* grid, int gridRow, QWidget* parentWidget)
 {
     switch (desc.type) {
@@ -1066,6 +1066,22 @@ ParamRow* ParamRow::create(const ParamRef& ref, const ParamDescriptor& desc, Par
         return new FileRow(ref, desc, host, grid, gridRow, parentWidget);
     }
     return nullptr;
+}
+
+ParamRow* ParamRow::create(const ParamRef& ref, const ParamDescriptor& desc, ParamEditHost& host,
+    QGridLayout* grid, int gridRow, QWidget* parentWidget)
+{
+    ParamRow* row = createRow(ref, desc, host, grid, gridRow, parentWidget);
+    if (row && !desc.tooltip.isEmpty()) {
+        // The descriptor's own sentence on the label and the editor (before the editor's hint).
+        if (row->m_label)
+            row->m_label->setToolTip(desc.tooltip);
+        if (row->m_main) {
+            const QString hint = row->m_main->toolTip();
+            row->m_main->setToolTip(hint.isEmpty() ? desc.tooltip : desc.tooltip + QStringLiteral("\n") + hint);
+        }
+    }
+    return row;
 }
 
 } // namespace kk

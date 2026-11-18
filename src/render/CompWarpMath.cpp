@@ -182,6 +182,49 @@ FImage vectorDistort(const FImage& in, const FImage& map, const VectorDistortPar
     return out;
 }
 
+// ---- Vector Motion Blur ----
+
+VectorBlurParams vectorBlurParams(const ParamSet& p, int64_t frame)
+{
+    VectorBlurParams v;
+    v.range = float(num(p, k::VectorRange, frame, 32));
+    v.scale = float(num(p, k::VmbScale, frame, 1));
+    v.bias = float(std::clamp(num(p, k::VmbBias, frame, 0), -1.0, 1.0));
+    v.samples = std::clamp(int(num(p, k::VmbSamples, frame, 16)), 2, 64);
+    v.edges = edgemodes::index(p.staticValue(k::Edges).toString());
+    return v;
+}
+
+FImage vectorMotionBlur(const FImage& in, const FImage& map, const VectorBlurParams& v, double scale)
+{
+    VectorDistortParams vd;
+    vd.range = v.range;
+    vd.multiplier = v.scale;
+    FImage out(in.w, in.h);
+    for (int y = 0; y < in.h; ++y) {
+        for (int x = 0; x < in.w; ++x) {
+            double vec[2];
+            vectorAt(vd, map, x, y, scale, vec);
+            float* o = out.at(x, y);
+            if (vec[0] == 0.0 && vec[1] == 0.0) {
+                sampleBilinear(in, x, y, v.edges, o);
+                continue;
+            }
+            float acc[4] = {0, 0, 0, 0};
+            for (int s = 0; s < v.samples; ++s) {
+                const double t = (s + 0.5) / v.samples - 0.5 + 0.5 * double(v.bias);
+                float c[4];
+                sampleBilinear(in, x + vec[0] * t, y - vec[1] * t, v.edges, c);
+                for (int i = 0; i < 4; ++i)
+                    acc[i] += c[i];
+            }
+            for (int i = 0; i < 4; ++i)
+                o[i] = acc[i] / float(v.samples);
+        }
+    }
+    return out;
+}
+
 // ---- Grid Warp ----
 
 bool GridWarpParams::isIdentity() const
