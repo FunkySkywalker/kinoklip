@@ -78,7 +78,9 @@ enum class ViewerControl {
     Polygon, ///< CompNode::path points plus the Transform keys of the whole shape
     Tracker, ///< the tracked point with its pattern (size key) and search (width key) boxes, px
     Planar, ///< four draggable corners (Planar Tracker)
-    Grid ///< a grid of draggable points (Grid Warp)
+    Grid, ///< a grid of draggable points (Grid Warp)
+    Bezier, ///< closed Bezier path with tangent handles plus the Transform keys of the shape
+    TextPath ///< Transform controls of the Text node, plus its path when the layout is Path
 };
 
 /// Parameter keys behind the on-viewer controls of a node type (empty = no such handle).

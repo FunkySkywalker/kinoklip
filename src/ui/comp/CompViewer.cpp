@@ -192,6 +192,22 @@ CompViewer::CompViewer(int index, AppContext& ctx, CompSession* session, QWidget
     m_guides = new GuideOverlay(ctx, m_surface, true);
     m_guides->setFrameSize(QSize(data.width, data.height));
     m_controls = new CompViewerOverlay(session, m_surface, m_index);
+    // Roto Assist reads the viewer's picture: rendered once, on the GUI thread, when a point is
+    // pressed (not per mouse move).
+    m_controls->setSnapSource([this]() -> QImage {
+        if (!rendersNodes() || !node())
+            return {};
+        const QSize logical = m_surface->pictureRect().size();
+        if (logical.isEmpty())
+            return {};
+        const Composition& comp = m_session->composition();
+        const quint64 id = node();
+        auto future = m_engine->renderCompositionNode(m_ctx.project->timeline()->snapshot(),
+            m_session->clipId(), id == comp.mediaOutId ? 0 : id, m_session->compFrame(), logical,
+            OutputImage);
+        const RenderedFramePtr frame = future.get();
+        return frame && frame->ok ? frame->image : QImage();
+    });
     m_handle = new SplitHandle(m_surface, m_surface->widget());
     m_handle->changed = [this](QPointF pos, double angle) { setSplitLine(pos, angle); };
     setFocusPolicy(Qt::ClickFocus);

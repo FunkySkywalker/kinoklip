@@ -377,7 +377,7 @@ private:
         } else if (n.type == nodetypes::Text) {
             out = blank(size);
             QPointF offset;
-            const TitleStyle style = compmath::textStyle(n.params, f, size, s, m_ev.frame, &offset);
+            const TitleStyle style = compmath::textStyle(n.params, f, size, s, m_ev.frame, &offset, &n.path);
             if (!style.text.isEmpty()) {
                 const TitleImage t = renderTitle(style);
                 if (!t.image.isNull()) {

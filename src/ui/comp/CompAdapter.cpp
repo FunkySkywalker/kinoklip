@@ -158,6 +158,13 @@ ViewerControlKeys viewerControls(const QString& type)
     case ViewerControls::Grid:
         k.kind = ViewerControl::Grid;
         break;
+    case ViewerControls::Bezier:
+        k.kind = ViewerControl::Bezier;
+        k.size = has(nodekeys::Size);
+        break;
+    case ViewerControls::TextPath:
+        k.kind = ViewerControl::TextPath;
+        break;
     case ViewerControls::None:
         break;
     }

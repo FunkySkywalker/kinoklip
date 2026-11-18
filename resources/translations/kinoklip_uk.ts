@@ -9626,6 +9626,38 @@ Thank you for watching</source>
         <translation>Скопіювати трек у ключові кадри Center цієї ноди, зберігши її місце на вказівнику відтворення та повторюючи рух треку</translation>
     </message>
     <message>
+        <source>Position</source>
+        <translation>Позиція</translation>
+    </message>
+    <message>
+        <source>Follow the position of the track</source>
+        <translation>Слідувати за позицією треку</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>Розмір</translation>
+    </message>
+    <message>
+        <source>Follow the scale of the track (a Planar Tracker, or a Tracker with two or more patterns)</source>
+        <translation>Слідувати за масштабом треку (планарний трекер або трекер із двома чи більше шаблонами)</translation>
+    </message>
+    <message>
+        <source>Angle</source>
+        <translation>Кут</translation>
+    </message>
+    <message>
+        <source>Follow the rotation of the track (a Planar Tracker, or a Tracker with two or more patterns)</source>
+        <translation>Слідувати за поворотом треку (планарний трекер або трекер із двома чи більше шаблонами)</translation>
+    </message>
+    <message>
+        <source>Points</source>
+        <translation>Точки</translation>
+    </message>
+    <message>
+        <source>Move the points of the shape (shape keyframes) and leave the node&apos;s own Center, Size and Angle alone</source>
+        <translation>Рухати точки форми (ключі форми), не змінюючи центр, розмір і кут самого вузла</translation>
+    </message>
+    <message>
         <source>Connect to %1</source>
         <translation>Підключити до %1</translation>
     </message>
@@ -9958,8 +9990,40 @@ Thank you for watching</source>
         <translation>Перемістити точку</translation>
     </message>
     <message>
+        <source>Move Tangent</source>
+        <translation>Перемістити дотичну</translation>
+    </message>
+    <message>
+        <source>Select Point</source>
+        <translation>Вибрати точку</translation>
+    </message>
+    <message>
         <source>%1 %2</source>
         <translation>%1 %2</translation>
+    </message>
+    <message>
+        <source>Smooth Point</source>
+        <translation>Гладка точка</translation>
+    </message>
+    <message>
+        <source>Add Point</source>
+        <translation>Додати точку</translation>
+    </message>
+    <message>
+        <source>Follow %1</source>
+        <translation>Слідувати за %1</translation>
+    </message>
+    <message>
+        <source>Corner Point</source>
+        <translation>Кутова точка</translation>
+    </message>
+    <message>
+        <source>Delete Point</source>
+        <translation>Видалити точку</translation>
+    </message>
+    <message>
+        <source>Follow Track</source>
+        <translation>Слідувати за треком</translation>
     </message>
     <message>
         <source>Point Weight %1</source>
@@ -15806,6 +15870,58 @@ Standard transition of this project</source>
         <translation>Додати ключовий кадр форми</translation>
     </message>
     <message>
+        <source>A Match Move effect of this clip that has been tracked</source>
+        <translation>Ефект Match Move цього кліпу, для якого виконано трекінг</translation>
+    </message>
+    <message>
+        <source>Match Move %1</source>
+        <translation>Match Move %1</translation>
+    </message>
+    <message>
+        <source>Position</source>
+        <translation>Позиція</translation>
+    </message>
+    <message>
+        <source>Follow the position of the track</source>
+        <translation>Слідувати за позицією треку</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>Розмір</translation>
+    </message>
+    <message>
+        <source>Follow the scale of the track (a region track)</source>
+        <translation>Слідувати за масштабом треку (трек області)</translation>
+    </message>
+    <message>
+        <source>Angle</source>
+        <translation>Кут</translation>
+    </message>
+    <message>
+        <source>Follow the rotation of the track (a region track)</source>
+        <translation>Слідувати за поворотом треку (трек області)</translation>
+    </message>
+    <message>
+        <source>Points</source>
+        <translation>Точки</translation>
+    </message>
+    <message>
+        <source>Move the points of the shape (shape keyframes) and leave the mask&apos;s own position, size and angle alone</source>
+        <translation>Рухати точки форми (ключі форми), не змінюючи позицію, розмір і кут самої маски</translation>
+    </message>
+    <message>
+        <source>Track Mask</source>
+        <translation>Трекінг маски</translation>
+    </message>
+    <message>
+        <source>Copy the track into keyframes of this mask, keeping its place at the playhead and following the track&apos;s movement</source>
+        <translation>Скопіювати трек у ключі цієї маски: на позиції вказівника вона залишається на місці й далі слідує за рухом треку</translation>
+    </message>
+    <message>
+        <source>Follow Track</source>
+        <translation>Слідувати за треком</translation>
+    </message>
+    <message>
         <source>%n point, drawing in the viewer</source>
         <translation>Точок: %n, малювання у вікні перегляду</translation>
     </message>
@@ -21268,6 +21384,122 @@ Import files with %1 or drop them here.</source>
         <translation>Кінець появи</translation>
     </message>
     <message>
+        <source>Layout</source>
+        <translation>Розкладка</translation>
+    </message>
+    <message>
+        <source>Point</source>
+        <translation>Точка</translation>
+    </message>
+    <message>
+        <source>Frame</source>
+        <translation>Рамка</translation>
+    </message>
+    <message>
+        <source>Circle</source>
+        <translation>Коло</translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation>Контур</translation>
+    </message>
+    <message>
+        <source>Justify</source>
+        <translation>Вирівнювання</translation>
+    </message>
+    <message>
+        <source>Center</source>
+        <translation>Центр</translation>
+    </message>
+    <message>
+        <source>Vertical Justify (Frame)</source>
+        <translation>Вертикальне вирівнювання (рамка)</translation>
+    </message>
+    <message>
+        <source>Frame Width</source>
+        <translation>Ширина рамки</translation>
+    </message>
+    <message>
+        <source>Frame Height</source>
+        <translation>Висота рамки</translation>
+    </message>
+    <message>
+        <source>Circle Radius</source>
+        <translation>Радіус кола</translation>
+    </message>
+    <message>
+        <source>Circle Angle</source>
+        <translation>Кут кола</translation>
+    </message>
+    <message>
+        <source>Position on Path</source>
+        <translation>Позиція на контурі</translation>
+    </message>
+    <message>
+        <source>Tracking</source>
+        <translation>Трекінг</translation>
+    </message>
+    <message>
+        <source>Line Spacing</source>
+        <translation>Міжрядковий інтервал</translation>
+    </message>
+    <message>
+        <source>Kerning</source>
+        <translation>Кернінг</translation>
+    </message>
+    <message>
+        <source>Element %1</source>
+        <translation>Елемент %1</translation>
+    </message>
+    <message>
+        <source>Element %1 Outline</source>
+        <translation>Елемент %1: контур</translation>
+    </message>
+    <message>
+        <source>Element %1 Color</source>
+        <translation>Елемент %1: колір</translation>
+    </message>
+    <message>
+        <source>Element %1 Opacity</source>
+        <translation>Елемент %1: непрозорість</translation>
+    </message>
+    <message>
+        <source>Element %1 Thickness</source>
+        <translation>Елемент %1: товщина</translation>
+    </message>
+    <message>
+        <source>Element %1 Offset X</source>
+        <translation>Елемент %1: зсув X</translation>
+    </message>
+    <message>
+        <source>Element %1 Offset Y</source>
+        <translation>Елемент %1: зсув Y</translation>
+    </message>
+    <message>
+        <source>Follower Delay</source>
+        <translation>Затримка Follower</translation>
+    </message>
+    <message>
+        <source>Follower Offset X</source>
+        <translation>Зсув X Follower</translation>
+    </message>
+    <message>
+        <source>Follower Offset Y</source>
+        <translation>Зсув Y Follower</translation>
+    </message>
+    <message>
+        <source>Follower Size</source>
+        <translation>Розмір Follower</translation>
+    </message>
+    <message>
+        <source>Follower Angle</source>
+        <translation>Кут Follower</translation>
+    </message>
+    <message>
+        <source>Follower Opacity</source>
+        <translation>Непрозорість Follower</translation>
+    </message>
+    <message>
         <source>Fast Noise</source>
         <translation>Швидкий шум</translation>
     </message>
@@ -21338,6 +21570,18 @@ Import files with %1 or drop them here.</source>
     <message>
         <source>A smooth mask from a closed B-spline; the points pull the curve, a heavier point pulls harder</source>
         <translation>М’яка маска із замкненого B-сплайна; точки тягнуть криву, важча точка тягне сильніше</translation>
+    </message>
+    <message>
+        <source>Bezier</source>
+        <translation>Безьє</translation>
+    </message>
+    <message>
+        <source>A mask from a closed Bezier curve; every point has two tangent handles</source>
+        <translation>Маска із замкненої кривої Безьє; кожна точка має дві дотичні</translation>
+    </message>
+    <message>
+        <source>Roto Assist</source>
+        <translation>Помічник ротоскопії</translation>
     </message>
     <message>
         <source>Color Corrector</source>
@@ -21537,7 +21781,7 @@ Import files with %1 or drop them here.</source>
     </message>
     <message>
         <source>Soft Color</source>
-        <translation>М'який колір</translation>
+        <translation>М&apos;який колір</translation>
     </message>
     <message>
         <source>Replace Color</source>

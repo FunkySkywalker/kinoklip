@@ -20,6 +20,16 @@ namespace kk::compops {
 /// (the right one shows MediaOut). Rendering it changes nothing (isPassThrough()).
 [[nodiscard]] Composition defaultComposition();
 
+/// The starting path of a Text node's Path layout: an open, gently rising arc of smooth points
+/// (mask-local timeline px around the Center, y down).
+[[nodiscard]] AnimatedPath defaultTextPath();
+/// A closed shape of @p points smooth Bezier points on a circle of radius @p r (the starting
+/// shape of a Bezier mask node).
+[[nodiscard]] AnimatedPath defaultBezierShape(double r, int points = 4);
+/// A smooth point at (@p x, @p y) whose tangents run along @p dx, @p dy (both handles of length
+/// |(dx, dy)| / 3 of the way to the neighbours: the caller passes the Catmull-Rom direction).
+[[nodiscard]] MaskPoint smoothPoint(double x, double y, double dx, double dy);
+
 /// True if @p comp renders exactly the clip's own picture: following MediaOut's input
 /// (through disabled nodes, which pass their main input through) arrives at an enabled
 /// MediaIn of the owning clip (no media id). The renderer then skips the evaluation, so a

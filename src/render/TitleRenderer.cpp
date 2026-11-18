@@ -6,6 +6,7 @@
 #include "core/TitleLayers.h"
 #include "render/EmojiText.h"
 #include "render/FontReload.h"
+#include "render/TextPlus.h"
 
 #include <QFont>
 #include <QFontMetricsF>
@@ -134,6 +135,36 @@ size_t qHash(const TitleStyle& s, size_t seed)
     seed = hash(seed, s.fillOpacity);
     for (const TitleStyle& layer : s.stack)
         seed = hash(seed, qHash(layer, seed));
+    const TextPlus& x = s.plus;
+    if (x.active()) {
+        seed = hash(seed, int(x.layout) | x.justifyV << 2);
+        seed = hash(seed, x.frameWidth);
+        seed = hash(seed, x.frameHeight);
+        seed = hash(seed, x.circleRadius);
+        seed = hash(seed, x.circleAngle);
+        seed = hash(seed, x.pathOffset);
+        for (const QPointF& pt : x.pathPoints) {
+            seed = hash(seed, pt.x());
+            seed = hash(seed, pt.y());
+        }
+        for (const double k : x.kerning)
+            seed = hash(seed, k);
+        for (const TextPlus::Shade& sh : x.shades) {
+            seed = hash(seed, sh.color.rgba());
+            seed = hash(seed, int(sh.outline));
+            seed = hash(seed, sh.opacity);
+            seed = hash(seed, sh.thickness);
+            seed = hash(seed, sh.dx);
+            seed = hash(seed, sh.dy);
+        }
+        for (const TextPlus::CharXf& c : x.chars) {
+            seed = hash(seed, c.dx);
+            seed = hash(seed, c.dy);
+            seed = hash(seed, c.size);
+            seed = hash(seed, c.angle);
+            seed = hash(seed, c.opacity);
+        }
+    }
     return seed;
 }
 
@@ -250,6 +281,8 @@ TitleImage renderText(const TitleStyle& s)
     TitleImage result;
     if (s.text.isEmpty() || s.canvas.isEmpty())
         return result;
+    if (s.plus.active())
+        return renderTextPlus(s);
 
     emoji::registerBundledFont();
     QFont font(s.font);

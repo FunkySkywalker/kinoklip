@@ -642,7 +642,53 @@ NodeRegistry::NodeRegistry()
             number(k::WriteOnStart, tr("Write On Start"), 0, 1, 0, 0.01),
             number(k::WriteOnEnd, tr("Write On End"), 0, 1, 1, 0.01)};
         d.params += centre();
-        d.controls = ViewerControls::Transform;
+        d.params += {angle()};
+        // Layout.
+        d.params += {choice(k::LayoutType, tr("Layout"),
+                         {textlayouts::Point, textlayouts::Frame, textlayouts::Circle,
+                             textlayouts::Path},
+                         {tr("Point"), tr("Frame"), tr("Circle"), tr("Path")}, textlayouts::Point),
+            choice(k::Justify, tr("Justify"),
+                {justifies::Start, justifies::Center, justifies::End},
+                {tr("Left"), tr("Center"), tr("Right")}, justifies::Center),
+            choice(k::JustifyV, tr("Vertical Justify (Frame)"),
+                {justifies::Start, justifies::Center, justifies::End},
+                {tr("Top"), tr("Center"), tr("Bottom")}, justifies::Center),
+            number(k::FrameWidth, tr("Frame Width"), 0.01, 10, 0.8, 0.001),
+            number(k::FrameHeight, tr("Frame Height"), 0.01, 10, 0.5, 0.001),
+            number(k::CircleRadius, tr("Circle Radius"), 0.01, 10, 0.25, 0.001),
+            number(k::CircleAngle, tr("Circle Angle"), -360, 360, 90, 0.5, kDegrees),
+            number(k::PathOffset, tr("Position on Path"), -1, 1, 0, 0.001),
+            number(k::TextTracking, tr("Tracking"), -50, 500, 0, 0.5, QStringLiteral("%")),
+            number(k::LineSpacing, tr("Line Spacing"), 10, 500, 100, 0.5, QStringLiteral("%")),
+            text(k::Kerning, tr("Kerning"), QString())};
+        // Shading elements 2 to 4 (element 1 is the main look above), drawn behind it.
+        for (int n = 2; n < 2 + k::kShadeElements; ++n) {
+            const QString num = QString::number(n);
+            d.params += {boolean(k::shadeKey(n, "enable"), tr("Element %1").arg(num), false),
+                boolean(k::shadeKey(n, "outline"), tr("Element %1 Outline").arg(num), false),
+                color(k::shadeKey(n, "color"), tr("Element %1 Color").arg(num),
+                    n == 2 ? QColor(Qt::black) : n == 3 ? QColor(255, 200, 0) : QColor(Qt::red)),
+                number(k::shadeKey(n, "opacity"), tr("Element %1 Opacity").arg(num), 0, 1, 1, 0.01),
+                number(k::shadeKey(n, "thickness"), tr("Element %1 Thickness").arg(num), 0, 200, 4,
+                    0.5, kPx),
+                number(k::shadeKey(n, "x"), tr("Element %1 Offset X").arg(num), -1000, 1000, 0, 0.5,
+                    kPx),
+                number(k::shadeKey(n, "y"), tr("Element %1 Offset Y").arg(num), -1000, 1000, 0, 0.5,
+                    kPx)};
+        }
+        // Follower: the animation of these values is delayed for each character.
+        d.params += {integer(k::FollowDelay, tr("Follower Delay"), -100, 100, 0),
+            number(k::FollowX, tr("Follower Offset X"), -2000, 2000, 0, 0.5, kPx),
+            number(k::FollowY, tr("Follower Offset Y"), -2000, 2000, 0, 0.5, kPx),
+            number(k::FollowSize, tr("Follower Size"), 0, 1000, 100, 0.5, QStringLiteral("%")),
+            number(k::FollowAngle, tr("Follower Angle"), -3600, 3600, 0, 0.5, kDegrees),
+            number(k::FollowOpacity, tr("Follower Opacity"), 0, 100, 100, 0.5, QStringLiteral("%"))};
+        for (ParamDescriptor& p : d.params) {
+            if (p.key == k::FollowDelay)
+                p.animatable = false;
+        }
+        d.controls = ViewerControls::TextPath;
         add(d);
     }
     {
@@ -712,6 +758,21 @@ NodeRegistry::NodeRegistry()
         d.params += {number(k::Size, tr("Size"), 0, 100, 1, 0.01), angle()};
         d.params += maskCommon();
         d.controls = ViewerControls::Polygon;
+        add(d);
+    }
+
+    {
+        NodeDescriptor d = node(nodetypes::BezierMask, tr("Bezier"), QStringLiteral("Bzr"),
+            QStringLiteral("Bezier"), C::Mask,
+            tr("A mask from a closed Bezier curve; every point has two tangent handles"));
+        d.inputs = {port(nodeports::Mask, tr("Mask"), PortKind::Mask, false)};
+        d.mainInput = nodeports::Mask;
+        d.outputKind = PortKind::Mask;
+        d.params = centre();
+        d.params += {number(k::Size, tr("Size"), 0, 100, 1, 0.01), angle(),
+            boolean(k::RotoAssist, tr("Roto Assist"), false)};
+        d.params += maskCommon();
+        d.controls = ViewerControls::Bezier;
         add(d);
     }
 

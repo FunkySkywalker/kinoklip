@@ -35,6 +35,17 @@ and **MediaOut1** (what comes out of the clip). Nothing has changed yet.
 5. To move the text, drag it in the right viewer (4), or change **Center X** and **Center Y**
    in the Inspector (0.5 and 0.5 is the middle of the picture).
 
+More ways to set the text: **Layout** chooses how it is placed. **Frame** wraps it inside a box (Frame
+Width and Height, with Justify and Vertical Justify), **Circle** sets it around a circle (Circle Radius, and Circle
+Angle for where it starts), and **Path** lets it run along a curve that you draw in the viewer: drag the points,
+drag a handle to bend the curve, double-click a point to make it smooth or sharp, double-click the curve to add a
+point, and press **Delete** to remove the selected point. **Position on Path** slides the text along the curve (give
+it keyframes and the text travels). **Tracking**, **Line Spacing** and **Kerning** (a list of numbers, one for each
+character) change the spacing. **Element 2** to **Element 4** add more fills or outlines behind the text, with
+their own colour, opacity and offset. The **Follower** values (Offset, Size, Angle, Opacity) move every character;
+give one of them keyframes and set **Follower Delay**, and the animation runs through the letters one after
+another. **Write On Start** and **Write On End** show only part of the text.
+
 Go back to the **Edit** page (**Shift+4**): the clip now shows the text there too, during
 playback and in the export. A small node mark on the clip in the timeline shows that it has a
 composition.

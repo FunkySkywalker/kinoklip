@@ -65,7 +65,13 @@ enum class ViewerControls : quint8 {
     /// corner draggable, the whole quad movable: Planar Tracker.
     Planar,
     /// The control grid of Grid Warp: every grid point draggable (nodekeys::gridKey()).
-    Grid
+    Grid,
+    /// Bezier mask: the points with tangent handles, plus the whole shape's centre, size and
+    /// angle (CompNode::path).
+    Bezier,
+    /// Text: the centre and angle of the block, and, with the Path layout, the path's points
+    /// with tangent handles (CompNode::path).
+    TextPath
 };
 
 /// Describes one node type.
@@ -129,6 +135,7 @@ inline const QString RectangleMask = QStringLiteral("rectangle_mask");
 inline const QString EllipseMask = QStringLiteral("ellipse_mask");
 inline const QString PolygonMask = QStringLiteral("polygon_mask");
 inline const QString BSplineMask = QStringLiteral("bspline_mask");
+inline const QString BezierMask = QStringLiteral("bezier_mask");
 inline const QString LumaKeyer = QStringLiteral("luma_keyer");
 inline const QString DeltaKeyer = QStringLiteral("delta_keyer");
 inline const QString CornerPositioner = QStringLiteral("corner_positioner");
@@ -234,6 +241,31 @@ inline const QString Italic = QStringLiteral("italic");
 inline const QString OutlineColor = QStringLiteral("outlineColor");
 inline const QString OutlineWidth = QStringLiteral("outlineWidth"); ///< timeline px
 inline const QString Shadow = QStringLiteral("shadow"); ///< bool
+// Text+ (spec section 116): Layout, spacing, shading elements and the Follower.
+inline const QString LayoutType = QStringLiteral("layoutType"); ///< choice (textlayouts::)
+inline const QString Justify = QStringLiteral("justify"); ///< choice (justifies::)
+inline const QString JustifyV = QStringLiteral("justifyV"); ///< choice (justifies::)
+inline const QString FrameWidth = QStringLiteral("frameWidth"); ///< Frame layout, fraction of the frame width
+inline const QString FrameHeight = QStringLiteral("frameHeight"); ///< fraction of the frame height
+inline const QString CircleRadius = QStringLiteral("circleRadius"); ///< Circle layout, fraction of the frame width
+inline const QString CircleAngle = QStringLiteral("circleAngle"); ///< degrees ccw from the right, 90 = the top
+inline const QString PathOffset = QStringLiteral("pathOffset"); ///< Path layout: shift along the path, -1..1
+inline const QString TextTracking = QStringLiteral("textTracking"); ///< percent of letter spacing added
+inline const QString LineSpacing = QStringLiteral("lineSpacing"); ///< percent, 100 = the font's own
+inline const QString Kerning = QStringLiteral("kerning"); ///< string: numbers, percent of the size per character
+inline constexpr int kShadeElements = 3; ///< extra shading elements (2 .. 4)
+/// Key of field @p field ("enable", "outline", "color", "opacity", "thickness", "x", "y") of
+/// extra shading element @p n (2 .. 4).
+inline QString shadeKey(int n, const char* field)
+{
+    return QStringLiteral("shade%1_%2").arg(n).arg(QLatin1String(field));
+}
+inline const QString FollowDelay = QStringLiteral("followDelay"); ///< frames per character, -100..100
+inline const QString FollowX = QStringLiteral("followX"); ///< px, +right
+inline const QString FollowY = QStringLiteral("followY"); ///< px, +up
+inline const QString FollowSize = QStringLiteral("followSize"); ///< percent, 100 = unchanged
+inline const QString FollowAngle = QStringLiteral("followAngle"); ///< degrees counter-clockwise
+inline const QString FollowOpacity = QStringLiteral("followOpacity"); ///< percent
 // Fast Noise.
 inline const QString Detail = QStringLiteral("detail"); ///< octaves
 inline const QString Contrast = QStringLiteral("contrast");
@@ -246,6 +278,7 @@ inline const QString SoftEdge = QStringLiteral("softEdge"); ///< fraction of the
 inline const QString Invert = QStringLiteral("invert"); ///< bool
 inline const QString Level = QStringLiteral("level"); ///< mask opacity 0..1
 inline const QString CornerRadius = QStringLiteral("cornerRadius"); ///< Rectangle: fraction of the shorter side, 0..1
+inline const QString RotoAssist = QStringLiteral("rotoAssist"); ///< bool: points snap to the nearest picture edge
 inline const QString PaintMode = QStringLiteral("paintMode"); ///< choice (paintmodes::), how the mask joins the one plugged in
 // Luma Keyer: Channel (channelsources::), Low / High (0..1), Soft Range (0..1), Invert (above).
 inline const QString KeyChannel = QStringLiteral("keyChannel");
@@ -489,6 +522,21 @@ inline const QString Stabilize = QStringLiteral("stabilize"); ///< the input can
 /// plane), Stabilize is "steady" (it cancels that).
 inline const QString CornerPin = QStringLiteral("cornerPin");
 } // namespace trackmodes
+
+/// Layout Type of the Text node.
+namespace textlayouts {
+inline const QString Point = QStringLiteral("point");
+inline const QString Frame = QStringLiteral("frame");
+inline const QString Circle = QStringLiteral("circle");
+inline const QString Path = QStringLiteral("path");
+} // namespace textlayouts
+
+/// Justify choices (horizontal: left / center / right; vertical: top / center / bottom).
+namespace justifies {
+inline const QString Start = QStringLiteral("start"); ///< left or top
+inline const QString Center = QStringLiteral("center");
+inline const QString End = QStringLiteral("end"); ///< right or bottom
+} // namespace justifies
 
 /// Blur filters of Soft Glow and the matte blurs (the choice list order).
 namespace blurfilters {

@@ -9616,6 +9616,38 @@ Gracias por ver</translation>
         <translation>Copiar la pista en los fotogramas clave de Centro de este nodo, manteniendo su posición en el cabezal de reproducción y siguiendo el movimiento de la pista</translation>
     </message>
     <message>
+        <source>Position</source>
+        <translation>Posición</translation>
+    </message>
+    <message>
+        <source>Follow the position of the track</source>
+        <translation>Seguir la posición del seguimiento</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>Tamaño</translation>
+    </message>
+    <message>
+        <source>Follow the scale of the track (a Planar Tracker, or a Tracker with two or more patterns)</source>
+        <translation>Seguir la escala del seguimiento (un Planar Tracker o un Tracker con dos o más patrones)</translation>
+    </message>
+    <message>
+        <source>Angle</source>
+        <translation>Ángulo</translation>
+    </message>
+    <message>
+        <source>Follow the rotation of the track (a Planar Tracker, or a Tracker with two or more patterns)</source>
+        <translation>Seguir la rotación del seguimiento (un Planar Tracker o un Tracker con dos o más patrones)</translation>
+    </message>
+    <message>
+        <source>Points</source>
+        <translation>Puntos</translation>
+    </message>
+    <message>
+        <source>Move the points of the shape (shape keyframes) and leave the node&apos;s own Center, Size and Angle alone</source>
+        <translation>Mover los puntos de la forma (fotogramas clave de forma) y dejar el centro, el tamaño y el ángulo del nodo sin cambios</translation>
+    </message>
+    <message>
         <source>Connect to %1</source>
         <translation>Conectar a %1</translation>
     </message>
@@ -9948,8 +9980,40 @@ Gracias por ver</translation>
         <translation>Mover punto</translation>
     </message>
     <message>
+        <source>Move Tangent</source>
+        <translation>Mover tangente</translation>
+    </message>
+    <message>
+        <source>Select Point</source>
+        <translation>Seleccionar punto</translation>
+    </message>
+    <message>
         <source>%1 %2</source>
         <translation>%1 %2</translation>
+    </message>
+    <message>
+        <source>Smooth Point</source>
+        <translation>Punto suave</translation>
+    </message>
+    <message>
+        <source>Add Point</source>
+        <translation>Añadir punto</translation>
+    </message>
+    <message>
+        <source>Follow %1</source>
+        <translation>Seguir %1</translation>
+    </message>
+    <message>
+        <source>Corner Point</source>
+        <translation>Punto de esquina</translation>
+    </message>
+    <message>
+        <source>Delete Point</source>
+        <translation>Eliminar punto</translation>
+    </message>
+    <message>
+        <source>Follow Track</source>
+        <translation>Seguir seguimiento</translation>
     </message>
     <message>
         <source>Point Weight %1</source>
@@ -15795,6 +15859,58 @@ Transición estándar de este proyecto</translation>
         <translation>Añadir fotograma clave de forma</translation>
     </message>
     <message>
+        <source>A Match Move effect of this clip that has been tracked</source>
+        <translation>Un efecto Match Move de este clip que ya se ha rastreado</translation>
+    </message>
+    <message>
+        <source>Match Move %1</source>
+        <translation>Match Move %1</translation>
+    </message>
+    <message>
+        <source>Position</source>
+        <translation>Posición</translation>
+    </message>
+    <message>
+        <source>Follow the position of the track</source>
+        <translation>Seguir la posición del seguimiento</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>Tamaño</translation>
+    </message>
+    <message>
+        <source>Follow the scale of the track (a region track)</source>
+        <translation>Seguir la escala del seguimiento (un seguimiento de región)</translation>
+    </message>
+    <message>
+        <source>Angle</source>
+        <translation>Ángulo</translation>
+    </message>
+    <message>
+        <source>Follow the rotation of the track (a region track)</source>
+        <translation>Seguir la rotación del seguimiento (un seguimiento de región)</translation>
+    </message>
+    <message>
+        <source>Points</source>
+        <translation>Puntos</translation>
+    </message>
+    <message>
+        <source>Move the points of the shape (shape keyframes) and leave the mask&apos;s own position, size and angle alone</source>
+        <translation>Mover los puntos de la forma (fotogramas clave de forma) y dejar la posición, el tamaño y el ángulo de la máscara sin cambios</translation>
+    </message>
+    <message>
+        <source>Track Mask</source>
+        <translation>Rastrear máscara</translation>
+    </message>
+    <message>
+        <source>Copy the track into keyframes of this mask, keeping its place at the playhead and following the track&apos;s movement</source>
+        <translation>Copiar el seguimiento en fotogramas clave de esta máscara, manteniendo su lugar en el cabezal y siguiendo el movimiento del seguimiento</translation>
+    </message>
+    <message>
+        <source>Follow Track</source>
+        <translation>Seguir seguimiento</translation>
+    </message>
+    <message>
         <source>%n point, drawing in the viewer</source>
         <translation>%n punto, dibujando en el visor</translation>
     </message>
@@ -21251,6 +21367,122 @@ Importar archivos con %1 o soltarlos aquí.</translation>
         <translation>Fin de escritura</translation>
     </message>
     <message>
+        <source>Layout</source>
+        <translation>Disposición</translation>
+    </message>
+    <message>
+        <source>Point</source>
+        <translation>Punto</translation>
+    </message>
+    <message>
+        <source>Frame</source>
+        <translation>Marco</translation>
+    </message>
+    <message>
+        <source>Circle</source>
+        <translation>Círculo</translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation>Trazado</translation>
+    </message>
+    <message>
+        <source>Justify</source>
+        <translation>Justificación</translation>
+    </message>
+    <message>
+        <source>Center</source>
+        <translation>Centro</translation>
+    </message>
+    <message>
+        <source>Vertical Justify (Frame)</source>
+        <translation>Justificación vertical (marco)</translation>
+    </message>
+    <message>
+        <source>Frame Width</source>
+        <translation>Ancho del marco</translation>
+    </message>
+    <message>
+        <source>Frame Height</source>
+        <translation>Alto del marco</translation>
+    </message>
+    <message>
+        <source>Circle Radius</source>
+        <translation>Radio del círculo</translation>
+    </message>
+    <message>
+        <source>Circle Angle</source>
+        <translation>Ángulo del círculo</translation>
+    </message>
+    <message>
+        <source>Position on Path</source>
+        <translation>Posición en el trazado</translation>
+    </message>
+    <message>
+        <source>Tracking</source>
+        <translation>Espaciado</translation>
+    </message>
+    <message>
+        <source>Line Spacing</source>
+        <translation>Interlineado</translation>
+    </message>
+    <message>
+        <source>Kerning</source>
+        <translation>Kerning</translation>
+    </message>
+    <message>
+        <source>Element %1</source>
+        <translation>Elemento %1</translation>
+    </message>
+    <message>
+        <source>Element %1 Outline</source>
+        <translation>Elemento %1 contorno</translation>
+    </message>
+    <message>
+        <source>Element %1 Color</source>
+        <translation>Elemento %1 color</translation>
+    </message>
+    <message>
+        <source>Element %1 Opacity</source>
+        <translation>Elemento %1 opacidad</translation>
+    </message>
+    <message>
+        <source>Element %1 Thickness</source>
+        <translation>Elemento %1 grosor</translation>
+    </message>
+    <message>
+        <source>Element %1 Offset X</source>
+        <translation>Elemento %1 desplazamiento X</translation>
+    </message>
+    <message>
+        <source>Element %1 Offset Y</source>
+        <translation>Elemento %1 desplazamiento Y</translation>
+    </message>
+    <message>
+        <source>Follower Delay</source>
+        <translation>Retardo del seguidor</translation>
+    </message>
+    <message>
+        <source>Follower Offset X</source>
+        <translation>Desplazamiento X del seguidor</translation>
+    </message>
+    <message>
+        <source>Follower Offset Y</source>
+        <translation>Desplazamiento Y del seguidor</translation>
+    </message>
+    <message>
+        <source>Follower Size</source>
+        <translation>Tamaño del seguidor</translation>
+    </message>
+    <message>
+        <source>Follower Angle</source>
+        <translation>Ángulo del seguidor</translation>
+    </message>
+    <message>
+        <source>Follower Opacity</source>
+        <translation>Opacidad del seguidor</translation>
+    </message>
+    <message>
         <source>Fast Noise</source>
         <translation>Ruido rápido</translation>
     </message>
@@ -21321,6 +21553,18 @@ Importar archivos con %1 o soltarlos aquí.</translation>
     <message>
         <source>A smooth mask from a closed B-spline; the points pull the curve, a heavier point pulls harder</source>
         <translation>Una máscara suave a partir de una B-spline cerrada; los puntos atraen la curva, un punto más pesado atrae con más fuerza</translation>
+    </message>
+    <message>
+        <source>Bezier</source>
+        <translation>Bézier</translation>
+    </message>
+    <message>
+        <source>A mask from a closed Bezier curve; every point has two tangent handles</source>
+        <translation>Una máscara de una curva Bézier cerrada; cada punto tiene dos tiradores de tangente</translation>
+    </message>
+    <message>
+        <source>Roto Assist</source>
+        <translation>Asistente de rotoscopia</translation>
     </message>
     <message>
         <source>Color Corrector</source>

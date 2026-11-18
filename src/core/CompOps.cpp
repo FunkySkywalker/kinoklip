@@ -97,6 +97,45 @@ AnimatedPath defaultPolygon(double r)
 
 } // namespace
 
+MaskPoint smoothPoint(double x, double y, double dx, double dy)
+{
+    MaskPoint p;
+    p.x = x;
+    p.y = y;
+    p.inX = -dx / 3.0;
+    p.inY = -dy / 3.0;
+    p.outX = dx / 3.0;
+    p.outY = dy / 3.0;
+    p.smooth = true;
+    return p;
+}
+
+AnimatedPath defaultTextPath()
+{
+    AnimatedPath path;
+    path.shapes = {MaskPath {smoothPoint(-480, 120, 480, -240), smoothPoint(0, -60, 480, 0),
+        smoothPoint(480, 120, 480, 240)}};
+    return path;
+}
+
+AnimatedPath defaultBezierShape(double r, int points)
+{
+    AnimatedPath path;
+    MaskPath shape;
+    const int n = std::max(3, points);
+    // Kappa-like handle length for n points on a circle: 4/3 * tan(pi / (2n)) of the radius.
+    const double handle = r * 4.0 / 3.0 * std::tan(M_PI / (2.0 * n));
+    for (int i = 0; i < n; ++i) {
+        const double a = -M_PI / 2 + i * 2 * M_PI / n;
+        // Clockwise on screen (y down): the tangent at angle a is (-sin a, cos a).
+        MaskPoint p = smoothPoint(r * std::cos(a), r * std::sin(a), -std::sin(a) * handle * 3.0,
+            std::cos(a) * handle * 3.0);
+        shape.append(p);
+    }
+    path.shapes = {shape};
+    return path;
+}
+
 Composition defaultComposition()
 {
     Composition comp;
@@ -149,6 +188,10 @@ std::optional<CompNode> makeNode(Composition& comp, const QString& type, QPointF
     n.params = NodeRegistry::instance().defaultParams(type);
     if (type == nodetypes::PolygonMask || type == nodetypes::BSplineMask)
         n.path = defaultPolygon(216.0); // a fifth of a 1080 px frame height
+    else if (type == nodetypes::BezierMask)
+        n.path = defaultBezierShape(216.0);
+    else if (type == nodetypes::Text)
+        n.path = defaultTextPath();
     return n;
 }
 
@@ -462,7 +505,10 @@ bool replaceType(Composition& comp, quint64 node, const QString& type)
     n->type = type;
     n->params = params;
     n->mediaId.clear();
-    n->path = type == nodetypes::PolygonMask ? defaultPolygon(216.0) : AnimatedPath {};
+    n->path = type == nodetypes::PolygonMask ? defaultPolygon(216.0)
+        : type == nodetypes::BezierMask      ? defaultBezierShape(216.0)
+        : type == nodetypes::Text            ? defaultTextPath()
+                                             : AnimatedPath {};
     if (defaultName)
         n->name = uniqueName(comp, to->nameBase);
     return true;
@@ -476,7 +522,8 @@ int pasteSettings(Composition& comp, const CompNode& from, const QVector<quint64
         if (!n || n->locked || n->id == from.id || n->type != from.type || n->params == from.params)
             continue;
         n->params = from.params;
-        if (n->type == nodetypes::PolygonMask)
+        if (n->type == nodetypes::PolygonMask || n->type == nodetypes::BezierMask
+            || n->type == nodetypes::Text)
             n->path = from.path;
         ++changed;
     }

@@ -89,6 +89,12 @@ feather, despill, screen balance) was read as the open-source counterpart for wh
 The colour-difference key, the morphological and blur matte filters, the restore-fringe formula, the spill methods
 and the fringe window are our own; no code was copied from Blender, Natron or any other project.
 
+### Text+ layouts (Compositing page)
+`src/render/TextPlus.*` places each glyph of the Text node at an arc length of a circle or a path, turned to the
+tangent with its baseline on the curve; frame layout wraps greedily at the frame width. This is the usual
+text-on-path layout; Glaxnimate's text-on-path (GPL-3.0-or-later) was read for how glyphs follow a curve. No code
+was copied. The control list follows the Text+ tool of the public Fusion reference manual.
+
 ### Keyframe loops
 The extrapolation modes of animated values (`src/core/Animation.cpp`, `AnimatedValue::extrapolatedValue()`)
 follow the documented behaviour of Blender's F-Curve Cycles modifier (GPL-2.0-or-later: Repeat Motion, Repeat

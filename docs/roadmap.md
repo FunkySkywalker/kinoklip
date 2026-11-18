@@ -168,7 +168,7 @@ Shipped in 1.4 ([release notes](releases/v1.4.0.md)):
 
 Beginner and intermediate tutorial workflows for Resolve's Color, Fairlight and Fusion pages that fail today are listed in [color-audio-gaps.md](color-audio-gaps.md); each gap below has its line. Order: Compositing, Audio, Color, then the rest.
 
-- [ ] Compositing: Text+ controls: Layout (Point, Frame, Circle, Path), Tracking, Line Spacing, Kerning, Shading elements, a Write On range on the Text node, and a Follower for per-character animation
+- [x] Compositing: Text+ controls: Layout (Point, Frame, Circle, Path), Tracking, Line Spacing, Kerning, Shading elements, a Write On range on the Text node, and a Follower for per-character animation
 - [ ] Compositing: Bezier mask with tangent handles and Roto assist, Point Follower, and mask tracking (a Mask Tracker moves a mask, polygon points, size and angle; also on the Edit page)
 - [ ] Compositing: Planar Tracker Track Mask input, several trackers in one Tracker node (rotation and scale from two patterns), and Follow Track for size and angle
 - [x] Compositing: Ultra Keyer, Delta Keyer advanced tabs (Pre-Matte Blur, Erode / Dilate, Matte Blur, Fringe, Replace Mode), Matte Control (Garbage and Solid masks, Restore Fringe) and a Clean Plate input

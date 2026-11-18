@@ -939,6 +939,185 @@ private slots:
         QCOMPARE(f.comp().node(poly)->path.at(double(frame))[1].x, path0[1].x);
     }
 
+    void viewerBezierAndTextPathHandles()
+    {
+        // Spec 116.3 / 117.1: the Bezier mask and the Text node's path show points with tangent
+        // handles; every edit is one undo step.
+        Fixture f;
+        f.project.timeline()->setPlayhead(20);
+        f.showPage();
+        CompViewerOverlay* overlay = f.page()->viewer(1)->controls();
+        auto send = [overlay](QEvent::Type type, QPointF p, Qt::MouseButton b,
+                        Qt::MouseButtons bs, Qt::KeyboardModifiers mods = Qt::NoModifier) {
+            QMouseEvent e(type, p, overlay->mapToGlobal(p), b, bs, mods);
+            QApplication::sendEvent(overlay, &e);
+        };
+        auto drag = [&](QPointF from, QPointF to, Qt::KeyboardModifiers mods = Qt::NoModifier) {
+            send(QEvent::MouseButtonPress, from, Qt::LeftButton, Qt::LeftButton, mods);
+            for (int i = 1; i <= 4; ++i)
+                send(QEvent::MouseMove, from + (to - from) * i / 4.0, Qt::NoButton,
+                    Qt::LeftButton, mods);
+            send(QEvent::MouseButtonRelease, to, Qt::LeftButton, Qt::NoButton, mods);
+        };
+        auto doubleClick = [&](QPointF at) {
+            send(QEvent::MouseButtonPress, at, Qt::LeftButton, Qt::LeftButton);
+            send(QEvent::MouseButtonRelease, at, Qt::LeftButton, Qt::NoButton);
+            QMouseEvent e(QEvent::MouseButtonDblClick, at, overlay->mapToGlobal(at),
+                Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+            QApplication::sendEvent(overlay, &e);
+        };
+        const int64_t frame = f.session()->compFrame();
+        const quint64 in = f.nodeNamed(QStringLiteral("MediaIn1"));
+        f.session()->setSelection({in});
+        f.session()->addNode(nodetypes::BezierMask);
+        const quint64 bz = f.nodeOfType(nodetypes::BezierMask);
+        QVERIFY(bz);
+        f.session()->setSelection({bz});
+        QVERIFY(overlay->hasControls());
+        const MaskPath path0 = f.comp().node(bz)->path.at(double(frame));
+        QCOMPARE(path0.size(), 4);
+        QVERIFY(path0[0].smooth && path0[0].hasTangents());
+        // The centre cross moves the whole mask.
+        QVERIFY(overlay->handlePos(CompViewerOverlay::Handle::Centre));
+        // A point: drag it.
+        const QPointF p1 = *overlay->handlePos(CompViewerOverlay::Handle::Point, 1);
+        int index = -1;
+        QCOMPARE(overlay->handleAt(p1, &index), CompViewerOverlay::Handle::Point);
+        QCOMPARE(index, 1);
+        int before = f.steps();
+        drag(p1, p1 + QPointF(10, 8));
+        QCOMPARE(f.steps(), before + 1);
+        MaskPath path1 = f.comp().node(bz)->path.at(double(frame));
+        QVERIFY(path1[1].x > path0[1].x + 1 && path1[1].y > path0[1].y + 1);
+        QCOMPARE(path1[1].outX, path0[1].outX); // the tangents travel with the point
+        QCOMPARE(overlay->selectedPoint(), 1);
+        // A tangent handle: dragging the outgoing one bends the curve and turns the incoming
+        // one of a smooth point the opposite way, keeping its length.
+        const QPointF t = *overlay->handlePos(CompViewerOverlay::Handle::TanOut, 1);
+        QCOMPARE(overlay->handleAt(t, &index), CompViewerOverlay::Handle::TanOut);
+        const double inLen = std::hypot(path1[1].inX, path1[1].inY);
+        before = f.steps();
+        drag(t, t + QPointF(0, -14));
+        QCOMPARE(f.steps(), before + 1);
+        const MaskPath path2 = f.comp().node(bz)->path.at(double(frame));
+        QVERIFY(std::abs(path2[1].outY - path1[1].outY) > 1.0);
+        QVERIFY(std::abs(std::hypot(path2[1].inX, path2[1].inY) - inLen) < 1e-6);
+        QVERIFY(std::abs(path2[1].inX * path2[1].outY - path2[1].inY * path2[1].outX) < 1e-3); // collinear
+        QVERIFY(path2[1].inX * path2[1].outX + path2[1].inY * path2[1].outY < 0); // opposite
+        // Alt breaks the point: the other handle stays, the point becomes a corner.
+        const QPointF t2 = *overlay->handlePos(CompViewerOverlay::Handle::TanIn, 1);
+        drag(t2, t2 + QPointF(9, 9), Qt::AltModifier);
+        const MaskPath path3 = f.comp().node(bz)->path.at(double(frame));
+        QVERIFY(!path3[1].smooth);
+        QCOMPARE(path3[1].outX, path2[1].outX);
+        // Double-click on a point turns a corner into a smooth one (and back).
+        const QPointF p1b = *overlay->handlePos(CompViewerOverlay::Handle::Point, 1);
+        before = f.steps();
+        doubleClick(p1b);
+        QCOMPARE(f.steps(), before + 1);
+        QVERIFY(f.comp().node(bz)->path.at(double(frame))[1].smooth);
+        doubleClick(*overlay->handlePos(CompViewerOverlay::Handle::Point, 1));
+        const MaskPoint corner = f.comp().node(bz)->path.at(double(frame))[1];
+        QVERIFY(!corner.smooth && !corner.hasTangents());
+        // Double-click on the curve adds a point; Delete removes the selected one.
+        const QPointF a = *overlay->handlePos(CompViewerOverlay::Handle::Point, 2);
+        const QPointF b = *overlay->handlePos(CompViewerOverlay::Handle::Point, 3);
+        QPointF onCurve;
+        {
+            // The curve's middle: sample the widget path through the Segment hit test.
+            bool found = false;
+            for (int i = 1; i < 40 && !found; ++i) {
+                const QPointF probe = a + (b - a) * (i / 40.0);
+                for (int dy = -30; dy <= 30 && !found; dy += 2) {
+                    for (int dx = -30; dx <= 30 && !found; dx += 2) {
+                        const QPointF q = probe + QPointF(dx, dy);
+                        int seg = -1;
+                        if (overlay->handleAt(q, &seg) == CompViewerOverlay::Handle::Segment
+                            && seg == 2) {
+                            onCurve = q;
+                            found = true;
+                        }
+                    }
+                }
+            }
+            QVERIFY(found);
+        }
+        before = f.steps();
+        doubleClick(onCurve);
+        QCOMPARE(f.steps(), before + 1);
+        QCOMPARE(f.comp().node(bz)->path.at(double(frame)).size(), 5);
+        QCOMPARE(overlay->selectedPoint(), 3);
+        overlay->setFocus();
+        before = f.steps();
+        QTest::keyClick(overlay, Qt::Key_Delete);
+        QCOMPARE(f.steps(), before + 1);
+        QCOMPARE(f.comp().node(bz)->path.at(double(frame)).size(), 4);
+        f.project.undo();
+        QCOMPARE(f.comp().node(bz)->path.at(double(frame)).size(), 5);
+
+        // The Text node: path handles appear only with the Path layout.
+        f.session()->setSelection({in});
+        f.session()->addNode(nodetypes::Text);
+        const quint64 tx = f.nodeOfType(nodetypes::Text);
+        QVERIFY(tx);
+        f.session()->setSelection({tx});
+        QVERIFY(overlay->hasControls());
+        QVERIFY(!overlay->handlePos(CompViewerOverlay::Handle::Point, 0));
+        f.session()->edit(QStringLiteral("Layout"), [tx](Composition& c) {
+            c.node(tx)->params.statics[nodekeys::LayoutType] = textlayouts::Path;
+            return true;
+        });
+        QVERIFY(overlay->handlePos(CompViewerOverlay::Handle::Point, 0));
+        const MaskPath tp0 = f.comp().node(tx)->path.at(double(frame));
+        QVERIFY(tp0.size() >= 2);
+        const QPointF q = *overlay->handlePos(CompViewerOverlay::Handle::Point, 1);
+        QCOMPARE(overlay->handleAt(q, &index), CompViewerOverlay::Handle::Point);
+        before = f.steps();
+        drag(q, q + QPointF(0, -20));
+        QCOMPARE(f.steps(), before + 1);
+        const MaskPath tp1 = f.comp().node(tx)->path.at(double(frame));
+        QVERIFY(tp1[1].y < tp0[1].y - 2); // up on the screen = smaller y
+        // The centre / angle box still works (a drag inside, away from the path).
+        QVERIFY(overlay->handlePos(CompViewerOverlay::Handle::Centre));
+    }
+
+    void pointFollowerFromTheViewerMenu()
+    {
+        // Spec 117.5: a point of a Bezier mask follows a track from the viewer.
+        Fixture f;
+        f.project.timeline()->setPlayhead(20);
+        f.showPage();
+        CompViewerOverlay* overlay = f.page()->viewer(1)->controls();
+        const quint64 in = f.nodeNamed(QStringLiteral("MediaIn1"));
+        f.session()->setSelection({in});
+        f.session()->addNode(nodetypes::Tracker);
+        const quint64 tracker = f.nodeOfType(nodetypes::Tracker);
+        f.session()->addNode(nodetypes::BezierMask);
+        const quint64 bz = f.nodeOfType(nodetypes::BezierMask);
+        QVERIFY(tracker && bz);
+        const int64_t frame = f.session()->compFrame();
+        f.session()->edit(QStringLiteral("Track"), [&](Composition& c) {
+            AnimatedValue& x = c.node(tracker)->params.animated(nodekeys::CenterX, 0.5);
+            AnimatedValue& y = c.node(tracker)->params.animated(nodekeys::CenterY, 0.5);
+            for (int i = 0; i <= 10; ++i) {
+                x.setKey(frame + i, 0.5 + 0.01 * i, Interp::Linear);
+                y.setKey(frame + i, 0.5, Interp::Linear);
+            }
+            return true;
+        });
+        f.session()->setSelection({bz});
+        const MaskPath before = f.comp().node(bz)->path.at(double(frame));
+        const int steps = f.steps();
+        QVERIFY(overlay->followPoint(2, tracker));
+        QCOMPARE(f.steps(), steps + 1);
+        const MaskPath after = f.comp().node(bz)->path.at(double(frame + 10));
+        QVERIFY(f.comp().node(bz)->path.isAnimated());
+        QVERIFY(after[2].x > before[2].x + 1);
+        QCOMPARE(after[0].x, before[0].x);
+        f.project.undo();
+        QVERIFY(!f.comp().node(bz)->path.isAnimated());
+    }
+
     void timelineCommandsSuspendedOnThePage()
     {
         // Spec 42b: the Edit page's timeline is hidden here, so its editing keys do nothing

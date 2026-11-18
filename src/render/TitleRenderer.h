@@ -12,6 +12,8 @@
 #include <QSize>
 #include <QString>
 
+#include <QPointF>
+
 #include <cstdint>
 #include <vector>
 
@@ -19,6 +21,58 @@ namespace kk::render {
 
 /// render::fonts::fontGeneration() (render/FontReload.h).
 [[nodiscard]] int currentFontGeneration();
+
+/// The extra controls of the Compositing page's Text node (spec section 116): a layout other
+/// than a plain block (frame, circle, path), per-character kerning, extra shading elements and
+/// the Follower's per-character transforms. A default value changes nothing; `active()` tells
+/// the renderer to use the per-glyph layout of render/TextPlus.h instead of the plain one.
+struct TextPlus
+{
+    enum class Layout : quint8 {
+        Point,
+        Frame,
+        Circle,
+        Path
+    };
+    /// One extra shading element: a fill or an outline of the glyphs, drawn behind the main
+    /// look (the style's colour, outline and shadow).
+    struct Shade
+    {
+        bool outline = false;
+        QColor color;
+        double opacity = 1.0; ///< 0..1
+        double thickness = 2.0; ///< outline width in px at timeline resolution
+        double dx = 0, dy = 0; ///< offset in px at timeline resolution, y down
+        friend bool operator==(const Shade&, const Shade&) = default;
+    };
+    /// The Follower's transform of one character (index = grapheme cluster, line breaks not
+    /// counted): offset in px at timeline resolution (y down), size factor, angle in degrees
+    /// clockwise, opacity 0..1.
+    struct CharXf
+    {
+        double dx = 0, dy = 0, size = 1.0, angle = 0.0, opacity = 1.0;
+        friend bool operator==(const CharXf&, const CharXf&) = default;
+    };
+
+    Layout layout = Layout::Point;
+    int justifyV = 1; ///< Frame: 0 = top, 1 = centre, 2 = bottom
+    double frameWidth = 0, frameHeight = 0; ///< Frame, output pixels
+    double circleRadius = 0; ///< Circle, output pixels
+    double circleAngle = 90; ///< Circle: degrees counter-clockwise from the right; 90 = the top
+    double pathOffset = 0; ///< Path: shift along the path, fraction of its length
+    /// Path: the flattened path, canvas pixels (the title canvas, y down).
+    std::vector<QPointF> pathPoints;
+    std::vector<double> kerning; ///< percent of the font size added after each character
+    std::vector<Shade> shades; ///< back to front
+    std::vector<CharXf> chars; ///< empty = no Follower
+
+    /// True if the plain block layout cannot draw this.
+    [[nodiscard]] bool active() const
+    {
+        return layout != Layout::Point || !kerning.empty() || !shades.empty() || !chars.empty();
+    }
+    friend bool operator==(const TextPlus&, const TextPlus&) = default;
+};
 
 /// Everything that influences a title's pixels at one frame, resolved from ClipData::title.
 /// Used as the title texture cache key: equal styles produce identical images, so a static
@@ -78,6 +132,8 @@ struct TitleStyle
     /// A title with several layers: the shown layers bottom to top (each a plain Text or Shape
     /// style on the same canvas and scale). When not empty the fields above are not used.
     std::vector<TitleStyle> stack;
+    /// Compositing page Text node only (spec section 116).
+    TextPlus plus;
 
     friend bool operator==(const TitleStyle&, const TitleStyle&) = default;
 };

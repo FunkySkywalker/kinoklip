@@ -60,7 +60,7 @@ set(KK_TESTS_QUICK
   test_rendermath test_rendernotify test_retime test_retimebar test_retimerender test_robustness
   test_rvmbackend test_scopes test_serialization test_session test_sessionlog
   test_settingstransfer test_smartbins test_sourcetape test_stabilization test_stddefaults
-  test_stddefaults_ui test_subtitleexport test_subtitles test_targetpool test_textfit test_theme test_tooltips
+  test_stddefaults_ui test_subtitleexport test_subtitles test_targetpool test_textfit test_textplus test_trackfollow test_theme test_tooltips
   test_thinprogressbar test_timecode test_timelineanimation test_timelinecontroller
   test_timelinedemo test_timelinedrop test_timelinefuzz test_timelineimport test_timelinelayout
   test_timelinetabs test_timelinewidget test_timestretch test_titleexport test_titlelayers

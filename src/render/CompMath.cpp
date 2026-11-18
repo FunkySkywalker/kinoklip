@@ -3,9 +3,12 @@
 #include "render/CompMath.h"
 
 #include "compositing/tracking/Homography.h"
+#include "core/CompOps.h"
 #include "core/NodeRegistry.h"
 
 #include <QPolygonF>
+#include <QRegularExpression>
+#include <QTextBoundaryFinder>
 
 #include <algorithm>
 #include <cmath>
@@ -322,6 +325,7 @@ MaskData maskOf(const CompNode& node, int64_t frame, QSizeF frameSize)
     MaskData m;
     m.id = node.id;
     m.shape = node.type == nodetypes::EllipseMask ? MaskShape::Ellipse
+        : node.type == nodetypes::BezierMask      ? MaskShape::Bezier
         : node.type == nodetypes::PolygonMask || node.type == nodetypes::BSplineMask
         ? MaskShape::Polygon
                                                   : MaskShape::Rectangle;
@@ -337,7 +341,7 @@ MaskData maskOf(const CompNode& node, int64_t frame, QSizeF frameSize)
     const double soft = std::max(0.0, num(p, k::SoftEdge, frame, 0.0)) * W * 0.5;
     set(maskkeys::FeatherIn, soft);
     set(maskkeys::FeatherOut, soft);
-    if (m.shape == MaskShape::Polygon) {
+    if (m.shape == MaskShape::Polygon || m.shape == MaskShape::Bezier) {
         const double size = num(p, k::Size, frame, 1.0);
         set(maskkeys::ScaleX, size);
         set(maskkeys::ScaleY, size);
@@ -962,8 +966,8 @@ GeneratorFrame backgroundFrame(const ParamSet& p, int64_t frame, QSizeF frameSiz
     return g;
 }
 
-TitleStyle textStyle(
-    const ParamSet& p, int64_t frame, QSize canvas, double scale, QSizeF frameSize, QPointF* offset)
+TitleStyle textStyle(const ParamSet& p, int64_t frame, QSize canvas, double scale,
+    QSizeF frameSize, QPointF* offset, const AnimatedPath* path)
 {
     TitleStyle s;
     s.text = p.staticValue(k::Text).toString();
@@ -986,6 +990,101 @@ TitleStyle textStyle(
         = toFrame(num(p, k::CenterX, frame, 0.5), num(p, k::CenterY, frame, 0.5), frameSize);
     *offset = QPointF(
         (c.x() - frameSize.width() / 2) * scale, (c.y() - frameSize.height() / 2) * scale);
+
+    // Text+ (spec section 116).
+    s.rotation = -num(p, k::Angle, frame, 0.0); // the node's angle is counter-clockwise
+    s.tracking = num(p, k::TextTracking, frame, 0.0);
+    s.lineSpacing = std::clamp(num(p, k::LineSpacing, frame, 100.0), 10.0, 500.0);
+    const QString justify = p.staticValue(k::Justify, justifies::Center).toString();
+    s.align = justify == justifies::Start ? 0 : justify == justifies::End ? 2 : 1;
+    s.anchor = s.align;
+    TextPlus& x = s.plus;
+    const QString layout = p.staticValue(k::LayoutType, textlayouts::Point).toString();
+    const double W = frameSize.width(), H = frameSize.height();
+    if (layout == textlayouts::Frame) {
+        x.layout = TextPlus::Layout::Frame;
+        x.frameWidth = std::max(0.01, num(p, k::FrameWidth, frame, 0.8)) * W * scale;
+        x.frameHeight = std::max(0.01, num(p, k::FrameHeight, frame, 0.5)) * H * scale;
+        const QString jv = p.staticValue(k::JustifyV, justifies::Center).toString();
+        x.justifyV = jv == justifies::Start ? 0 : jv == justifies::End ? 2 : 1;
+    } else if (layout == textlayouts::Circle) {
+        x.layout = TextPlus::Layout::Circle;
+        x.circleRadius = std::max(0.01, num(p, k::CircleRadius, frame, 0.25)) * W * scale;
+        x.circleAngle = num(p, k::CircleAngle, frame, 90.0);
+    } else if (layout == textlayouts::Path) {
+        x.layout = TextPlus::Layout::Path;
+        x.pathOffset = num(p, k::PathOffset, frame, 0.0);
+        MaskPath pts = path ? path->at(double(frame)) : MaskPath {};
+        if (pts.size() < 2)
+            pts = compops::defaultTextPath().shapes.value(0);
+        QVector<QPointF> flat;
+        const QPointF mid(canvas.width() / 2.0, canvas.height() / 2.0);
+        flattenPath(
+            pts, false, 0.25 / std::max(scale, 1e-3),
+            [&](QPointF q) { return mid + q * scale; }, flat);
+        x.pathPoints.assign(flat.begin(), flat.end());
+    }
+    // Kerning: numbers (percent of the size) separated by spaces or commas, one per character.
+    const QString kern = p.staticValue(k::Kerning, QString()).toString();
+    if (!kern.trimmed().isEmpty()) {
+        const QStringList parts = kern.split(QRegularExpression(QStringLiteral("[\\s,;]+")),
+            Qt::SkipEmptyParts);
+        for (const QString& part : parts)
+            x.kerning.push_back(part.toDouble());
+        if (std::all_of(x.kerning.begin(), x.kerning.end(), [](double v) { return v == 0.0; }))
+            x.kerning.clear();
+    }
+    // Shading elements 2 to 4, drawn back to front (4 first).
+    for (int n = 2 + nodekeys::kShadeElements - 1; n >= 2; --n) {
+        if (!p.staticValue(nodekeys::shadeKey(n, "enable"), false).toBool())
+            continue;
+        TextPlus::Shade sh;
+        sh.outline = p.staticValue(nodekeys::shadeKey(n, "outline"), false).toBool();
+        const QColor shc = p.staticValue(nodekeys::shadeKey(n, "color"), QColor(Qt::black))
+                               .value<QColor>();
+        sh.color = shc.isValid() ? shc : QColor(Qt::black);
+        sh.opacity = std::clamp(num(p, nodekeys::shadeKey(n, "opacity"), frame, 1.0), 0.0, 1.0);
+        sh.thickness = std::max(0.0, num(p, nodekeys::shadeKey(n, "thickness"), frame, 4.0));
+        sh.dx = num(p, nodekeys::shadeKey(n, "x"), frame, 0.0);
+        sh.dy = -num(p, nodekeys::shadeKey(n, "y"), frame, 0.0); // +up in the Inspector
+        x.shades.push_back(sh);
+    }
+    // Follower: character i takes the Follower values of frame - i * delay.
+    const int delay = int(std::lround(num(p, k::FollowDelay, frame, 0.0)));
+    const bool animated = p.isAnimated();
+    const auto follow = [&](const QString& key, double def, int64_t at) {
+        return p.value(key, at, def);
+    };
+    const bool anyFollow = animated
+        || follow(k::FollowX, 0, frame) != 0 || follow(k::FollowY, 0, frame) != 0
+        || follow(k::FollowSize, 100, frame) != 100 || follow(k::FollowAngle, 0, frame) != 0
+        || follow(k::FollowOpacity, 100, frame) != 100;
+    if (anyFollow) {
+        int count = 0;
+        QTextBoundaryFinder finder(QTextBoundaryFinder::Grapheme, s.text);
+        int from = 0;
+        for (int to = finder.toNextBoundary(); to > 0; from = to, to = finder.toNextBoundary()) {
+            const QString piece = s.text.mid(from, to - from);
+            if (piece != QLatin1String("\n") && piece != QLatin1String("\r")
+                && piece != QLatin1String("\r\n"))
+                ++count;
+        }
+        bool identity = true;
+        std::vector<TextPlus::CharXf> chars(size_t(std::max(0, count)));
+        for (int i = 0; i < count; ++i) {
+            const int64_t at = frame - int64_t(i) * delay;
+            TextPlus::CharXf& cx = chars[size_t(i)];
+            cx.dx = follow(k::FollowX, 0, at);
+            cx.dy = -follow(k::FollowY, 0, at);
+            cx.size = std::max(0.0, follow(k::FollowSize, 100, at)) / 100.0;
+            cx.angle = -follow(k::FollowAngle, 0, at);
+            cx.opacity = std::clamp(follow(k::FollowOpacity, 100, at), 0.0, 100.0) / 100.0;
+            if (cx != TextPlus::CharXf {})
+                identity = false;
+        }
+        if (!identity)
+            x.chars = std::move(chars);
+    }
     return s;
 }
 

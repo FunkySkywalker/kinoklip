@@ -54,7 +54,9 @@ general knowledge of node compositors, our own drawing, names and icons; never R
   Dissolve.
 - **Transform**: Transform (centre, size, angle, pivot, flip), Crop, Resize, Letterbox.
 - **Generate**: Background (solid colour or 2/4-colour gradient), Text (font, size, colour,
-  outline, shadow, position), Noise / Fast Noise.
+  outline, shadow, position, and the Text+ controls: Point / Frame / Circle / Path layout with an editable
+  Bezier path, tracking, line spacing, kerning, extra shading elements, a Follower for per-character animation and
+  Write On; spec section 116), Noise / Fast Noise.
 - **Masks**: Rectangle (with Corner Radius), Ellipse, Polygon, B-Spline (points with weights, animated as one
   shape); each with soft edge, invert, level, paint mode, centre / size / angle; masks plug into any node's mask
   input (the Paint Mode says how a mask joins the one plugged into it). Spec section 92.

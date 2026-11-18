@@ -241,7 +241,7 @@ void applyCommon(const CommonParams& c, const float in[4], const float res[4],
 /// (empty text = draws nothing) and, in @p offset, how far (canvas px) the centred raster
 /// moves to the node's Center.
 [[nodiscard]] TitleStyle textStyle(const ParamSet& p, int64_t frame, QSize canvas, double scale,
-    QSizeF frameSize, QPointF* offset);
+    QSizeF frameSize, QPointF* offset, const AnimatedPath* path = nullptr);
 
 /// Fast Noise parameters at one frame (the GLSL uniforms of GlComposition).
 struct NoiseParams

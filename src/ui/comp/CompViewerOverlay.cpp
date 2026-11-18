@@ -3,13 +3,20 @@
 // CompSession gestures (one undo step each).
 #include "ui/comp/CompViewerOverlay.h"
 
+#include "compositing/RotoAssist.h"
+#include "compositing/tracking/TrackFollow.h"
+#include "compositing/tracking/TrackLink.h"
+#include "core/Mask.h"
 #include "core/NodeRegistry.h"
 #include "render/CompMath.h"
 #include "ui/common/SchemeColors.h"
 #include "ui/comp/CompSession.h"
 #include "ui/viewer/ViewerSurface.h"
 
+#include <QApplication>
+#include <QContextMenuEvent>
 #include <QKeyEvent>
+#include <QMenu>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPainterPath>
@@ -40,6 +47,41 @@ QTransform rotation(double angleDeg)
 double length(QPointF p)
 {
     return std::hypot(p.x(), p.y());
+}
+
+bool transformLike(compadapter::ViewerControl kind)
+{
+    return kind == compadapter::ViewerControl::Transform
+        || kind == compadapter::ViewerControl::TextPath;
+}
+
+/// Point on the cubic of segment @p i (i -> i + 1) of @p path at @p t.
+QPointF segmentPoint(const MaskPath& path, qsizetype i, double t)
+{
+    const MaskPoint& a = path[i];
+    const MaskPoint& b = path[(i + 1) % path.size()];
+    return maskdetail::cubic(a.pos(), QPointF(a.x + a.outX, a.y + a.outY),
+        QPointF(b.x + b.inX, b.y + b.inY), b.pos(), t);
+}
+
+/// Catmull-Rom tangents for point @p i (the neighbours decide; the ends of an open path look at
+/// their one neighbour).
+void autoSmooth(MaskPath& path, qsizetype i, bool closed)
+{
+    const qsizetype n = path.size();
+    if (n < 2)
+        return;
+    const bool hasPrev = closed || i > 0, hasNext = closed || i + 1 < n;
+    const QPointF prev = hasPrev ? path[(i + n - 1) % n].pos() : path[i].pos();
+    const QPointF next = hasNext ? path[(i + 1) % n].pos() : path[i].pos();
+    const QPointF d = (hasPrev && hasNext) ? (next - prev) / 6.0
+        : hasNext                          ? (next - path[i].pos()) / 3.0
+                                           : (path[i].pos() - prev) / 3.0;
+    path[i].outX = d.x();
+    path[i].outY = d.y();
+    path[i].inX = -d.x();
+    path[i].inY = -d.y();
+    path[i].smooth = true;
 }
 
 } // namespace
@@ -126,6 +168,16 @@ std::optional<CompViewerOverlay::State> CompViewerOverlay::state() const
             }
         }
     }
+    const bool bezierNode = s.keys.kind == compadapter::ViewerControl::Bezier;
+    const bool textPath = s.keys.kind == compadapter::ViewerControl::TextPath
+        && n->params.staticValue(nodekeys::LayoutType, textlayouts::Point).toString()
+            == textlayouts::Path;
+    if (bezierNode || textPath) {
+        s.bez = n->path.at(double(f));
+        s.showBez = true;
+        s.bezClosed = bezierNode;
+        s.roto = n->params.staticValue(nodekeys::RotoAssist, false).toBool();
+    }
     s.locked = n->locked;
     return s;
 }
@@ -168,6 +220,34 @@ QPointF CompViewerOverlay::pointToWidget(const State& s, QPointF p) const
     return toWidget(s.centre) + rotation(s.angleDeg).map(p * (s.size * pixelScale()));
 }
 
+QPointF CompViewerOverlay::tangentToWidget(const State& s, int index, bool out) const
+{
+    const MaskPoint& pt = s.bez[index];
+    return pointToWidget(s, out ? QPointF(pt.x + pt.outX, pt.y + pt.outY)
+                                : QPointF(pt.x + pt.inX, pt.y + pt.inY));
+}
+
+int CompViewerOverlay::segmentAt(const State& s, QPointF pos, double* t) const
+{
+    const qsizetype n = s.bez.size();
+    const qsizetype segs = s.bezClosed ? n : n - 1;
+    int bestSeg = -1;
+    double bestDist = 6.0;
+    for (qsizetype i = 0; i < segs; ++i) {
+        for (int k = 0; k <= 32; ++k) {
+            const double u = k / 32.0;
+            const double d = length(pointToWidget(s, segmentPoint(s.bez, i, u)) - pos);
+            if (d < bestDist) {
+                bestDist = d;
+                bestSeg = int(i);
+                if (t)
+                    *t = u;
+            }
+        }
+    }
+    return bestSeg;
+}
+
 QSizeF CompViewerOverlay::halfExtents(const State& s) const
 {
     const QRectF p = m_surface->pictureRect();
@@ -175,7 +255,7 @@ QSizeF CompViewerOverlay::halfExtents(const State& s) const
         const double half = s.size * pixelScale() / 2;
         return QSizeF(half, half);
     }
-    if (s.keys.kind == compadapter::ViewerControl::Transform)
+    if (transformLike(s.keys.kind))
         return QSizeF(p.width() * s.size / 2, p.height() * s.size / 2);
     return QSizeF(p.width() * s.width / 2, p.height() * s.height / 2);
 }
@@ -185,6 +265,15 @@ std::optional<QPointF> CompViewerOverlay::handlePos(Handle handle, int pointInde
     const std::optional<State> s = state();
     if (!s)
         return std::nullopt;
+    if (s->showBez && pointIndex >= 0 && pointIndex < s->bez.size()
+        && (handle == Handle::Point || handle == Handle::TanIn || handle == Handle::TanOut)) {
+        return handle == Handle::Point
+            ? pointToWidget(*s, s->bez[pointIndex].pos())
+            : tangentToWidget(*s, pointIndex, handle == Handle::TanOut);
+    }
+    if (s->keys.kind == compadapter::ViewerControl::Bezier)
+        return handle == Handle::Centre ? std::optional<QPointF>(toWidget(s->centre))
+                                        : std::nullopt;
     if (s->keys.kind == compadapter::ViewerControl::Polygon) {
         if (handle != Handle::Point || pointIndex < 0 || pointIndex >= s->points.size())
             return std::nullopt;
@@ -223,11 +312,11 @@ std::optional<QPointF> CompViewerOverlay::handlePos(Handle handle, int pointInde
     case Handle::Size:
         return c + r.map(QPointF(h.width(), h.height()));
     case Handle::Width:
-        if (s->keys.kind == compadapter::ViewerControl::Transform)
+        if (transformLike(s->keys.kind))
             return std::nullopt;
         return c + r.map(QPointF(h.width(), 0));
     case Handle::Height:
-        if (s->keys.kind == compadapter::ViewerControl::Transform)
+        if (transformLike(s->keys.kind))
             return std::nullopt;
         return c + r.map(QPointF(0, h.height()));
     case Handle::Angle:
@@ -242,6 +331,37 @@ CompViewerOverlay::Handle CompViewerOverlay::handleAt(QPointF pos, int* pointInd
     const std::optional<State> s = state();
     if (!s || s->locked)
         return Handle::None;
+    if (s->showBez) {
+        const auto hit = [&](Handle h, int i) {
+            if (pointIndex)
+                *pointIndex = i;
+            return h;
+        };
+        // Tangent handles first (they sit close to their point), then the points, then the curve.
+        for (int i = 0; i < s->bez.size(); ++i) {
+            if (!s->bez[i].hasTangents() && i != m_selPoint)
+                continue;
+            if (length(tangentToWidget(*s, i, true) - pos) <= kHandleHitPx)
+                return hit(Handle::TanOut, i);
+            if (length(tangentToWidget(*s, i, false) - pos) <= kHandleHitPx)
+                return hit(Handle::TanIn, i);
+        }
+        for (int i = 0; i < s->bez.size(); ++i) {
+            if (length(pointToWidget(*s, s->bez[i].pos()) - pos) <= kHandleHitPx)
+                return hit(Handle::Point, i);
+        }
+        if (s->keys.kind == compadapter::ViewerControl::Bezier) {
+            if (length(toWidget(s->centre) - pos) <= kHandleHitPx)
+                return Handle::Centre;
+            const int seg = segmentAt(*s, pos, nullptr);
+            return seg >= 0 ? hit(Handle::Segment, seg) : Handle::None;
+        }
+        const int seg = segmentAt(*s, pos, nullptr);
+        if (seg >= 0)
+            return hit(Handle::Segment, seg);
+    }
+    if (s->keys.kind == compadapter::ViewerControl::Bezier)
+        return length(toWidget(s->centre) - pos) <= kHandleHitPx ? Handle::Centre : Handle::None;
     if (s->keys.kind == compadapter::ViewerControl::Polygon) {
         for (int i = 0; i < s->points.size(); ++i) {
             if (length(pointToWidget(*s, s->points[i]) - pos) <= kHandleHitPx) {
@@ -319,6 +439,60 @@ void CompViewerOverlay::paintEvent(QPaintEvent*)
         p.setBrush(sc.selection);
         p.drawRect(r);
     };
+    if (s->showBez) {
+        QPainterPath curve;
+        const qsizetype n = s->bez.size();
+        for (qsizetype i = 0; i < n; ++i) {
+            const MaskPoint& a = s->bez[i];
+            if (i == 0)
+                curve.moveTo(pointToWidget(*s, a.pos()));
+            if (i + 1 < n || s->bezClosed) {
+                const MaskPoint& b = s->bez[(i + 1) % n];
+                curve.cubicTo(pointToWidget(*s, QPointF(a.x + a.outX, a.y + a.outY)),
+                    pointToWidget(*s, QPointF(b.x + b.inX, b.y + b.inY)),
+                    pointToWidget(*s, b.pos()));
+            }
+        }
+        if (s->bezClosed && n > 2)
+            curve.closeSubpath();
+        stroke(curve);
+        for (int i = 0; i < n && !s->locked; ++i) {
+            const QPointF pw = pointToWidget(*s, s->bez[i].pos());
+            if (s->bez[i].hasTangents() || i == m_selPoint) {
+                const QPointF a = tangentToWidget(*s, i, false), b = tangentToWidget(*s, i, true);
+                QPainterPath arms;
+                arms.moveTo(a);
+                arms.lineTo(pw);
+                arms.lineTo(b);
+                p.setBrush(Qt::NoBrush);
+                p.setPen(QPen(QColor(255, 255, 255, 140), 1.0));
+                p.drawPath(arms);
+                p.setPen(QPen(QColor(0, 0, 0, 160), 1.0));
+                p.setBrush(QColor(255, 255, 255));
+                p.drawEllipse(a, 3.0, 3.0);
+                p.drawEllipse(b, 3.0, 3.0);
+            }
+            // Corner points are squares, smooth points circles; the selected one is filled.
+            p.setPen(QPen(QColor(0, 0, 0, 160), 1.0));
+            p.setBrush(i == m_selPoint ? QColor(255, 255, 255) : sc.selection);
+            const QRectF r(pw - QPointF(kHandleSizePx / 2, kHandleSizePx / 2),
+                QSizeF(kHandleSizePx, kHandleSizePx));
+            if (s->bez[i].smooth)
+                p.drawEllipse(r);
+            else
+                p.drawRect(r);
+        }
+        if (s->keys.kind == compadapter::ViewerControl::Bezier) {
+            const QPointF c = toWidget(s->centre);
+            QPainterPath cross;
+            cross.moveTo(c - QPointF(6, 0));
+            cross.lineTo(c + QPointF(6, 0));
+            cross.moveTo(c - QPointF(0, 6));
+            cross.lineTo(c + QPointF(0, 6));
+            stroke(cross);
+            return;
+        }
+    }
     if (s->keys.kind == compadapter::ViewerControl::Grid) {
         const int cols = int(s->width), rows = int(s->height);
         QPainterPath lines;
@@ -481,11 +655,19 @@ void CompViewerOverlay::mousePressEvent(QMouseEvent* event)
         return;
     }
     static const char* const labels[] = {"", QT_TR_NOOP("Move"), QT_TR_NOOP("Resize"),
-        QT_TR_NOOP("Resize"), QT_TR_NOOP("Resize"), QT_TR_NOOP("Rotate"), QT_TR_NOOP("Move Point")};
+        QT_TR_NOOP("Resize"), QT_TR_NOOP("Resize"), QT_TR_NOOP("Rotate"), QT_TR_NOOP("Move Point"),
+        QT_TR_NOOP("Move Tangent"), QT_TR_NOOP("Move Tangent"), QT_TR_NOOP("Select Point")};
     m_drag = h;
     m_dragPoint = point;
     m_pressPos = event->position();
     m_pressState = state();
+    if (h == Handle::Point || h == Handle::TanIn || h == Handle::TanOut) {
+        m_selPoint = point;
+        update();
+    }
+    m_snapImage = QImage();
+    if (h == Handle::Point && m_pressState && m_pressState->roto && m_snapSource)
+        m_snapImage = m_snapSource();
     const CompNode* n = m_session->composition().node(m_session->currentNode());
     m_session->beginGesture(tr("%1 %2").arg(tr(labels[int(h)]), n ? n->name : QString()));
     setFocus(Qt::MouseFocusReason);
@@ -493,6 +675,7 @@ void CompViewerOverlay::mousePressEvent(QMouseEvent* event)
 
 void CompViewerOverlay::mouseMoveEvent(QMouseEvent* event)
 {
+    m_altDown = event->modifiers().testFlag(Qt::AltModifier);
     if (m_drag != Handle::None)
         applyDrag(event->position());
 }
@@ -508,6 +691,7 @@ void CompViewerOverlay::applyDrag(QPointF pos)
     const QPointF c = toWidget(s0.centre);
     QMap<QString, double> scalars;
     std::optional<std::pair<int, QPointF>> movedPoint; ///< polygon point index, new position
+    std::function<void(MaskPath&)> pathEdit; ///< Bezier / Text path: edits the path in place
     switch (m_drag) {
     case Handle::Centre: {
         const QPointF d = pos - m_pressPos;
@@ -539,7 +723,7 @@ void CompViewerOverlay::applyDrag(QPointF pos)
                 scalars.insert(s0.keys.width, std::max(s0.size, side));
             break;
         }
-        if (s0.keys.kind == compadapter::ViewerControl::Transform) {
+        if (transformLike(s0.keys.kind)) {
             const double from = length(m_pressPos - c);
             if (from > 1)
                 scalars.insert(s0.keys.size, std::max(0.0, s0.size * length(pos - c) / from));
@@ -582,11 +766,62 @@ void CompViewerOverlay::applyDrag(QPointF pos)
             break;
         }
         const double k = s0.size * pixelScale();
+        if (s0.showBez) {
+            if (m_dragPoint >= 0 && m_dragPoint < s0.bez.size() && k > 0) {
+                QPointF target = pos;
+                if (!m_snapImage.isNull() && m_surface->pictureRect().width() > 0) {
+                    const QRectF pr = m_surface->pictureRect();
+                    const double f = m_snapImage.width() / pr.width();
+                    const QPointF img((pos.x() - pr.left()) * f, (pos.y() - pr.top()) * f);
+                    if (const auto snapped = roto::snapToEdge(m_snapImage, img, 12.0))
+                        target = QPointF(pr.left() + snapped->x() / f, pr.top() + snapped->y() / f);
+                }
+                const QPointF local = rotation(s0.angleDeg).inverted().map(target - c) / k;
+                const int idx = m_dragPoint;
+                pathEdit = [idx, local](MaskPath& path) {
+                    path[idx].x = local.x();
+                    path[idx].y = local.y();
+                };
+            }
+            break;
+        }
         if (m_dragPoint >= 0 && m_dragPoint < s0.points.size() && k > 0)
             movedPoint
                 = std::make_pair(m_dragPoint, rotation(s0.angleDeg).inverted().map(pos - c) / k);
         break;
     }
+    case Handle::TanIn:
+    case Handle::TanOut: {
+        const double k = s0.size * pixelScale();
+        if (m_dragPoint >= 0 && m_dragPoint < s0.bez.size() && k > 0) {
+            const bool out = m_drag == Handle::TanOut;
+            const bool breakSmooth = m_altDown;
+            const int idx = m_dragPoint;
+            const QPointF local = rotation(s0.angleDeg).inverted().map(pos - c) / k;
+            pathEdit = [=](MaskPath& path) {
+                MaskPoint& pt = path[idx];
+                const QPointF v = local - pt.pos();
+                (out ? pt.outX : pt.inX) = v.x();
+                (out ? pt.outY : pt.inY) = v.y();
+                if (breakSmooth) {
+                    pt.smooth = false;
+                } else if (pt.smooth) {
+                    // Smooth: the other handle turns to stay on the same line, keeping its length.
+                    const double mine = std::hypot(v.x(), v.y());
+                    const double otherLen = out ? std::hypot(pt.inX, pt.inY)
+                                                : std::hypot(pt.outX, pt.outY);
+                    const double len = otherLen > 1e-9 ? otherLen : mine;
+                    if (mine > 1e-9) {
+                        (out ? pt.inX : pt.outX) = -v.x() / mine * len;
+                        (out ? pt.inY : pt.outY) = -v.y() / mine * len;
+                    }
+                }
+            };
+        }
+        break;
+    }
+    case Handle::Segment:
+        return;
     case Handle::None:
         return;
     }
@@ -600,6 +835,11 @@ void CompViewerOverlay::applyDrag(QPointF pos)
             if (!it.key().isEmpty())
                 n->params.animated(it.key(), it.value()).setValue(frame, it.value());
         }
+        if (pathEdit) {
+            MaskPath path = n->path.at(double(frame));
+            pathEdit(path);
+            n->path.setShape(frame, path);
+        }
         if (movedPoint) {
             MaskPath path = n->path.at(double(frame));
             if (movedPoint->first < path.size()) {
@@ -609,6 +849,145 @@ void CompViewerOverlay::applyDrag(QPointF pos)
             }
         }
     });
+}
+
+void CompViewerOverlay::editPath(
+    const QString& label, const std::function<void(CompNode&, int64_t)>& edit)
+{
+    const quint64 id = m_session->currentNode();
+    const int64_t frame = m_session->compFrame();
+    const CompNode* node = m_session->composition().node(id);
+    if (!node)
+        return;
+    m_session->beginGesture(tr("%1 %2").arg(label, node->name));
+    m_session->modifyLive([&](Composition& comp) {
+        if (CompNode* n = comp.node(id))
+            edit(*n, frame);
+    });
+    m_session->endGesture();
+}
+
+void CompViewerOverlay::mouseDoubleClickEvent(QMouseEvent* event)
+{
+    int index = -1;
+    const std::optional<State> s = state();
+    if (!s || !s->showBez || !m_session || event->button() != Qt::LeftButton) {
+        event->ignore();
+        return;
+    }
+    const Handle h = handleAt(event->position(), &index);
+    if (h == Handle::Point) {
+        // Smooth <-> corner: a smooth point gets Catmull-Rom tangents, a corner none.
+        m_selPoint = index;
+        editPath(tr("Smooth Point"), [&](CompNode& n, int64_t frame) {
+            MaskPath path = n.path.at(double(frame));
+            if (index >= path.size())
+                return;
+            if (path[index].smooth) {
+                path[index].inX = path[index].inY = path[index].outX = path[index].outY = 0;
+                path[index].smooth = false;
+            } else {
+                autoSmooth(path, index, s->bezClosed);
+            }
+            n.path.setShape(frame, path);
+        });
+    } else if (h == Handle::Segment) {
+        double t = 0.5;
+        const int seg = segmentAt(*s, event->position(), &t);
+        if (seg < 0) {
+            event->ignore();
+            return;
+        }
+        editPath(tr("Add Point"), [&](CompNode& n, int64_t frame) {
+            MaskData m;
+            m.path = n.path;
+            m.shape = MaskShape::Bezier;
+            m.closed = s->bezClosed;
+            const qsizetype at = insertPathPoint(m, seg, t);
+            // The new point may snap to a nearby edge (Roto Assist).
+            if (s->roto && m_snapSource && at >= 0) {
+                const QImage img = m_snapSource();
+                const QRectF pr = m_surface->pictureRect();
+                if (!img.isNull() && pr.width() > 0) {
+                    const double f = img.width() / pr.width();
+                    const QPointF w = pointToWidget(*s, m.path.shapes[0][at].pos());
+                    const QPointF imgPos((w.x() - pr.left()) * f, (w.y() - pr.top()) * f);
+                    if (const auto snapped = roto::snapToEdge(img, imgPos, 12.0)) {
+                        const QPointF target(pr.left() + snapped->x() / f, pr.top() + snapped->y() / f);
+                        const double k = s->size * pixelScale();
+                        const QPointF local
+                            = rotation(s->angleDeg).inverted().map(target - toWidget(s->centre)) / k;
+                        m.path.forEachShape([&](MaskPath& sp) {
+                            sp[at].x = local.x();
+                            sp[at].y = local.y();
+                        });
+                    }
+                }
+            }
+            n.path = m.path;
+            m_selPoint = int(at);
+            (void)frame;
+        });
+    } else {
+        event->ignore();
+        return;
+    }
+    event->accept();
+}
+
+bool CompViewerOverlay::followPoint(int index, quint64 sourceId)
+{
+    if (!m_session)
+        return false;
+    const quint64 id = m_session->currentNode();
+    const int64_t frame = m_session->compFrame();
+    const QSizeF frameSize(m_session->frameSize());
+    const CompNode* source = m_session->composition().node(sourceId);
+    return m_session->edit(tr("Follow %1").arg(source ? source->name : QString()),
+        [=](Composition& c) {
+            CompNode* t = c.node(id);
+            const CompNode* s = c.node(sourceId);
+            return t && s && tracking::followPoints(*t, {index}, *s, frame, frameSize);
+        });
+}
+
+void CompViewerOverlay::contextMenuEvent(QContextMenuEvent* event)
+{
+    int index = -1;
+    const std::optional<State> s = state();
+    if (!s || !s->showBez || !m_session
+        || handleAt(event->pos(), &index) != Handle::Point) {
+        event->ignore();
+        return;
+    }
+    m_selPoint = index;
+    update();
+    QMenu menu(this);
+    QAction* smooth = menu.addAction(s->bez[index].smooth
+            ? tr("Corner Point")
+            : tr("Smooth Point"));
+    QAction* remove = menu.addAction(tr("Delete Point"));
+    remove->setEnabled(s->bez.size() > (s->bezClosed ? 3 : 2));
+    QMenu* follow = menu.addMenu(tr("Follow Track"));
+    const std::vector<quint64> sources = tracking::trackSources(m_session->composition());
+    for (const quint64 src : sources) {
+        if (const CompNode* n = m_session->composition().node(src))
+            follow->addAction(n->name)->setData(qulonglong(src));
+    }
+    follow->setEnabled(!sources.empty());
+    QAction* chosen = menu.exec(event->globalPos());
+    if (!chosen)
+        return;
+    if (chosen == smooth) {
+        QMouseEvent dc(QEvent::MouseButtonDblClick, QPointF(event->pos()), event->globalPos(),
+            Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+        mouseDoubleClickEvent(&dc);
+    } else if (chosen == remove) {
+        QKeyEvent key(QEvent::KeyPress, Qt::Key_Delete, Qt::NoModifier);
+        keyPressEvent(&key);
+    } else if (chosen->data().isValid()) {
+        followPoint(index, chosen->data().toULongLong());
+    }
 }
 
 void CompViewerOverlay::wheelEvent(QWheelEvent* event)
@@ -647,6 +1026,7 @@ void CompViewerOverlay::mouseReleaseEvent(QMouseEvent* event)
         event->ignore();
         return;
     }
+    m_altDown = event->modifiers().testFlag(Qt::AltModifier);
     applyDrag(event->position());
     m_drag = Handle::None;
     m_pressState.reset();
@@ -656,6 +1036,24 @@ void CompViewerOverlay::mouseReleaseEvent(QMouseEvent* event)
 
 void CompViewerOverlay::keyPressEvent(QKeyEvent* event)
 {
+    if ((event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace) && m_session
+        && m_drag == Handle::None && m_selPoint >= 0) {
+        const std::optional<State> s = state();
+        const int index = m_selPoint;
+        const qsizetype minimum = s && s->bezClosed ? 3 : 2;
+        if (s && s->showBez && !s->locked && s->bez.size() > minimum && index < s->bez.size()) {
+            editPath(tr("Delete Point"), [&](CompNode& n, int64_t) {
+                MaskData m;
+                m.path = n.path;
+                m.shape = MaskShape::Bezier;
+                removePathPoint(m, index);
+                n.path = m.path;
+            });
+            m_selPoint = -1;
+            event->accept();
+            return;
+        }
+    }
     if (event->key() == Qt::Key_Escape && m_drag != Handle::None && m_pressState) {
         // Cancel: put the values from the press back, then close the (now empty) gesture.
         const QPointF press = m_pressPos;

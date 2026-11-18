@@ -874,7 +874,7 @@ PooledTarget GlComposition::text(GlKit& kit, const CompEval& ev, const CompNode&
     PooledTarget out = newTarget(kit, ev, true);
     QPointF offset;
     const TitleStyle style
-        = compmath::textStyle(n.params, ev.compFrame, ev.size, ev.scale, ev.frame, &offset);
+        = compmath::textStyle(n.params, ev.compFrame, ev.size, ev.scale, ev.frame, &offset, &n.path);
     if (style.text.isEmpty() || !ev.sources)
         return out;
     QRectF rect;
