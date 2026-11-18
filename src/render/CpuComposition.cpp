@@ -6,6 +6,7 @@
 #include "core/CompOps.h"
 #include "core/NodeRegistry.h"
 #include "render/CompFilterMath.h"
+#include "render/CompMatteMath.h"
 #include "render/CompMath.h"
 #include "render/CompWarpMath.h"
 #include "render/EffectMath.h"
@@ -403,9 +404,27 @@ private:
         } else if (n.type == nodetypes::LumaKeyer && !in.isNull()) {
             const compmath::LumaKeyParams k = compmath::lumaKeyParams(n.params, f);
             out = pointwise(in, [&k](float* px) { px[3] *= compmath::lumaKey(k, px); });
-        } else if (n.type == nodetypes::DeltaKeyer && !in.isNull()) {
-            const compmath::DeltaKeyParams k = compmath::deltaKeyParams(n.params, f);
-            out = pointwise(in, [&k](float* px) { compmath::deltaKey(k, px); });
+        } else if ((n.type == nodetypes::DeltaKeyer || n.type == nodetypes::UltraKeyer
+                       || n.type == nodetypes::MatteControl)
+            && !in.isNull()) {
+            const QImage garbage = input(n, nodeports::GarbageMatte, depth);
+            const QImage solid = input(n, nodeports::SolidMatte, depth);
+            const compmath::FImage fin = compmath::toFloat(in);
+            const compmath::FImage fg = garbage.isNull() ? compmath::FImage() : compmath::toFloat(garbage);
+            const compmath::FImage fs = solid.isNull() ? compmath::FImage() : compmath::toFloat(solid);
+            const compmath::FImage* pg = garbage.isNull() ? nullptr : &fg;
+            const compmath::FImage* ps = solid.isNull() ? nullptr : &fs;
+            if (n.type == nodetypes::MatteControl) {
+                out = compmath::toImage(compmath::matteControl(
+                    fin, pg, ps, compmath::matteControlParams(n.params, f), s));
+            } else {
+                const QImage plate = input(n, nodeports::CleanPlate, depth);
+                const compmath::FImage fp = plate.isNull() ? compmath::FImage() : compmath::toFloat(plate);
+                out = compmath::toImage(compmath::keyer(fin, plate.isNull() ? nullptr : &fp, pg, ps,
+                    compmath::keyerParams(n.params, f,
+                        n.type == nodetypes::UltraKeyer ? compmath::UltraKind : compmath::DeltaKind),
+                    s));
+            }
         } else if (n.type == nodetypes::SoftGlow && !in.isNull()) {
             const compmath::SoftGlowParams g = compmath::softGlowParams(n.params, f);
             out = compmath::toImage(compmath::softGlow(compmath::toFloat(in), g, s));

@@ -176,7 +176,16 @@ move looks the same with Motion Blur on or off.
 - **Delta Keyer** (Matte): pick the screen colour in Background Color, then raise Gain until the screen is gone.
   Balance weights the two other channels, Pre-Matte Soft Range softens the edge, Clean Background and Clean
   Foreground push the matte to fully out or fully in, Matte Threshold Low / High set the final range, and Despill
-  removes the screen colour from the edges.
+  removes the screen colour from the edges. For a harder shot: Pre-Matte Blur and Erode smooth the screen before
+  the key, the Matte controls (Blur, Erode / Dilate, Gamma, Restore Fringe) clean the edge, the Fringe controls
+  correct the colour of the semi-transparent edge, and Replace Mode paints it. Connect masks to Garbage Matte
+  (cut out what is not screen) and Solid Matte (keep what must stay); connect a picture of the empty screen to
+  Clean Plate to key out uneven lighting. View Mode shows the Pre Matte or the Matte as grey.
+- **Ultra Keyer** (Matte): a second way to key a screen. Red / Green / Blue Level tune the difference channels,
+  Matte Separation pushes the background out, Subtract Background removes the screen colour from the edge, and the
+  Matte controls are the same as the Delta Keyer's.
+- **Matte Control** (Matte): cleans the alpha of any picture: blur it, grow or shrink it, set thresholds, bring the
+  fringe back, and apply garbage and solid mattes.
 - **Soft Glow** (Filter): lights up the bright parts of the picture with a soft halo. Threshold says how bright a
   pixel must be to glow, Gain how strong the glow is, Glow Size how far it spreads (turn Lock X/Y off to give the
   two directions their own sizes), and Filter chooses the blur. Color Scale tints the glow.

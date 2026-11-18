@@ -7,6 +7,7 @@
 #include "core/Composition.h"
 #include "render/CompMath.h"
 #include "render/GlCompFilters.h"
+#include "render/GlCompMatte.h"
 #include "render/GlCompWarp.h"
 #include "render/GlEffects.h"
 #include "render/GlGenerators.h"
@@ -149,6 +150,7 @@ private:
 
     GlCompFilters m_fx;
     GlCompWarp m_fxWarp;
+    GlCompMatte m_fxMatte;
     GlProgram m_merge;
     GLint m_mergeFgMatrix = -1, m_mergeMode = -1, m_mergeOpacity = -1, m_mergeHasFg = -1,
           m_mergeHasMask = -1;
@@ -161,9 +163,8 @@ private:
     GLint m_ccLevels = -1, m_ccLgg = -1, m_ccSat = -1;
     GlProgram m_channels;
     GLint m_chSources = -1;
-    GlProgram m_lumaKey, m_deltaKey, m_paintMask;
-    GLint m_lkParams = -1, m_lkInvert = -1, m_dkBg = -1, m_dkTune = -1, m_dkClean = -1,
-          m_dkInvert = -1, m_pmMode = -1;
+    GlProgram m_lumaKey, m_paintMask;
+    GLint m_lkParams = -1, m_lkInvert = -1, m_pmMode = -1;
     GlProgram m_resample;
     GLint m_resampleInverse = -1, m_resampleEdges = -1, m_resampleFilter = -1;
     GLint m_mergeOp = -1, m_mergeAlphaGain = -1, m_mergeSubAdd = -1, m_mergeBurnIn = -1;

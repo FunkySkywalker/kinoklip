@@ -81,6 +81,14 @@ Gaussian) are the standard definitions.
 Blender's compositor Displace node and Natron's IDistort / STMap (both GPL-2.0-or-later); the code is our own.
 Grid Warp uses the Catmull-Rom grid field of Kinoklip's own Warper effect (`GlMeshEffects.cpp`).
 
+### Keyers (Compositing page)
+`src/render/CompMatteMath.*`, `GlCompMatte.*`: the Delta Keyer's advanced controls, the Ultra Keyer and Matte Control.
+The control sets and their meaning follow the public Fusion reference manual (Delta Keyer, Ultra Keyer, Clean Plate,
+Matte Control). Blender's compositor Keying node (GPL-2.0-or-later: pre-blur, clip black / white, dilate / erode,
+feather, despill, screen balance) was read as the open-source counterpart for what a screen keyer does in what order.
+The colour-difference key, the morphological and blur matte filters, the restore-fringe formula, the spill methods
+and the fringe window are our own; no code was copied from Blender, Natron or any other project.
+
 ### Keyframe loops
 The extrapolation modes of animated values (`src/core/Animation.cpp`, `AnimatedValue::extrapolatedValue()`)
 follow the documented behaviour of Blender's F-Curve Cycles modifier (GPL-2.0-or-later: Repeat Motion, Repeat

@@ -7,6 +7,7 @@
 #include "core/CompOps.h"
 #include "core/NodeRegistry.h"
 #include "render/CompFilterMath.h"
+#include "render/CompMatteMath.h"
 #include "render/CompWarpMath.h"
 #include "render/Compositor.h"
 
@@ -364,6 +365,267 @@ private slots:
         double src[2];
         compmath::gridWarpSource(grid, t, src);
         QVERIFY2(std::abs(src[0] - 0.5) < 0.02, qPrintable(QString::number(src[0])));
+    }
+
+    /// A green screen with a red box [120, 200) x [60, 120) on it, and @p type's node after it.
+    Composition keySetup(const QString& type, quint64* node, quint64* screen = nullptr)
+    {
+        Composition c = co::defaultComposition();
+        const quint64 green = colorSource(c, QColor(0, 200, 0), false);
+        const quint64 box = colorSource(c, QColor(255, 0, 0), true, 120, 60, 200, 120);
+        const quint64 m = co::mergeOnto(c, box, green);
+        *node = co::addNode(c, type, {});
+        co::connect(c, m, 0, *node, nodeports::Input);
+        co::connect(c, *node, 0, c.mediaOutId, nodeports::Input);
+        if (screen)
+            *screen = green;
+        return c;
+    }
+
+    void deltaKeyerMatteFilters()
+    {
+        quint64 k = 0;
+        Composition c = keySetup(nodetypes::DeltaKeyer, &k);
+        auto& p = c.node(k)->params;
+        const QVector<QImage> plain = nodeImages(compTimeline(c), k);
+        for (const QImage& img : plain) {
+            QCOMPARE(px(img, 160, 90).a, 255);
+            QVERIFY2(px(img, 40, 40).a < 3, describe(px(img, 40, 40)));
+            QCOMPARE(px(img, 121, 90).a, 255); // a hard edge
+        }
+        // Matte Blur softens the edge: partly transparent at the box edge, GPU = CPU.
+        p.setBase(nodekeys::MatteBlur, 10.0);
+        const QVector<QImage> blurred = nodeImages(compTimeline(c), k);
+        for (const QImage& img : blurred) {
+            const int edge = px(img, 120, 90).a;
+            QVERIFY2(edge > 40 && edge < 215, qPrintable(QString::number(edge)));
+            QCOMPARE(px(img, 160, 90).a, 255);
+        }
+        int worst = 0;
+        int bad = differing(blurred[0], blurred[1], 10, &worst);
+        QVERIFY2(bad < 300, qPrintable(QStringLiteral("blur: %1 pixels differ, worst %2").arg(bad).arg(worst)));
+        // Erode / Dilate: -6 px eats into the box, +6 px grows it.
+        p.setBase(nodekeys::MatteBlur, 0.0);
+        p.setBase(nodekeys::MatteErode, -6.0);
+        for (const QImage& img : nodeImages(compTimeline(c), k)) {
+            QVERIFY2(px(img, 124, 90).a < 40, describe(px(img, 124, 90)));
+            QVERIFY2(px(img, 130, 90).a > 215, describe(px(img, 130, 90)));
+        }
+        p.setBase(nodekeys::MatteErode, 6.0);
+        for (const QImage& img : nodeImages(compTimeline(c), k)) {
+            QVERIFY2(px(img, 116, 90).a > 215, describe(px(img, 116, 90)));
+            QVERIFY2(px(img, 110, 90).a < 40, describe(px(img, 110, 90)));
+        }
+        // Pre-Matte Blur / Erode work before the matte filters and agree on both renderers.
+        p.setBase(nodekeys::MatteErode, 0.0);
+        p.setBase(nodekeys::PreMatteBlur, 6.0);
+        p.setBase(nodekeys::PreMatteErode, 3.0);
+        const QVector<QImage> pre = nodeImages(compTimeline(c), k);
+        bad = differing(pre[0], pre[1], 10, &worst);
+        QVERIFY2(bad < 300, qPrintable(QStringLiteral("pre: %1 pixels differ, worst %2").arg(bad).arg(worst)));
+        QVERIFY(px(pre[0], 118, 90).a > 20);
+        // View Mode Matte: the matte as grey, opaque.
+        p.setBase(nodekeys::PreMatteBlur, 0.0);
+        p.setBase(nodekeys::PreMatteErode, 0.0);
+        p.setStatic(nodekeys::ViewMode, viewmodes::Matte);
+        for (const QImage& img : nodeImages(compTimeline(c), k)) {
+            QVERIFY2(near(px(img, 160, 90), 255, 255, 255, 255, 1), describe(px(img, 160, 90)));
+            QVERIFY2(near(px(img, 40, 40), 0, 0, 0, 255, 1), describe(px(img, 40, 40)));
+        }
+    }
+
+    void deltaKeyerMattesAndCleanPlate()
+    {
+        quint64 k = 0, screen = 0;
+        Composition c = keySetup(nodetypes::DeltaKeyer, &k, &screen);
+        // A garbage matte over the middle of the box takes it out, a solid matte over the screen
+        // keeps that part.
+        const quint64 garbage = colorSource(c, Qt::white, true, 140, 70, 180, 110);
+        const quint64 solid = colorSource(c, Qt::white, true, 20, 20, 60, 60);
+        co::connect(c, garbage, 0, k, nodeports::GarbageMatte);
+        co::connect(c, solid, 0, k, nodeports::SolidMatte);
+        for (const QImage& img : nodeImages(compTimeline(c), k)) {
+            QVERIFY2(px(img, 160, 90).a < 3, describe(px(img, 160, 90)));
+            QVERIFY2(px(img, 128, 90).a > 250, describe(px(img, 128, 90)));
+            QVERIFY2(px(img, 40, 40).a > 250, describe(px(img, 40, 40)));
+            QVERIFY2(px(img, 100, 140).a < 3, describe(px(img, 100, 140)));
+        }
+        // Inverting the garbage matte keeps only what it covers.
+        c.node(k)->params.setStatic(nodekeys::GarbageInvert, true);
+        for (const QImage& img : nodeImages(compTimeline(c), k)) {
+            QVERIFY2(px(img, 160, 90).a > 250, describe(px(img, 160, 90)));
+            QVERIFY2(px(img, 128, 90).a < 3, describe(px(img, 128, 90)));
+        }
+    }
+
+    void deltaKeyerCleanPlate()
+    {
+        // A darker patch of the screen (a shadow) keys out only with a clean plate that has it.
+        Composition c = co::defaultComposition();
+        const quint64 green = colorSource(c, QColor(0, 200, 0), false);
+        const quint64 shade = colorSource(c, QColor(0, 100, 0), true, 20, 20, 100, 100);
+        const quint64 plateShade = colorSource(c, QColor(0, 100, 0), true, 20, 20, 100, 100);
+        const quint64 plateGreen = colorSource(c, QColor(0, 200, 0), false);
+        const quint64 shot = co::mergeOnto(c, shade, green);
+        const quint64 plate = co::mergeOnto(c, plateShade, plateGreen);
+        const quint64 k = co::addNode(c, nodetypes::DeltaKeyer, {});
+        co::connect(c, shot, 0, k, nodeports::Input);
+        co::connect(c, k, 0, c.mediaOutId, nodeports::Input);
+        for (const QImage& img : nodeImages(compTimeline(c), k)) {
+            QVERIFY2(px(img, 60, 60).a > 60, describe(px(img, 60, 60))); // the shadow survives the flat key
+            QVERIFY2(px(img, 200, 140).a < 3, describe(px(img, 200, 140)));
+        }
+        co::connect(c, plate, 0, k, nodeports::CleanPlate);
+        for (const QImage& img : nodeImages(compTimeline(c), k))
+            QVERIFY2(px(img, 60, 60).a < 3, describe(px(img, 60, 60)));
+    }
+
+    void deltaKeyerFringeAndReplace()
+    {
+        // A half-green pixel (the key leaves it half transparent): the replace modes and the
+        // fringe colour act on it, GPU = CPU.
+        quint64 k = 0;
+        Composition c = co::defaultComposition();
+        const quint64 src = colorSource(c, QColor(0, 100, 0), false);
+        k = co::addNode(c, nodetypes::DeltaKeyer, {});
+        co::connect(c, src, 0, k, nodeports::Input);
+        co::connect(c, k, 0, c.mediaOutId, nodeports::Input);
+        auto& p = c.node(k)->params;
+        p.setBase(nodekeys::Despill, 0.0);
+        const QVector<QImage> base = nodeImages(compTimeline(c), k);
+        const int a = px(base[0], 50, 50).a;
+        QVERIFY2(a > 100 && a < 160, qPrintable(QString::number(a))); // about half
+        p.setStatic(nodekeys::ReplaceMode, replacemodes::Soft);
+        p.setStatic(nodekeys::ReplaceColor, QColor(0, 0, 255));
+        for (const QImage& img : nodeImages(compTimeline(c), k)) {
+            const Px q = px(img, 50, 50);
+            QVERIFY2(q.b > q.g + 20, describe(q)); // the blue replaces the green
+            QVERIFY2(std::abs(q.a - a) <= 2, describe(q));
+        }
+        p.setStatic(nodekeys::ReplaceMode, replacemodes::None);
+        p.setBase(nodekeys::FringeMagentaGreen, -1.0); // towards magenta: less green
+        p.setBase(nodekeys::FringeCyanRed, 1.0);
+        const QVector<QImage> fr = nodeImages(compTimeline(c), k);
+        for (const QImage& img : fr)
+            QVERIFY2(px(img, 50, 50).r > px(base[0], 50, 50).r + 8, describe(px(img, 50, 50)));
+        QVERIFY(differing(fr[0], fr[1], 6) < 50);
+        // The spill method None leaves the colour; Burnt pulls it down further than Rare.
+        p.setBase(nodekeys::FringeMagentaGreen, 0.0);
+        p.setBase(nodekeys::FringeCyanRed, 0.0);
+        p.setBase(nodekeys::Despill, 1.0);
+        p.setStatic(nodekeys::SpillMethod, spillmethods::None);
+        const int greenNone = px(nodeImages(compTimeline(c), k)[0], 50, 50).g;
+        p.setStatic(nodekeys::SpillMethod, spillmethods::Rare);
+        const int greenRare = px(nodeImages(compTimeline(c), k)[0], 50, 50).g;
+        QVERIFY2(greenNone > 20 && greenRare <= greenNone, qPrintable(QStringLiteral("%1 %2").arg(greenNone).arg(greenRare)));
+    }
+
+    void ultraKeyer()
+    {
+        quint64 k = 0;
+        Composition c = keySetup(nodetypes::UltraKeyer, &k);
+        const QVector<QImage> imgs = nodeImages(compTimeline(c), k);
+        for (const QImage& img : imgs) {
+            QVERIFY2(px(img, 40, 40).a < 3, describe(px(img, 40, 40)));
+            QVERIFY2(near(px(img, 160, 90), 255, 0, 0, 255, 2), describe(px(img, 160, 90)));
+        }
+        QVERIFY(differing(imgs[0], imgs[1], 4) < 50);
+        // Matte tab: blur softens, Contract/Expand moves the edge.
+        auto& p = c.node(k)->params;
+        p.setBase(nodekeys::MatteErode, -6.0);
+        for (const QImage& img : nodeImages(compTimeline(c), k))
+            QVERIFY2(px(img, 124, 90).a < 40, describe(px(img, 124, 90)));
+        p.setBase(nodekeys::MatteErode, 0.0);
+        p.setBase(nodekeys::MatteBlur, 10.0);
+        const QVector<QImage> blurred = nodeImages(compTimeline(c), k);
+        int worst = 0;
+        const int bad = differing(blurred[0], blurred[1], 10, &worst);
+        QVERIFY2(bad < 300, qPrintable(QStringLiteral("%1 pixels differ, worst %2").arg(bad).arg(worst)));
+        // The levels: a very high Red Level makes the red box look like screen (it keys out).
+        p.setBase(nodekeys::MatteBlur, 0.0);
+        p.setBase(nodekeys::UkRedLevel, 2.0);
+        // Garbage matte over the screen part keeps nothing there; a blue screen key works as well.
+        p.setBase(nodekeys::UkRedLevel, 1.0);
+        p.setStatic(nodekeys::Color, QColor(0, 0, 255));
+        Composition blue = co::defaultComposition();
+        const quint64 bs = colorSource(blue, QColor(0, 0, 255), false);
+        const quint64 uk = co::addNode(blue, nodetypes::UltraKeyer, {});
+        blue.node(uk)->params.setStatic(nodekeys::Color, QColor(0, 0, 255));
+        co::connect(blue, bs, 0, uk, nodeports::Input);
+        co::connect(blue, uk, 0, blue.mediaOutId, nodeports::Input);
+        for (const QImage& img : nodeImages(compTimeline(blue), uk))
+            QVERIFY2(px(img, 100, 100).a < 3, describe(px(img, 100, 100)));
+        // Matte Separation steepens the transition of a half-keyed colour.
+        Composition half = co::defaultComposition();
+        const quint64 hs = colorSource(half, QColor(0, 150, 60), false);
+        const quint64 hk = co::addNode(half, nodetypes::UltraKeyer, {});
+        co::connect(half, hs, 0, hk, nodeports::Input);
+        co::connect(half, hk, 0, half.mediaOutId, nodeports::Input);
+        half.node(hk)->params.setStatic(nodekeys::SubtractBackground, false);
+        const int soft = px(nodeImages(compTimeline(half), hk)[0], 50, 50).a;
+        half.node(hk)->params.setBase(nodekeys::MatteSeparation, 1.0);
+        const QVector<QImage> sep = nodeImages(compTimeline(half), hk);
+        QVERIFY2(soft > 20 && soft < 235, qPrintable(QString::number(soft)));
+        QVERIFY(std::abs(px(sep[0], 50, 50).a - px(sep[1], 50, 50).a) <= 3);
+        QVERIFY(std::abs(px(sep[0], 50, 50).a - 128) > std::abs(soft - 128) - 2);
+    }
+
+    void matteControlAndRestoreFringe()
+    {
+        // A white box with a blurred edge made by one Matte Control, then thresholded by another.
+        Composition c = co::defaultComposition();
+        const quint64 box = colorSource(c, Qt::white, true, 120, 60, 200, 120);
+        const quint64 soft = co::addNode(c, nodetypes::MatteControl, {});
+        c.node(soft)->params.setBase(nodekeys::MatteBlur, 12.0);
+        co::connect(c, box, 0, soft, nodeports::Input);
+        const quint64 hard = co::addNode(c, nodetypes::MatteControl, {});
+        c.node(hard)->params.setBase(nodekeys::MatteLow, 0.6);
+        co::connect(c, soft, 0, hard, nodeports::Input);
+        co::connect(c, hard, 0, c.mediaOutId, nodeports::Input);
+        const QVector<QImage> softImgs = nodeImages(compTimeline(c), soft);
+        for (const QImage& img : softImgs) {
+            const int edge = px(img, 120, 90).a;
+            QVERIFY2(edge > 60 && edge < 200, qPrintable(QString::number(edge)));
+            QVERIFY2(near(px(img, 160, 90), 255, 255, 255, 255, 2), describe(px(img, 160, 90)));
+        }
+        QVERIFY(differing(softImgs[0], softImgs[1], 10) < 300);
+        // Threshold Low 0.6 drops the faint outer part of the soft edge.
+        const QVector<QImage> hardImgs = nodeImages(compTimeline(c), hard);
+        for (const QImage& img : hardImgs)
+            QVERIFY2(px(img, 112, 90).a < px(softImgs[0], 112, 90).a, describe(px(img, 112, 90)));
+        // Restore Fringe brings part of it back (closer to the solid than the threshold left it).
+        c.node(hard)->params.setBase(nodekeys::RestoreFringe, 1.0);
+        const QVector<QImage> restored = nodeImages(compTimeline(c), hard);
+        for (const QImage& img : restored)
+            QVERIFY2(px(img, 119, 90).a > px(hardImgs[0], 119, 90).a + 8, describe(px(img, 119, 90)));
+        int worst = 0;
+        const int bad = differing(restored[0], restored[1], 12, &worst);
+        QVERIFY2(bad < 400, qPrintable(QStringLiteral("%1 pixels differ, worst %2").arg(bad).arg(worst)));
+        // Invert Matte flips the alpha; garbage / solid mattes apply.
+        c.node(hard)->params.setBase(nodekeys::RestoreFringe, 0.0);
+        c.node(hard)->params.setStatic(nodekeys::Invert, true);
+        for (const QImage& img : nodeImages(compTimeline(c), hard))
+            QVERIFY2(px(img, 160, 90).a < 3, describe(px(img, 160, 90)));
+    }
+
+    void matteMathOnItsOwn()
+    {
+        // Gamma, clean and threshold on single values; restore fringe needs a solid neighbour.
+        compmath::MatteFilterParams m;
+        m.low = 0.3f;
+        m.high = 0.8f;
+        QCOMPARE(compmath::matteShape(m, 0.2f), 0.0f);
+        QVERIFY(std::abs(compmath::matteShape(m, 0.55f) - 0.5f) < 1e-4f);
+        QCOMPARE(compmath::matteShape(m, 0.9f), 1.0f);
+        m.gamma = 2.0f; // raises the middle
+        QVERIFY(compmath::matteShape(compmath::MatteFilterParams(), 0.25f) < 0.26f);
+        compmath::MatteFilterParams g;
+        g.gamma = 2.0f;
+        QVERIFY(compmath::matteShape(g, 0.25f) > 0.45f);
+        m.restoreFringe = 1.0f;
+        m.gamma = 1.0f;
+        QVERIFY(compmath::matteRestore(m, 0.2f, 0.0f, 0.5f) > 0.19f); // next to solid: restored
+        QCOMPARE(compmath::matteRestore(m, 0.2f, 0.0f, 0.0f), 0.0f); // far from it: not
     }
 
     void floatMathMatchesDefinitions()

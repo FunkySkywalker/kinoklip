@@ -38,6 +38,69 @@ NodePort inputPort()
     return port(nodeports::Input, tr("Input"), PortKind::Image, true);
 }
 
+NodePort garbagePort()
+{
+    return port(nodeports::GarbageMatte, tr("Garbage Matte"), PortKind::Mask, false);
+}
+
+NodePort solidPort()
+{
+    return port(nodeports::SolidMatte, tr("Solid Matte"), PortKind::Mask, false);
+}
+
+ParamDescriptor viewModeParam()
+{
+    return choice(nodekeys::ViewMode, tr("View Mode"),
+        {viewmodes::Final, viewmodes::PreMatte, viewmodes::Matte},
+        {tr("Final Result"), tr("Pre Matte"), tr("Matte")}, viewmodes::Final);
+}
+
+/// The Matte tab of the keyers and Matte Control: filter, blur, grow / shrink, gamma, thresholds,
+/// restore fringe, invert. @p withClean adds Clean Background / Foreground.
+QVector<ParamDescriptor> matteTabParams(const QString& lowLabel, const QString& highLabel, bool withClean)
+{
+    namespace k = nodekeys;
+    QVector<ParamDescriptor> out {choice(k::BlurFilter, tr("Filter"), blurfilters::ids(),
+                                      {tr("Box"), tr("Bartlett"), tr("Multi-box"), tr("Gaussian")},
+                                      blurfilters::Gaussian),
+        integer(k::NumPasses, tr("Num Passes"), 1, 10, 4),
+        number(k::MatteBlur, tr("Blur"), 0, 100, 0, 0.5, kPx),
+        number(k::MatteErode, tr("Erode / Dilate"), -50, 50, 0, 0.5, kPx),
+        number(k::MatteGamma, tr("Gamma"), 0.1, 10, 1, 0.01)};
+    if (withClean) {
+        out += {number(k::CleanBackground, tr("Clean Background"), 0, 1, 0, 0.01),
+            number(k::CleanForeground, tr("Clean Foreground"), 0, 1, 0, 0.01)};
+    }
+    out += {number(k::MatteLow, lowLabel, 0, 1, 0, 0.01),
+        number(k::MatteHigh, highLabel, 0, 1, 1, 0.01),
+        number(k::RestoreFringe, tr("Restore Fringe"), 0, 1, 0, 0.01),
+        boolean(k::Invert, tr("Invert Matte"), false)};
+    return out;
+}
+
+/// The Fringe tab: spill method and strength (@p strengthLabel), fringe gamma, size, shape and colour.
+QVector<ParamDescriptor> fringeTabParams(const QString& strengthLabel, const QString& method)
+{
+    namespace k = nodekeys;
+    return {choice(k::SpillMethod, tr("Spill Method"),
+                {spillmethods::None, spillmethods::Rare, spillmethods::Medium,
+                    spillmethods::WellDone, spillmethods::Burnt},
+                {tr("None"), tr("Rare"), tr("Medium"), tr("Well Done"), tr("Burnt")}, method),
+        number(k::Despill, strengthLabel, 0, 1, 1, 0.01),
+        number(k::FringeGamma, tr("Fringe Gamma"), 0.1, 10, 1, 0.01),
+        number(k::FringeSize, tr("Fringe Size"), -1, 1, 0, 0.01),
+        number(k::FringeShape, tr("Fringe Shape"), -1, 1, 0, 0.01),
+        number(k::FringeCyanRed, tr("Cyan / Red"), -1, 1, 0, 0.01),
+        number(k::FringeMagentaGreen, tr("Magenta / Green"), -1, 1, 0, 0.01),
+        number(k::FringeYellowBlue, tr("Yellow / Blue"), -1, 1, 0, 0.01)};
+}
+
+QVector<ParamDescriptor> maskInvertParams()
+{
+    return {boolean(nodekeys::SolidInvert, tr("Invert Solid Matte"), false),
+        boolean(nodekeys::GarbageInvert, tr("Invert Garbage Matte"), false)};
+}
+
 NodeDescriptor node(const QString& id, const QString& name, const QString& shortName,
     const QString& nameBase, NodeCategory category, const QString& description)
 {
@@ -710,18 +773,55 @@ NodeRegistry::NodeRegistry()
         NodeDescriptor d = node(nodetypes::DeltaKeyer, tr("Delta Keyer"), QStringLiteral("DKy"),
             QStringLiteral("DeltaKeyer"), C::Matte,
             tr("Keys out a green or blue screen and removes its spill"));
-        d.inputs = {inputPort(), maskPort()};
+        d.inputs = {inputPort(), garbagePort(), solidPort(),
+            port(nodeports::CleanPlate, tr("Clean Plate"), PortKind::Image, false), maskPort()};
         d.mainInput = nodeports::Input;
-        d.params = {color(k::Color, tr("Background Color"), QColor(0, 200, 0)),
+        d.params = {viewModeParam(),
+            color(k::Color, tr("Background Color"), QColor(0, 200, 0)),
+            number(k::PreBlur, tr("Pre-Blur"), 0, 100, 0, 0.5, kPx),
             number(k::Gain, tr("Gain"), 0, 4, 1, 0.01),
             number(k::KeyBalance, tr("Balance"), 0, 1, 0.5, 0.01),
             number(k::PreSoft, tr("Pre-Matte Soft Range"), 0, 1, 0, 0.01),
-            number(k::CleanBackground, tr("Clean Background"), 0, 1, 0, 0.01),
-            number(k::CleanForeground, tr("Clean Foreground"), 0, 1, 0, 0.01),
-            number(k::MatteLow, tr("Matte Threshold Low"), 0, 1, 0, 0.01),
-            number(k::MatteHigh, tr("Matte Threshold High"), 0, 1, 1, 0.01),
-            number(k::Despill, tr("Despill"), 0, 1, 1, 0.01),
-            boolean(k::Invert, tr("Invert"), false)};
+            number(k::PreMatteErode, tr("Pre-Matte Erode"), -50, 50, 0, 0.5, kPx),
+            number(k::PreMatteBlur, tr("Pre-Matte Blur"), 0, 100, 0, 0.5, kPx)};
+        d.params += matteTabParams(tr("Matte Threshold Low"), tr("Matte Threshold High"), true);
+        d.params += {choice(k::ReplaceMode, tr("Replace Mode"),
+                         {replacemodes::None, replacemodes::Source, replacemodes::Hard,
+                             replacemodes::Soft},
+                         {tr("None"), tr("Source"), tr("Hard Color"), tr("Soft Color")},
+                         replacemodes::None),
+            color(k::ReplaceColor, tr("Replace Color"), QColor(128, 128, 128))};
+        d.params += fringeTabParams(tr("Despill"), spillmethods::Medium);
+        d.params += maskInvertParams();
+        add(d);
+    }
+    {
+        NodeDescriptor d = node(nodetypes::UltraKeyer, tr("Ultra Keyer"), QStringLiteral("UKy"),
+            QStringLiteral("UltraKeyer"), C::Matte,
+            tr("Keys out a green or blue screen with a pre-matte, a colour-difference key and spill control"));
+        d.inputs = {inputPort(), garbagePort(), solidPort(), maskPort()};
+        d.mainInput = nodeports::Input;
+        d.params = {viewModeParam(),
+            color(k::Color, tr("Background Color"), QColor(0, 200, 0)),
+            number(k::UkRedLevel, tr("Red Level"), 0, 2, 1, 0.01),
+            number(k::UkGreenLevel, tr("Green Level"), 0, 2, 1, 0.01),
+            number(k::UkBlueLevel, tr("Blue Level"), 0, 2, 1, 0.01),
+            number(k::MatteSeparation, tr("Matte Separation"), 0, 1, 0, 0.01),
+            number(k::PreMatteSize, tr("Pre Matte Size"), 0, 100, 0, 0.5, kPx),
+            boolean(k::SubtractBackground, tr("Subtract Background"), true)};
+        d.params += fringeTabParams(tr("Spill Suppression"), spillmethods::Medium);
+        d.params += matteTabParams(tr("Threshold Low"), tr("Threshold High"), false);
+        d.params += maskInvertParams();
+        add(d);
+    }
+    {
+        NodeDescriptor d = node(nodetypes::MatteControl, tr("Matte Control"), QStringLiteral("MCt"),
+            QStringLiteral("MatteControl"), C::Matte,
+            tr("Cleans up the alpha of a picture: blur, grow or shrink, thresholds, restore fringe, garbage and solid mattes"));
+        d.inputs = {inputPort(), garbagePort(), solidPort(), maskPort()};
+        d.mainInput = nodeports::Input;
+        d.params = matteTabParams(tr("Threshold Low"), tr("Threshold High"), true);
+        d.params += maskInvertParams();
         add(d);
     }
 

@@ -757,6 +757,126 @@ The program was probably closed by the system because the computer ran out of me
         <translation>Вхід</translation>
     </message>
     <message>
+        <source>Garbage Matte</source>
+        <translation>Сміттєва маска</translation>
+    </message>
+    <message>
+        <source>Solid Matte</source>
+        <translation>Суцільна маска</translation>
+    </message>
+    <message>
+        <source>View Mode</source>
+        <translation>Режим перегляду</translation>
+    </message>
+    <message>
+        <source>Pre Matte</source>
+        <translation>Попередня маска</translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation>Фільтр</translation>
+    </message>
+    <message>
+        <source>Box</source>
+        <translation>Прямокутне</translation>
+    </message>
+    <message>
+        <source>Bartlett</source>
+        <translation>Бартлетт</translation>
+    </message>
+    <message>
+        <source>Multi-box</source>
+        <translation>Мультибокс</translation>
+    </message>
+    <message>
+        <source>Num Passes</source>
+        <translation>Кількість проходів</translation>
+    </message>
+    <message>
+        <source>Blur</source>
+        <translation>Розмиття</translation>
+    </message>
+    <message>
+        <source>Erode / Dilate</source>
+        <translation>Звуження / розширення</translation>
+    </message>
+    <message>
+        <source>Gamma</source>
+        <translation>Гама</translation>
+    </message>
+    <message>
+        <source>Clean Background</source>
+        <translation>Очистити тло</translation>
+    </message>
+    <message>
+        <source>Clean Foreground</source>
+        <translation>Очистити передній план</translation>
+    </message>
+    <message>
+        <source>Restore Fringe</source>
+        <translation>Відновити кайму</translation>
+    </message>
+    <message>
+        <source>Invert Matte</source>
+        <translation>Інвертувати маску</translation>
+    </message>
+    <message>
+        <source>Spill Method</source>
+        <translation>Метод придушення відблиску</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Немає</translation>
+    </message>
+    <message>
+        <source>Rare</source>
+        <translation>Rare</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Medium</translation>
+    </message>
+    <message>
+        <source>Well Done</source>
+        <translation>Well Done</translation>
+    </message>
+    <message>
+        <source>Burnt</source>
+        <translation>Burnt</translation>
+    </message>
+    <message>
+        <source>Fringe Gamma</source>
+        <translation>Гама кайми</translation>
+    </message>
+    <message>
+        <source>Fringe Size</source>
+        <translation>Розмір кайми</translation>
+    </message>
+    <message>
+        <source>Fringe Shape</source>
+        <translation>Форма кайми</translation>
+    </message>
+    <message>
+        <source>Cyan / Red</source>
+        <translation>Блакитний / Червоний</translation>
+    </message>
+    <message>
+        <source>Magenta / Green</source>
+        <translation>Пурпуровий / Зелений</translation>
+    </message>
+    <message>
+        <source>Yellow / Blue</source>
+        <translation>Жовтий / Синій</translation>
+    </message>
+    <message>
+        <source>Invert Solid Matte</source>
+        <translation>Інвертувати суцільну маску</translation>
+    </message>
+    <message>
+        <source>Invert Garbage Matte</source>
+        <translation>Інвертувати сміттєву маску</translation>
+    </message>
+    <message>
         <source>Center X</source>
         <translation>Центр X</translation>
     </message>
@@ -21356,8 +21476,16 @@ Import files with %1 or drop them here.</source>
         <translation>Вибиває зелений або синій екран і прибирає його відблиски</translation>
     </message>
     <message>
+        <source>Clean Plate</source>
+        <translation>Чиста підкладка</translation>
+    </message>
+    <message>
         <source>Background Color</source>
         <translation>Колір тла</translation>
+    </message>
+    <message>
+        <source>Pre-Blur</source>
+        <translation>Попереднє розмиття</translation>
     </message>
     <message>
         <source>Balance</source>
@@ -21366,6 +21494,14 @@ Import files with %1 or drop them here.</source>
     <message>
         <source>Pre-Matte Soft Range</source>
         <translation>М’який діапазон перед матте</translation>
+    </message>
+    <message>
+        <source>Pre-Matte Erode</source>
+        <translation>Звуження попередньої маски</translation>
+    </message>
+    <message>
+        <source>Pre-Matte Blur</source>
+        <translation>Розмиття попередньої маски</translation>
     </message>
     <message>
         <source>Clean Background</source>
@@ -21384,8 +21520,84 @@ Import files with %1 or drop them here.</source>
         <translation>Верхній поріг матте</translation>
     </message>
     <message>
+        <source>Replace Mode</source>
+        <translation>Режим заміни</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Немає</translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation>Джерело</translation>
+    </message>
+    <message>
+        <source>Hard Color</source>
+        <translation>Жорсткий колір</translation>
+    </message>
+    <message>
+        <source>Soft Color</source>
+        <translation>М'який колір</translation>
+    </message>
+    <message>
+        <source>Replace Color</source>
+        <translation>Колір заміни</translation>
+    </message>
+    <message>
         <source>Despill</source>
         <translation>Усунення відблисків екрана</translation>
+    </message>
+    <message>
+        <source>Ultra Keyer</source>
+        <translation>Ultra Keyer</translation>
+    </message>
+    <message>
+        <source>Keys out a green or blue screen with a pre-matte, a colour-difference key and spill control</source>
+        <translation>Прибирає зелений або синій екран за допомогою попередньої маски, кольорорізницевого кея та придушення відблиску</translation>
+    </message>
+    <message>
+        <source>Red Level</source>
+        <translation>Рівень червоного</translation>
+    </message>
+    <message>
+        <source>Green Level</source>
+        <translation>Рівень зеленого</translation>
+    </message>
+    <message>
+        <source>Blue Level</source>
+        <translation>Рівень синього</translation>
+    </message>
+    <message>
+        <source>Matte Separation</source>
+        <translation>Розділення маски</translation>
+    </message>
+    <message>
+        <source>Pre Matte Size</source>
+        <translation>Розмір попередньої маски</translation>
+    </message>
+    <message>
+        <source>Subtract Background</source>
+        <translation>Відняти тло</translation>
+    </message>
+    <message>
+        <source>Spill Suppression</source>
+        <translation>Придушення відблиску</translation>
+    </message>
+    <message>
+        <source>Threshold Low</source>
+        <translation>Нижній поріг</translation>
+    </message>
+    <message>
+        <source>Threshold High</source>
+        <translation>Верхній поріг</translation>
+    </message>
+    <message>
+        <source>Matte Control</source>
+        <translation>Керування маскою</translation>
+    </message>
+    <message>
+        <source>Cleans up the alpha of a picture: blur, grow or shrink, thresholds, restore fringe, garbage and solid mattes</source>
+        <translation>Очищає альфа-канал зображення: розмиття, розширення або звуження, пороги, відновлення кайми, сміттєві та суцільні маски</translation>
     </message>
     <message>
         <source>Soft Glow</source>
@@ -21616,6 +21828,14 @@ Import files with %1 or drop them here.</source>
         <translation>Кут</translation>
     </message>
     <message>
+        <source>Blur</source>
+        <translation>Розмиття</translation>
+    </message>
+    <message>
+        <source>Burnt</source>
+        <translation>Burnt</translation>
+    </message>
+    <message>
         <source>Canvas</source>
         <translation>Полотно</translation>
     </message>
@@ -21640,6 +21860,10 @@ Import files with %1 or drop them here.</source>
         <translation>Кубічна</translation>
     </message>
     <message>
+        <source>Cyan / Red</source>
+        <translation>Блакитний / Червоний</translation>
+    </message>
+    <message>
         <source>Duplicate</source>
         <translation>Дублювати</translation>
     </message>
@@ -21652,6 +21876,10 @@ Import files with %1 or drop them here.</source>
         <translation>Маска ефекту</translation>
     </message>
     <message>
+        <source>Erode / Dilate</source>
+        <translation>Звуження / розширення</translation>
+    </message>
+    <message>
         <source>Filter Method</source>
         <translation>Метод фільтрації</translation>
     </message>
@@ -21660,12 +21888,44 @@ Import files with %1 or drop them here.</source>
         <translation>Гаусова</translation>
     </message>
     <message>
+        <source>Final Result</source>
+        <translation>Остаточний результат</translation>
+    </message>
+    <message>
+        <source>Fringe Gamma</source>
+        <translation>Гама кайми</translation>
+    </message>
+    <message>
+        <source>Fringe Shape</source>
+        <translation>Форма кайми</translation>
+    </message>
+    <message>
+        <source>Fringe Size</source>
+        <translation>Розмір кайми</translation>
+    </message>
+    <message>
+        <source>Garbage Matte</source>
+        <translation>Сміттєва маска</translation>
+    </message>
+    <message>
         <source>Ignore</source>
         <translation>Ігнорувати</translation>
     </message>
     <message>
         <source>Input</source>
         <translation>Вхід</translation>
+    </message>
+    <message>
+        <source>Invert Garbage Matte</source>
+        <translation>Інвертувати сміттєву маску</translation>
+    </message>
+    <message>
+        <source>Invert Matte</source>
+        <translation>Інвертувати маску</translation>
+    </message>
+    <message>
+        <source>Invert Solid Matte</source>
+        <translation>Інвертувати суцільну маску</translation>
     </message>
     <message>
         <source>Lanczos</source>
@@ -21680,8 +21940,16 @@ Import files with %1 or drop them here.</source>
         <translation>Лінійна</translation>
     </message>
     <message>
+        <source>Magenta / Green</source>
+        <translation>Пурпуровий / Зелений</translation>
+    </message>
+    <message>
         <source>Maximum</source>
         <translation>Максимум</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Medium</translation>
     </message>
     <message>
         <source>Minimum</source>
@@ -21708,20 +21976,52 @@ Import files with %1 or drop them here.</source>
         <translation>Режим малювання</translation>
     </message>
     <message>
+        <source>Pre Matte</source>
+        <translation>Попередня маска</translation>
+    </message>
+    <message>
+        <source>Rare</source>
+        <translation>Rare</translation>
+    </message>
+    <message>
         <source>Replace</source>
         <translation>Замінити</translation>
+    </message>
+    <message>
+        <source>Restore Fringe</source>
+        <translation>Відновити кайму</translation>
     </message>
     <message>
         <source>Soft Edge</source>
         <translation>М’який край</translation>
     </message>
     <message>
+        <source>Solid Matte</source>
+        <translation>Суцільна маска</translation>
+    </message>
+    <message>
+        <source>Spill Method</source>
+        <translation>Метод придушення відблиску</translation>
+    </message>
+    <message>
         <source>Subtract</source>
         <translation>Відняти</translation>
     </message>
     <message>
+        <source>View Mode</source>
+        <translation>Режим перегляду</translation>
+    </message>
+    <message>
+        <source>Well Done</source>
+        <translation>Well Done</translation>
+    </message>
+    <message>
         <source>Wrap</source>
         <translation>Обгортання</translation>
+    </message>
+    <message>
+        <source>Yellow / Blue</source>
+        <translation>Жовтий / Синій</translation>
     </message>
 </context>
 <context>

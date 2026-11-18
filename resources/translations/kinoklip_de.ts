@@ -749,6 +749,126 @@ Das Programm wurde wahrscheinlich vom System beendet, weil der Arbeitsspeicher d
         <translation>Eingang</translation>
     </message>
     <message>
+        <source>Garbage Matte</source>
+        <translation>Garbage-Matte</translation>
+    </message>
+    <message>
+        <source>Solid Matte</source>
+        <translation>Solid-Matte</translation>
+    </message>
+    <message>
+        <source>View Mode</source>
+        <translation>Ansichtsmodus</translation>
+    </message>
+    <message>
+        <source>Pre Matte</source>
+        <translation>Vor-Matte</translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation>Filter</translation>
+    </message>
+    <message>
+        <source>Box</source>
+        <translation>Box</translation>
+    </message>
+    <message>
+        <source>Bartlett</source>
+        <translation>Bartlett</translation>
+    </message>
+    <message>
+        <source>Multi-box</source>
+        <translation>Multi-Box</translation>
+    </message>
+    <message>
+        <source>Num Passes</source>
+        <translation>Anzahl Durchgänge</translation>
+    </message>
+    <message>
+        <source>Blur</source>
+        <translation>Weichzeichnen</translation>
+    </message>
+    <message>
+        <source>Erode / Dilate</source>
+        <translation>Erodieren / Dilatieren</translation>
+    </message>
+    <message>
+        <source>Gamma</source>
+        <translation>Gamma</translation>
+    </message>
+    <message>
+        <source>Clean Background</source>
+        <translation>Hintergrund bereinigen</translation>
+    </message>
+    <message>
+        <source>Clean Foreground</source>
+        <translation>Vordergrund bereinigen</translation>
+    </message>
+    <message>
+        <source>Restore Fringe</source>
+        <translation>Rand wiederherstellen</translation>
+    </message>
+    <message>
+        <source>Invert Matte</source>
+        <translation>Matte umkehren</translation>
+    </message>
+    <message>
+        <source>Spill Method</source>
+        <translation>Spill-Methode</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Keine</translation>
+    </message>
+    <message>
+        <source>Rare</source>
+        <translation>Rare</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Medium</translation>
+    </message>
+    <message>
+        <source>Well Done</source>
+        <translation>Well Done</translation>
+    </message>
+    <message>
+        <source>Burnt</source>
+        <translation>Burnt</translation>
+    </message>
+    <message>
+        <source>Fringe Gamma</source>
+        <translation>Rand-Gamma</translation>
+    </message>
+    <message>
+        <source>Fringe Size</source>
+        <translation>Randgröße</translation>
+    </message>
+    <message>
+        <source>Fringe Shape</source>
+        <translation>Randform</translation>
+    </message>
+    <message>
+        <source>Cyan / Red</source>
+        <translation>Cyan / Rot</translation>
+    </message>
+    <message>
+        <source>Magenta / Green</source>
+        <translation>Magenta / Grün</translation>
+    </message>
+    <message>
+        <source>Yellow / Blue</source>
+        <translation>Gelb / Blau</translation>
+    </message>
+    <message>
+        <source>Invert Solid Matte</source>
+        <translation>Solid-Matte umkehren</translation>
+    </message>
+    <message>
+        <source>Invert Garbage Matte</source>
+        <translation>Garbage-Matte umkehren</translation>
+    </message>
+    <message>
         <source>Center X</source>
         <translation>Mitte X</translation>
     </message>
@@ -21339,8 +21459,16 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
         <translation>Keyt einen Green- oder Bluescreen aus und entfernt dessen Spill</translation>
     </message>
     <message>
+        <source>Clean Plate</source>
+        <translation>Clean Plate</translation>
+    </message>
+    <message>
         <source>Background Color</source>
         <translation>Hintergrundfarbe</translation>
+    </message>
+    <message>
+        <source>Pre-Blur</source>
+        <translation>Vorab-Weichzeichnung</translation>
     </message>
     <message>
         <source>Balance</source>
@@ -21349,6 +21477,14 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
     <message>
         <source>Pre-Matte Soft Range</source>
         <translation>Pre-Matte-Weichbereich</translation>
+    </message>
+    <message>
+        <source>Pre-Matte Erode</source>
+        <translation>Vor-Matte erodieren</translation>
+    </message>
+    <message>
+        <source>Pre-Matte Blur</source>
+        <translation>Vor-Matte weichzeichnen</translation>
     </message>
     <message>
         <source>Clean Background</source>
@@ -21367,8 +21503,84 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
         <translation>Matte-Schwellwert hoch</translation>
     </message>
     <message>
+        <source>Replace Mode</source>
+        <translation>Ersetzungsmodus</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Keine</translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation>Quelle</translation>
+    </message>
+    <message>
+        <source>Hard Color</source>
+        <translation>Harte Farbe</translation>
+    </message>
+    <message>
+        <source>Soft Color</source>
+        <translation>Weiche Farbe</translation>
+    </message>
+    <message>
+        <source>Replace Color</source>
+        <translation>Ersetzungsfarbe</translation>
+    </message>
+    <message>
         <source>Despill</source>
         <translation>Despill</translation>
+    </message>
+    <message>
+        <source>Ultra Keyer</source>
+        <translation>Ultra Keyer</translation>
+    </message>
+    <message>
+        <source>Keys out a green or blue screen with a pre-matte, a colour-difference key and spill control</source>
+        <translation>Keyt einen Grün- oder Blauschirm mit Vor-Matte, Farbdifferenz-Key und Spill-Kontrolle aus</translation>
+    </message>
+    <message>
+        <source>Red Level</source>
+        <translation>Rot-Pegel</translation>
+    </message>
+    <message>
+        <source>Green Level</source>
+        <translation>Grün-Pegel</translation>
+    </message>
+    <message>
+        <source>Blue Level</source>
+        <translation>Blau-Pegel</translation>
+    </message>
+    <message>
+        <source>Matte Separation</source>
+        <translation>Matte-Trennung</translation>
+    </message>
+    <message>
+        <source>Pre Matte Size</source>
+        <translation>Vor-Matte-Größe</translation>
+    </message>
+    <message>
+        <source>Subtract Background</source>
+        <translation>Hintergrund abziehen</translation>
+    </message>
+    <message>
+        <source>Spill Suppression</source>
+        <translation>Spill-Unterdrückung</translation>
+    </message>
+    <message>
+        <source>Threshold Low</source>
+        <translation>Schwellwert unten</translation>
+    </message>
+    <message>
+        <source>Threshold High</source>
+        <translation>Schwellwert oben</translation>
+    </message>
+    <message>
+        <source>Matte Control</source>
+        <translation>Matte-Steuerung</translation>
+    </message>
+    <message>
+        <source>Cleans up the alpha of a picture: blur, grow or shrink, thresholds, restore fringe, garbage and solid mattes</source>
+        <translation>Bereinigt den Alphakanal eines Bildes: Weichzeichnen, Vergrößern oder Verkleinern, Schwellwerte, Rand wiederherstellen, Garbage- und Solid-Mattes</translation>
     </message>
     <message>
         <source>Soft Glow</source>
@@ -21599,6 +21811,14 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
         <translation>Winkel</translation>
     </message>
     <message>
+        <source>Blur</source>
+        <translation>Weichzeichnen</translation>
+    </message>
+    <message>
+        <source>Burnt</source>
+        <translation>Burnt</translation>
+    </message>
+    <message>
         <source>Canvas</source>
         <translation>Canvas</translation>
     </message>
@@ -21623,6 +21843,10 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
         <translation>Kubisch</translation>
     </message>
     <message>
+        <source>Cyan / Red</source>
+        <translation>Cyan / Rot</translation>
+    </message>
+    <message>
         <source>Duplicate</source>
         <translation>Duplizieren</translation>
     </message>
@@ -21635,6 +21859,10 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
         <translation>Effektmaske</translation>
     </message>
     <message>
+        <source>Erode / Dilate</source>
+        <translation>Erodieren / Dilatieren</translation>
+    </message>
+    <message>
         <source>Filter Method</source>
         <translation>Filtermethode</translation>
     </message>
@@ -21643,12 +21871,44 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
         <translation>Gauß</translation>
     </message>
     <message>
+        <source>Final Result</source>
+        <translation>Endergebnis</translation>
+    </message>
+    <message>
+        <source>Fringe Gamma</source>
+        <translation>Rand-Gamma</translation>
+    </message>
+    <message>
+        <source>Fringe Shape</source>
+        <translation>Randform</translation>
+    </message>
+    <message>
+        <source>Fringe Size</source>
+        <translation>Randgröße</translation>
+    </message>
+    <message>
+        <source>Garbage Matte</source>
+        <translation>Garbage-Matte</translation>
+    </message>
+    <message>
         <source>Ignore</source>
         <translation>Ignorieren</translation>
     </message>
     <message>
         <source>Input</source>
         <translation>Eingang</translation>
+    </message>
+    <message>
+        <source>Invert Garbage Matte</source>
+        <translation>Garbage-Matte umkehren</translation>
+    </message>
+    <message>
+        <source>Invert Matte</source>
+        <translation>Matte umkehren</translation>
+    </message>
+    <message>
+        <source>Invert Solid Matte</source>
+        <translation>Solid-Matte umkehren</translation>
     </message>
     <message>
         <source>Lanczos</source>
@@ -21663,8 +21923,16 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
         <translation>Linear</translation>
     </message>
     <message>
+        <source>Magenta / Green</source>
+        <translation>Magenta / Grün</translation>
+    </message>
+    <message>
         <source>Maximum</source>
         <translation>Maximum</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Medium</translation>
     </message>
     <message>
         <source>Minimum</source>
@@ -21691,20 +21959,52 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
         <translation>Malmodus</translation>
     </message>
     <message>
+        <source>Pre Matte</source>
+        <translation>Vor-Matte</translation>
+    </message>
+    <message>
+        <source>Rare</source>
+        <translation>Rare</translation>
+    </message>
+    <message>
         <source>Replace</source>
         <translation>Ersetzen</translation>
+    </message>
+    <message>
+        <source>Restore Fringe</source>
+        <translation>Rand wiederherstellen</translation>
     </message>
     <message>
         <source>Soft Edge</source>
         <translation>Weiche Kante</translation>
     </message>
     <message>
+        <source>Solid Matte</source>
+        <translation>Solid-Matte</translation>
+    </message>
+    <message>
+        <source>Spill Method</source>
+        <translation>Spill-Methode</translation>
+    </message>
+    <message>
         <source>Subtract</source>
         <translation>Subtrahieren</translation>
     </message>
     <message>
+        <source>View Mode</source>
+        <translation>Ansichtsmodus</translation>
+    </message>
+    <message>
+        <source>Well Done</source>
+        <translation>Well Done</translation>
+    </message>
+    <message>
         <source>Wrap</source>
         <translation>Umbrechen</translation>
+    </message>
+    <message>
+        <source>Yellow / Blue</source>
+        <translation>Gelb / Blau</translation>
     </message>
 </context>
 <context>

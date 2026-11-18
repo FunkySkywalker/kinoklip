@@ -218,44 +218,6 @@ void main()
 }
 )";
 
-/// Delta Keyer: compmath::deltaKey() on the straight colour.
-const char* const kDeltaKeyFragment = R"(
-uniform sampler2D uTex;
-uniform vec3 uBg;       // screen colour
-uniform vec4 uTune;     // gain, balance, pre-matte soft range, despill
-uniform vec4 uClean;    // clean background, clean foreground, matte low, matte high
-uniform int uInvert;
-vec3 straight(vec4 c) { return c.a > 0.0 ? c.rgb / c.a : vec3(0.0); }
-float others(vec3 v, int d)
-{
-    float a = v[(d + 1) % 3], b = v[(d + 2) % 3];
-    return uTune.y * max(a, b) + (1.0 - uTune.y) * min(a, b);
-}
-void main()
-{
-    vec4 t = texture(uTex, vUv);
-    if (t.a <= 0.0) {
-        fragColor = vec4(0.0);
-        return;
-    }
-    vec3 c = straight(t);
-    int d = 0;
-    if (uBg[1] > uBg[d]) d = 1;
-    if (uBg[2] > uBg[d]) d = 2;
-    float ref = max(uBg[d] - others(uBg, d), 1e-3);
-    float screen = (c[d] - others(c, d)) / ref * uTune.x;
-    float m = 1.0 - clamp(screen, 0.0, 1.0);
-    m = m + (m * m * (3.0 - 2.0 * m) - m) * uTune.z;
-    m = clamp((m - uClean.x) / max(1.0 - uClean.x - uClean.y, 1e-3), 0.0, 1.0);
-    m = clamp((m - uClean.z) / max(uClean.w - uClean.z, 1e-3), 0.0, 1.0);
-    if (uInvert == 1)
-        m = 1.0 - m;
-    c[d] = c[d] + (min(c[d], others(c, d)) - c[d]) * uTune.w;
-    float a = t.a * m;
-    fragColor = vec4(clamp(c, 0.0, 1.0) * a, a);
-}
-)";
-
 /// Paint Mode: compmath::paintMask() of this mask (uTex) and the one plugged in (uSecond).
 const char* const kPaintMaskFragment = R"(
 uniform sampler2D uTex;
@@ -353,12 +315,12 @@ bool GlComposition::initialize(GlKit& kit, QString* why)
         || !build(kit, m_corrector, "comp.corrector", kCorrectorFragment, why)
         || !build(kit, m_channels, "comp.channels", kChannelsFragment, why)
         || !build(kit, m_lumaKey, "comp.lumakey", kLumaKeyFragment, why)
-        || !build(kit, m_deltaKey, "comp.deltakey", kDeltaKeyFragment, why)
         || !build(kit, m_paintMask, "comp.paintmask", kPaintMaskFragment, why)
         || !build(kit, m_noise, "comp.noise", kNoiseFragment, why)
         || !build(kit, m_warp, "comp.warp", kWarpFragment, why)
         || !build(kit, m_resample, "comp.resample", resample.constData(), why)
-        || !m_fx.initialize(kit, why) || !m_fxWarp.initialize(kit, why))
+        || !m_fx.initialize(kit, why) || !m_fxWarp.initialize(kit, why)
+        || !m_fxMatte.initialize(kit, why))
         return false;
     m_resampleInverse = m_resample.uniform(gl, "uInvMatrix");
     m_resampleEdges = m_resample.uniform(gl, "uEdges");
@@ -386,10 +348,6 @@ bool GlComposition::initialize(GlKit& kit, QString* why)
     m_chSources = m_channels.uniform(gl, "uSources");
     m_lkParams = m_lumaKey.uniform(gl, "uKey");
     m_lkInvert = m_lumaKey.uniform(gl, "uInvert");
-    m_dkBg = m_deltaKey.uniform(gl, "uBg");
-    m_dkTune = m_deltaKey.uniform(gl, "uTune");
-    m_dkClean = m_deltaKey.uniform(gl, "uClean");
-    m_dkInvert = m_deltaKey.uniform(gl, "uInvert");
     m_pmMode = m_paintMask.uniform(gl, "uMode");
     m_nSize = m_noise.uniform(gl, "uSize");
     m_nCentre = m_noise.uniform(gl, "uCentre");
@@ -414,6 +372,7 @@ void GlComposition::destroy(GlKit& kit)
         p->destroy(kit.gl());
     m_fx.destroy(kit);
     m_fxWarp.destroy(kit);
+    m_fxMatte.destroy(kit);
     m_stack.clear();
 }
 
@@ -600,11 +559,12 @@ void GlComposition::evalNode(GlKit& kit, const CompEval& ev, int index)
         out = maskNode(kit, ev, n, mainOwner);
         handledMask = true; // the mask port of a mask node combines (union), see maskNode()
     } else if (n.type == nodetypes::ColorCorrector || n.type == nodetypes::ChannelBooleans
-        || n.type == nodetypes::LumaKeyer || n.type == nodetypes::DeltaKeyer) {
+        || n.type == nodetypes::LumaKeyer) {
         out = colorNode(kit, ev, n, mainOwner);
     } else if (n.type == nodetypes::SoftGlow || n.type == nodetypes::LightWrap
         || n.type == nodetypes::Displace || n.type == nodetypes::VectorDistort
-        || n.type == nodetypes::GridWarp) {
+        || n.type == nodetypes::GridWarp || n.type == nodetypes::DeltaKeyer
+        || n.type == nodetypes::UltraKeyer || n.type == nodetypes::MatteControl) {
         out = filterNode(kit, ev, n, mainOwner);
     } else if (!d->effectId.isEmpty()) {
         out = effectNode(kit, ev, n, mainOwner);
@@ -1015,20 +975,6 @@ PooledTarget GlComposition::colorNode(GlKit& kit, const CompEval& ev, const Comp
         kit.drawQuad();
         return out;
     }
-    if (n.type == nodetypes::DeltaKeyer) {
-        const compmath::DeltaKeyParams k = compmath::deltaKeyParams(n.params, ev.compFrame);
-        PooledTarget out = newTarget(kit, ev, false);
-        kit.setBlendOver(false);
-        gl->glUseProgram(m_deltaKey.id);
-        kit.setFullscreen(m_deltaKey);
-        gl->glUniform3f(m_dkBg, k.bg[0], k.bg[1], k.bg[2]);
-        gl->glUniform4f(m_dkTune, k.gain, k.balance, k.soft, k.despill);
-        gl->glUniform4f(m_dkClean, k.cleanBg, k.cleanFg, k.low, k.high);
-        gl->glUniform1i(m_dkInvert, k.invert ? 1 : 0);
-        kit.bindTexture(0, textureOf(kit, input));
-        kit.drawQuad();
-        return out;
-    }
     const std::array<int, 4> src = compmath::channelSources(n.params);
     if (src == std::array<int, 4> {0, 1, 2, 3})
         return {};
@@ -1051,6 +997,20 @@ PooledTarget GlComposition::filterNode(
     if (n.type == nodetypes::SoftGlow) {
         const compmath::SoftGlowParams g = compmath::softGlowParams(n.params, ev.compFrame);
         return m_fx.softGlow(kit, *in, g, ev.scale);
+    }
+    if (n.type == nodetypes::DeltaKeyer || n.type == nodetypes::UltraKeyer
+        || n.type == nodetypes::MatteControl) {
+        const RenderTarget* garbage = targetOf(inputOwner(n, nodeports::GarbageMatte));
+        const RenderTarget* solid = targetOf(inputOwner(n, nodeports::SolidMatte));
+        if (n.type == nodetypes::MatteControl) {
+            return m_fxMatte.matteControl(kit, m_fx, *in, garbage, solid,
+                compmath::matteControlParams(n.params, ev.compFrame), ev.scale);
+        }
+        const RenderTarget* plate = targetOf(inputOwner(n, nodeports::CleanPlate));
+        return m_fxMatte.keyer(kit, m_fx, *in, plate, garbage, solid,
+            compmath::keyerParams(n.params, ev.compFrame,
+                n.type == nodetypes::UltraKeyer ? compmath::UltraKind : compmath::DeltaKind),
+            ev.scale);
     }
     if (n.type == nodetypes::GridWarp) {
         return m_fxWarp.gridWarp(kit, *in,

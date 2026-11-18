@@ -749,6 +749,126 @@ Probablemente el sistema cerró el programa porque el equipo se quedó sin memor
         <translation>Entrada</translation>
     </message>
     <message>
+        <source>Garbage Matte</source>
+        <translation>Máscara de basura</translation>
+    </message>
+    <message>
+        <source>Solid Matte</source>
+        <translation>Máscara sólida</translation>
+    </message>
+    <message>
+        <source>View Mode</source>
+        <translation>Modo de vista</translation>
+    </message>
+    <message>
+        <source>Pre Matte</source>
+        <translation>Pre-matte</translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation>Filtro</translation>
+    </message>
+    <message>
+        <source>Box</source>
+        <translation>Caja</translation>
+    </message>
+    <message>
+        <source>Bartlett</source>
+        <translation>Bartlett</translation>
+    </message>
+    <message>
+        <source>Multi-box</source>
+        <translation>Multicaja</translation>
+    </message>
+    <message>
+        <source>Num Passes</source>
+        <translation>Número de pasadas</translation>
+    </message>
+    <message>
+        <source>Blur</source>
+        <translation>Desenfoque</translation>
+    </message>
+    <message>
+        <source>Erode / Dilate</source>
+        <translation>Erosionar / Dilatar</translation>
+    </message>
+    <message>
+        <source>Gamma</source>
+        <translation>Gamma</translation>
+    </message>
+    <message>
+        <source>Clean Background</source>
+        <translation>Limpiar fondo</translation>
+    </message>
+    <message>
+        <source>Clean Foreground</source>
+        <translation>Limpiar primer plano</translation>
+    </message>
+    <message>
+        <source>Restore Fringe</source>
+        <translation>Restaurar borde</translation>
+    </message>
+    <message>
+        <source>Invert Matte</source>
+        <translation>Invertir máscara</translation>
+    </message>
+    <message>
+        <source>Spill Method</source>
+        <translation>Método de derrame</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Ninguno</translation>
+    </message>
+    <message>
+        <source>Rare</source>
+        <translation>Rare</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Medium</translation>
+    </message>
+    <message>
+        <source>Well Done</source>
+        <translation>Well Done</translation>
+    </message>
+    <message>
+        <source>Burnt</source>
+        <translation>Burnt</translation>
+    </message>
+    <message>
+        <source>Fringe Gamma</source>
+        <translation>Gamma del borde</translation>
+    </message>
+    <message>
+        <source>Fringe Size</source>
+        <translation>Tamaño del borde</translation>
+    </message>
+    <message>
+        <source>Fringe Shape</source>
+        <translation>Forma del borde</translation>
+    </message>
+    <message>
+        <source>Cyan / Red</source>
+        <translation>Cian / Rojo</translation>
+    </message>
+    <message>
+        <source>Magenta / Green</source>
+        <translation>Magenta / Verde</translation>
+    </message>
+    <message>
+        <source>Yellow / Blue</source>
+        <translation>Amarillo / Azul</translation>
+    </message>
+    <message>
+        <source>Invert Solid Matte</source>
+        <translation>Invertir máscara sólida</translation>
+    </message>
+    <message>
+        <source>Invert Garbage Matte</source>
+        <translation>Invertir máscara de basura</translation>
+    </message>
+    <message>
         <source>Center X</source>
         <translation>Centro X</translation>
     </message>
@@ -21339,8 +21459,16 @@ Importar archivos con %1 o soltarlos aquí.</translation>
         <translation>Elimina una pantalla verde o azul y quita su derrame</translation>
     </message>
     <message>
+        <source>Clean Plate</source>
+        <translation>Placa limpia</translation>
+    </message>
+    <message>
         <source>Background Color</source>
         <translation>Color de fondo</translation>
+    </message>
+    <message>
+        <source>Pre-Blur</source>
+        <translation>Desenfoque previo</translation>
     </message>
     <message>
         <source>Balance</source>
@@ -21349,6 +21477,14 @@ Importar archivos con %1 o soltarlos aquí.</translation>
     <message>
         <source>Pre-Matte Soft Range</source>
         <translation>Rango suave del pre-matte</translation>
+    </message>
+    <message>
+        <source>Pre-Matte Erode</source>
+        <translation>Erosión del pre-matte</translation>
+    </message>
+    <message>
+        <source>Pre-Matte Blur</source>
+        <translation>Desenfoque del pre-matte</translation>
     </message>
     <message>
         <source>Clean Background</source>
@@ -21367,8 +21503,84 @@ Importar archivos con %1 o soltarlos aquí.</translation>
         <translation>Umbral de matte alto</translation>
     </message>
     <message>
+        <source>Replace Mode</source>
+        <translation>Modo de reemplazo</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Ninguno</translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation>Origen</translation>
+    </message>
+    <message>
+        <source>Hard Color</source>
+        <translation>Color duro</translation>
+    </message>
+    <message>
+        <source>Soft Color</source>
+        <translation>Color suave</translation>
+    </message>
+    <message>
+        <source>Replace Color</source>
+        <translation>Color de reemplazo</translation>
+    </message>
+    <message>
         <source>Despill</source>
         <translation>Despill</translation>
+    </message>
+    <message>
+        <source>Ultra Keyer</source>
+        <translation>Ultra Keyer</translation>
+    </message>
+    <message>
+        <source>Keys out a green or blue screen with a pre-matte, a colour-difference key and spill control</source>
+        <translation>Elimina una pantalla verde o azul con un pre-matte, una clave por diferencia de color y control de derrame</translation>
+    </message>
+    <message>
+        <source>Red Level</source>
+        <translation>Nivel de rojo</translation>
+    </message>
+    <message>
+        <source>Green Level</source>
+        <translation>Nivel de verde</translation>
+    </message>
+    <message>
+        <source>Blue Level</source>
+        <translation>Nivel de azul</translation>
+    </message>
+    <message>
+        <source>Matte Separation</source>
+        <translation>Separación de matte</translation>
+    </message>
+    <message>
+        <source>Pre Matte Size</source>
+        <translation>Tamaño del pre-matte</translation>
+    </message>
+    <message>
+        <source>Subtract Background</source>
+        <translation>Restar fondo</translation>
+    </message>
+    <message>
+        <source>Spill Suppression</source>
+        <translation>Supresión de derrame</translation>
+    </message>
+    <message>
+        <source>Threshold Low</source>
+        <translation>Umbral inferior</translation>
+    </message>
+    <message>
+        <source>Threshold High</source>
+        <translation>Umbral superior</translation>
+    </message>
+    <message>
+        <source>Matte Control</source>
+        <translation>Control de matte</translation>
+    </message>
+    <message>
+        <source>Cleans up the alpha of a picture: blur, grow or shrink, thresholds, restore fringe, garbage and solid mattes</source>
+        <translation>Limpia el alfa de una imagen: desenfoque, crecer o encoger, umbrales, restaurar borde, máscaras de basura y sólidas</translation>
     </message>
     <message>
         <source>Soft Glow</source>
@@ -21599,6 +21811,14 @@ Importar archivos con %1 o soltarlos aquí.</translation>
         <translation>Ángulo</translation>
     </message>
     <message>
+        <source>Blur</source>
+        <translation>Desenfoque</translation>
+    </message>
+    <message>
+        <source>Burnt</source>
+        <translation>Burnt</translation>
+    </message>
+    <message>
         <source>Canvas</source>
         <translation>Lienzo</translation>
     </message>
@@ -21623,6 +21843,10 @@ Importar archivos con %1 o soltarlos aquí.</translation>
         <translation>Cúbico</translation>
     </message>
     <message>
+        <source>Cyan / Red</source>
+        <translation>Cian / Rojo</translation>
+    </message>
+    <message>
         <source>Duplicate</source>
         <translation>Duplicar</translation>
     </message>
@@ -21635,6 +21859,10 @@ Importar archivos con %1 o soltarlos aquí.</translation>
         <translation>Máscara de efecto</translation>
     </message>
     <message>
+        <source>Erode / Dilate</source>
+        <translation>Erosionar / Dilatar</translation>
+    </message>
+    <message>
         <source>Filter Method</source>
         <translation>Método de filtrado</translation>
     </message>
@@ -21643,12 +21871,44 @@ Importar archivos con %1 o soltarlos aquí.</translation>
         <translation>Gaussiano</translation>
     </message>
     <message>
+        <source>Final Result</source>
+        <translation>Resultado final</translation>
+    </message>
+    <message>
+        <source>Fringe Gamma</source>
+        <translation>Gamma del borde</translation>
+    </message>
+    <message>
+        <source>Fringe Shape</source>
+        <translation>Forma del borde</translation>
+    </message>
+    <message>
+        <source>Fringe Size</source>
+        <translation>Tamaño del borde</translation>
+    </message>
+    <message>
+        <source>Garbage Matte</source>
+        <translation>Máscara de basura</translation>
+    </message>
+    <message>
         <source>Ignore</source>
         <translation>Ignorar</translation>
     </message>
     <message>
         <source>Input</source>
         <translation>Entrada</translation>
+    </message>
+    <message>
+        <source>Invert Garbage Matte</source>
+        <translation>Invertir máscara de basura</translation>
+    </message>
+    <message>
+        <source>Invert Matte</source>
+        <translation>Invertir máscara</translation>
+    </message>
+    <message>
+        <source>Invert Solid Matte</source>
+        <translation>Invertir máscara sólida</translation>
     </message>
     <message>
         <source>Lanczos</source>
@@ -21663,8 +21923,16 @@ Importar archivos con %1 o soltarlos aquí.</translation>
         <translation>Lineal</translation>
     </message>
     <message>
+        <source>Magenta / Green</source>
+        <translation>Magenta / Verde</translation>
+    </message>
+    <message>
         <source>Maximum</source>
         <translation>Máximo</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Medium</translation>
     </message>
     <message>
         <source>Minimum</source>
@@ -21691,20 +21959,52 @@ Importar archivos con %1 o soltarlos aquí.</translation>
         <translation>Modo de pintura</translation>
     </message>
     <message>
+        <source>Pre Matte</source>
+        <translation>Pre-matte</translation>
+    </message>
+    <message>
+        <source>Rare</source>
+        <translation>Rare</translation>
+    </message>
+    <message>
         <source>Replace</source>
         <translation>Reemplazar</translation>
+    </message>
+    <message>
+        <source>Restore Fringe</source>
+        <translation>Restaurar borde</translation>
     </message>
     <message>
         <source>Soft Edge</source>
         <translation>Borde suave</translation>
     </message>
     <message>
+        <source>Solid Matte</source>
+        <translation>Máscara sólida</translation>
+    </message>
+    <message>
+        <source>Spill Method</source>
+        <translation>Método de derrame</translation>
+    </message>
+    <message>
         <source>Subtract</source>
         <translation>Restar</translation>
     </message>
     <message>
+        <source>View Mode</source>
+        <translation>Modo de vista</translation>
+    </message>
+    <message>
+        <source>Well Done</source>
+        <translation>Well Done</translation>
+    </message>
+    <message>
         <source>Wrap</source>
         <translation>Envolver</translation>
+    </message>
+    <message>
+        <source>Yellow / Blue</source>
+        <translation>Amarillo / Azul</translation>
     </message>
 </context>
 <context>

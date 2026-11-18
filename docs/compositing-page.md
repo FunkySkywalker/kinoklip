@@ -59,7 +59,10 @@ general knowledge of node compositors, our own drawing, names and icons; never R
   shape); each with soft edge, invert, level, paint mode, centre / size / angle; masks plug into any node's mask
   input (the Paint Mode says how a mask joins the one plugged into it). Spec section 92.
 - **Matte**: Luma Keyer (channel, low / high, soft range, invert), Delta Keyer (screen colour key with gain,
-  balance, pre-matte soft range, clean background / foreground, matte thresholds and despill).
+  balance, pre-matte soft range, clean background / foreground, matte thresholds and despill; pre-matte blur and
+  erode, matte blur, erode / dilate, restore fringe, spill method, fringe controls, replace mode, garbage and
+  solid mattes and a clean plate input), Ultra Keyer and Matte Control; spec section 115. Maths
+  `src/render/CompMatteMath.*`, GPU `src/render/GlCompMatte.*`.
 - **Filter**: Soft Glow (threshold, gain, filter, glow size X / Y, colour scale and channels) and Light Wrap
   (the background's light spilling over the foreground's edges); spec section 113. The float reference maths is
   `src/render/CompFilterMath.*`, the GPU passes `src/render/GlCompFilters.*`.
