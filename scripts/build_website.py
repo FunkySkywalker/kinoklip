@@ -62,7 +62,7 @@ GROUPS = [
 # "readme" is the guide's start page in the app's index.
 REDIRECTS = {"readme": ""}
 # The screenshots of the app that the site's own pages use (from docs/images/readme).
-SITE_SHOTS = ["edit.png", "color.png", "compositing.png"]
+SITE_SHOTS = ["media.png", "cut.png", "edit.png", "compositing.png", "color.png", "audio.png", "deliver.png"]
 
 VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr", "path", "circle", "rect", "line", "stop"}
 
@@ -310,43 +310,36 @@ def build_guide(site, warnings):
                      "text": plain_text(content)})
     write(os.path.join(site.out, "guide", "search.json"), json.dumps(data, ensure_ascii=False, separators=(",", ":")))
 
-    # front page of the guide
-    def link(i):
-        return '<a href="%s/">%s</a>' % (i, html.escape(by_id[i]["title"]))
-    path = "\n".join('<li><div><a href="%s/">%s</a><span>%s</span></div></li>'
-                     % (i, html.escape(by_id[i]["title"]), html.escape(by_id[i]["summary"])) for i in start)
-    common = "\n".join("<li>%s</li>" % link(i) for i in COMMON if i in by_id)
-    ref = []
+    # front page of the guide, in the old site's list style
+    def glist(ids, numbered=False):
+        items = []
+        for n, i in enumerate(ids):
+            t = html.escape(by_id[i]["title"])
+            items.append('<li><a href="%s/"><strong>%s%s</strong><span>%s</span></a></li>'
+                         % (i, "%d. " % (n + 1) if numbered else "", t, html.escape(by_id[i]["summary"])))
+        return "\n".join(items)
+
+    def gblock(name, ids, intro="", numbered=False):
+        gid = gh_slug(name)
+        return '<section class="g-group" aria-labelledby="g-%s"><h2 id="g-%s">%s</h2>%s<ul class="g-list">\n%s\n</ul></section>' % (
+            gid, gid, html.escape(name), '<p class="muted">%s</p>' % intro if intro else "", glist(ids, numbered))
+
+    parts = [gblock("Start here", start, "New to Kinoklip? Read these six in order. They take you from the download to a finished video.", True),
+             gblock("Common tasks", [i for i in COMMON if i in by_id])]
     for name, ids in groups:
-        if name == "Start here":
-            continue
-        ref.append('<section><h3>%s</h3><ul>%s</ul></section>' % (html.escape(name), "".join("<li>%s</li>" % link(i) for i in ids)))
-    body = """<section class="guide-head"><div class="wrap">
-<h1>Guide</h1>
-<p class="lead">How to use Kinoklip, one task at a time. Kinoklip is laid out like DaVinci Resolve and has the same shortcuts, so most Resolve tutorials for the Edit page work here too.</p>
-<div class="search" role="search"><label for="guide-q" class="sr" style="position:absolute;left:-9999px">Search the guide</label><input id="guide-q" type="search" data-search data-autofill placeholder="Search the guide: green screen, export, LUT, voice-over" autocomplete="off"><ul class="results" hidden></ul></div>
-<p class="muted small" style="margin-top:8px">Press <kbd>/</kbd> on any guide page to search. In Kinoklip, <kbd>F1</kbd> opens the article about what you are working on.</p>
+        if name != "Start here":
+            parts.append(gblock(name, ids))
+    body = """<section class="page-head"><div class="wrap">
+<p class="kicker">Guide</p>
+<h1>How to use Kinoklip</h1>
+<p class="lead">Short how-to articles, step by step. Kinoklip is laid out like DaVinci Resolve with the same shortcuts, so most Resolve tutorials for the Edit page also work here. New? Start with the six articles under Start here.</p>
+<div class="search" role="search"><label class="sr" for="guide-q" style="position:absolute;left:-9999px">Search the guide</label><input id="guide-q" type="search" data-search data-autofill placeholder="Search the guide: green screen, export, LUT, voice-over..." autocomplete="off"><ul class="results" hidden></ul></div>
+<p class="muted" style="margin-top:10px;font-size:15px">Press <kbd>/</kbd> on any guide page to search.</p>
 </div></section>
-<section class="section"><div class="wrap">
-<h2>Start here</h2>
-<p class="muted narrow">New to Kinoklip? Read these six in order. They take you from the download to a finished video.</p>
-<ol class="path">
+<section class="section tight" style="padding-top:0"><div class="wrap">
 %s
-</ol>
-</div></section>
-<section class="section"><div class="wrap">
-<h2>Common tasks</h2>
-<ul class="plain cols-list">
-%s
-</ul>
-</div></section>
-<section class="section"><div class="wrap">
-<h2>Reference</h2>
-<p class="muted narrow">Every article, by subject. Every shortcut is in the <a href="%s/blob/main/docs/keymap-resolve-windows.md">Resolve keymap</a>; the other editors' presets are in <a href="%s/blob/main/docs/keymaps/readme.md">keymaps</a>, and every menu entry is in the <a href="%s/blob/main/docs/menu-reference.md">menu reference</a>.</p>
-<div class="refgroups">
-%s
-</div>
-</div></section>""" % (path, common, GITHUB, GITHUB, GITHUB, "\n".join(ref))
+<p class="muted" style="margin-top:56px">Press <kbd>F1</kbd> in Kinoklip to open the article about what you are working on. Every shortcut is in the <a href="%s/blob/main/docs/keymap-resolve-windows.md">Resolve keymap</a>; the other editors' presets are in <a href="%s/blob/main/docs/keymaps/readme.md">keymaps</a>, and every menu entry is in the <a href="%s/blob/main/docs/menu-reference.md">menu reference</a>.</p>
+</div></section>""" % ("\n".join(parts), GITHUB, GITHUB, GITHUB)
     site.page("guide/index.html", "Guide - Kinoklip", "How to use Kinoklip: a short path from install to export, and articles by subject.", body, nav="guide")
 
     def group_of(aid):
@@ -379,8 +372,8 @@ def build_guide(site, warnings):
             prev = by_id[start[n - 1]] if n > 0 else None
             nxt = by_id[start[n + 1]] if n + 1 < len(start) else None
             pager = '<nav class="pager" aria-label="Previous and next step">%s%s</nav>' % (
-                '<a href="../%s/"><small>Previous</small>%s</a>' % (prev["id"], html.escape(prev["title"])) if prev else "<span></span>",
-                '<a class="next" href="../%s/"><small>Next</small>%s</a>' % (nxt["id"], html.escape(nxt["title"])) if nxt else "")
+                '<a class="btn btn-quiet" href="../%s/">&larr; %s</a>' % (prev["id"], html.escape(prev["title"])) if prev else "<span></span>",
+                '<a class="btn btn-quiet" href="../%s/">%s &rarr;</a>' % (nxt["id"], html.escape(nxt["title"])) if nxt else "")
         else:
             crumb = '<a href="../">Guide</a> / %s' % html.escape(group_of(aid) or "More")
             pager = ""
@@ -496,10 +489,10 @@ def build_releases(site, article_files, warnings):
         parts.append('<details class="rel" id="%s"%s><summary><b>%s</b>%s<span>%s</span></summary><div class="prose">%s</div></details>'
                      % (base, " open" if n == 0 else "", html.escape(ver), pill, sub, content))
     body = """<section class="page-head"><div class="wrap">
-<h1>Release notes</h1>
+<p class="kicker">Releases</p><h1>Release notes</h1>
 <p class="lead">What changed in each version, newest first. To get a version, see the <a href="../download/">download page</a> or the <a href="%s/releases">releases on GitHub</a>.</p>
 </div></section>
-<section class="section" style="border-top:0"><div class="wrap">%s</div></section>""" % (GITHUB, "\n".join(parts))
+<section class="section tight" style="padding-top:8px"><div class="wrap" style="max-width:920px">%s</div></section>""" % (GITHUB, "\n".join(parts))
     site.page("releases/index.html", "Release notes - Kinoklip", "What changed in each Kinoklip release.", body, nav="releases")
     return items
 
@@ -538,7 +531,7 @@ def build(out, base):
               tpl("about"), body_is_template=True)
     site.page("report-a-bug/index.html", "Report a bug - Kinoklip", "How to report a Kinoklip bug: save a log file, then open a prefilled GitHub issue.",
               tpl("report"), nav="report", body_is_template=True)
-    notfound = """<section class="page-head"><div class="wrap"><h1>This page is not here</h1>
+    notfound = """<section class="page-head"><div class="wrap"><p class="kicker">404</p><h1>This page is not here</h1>
 <p class="lead">The page may have moved. Try the <a href="{{root}}">home page</a> or the <a href="{{root}}guide/">guide</a>.</p></div></section>"""
     site.page("404.html", "Page not found - Kinoklip", "Page not found.", notfound, root=base, body_is_template=True)
 
