@@ -8,6 +8,7 @@
 #include "core/NodeRegistry.h"
 #include "render/CompFilterMath.h"
 #include "render/CompMatteMath.h"
+#include "render/CompMath.h"
 #include "render/CompWarpMath.h"
 #include "render/Compositor.h"
 
@@ -62,14 +63,14 @@ class TestCompFilters : public QObject
     std::unique_ptr<Compositor> m_cpu;
 
     /// The image of node @p id on the GPU and on the CPU.
-    QVector<QImage> nodeImages(const TimelineData& tl, quint64 id)
+    QVector<QImage> nodeImages(const TimelineData& tl, quint64 id, int64_t frame = 0)
     {
         const auto clipId = tl.videoTracks[0].clips[0].id;
         QVector<QImage> out;
         for (Compositor* comp : {m_gpu.get(), m_cpu.get()}) {
             const RenderedFramePtr f
                 = comp->renderCompositionNode(
-                          snap(tl), clipId, id, 0, {}, Quality::Full, OutputImage)
+                          snap(tl), clipId, id, frame, {}, Quality::Full, OutputImage)
                       .get();
             out.append(f && f->ok ? f->image : QImage());
         }
@@ -92,6 +93,15 @@ class TestCompFilters : public QObject
         if (worst)
             *worst = big;
         return count;
+    }
+
+    static double alphaSum(const QImage& a)
+    {
+        double sum = 0;
+        for (int y = 0; y < a.height(); ++y)
+            for (int x = 0; x < a.width(); ++x)
+                sum += px(a, x, y).a;
+        return sum / 255.0;
     }
 
 private slots:
@@ -652,6 +662,90 @@ private slots:
         compmath::softGlowHighlight(g, bright, h);
         QCOMPARE(h[0], 0.5f);
         QCOMPARE(h[3], 1.0f);
+    }
+
+    void bezierMaskGpuMatchesCpu()
+    {
+        // A Bezier mask node (spec 117): a curved shape with uneven tangents, a
+        // rotation and a smaller size. Both renderers fill the same shape (the soft edge is
+        // GPU only on the CPU reference, so it stays 0 here).
+        Composition c = co::defaultComposition();
+        const quint64 bz = co::addNode(c, nodetypes::BezierMask, {});
+        CompNode& n = *c.node(bz);
+        n.path.setShape(0,
+            {{-60, -40, 0, 0, 50, -30, true}, {70, -30, -30, -40, 0, 50, true},
+                {40, 50, 40, 20, -50, 0, true}, {-50, 40, 30, 20, -10, -50, true}});
+        n.params.setBase(nodekeys::Angle, 20.0);
+        n.params.setBase(nodekeys::Size, 0.8);
+        const QVector<QImage> imgs = nodeImages(compTimeline(c), bz);
+        QVERIFY(!imgs[0].isNull() && !imgs[1].isNull());
+        for (const QImage& img : imgs) {
+            QVERIFY2(px(img, 160, 90).a > 240, describe(px(img, 160, 90)));
+            QCOMPARE(px(img, 3, 3).a, 0);
+            QCOMPARE(px(img, 316, 176).a, 0);
+        }
+        int worst = 0;
+        const int bad = differing(imgs[0], imgs[1], 12, &worst);
+        // The GPU rasterises the curve with a slightly smoother edge than the CPU's painter, so
+        // edge pixels differ; the covered area and the shape agree.
+        const double areaGpu = alphaSum(imgs[0]), areaCpu = alphaSum(imgs[1]);
+        QVERIFY2(std::abs(areaGpu - areaCpu) < 0.02 * areaCpu,
+            qPrintable(QStringLiteral("areas %1 %2").arg(areaGpu).arg(areaCpu)));
+        QVERIFY2(bad < 700, qPrintable(QStringLiteral("%1 pixels differ, worst %2").arg(bad).arg(worst)));
+        // Inverted: the picture flips on both.
+        n.params.setStatic(nodekeys::Invert, true);
+        const QVector<QImage> inv = nodeImages(compTimeline(c), bz);
+        for (const QImage& img : inv) {
+            QVERIFY(px(img, 160, 90).a < 15);
+            QVERIFY(px(img, 3, 3).a > 240);
+        }
+        QVERIFY(differing(inv[0], inv[1], 12) < 700);
+    }
+
+    void multiPatternTrackerGpuMatchesCpu()
+    {
+        // A Tracker node with two patterns (spec 118): the second goes to a point twice as far
+        // away and a quarter turn round by frame 10, so the picture is moved, scaled and turned.
+        Composition c = co::defaultComposition();
+        const quint64 box = colorSource(c, Qt::white, true, 130, 70, 190, 110);
+        const quint64 tr = co::addNode(c, nodetypes::Tracker, {});
+        co::connect(c, box, 0, tr, nodeports::Input);
+        co::connect(c, tr, 0, c.mediaOutId, nodeports::Input);
+        ParamSet& q = c.node(tr)->params;
+        q.setBase(nodekeys::Patterns, 2);
+        q.setBase(nodekeys::patternKey(2, false), 0.5 + 32.0 / kW);
+        q.setBase(nodekeys::patternKey(2, true), 0.5);
+        q.animated(nodekeys::patternKey(2, false), 0.6).setKey(0, 0.5 + 32.0 / kW);
+        q.animated(nodekeys::patternKey(2, false), 0.6).setKey(10, 0.5 + 8.0 / kW);
+        q.animated(nodekeys::patternKey(2, true), 0.5).setKey(0, 0.5);
+        q.animated(nodekeys::patternKey(2, true), 0.5).setKey(10, 0.5 + 20.0 / kH);
+        const QSizeF fs(kW, kH);
+        const QTransform m = compmath::trackerMatrix(q, 10, fs);
+        QVERIFY(!m.isIdentity());
+        QVERIFY(std::hypot(m.m11(), m.m12()) < 0.9); // shrunk
+        const TimelineData tl = compTimeline(c);
+        const QVector<QImage> at0 = nodeImages(tl, tr, 0);
+        const QVector<QImage> at10 = nodeImages(tl, tr, 10);
+        // Frame 0 is the reference: the box is where it was, on both.
+        for (const QImage& img : at0) {
+            QVERIFY(px(img, 160, 90).a > 240);
+            QVERIFY(px(img, 135, 90).a > 240);
+        }
+        // Frame 10: the box has moved with the group's middle.
+        const QPointF dest = m.map(QPointF(160, 90));
+        for (const QImage& img : at10) {
+            QVERIFY2(px(img, int(dest.x()), int(dest.y())).a > 240, describe(px(img, int(dest.x()), int(dest.y()))));
+            QVERIFY(px(img, 135, 90).a < 15 || std::abs(dest.x() - 160) > 1); // not left in place
+        }
+        QVERIFY(differing(at0[0], at0[1], 12) < 250);
+        int worst = 0;
+        const int bad = differing(at10[0], at10[1], 14, &worst);
+        QVERIFY2(bad < 300, qPrintable(QStringLiteral("%1 pixels differ, worst %2").arg(bad).arg(worst)));
+        // Stabilize inverts: the same on both renderers.
+        q.statics[nodekeys::TrackMode] = trackmodes::Stabilize;
+        const QVector<QImage> stab = nodeImages(compTimeline(c), tr, 10);
+        QVERIFY(differing(stab[0], stab[1], 14) < 300);
+        QVERIFY(differing(stab[0], at10[0], 14) > 100); // a different picture
     }
 };
 
