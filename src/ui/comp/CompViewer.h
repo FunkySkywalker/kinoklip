@@ -7,8 +7,11 @@
 #include "ui/common/PanelFrame.h"
 #include "ui/comp/ViewerFx.h"
 
+#include <QElapsedTimer>
 #include <QFutureWatcher>
 #include <QPointer>
+#include <QRectF>
+#include <QTimer>
 
 class QAction;
 class QComboBox;
@@ -24,6 +27,8 @@ class CompViewerOverlay;
 class GuideOverlay;
 class PlaybackEngine;
 class SplitHandle;
+class ViewerRegion;
+class ViewerRuler;
 class ViewerSurface;
 
 /// A viewer of the Compositing page (index 0 = left, 1 = right).
@@ -100,10 +105,40 @@ public:
     void clearViewer();
     /// 100 % zoom, picture centred (Ctrl+1).
     void zoomTo100();
+    // ---- Onion Skin, Region of Interest, Rulers and Safe Area (spec 121) ----
+    /// Onion Skin: the frames before and after the current one laid faintly over it (blue before,
+    /// orange after). @p frames (1 to 3) is how many on each side.
+    [[nodiscard]] bool onionShown() const { return m_onion; }
+    void setOnion(bool on);
+    [[nodiscard]] int onionFrames() const { return m_onionFrames; }
+    void setOnionFrames(int frames);
+    /// Region of Interest: while on, only the region (fractions of the picture, drawn and edited
+    /// over the viewer) is shown; the rest of the picture is cut away.
+    [[nodiscard]] bool regionShown() const { return m_roi; }
+    void setRegionShown(bool on);
+    [[nodiscard]] QRectF region() const;
+    void setRegion(const QRectF& region);
+    /// The overlay that draws and edits the region.
+    [[nodiscard]] ViewerRegion* regionOverlay() const { return m_regionOverlay; }
+    /// Rulers along the top and left edge, and the title and action safe areas over the picture:
+    /// the same options as View > Show Rulers and View > Safe Area (shared with the Edit page).
+    [[nodiscard]] bool rulersShown() const;
+    void setRulersShown(bool on);
+    [[nodiscard]] bool safeAreaShown() const;
+    void setSafeAreaShown(bool on);
+    /// True while the viewer counts as being used (playing, the playhead or the graph changed in
+    /// the last half second): Auto Proxy shows its proxy only then.
+    [[nodiscard]] bool interacting() const;
+    /// The size the last request rendered at (device pixels; tests of Proxy).
+    [[nodiscard]] QSize lastRenderSize() const { return m_lastRenderSize; }
+    /// Frames the last request took from the disk cache / rendered (tests).
+    [[nodiscard]] int cacheHits() const { return m_cacheHits; }
+    [[nodiscard]] int cacheMisses() const { return m_cacheMisses; }
+
     /// The tool bar (actions named "CompViewerTool:<id>").
     [[nodiscard]] QToolBar* toolBar() const { return m_bar; }
-    /// The tool bar action @p id (a, b, split, color, red, green, blue, alpha, checker,
-    /// controls, lock, clear, zoom100).
+    /// The tool bar action @p id (a, b, split, color, red, green, blue, alpha, checker, onion,
+    /// onionframes, roi, rulers, safe, controls, lock, clear, zoom100).
     [[nodiscard]] QAction* toolAction(const QString& id) const;
 
 signals:
@@ -137,6 +172,10 @@ private:
     void buildToolBar();
     void syncToolBar();
     void onSessionViewers();
+    /// Marks the viewer as being used now (Auto Proxy) and arms the idle timer.
+    void noteInteraction();
+    /// What decides the pictures of the disk cache besides node, frame, size and options.
+    [[nodiscard]] QByteArray cacheContent() const;
     /// True when the picture needs the CPU image path (channel, checker, split).
     [[nodiscard]] bool needsFx() const;
     [[nodiscard]] quint64 shownNode() const;
@@ -168,6 +207,19 @@ private:
     bool m_capturing = false; ///< guard while B takes the session's node
     bool m_inFlight = false;
     bool m_renderAgain = false;
+    bool m_onion = false;
+    int m_onionFrames = 1;
+    bool m_roi = false;
+    ViewerRegion* m_regionOverlay = nullptr;
+    ViewerRuler* m_rulerTop = nullptr;
+    ViewerRuler* m_rulerLeft = nullptr;
+    QWidget* m_rulerCorner = nullptr;
+    QElapsedTimer m_interaction; ///< since the last playhead / graph change or playback frame
+    QTimer* m_idle = nullptr; ///< fires when the interaction is over: Auto Proxy renders full size
+    bool m_proxyShown = false; ///< the last render was a proxy
+    QSize m_lastRenderSize;
+    int m_cacheHits = 0;
+    int m_cacheMisses = 0;
 };
 
 } // namespace kk

@@ -10319,6 +10319,50 @@ Gracias por ver</translation>
         <translation>Reproducir el rango del clip</translation>
     </message>
     <message>
+        <source>HiQ</source>
+        <translation>HiQ</translation>
+    </message>
+    <message>
+        <source>High Quality: on shows the full-quality picture; off shows a faster draft (nearest filtering, no motion blur) in the viewers. Playback and export are not affected.</source>
+        <translation>High Quality: activado muestra la imagen a calidad completa; desactivado muestra un borrador más rápido (filtrado nearest, sin desenfoque de movimiento) en los visores. La reproducción y la exportación no se ven afectadas.</translation>
+    </message>
+    <message>
+        <source>MB</source>
+        <translation>MB</translation>
+    </message>
+    <message>
+        <source>Motion Blur: shows the motion blur of the nodes that have it in the viewers (off: faster). Playback and export are not affected.</source>
+        <translation>Desenfoque de movimiento: muestra en los visores el desenfoque de movimiento de los nodos que lo tienen (desactivado: más rápido). La reproducción y la exportación no se ven afectadas.</translation>
+    </message>
+    <message>
+        <source>Prx</source>
+        <translation>Prx</translation>
+    </message>
+    <message>
+        <source>Proxy: the viewers render a smaller picture (the ratio on the right) and scale it up, to keep heavy compositions playing smoothly</source>
+        <translation>Proxy: los visores renderizan una imagen más pequeña (la proporción de la derecha) y la amplían, para que las composiciones pesadas se reproduzcan con fluidez</translation>
+    </message>
+    <message>
+        <source>Proxy size: click to change between half and a quarter of the viewer&apos;s size</source>
+        <translation>Tamaño del proxy: clic para alternar entre la mitad y un cuarto del tamaño del visor</translation>
+    </message>
+    <message>
+        <source>APrx</source>
+        <translation>APrx</translation>
+    </message>
+    <message>
+        <source>Auto Proxy: the proxy is used only while the clip plays or you are changing something, and the full picture shows when you stop</source>
+        <translation>Proxy automático: el proxy se usa solo mientras el clip se reproduce o cambias algo, y al parar se muestra la imagen completa</translation>
+    </message>
+    <message>
+        <source>Cache</source>
+        <translation>Caché</translation>
+    </message>
+    <message>
+        <source>Disk cache: the viewers keep the pictures they render in the cache folder, so going back over a frame or looping the clip shows them at once</source>
+        <translation>Caché de disco: los visores guardan las imágenes que renderizan en la carpeta de caché, así que volver a un fotograma o repetir el clip las muestra al instante</translation>
+    </message>
+    <message>
         <source>Audio on: the page plays the timeline&apos;s sound (click to turn the sound off on this page)</source>
         <translation>Audio activado: la página reproduce el sonido de la línea de tiempo (haga clic para desactivar el sonido en esta página)</translation>
     </message>
@@ -10470,6 +10514,46 @@ Gracias por ver</translation>
         <translation>Tablero bajo la imagen</translation>
     </message>
     <message>
+        <source>Onion Skin</source>
+        <translation>Papel cebolla</translation>
+    </message>
+    <message>
+        <source>Onion Skin (O): the frames before the current one in blue and the frames after it in orange, laid faintly over the picture</source>
+        <translation>Papel cebolla (O): los fotogramas anteriores al actual en azul y los posteriores en naranja, superpuestos con suavidad a la imagen</translation>
+    </message>
+    <message>
+        <source>Onion: 1</source>
+        <translation>Cebolla: 1</translation>
+    </message>
+    <message>
+        <source>How many frames on each side Onion Skin shows (click: 1, 2, 3)</source>
+        <translation>Cuántos fotogramas por lado muestra el papel cebolla (clic: 1, 2, 3)</translation>
+    </message>
+    <message>
+        <source>ROI</source>
+        <translation>ROI</translation>
+    </message>
+    <message>
+        <source>Region of Interest: show only a region of the picture; drag over the picture to draw it, double-click to use the whole picture again</source>
+        <translation>Región de interés: muestra solo una región de la imagen; arrastra sobre la imagen para dibujarla, doble clic para volver a usar toda la imagen</translation>
+    </message>
+    <message>
+        <source>Rulers</source>
+        <translation>Reglas</translation>
+    </message>
+    <message>
+        <source>Rulers along the top and left edge of the picture</source>
+        <translation>Reglas en el borde superior e izquierdo de la imagen</translation>
+    </message>
+    <message>
+        <source>Safe Area</source>
+        <translation>Área segura</translation>
+    </message>
+    <message>
+        <source>Title and action safe areas over the picture</source>
+        <translation>Áreas seguras de título y acción sobre la imagen</translation>
+    </message>
+    <message>
         <source>Controls</source>
         <translation>Controles</translation>
     </message>
@@ -10500,6 +10584,10 @@ Gracias por ver</translation>
     <message>
         <source>Zoom to 100% (Ctrl+1)</source>
         <translation>Zoom al 100% (Ctrl+1)</translation>
+    </message>
+    <message>
+        <source>Onion: %1</source>
+        <translation>Cebolla: %1</translation>
     </message>
 </context>
 <context>
@@ -29625,6 +29713,13 @@ Abrir un clip multicámara del panel de medios o mover el cabezal de reproducci�
     <message>
         <source>Audio only</source>
         <translation>Solo audio</translation>
+    </message>
+</context>
+<context>
+    <name>kk::ViewerRegion</name>
+    <message>
+        <source>Region of Interest: drag to draw a region, drag inside to move it, drag a corner or edge to resize it, double-click to use the whole picture again</source>
+        <translation>Región de interés: arrastra para dibujar una región, arrastra dentro para moverla, arrastra una esquina o borde para cambiar su tamaño, doble clic para volver a usar toda la imagen</translation>
     </message>
 </context>
 <context>

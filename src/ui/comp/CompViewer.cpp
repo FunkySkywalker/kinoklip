@@ -2,7 +2,9 @@
 // CompViewer implementation: header, surface, guides, node drops and the picture source.
 #include "ui/comp/CompViewer.h"
 
+#include "core/MediaPool.h"
 #include "core/Project.h"
+#include "core/Serialization.h"
 #include "core/Timeline.h"
 #include "playback/PlaybackEngine.h"
 #include "render/Compositor.h"
@@ -11,8 +13,14 @@
 #include "ui/common/Metrics.h"
 #include "ui/common/PanelInfo.h"
 #include "ui/comp/CompSession.h"
+#include "ui/comp/CompViewOptions.h"
+#include "ui/comp/ViewerCache.h"
+#include "ui/comp/ViewerRegion.h"
+#include "ui/common/SchemeColors.h"
 #include "ui/comp/CompViewerOverlay.h"
 #include "ui/viewer/GuideOverlay.h"
+#include "ui/viewer/ViewerOverlaySettings.h"
+#include "ui/viewer/ViewerRuler.h"
 #include "ui/viewer/ViewerSurface.h"
 
 #include <QAction>
@@ -20,6 +28,9 @@
 #include <QComboBox>
 #include <QDragEnterEvent>
 #include <QDropEvent>
+#include <QFileInfo>
+#include <QGridLayout>
+#include <QJsonDocument>
 #include <QKeyEvent>
 #include <QLabel>
 #include <QMimeData>
@@ -35,6 +46,7 @@
 #include <functional>
 #include <future>
 #include <memory>
+#include <tuple>
 #include <numbers>
 
 namespace kk {
@@ -185,13 +197,56 @@ CompViewer::CompViewer(int index, AppContext& ctx, CompSession* session, QWidget
     buildToolBar();
     layout->addWidget(m_bar);
     m_surface = ViewerSurface::create(body);
-    layout->addWidget(m_surface->widget());
+    // The picture with the optional rulers along its top and left edges (outside the picture).
+    auto* area = new QWidget(body);
+    auto* grid = new QGridLayout(area);
+    grid->setContentsMargins(0, 0, 0, 0);
+    grid->setSpacing(0);
+    grid->addWidget(m_surface->widget(), 1, 1);
+    grid->setRowStretch(1, 1);
+    grid->setColumnStretch(1, 1);
+    layout->addWidget(area, 1);
     setContentWidget(body);
     const TimelineData& data = ctx.project->timeline()->data();
     m_surface->setAspect(QSize(data.width, data.height));
     m_guides = new GuideOverlay(ctx, m_surface, true);
     m_guides->setFrameSize(QSize(data.width, data.height));
+    m_rulerCorner = new QWidget(area);
+    m_rulerCorner->setObjectName(QStringLiteral("CompViewerRulerCorner"));
+    m_rulerCorner->setFixedSize(ViewerRuler::kThickness, ViewerRuler::kThickness);
+    m_rulerCorner->setAutoFillBackground(true);
+    QPalette cornerPalette = m_rulerCorner->palette();
+    cornerPalette.setColor(QPalette::Window, schemeColors().ruler);
+    m_rulerCorner->setPalette(cornerPalette);
+    m_rulerTop = new ViewerRuler(Qt::Horizontal, m_guides, area);
+    m_rulerLeft = new ViewerRuler(Qt::Vertical, m_guides, area);
+    m_rulerTop->setObjectName(QStringLiteral("CompViewerRulerTop"));
+    m_rulerLeft->setObjectName(QStringLiteral("CompViewerRulerLeft"));
+    grid->addWidget(m_rulerCorner, 0, 0);
+    grid->addWidget(m_rulerTop, 0, 1);
+    grid->addWidget(m_rulerLeft, 1, 0);
+    auto applyRulers = [this] {
+        const bool on = ViewerOverlaySettings::instance().options().showRulers;
+        for (QWidget* w : {m_rulerCorner, static_cast<QWidget*>(m_rulerTop), static_cast<QWidget*>(m_rulerLeft)})
+            w->setVisible(on);
+        syncToolBar();
+    };
+    applyRulers();
+    connect(&ViewerOverlaySettings::instance(), &ViewerOverlaySettings::changed, this, applyRulers);
     m_controls = new CompViewerOverlay(session, m_surface, m_index);
+    m_regionOverlay = new ViewerRegion(m_surface);
+    m_regionOverlay->raise();
+    connect(m_regionOverlay, &ViewerRegion::changed, this, [this] { requestRender(); });
+    connect(m_regionOverlay, &ViewerRegion::dragFinished, this, [this] { refresh(); });
+    connect(&CompViewOptions::instance(), &CompViewOptions::changed, this, [this] { refresh(); });
+    m_idle = new QTimer(this);
+    m_idle->setSingleShot(true);
+    m_idle->setInterval(600);
+    connect(m_idle, &QTimer::timeout, this, [this] {
+        // The interaction is over: a proxy that Auto Proxy showed is replaced by the full picture.
+        if (m_proxyShown)
+            refresh();
+    });
     // Roto Assist reads the viewer's picture: rendered once, on the GUI thread, when a point is
     // pressed (not per mouse move).
     m_controls->setSnapSource([this]() -> QImage {
@@ -217,7 +272,9 @@ CompViewer::CompViewer(int index, AppContext& ctx, CompSession* session, QWidget
     connect(session, &CompSession::viewersChanged, this, &CompViewer::refresh);
     connect(session, &CompSession::clipChanged, this, [this] { m_empty = false; });
     connect(session, &CompSession::clipChanged, this, &CompViewer::refresh);
+    connect(session, &CompSession::compositionChanged, this, [this] { noteInteraction(); });
     connect(session, &CompSession::compositionChanged, this, &CompViewer::refresh);
+    connect(ctx.project->timeline(), &Timeline::playheadChanged, this, [this] { noteInteraction(); });
     connect(ctx.project->timeline(), &Timeline::playheadChanged, this, &CompViewer::refresh);
     m_watcher = new QFutureWatcher<RenderedFramePtr>(this);
     connect(m_watcher, &QFutureWatcher<RenderedFramePtr>::finished, this, &CompViewer::onRendered);
@@ -362,45 +419,122 @@ void CompViewer::requestRender()
     }
     m_inFlight = true;
     m_renderAgain = false;
+    const CompViewOptions& options = CompViewOptions::instance();
     const qreal dpr = m_surface->widget()->devicePixelRatioF();
     const QSize logical = m_surface->pictureRect().size();
-    const QSize pixels(int(logical.width() * dpr), int(logical.height() * dpr));
+    const QSize full(int(logical.width() * dpr), int(logical.height() * dpr));
+    // Proxy (spec 121): a fraction of the viewer's size, scaled up by the surface.
+    const QSize pixels = options.renderSize(full, interacting());
+    m_proxyShown = pixels != full;
+    m_lastRenderSize = pixels;
     const bool fx = needsFx();
     const Composition& comp = m_session->composition();
-    auto submit = [&](quint64 id) {
+    // High Quality / Motion Blur off: a draft of the composition (the viewer only).
+    const std::shared_ptr<const TimelineData> timeline
+        = options.viewerTimeline(m_ctx.project->timeline()->snapshot(), m_session->clipId());
+    const bool useCache = options.options().diskCache;
+    const QByteArray content = useCache ? cacheContent() : QByteArray();
+    const int cacheFlags = options.cacheFlags();
+    const int64_t compFrame = m_session->compFrame();
+    const int64_t frameCount = m_session->compFrameCount();
+
+    // One picture the viewer needs: a node at a frame, from the disk cache or rendered now.
+    struct Pending
+    {
+        std::shared_ptr<std::future<RenderedFramePtr>> future;
+        RenderedFramePtr ready;
+        QByteArray key; ///< disk cache key when it is to be stored
+    };
+    int hits = 0, misses = 0;
+    auto submit = [&](quint64 id, int64_t frame) {
+        Pending pending;
         const quint64 nodeId = id == comp.mediaOutId ? 0 : id;
-        return std::make_shared<std::future<RenderedFramePtr>>(m_engine->renderCompositionNode(
-            m_ctx.project->timeline()->snapshot(), m_session->clipId(), nodeId,
-            m_session->compFrame(), pixels,
+        if (!content.isEmpty()) {
+            pending.key = viewercache::makeKey(content, nodeId, frame, pixels, cacheFlags);
+            const QImage cached = viewercache::load(pending.key);
+            if (!cached.isNull()) {
+                auto f = std::make_shared<RenderedFrame>();
+                f->ok = true;
+                f->frame = frame;
+                f->size = cached.size();
+                f->image = cached;
+                f->fromCache = true;
+                pending.ready = f;
+                pending.key.clear();
+                ++hits;
+                return pending;
+            }
+            ++misses;
+        }
+        pending.future = std::make_shared<std::future<RenderedFramePtr>>(m_engine->renderCompositionNode(
+            timeline, m_session->clipId(), nodeId, frame, pixels,
             fx || !m_surface->canDrawTextures() ? OutputImage : OutputTexture));
+        return pending;
     };
     const bool split = fx && m_split;
-    auto fa = submit(split ? bufferNode(0) : node());
-    std::shared_ptr<std::future<RenderedFramePtr>> fb;
+    Pending fa = submit(split ? bufferNode(0) : node(), compFrame);
+    Pending fb;
     if (split)
-        fb = submit(bufferNode(1) ? bufferNode(1) : bufferNode(0));
+        fb = submit(bufferNode(1) ? bufferNode(1) : bufferNode(0), compFrame);
+    // Onion skin: the frames around this one, not with the split display.
+    QVector<Pending> before, after;
+    if (m_onion && !split) {
+        for (int k = 1; k <= m_onionFrames; ++k) {
+            if (compFrame - k >= 0)
+                before.append(submit(node(), compFrame - k));
+            if (compFrame + k < frameCount)
+                after.append(submit(node(), compFrame + k));
+        }
+    }
+    m_cacheHits = hits;
+    m_cacheMisses = misses;
     const viewerfx::Channel channel = m_channel;
     const bool checker = m_checker;
     const QPointF pos = m_splitPos;
     const double angle = m_splitAngle;
+    const QRectF region = m_roi ? m_regionOverlay->region() : QRectF(0, 0, 1, 1);
     // Wait on a pool thread, deliver on the GUI thread (the compositor's futures are std::).
+    auto keep = std::make_shared<std::tuple<Pending, Pending, QVector<Pending>, QVector<Pending>>>(
+        std::move(fa), std::move(fb), std::move(before), std::move(after));
     m_watcher->setFuture(QtConcurrent::run([=] {
-        RenderedFramePtr frame = fa->get();
+        const auto get = [](Pending& p) -> RenderedFramePtr {
+            RenderedFramePtr frame = p.ready ? p.ready : (p.future ? p.future->get() : RenderedFramePtr());
+            if (!p.key.isEmpty() && frame && frame->ok && !frame->image.isNull()) {
+                if (viewercache::store(p.key, frame->image))
+                    viewercache::trimSometimes();
+            }
+            return frame;
+        };
+        RenderedFramePtr frame = get(std::get<0>(*keep));
         if (!fx || !frame || !frame->ok || frame->image.isNull())
             return frame;
         QImage image = frame->image;
-        if (fb) {
-            const RenderedFramePtr other = fb->get();
+        if (std::get<1>(*keep).future || std::get<1>(*keep).ready) {
+            const RenderedFramePtr other = get(std::get<1>(*keep));
             if (other && other->ok && !other->image.isNull())
                 image = viewerfx::splitWipe(image, other->image, pos, angle);
         }
+        if (!std::get<2>(*keep).isEmpty() || !std::get<3>(*keep).isEmpty()) {
+            QVector<QImage> b, a;
+            for (Pending& p : std::get<2>(*keep)) {
+                const RenderedFramePtr f = get(p);
+                b.append(f && f->ok ? f->image : QImage());
+            }
+            for (Pending& p : std::get<3>(*keep)) {
+                const RenderedFramePtr f = get(p);
+                a.append(f && f->ok ? f->image : QImage());
+            }
+            image = viewerfx::onionSkin(image, b, a);
+        }
         image = viewerfx::showChannel(image, channel);
+        image = viewerfx::applyRegion(image, region);
         if (checker)
             image = viewerfx::overChecker(image);
         auto out = std::make_shared<RenderedFrame>(*frame);
         out->texture = 0;
         out->fence = nullptr;
         out->image = image;
+        out->size = image.size();
         return RenderedFramePtr(out);
     }));
 }
@@ -417,7 +551,56 @@ void CompViewer::onRendered()
 
 bool CompViewer::needsFx() const
 {
-    return m_channel != viewerfx::Channel::Color || m_checker || m_split;
+    // Anything that changes the picture the engine would show makes the viewer render it itself.
+    const CompViewOptionsData& o = CompViewOptions::instance().options();
+    return m_channel != viewerfx::Channel::Color || m_checker || m_split || m_onion || m_roi
+        || o.proxy || o.autoProxy || !o.highQuality || !o.motionBlur || o.diskCache;
+}
+
+void CompViewer::noteInteraction()
+{
+    m_interaction.restart();
+    if (m_idle && CompViewOptions::instance().options().autoProxy)
+        m_idle->start();
+}
+
+bool CompViewer::interacting() const
+{
+    return (m_engine && m_engine->isPlaying())
+        || (m_interaction.isValid() && m_interaction.elapsed() < 500);
+}
+
+QByteArray CompViewer::cacheContent() const
+{
+    // The composition's picture-relevant JSON, the clip's source, the timeline's format and the
+    // files the composition reads (path, size, time).
+    const TimelineData& data = m_ctx.project->timeline()->data();
+    QByteArray content;
+    const ClipData* clip = nullptr;
+    for (const TrackData& t : data.videoTracks)
+        for (const ClipData& c : t.clips)
+            if (c.id == m_session->clipId())
+                clip = &c;
+    if (!clip || !clip->composition)
+        return {};
+    content += QJsonDocument(serialization::compositionToJson(*clip->composition, true)).toJson(QJsonDocument::Compact);
+    content += QByteArray::number(clip->sourceInUs) + ' ' + QByteArray::number(clip->speed, 'g', 12) + ' '
+        + clip->mediaId.toUtf8() + ' ' + QByteArray::number(data.width) + 'x' + QByteArray::number(data.height)
+        + ' ' + QByteArray::number(data.fps.toDouble(), 'g', 12);
+    QStringList media {clip->mediaId};
+    for (const CompNode& n : clip->composition->nodes)
+        if (!n.mediaId.isEmpty())
+            media.append(n.mediaId);
+    for (const QString& id : media) {
+        if (id.isEmpty())
+            continue;
+        if (const MediaItem* item = m_ctx.project->mediaPool()->item(id)) {
+            const QFileInfo fi(item->path);
+            content += ' ' + item->path.toUtf8() + ':' + QByteArray::number(fi.size()) + ':'
+                + QByteArray::number(fi.lastModified().toMSecsSinceEpoch());
+        }
+    }
+    return content;
 }
 
 void CompViewer::onSessionViewers()
@@ -509,6 +692,76 @@ void CompViewer::setChecker(bool on)
     refresh();
 }
 
+void CompViewer::setOnion(bool on)
+{
+    if (on == m_onion)
+        return;
+    m_onion = on;
+    syncToolBar();
+    refresh();
+}
+
+void CompViewer::setOnionFrames(int frames)
+{
+    frames = std::clamp(frames, 1, 3);
+    if (frames == m_onionFrames)
+        return;
+    m_onionFrames = frames;
+    syncToolBar();
+    if (m_onion)
+        refresh();
+}
+
+void CompViewer::setRegionShown(bool on)
+{
+    if (on == m_roi)
+        return;
+    m_roi = on;
+    m_regionOverlay->setVisible(on);
+    if (on)
+        m_regionOverlay->raise();
+    syncToolBar();
+    refresh();
+}
+
+QRectF CompViewer::region() const
+{
+    return m_regionOverlay->region();
+}
+
+void CompViewer::setRegion(const QRectF& region)
+{
+    m_regionOverlay->setRegion(region);
+    if (m_roi)
+        refresh();
+}
+
+bool CompViewer::rulersShown() const
+{
+    return ViewerOverlaySettings::instance().options().showRulers;
+}
+
+void CompViewer::setRulersShown(bool on)
+{
+    ViewerOverlayOptions o = ViewerOverlaySettings::instance().options();
+    o.showRulers = on;
+    ViewerOverlaySettings::instance().setOptions(o);
+}
+
+bool CompViewer::safeAreaShown() const
+{
+    const ViewerOverlayOptions& o = ViewerOverlaySettings::instance().options();
+    return o.actionSafe || o.titleSafe;
+}
+
+void CompViewer::setSafeAreaShown(bool on)
+{
+    ViewerOverlayOptions o = ViewerOverlaySettings::instance().options();
+    o.actionSafe = on;
+    o.titleSafe = on;
+    ViewerOverlaySettings::instance().setOptions(o);
+}
+
 void CompViewer::setControlsShown(bool on)
 {
     m_controlsShown = on;
@@ -586,6 +839,18 @@ void CompViewer::buildToolBar()
     add("alpha", tr("Alpha"), tr("Show alpha (A)"), true);
     m_bar->addSeparator();
     add("checker", tr("Checker"), tr("Checker under the picture"), true);
+    add("onion", tr("Onion Skin"),
+        tr("Onion Skin (O): the frames before the current one in blue and the frames after it in "
+           "orange, laid faintly over the picture"),
+        true);
+    add("onionframes", tr("Onion: 1"),
+        tr("How many frames on each side Onion Skin shows (click: 1, 2, 3)"), false);
+    add("roi", tr("ROI"),
+        tr("Region of Interest: show only a region of the picture; drag over the picture to draw "
+           "it, double-click to use the whole picture again"),
+        true);
+    add("rulers", tr("Rulers"), tr("Rulers along the top and left edge of the picture"), true);
+    add("safe", tr("Safe Area"), tr("Title and action safe areas over the picture"), true);
     add("controls", tr("Controls"), tr("Show on-screen controls (Ctrl+K)"), true);
     add("lock", tr("Lock"), tr("Lock the viewer on this node (Ctrl+L)"), true);
     add("clear", tr("Clear"), tr("Clear the viewers (~)"), false);
@@ -609,6 +874,12 @@ void CompViewer::syncToolBar()
     mark("blue", m_channel == viewerfx::Channel::Blue);
     mark("alpha", m_channel == viewerfx::Channel::Alpha);
     mark("checker", m_checker);
+    mark("onion", m_onion);
+    mark("roi", m_roi);
+    mark("rulers", rulersShown());
+    mark("safe", safeAreaShown());
+    if (QAction* a = toolAction(QStringLiteral("onionframes")))
+        a->setText(tr("Onion: %1").arg(m_onionFrames));
     mark("controls", m_controlsShown);
     mark("lock", locked());
     if (m_handle) {
@@ -638,6 +909,16 @@ void CompViewer::runTool(const QString& id)
         setChannel(m_channel == Channel::Alpha ? Channel::Color : Channel::Alpha);
     } else if (id == QLatin1String("checker")) {
         setChecker(!m_checker);
+    } else if (id == QLatin1String("onion")) {
+        setOnion(!m_onion);
+    } else if (id == QLatin1String("onionframes")) {
+        setOnionFrames(m_onionFrames % 3 + 1);
+    } else if (id == QLatin1String("roi")) {
+        setRegionShown(!m_roi);
+    } else if (id == QLatin1String("rulers")) {
+        setRulersShown(!rulersShown());
+    } else if (id == QLatin1String("safe")) {
+        setSafeAreaShown(!safeAreaShown());
     } else if (id == QLatin1String("controls")) {
         setControlsShown(!m_controlsShown);
     } else if (id == QLatin1String("lock")) {
@@ -676,6 +957,7 @@ QString CompViewer::keyTool(const QKeyEvent* e) const
     case Qt::Key_G: return QStringLiteral("green");
     case Qt::Key_B: return QStringLiteral("blue");
     case Qt::Key_A: return QStringLiteral("alpha");
+    case Qt::Key_O: return QStringLiteral("onion");
     case Qt::Key_AsciiTilde: return QStringLiteral("clear");
     default: return {};
     }

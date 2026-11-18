@@ -10086,7 +10086,7 @@ Danke fürs Zuschauen</translation>
     </message>
     <message>
         <source>The nodes in this group. Select the group and use Collapse Group or double-click to show or hide them.</source>
-        <translation>Die Nodes dieser Gruppe. Gruppe wählen und "Gruppe einklappen" oder Doppelklick nutzen, um sie zu zeigen oder zu verbergen.</translation>
+        <translation>Die Nodes dieser Gruppe. Gruppe wählen und &quot;Gruppe einklappen&quot; oder Doppelklick nutzen, um sie zu zeigen oder zu verbergen.</translation>
     </message>
     <message>
         <source>Members</source>
@@ -10319,6 +10319,50 @@ Danke fürs Zuschauen</translation>
         <translation>Den Clip-Bereich abspielen</translation>
     </message>
     <message>
+        <source>HiQ</source>
+        <translation>HiQ</translation>
+    </message>
+    <message>
+        <source>High Quality: on shows the full-quality picture; off shows a faster draft (nearest filtering, no motion blur) in the viewers. Playback and export are not affected.</source>
+        <translation>High Quality: an zeigt das Bild in voller Qualität; aus zeigt in den Viewern einen schnelleren Entwurf (Nearest-Filter, keine Bewegungsunschärfe). Wiedergabe und Export sind nicht betroffen.</translation>
+    </message>
+    <message>
+        <source>MB</source>
+        <translation>MB</translation>
+    </message>
+    <message>
+        <source>Motion Blur: shows the motion blur of the nodes that have it in the viewers (off: faster). Playback and export are not affected.</source>
+        <translation>Bewegungsunschärfe: zeigt in den Viewern die Bewegungsunschärfe der Nodes, die sie haben (aus: schneller). Wiedergabe und Export sind nicht betroffen.</translation>
+    </message>
+    <message>
+        <source>Prx</source>
+        <translation>Prx</translation>
+    </message>
+    <message>
+        <source>Proxy: the viewers render a smaller picture (the ratio on the right) and scale it up, to keep heavy compositions playing smoothly</source>
+        <translation>Proxy: die Viewer berechnen ein kleineres Bild (das Verhältnis rechts) und skalieren es hoch, damit schwere Kompositionen flüssig laufen</translation>
+    </message>
+    <message>
+        <source>Proxy size: click to change between half and a quarter of the viewer&apos;s size</source>
+        <translation>Proxy-Größe: Klick wechselt zwischen der Hälfte und einem Viertel der Viewer-Größe</translation>
+    </message>
+    <message>
+        <source>APrx</source>
+        <translation>APrx</translation>
+    </message>
+    <message>
+        <source>Auto Proxy: the proxy is used only while the clip plays or you are changing something, and the full picture shows when you stop</source>
+        <translation>Auto-Proxy: der Proxy wird nur genutzt, während der Clip läuft oder du etwas änderst; beim Anhalten erscheint das volle Bild</translation>
+    </message>
+    <message>
+        <source>Cache</source>
+        <translation>Cache</translation>
+    </message>
+    <message>
+        <source>Disk cache: the viewers keep the pictures they render in the cache folder, so going back over a frame or looping the clip shows them at once</source>
+        <translation>Festplatten-Cache: Die Viewer speichern ihre berechneten Bilder im Cache-Ordner, damit ein Frame beim Zurückgehen oder eine Schleife sofort erscheint</translation>
+    </message>
+    <message>
         <source>Audio on: the page plays the timeline&apos;s sound (click to turn the sound off on this page)</source>
         <translation>Audio an: Die Seite spielt den Ton der Timeline ab (klicken, um den Ton auf dieser Seite auszuschalten)</translation>
     </message>
@@ -10470,6 +10514,46 @@ Danke fürs Zuschauen</translation>
         <translation>Schachbrett unter dem Bild</translation>
     </message>
     <message>
+        <source>Onion Skin</source>
+        <translation>Onion Skin</translation>
+    </message>
+    <message>
+        <source>Onion Skin (O): the frames before the current one in blue and the frames after it in orange, laid faintly over the picture</source>
+        <translation>Onion Skin (O): die Bilder vor dem aktuellen in Blau und die danach in Orange, schwach über das Bild gelegt</translation>
+    </message>
+    <message>
+        <source>Onion: 1</source>
+        <translation>Onion: 1</translation>
+    </message>
+    <message>
+        <source>How many frames on each side Onion Skin shows (click: 1, 2, 3)</source>
+        <translation>Wie viele Bilder auf jeder Seite Onion Skin zeigt (Klick: 1, 2, 3)</translation>
+    </message>
+    <message>
+        <source>ROI</source>
+        <translation>ROI</translation>
+    </message>
+    <message>
+        <source>Region of Interest: show only a region of the picture; drag over the picture to draw it, double-click to use the whole picture again</source>
+        <translation>Region of Interest: zeigt nur einen Bereich des Bildes; über das Bild ziehen, um ihn zu zeichnen, Doppelklick zeigt wieder das ganze Bild</translation>
+    </message>
+    <message>
+        <source>Rulers</source>
+        <translation>Lineale</translation>
+    </message>
+    <message>
+        <source>Rulers along the top and left edge of the picture</source>
+        <translation>Lineale am oberen und linken Bildrand</translation>
+    </message>
+    <message>
+        <source>Safe Area</source>
+        <translation>Sicherheitsbereich</translation>
+    </message>
+    <message>
+        <source>Title and action safe areas over the picture</source>
+        <translation>Titel- und Action-sichere Bereiche über dem Bild</translation>
+    </message>
+    <message>
         <source>Controls</source>
         <translation>Steuerelemente</translation>
     </message>
@@ -10500,6 +10584,10 @@ Danke fürs Zuschauen</translation>
     <message>
         <source>Zoom to 100% (Ctrl+1)</source>
         <translation>Auf 100% zoomen (Strg+1)</translation>
+    </message>
+    <message>
+        <source>Onion: %1</source>
+        <translation>Onion: %1</translation>
     </message>
 </context>
 <context>
@@ -29625,6 +29713,13 @@ Einen Multicam-Clip aus dem Medienpool öffnen oder den Abspielkopf über einen 
     <message>
         <source>Audio only</source>
         <translation>Nur Audio</translation>
+    </message>
+</context>
+<context>
+    <name>kk::ViewerRegion</name>
+    <message>
+        <source>Region of Interest: drag to draw a region, drag inside to move it, drag a corner or edge to resize it, double-click to use the whole picture again</source>
+        <translation>Region of Interest: ziehen, um einen Bereich zu zeichnen; innen ziehen verschiebt ihn, an Ecke oder Kante ziehen ändert die Größe, Doppelklick zeigt wieder das ganze Bild</translation>
     </message>
 </context>
 <context>

@@ -11,6 +11,7 @@
 #include "ui/common/SchemeColors.h"
 #include "ui/common/TimecodeFormat.h"
 #include "ui/comp/CompSession.h"
+#include "ui/comp/CompViewOptions.h"
 
 #include <QHBoxLayout>
 #include <QLabel>
@@ -192,6 +193,68 @@ CompTransport::CompTransport(AppContext& ctx, CompSession* session, QWidget* par
     m_position->setMinimumWidth(
         fontMetrics().horizontalAdvance(QStringLiteral("Frame 00000 / 00:00:00:00")));
     layout->addWidget(m_position);
+
+    // The viewers' quality switches (spec 121): HiQ, MB, Prx (with its ratio), APrx and Cache.
+    auto toggle = [this, layout](const char* name, const QString& text, const QString& tip) {
+        auto* b = new QToolButton(this);
+        b->setObjectName(QLatin1String(name));
+        b->setText(text);
+        b->setToolTip(tip);
+        b->setCheckable(true);
+        b->setAutoRaise(true);
+        b->setFocusPolicy(Qt::NoFocus);
+        layout->addWidget(b);
+        return b;
+    };
+    auto* hiq = toggle("CompHiQ", tr("HiQ"),
+        tr("High Quality: on shows the full-quality picture; off shows a faster draft (nearest "
+           "filtering, no motion blur) in the viewers. Playback and export are not affected."));
+    auto* blur = toggle("CompMotionBlur", tr("MB"),
+        tr("Motion Blur: shows the motion blur of the nodes that have it in the viewers (off: "
+           "faster). Playback and export are not affected."));
+    auto* proxy = toggle("CompProxy", tr("Prx"),
+        tr("Proxy: the viewers render a smaller picture (the ratio on the right) and scale it up, "
+           "to keep heavy compositions playing smoothly"));
+    auto* ratio = new QToolButton(this);
+    ratio->setObjectName(QStringLiteral("CompProxyRatio"));
+    ratio->setAutoRaise(true);
+    ratio->setFocusPolicy(Qt::NoFocus);
+    ratio->setToolTip(tr("Proxy size: click to change between half and a quarter of the viewer's size"));
+    layout->addWidget(ratio);
+    auto* autoProxy = toggle("CompAutoProxy", tr("APrx"),
+        tr("Auto Proxy: the proxy is used only while the clip plays or you are changing something, "
+           "and the full picture shows when you stop"));
+    auto* cache = toggle("CompDiskCache", tr("Cache"),
+        tr("Disk cache: the viewers keep the pictures they render in the cache folder, so going "
+           "back over a frame or looping the clip shows them at once"));
+    auto sync = [=] {
+        const CompViewOptionsData& o = CompViewOptions::instance().options();
+        for (auto [b, on] : {std::pair<QToolButton*, bool> {hiq, o.highQuality}, {blur, o.motionBlur},
+                 {proxy, o.proxy}, {autoProxy, o.autoProxy}, {cache, o.diskCache}}) {
+            const QSignalBlocker block(b);
+            b->setChecked(on);
+        }
+        ratio->setText(QStringLiteral("1:%1").arg(o.proxyRatio));
+    };
+    sync();
+    connect(&CompViewOptions::instance(), &CompViewOptions::changed, this, sync);
+    auto change = [](auto member) {
+        return [member](bool on) {
+            CompViewOptionsData o = CompViewOptions::instance().options();
+            o.*member = on;
+            CompViewOptions::instance().setOptions(o);
+        };
+    };
+    connect(hiq, &QToolButton::clicked, this, change(&CompViewOptionsData::highQuality));
+    connect(blur, &QToolButton::clicked, this, change(&CompViewOptionsData::motionBlur));
+    connect(proxy, &QToolButton::clicked, this, change(&CompViewOptionsData::proxy));
+    connect(autoProxy, &QToolButton::clicked, this, change(&CompViewOptionsData::autoProxy));
+    connect(cache, &QToolButton::clicked, this, change(&CompViewOptionsData::diskCache));
+    connect(ratio, &QToolButton::clicked, this, [] {
+        CompViewOptionsData o = CompViewOptions::instance().options();
+        o.proxyRatio = o.proxyRatio == 2 ? 4 : 2;
+        CompViewOptions::instance().setOptions(o);
+    });
 
     connect(m_play, &QToolButton::clicked, this, &CompTransport::play);
     connect(m_stop, &QToolButton::clicked, this, &CompTransport::stop);

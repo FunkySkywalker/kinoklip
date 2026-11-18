@@ -10329,6 +10329,50 @@ Thank you for watching</source>
         <translation>Воспроизвести диапазон клипа</translation>
     </message>
     <message>
+        <source>HiQ</source>
+        <translation>HiQ</translation>
+    </message>
+    <message>
+        <source>High Quality: on shows the full-quality picture; off shows a faster draft (nearest filtering, no motion blur) in the viewers. Playback and export are not affected.</source>
+        <translation>High Quality: включено показывает картинку в полном качестве; выключено показывает в окнах просмотра более быстрый черновик (фильтрация «ближайший», без размытия движения). Воспроизведение и экспорт не затрагиваются.</translation>
+    </message>
+    <message>
+        <source>MB</source>
+        <translation>MB</translation>
+    </message>
+    <message>
+        <source>Motion Blur: shows the motion blur of the nodes that have it in the viewers (off: faster). Playback and export are not affected.</source>
+        <translation>Размытие движения: показывает в окнах просмотра размытие движения у узлов, где оно есть (выключено: быстрее). Воспроизведение и экспорт не затрагиваются.</translation>
+    </message>
+    <message>
+        <source>Prx</source>
+        <translation>Prx</translation>
+    </message>
+    <message>
+        <source>Proxy: the viewers render a smaller picture (the ratio on the right) and scale it up, to keep heavy compositions playing smoothly</source>
+        <translation>Прокси: окна просмотра рисуют уменьшенную картинку (соотношение справа) и растягивают её, чтобы тяжёлые композиции играли плавно</translation>
+    </message>
+    <message>
+        <source>Proxy size: click to change between half and a quarter of the viewer&apos;s size</source>
+        <translation>Размер прокси: щелчок переключает между половиной и четвертью размера окна просмотра</translation>
+    </message>
+    <message>
+        <source>APrx</source>
+        <translation>APrx</translation>
+    </message>
+    <message>
+        <source>Auto Proxy: the proxy is used only while the clip plays or you are changing something, and the full picture shows when you stop</source>
+        <translation>Авто-прокси: прокси используется только во время воспроизведения клипа или когда вы что-то меняете; при остановке показывается полная картинка</translation>
+    </message>
+    <message>
+        <source>Cache</source>
+        <translation>Кэш</translation>
+    </message>
+    <message>
+        <source>Disk cache: the viewers keep the pictures they render in the cache folder, so going back over a frame or looping the clip shows them at once</source>
+        <translation>Дисковый кэш: окна просмотра сохраняют отрисованные картинки в папке кэша, поэтому возврат к кадру или повтор клипа показывает их сразу</translation>
+    </message>
+    <message>
         <source>Audio on: the page plays the timeline&apos;s sound (click to turn the sound off on this page)</source>
         <translation>Звук включён: страница воспроизводит звук таймлайна (нажмите, чтобы выключить звук на этой странице)</translation>
     </message>
@@ -10480,6 +10524,46 @@ Thank you for watching</source>
         <translation>Шахматка под изображением</translation>
     </message>
     <message>
+        <source>Onion Skin</source>
+        <translation>Калька</translation>
+    </message>
+    <message>
+        <source>Onion Skin (O): the frames before the current one in blue and the frames after it in orange, laid faintly over the picture</source>
+        <translation>Калька (O): кадры до текущего синим, кадры после него оранжевым, слабо наложенные на картинку</translation>
+    </message>
+    <message>
+        <source>Onion: 1</source>
+        <translation>Калька: 1</translation>
+    </message>
+    <message>
+        <source>How many frames on each side Onion Skin shows (click: 1, 2, 3)</source>
+        <translation>Сколько кадров с каждой стороны показывает калька (щелчок: 1, 2, 3)</translation>
+    </message>
+    <message>
+        <source>ROI</source>
+        <translation>ROI</translation>
+    </message>
+    <message>
+        <source>Region of Interest: show only a region of the picture; drag over the picture to draw it, double-click to use the whole picture again</source>
+        <translation>Область интереса: показывает только часть картинки; проведите по картинке, чтобы нарисовать её, двойной щелчок возвращает всю картинку</translation>
+    </message>
+    <message>
+        <source>Rulers</source>
+        <translation>Линейки</translation>
+    </message>
+    <message>
+        <source>Rulers along the top and left edge of the picture</source>
+        <translation>Линейки по верхнему и левому краю картинки</translation>
+    </message>
+    <message>
+        <source>Safe Area</source>
+        <translation>Безопасная зона</translation>
+    </message>
+    <message>
+        <source>Title and action safe areas over the picture</source>
+        <translation>Безопасные зоны титров и действия поверх картинки</translation>
+    </message>
+    <message>
         <source>Controls</source>
         <translation>Элементы управления</translation>
     </message>
@@ -10510,6 +10594,10 @@ Thank you for watching</source>
     <message>
         <source>Zoom to 100% (Ctrl+1)</source>
         <translation>Масштаб 100% (Ctrl+1)</translation>
+    </message>
+    <message>
+        <source>Onion: %1</source>
+        <translation>Калька: %1</translation>
     </message>
 </context>
 <context>
@@ -29644,6 +29732,13 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
     <message>
         <source>Audio only</source>
         <translation>Только аудио</translation>
+    </message>
+</context>
+<context>
+    <name>kk::ViewerRegion</name>
+    <message>
+        <source>Region of Interest: drag to draw a region, drag inside to move it, drag a corner or edge to resize it, double-click to use the whole picture again</source>
+        <translation>Область интереса: тяните, чтобы нарисовать область, тяните внутри, чтобы переместить её, тяните угол или край, чтобы изменить размер, двойной щелчок возвращает всю картинку</translation>
     </message>
 </context>
 <context>

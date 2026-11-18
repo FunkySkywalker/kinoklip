@@ -33,11 +33,15 @@
 #include "ui/comp/CompInspector.h"
 #include "ui/comp/CompSession.h"
 #include "ui/comp/CompTransport.h"
+#include "ui/comp/CompViewOptions.h"
 #include "ui/comp/CompViewer.h"
 #include "ui/comp/CompViewerOverlay.h"
 #include "ui/comp/MakeMacroDialog.h"
 #include "ui/comp/NodeEditor.h"
 #include "ui/comp/NodeLibrary.h"
+#include "ui/comp/ViewerCache.h"
+#include "ui/comp/ViewerFx.h"
+#include "ui/comp/ViewerRegion.h"
 #include "ui/comp/TrackerPanel.h"
 #include "ui/inspector/ParamGroupBox.h"
 #include "ui/inspector/ParamRows.h"
@@ -50,13 +54,16 @@
 #include "ui/keyframes/KeyframeParamTree.h"
 #include "ui/keyframes/KeyframesPanel.h"
 #include "ui/mediapool/MediaPoolPanel.h"
+#include "ui/viewer/ViewerOverlaySettings.h"
 #include "ui/viewer/ViewerSurface.h"
 
 #include <QAction>
 #include <QApplication>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QDateTime>
 #include <QDir>
+#include <QFile>
 #include <QDoubleSpinBox>
 #include <QInputDialog>
 #include <QLabel>
@@ -65,6 +72,7 @@
 #include <QMimeData>
 #include <QMenu>
 #include <QMouseEvent>
+#include <QPainter>
 #include <QRegularExpression>
 #include <QProgressBar>
 #include <QPushButton>
@@ -1397,6 +1405,387 @@ private slots:
         // The underlay is saved with the project.
         const Composition back = serialization::compositionFromJson(serialization::compositionToJson(f.comp()));
         QVERIFY(back.notes.last().underlay);
+    }
+
+    void viewerOnionSkinAndRegionFunctions()
+    {
+        // Spec 121.1 / 121.2: the pure picture functions of Onion Skin and Region of Interest.
+        QImage cur(40, 20, QImage::Format_ARGB32_Premultiplied);
+        cur.fill(Qt::black);
+        QImage ghostBefore(40, 20, QImage::Format_ARGB32_Premultiplied), ghostAfter = ghostBefore;
+        ghostBefore.fill(Qt::white);
+        ghostAfter.fill(Qt::white);
+        const QImage one = viewerfx::onionSkin(cur, {ghostBefore}, {});
+        const QRgb b = one.pixel(5, 5);
+        QVERIFY2(qBlue(b) > qGreen(b) && qGreen(b) > qRed(b) && qRed(b) > 30, "frames before are blue");
+        const QImage two = viewerfx::onionSkin(cur, {}, {ghostAfter});
+        const QRgb a = two.pixel(5, 5);
+        QVERIFY2(qRed(a) > qGreen(a) && qGreen(a) > qBlue(a) && qBlue(a) > 20, "frames after are orange");
+        // Further frames are fainter; null pictures are skipped; no ghosts: unchanged.
+        const QImage far = viewerfx::onionSkin(cur, {QImage(), ghostBefore}, {});
+        QVERIFY(qBlue(far.pixel(5, 5)) < qBlue(b));
+        QCOMPARE(viewerfx::onionSkin(cur, {}, {}), cur);
+        QCOMPARE(viewerfx::onionSkin(QImage(), {ghostBefore}, {}).isNull(), true);
+        // The current picture is never covered by something fully: black stays darker than white.
+        QVERIFY(qRed(one.pixel(5, 5)) < 200);
+        // Region: outside it the picture is cut away.
+        QImage red(100, 50, QImage::Format_ARGB32_Premultiplied);
+        red.fill(Qt::red);
+        const QImage cut = viewerfx::applyRegion(red, QRectF(0.25, 0.2, 0.5, 0.6));
+        QCOMPARE(qAlpha(cut.pixel(50, 25)), 255);
+        QCOMPARE(qAlpha(cut.pixel(10, 25)), 0);
+        QCOMPARE(qAlpha(cut.pixel(50, 5)), 0);
+        QCOMPARE(qAlpha(cut.pixel(90, 25)), 0);
+        QCOMPARE(viewerfx::applyRegion(red, QRectF(0, 0, 1, 1)), red);
+        QCOMPARE(viewerfx::applyRegion(red, QRectF()), red);
+    }
+
+
+    void viewerDiskCacheStoresFindsAndTrims()
+    {
+        // Spec 121.6: keys follow what decides the picture; pictures round-trip; the folder is trimmed
+        // oldest first.
+        QStandardPaths::setTestModeEnabled(true);
+        viewercache::clear();
+        const QByteArray a = viewercache::makeKey("comp", 3, 10, QSize(320, 180), 3);
+        QCOMPARE(a.size(), 40);
+        QCOMPARE(viewercache::makeKey("comp", 3, 10, QSize(320, 180), 3), a);
+        for (const QByteArray& other : {viewercache::makeKey("comp2", 3, 10, QSize(320, 180), 3),
+                 viewercache::makeKey("comp", 4, 10, QSize(320, 180), 3),
+                 viewercache::makeKey("comp", 3, 11, QSize(320, 180), 3),
+                 viewercache::makeKey("comp", 3, 10, QSize(160, 90), 3),
+                 viewercache::makeKey("comp", 3, 10, QSize(320, 180), 1)})
+            QVERIFY(other != a);
+        QImage img(64, 36, QImage::Format_ARGB32_Premultiplied);
+        img.fill(QColor(200, 30, 60, 255));
+        QPainter p(&img);
+        p.fillRect(QRect(10, 10, 20, 10), QColor(0, 255, 0, 128));
+        p.end();
+        QVERIFY(!viewercache::contains(a));
+        QVERIFY(viewercache::load(a).isNull());
+        QVERIFY(viewercache::store(a, img));
+        QVERIFY(viewercache::contains(a));
+        QCOMPARE(viewercache::load(a), img);
+        QCOMPARE(viewercache::usage().files, 1);
+        QVERIFY(!viewercache::store(a, QImage()));
+        // A damaged file is a miss, not a crash.
+        QFile bad(viewercache::directory() + QStringLiteral("/") + QString::fromLatin1(a) + QStringLiteral(".kkv"));
+        QVERIFY(bad.open(QIODevice::WriteOnly | QIODevice::Truncate));
+        bad.write("not a picture");
+        bad.close();
+        QVERIFY(viewercache::load(a).isNull());
+        // Trimming: five files, the least recently used go first.
+        viewercache::clear();
+        QVector<QByteArray> keys;
+        for (int i = 0; i < 5; ++i) {
+            keys.append(viewercache::makeKey("t", 1, i, QSize(64, 36), 0));
+            QVERIFY(viewercache::store(keys.last(), img));
+            QFile f(viewercache::directory() + QStringLiteral("/") + QString::fromLatin1(keys.last()) + QStringLiteral(".kkv"));
+            QVERIFY(f.open(QIODevice::ReadWrite));
+            f.setFileTime(QDateTime::currentDateTime().addSecs(-1000 + i * 100), QFileDevice::FileModificationTime);
+        }
+        // Reading the oldest counts as using it.
+        QVERIFY(!viewercache::load(keys[0]).isNull());
+        const qint64 each = viewercache::usage().bytes / 5;
+        QCOMPARE(viewercache::trim(each * 2 + 10), 3);
+        QCOMPARE(viewercache::usage().files, 2);
+        QVERIFY(viewercache::contains(keys[0])); // used last: stays
+        QVERIFY(viewercache::contains(keys[4])); // newest of the rest
+        QVERIFY(!viewercache::contains(keys[1]) && !viewercache::contains(keys[2]) && !viewercache::contains(keys[3]));
+        QCOMPARE(viewercache::trim(), 0); // within the limit
+        QCOMPARE(viewercache::clear(), 2);
+        QCOMPARE(viewercache::usage().files, 0);
+    }
+
+    void viewerQualityOptionsAndDraftTimeline()
+    {
+        // Spec 121.5: the switches are stored, proxies are fractions of the viewer, HiQ / MB off make a
+        // draft copy of the composition for the viewer only.
+        QSettings().clear();
+        CompViewOptions& options = CompViewOptions::instance();
+        options.load();
+        QCOMPARE(options.options(), CompViewOptionsData {});
+        QVERIFY(options.options().highQuality && options.options().motionBlur && !options.options().proxy);
+        QSignalSpy changed(&options, &CompViewOptions::changed);
+        CompViewOptionsData o;
+        o.proxy = true;
+        o.proxyRatio = 4;
+        options.setOptions(o);
+        QCOMPARE(changed.count(), 1);
+        options.setOptions(o); // no change: no signal
+        QCOMPARE(changed.count(), 1);
+        QCOMPARE(options.renderSize(QSize(800, 400), false), QSize(200, 100));
+        o.proxyRatio = 2;
+        options.setOptions(o);
+        QCOMPARE(options.renderSize(QSize(800, 400), false), QSize(400, 200));
+        QCOMPARE(options.renderSize(QSize(20, 10), false), QSize(16, 10)); // never below 16 px, never above the size
+        // Auto Proxy: only while interacting.
+        o.proxy = false;
+        o.autoProxy = true;
+        options.setOptions(o);
+        QCOMPARE(options.renderSize(QSize(800, 400), false), QSize(800, 400));
+        QCOMPARE(options.renderSize(QSize(800, 400), true), QSize(400, 200));
+        QVERIFY(options.proxyInEffect(true) && !options.proxyInEffect(false));
+        // Stored: a fresh load sees them.
+        options.load();
+        QVERIFY(options.options().autoProxy && options.options().proxyRatio == 2);
+        // The draft timeline: untouched at full quality, a copy otherwise; the original is never changed.
+        TimelineData tl;
+        tl.width = 320;
+        tl.height = 180;
+        ClipData clip;
+        clip.id = 7;
+        clip.kind = ClipKind::Solid;
+        Composition comp = compadapter::defaultComposition();
+        const quint64 merge = compops::addNode(comp, nodetypes::Merge, {});
+        comp.node(merge)->params.setStatic(nodekeys::MotionBlur, true);
+        clip.composition = comp;
+        TrackData track;
+        track.clips.push_back(clip);
+        tl.videoTracks.push_back(track);
+        const auto snapshot = std::make_shared<const TimelineData>(tl);
+        options.setOptions({});
+        QCOMPARE(options.viewerTimeline(snapshot, 7), snapshot);
+        o = {};
+        o.motionBlur = false;
+        options.setOptions(o);
+        const auto draft = options.viewerTimeline(snapshot, 7);
+        QVERIFY(draft != snapshot);
+        QCOMPARE(draft->videoTracks[0].clips[0].composition->node(merge)->params.staticValue(nodekeys::MotionBlur).toBool(), false);
+        QCOMPARE(snapshot->videoTracks[0].clips[0].composition->node(merge)->params.staticValue(nodekeys::MotionBlur).toBool(), true);
+        QCOMPARE(draft->videoTracks[0].clips[0].composition->node(merge)->params.staticValue(nodekeys::FilterMethod).toString(), snapshot->videoTracks[0].clips[0].composition->node(merge)->params.staticValue(nodekeys::FilterMethod).toString()); // HiQ still on: the filter is the node's own
+        o = {};
+        o.highQuality = false;
+        options.setOptions(o);
+        const auto rough = options.viewerTimeline(snapshot, 7);
+        QCOMPARE(rough->videoTracks[0].clips[0].composition->node(merge)->params.staticValue(nodekeys::FilterMethod).toString(), filtermethods::Nearest);
+        QCOMPARE(options.viewerTimeline(snapshot, 99), snapshot); // another clip: nothing to change
+        QVERIFY(options.cacheFlags() != CompViewOptionsData {}.highQuality);
+        options.setOptions({});
+        QSettings().clear();
+    }
+
+    void viewerToolsRegionRulersAndSafeArea()
+    {
+        // Spec 121.2 / 121.3 / 121.4: Region of Interest, Rulers and Safe Area on the viewer's tool bar.
+        QSettings().clear();
+        ViewerOverlaySettings::instance().load();
+        Fixture f;
+        f.project.timeline()->setPlayhead(20);
+        f.showPage();
+        CompViewer* v = f.page()->viewer(0);
+        f.session()->setViewerNode(0, f.nodeNamed(QStringLiteral("MediaIn1")));
+        for (const char* id : {"onion", "onionframes", "roi", "rulers", "safe"}) {
+            QAction* a = v->toolAction(QLatin1String(id));
+            QVERIFY2(a && !a->toolTip().isEmpty(), id);
+        }
+        // Rulers and Safe Area are the shared View options.
+        auto* ruler = v->findChild<QWidget*>(QStringLiteral("CompViewerRulerTop"));
+        QVERIFY(ruler && !ruler->isVisible());
+        v->toolAction(QStringLiteral("rulers"))->trigger();
+        QVERIFY(v->rulersShown());
+        QVERIFY(ViewerOverlaySettings::instance().options().showRulers);
+        QVERIFY(ruler->isVisible());
+        QVERIFY(v->toolAction(QStringLiteral("rulers"))->isChecked());
+        v->toolAction(QStringLiteral("safe"))->trigger();
+        QVERIFY(v->safeAreaShown());
+        QVERIFY(ViewerOverlaySettings::instance().options().actionSafe && ViewerOverlaySettings::instance().options().titleSafe);
+        v->toolAction(QStringLiteral("safe"))->trigger();
+        QVERIFY(!v->safeAreaShown());
+        v->toolAction(QStringLiteral("rulers"))->trigger();
+        QVERIFY(!ruler->isVisible());
+        // Onion Skin: the tool, its frame count and the O key.
+        QVERIFY(!v->onionShown());
+        QTest::keyClick(v, Qt::Key_O);
+        QVERIFY(v->onionShown() && v->toolAction(QStringLiteral("onion"))->isChecked());
+        v->toolAction(QStringLiteral("onionframes"))->trigger();
+        QCOMPARE(v->onionFrames(), 2);
+        QVERIFY(v->toolAction(QStringLiteral("onionframes"))->text().contains(QLatin1Char('2')));
+        v->toolAction(QStringLiteral("onionframes"))->trigger();
+        v->toolAction(QStringLiteral("onionframes"))->trigger();
+        QCOMPARE(v->onionFrames(), 1);
+        v->toolAction(QStringLiteral("onion"))->trigger();
+        QVERIFY(!v->onionShown());
+        // Region of Interest: the overlay draws and edits the region.
+        ViewerRegion* roi = v->regionOverlay();
+        QVERIFY(roi && !roi->isVisible() && !roi->isSet());
+        v->toolAction(QStringLiteral("roi"))->trigger();
+        QVERIFY(v->regionShown() && roi->isVisible());
+        QCOMPARE(roi->region(), QRectF(0, 0, 1, 1));
+        roi->setRegion(QRectF(0.25, 0.25, 0.5, 0.5));
+        QCOMPARE(v->region(), QRectF(0.25, 0.25, 0.5, 0.5));
+        QVERIFY(roi->isSet());
+        const QRectF w = roi->regionInWidget();
+        QVERIFY(w.width() > 10 && w.height() > 10);
+        QCOMPARE(roi->partAt(w.center()), 1);
+        QCOMPARE(roi->partAt(w.topLeft()), 2);
+        QCOMPARE(roi->partAt(QPointF(w.center().x(), w.bottom())), 7);
+        QCOMPARE(roi->partAt(QPointF(w.left() - 40, w.top() - 40)), 0);
+        // A drag on the inside moves it, on a corner resizes it, outside draws a new one.
+        auto send = [roi](QEvent::Type type, QPointF p, Qt::MouseButton b, Qt::MouseButtons bs) {
+            QMouseEvent e(type, p, roi->mapToGlobal(p), b, bs, Qt::NoModifier);
+            QApplication::sendEvent(roi, &e);
+        };
+        auto drag = [&](QPointF from, QPointF to) {
+            send(QEvent::MouseButtonPress, from, Qt::LeftButton, Qt::LeftButton);
+            for (int i = 1; i <= 4; ++i)
+                send(QEvent::MouseMove, from + (to - from) * i / 4.0, Qt::NoButton, Qt::LeftButton);
+            send(QEvent::MouseButtonRelease, to, Qt::LeftButton, Qt::NoButton);
+        };
+        const QRectF before = roi->region();
+        drag(w.center(), w.center() + QPointF(20, 10));
+        QVERIFY(roi->region().x() > before.x() && roi->region().y() > before.y());
+        QCOMPARE(roi->region().size(), before.size());
+        const QRectF moved = roi->region();
+        drag(roi->regionInWidget().bottomRight(), roi->regionInWidget().bottomRight() - QPointF(25, 25));
+        QVERIFY(roi->region().width() < moved.width() && roi->region().height() < moved.height());
+        QCOMPARE(roi->region().topLeft(), moved.topLeft());
+        // Double-click: the whole picture again; the region never gets smaller than a sliver.
+        QMouseEvent dbl(QEvent::MouseButtonDblClick, roi->regionInWidget().center(),
+            roi->mapToGlobal(roi->regionInWidget().center()), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+        QApplication::sendEvent(roi, &dbl);
+        QCOMPARE(roi->region(), QRectF(0, 0, 1, 1));
+        roi->setRegion(QRectF(0.5, 0.5, 0.0001, 0.0001));
+        QVERIFY(roi->region().width() >= ViewerRegion::kMinSide - 1e-9);
+        v->toolAction(QStringLiteral("roi"))->trigger();
+        QVERIFY(!roi->isVisible());
+        QSettings().clear();
+        ViewerOverlaySettings::instance().load();
+    }
+
+    void viewerProxyCacheAndTransportButtons()
+    {
+        // Spec 121.5 / 121.6: the transport's HiQ / MB / Prx / APrx / Cache buttons drive the viewers: a
+        // proxy renders a smaller picture, Auto Proxy only while playing or changing something, and the
+        // disk cache serves a picture again without rendering it.
+        QSettings().clear();
+        viewercache::clear();
+        CompViewOptions::instance().load();
+        Fixture f(true, true);
+        f.project.timeline()->setPlayhead(20);
+        f.showPage();
+        const quint64 bg = f.session()->addNode(nodetypes::Background);
+        f.session()->setViewerNode(0, bg);
+        CompViewer* v = f.page()->viewer(0);
+        QVERIFY(f.session()->isStored());
+        // The buttons exist, have tooltips and write the options.
+        const auto button = [&f](const char* name) {
+            auto* b = f.page()->findChild<QToolButton*>(QLatin1String(name));
+            return b;
+        };
+        for (const char* name : {"CompHiQ", "CompMotionBlur", "CompProxy", "CompProxyRatio", "CompAutoProxy", "CompDiskCache"}) {
+            QToolButton* b = button(name);
+            QVERIFY2(b && !b->toolTip().isEmpty(), name);
+        }
+        QVERIFY(button("CompHiQ")->isChecked() && button("CompMotionBlur")->isChecked());
+        QVERIFY(!button("CompProxy")->isChecked() && !button("CompAutoProxy")->isChecked() && !button("CompDiskCache")->isChecked());
+        QCOMPARE(button("CompProxyRatio")->text(), QStringLiteral("1:2"));
+        // Normal: the viewer renders at its own picture size.
+        v->setZoom(0.0);
+        QCoreApplication::processEvents();
+        button("CompMotionBlur")->click(); // off: the viewer renders itself with a draft
+        QVERIFY(!CompViewOptions::instance().options().motionBlur);
+        QTRY_VERIFY_WITH_TIMEOUT(!v->lastRenderSize().isEmpty(), 10000);
+        const QSize full = v->lastRenderSize();
+        // Proxy 1:2.
+        button("CompProxy")->click();
+        QVERIFY(CompViewOptions::instance().options().proxy);
+        QTRY_COMPARE_WITH_TIMEOUT(v->lastRenderSize(), CompViewOptions::instance().renderSize(full, false), 10000);
+        QVERIFY(v->lastRenderSize().width() <= (full.width() + 1) / 2);
+        button("CompProxyRatio")->click();
+        QCOMPARE(CompViewOptions::instance().options().proxyRatio, 4);
+        QCOMPARE(button("CompProxyRatio")->text(), QStringLiteral("1:4"));
+        QTRY_VERIFY_WITH_TIMEOUT(v->lastRenderSize().width() <= (full.width() + 3) / 4, 10000);
+        button("CompProxy")->click(); // off
+        // Auto Proxy: a proxy while something changes, the full size again when it stops.
+        button("CompAutoProxy")->click();
+        QVERIFY(CompViewOptions::instance().options().autoProxy);
+        f.project.timeline()->setPlayhead(22);
+        QTRY_VERIFY_WITH_TIMEOUT(v->lastRenderSize().width() < full.width(), 10000);
+        QTRY_COMPARE_WITH_TIMEOUT(v->lastRenderSize(), full, 10000);
+        button("CompAutoProxy")->click();
+        // Disk cache: the second request for a picture comes from the cache folder.
+        button("CompDiskCache")->click();
+        QVERIFY(CompViewOptions::instance().options().diskCache);
+        f.project.timeline()->setPlayhead(25);
+        QTRY_VERIFY_WITH_TIMEOUT(v->cacheMisses() > 0, 10000);
+        QTRY_VERIFY_WITH_TIMEOUT(viewercache::usage().files > 0, 10000);
+        QTRY_VERIFY_WITH_TIMEOUT(!f.page()->viewer(0)->lastRenderSize().isEmpty(), 10000);
+        f.project.timeline()->setPlayhead(26);
+        f.project.timeline()->setPlayhead(25); // back: the same picture
+        QTRY_VERIFY_WITH_TIMEOUT(v->cacheHits() > 0, 10000);
+        // A change of the graph makes another key: no hit for the new picture.
+        const int files = viewercache::usage().files;
+        f.session()->edit(QStringLiteral("Colour"), [bg](Composition& c) {
+            c.node(bg)->params.setStatic(nodekeys::Color, QColor(10, 200, 30));
+            return true;
+        });
+        QTRY_VERIFY_WITH_TIMEOUT(viewercache::usage().files > files, 10000);
+        QTRY_COMPARE_WITH_TIMEOUT(v->cacheHits(), 0, 10000);
+        CompViewOptions::instance().setOptions({});
+        viewercache::clear();
+        QSettings().clear();
+    }
+
+    void viewerShowsOnlyTheRegionAndTheOnionFrames()
+    {
+        // Spec 121.1 / 121.2 on the real viewer: with the region on, the picture outside it is cut
+        // away; with Onion Skin on, the moving shape also shows where it was and will be.
+        QSettings().clear();
+        CompViewOptions::instance().load();
+        Fixture f(true, true);
+        f.project.timeline()->setPlayhead(20); // comp frame 10
+        f.showPage();
+        const quint64 bg = f.session()->addNode(nodetypes::Background);
+        f.session()->edit(QStringLiteral("Colour"), [bg](Composition& c) {
+            c.node(bg)->params.setStatic(nodekeys::Color, QColor(230, 20, 20));
+            return true;
+        });
+        f.session()->setViewerNode(0, bg);
+        CompViewer* v = f.page()->viewer(0);
+        const auto shown = [v]() -> QImage {
+            const QImage all = v->surface()->widget()->grab().toImage();
+            return all.copy(v->surface()->pictureRect());
+        };
+        const auto isRed = [](QRgb p) { return qRed(p) > 150 && qGreen(p) < 90 && qBlue(p) < 90; };
+        QTRY_VERIFY_WITH_TIMEOUT(isRed(shown().pixel(shown().width() / 2, shown().height() / 2)), 10000);
+        QVERIFY(isRed(shown().pixel(3, 3)));
+        v->setRegionShown(true);
+        v->setRegion(QRectF(0.25, 0.25, 0.5, 0.5));
+        QTRY_VERIFY_WITH_TIMEOUT(!isRed(shown().pixel(3, 3)), 10000);
+        const QImage img = shown();
+        QVERIFY(isRed(img.pixel(img.width() / 2, img.height() / 2)));
+        QVERIFY(!isRed(img.pixel(img.width() - 4, img.height() - 4)));
+        v->setRegionShown(false);
+        QTRY_VERIFY_WITH_TIMEOUT(isRed(shown().pixel(3, 3)), 10000);
+        // Onion Skin: a rectangle that moves; the neighbours' places show as tinted ghosts.
+        const quint64 box = f.session()->addNode(nodetypes::RectangleMask);
+        f.session()->edit(QStringLiteral("Move"), [box](Composition& c) {
+            CompNode* n = c.node(box);
+            n->params.setBase(nodekeys::Width, 0.1);
+            n->params.setBase(nodekeys::Height, 0.4);
+            AnimatedValue& x = n->params.animated(nodekeys::CenterX, 0.5);
+            x.setKey(9, 0.3, Interp::Linear);
+            x.setKey(10, 0.5, Interp::Linear);
+            x.setKey(11, 0.7, Interp::Linear);
+            return true;
+        });
+        f.session()->setViewerNode(0, box);
+        QCOMPARE(f.session()->compFrame(), int64_t(10));
+        const auto at = [&](double fx) {
+            const QImage i = shown();
+            return i.pixel(int(i.width() * fx), i.height() / 2);
+        };
+        QTRY_VERIFY_WITH_TIMEOUT(qRed(at(0.5)) > 200 && qBlue(at(0.5)) > 200, 10000); // the current frame: white
+        QTRY_VERIFY_WITH_TIMEOUT(qRed(at(0.3)) < 30 && qBlue(at(0.3)) < 30, 10000); // nothing there yet
+        v->setOnion(true);
+        // Frame 9 (blue) and frame 11 (orange) are laid faintly over the black background.
+        QTRY_VERIFY_WITH_TIMEOUT(qBlue(at(0.3)) > 60 && qBlue(at(0.3)) > qRed(at(0.3)) + 20, 10000);
+        QVERIFY(qRed(at(0.7)) > 60 && qRed(at(0.7)) > qBlue(at(0.7)) + 20);
+        QVERIFY(qRed(at(0.5)) > 200 && qBlue(at(0.5)) > 200); // the current one stays white
+        v->setOnion(false);
+        QTRY_VERIFY_WITH_TIMEOUT(qBlue(at(0.3)) < 30, 10000);
+        QSettings().clear();
     }
 
     void viewerBezierAndTextPathHandles()

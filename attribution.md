@@ -125,6 +125,13 @@ Fusion reference manual. The graph stays flat with a group as a container, a mac
 that the inner parameter is connected to (spec 119); the code was written for Kinoklip and nothing was taken from the
 projects above.
 
+### Compositing viewer tools (Onion Skin, Region of Interest, proxy and disk cache)
+`src/ui/comp/ViewerRegion.*`, `ViewerFx.cpp` (onionSkin(), applyRegion()), `ViewerCache.*`, `CompViewOptions.*`. The behaviour follows the
+viewer and transport features of the public Fusion reference manual (ROI, onion skin, HiQ / MB / Prx / APrx). Natron's viewer
+(region of interest, proxy levels) and Blender's image editor (onion-skin style ghosts in the timeline / dope sheet, region
+render) were looked at (both GPL-2.0-or-later); the code, the tints and the cache format are written for Kinoklip and nothing
+was taken from them.
+
 ### Keyframe loops
 The extrapolation modes of animated values (`src/core/Animation.cpp`, `AnimatedValue::extrapolatedValue()`)
 follow the documented behaviour of Blender's F-Curve Cycles modifier (GPL-2.0-or-later: Repeat Motion, Repeat

@@ -10160,7 +10160,7 @@ Thank you for watching</source>
     </message>
     <message>
         <source>Cuts the instance loose: it keeps a copy of the settings and has its own from now on</source>
-        <translation>Від'єднує екземпляр: він зберігає копію налаштувань і далі має власні</translation>
+        <translation>Від&apos;єднує екземпляр: він зберігає копію налаштувань і далі має власні</translation>
     </message>
 </context>
 <context>
@@ -10329,6 +10329,50 @@ Thank you for watching</source>
         <translation>Відтворити діапазон кліпу</translation>
     </message>
     <message>
+        <source>HiQ</source>
+        <translation>HiQ</translation>
+    </message>
+    <message>
+        <source>High Quality: on shows the full-quality picture; off shows a faster draft (nearest filtering, no motion blur) in the viewers. Playback and export are not affected.</source>
+        <translation>High Quality: увімкнено показує картинку в повній якості; вимкнено показує у вікнах перегляду швидший чернетковий варіант (фільтрація «найближчий», без розмиття руху). Відтворення й експорт не зачіпаються.</translation>
+    </message>
+    <message>
+        <source>MB</source>
+        <translation>MB</translation>
+    </message>
+    <message>
+        <source>Motion Blur: shows the motion blur of the nodes that have it in the viewers (off: faster). Playback and export are not affected.</source>
+        <translation>Розмиття руху: показує у вікнах перегляду розмиття руху вузлів, які його мають (вимкнено: швидше). Відтворення й експорт не зачіпаються.</translation>
+    </message>
+    <message>
+        <source>Prx</source>
+        <translation>Prx</translation>
+    </message>
+    <message>
+        <source>Proxy: the viewers render a smaller picture (the ratio on the right) and scale it up, to keep heavy compositions playing smoothly</source>
+        <translation>Проксі: вікна перегляду рендерять меншу картинку (співвідношення праворуч) і розтягують її, щоб важкі композиції відтворювались плавно</translation>
+    </message>
+    <message>
+        <source>Proxy size: click to change between half and a quarter of the viewer&apos;s size</source>
+        <translation>Розмір проксі: клацання перемикає між половиною та чвертю розміру вікна перегляду</translation>
+    </message>
+    <message>
+        <source>APrx</source>
+        <translation>APrx</translation>
+    </message>
+    <message>
+        <source>Auto Proxy: the proxy is used only while the clip plays or you are changing something, and the full picture shows when you stop</source>
+        <translation>Авто-проксі: проксі використовується лише під час відтворення кліпу або коли ви щось змінюєте; після зупинки показується повна картинка</translation>
+    </message>
+    <message>
+        <source>Cache</source>
+        <translation>Кеш</translation>
+    </message>
+    <message>
+        <source>Disk cache: the viewers keep the pictures they render in the cache folder, so going back over a frame or looping the clip shows them at once</source>
+        <translation>Дисковий кеш: вікна перегляду зберігають відрендерені картинки в теці кешу, тож повернення до кадру чи повтор кліпу показує їх одразу</translation>
+    </message>
+    <message>
         <source>Audio on: the page plays the timeline&apos;s sound (click to turn the sound off on this page)</source>
         <translation>Звук увімкнено: сторінка відтворює звук таймлайну (натисніть, щоб вимкнути звук на цій сторінці)</translation>
     </message>
@@ -10480,6 +10524,46 @@ Thank you for watching</source>
         <translation>Шахівниця під зображенням</translation>
     </message>
     <message>
+        <source>Onion Skin</source>
+        <translation>Кальковий режим</translation>
+    </message>
+    <message>
+        <source>Onion Skin (O): the frames before the current one in blue and the frames after it in orange, laid faintly over the picture</source>
+        <translation>Кальковий режим (O): кадри перед поточним синім, кадри після нього помаранчевим, слабко накладені на картинку</translation>
+    </message>
+    <message>
+        <source>Onion: 1</source>
+        <translation>Калька: 1</translation>
+    </message>
+    <message>
+        <source>How many frames on each side Onion Skin shows (click: 1, 2, 3)</source>
+        <translation>Скільки кадрів з кожного боку показує калька (клацання: 1, 2, 3)</translation>
+    </message>
+    <message>
+        <source>ROI</source>
+        <translation>ROI</translation>
+    </message>
+    <message>
+        <source>Region of Interest: show only a region of the picture; drag over the picture to draw it, double-click to use the whole picture again</source>
+        <translation>Область інтересу: показує лише частину картинки; проведіть по картинці, щоб намалювати її, подвійне клацання повертає всю картинку</translation>
+    </message>
+    <message>
+        <source>Rulers</source>
+        <translation>Лінійки</translation>
+    </message>
+    <message>
+        <source>Rulers along the top and left edge of the picture</source>
+        <translation>Лінійки вздовж верхнього та лівого краю картинки</translation>
+    </message>
+    <message>
+        <source>Safe Area</source>
+        <translation>Безпечна зона</translation>
+    </message>
+    <message>
+        <source>Title and action safe areas over the picture</source>
+        <translation>Безпечні зони титрів і дії поверх картинки</translation>
+    </message>
+    <message>
         <source>Controls</source>
         <translation>Керування</translation>
     </message>
@@ -10510,6 +10594,10 @@ Thank you for watching</source>
     <message>
         <source>Zoom to 100% (Ctrl+1)</source>
         <translation>Масштаб 100% (Ctrl+1)</translation>
+    </message>
+    <message>
+        <source>Onion: %1</source>
+        <translation>Калька: %1</translation>
     </message>
 </context>
 <context>
@@ -21531,7 +21619,7 @@ Import files with %1 or drop them here.</source>
     </message>
     <message>
         <source>Cuts the instance loose: it keeps a copy of the settings and has its own from now on</source>
-        <translation>Від'єднує екземпляр: він зберігає копію налаштувань і далі має власні</translation>
+        <translation>Від&apos;єднує екземпляр: він зберігає копію налаштувань і далі має власні</translation>
     </message>
     <message>
         <source>Underlay Around Selection</source>
@@ -21921,7 +22009,7 @@ Import files with %1 or drop them here.</source>
     </message>
     <message>
         <source>Holds other nodes together: a frame around them, or one tile; with controls it is a Macro</source>
-        <translation>Об'єднує інші вузли: рамка навколо них або одна плитка; з елементами керування це макрос</translation>
+        <translation>Об&apos;єднує інші вузли: рамка навколо них або одна плитка; з елементами керування це макрос</translation>
     </message>
     <message>
         <source>Patterns</source>
@@ -29644,6 +29732,13 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
     <message>
         <source>Audio only</source>
         <translation>Лише аудіо</translation>
+    </message>
+</context>
+<context>
+    <name>kk::ViewerRegion</name>
+    <message>
+        <source>Region of Interest: drag to draw a region, drag inside to move it, drag a corner or edge to resize it, double-click to use the whole picture again</source>
+        <translation>Область інтересу: тягніть, щоб намалювати область, тягніть усередині, щоб перемістити її, тягніть кут або край, щоб змінити розмір, подвійне клацання повертає всю картинку</translation>
     </message>
 </context>
 <context>

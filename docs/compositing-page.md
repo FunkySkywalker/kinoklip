@@ -256,6 +256,26 @@ An Instance has `instanceOf`; `compgroups::applyInstances()` (called first by `c
 when an instance exists) copies the original's params, path and media into it on the render copy. An Underlay is a `CompNote`
 with `underlay` set; the editor draws it first and hit-tests only its title strip.
 
+## Viewer tools: onion skin, region, proxy and cache (1.11, spec 121)
+
+`CompViewer::requestRender()` is the one place that turns the viewer's switches into a render. `needsFx()` is true when any of
+them differs from "plain" (channel, checker, split, onion skin, region, Proxy / Auto Proxy, HiQ or MB off, disk cache): the viewer
+then renders its node itself (`PlaybackEngine::renderCompositionNode()` with `OutputImage`) instead of showing the engine's
+picture, and the pictures go through `viewerfx` in a fixed order: split wipe, onion skin (`onionSkin()` over the frames around the
+current one, each a `Pending` render), channel, region (`applyRegion()`), checker. `CompViewOptions` (a process-wide object like
+`ViewerOverlaySettings`, settings `compositing/view/...`) holds HiQ, MB, Proxy, its ratio, Auto Proxy and the cache switch; its
+`renderSize()` gives the proxy size and `viewerTimeline()` a draft copy of the snapshot (`draftComposition()`: `ccMotionBlur` off,
+Filter Method nearest on Merge / Transform), a copy that shares everything except the clip's composition; the real timeline is
+never touched. Auto Proxy needs to know when something is going on: `CompViewer::noteInteraction()` (playhead, graph change)
+restarts a 500 ms window and arms a 600 ms idle timer that renders the full picture again.
+
+The disk cache (`ViewerCache`) stores the raw picture of a node render under `makeKey()` = SHA-1 of `cacheContent()` (the
+composition's picture JSON, the clip's source, the timeline format and the files read), the node, frame, size and the HiQ / MB
+bits. A hit builds a `RenderedFrame` from the file and skips the render; a miss stores the result on the worker thread; the folder
+is trimmed to its limit by modification time (`load()` touches the file). Rulers and Safe Area reuse `ViewerRuler`,
+`GuideOverlay` and `ViewerOverlaySettings` of the Edit page, so the viewer tool bar entries change the shared View options. The
+Region of Interest is `ViewerRegion`, an overlay like `CompViewerOverlay` (fractions of the picture, handles, double-click resets).
+
 ## Motion Blur (1.7, spec 94)
 
 Common Controls of Merge and Transform only (`NodeRegistry::commonControls()`): `ccMotionBlur`

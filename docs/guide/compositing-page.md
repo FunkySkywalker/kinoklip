@@ -140,6 +140,18 @@ never get in the way of keys like **I** and **O** elsewhere.
 - **Loop** (next to Play): click to change what happens at the end of the clip: **Loop**,
   **Ping-pong** (plays forward and backward) or **Once** (stops on the last frame).
 
+## More viewer tools
+
+- **Onion Skin (O):** shows the frames before the current one in blue and the frames after it in orange over the picture, so you can see how
+  something moves. **Onion: 1** on the tool bar chooses how many frames on each side (1 to 3).
+- **ROI:** shows only a rectangle of the picture. Drag over the picture to draw it, drag inside to move it, drag its corners to resize it and
+  double-click to show everything again.
+- **Rulers** and **Safe Area** are the same as View > Show Rulers and View > Safe Area, here on the viewer's tool bar.
+- **HiQ, MB, Prx, APrx and Cache** beside the transport only change what the two viewers show; the Edit page, playback of the timeline and
+  export always render at full quality. **HiQ** off shows a faster draft, **MB** off hides motion blur, **Prx** renders a smaller picture (1:2 or
+  1:4, the button beside it), **APrx** does that only while the clip plays or you change something, and **Cache** keeps the viewers' pictures on
+  the disk so going back over a frame or looping the clip shows them at once.
+
 ## Settings on every node
 
 Every node except the masks and MediaOut has a **Settings** section under its parameters
