@@ -24,22 +24,19 @@ folder is Kinoklip's own:
 to see it). Copy your .cube files there, in subfolders if you like, or add the folder where they
 already are:
 
-1. Open the Color page (**Shift+6**) and click **LUTs** in the bar above the palettes (1 in
-   the picture below).
-2. Click **Add Folder…** (3) and choose the folder with your LUTs. Kinoklip remembers it.
+1. Open the Color page (**Shift+6**) and click **LUTs** in the bar above the palettes.
+2. Click **Add Folder…** and choose the folder with your LUTs. Kinoklip remembers it.
 3. Click **Refresh** after you have copied new files into a folder.
-
-![The LUTs palette: a LUT in node 02, after the correction in node 01](images/use-a-lut/1-luts.png)
 
 ## Apply a LUT to a clip
 
 1. Put the playhead over the clip, or click it in the clips strip.
 2. In the Nodes panel, click the node that should get the LUT. On a clip without a grade there
    is no node yet; the LUT then makes node **01**.
-3. In the LUTs palette, **double-click** the LUT (2). The viewer shows the clip with the LUT,
-   and the line under the list says which LUT the node has (5). The node's tile shows **LUT**.
+3. In the LUTs palette, **double-click** the LUT. The viewer shows the clip with the LUT,
+   and the line under the list says which LUT the node has. The node's tile shows **LUT**.
 
-To use a .cube file that is not in one of the folders, click **Load File…** (4) and choose it.
+To use a .cube file that is not in one of the folders, click **Load File…** and choose it.
 
 To take the LUT away again, select the node and click **Remove LUT**.
 

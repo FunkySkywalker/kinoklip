@@ -18,18 +18,14 @@ The two parts stay linked for later.
 
 ## For a while: turn off Linked Selection
 
-Click the **Linked Selection** button in the timeline tool bar (1) or press **Ctrl+Shift+L**
+Click the **Linked Selection** button in the timeline tool bar or press **Ctrl+Shift+L**
 (**Timeline > Linked Selection**). While it is off, every click selects only the part you click.
 Press it again to turn it back on.
-
-![The Linked Selection button in the timeline tool bar](images/separate-audio-from-video/1-linked-selection.png)
 
 ## For good: unlink the clips
 
 1. Click the clip on the timeline (picture and sound are both selected).
 2. Choose **Clip > Unlink Clips**, or right-click the clip and choose **Unlink Clips**.
-
-   ![Unlink Clips in the Clip menu](images/separate-audio-from-video/2-unlink-clips.png)
 
 The picture and the sound are now two separate clips.
 

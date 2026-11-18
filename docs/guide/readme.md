@@ -8,26 +8,6 @@ ask about most.
 
 Kinoklip is still a beta version: save often and keep a copy of your original files.
 
-## Install and start
-
-1. Open the [download page](https://github.com/SeniorMatt/kinoklip/releases) and download
-   **Kinoklip-x86_64.AppImage**. It is one file that contains the whole program.
-2. Make it runnable, in one of two ways:
-   - **With Gear Lever (easiest):** install [Gear Lever](https://flathub.org/apps/it.mijorus.gearlever)
-     from your software centre, then open the AppImage with it. Kinoklip appears in your
-     application menu, and Gear Lever keeps it updated.
-   - **By hand:** right-click the file, choose **Properties**, open **Permissions** and tick
-     **Is executable** (or run `chmod +x Kinoklip-x86_64.AppImage` in a terminal).
-3. Start Kinoklip from the application menu, or double-click the file.
-
-The first thing you see is the **Project Manager**, where you make your first project. The
-[getting started guide](getting-started.md) takes it from there.
-
-If Kinoklip does not start, your system may be missing FUSE (a small helper for AppImages). Run
-`./Kinoklip-x86_64.AppImage --appimage-extract-and-run` in a terminal instead. Kinoklip needs a
-graphics card or chip that supports OpenGL 3.3, which almost every computer from the last ten
-years has.
-
 ## Help inside Kinoklip
 
 Press **F1** in Kinoklip to open the article about what you are working on (for example the
@@ -37,12 +17,19 @@ search field.
 
 ## Start here
 
-- [Getting started](getting-started.md): the pages, making a project, importing clips, editing
-  on the timeline, a title and a transition, and exporting your video.
+Six short articles take you from the download to a finished video:
+
+1. [Install and start Kinoklip](install-kinoklip.md)
+2. [Getting started](getting-started.md): the pages and your first project
+3. [Import your clips](import-your-clips.md)
+4. [Cut and arrange clips](cut-and-arrange-clips.md)
+5. [Colour correct a clip](colour-correct-a-clip.md)
+6. [Export a video for YouTube](export-for-youtube.md)
+
+Also early: [Add a title](add-a-title.md) and [Transitions between clips](transitions.md).
 
 ## How do I...?
 
-- [Export a video for YouTube](export-for-youtube.md)
 - [Remove a green screen](remove-a-green-screen.md)
 - [Remove a background with the AI tool](remove-a-background.md)
 - [Speed up or slow down a clip](change-clip-speed.md)
@@ -73,7 +60,6 @@ search field.
 - [Change the pitch of a clip and equalize it](change-pitch-and-equalize-a-clip.md)
 - [Record a voice-over](record-a-voice-over.md)
 - [Put text over a clip on the Compositing page](compositing-page.md)
-- [Colour correct a clip](colour-correct-a-clip.md) (the Color page)
 - [Change the colour of one object](change-the-colour-of-one-object.md)
 - [Use a LUT](use-a-lut.md)
 - [Use AgX to tame bright highlights](use-agx.md)

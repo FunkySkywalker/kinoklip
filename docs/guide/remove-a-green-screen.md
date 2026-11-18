@@ -4,10 +4,6 @@ You will make the green background of a clip transparent, so the person in front
 over another picture. The same steps work for a blue screen. This is called **keying**: the
 green colour is the "key" that is cut out.
 
-| Before | After |
-|---|---|
-| ![A presenter in front of a green screen](images/remove-a-green-screen/1-before.png) | ![The same presenter over a sky](images/remove-a-green-screen/5-result.png) |
-
 ## What you need
 
 - A clip filmed in front of a green (or blue) screen.
@@ -17,36 +13,30 @@ green colour is the "key" that is cut out.
 
 ## Steps
 
-1. Click **Effects** at the top left (1) to open the effects library.
-2. In the list, open **Video Effects > Key** and find **Chroma Key** (2). You can also type
+1. Click **Effects** at the top left to open the effects library.
+2. In the list, open **Video Effects > Key** and find **Chroma Key**. You can also type
    "chroma" in the search field.
-3. Drag **Chroma Key** onto the green screen clip on the timeline (3).
-
-   ![Dragging Chroma Key from the effects library onto the clip on V2](images/remove-a-green-screen/2-add-chroma-key.png)
+3. Drag **Chroma Key** onto the green screen clip on the timeline.
 
    The green should mostly disappear right away: **Screen** is set to **Green Screen**. For a
    blue screen, choose **Blue Screen** there.
 4. Click the clip to select it. In the **Inspector** on the right, open the **Effects** tab. You
    see the settings of the Chroma Key.
 
-   ![The Chroma Key settings in the Inspector](images/remove-a-green-screen/3-eyedropper.png)
-
-5. Click the eyedropper next to **Key Color** (1), then click on the green background in the
+5. Click the eyedropper next to **Key Color**, then click on the green background in the
    viewer. Kinoklip now removes exactly the green of your clip. Tip: drag a small rectangle
    instead of clicking, to use the average colour of an area. Press **Esc** to cancel.
-6. Set **View** (4) to **Matte**. The viewer now shows what stays (white) and what becomes
+6. Set **View** to **Matte**. The viewer now shows what stays (white) and what becomes
    transparent (black).
 
-   ![The matte view: the person is white, the background black](images/remove-a-green-screen/4-matte.png)
-
 7. Adjust until the background is fully black and the person fully white:
-   - **Tolerance** (2): raise it if green is left over, lower it if parts of the person
+   - **Tolerance**: raise it if green is left over, lower it if parts of the person
      disappear.
    - **Softness**: makes the edge between the two softer.
    - **Clip Black** and **Clip White**: turn nearly black areas fully black and nearly white
      areas fully white. Useful for grey specks in the background or small holes in the person.
 8. Set **View** back to **Final Result**.
-9. If the edges of the person still look green, raise **Spill Removal** (3). It takes the green
+9. If the edges of the person still look green, raise **Spill Removal**. It takes the green
    glow away that the screen reflects onto hair and skin.
 10. Play the clip (**Space**) to check that the key holds in every frame.
 

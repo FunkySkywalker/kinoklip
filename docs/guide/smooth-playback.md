@@ -13,13 +13,9 @@ video: Kinoklip always exports from the original files at full quality.
 Choose **Playback > Playback Resolution** and pick **Half Resolution** or **Quarter
 Resolution**. The viewer shows a slightly softer picture, but the computer has far less to do.
 
-![The Playback Resolution menu](images/smooth-playback/1-playback-resolution.png)
-
 **Automatic (Half When Playback Cannot Keep Up)** shows full resolution and switches to half
 only while playback cannot keep up. The same choice is in the small menu at the top of the
-viewer (**Full Res**, **Half Res**, ...) (1 in the picture below).
-
-![The playback resolution menu in the viewer](images/smooth-playback/2-viewer-resolution.png)
+viewer (**Full Res**, **Half Res**, ...).
 
 ## 2. Make proxies of large files
 

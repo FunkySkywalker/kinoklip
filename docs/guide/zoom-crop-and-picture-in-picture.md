@@ -21,20 +21,18 @@ steps). The round arrow at the end of a row puts it back to its default.
 ## Picture-in-picture
 
 1. Put the main clip (the big picture) on track **V1**.
-2. Put the second clip on track **V2**, above it, at the same time (1 in the picture below).
+2. Put the second clip on track **V2**, above it, at the same time.
    The upper track covers the lower one, so for now you only see the V2 clip.
-3. Click the V2 clip. In the Inspector, set **Zoom X** to about **0.35** (2). The clip gets
+3. Click the V2 clip. In the Inspector, set **Zoom X** to about **0.35**. The clip gets
    small and the main clip appears around it.
-4. Move it into a corner with **Position X** and **Position Y** (3), or drag it in the viewer
+4. Move it into a corner with **Position X** and **Position Y**, or drag it in the viewer
    (see below).
-5. Optional: cut off its sides with **Crop Left** and **Crop Right** under **Cropping** (4),
+5. Optional: cut off its sides with **Crop Left** and **Crop Right** under **Cropping**,
    for example to make it narrower.
-
-![A small clip on V2 over the main clip on V1](images/zoom-crop-and-picture-in-picture/1-picture-in-picture.png)
 
 ## Drag in the viewer instead of typing
 
-Click the button at the bottom left of the viewer (5) and choose **On-Screen Transform
+Click the button at the bottom left of the viewer and choose **On-Screen Transform
 Controls**. A frame with handles appears around the selected clip in the viewer:
 - drag inside the frame to move the clip;
 - drag a corner or an edge to make it bigger or smaller;

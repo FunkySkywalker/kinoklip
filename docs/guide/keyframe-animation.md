@@ -18,8 +18,6 @@ picture or a long interview shot.
    value is now animated, Kinoklip adds a second keyframe here by itself. **Link Zoom** is ticked,
    so **Zoom Y** follows.
 
-   ![The Zoom rows in the Inspector with keyframes](images/keyframe-animation/1-inspector-keyframes.png)
-
 6. Press **Home** and **Space**: the picture now zooms in slowly between the two keyframes.
 
 The same works for every row that has a diamond: **Position X** / **Position Y** to move a clip
@@ -75,8 +73,6 @@ Spline panel has the same buttons for the parameters of the selected nodes.
 Every animated clip shows two small buttons at its bottom-right corner on the timeline. The
 keyframe button opens a lane under the clip with a mark for each keyframe; drag the marks to
 move keyframes in time. The curve button shows how the value changes between them.
-
-![The keyframe lane and the curve under a clip](images/keyframe-animation/2-keyframe-editor.png)
 
 ## Tips
 

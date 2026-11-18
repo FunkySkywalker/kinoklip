@@ -6,7 +6,7 @@ combine two pictures) and that are joined by lines. It is the place for effects 
 several layers inside one clip. As a first step, you will put a text over a clip.
 
 For a simple title over several clips, the Text title on the Edit page is quicker; see
-[Getting started](getting-started.md#add-a-title).
+[Add a title](add-a-title.md).
 
 ## Open the clip on the Compositing page
 
@@ -16,7 +16,7 @@ For a simple title over several clips, the Text title on the Edit page is quicke
 
 The page has:
 - two **viewers** at the top; the right one shows the finished picture;
-- the **node editor** at the bottom (2 in the picture below), with a row of buttons above it;
+- the **node editor** at the bottom, with a row of buttons above it;
 - the **Inspector** on the right, with the settings of the selected node.
 
 At first the node editor shows two nodes joined by a line: **MediaIn1** (the clip's own picture)
@@ -25,14 +25,12 @@ and **MediaOut1** (what comes out of the clip). Nothing has changed yet.
 ## Add the text
 
 1. Click **MediaOut1** in the node editor to select it.
-2. Click **Text** in the row of buttons above the node editor (1). Kinoklip adds two nodes:
+2. Click **Text** in the row of buttons above the node editor. Kinoklip adds two nodes:
    **Text1**, which draws the text, and **Merge1**, which puts it over the clip's picture.
 
-   ![The Compositing page with a Text node merged over the clip](images/compositing-page/1-compositing-page.png)
-
-3. **Text1** is selected. In the Inspector, type your text into **Text** (3).
+3. **Text1** is selected. In the Inspector, type your text into **Text**.
 4. Change **Font**, **Size**, **Color**, **Outline Width** and **Drop Shadow** to taste.
-5. To move the text, drag it in the right viewer (4), or change **Center X** and **Center Y**
+5. To move the text, drag it in the right viewer, or change **Center X** and **Center Y**
    in the Inspector (0.5 and 0.5 is the middle of the picture).
 
 More ways to set the text: **Layout** chooses how it is placed. **Frame** wraps it inside a box (Frame

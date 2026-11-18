@@ -8,20 +8,18 @@ fade in at the start and fade out at the end instead of starting and stopping ab
 1. Import the music file: **File > Import > Media** (**Ctrl+I**). MP3, WAV, FLAC, AAC and other
    common audio files work.
 2. Drag the music from the media pool onto an empty audio track below your video's sound, for
-   example **A2** (1 in the picture below). If there is no free audio track, choose
+   example **A2**. If there is no free audio track, choose
    **Timeline > Add Audio Track** first.
 3. If the music is longer than your video, drag the right edge of the music clip to the left
    until it ends with the video. (Or move the playhead to the end of the video, select the music
    clip and press **Shift+]** to trim it there.)
 
-![The music on track A2 with a fade in and a fade out](images/fade-audio-and-add-music/1-music-track.png)
-
 ## Fade in and fade out
 
 1. Move the mouse over the music clip. Two small handles appear in its top corners.
-2. Drag the **left** handle to the right: the music now fades in from silence (2). The further
+2. Drag the **left** handle to the right: the music now fades in from silence. The further
    you drag, the longer the fade.
-3. Drag the **right** handle to the left: the music fades out to silence at the end (3).
+3. Drag the **right** handle to the left: the music fades out to silence at the end.
 
 The shaded wedge shows the fade. Drag the handles again to change it, or all the way back to
 remove it.
@@ -52,8 +50,6 @@ If you do not see the line, make the track taller: drag the bottom edge of the t
 ## Another way: audio transitions
 
 1. Click **Effects** at the top left and open **Toolbox > Audio Transitions**.
-
-   ![The audio transitions in the effects library](images/fade-audio-and-add-music/2-audio-transitions.png)
 
 2. Drag **Cross Fade +3 dB** onto the start or the end of an audio clip: it fades from or to
    silence there. Dropped on the cut between two audio clips, it blends one into the other.

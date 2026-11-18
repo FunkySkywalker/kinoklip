@@ -17,7 +17,7 @@ of one object in a node of its own, so each node does one job and you can switch
 own:
 
 1. Open the clip on the Color page (**Shift+6**).
-2. Click node **01** in the Nodes panel (1 in the picture below).
+2. Click node **01** in the Nodes panel.
 3. Press **Alt+S** (or choose **Color > Add Serial Node**, or right-click in the Nodes panel and
    choose **Add Serial Node**). Node **02** appears after node 01 and is selected. A serial node
    works on the picture that comes out of the node before it.
@@ -25,13 +25,11 @@ own:
 ## Pick the colour with the qualifier
 
 1. Click **Qualifier** in the bar above the palettes.
-2. Click **Pick** (2). The pointer over the viewer becomes an eyedropper.
-3. In the viewer, click the object whose colour you want to change (4), or drag a small
+2. Click **Pick**. The pointer over the viewer becomes an eyedropper.
+3. In the viewer, click the object whose colour you want to change, or drag a small
    rectangle over it to pick a range of shades at once.
 
-   ![The qualifier with Pick, the Hue, Sat and Lum ranges and the selected node 02](images/change-the-colour-of-one-object/1-qualifier.png)
-
-4. The **Hue**, **Sat** and **Lum** bars (3) now show the picked range: Hue is the colour,
+4. The **Hue**, **Sat** and **Lum** bars now show the picked range: Hue is the colour,
    Sat how strong it is, Lum how bright. **Qualify** is ticked, so node 02 now changes only
    those colours.
 5. Click **Pick** again when you are done, so a click in the viewer does not pick again.
@@ -66,8 +64,6 @@ Click **Highlight** above the viewer (**Shift+H**, 1 below). The viewer shows on
 part in its colours and the rest grey. In the Qualifier palette, the menu next to its own
 **Highlight** button switches to **Black / White**: the selected part white, the rest black.
 
-![Highlight on: the shirt in colour, the rest of the picture grey](images/change-the-colour-of-one-object/2-highlight.png)
-
 The selection is rarely perfect at the first click. To make it better:
 - Click **Pick +** and click parts of the object that are missing (folds, shadows).
 - Click **Pick -** and click things that should not be selected.
@@ -80,12 +76,10 @@ Click **Highlight** again to see the normal picture.
 ## Change the colour
 
 1. Click **Primaries** in the bar above the palettes. Node 02 is still selected.
-2. Drag the **Hue** field (1) at the bottom of the palette: the selected colour turns round the
+2. Drag the **Hue** field at the bottom of the palette: the selected colour turns round the
    colour wheel (for example blue to red), the rest of the picture stays the same.
-3. Use **Sat** (2) to make the colour stronger or weaker, and the wheels to make it brighter or
+3. Use **Sat** to make the colour stronger or weaker, and the wheels to make it brighter or
    darker.
-
-![Node 02 turns the blue shirt red with Hue](images/change-the-colour-of-one-object/3-hue.png)
 
 To check the change, select node 02 and press **Ctrl+D** to switch it off and on.
 
@@ -100,16 +94,14 @@ shirt), or you want to change a place, not a colour: brighten a face, darken a b
 That is what windows do.
 
 1. Select the node that should get the window, or press **Alt+S** for a new one.
-2. Click **Windows** in the bar above the palettes and click **Circle** (1). A circle appears
-   in the viewer (2).
+2. Click **Windows** in the bar above the palettes and click **Circle**. A circle appears
+   in the viewer.
 3. Drag inside the circle to move it over the face or object. Drag the handles on its sides to
    make it wider or taller, the corner handle for both, and the round knob above it to turn it.
 4. Drag the small diamond on its left (or change **Outside Softness**, 3) to make the edge softer, so
    the change fades out and no edge is visible.
 5. Click **Primaries** and make the change, for example raise **Gamma** a little to brighten
    the face. Only the inside of the circle changes.
-
-![A circle window over the face in node 03](images/change-the-colour-of-one-object/4-window.png)
 
 The window controls show in the viewer only while the **Windows** palette is shown. Other
 shapes are **Linear** (a rectangle), **Polygon** (drag its points; double-click an edge to add

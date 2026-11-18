@@ -14,11 +14,11 @@ not a count.
 | # | Topic | Why it is common | Article |
 |---|---|---|---|
 | 1 | Export a video for YouTube | Every new editor has to get the video out; the Deliver page with its many settings is the first wall. | [Export a video for YouTube](export-for-youtube.md) |
-| 2 | Cut a clip and remove a part | The first real edit: blade, split at the playhead, delete with or without closing the gap. | [Getting started](getting-started.md#cut-trim-and-delete) |
+| 2 | Cut a clip and remove a part | The first real edit: blade, split at the playhead, delete with or without closing the gap. | [Cut and arrange clips](cut-and-arrange-clips.md#cut-trim-and-delete) |
 | 3 | Remove a green screen | The best-known "effect" question; people expect a one-click key and get stuck on edges and green spill. | [Remove a green screen](remove-a-green-screen.md) |
 | 4 | Speed up or slow down a clip | Slow motion and time-lapse are asked about constantly, including ramps and why the audio sounds odd. | [Change the speed of a clip](change-clip-speed.md) |
 | 5 | Add music and fade audio in and out | Background music and a smooth fade at the end are part of almost every video. | [Fade audio and add music](fade-audio-and-add-music.md) |
-| 6 | Add text and titles | Captions, lower thirds and an opening title; people look for "the text tool". | [Getting started](getting-started.md#add-a-title) |
+| 6 | Add text and titles | Captions, lower thirds and an opening title; people look for "the text tool". | [Add a title](add-a-title.md) |
 | 7 | Add a transition between clips | Cross dissolves, the other transition folders, and Smooth Cut for jump cuts. | [Transitions between clips](transitions.md) |
 | 8 | Fade the picture to or from black | The ending of nearly every video; often confused with transitions. | [Fade to or from black](fade-to-black.md) |
 | 9 | Freeze a frame | Holding one frame for a while, for comedy or emphasis. | [Freeze a frame](freeze-a-frame.md) |

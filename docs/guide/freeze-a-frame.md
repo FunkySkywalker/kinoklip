@@ -12,14 +12,12 @@ still frame.
 3. Choose **Clip > Retime Controls** (**Ctrl+R**). A speed bar appears along the top of the
    clip, showing **100%**.
 4. Click the small arrow in the speed bar and choose **Freeze Frame**. Kinoklip inserts a
-   one-second freeze at the playhead, marked **Freeze 0%** (1). The clip gets one second longer
+   one-second freeze at the playhead, marked **Freeze 0%**. The clip gets one second longer
    and the clips after it move to the right; after the freeze the clip plays on from the same
    frame.
 
-   ![A clip with a freeze in the middle, shown by the retime controls](images/freeze-a-frame/1-freeze-segment.png)
-
 5. To hold the frame longer or shorter, drag the small handle at the **bottom** of the line at
-   the end of the freeze (2) to the right or to the left.
+   the end of the freeze to the right or to the left.
 6. Press **Ctrl+R** again to hide the retime controls.
 
 The frozen part is silent. To remove the freeze, click the arrow in the freeze part and choose
@@ -43,7 +41,7 @@ frame where it starts.
 
 - **Zoom in or add a title on the freeze** for emphasis: cut the freeze into its own clip as
   above, then see [Zoom, crop and picture-in-picture](zoom-crop-and-picture-in-picture.md) and
-  the [title section of Getting started](getting-started.md#add-a-title).
+  the [Add a title](add-a-title.md).
 - **Sound during the freeze:** the frozen part has no sound. Put music or a sound effect on
   another audio track under it.
 - More about speed changes: [Speed up or slow down a clip](change-clip-speed.md).

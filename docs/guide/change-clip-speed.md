@@ -11,18 +11,16 @@ gets twice as long), **200 %** is double speed (the clip gets half as long).
 1. Click the clip on the timeline to select it.
 2. Choose **Clip > Change Clip Speed** (**R**). A small window opens.
 
-   ![The Change Clip Speed window](images/change-clip-speed/1-change-clip-speed.png)
-
-3. Type the new **Speed** (1), for example `50` for slow motion or `200` to make it faster.
+3. Type the new **Speed**, for example `50` for slow motion or `200` to make it faster.
    **Frames per second** and **Duration** change along with it; you can type in those instead
    if that is easier (for example a duration the clip must fit).
 4. Check the options:
-   - **Reverse speed** (2): plays the clip backwards.
-   - **Ripple sequence** (3): on, the clips after it move so that no gap or overlap appears.
+   - **Reverse speed**: plays the clip backwards.
+   - **Ripple sequence**: on, the clips after it move so that no gap or overlap appears.
      Off, the clip keeps its length on the timeline.
-   - **Pitch correction** (4): on, voices keep their normal pitch at the new speed. Off, they
+   - **Pitch correction**: on, voices keep their normal pitch at the new speed. Off, they
      sound higher when faster and lower when slower.
-5. Click **Change** (5).
+5. Click **Change**.
 
 For small steps, **Clip > Increase Clip Speed by 10%** and **Clip > Decrease Clip Speed by
 10%** change the speed of the selected clips without opening the window.
@@ -36,8 +34,6 @@ For small steps, **Clip > Increase Clip Speed by 10%** and **Clip > Decrease Cli
    into two parts (segments), each with its own speed.
 4. Click the arrow in the part you want to change and choose a speed under **Change Speed**, for
    example 50 %.
-
-   ![A clip with three speeds: 50 %, 100 % and 200 %](images/change-clip-speed/2-retime-controls.png)
 
 5. For a smooth change instead of a jump, right-click the speed point (the line between two
    parts) and choose **Smooth Ramp**.

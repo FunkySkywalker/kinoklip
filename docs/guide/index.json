@@ -7,13 +7,78 @@
       "id": "getting-started",
       "title": "Getting started",
       "file": "getting-started.md",
-      "summary": "The pages, making a project, importing clips, editing on the timeline, a title, a transition and exporting.",
+      "summary": "The pages of Kinoklip, the Project Manager, making your first project and the Edit page.",
       "keywords": [
         "basics",
         "first video",
         "beginner",
+        "first project",
         "project",
+        "project manager",
+        "new project",
+        "pages",
+        "welcome",
+        "menu layout",
+        "single file",
+        "linked"
+      ],
+      "contexts": [
+        "page:edit",
+        "page:cut",
+        "panel:viewer",
+        "panel:inspector",
+        "action:file.project_manager",
+        "action:file.new"
+      ]
+    },
+    {
+      "id": "install-kinoklip",
+      "title": "Install and start Kinoklip",
+      "file": "install-kinoklip.md",
+      "summary": "Download the AppImage, make it runnable, start it, and what to do if it does not start.",
+      "keywords": [
+        "install",
+        "download",
+        "appimage",
+        "gear lever",
+        "fuse",
+        "chmod",
+        "start",
+        "requirements",
+        "opengl",
+        "arm64"
+      ],
+      "contexts": []
+    },
+    {
+      "id": "import-your-clips",
+      "title": "Import your clips",
+      "file": "import-your-clips.md",
+      "summary": "Bring video, audio and pictures into the media pool, preview them, and the frame rate question.",
+      "keywords": [
         "import",
+        "media pool",
+        "drag and drop",
+        "paste",
+        "preview a clip",
+        "hover",
+        "live media preview",
+        "frame rate",
+        "folder",
+        "files"
+      ],
+      "contexts": [
+        "page:media",
+        "panel:media_pool",
+        "action:file.import_media"
+      ]
+    },
+    {
+      "id": "cut-and-arrange-clips",
+      "title": "Cut and arrange clips",
+      "file": "cut-and-arrange-clips.md",
+      "summary": "Put clips on the timeline, play, cut with the blade, trim, delete and close gaps.",
+      "keywords": [
         "timeline",
         "cut",
         "split",
@@ -21,28 +86,20 @@
         "trim",
         "delete",
         "ripple delete",
-        "preview a clip",
-        "hover",
-        "live media preview",
+        "insert",
+        "overwrite",
+        "place on top",
+        "replace",
+        "append",
         "play",
-        "title",
-        "text",
-        "transition",
-        "cross dissolve",
-        "export"
+        "mark in",
+        "mark out",
+        "sync lock",
+        "undo",
+        "razor"
       ],
       "contexts": [
-        "page:edit",
-        "page:media",
-        "page:cut",
-        "panel:media_pool",
         "panel:timeline",
-        "panel:viewer",
-        "panel:inspector",
-        "panel:effects",
-        "action:file.project_manager",
-        "action:file.new",
-        "action:file.import_media",
         "action:edit.insert",
         "action:edit.overwrite",
         "action:edit.place_on_top",
@@ -53,17 +110,33 @@
         "action:tool.blade",
         "action:edit.split",
         "action:edit.delete",
-        "action:edit.ripple_delete",
-        "action:timeline.add_transition",
+        "action:edit.ripple_delete"
+      ]
+    },
+    {
+      "id": "add-a-title",
+      "title": "Add a title",
+      "file": "add-a-title.md",
+      "summary": "Put text on the timeline: plain text, lower thirds, scrolling credits and text boxes.",
+      "keywords": [
+        "title",
+        "text",
+        "lower third",
+        "credits",
+        "scroll",
+        "text box",
+        "caption",
+        "live preview",
+        "effects library"
+      ],
+      "contexts": [
+        "panel:effects",
         "effect:text_title",
         "effect:title_lower_third_left",
         "effect:title_lower_third_middle",
         "effect:title_lower_third_right",
         "effect:title_scroll",
-        "effect:title_text_box",
-        "effect:cross_dissolve",
-        "effect:wipe",
-        "effect:push"
+        "effect:title_text_box"
       ]
     },
     {
@@ -259,7 +332,11 @@
         "convert",
         "timeline settings",
         "project settings",
-        "smooth keyframes"
+        "smooth keyframes",
+        "default settings",
+        "new project defaults",
+        "presets",
+        "1440p"
       ],
       "contexts": []
     },
@@ -801,7 +878,11 @@
       "contexts": [
         "effect:smooth_cut",
         "effect:blur_dissolve",
-        "effect:star_shape"
+        "effect:star_shape",
+        "action:timeline.add_transition",
+        "effect:cross_dissolve",
+        "effect:wipe",
+        "effect:push"
       ]
     },
     {

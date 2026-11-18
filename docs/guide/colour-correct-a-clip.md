@@ -29,8 +29,8 @@ The page has:
 - the **clips strip** (5): every clip of the timeline as a small picture, numbered in order.
   The clip you are correcting has a frame around it. Under it is a small timeline where you
   can click to move the playhead;
-- the **palettes** (6) at the bottom: **Primaries**, **Curves**, **Qualifier**, **Windows**
-  and **LUTs**. Click a name to show that palette;
+- the **palettes** (6) at the bottom: **Primaries**, **Curves**, **Qualifier**, **Windows**,
+  **LUTs** and more (**Blur**, **Tracker**, **RGB Mixer**, **AgX**). Click a name to show that palette;
 - the **scopes** (7) at the bottom right, which measure the picture (see
   [Read the waveform](#read-the-waveform)).
 
@@ -90,10 +90,6 @@ differently. The **scopes** at the bottom right measure the picture instead.
 The **Waveform** draws the picture from left to right as it is in the viewer, but upwards it
 shows brightness: the bottom line (0) is black, the top line (1023) is pure white.
 
-| Before | After |
-|---|---|
-| ![The waveform of the dark clip: everything sits low](images/colour-correct-a-clip/3-waveform-before.png) | ![The waveform after the correction: the trace reaches higher](images/colour-correct-a-clip/4-waveform-after.png) |
-
 - **Too dark:** the trace sits low and nothing comes near the top. Raise **Gain**.
 - **Too bright, or "clipped":** the trace is pressed flat against the top line. The detail
   there is lost; lower **Gain**.
@@ -108,8 +104,6 @@ green and blue parts of the picture side by side. Where the picture shows someth
 grey, the three should be at the same height; if the blue one is higher, the picture is too
 blue there.
 
-![The RGB parade after the correction](images/colour-correct-a-clip/5-parade.png)
-
 The menu also has **Waveform RGB**, a **Vectorscope** (how strong the colours are and which
 way they lean) and a **Histogram**. To see two scopes in a separate window on any page, choose
 **View > Show Panel in Workspace > Video Scopes** (**Ctrl+Shift+W**).
@@ -120,8 +114,6 @@ Click **Bypass** above the viewer (**Shift+D**) to see the clip without its grad
 again to see the grade. The bar above the picture says "grades bypassed" while it is on.
 Bypass only changes what the viewers show: the export always has the grades.
 
-![The buttons above the viewer: Bypass on the right](images/colour-correct-a-clip/6-bypass.png)
-
 To switch off just one node, select it in the Nodes panel and press **Ctrl+D** (press it again
 to switch it back on).
 
@@ -130,11 +122,9 @@ to switch it back on).
 Clips from the same camera and place usually need the same fix. There are three ways to copy
 it.
 
-![The clips strip: clip 01 is corrected, clip 03 is selected](images/colour-correct-a-clip/7-clips-strip.png)
-
 **Copy and paste:**
-1. In the clips strip, click the corrected clip (1 in the picture above) and press **Ctrl+C**.
-2. Click the clip that should get the same correction (2). To give it to several clips at
+1. In the clips strip, click the corrected clip and press **Ctrl+C**.
+2. Click the clip that should get the same correction. To give it to several clips at
    once, hold **Ctrl** and click each of them.
 3. Press **Ctrl+V**.
 
@@ -143,14 +133,12 @@ with the **middle mouse button** (the mouse wheel). The selected clips get its g
 
 **Gallery stills** keep a grade for later, even after you have changed the clip again:
 1. Click the corrected clip, then click **Grab Still** in the Gallery's title bar
-   (**Ctrl+Alt+G**, 1 below). A small picture with the grade appears in the Gallery (2).
+   (**Ctrl+Alt+G**). A small picture with the grade appears in the Gallery.
 2. Click another clip in the clips strip and double-click the still (or middle-click it). The
    clip gets that grade.
 3. Right-click a still for more: **Apply Grade to Selected Clips**, **Wipe with This Still**
    (compare the current clip with the still side by side; drag the line in the viewer),
    **Rename…** and **Delete Still**.
-
-![The Gallery with a still and the Grab Still button](images/colour-correct-a-clip/8-gallery.png)
 
 Stills are saved with the project.
 

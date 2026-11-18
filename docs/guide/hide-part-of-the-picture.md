@@ -6,17 +6,11 @@ area, while the rest of the picture stays sharp.
 The idea: an **adjustment clip** on the track above your clip carries the effect (a blur or a
 mosaic), and a **mask** limits the effect to the area you want to hide.
 
-| Before | After |
-|---|---|
-| ![A presenter in front of a wall](images/hide-part-of-the-picture/0-before.png) | ![The same shot with the face pixelated](images/hide-part-of-the-picture/3-result.png) |
-
 ## 1. Add an adjustment clip over the clip
 
 1. Click **Effects** at the top left and open **Toolbox > Effects**.
-2. Drag **Adjustment Clip** (1) onto the empty video track above your clip (**V2**), at the
-   time where the area must be hidden (2).
-
-   ![Dragging an Adjustment Clip onto V2](images/hide-part-of-the-picture/1-adjustment-clip.png)
+2. Drag **Adjustment Clip** onto the empty video track above your clip (**V2**), at the
+   time where the area must be hidden.
 
 3. Drag the edges of the adjustment clip so it starts and ends where the area must be hidden
    (for example the whole length of the clip below).
@@ -35,14 +29,12 @@ below it.
 ## 3. Limit it to one area with a mask
 
 1. With the adjustment clip selected, open the **Video** tab of the Inspector.
-2. Under **Masks**, click the ellipse button (1) (or choose **Clip > Add Mask > Ellipse Mask**).
+2. Under **Masks**, click the ellipse button (or choose **Clip > Add Mask > Ellipse Mask**).
    An ellipse appears in the viewer, and the effect now shows only inside it.
-
-   ![The ellipse mask in the viewer and its settings in the Inspector](images/hide-part-of-the-picture/2-mask.png)
 
 3. In the viewer, drag inside the ellipse to move it over the face, and drag the small squares
    on its edge to change its size.
-4. For a soft edge, raise **Feather Outside** (2) a little, for example to 20 px.
+4. For a soft edge, raise **Feather Outside** a little, for example to 20 px.
 5. Play the clip (**Space**) to check that the area stays hidden in every frame.
 
 ## If the area moves

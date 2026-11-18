@@ -11,9 +11,7 @@ their volumes so they sound about equally loud.
    is used.
 2. Choose **Clip > Normalize Audio Levels** (also in the right-click menu of a clip).
 
-   ![The Normalize Audio Levels window](images/even-out-clip-volumes/1-normalize.png)
-
-3. Choose the **Normalization Mode** (1). The window opens with **Sample Peak Program**;
+3. Choose the **Normalization Mode**. The window opens with **Sample Peak Program**;
    for even volumes switch to **ITU-R BS.1770-4**:
    - **ITU-R BS.1770-4** measures how loud the clip *sounds* (in LUFS). This is the best choice
      for making speech and music sound even. **-23 LUFS** is the broadcast standard; for
@@ -21,8 +19,8 @@ their volumes so they sound about equally loud.
    - **Sample Peak Program** looks only at the loudest moment (in dBFS). Use it to make sure
      nothing is too loud, not to make clips sound alike.
    - **True Peak** is the same, measured more exactly (in dBTP).
-4. Set the **Target Level** (2).
-5. Under **Set Level** (3), choose:
+4. Set the **Target Level**.
+5. Under **Set Level**, choose:
    - **Independent**: every clip is set to the target on its own. Use this to even out the
      clips.
    - **Relative**: all clips change by the same amount, so the loudest one reaches the target

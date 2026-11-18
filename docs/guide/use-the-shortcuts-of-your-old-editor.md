@@ -17,8 +17,6 @@ appears only once; you can change your choice at any time as shown below.
    change at once, and the **Shortcut** column shows the new ones; type a command in the search
    field to find it.
 
-   ![Keyboard Customization with the Vegas Pro preset, showing S for Split Clip](images/use-the-shortcuts-of-your-old-editor/1-keyboard-profile.png)
-
 3. Click **OK** to keep them, or **Cancel** to go back to the keys you had.
 
 Final Cut Pro is a Mac program: its **Command** key is **Ctrl** here, **Option** is **Alt**,
