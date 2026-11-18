@@ -75,6 +75,12 @@ usual blurred-matte technique, no Natron code was copied. Blender's Glare node (
 a glow's threshold, gain and size controls behave. The blur filters (box, Bartlett as two boxes, multi-box,
 Gaussian) are the standard definitions.
 
+### Grid Warp, Displace and Vector Distort (Compositing page)
+`src/render/CompWarpMath.*`, `GlCompWarp.*`. Displace takes its control set from the public Fusion reference manual
+(Type X/Y or Radial, per-axis channel, X / Y Refraction). The behaviour of a displacement map was checked against
+Blender's compositor Displace node and Natron's IDistort / STMap (both GPL-2.0-or-later); the code is our own.
+Grid Warp uses the Catmull-Rom grid field of Kinoklip's own Warper effect (`GlMeshEffects.cpp`).
+
 ### Keyframe loops
 The extrapolation modes of animated values (`src/core/Animation.cpp`, `AnimatedValue::extrapolatedValue()`)
 follow the documented behaviour of Blender's F-Curve Cycles modifier (GPL-2.0-or-later: Repeat Motion, Repeat

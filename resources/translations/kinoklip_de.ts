@@ -21503,6 +21503,98 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
         <translation>Konstante</translation>
     </message>
     <message>
+        <source>Grid Warp</source>
+        <translation>Gitter-Verzerrung</translation>
+    </message>
+    <message>
+        <source>Bends the picture with a grid of points that you drag in the viewer</source>
+        <translation>Verbiegt das Bild mit einem Gitter aus Punkten, die Sie im Viewer ziehen</translation>
+    </message>
+    <message>
+        <source>Columns</source>
+        <translation>Spalten</translation>
+    </message>
+    <message>
+        <source>Rows</source>
+        <translation>Zeilen</translation>
+    </message>
+    <message>
+        <source>Point %1, %2</source>
+        <translation>Punkt %1, %2</translation>
+    </message>
+    <message>
+        <source>Displace</source>
+        <translation>Verschieben</translation>
+    </message>
+    <message>
+        <source>Moves the pixels of the picture by the values of a second picture</source>
+        <translation>Verschiebt die Pixel des Bildes um die Werte eines zweiten Bildes</translation>
+    </message>
+    <message>
+        <source>Displace Map</source>
+        <translation>Verschiebungskarte</translation>
+    </message>
+    <message>
+        <source>X / Y</source>
+        <translation>X / Y</translation>
+    </message>
+    <message>
+        <source>Radial</source>
+        <translation>Radial</translation>
+    </message>
+    <message>
+        <source>X Channel</source>
+        <translation>X-Kanal</translation>
+    </message>
+    <message>
+        <source>Y Channel</source>
+        <translation>Y-Kanal</translation>
+    </message>
+    <message>
+        <source>X Refraction</source>
+        <translation>X-Brechung</translation>
+    </message>
+    <message>
+        <source>Y Refraction</source>
+        <translation>Y-Brechung</translation>
+    </message>
+    <message>
+        <source>Offset</source>
+        <translation>Versatz</translation>
+    </message>
+    <message>
+        <source>Light Power</source>
+        <translation>Lichtstärke</translation>
+    </message>
+    <message>
+        <source>Light Angle</source>
+        <translation>Lichtwinkel</translation>
+    </message>
+    <message>
+        <source>Vector Distort</source>
+        <translation>Vektor-Verzerrung</translation>
+    </message>
+    <message>
+        <source>Warps the picture along vectors stored in a second picture&apos;s red and green</source>
+        <translation>Verzerrt das Bild entlang von Vektoren, die im Rot und Grün eines zweiten Bildes stehen</translation>
+    </message>
+    <message>
+        <source>Vectors</source>
+        <translation>Vektoren</translation>
+    </message>
+    <message>
+        <source>Vector Range</source>
+        <translation>Vektorbereich</translation>
+    </message>
+    <message>
+        <source>Multiplier</source>
+        <translation>Multiplikator</translation>
+    </message>
+    <message>
+        <source>Steps</source>
+        <translation>Schritte</translation>
+    </message>
+    <message>
         <source>Angle</source>
         <translation>Winkel</translation>
     </message>

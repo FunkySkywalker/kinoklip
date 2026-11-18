@@ -774,6 +774,66 @@ NodeRegistry::NodeRegistry()
         add(d);
     }
 
+    // ---- Warp ----
+    {
+        NodeDescriptor d = node(nodetypes::GridWarp, tr("Grid Warp"), QStringLiteral("GWp"),
+            QStringLiteral("GridWarp"), C::Warp,
+            tr("Bends the picture with a grid of points that you drag in the viewer"));
+        d.inputs = {inputPort(), maskPort()};
+        d.mainInput = nodeports::Input;
+        d.controls = ViewerControls::Grid;
+        d.params = {integer(k::Columns, tr("Columns"), 2, k::kGridMaxSide, 4),
+            integer(k::Rows, tr("Rows"), 2, k::kGridMaxSide, 4)};
+        for (int r = 0; r < k::kGridMaxSide; ++r) {
+            for (int c = 0; c < k::kGridMaxSide; ++c) {
+                for (int axis = 0; axis < 2; ++axis) {
+                    ParamDescriptor p = number(k::gridKey(r, c, axis),
+                        tr("Point %1, %2").arg(r + 1).arg(c + 1) + (axis == 0 ? tr(" X") : tr(" Y")),
+                        -4000, 4000, 0, 0.5, kPx);
+                    p.hidden = true;
+                    d.params.append(p);
+                }
+            }
+        }
+        add(d);
+    }
+    {
+        NodeDescriptor d = node(nodetypes::Displace, tr("Displace"), QStringLiteral("Dsp"),
+            QStringLiteral("Displace"), C::Warp,
+            tr("Moves the pixels of the picture by the values of a second picture"));
+        d.inputs = {inputPort(), port(nodeports::Map, tr("Displace Map"), PortKind::Image, true),
+            maskPort()};
+        d.mainInput = nodeports::Input;
+        const QStringList chans {channelsources::Red, channelsources::Green, channelsources::Blue,
+            channelsources::Alpha, channelsources::Luma};
+        const QStringList chanLabels {tr("Red"), tr("Green"), tr("Blue"), tr("Alpha"), tr("Luminance")};
+        d.params = {choice(k::DisplaceType, tr("Type"), {displacetypes::XY, displacetypes::Radial},
+                        {tr("X / Y"), tr("Radial")}, displacetypes::XY),
+            choice(k::DisplaceXChannel, tr("X Channel"), chans, chanLabels, channelsources::Red),
+            choice(k::DisplaceYChannel, tr("Y Channel"), chans, chanLabels, channelsources::Green),
+            number(k::DisplaceXRefraction, tr("X Refraction"), -2000, 2000, 20, 0.5, kPx),
+            number(k::DisplaceYRefraction, tr("Y Refraction"), -2000, 2000, 20, 0.5, kPx),
+            number(k::DisplaceOffset, tr("Offset"), -1, 2, 0.5, 0.01),
+            number(k::CenterX, tr("Center X"), -10, 10, 0.5, 0.001),
+            number(k::CenterY, tr("Center Y"), -10, 10, 0.5, 0.001),
+            number(k::DisplaceLightPower, tr("Light Power"), -4, 4, 0, 0.01),
+            number(k::DisplaceLightAngle, tr("Light Angle"), -360, 360, 45, 1, kDegrees),
+            edgesParam()};
+        add(d);
+    }
+    {
+        NodeDescriptor d = node(nodetypes::VectorDistort, tr("Vector Distort"),
+            QStringLiteral("VDs"), QStringLiteral("VectorDistort"), C::Warp,
+            tr("Warps the picture along vectors stored in a second picture's red and green"));
+        d.inputs = {inputPort(), port(nodeports::Map, tr("Vectors"), PortKind::Image, true),
+            maskPort()};
+        d.mainInput = nodeports::Input;
+        d.params = {number(k::VectorRange, tr("Vector Range"), 0, 2000, 32, 0.5, kPx),
+            number(k::VectorMultiplier, tr("Multiplier"), -8, 8, 1, 0.01),
+            integer(k::VectorSteps, tr("Steps"), 1, 8, 1), edgesParam()};
+        add(d);
+    }
+
     // ---- Every Edit page video effect as a node ----
     for (const EffectDescriptor* e :
         EffectRegistry::instance().byCategory(EffectCategory::VideoEffect)) {

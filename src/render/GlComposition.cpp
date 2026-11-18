@@ -358,7 +358,7 @@ bool GlComposition::initialize(GlKit& kit, QString* why)
         || !build(kit, m_noise, "comp.noise", kNoiseFragment, why)
         || !build(kit, m_warp, "comp.warp", kWarpFragment, why)
         || !build(kit, m_resample, "comp.resample", resample.constData(), why)
-        || !m_fx.initialize(kit, why))
+        || !m_fx.initialize(kit, why) || !m_fxWarp.initialize(kit, why))
         return false;
     m_resampleInverse = m_resample.uniform(gl, "uInvMatrix");
     m_resampleEdges = m_resample.uniform(gl, "uEdges");
@@ -413,6 +413,7 @@ void GlComposition::destroy(GlKit& kit)
     for (GlProgram* p : {&m_merge, &m_mix, &m_corrector, &m_channels, &m_noise, &m_warp, &m_resample})
         p->destroy(kit.gl());
     m_fx.destroy(kit);
+    m_fxWarp.destroy(kit);
     m_stack.clear();
 }
 
@@ -601,7 +602,9 @@ void GlComposition::evalNode(GlKit& kit, const CompEval& ev, int index)
     } else if (n.type == nodetypes::ColorCorrector || n.type == nodetypes::ChannelBooleans
         || n.type == nodetypes::LumaKeyer || n.type == nodetypes::DeltaKeyer) {
         out = colorNode(kit, ev, n, mainOwner);
-    } else if (n.type == nodetypes::SoftGlow || n.type == nodetypes::LightWrap) {
+    } else if (n.type == nodetypes::SoftGlow || n.type == nodetypes::LightWrap
+        || n.type == nodetypes::Displace || n.type == nodetypes::VectorDistort
+        || n.type == nodetypes::GridWarp) {
         out = filterNode(kit, ev, n, mainOwner);
     } else if (!d->effectId.isEmpty()) {
         out = effectNode(kit, ev, n, mainOwner);
@@ -1048,6 +1051,22 @@ PooledTarget GlComposition::filterNode(
     if (n.type == nodetypes::SoftGlow) {
         const compmath::SoftGlowParams g = compmath::softGlowParams(n.params, ev.compFrame);
         return m_fx.softGlow(kit, *in, g, ev.scale);
+    }
+    if (n.type == nodetypes::GridWarp) {
+        return m_fxWarp.gridWarp(kit, *in,
+            compmath::gridWarpParams(n.params, ev.compFrame, ev.scale, in->size.width(),
+                in->size.height()));
+    }
+    if (n.type == nodetypes::Displace || n.type == nodetypes::VectorDistort) {
+        const RenderTarget* map = targetOf(inputOwner(n, nodeports::Map));
+        if (!map)
+            return {};
+        if (n.type == nodetypes::Displace) {
+            return m_fxWarp.displace(
+                kit, *in, *map, compmath::displaceParams(n.params, ev.compFrame), ev.scale);
+        }
+        return m_fxWarp.vectorDistort(
+            kit, *in, *map, compmath::vectorDistortParams(n.params, ev.compFrame), ev.scale);
     }
     const RenderTarget* bg = targetOf(inputOwner(n, nodeports::Background));
     if (!bg)

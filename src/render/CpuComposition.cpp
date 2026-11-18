@@ -7,6 +7,7 @@
 #include "core/NodeRegistry.h"
 #include "render/CompFilterMath.h"
 #include "render/CompMath.h"
+#include "render/CompWarpMath.h"
 #include "render/EffectMath.h"
 #include "render/Generators.h"
 #include "render/RenderLog.h"
@@ -413,6 +414,19 @@ private:
             if (!bg.isNull()) {
                 out = compmath::toImage(compmath::lightWrap(compmath::toFloat(in),
                     compmath::toFloat(bg), compmath::lightWrapParams(n.params, f), s));
+            }
+        } else if (n.type == nodetypes::GridWarp && !in.isNull()) {
+            out = compmath::toImage(compmath::gridWarp(compmath::toFloat(in),
+                compmath::gridWarpParams(n.params, f, s, in.width(), in.height())));
+        } else if ((n.type == nodetypes::Displace || n.type == nodetypes::VectorDistort)
+            && !in.isNull()) {
+            const QImage map = input(n, nodeports::Map, depth);
+            if (!map.isNull()) {
+                out = compmath::toImage(n.type == nodetypes::Displace
+                        ? compmath::displace(compmath::toFloat(in), compmath::toFloat(map),
+                              compmath::displaceParams(n.params, f), s)
+                        : compmath::vectorDistort(compmath::toFloat(in), compmath::toFloat(map),
+                              compmath::vectorDistortParams(n.params, f), s));
             }
         } else if (!d->effectId.isEmpty() && !in.isNull()) {
             if (fxmath::isPointEffect(d->effectId)) {

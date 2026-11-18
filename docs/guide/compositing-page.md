@@ -184,6 +184,13 @@ move looks the same with Motion Blur on or off.
   background's light spills over the inside of the foreground's edge so the cut-out sits in the scene; raise
   Intensity, then use Diffuse for how soft the wrap is and Foreground Blur for how far it reaches in. Put the result
   over the background with a Merge. Enable Glow lets the light also spill outside the foreground.
+- **Grid Warp** (Warp): drag the points of the grid in the viewer; the picture bends with them. Columns and Rows
+  set how many points there are.
+- **Displace** (Warp): connect a second picture to Displace Map. Its colours move the pixels of Input: Type X / Y
+  moves them left-right by one channel and up-down by another, Radial pushes them away from Center. X / Y
+  Refraction say how many pixels a bright map moves them.
+- **Vector Distort** (Warp): like Displace, but the second picture's red and green are a vector (half grey is no
+  movement) and Vector Range is how far a full value goes.
 - **Corner Positioner** (Transform): drag the four corners in the viewer (or type them) to pin the picture to a
   new quadrilateral in perspective.
 

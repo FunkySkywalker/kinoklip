@@ -17,6 +17,7 @@
 #include <QWheelEvent>
 #include <QTransform>
 
+#include <algorithm>
 #include <cmath>
 #include <numbers>
 
@@ -108,6 +109,23 @@ std::optional<CompViewerOverlay::State> CompViewerOverlay::state() const
         }
         s.centre = sum / double(nodekeys::kPlanarCorners);
     }
+    if (s.keys.kind == compadapter::ViewerControl::Grid) {
+        // width / height hold the grid's columns and rows; points the current position of every
+        // grid point (row by row, row 0 at the top), normalised, y up.
+        const QSize frame = m_session->frameSize();
+        const int cols = std::clamp(int(value(nodekeys::Columns, 4)), 2, nodekeys::kGridMaxSide);
+        const int rows = std::clamp(int(value(nodekeys::Rows, 4)), 2, nodekeys::kGridMaxSide);
+        s.width = cols;
+        s.height = rows;
+        for (int r = 0; r < rows; ++r) {
+            for (int c = 0; c < cols; ++c) {
+                const double dx = value(nodekeys::gridKey(r, c, 0), 0.0);
+                const double dy = value(nodekeys::gridKey(r, c, 1), 0.0);
+                s.points.append(QPointF(double(c) / (cols - 1) + dx / std::max(frame.width(), 1),
+                    1.0 - double(r) / (rows - 1) - dy / std::max(frame.height(), 1)));
+            }
+        }
+    }
     s.locked = n->locked;
     return s;
 }
@@ -172,6 +190,11 @@ std::optional<QPointF> CompViewerOverlay::handlePos(Handle handle, int pointInde
             return std::nullopt;
         return pointToWidget(*s, s->points[pointIndex]);
     }
+    if (s->keys.kind == compadapter::ViewerControl::Grid) {
+        if (handle != Handle::Point || pointIndex < 0 || pointIndex >= s->points.size())
+            return std::nullopt;
+        return toWidget(s->points[pointIndex]);
+    }
     if (s->keys.kind == compadapter::ViewerControl::Planar) {
         if (handle == Handle::Point && pointIndex >= 0 && pointIndex < s->points.size())
             return toWidget(s->points[pointIndex]);
@@ -229,6 +252,22 @@ CompViewerOverlay::Handle CompViewerOverlay::handleAt(QPointF pos, int* pointInd
         }
         return Handle::None;
     }
+    if (s->keys.kind == compadapter::ViewerControl::Grid) {
+        int best = -1;
+        double bestDistance = kHandleHitPx;
+        for (int i = 0; i < s->points.size(); ++i) {
+            const double d = length(toWidget(s->points[i]) - pos);
+            if (d <= bestDistance) {
+                best = i;
+                bestDistance = d;
+            }
+        }
+        if (best < 0)
+            return Handle::None;
+        if (pointIndex)
+            *pointIndex = best;
+        return Handle::Point;
+    }
     if (s->keys.kind == compadapter::ViewerControl::Planar) {
         QPolygonF quad;
         for (int i = 0; i < s->points.size(); ++i) {
@@ -280,6 +319,27 @@ void CompViewerOverlay::paintEvent(QPaintEvent*)
         p.setBrush(sc.selection);
         p.drawRect(r);
     };
+    if (s->keys.kind == compadapter::ViewerControl::Grid) {
+        const int cols = int(s->width), rows = int(s->height);
+        QPainterPath lines;
+        for (int r = 0; r < rows; ++r) {
+            for (int c = 0; c < cols; ++c) {
+                const QPointF w = toWidget(s->points[r * cols + c]);
+                if (c + 1 < cols) {
+                    lines.moveTo(w);
+                    lines.lineTo(toWidget(s->points[r * cols + c + 1]));
+                }
+                if (r + 1 < rows) {
+                    lines.moveTo(w);
+                    lines.lineTo(toWidget(s->points[(r + 1) * cols + c]));
+                }
+            }
+        }
+        stroke(lines);
+        for (const QPointF& pt : s->points)
+            handle(toWidget(pt));
+        return;
+    }
     if (s->keys.kind == compadapter::ViewerControl::Planar) {
         QPolygonF quad;
         for (const QPointF& pt : s->points)
@@ -500,6 +560,19 @@ void CompViewerOverlay::applyDrag(QPointF pos)
         break;
     }
     case Handle::Point: {
+        if (s0.keys.kind == compadapter::ViewerControl::Grid) {
+            const int cols = int(s0.width), rows = int(s0.height);
+            if (m_dragPoint >= 0 && m_dragPoint < cols * rows) {
+                const int r = m_dragPoint / cols, c = m_dragPoint % cols;
+                const QPointF n = toNormalised(pos);
+                const QSize frame = m_session->frameSize();
+                scalars.insert(nodekeys::gridKey(r, c, 0),
+                    (n.x() - double(c) / (cols - 1)) * frame.width());
+                scalars.insert(nodekeys::gridKey(r, c, 1),
+                    -(n.y() - (1.0 - double(r) / (rows - 1))) * frame.height());
+            }
+            break;
+        }
         if (s0.keys.kind == compadapter::ViewerControl::Planar) {
             if (m_dragPoint >= 0 && m_dragPoint < s0.points.size()) {
                 const QPointF n = toNormalised(pos);

@@ -21520,6 +21520,98 @@ Import files with %1 or drop them here.</source>
         <translation>Постоянный</translation>
     </message>
     <message>
+        <source>Grid Warp</source>
+        <translation>Деформация сеткой</translation>
+    </message>
+    <message>
+        <source>Bends the picture with a grid of points that you drag in the viewer</source>
+        <translation>Изгибает изображение сеткой точек, которые вы перетаскиваете в окне просмотра</translation>
+    </message>
+    <message>
+        <source>Columns</source>
+        <translation>Столбцы</translation>
+    </message>
+    <message>
+        <source>Rows</source>
+        <translation>Строки</translation>
+    </message>
+    <message>
+        <source>Point %1, %2</source>
+        <translation>Точка %1, %2</translation>
+    </message>
+    <message>
+        <source>Displace</source>
+        <translation>Смещение</translation>
+    </message>
+    <message>
+        <source>Moves the pixels of the picture by the values of a second picture</source>
+        <translation>Сдвигает пиксели изображения по значениям второго изображения</translation>
+    </message>
+    <message>
+        <source>Displace Map</source>
+        <translation>Карта смещения</translation>
+    </message>
+    <message>
+        <source>X / Y</source>
+        <translation>X / Y</translation>
+    </message>
+    <message>
+        <source>Radial</source>
+        <translation>Радиальный</translation>
+    </message>
+    <message>
+        <source>X Channel</source>
+        <translation>Канал X</translation>
+    </message>
+    <message>
+        <source>Y Channel</source>
+        <translation>Канал Y</translation>
+    </message>
+    <message>
+        <source>X Refraction</source>
+        <translation>Преломление по X</translation>
+    </message>
+    <message>
+        <source>Y Refraction</source>
+        <translation>Преломление по Y</translation>
+    </message>
+    <message>
+        <source>Offset</source>
+        <translation>Смещение нуля</translation>
+    </message>
+    <message>
+        <source>Light Power</source>
+        <translation>Сила света</translation>
+    </message>
+    <message>
+        <source>Light Angle</source>
+        <translation>Угол света</translation>
+    </message>
+    <message>
+        <source>Vector Distort</source>
+        <translation>Искажение по векторам</translation>
+    </message>
+    <message>
+        <source>Warps the picture along vectors stored in a second picture&apos;s red and green</source>
+        <translation>Искажает изображение по векторам, записанным в красном и зелёном каналах второго изображения</translation>
+    </message>
+    <message>
+        <source>Vectors</source>
+        <translation>Векторы</translation>
+    </message>
+    <message>
+        <source>Vector Range</source>
+        <translation>Диапазон вектора</translation>
+    </message>
+    <message>
+        <source>Multiplier</source>
+        <translation>Множитель</translation>
+    </message>
+    <message>
+        <source>Steps</source>
+        <translation>Шаги</translation>
+    </message>
+    <message>
         <source>Angle</source>
         <translation>Угол</translation>
     </message>

@@ -63,6 +63,9 @@ general knowledge of node compositors, our own drawing, names and icons; never R
 - **Filter**: Soft Glow (threshold, gain, filter, glow size X / Y, colour scale and channels) and Light Wrap
   (the background's light spilling over the foreground's edges); spec section 113. The float reference maths is
   `src/render/CompFilterMath.*`, the GPU passes `src/render/GlCompFilters.*`.
+- **Warp**: Grid Warp (a grid of draggable points, 2 to 9 per side), Displace (a second picture moves the
+  pixels: X / Y or Radial) and Vector Distort (vectors in a second picture's red and green); spec section 114.
+  Maths `src/render/CompWarpMath.*`, GPU `src/render/GlCompWarp.*`.
 - **Corner Positioner** (Transform): four corner points and a perspective warp, with draggable corner handles in
   the viewer.
 - **Effects**: every Edit page video effect (62 today: keys, colour, blur, light, stylize,

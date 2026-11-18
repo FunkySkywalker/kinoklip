@@ -21389,11 +21389,11 @@ Import files with %1 or drop them here.</source>
     </message>
     <message>
         <source>Soft Glow</source>
-        <translation>М'яке світіння</translation>
+        <translation>М&apos;яке світіння</translation>
     </message>
     <message>
         <source>A soft glow around the bright parts of the picture</source>
-        <translation>М'яке світіння навколо яскравих частин зображення</translation>
+        <translation>М&apos;яке світіння навколо яскравих частин зображення</translation>
     </message>
     <message>
         <source>Box</source>
@@ -21413,7 +21413,7 @@ Import files with %1 or drop them here.</source>
     </message>
     <message>
         <source>Lock X/Y</source>
-        <translation>Зв'язати X/Y</translation>
+        <translation>Зв&apos;язати X/Y</translation>
     </message>
     <message>
         <source>Glow Size</source>
@@ -21518,6 +21518,98 @@ Import files with %1 or drop them here.</source>
     <message>
         <source>Constant</source>
         <translation>Постійний</translation>
+    </message>
+    <message>
+        <source>Grid Warp</source>
+        <translation>Деформація сіткою</translation>
+    </message>
+    <message>
+        <source>Bends the picture with a grid of points that you drag in the viewer</source>
+        <translation>Згинає зображення сіткою точок, які ви перетягуєте у вікні перегляду</translation>
+    </message>
+    <message>
+        <source>Columns</source>
+        <translation>Стовпці</translation>
+    </message>
+    <message>
+        <source>Rows</source>
+        <translation>Рядки</translation>
+    </message>
+    <message>
+        <source>Point %1, %2</source>
+        <translation>Точка %1, %2</translation>
+    </message>
+    <message>
+        <source>Displace</source>
+        <translation>Зсув</translation>
+    </message>
+    <message>
+        <source>Moves the pixels of the picture by the values of a second picture</source>
+        <translation>Зсуває пікселі зображення за значеннями другого зображення</translation>
+    </message>
+    <message>
+        <source>Displace Map</source>
+        <translation>Карта зсуву</translation>
+    </message>
+    <message>
+        <source>X / Y</source>
+        <translation>X / Y</translation>
+    </message>
+    <message>
+        <source>Radial</source>
+        <translation>Радіальний</translation>
+    </message>
+    <message>
+        <source>X Channel</source>
+        <translation>Канал X</translation>
+    </message>
+    <message>
+        <source>Y Channel</source>
+        <translation>Канал Y</translation>
+    </message>
+    <message>
+        <source>X Refraction</source>
+        <translation>Заломлення за X</translation>
+    </message>
+    <message>
+        <source>Y Refraction</source>
+        <translation>Заломлення за Y</translation>
+    </message>
+    <message>
+        <source>Offset</source>
+        <translation>Зсув нуля</translation>
+    </message>
+    <message>
+        <source>Light Power</source>
+        <translation>Сила світла</translation>
+    </message>
+    <message>
+        <source>Light Angle</source>
+        <translation>Кут світла</translation>
+    </message>
+    <message>
+        <source>Vector Distort</source>
+        <translation>Спотворення за векторами</translation>
+    </message>
+    <message>
+        <source>Warps the picture along vectors stored in a second picture&apos;s red and green</source>
+        <translation>Спотворює зображення за векторами, записаними в червоному та зеленому каналах другого зображення</translation>
+    </message>
+    <message>
+        <source>Vectors</source>
+        <translation>Вектори</translation>
+    </message>
+    <message>
+        <source>Vector Range</source>
+        <translation>Діапазон вектора</translation>
+    </message>
+    <message>
+        <source>Multiplier</source>
+        <translation>Множник</translation>
+    </message>
+    <message>
+        <source>Steps</source>
+        <translation>Кроки</translation>
     </message>
     <message>
         <source>Angle</source>

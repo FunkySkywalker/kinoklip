@@ -155,6 +155,9 @@ ViewerControlKeys viewerControls(const QString& type)
     case ViewerControls::Planar:
         k.kind = ViewerControl::Planar;
         break;
+    case ViewerControls::Grid:
+        k.kind = ViewerControl::Grid;
+        break;
     case ViewerControls::None:
         break;
     }

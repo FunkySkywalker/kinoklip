@@ -714,6 +714,49 @@ private slots:
         QVERIFY(value(1, false) > 0.75 + 0.01);
     }
 
+    void gridWarpViewerPointsAreDragged()
+    {
+        // Spec 114.4: a Grid Warp shows its grid with a handle on every point; dragging a point
+        // writes that point's movement in px, one undo step per drag, and the picture follows.
+        Fixture f;
+        f.project.timeline()->setPlayhead(20);
+        f.showPage();
+        f.session()->setSelection({f.nodeNamed(QStringLiteral("MediaIn1"))});
+        const quint64 t = f.session()->addNode(nodetypes::GridWarp);
+        QVERIFY(t);
+        f.session()->setSelection({t});
+        CompViewerOverlay* overlay = f.page()->viewer(1)->controls();
+        QVERIFY(overlay->hasControls());
+        auto send
+            = [overlay](QEvent::Type type, QPointF p, Qt::MouseButton b, Qt::MouseButtons bs) {
+                  QMouseEvent e(type, p, overlay->mapToGlobal(p), b, bs, Qt::NoModifier);
+                  QApplication::sendEvent(overlay, &e);
+              };
+        const int64_t frame = f.session()->compFrame();
+        auto value = [&](int row, int col, int axis) {
+            return f.comp().node(t)->params.value(nodekeys::gridKey(row, col, axis), frame, -999.0);
+        };
+        // Point (1, 1) of the default 4 x 4 grid is index 5.
+        const QPointF from = *overlay->handlePos(CompViewerOverlay::Handle::Point, 5);
+        int index = -1;
+        QCOMPARE(overlay->handleAt(from, &index), CompViewerOverlay::Handle::Point);
+        QCOMPARE(index, 5);
+        const QPointF to = from + QPointF(24, 10);
+        const int before = f.steps();
+        send(QEvent::MouseButtonPress, from, Qt::LeftButton, Qt::LeftButton);
+        for (int i = 1; i <= 4; ++i)
+            send(QEvent::MouseMove, from + (to - from) * i / 4.0, Qt::NoButton, Qt::LeftButton);
+        send(QEvent::MouseButtonRelease, to, Qt::LeftButton, Qt::NoButton);
+        QCOMPARE(f.steps(), before + 1);
+        QVERIFY(value(1, 1, 0) > 1.0); // moved right
+        QVERIFY(value(1, 1, 1) > 1.0); // and down (the grid's y is down)
+        QCOMPARE(value(0, 0, 0), 0.0); // the other points stay
+        QCOMPARE(value(2, 2, 1), 0.0);
+        // The handle now sits where the mouse left it.
+        const QPointF now = *overlay->handlePos(CompViewerOverlay::Handle::Point, 5);
+        QVERIFY(std::abs(now.x() - to.x()) < 1.5 && std::abs(now.y() - to.y()) < 1.5);
+    }
+
     void planarPanelTracksCornersIntoOneUndoStep()
     {
         // Spec 50.9: the Planar Tracker has the same Track buttons as the Tracker; the corners of

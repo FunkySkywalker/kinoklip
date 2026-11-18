@@ -7,6 +7,7 @@
 #include "core/Composition.h"
 #include "render/CompMath.h"
 #include "render/GlCompFilters.h"
+#include "render/GlCompWarp.h"
 #include "render/GlEffects.h"
 #include "render/GlGenerators.h"
 #include "render/GlKit.h"
@@ -147,6 +148,7 @@ private:
     GlGenerators* m_generators = nullptr;
 
     GlCompFilters m_fx;
+    GlCompWarp m_fxWarp;
     GlProgram m_merge;
     GLint m_mergeFgMatrix = -1, m_mergeMode = -1, m_mergeOpacity = -1, m_mergeHasFg = -1,
           m_mergeHasMask = -1;

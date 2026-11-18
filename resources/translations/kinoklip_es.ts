@@ -21503,6 +21503,98 @@ Importar archivos con %1 o soltarlos aquí.</translation>
         <translation>Constante</translation>
     </message>
     <message>
+        <source>Grid Warp</source>
+        <translation>Deformación de cuadrícula</translation>
+    </message>
+    <message>
+        <source>Bends the picture with a grid of points that you drag in the viewer</source>
+        <translation>Deforma la imagen con una cuadrícula de puntos que arrastras en el visor</translation>
+    </message>
+    <message>
+        <source>Columns</source>
+        <translation>Columnas</translation>
+    </message>
+    <message>
+        <source>Rows</source>
+        <translation>Filas</translation>
+    </message>
+    <message>
+        <source>Point %1, %2</source>
+        <translation>Punto %1, %2</translation>
+    </message>
+    <message>
+        <source>Displace</source>
+        <translation>Desplazar</translation>
+    </message>
+    <message>
+        <source>Moves the pixels of the picture by the values of a second picture</source>
+        <translation>Mueve los píxeles de la imagen según los valores de una segunda imagen</translation>
+    </message>
+    <message>
+        <source>Displace Map</source>
+        <translation>Mapa de desplazamiento</translation>
+    </message>
+    <message>
+        <source>X / Y</source>
+        <translation>X / Y</translation>
+    </message>
+    <message>
+        <source>Radial</source>
+        <translation>Radial</translation>
+    </message>
+    <message>
+        <source>X Channel</source>
+        <translation>Canal X</translation>
+    </message>
+    <message>
+        <source>Y Channel</source>
+        <translation>Canal Y</translation>
+    </message>
+    <message>
+        <source>X Refraction</source>
+        <translation>Refracción X</translation>
+    </message>
+    <message>
+        <source>Y Refraction</source>
+        <translation>Refracción Y</translation>
+    </message>
+    <message>
+        <source>Offset</source>
+        <translation>Desfase</translation>
+    </message>
+    <message>
+        <source>Light Power</source>
+        <translation>Intensidad de luz</translation>
+    </message>
+    <message>
+        <source>Light Angle</source>
+        <translation>Ángulo de luz</translation>
+    </message>
+    <message>
+        <source>Vector Distort</source>
+        <translation>Distorsión por vectores</translation>
+    </message>
+    <message>
+        <source>Warps the picture along vectors stored in a second picture&apos;s red and green</source>
+        <translation>Distorsiona la imagen según vectores guardados en el rojo y el verde de una segunda imagen</translation>
+    </message>
+    <message>
+        <source>Vectors</source>
+        <translation>Vectores</translation>
+    </message>
+    <message>
+        <source>Vector Range</source>
+        <translation>Rango del vector</translation>
+    </message>
+    <message>
+        <source>Multiplier</source>
+        <translation>Multiplicador</translation>
+    </message>
+    <message>
+        <source>Steps</source>
+        <translation>Pasos</translation>
+    </message>
+    <message>
         <source>Angle</source>
         <translation>Ángulo</translation>
     </message>

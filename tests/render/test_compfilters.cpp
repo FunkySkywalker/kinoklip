@@ -7,6 +7,7 @@
 #include "core/CompOps.h"
 #include "core/NodeRegistry.h"
 #include "render/CompFilterMath.h"
+#include "render/CompWarpMath.h"
 #include "render/Compositor.h"
 
 #include <QTest>
@@ -248,6 +249,121 @@ private slots:
         co::connect(c, lw, 0, c.mediaOutId, nodeports::Input);
         for (const QImage& img : nodeImages(compTimeline(c), lw))
             QVERIFY2(near(px(img, 104, 90), 90, 90, 90, 255, 2), describe(px(img, 104, 90)));
+    }
+
+    /// A white box [120, 200) x [60, 120) as the picture, @p type's node fed by it and by @p map.
+    Composition warpSetup(const QString& type, QColor mapColor, quint64* node)
+    {
+        Composition c = co::defaultComposition();
+        const quint64 box = colorSource(c, Qt::white, true, 120, 60, 200, 120);
+        *node = co::addNode(c, type, {});
+        co::connect(c, box, 0, *node, nodeports::Input);
+        if (mapColor.isValid()) {
+            const quint64 map = colorSource(c, mapColor, false);
+            co::connect(c, map, 0, *node, nodeports::Map);
+        }
+        co::connect(c, *node, 0, c.mediaOutId, nodeports::Input);
+        return c;
+    }
+
+    void displaceXY()
+    {
+        quint64 d = 0;
+        Composition c = warpSetup(nodetypes::Displace, QColor(200, 128, 0), &d);
+        // Red 200 / 255 = 0.784: 0.284 * 20 px = 5.7 px to the right; green 0.502: nothing.
+        const QVector<QImage> imgs = nodeImages(compTimeline(c), d);
+        for (const QImage& img : imgs) {
+            QVERIFY2(px(img, 122, 90).a < 40, describe(px(img, 122, 90))); // the old left edge is empty
+            QVERIFY2(px(img, 128, 90).a > 215, describe(px(img, 128, 90)));
+            QVERIFY2(px(img, 203, 90).a > 215, describe(px(img, 203, 90))); // the right edge moved out
+            QVERIFY2(px(img, 210, 90).a < 40, describe(px(img, 210, 90)));
+        }
+        QVERIFY(differing(imgs[0], imgs[1], 8) < 200);
+        // A map value equal to Offset moves nothing; Edges Canvas keeps the outside transparent.
+        c.node(d)->params.setBase(nodekeys::DisplaceOffset, 0.784);
+        for (const QImage& img : nodeImages(compTimeline(c), d)) {
+            QVERIFY2(px(img, 122, 90).a > 215, describe(px(img, 122, 90)));
+            QVERIFY2(px(img, 118, 90).a < 40, describe(px(img, 118, 90)));
+        }
+    }
+
+    void displaceRadialAndLight()
+    {
+        quint64 d = 0;
+        Composition c = warpSetup(nodetypes::Displace, QColor(255, 255, 255), &d);
+        c.node(d)->params.setStatic(nodekeys::DisplaceType, displacetypes::Radial);
+        // White = 1: 0.5 * 20 px = 10 px away from the centre, so the box grows by 10 px.
+        for (const QImage& img : nodeImages(compTimeline(c), d)) {
+            QVERIFY2(px(img, 113, 90).a > 215, describe(px(img, 113, 90)));
+            QVERIFY2(px(img, 106, 90).a < 40, describe(px(img, 106, 90)));
+            QVERIFY2(px(img, 206, 90).a > 215, describe(px(img, 206, 90)));
+        }
+        // Light Power shades by the map's slope: a flat map leaves the colour alone.
+        c.node(d)->params.setBase(nodekeys::DisplaceLightPower, 1.0);
+        for (const QImage& img : nodeImages(compTimeline(c), d))
+            QVERIFY2(near(px(img, 160, 90), 255, 255, 255, 255, 2), describe(px(img, 160, 90)));
+    }
+
+    void displaceNeedsAMap()
+    {
+        quint64 d = 0;
+        Composition c = warpSetup(nodetypes::Displace, QColor(), &d);
+        for (const QImage& img : nodeImages(compTimeline(c), d))
+            QVERIFY2(near(px(img, 160, 90), 255, 255, 255, 255, 1), describe(px(img, 160, 90)));
+    }
+
+    void vectorDistortMovesAlongVectors()
+    {
+        quint64 v = 0;
+        Composition c = warpSetup(nodetypes::VectorDistort, QColor(191, 128, 0), &v);
+        // Red 0.749: (0.749 - 0.5) * 2 * 32 = 16 px to the right.
+        const QVector<QImage> imgs = nodeImages(compTimeline(c), v);
+        for (const QImage& img : imgs) {
+            QVERIFY2(px(img, 130, 90).a < 40, describe(px(img, 130, 90)));
+            QVERIFY2(px(img, 142, 90).a > 215, describe(px(img, 142, 90)));
+            QVERIFY2(px(img, 210, 90).a > 215, describe(px(img, 210, 90)));
+            QVERIFY2(px(img, 222, 90).a < 40, describe(px(img, 222, 90)));
+        }
+        QVERIFY(differing(imgs[0], imgs[1], 8) < 200);
+        // A negative Multiplier goes the other way; steps keep a constant field's result.
+        c.node(v)->params.setBase(nodekeys::VectorMultiplier, -1.0);
+        c.node(v)->params.setBase(nodekeys::VectorSteps, 4.0);
+        for (const QImage& img : nodeImages(compTimeline(c), v)) {
+            QVERIFY2(px(img, 108, 90).a > 215, describe(px(img, 108, 90)));
+            QVERIFY2(px(img, 190, 90).a < 40, describe(px(img, 190, 90)));
+        }
+    }
+
+    void gridWarpBendsThePicture()
+    {
+        quint64 g = 0;
+        Composition c = warpSetup(nodetypes::GridWarp, QColor(), &g);
+        c.node(g)->params.setBase(nodekeys::Columns, 3.0);
+        c.node(g)->params.setBase(nodekeys::Rows, 3.0);
+        // Untouched grid: the picture as it is.
+        for (const QImage& img : nodeImages(compTimeline(c), g))
+            QVERIFY2(near(px(img, 160, 90), 255, 255, 255, 255, 1), describe(px(img, 160, 90)));
+        // The middle point 60 px to the right drags the content next to it along.
+        c.node(g)->params.setBase(nodekeys::gridKey(1, 1, 0), 60.0);
+        const QVector<QImage> imgs = nodeImages(compTimeline(c), g);
+        for (const QImage& img : imgs) {
+            QVERIFY2(px(img, 215, 90).a > 200, describe(px(img, 215, 90))); // was empty
+            QVERIFY2(px(img, 125, 90).a < 100, describe(px(img, 125, 90))); // left edge moved right
+            QVERIFY2(px(img, 20, 20).a < 3, describe(px(img, 20, 20))); // far corners stay put
+        }
+        int worst = 0;
+        const int bad = differing(imgs[0], imgs[1], 10, &worst);
+        QVERIFY2(bad < 300, qPrintable(QStringLiteral("%1 pixels differ, worst %2").arg(bad).arg(worst)));
+        // The maths on its own: a zero grid is the identity, a displaced point moves its own place.
+        compmath::GridWarpParams grid;
+        grid.cols = grid.rows = 3;
+        grid.d.assign(18, 0.0f);
+        QVERIFY(grid.isIdentity());
+        grid.d[(1 * 3 + 1) * 2] = 0.2f;
+        const double t[2] = {0.7, 0.5}; // where the moved centre point arrives
+        double src[2];
+        compmath::gridWarpSource(grid, t, src);
+        QVERIFY2(std::abs(src[0] - 0.5) < 0.02, qPrintable(QString::number(src[0])));
     }
 
     void floatMathMatchesDefinitions()

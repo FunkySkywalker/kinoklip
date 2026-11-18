@@ -159,6 +159,8 @@ void CompInspector::rebuild()
             m_group->setObjectName(QStringLiteral("CompNodeParams"));
             if (info) {
                 for (const ParamDescriptor& desc : info->params) {
+                    if (desc.hidden)
+                        continue;
                     ParamRef ref;
                     ref.clipId = kProxyClipId;
                     ref.scope = ParamScope::Effect;
