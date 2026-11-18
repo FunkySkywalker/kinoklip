@@ -32,5 +32,29 @@ ran at its old rate) changes. **Edit > Undo** takes the whole change back in one
 - Effect settings counted in frames, such as the spacing of Motion Trails, are converted too.
 - The timeline view keeps its zoom per second, and the playhead stays at the same time.
 
+## Make your settings the default for new projects
+
+If every video you edit is, say, 1440p at 60 fps, set it up once so each new project starts that
+way instead of at 1920 x 1080 and 24 fps.
+
+1. Open a project and choose **File > Project Settings**.
+2. Set the **Timeline resolution** and **Timeline frame rate** you always use (and any other
+   setting you want, such as the standard transition).
+3. Click **Presets** in the list on the left, then **Save As User Default Config**, and confirm.
+4. Click **OK** (or Cancel; the default is already saved).
+
+From now on every new project (Project Manager, **File > New Project**, and the `project new`
+command) starts from those settings. To go back to the built-in 1920 x 1080 at 24 fps, click
+**Reset to factory default** on the same page. Projects you already have are not changed.
+
+The **Presets** page also keeps named presets for different kinds of work. **Save As...** stores
+the settings under a name, **Load** applies a preset to the open project, **Update** replaces a
+preset with the settings now entered, **Delete** removes one, and **Import...** and **Export...**
+read and write a preset as a file you can send to someone. **Load** keeps the frame rate of a
+project whose timeline already has clips, and says so under the list.
+
+When you add your first clip to a project whose frame rate and picture size differ from the
+clip's, Kinoklip asks once whether to change both to match.
+
 To do the same from a terminal on a saved project file, see
 [Control Kinoklip from the command line](control-kinoklip-from-the-command-line.md).

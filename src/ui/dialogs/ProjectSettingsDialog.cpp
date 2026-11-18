@@ -5,7 +5,9 @@
 #include "core/EffectRegistry.h"
 #include "core/Preferences.h"
 #include "core/Project.h"
+#include "core/ProjectPresets.h"
 #include "export/ProxyMedia.h"
+#include "platform/FileDialogs.h"
 #include "ui/common/DialogSizing.h"
 #include "ui/common/FormTips.h"
 #include "ui/common/Metrics.h"
@@ -17,14 +19,19 @@
 #include <QComboBox>
 #include <QDialogButtonBox>
 #include <QFormLayout>
+#include <QFileInfo>
 #include <QHBoxLayout>
+#include <QHeaderView>
+#include <QInputDialog>
 #include <QLabel>
 #include <QLineEdit>
 #include <QListWidget>
 #include <QMessageBox>
+#include <QPushButton>
 #include <QScrollArea>
 #include <QSpinBox>
 #include <QStackedWidget>
+#include <QTreeWidget>
 #include <QVBoxLayout>
 
 #include <algorithm>
@@ -138,13 +145,15 @@ ProjectSettingsDialog::ProjectSettingsDialog(Project* project, QWidget* parent)
     m_stack = new QStackedWidget;
     connect(m_sections, &QListWidget::currentRowChanged, m_stack, &QStackedWidget::setCurrentIndex);
 
+    addSection(QStringLiteral("presets"), tr("Presets"), buildPresets());
     addSection(QStringLiteral("master"), tr("Master Settings"), buildMaster());
     addSection(QStringLiteral("scaling"), tr("Image Scaling"), buildScaling());
     addSection(QStringLiteral("audio"), tr("Audio"), buildAudio());
     addSection(QStringLiteral("color"), tr("Color Management"), buildColor());
     addSection(QStringLiteral("general"), tr("General Options"), buildGeneral());
     addSection(QStringLiteral("cache"), tr("Optimized Media and Render Cache"), buildCache());
-    m_sections->setCurrentRow(0);
+    showSection(QStringLiteral("master")); // opens where it always did; Presets is one click up
+    refreshPresets();
 
     auto* separator = new QFrame;
     separator->setFrameShape(QFrame::VLine);
@@ -213,6 +222,345 @@ bool ProjectSettingsDialog::showSection(const QString& sectionId)
         }
     }
     return false;
+}
+
+// ---- Presets page ----
+
+namespace {
+QString sizeText(int width, int height)
+{
+    return QStringLiteral("%1 x %2").arg(width).arg(height);
+}
+} // namespace
+
+QWidget* ProjectSettingsDialog::buildPresets()
+{
+    auto* page = new QWidget;
+    auto* layout = new QVBoxLayout(page);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(metrics::kSpaceL);
+
+    m_presetList = new QTreeWidget;
+    m_presetList->setObjectName(QStringLiteral("PresetList"));
+    m_presetList->setRootIsDecorated(false);
+    m_presetList->setUniformRowHeights(true);
+    m_presetList->setHeaderLabels(
+        {tr("Preset"), tr("Timeline resolution"), tr("Timeline frame rate")});
+    m_presetList->header()->setStretchLastSection(false);
+    m_presetList->header()->setSectionResizeMode(0, QHeaderView::Stretch);
+    m_presetList->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+    m_presetList->header()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+    m_presetList->setMinimumHeight(metrics::kSpaceXl * 8);
+    m_presetList->setToolTip(tr("Your saved project settings. Current Project shows the settings "
+                                "of the open project. Pick a preset to load, update, delete or "
+                                "export it."));
+    layout->addWidget(m_presetList, 1);
+
+    const auto button = [this](const char* name, const QString& text, const QString& tip) {
+        auto* b = new QPushButton(text);
+        b->setObjectName(QLatin1String(name));
+        b->setToolTip(tip);
+        return b;
+    };
+    auto* saveAs = button("PresetSaveAs", tr("Save As..."),
+        tr("Save all the settings of this project under a name, so you can load them into "
+           "another project later."));
+    m_presetLoad = button("PresetLoad", tr("Load"),
+        tr("Apply the selected preset to this project. The frame rate stays as it is once a "
+           "timeline that follows the project settings has clips."));
+    m_presetUpdate = button("PresetUpdate", tr("Update"),
+        tr("Replace the selected preset with the settings now entered in this dialog."));
+    m_presetDelete = button("PresetDelete", tr("Delete"),
+        tr("Remove the selected preset. You are asked first."));
+    auto* import = button("PresetImport", tr("Import..."),
+        tr("Add a preset from a file, for example one that someone sent you."));
+    m_presetExport = button("PresetExport", tr("Export..."),
+        tr("Write the selected preset (or the current project's settings) to a file."));
+    auto* buttons = new QHBoxLayout;
+    buttons->setSpacing(metrics::kSpaceS);
+    for (QPushButton* b : {saveAs, m_presetLoad, m_presetUpdate, m_presetDelete, import,
+             m_presetExport})
+        buttons->addWidget(b);
+    buttons->addStretch(1);
+    layout->addLayout(buttons);
+
+    layout->addWidget(subHeading(tr("New Projects")));
+    auto* defaults = new QHBoxLayout;
+    defaults->setSpacing(metrics::kSpaceS);
+    auto* saveDefault = button("PresetSaveUserDefault", tr("Save As User Default Config"),
+        tr("Make the settings entered here the starting point of every new project: Project "
+           "Manager, File > New Project and the project new command."));
+    auto* reset = button("PresetResetFactory", tr("Reset to factory default"),
+        tr("Forget your default config: new projects start from the built-in settings "
+           "(1920 x 1080 at 24 fps) again. The open project does not change."));
+    defaults->addWidget(saveDefault);
+    defaults->addWidget(reset);
+    defaults->addStretch(1);
+    layout->addLayout(defaults);
+
+    m_presetStatus = new QLabel;
+    m_presetStatus->setObjectName(QStringLiteral("PresetStatus"));
+    m_presetStatus->setWordWrap(true);
+    layout->addWidget(m_presetStatus);
+
+    connect(m_presetList, &QTreeWidget::itemSelectionChanged, this,
+        &ProjectSettingsDialog::updatePresetButtons);
+    connect(m_presetList, &QTreeWidget::itemDoubleClicked, this, [this] {
+        if (!selectedPresetName().isEmpty())
+            loadPreset(selectedPresetName());
+    });
+    connect(saveAs, &QPushButton::clicked, this, [this] {
+        bool ok = false;
+        const QString name = QInputDialog::getText(this, tr("Save Preset"), tr("Preset name:"),
+            QLineEdit::Normal, selectedPresetName(), &ok)
+                                 .simplified();
+        if (!ok || name.isEmpty())
+            return;
+        if (projectpresets::load(name)
+            && QMessageBox::question(this, tr("Save Preset"),
+                   tr("A preset called \"%1\" exists. Replace it?").arg(name),
+                   QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel)
+                != QMessageBox::Yes)
+            return;
+        saveAsPreset(name);
+    });
+    connect(m_presetLoad, &QPushButton::clicked, this,
+        [this] { loadPreset(selectedPresetName()); });
+    connect(m_presetUpdate, &QPushButton::clicked, this, [this] {
+        const QString name = selectedPresetName();
+        if (!name.isEmpty()
+            && QMessageBox::question(this, tr("Update Preset"),
+                   tr("Replace the preset \"%1\" with the settings entered here?").arg(name),
+                   QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel)
+                == QMessageBox::Yes)
+            updatePreset(name);
+    });
+    connect(m_presetDelete, &QPushButton::clicked, this, [this] {
+        const QString name = selectedPresetName();
+        if (!name.isEmpty()
+            && QMessageBox::question(this, tr("Delete Preset"),
+                   tr("Delete the preset \"%1\"? This cannot be undone.").arg(name),
+                   QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel)
+                == QMessageBox::Yes)
+            deletePreset(name);
+    });
+    connect(import, &QPushButton::clicked, this, [this] {
+        const QString path = platform::getOpenFileName(this, tr("Import Preset"),
+            tr("Project settings presets (*.json);;All files (*)"),
+            QStringLiteral("projectPresets/importDir"));
+        if (!path.isEmpty())
+            importPreset(path);
+    });
+    connect(m_presetExport, &QPushButton::clicked, this, [this] {
+        const QString name = selectedPresetName();
+        const QString suggested = (name.isEmpty() ? m_project->name() : name) + QStringLiteral(".json");
+        const QString path = platform::getSaveFileName(this, tr("Export Preset"),
+            tr("Project settings presets (*.json)"), QStringLiteral("projectPresets/exportDir"),
+            suggested);
+        if (!path.isEmpty())
+            exportPreset(name, path);
+    });
+    connect(saveDefault, &QPushButton::clicked, this, [this] {
+        if (QMessageBox::question(this, tr("Save As User Default Config"),
+                tr("Start every new project with the settings entered here?"),
+                QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Yes)
+            == QMessageBox::Yes)
+            saveAsUserDefault();
+    });
+    connect(reset, &QPushButton::clicked, this, [this] {
+        if (QMessageBox::question(this, tr("Reset to Factory Default"),
+                tr("Forget your default config? New projects will start with 1920 x 1080 at "
+                   "24 fps again."),
+                QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel)
+            == QMessageBox::Yes)
+            resetFactoryDefault();
+    });
+    return page;
+}
+
+void ProjectSettingsDialog::refreshPresets()
+{
+    const QString keep = selectedPresetName();
+    const QSignalBlocker block(m_presetList);
+    m_presetList->clear();
+    const ProjectSettings now = m_project->settings();
+    auto* current = new QTreeWidgetItem(
+        {tr("Current Project"), sizeText(now.width, now.height), tr("%1 fps").arg(fpsLabel(now.fps))});
+    QFont bold = current->font(0);
+    bold.setWeight(QFont::DemiBold);
+    current->setFont(0, bold);
+    m_presetList->addTopLevelItem(current);
+    for (const projectpresets::PresetInfo& info : projectpresets::list()) {
+        auto* item = new QTreeWidgetItem({info.name, sizeText(info.width, info.height),
+            tr("%1 fps").arg(fpsLabel(info.fps))});
+        item->setData(0, Qt::UserRole, info.name);
+        m_presetList->addTopLevelItem(item);
+        if (info.name == keep)
+            m_presetList->setCurrentItem(item);
+    }
+    if (!m_presetList->currentItem())
+        m_presetList->setCurrentItem(current);
+    updatePresetButtons();
+}
+
+QString ProjectSettingsDialog::selectedPresetName() const
+{
+    const QTreeWidgetItem* item = m_presetList ? m_presetList->currentItem() : nullptr;
+    return item ? item->data(0, Qt::UserRole).toString() : QString();
+}
+
+void ProjectSettingsDialog::updatePresetButtons()
+{
+    const bool saved = !selectedPresetName().isEmpty();
+    m_presetLoad->setEnabled(saved);
+    m_presetUpdate->setEnabled(saved);
+    m_presetDelete->setEnabled(saved);
+    m_presetExport->setEnabled(true); // Current Project exports the settings entered here
+}
+
+void ProjectSettingsDialog::setPresetStatus(const QString& text, bool problem)
+{
+    m_presetStatusText = text;
+    m_presetStatus->setText(text);
+    QPalette palette = m_presetStatus->palette();
+    palette.setColor(QPalette::WindowText,
+        problem ? schemeColors().neutral : m_presetStatus->palette().color(QPalette::WindowText));
+    m_presetStatus->setPalette(palette);
+}
+
+bool ProjectSettingsDialog::saveAsPreset(const QString& name)
+{
+    projectpresets::Preset preset;
+    preset.name = name.simplified();
+    preset.settings = settings();
+    preset.cache = cacheSettings();
+    if (preset.name.isEmpty() || !projectpresets::save(preset)) {
+        setPresetStatus(tr("The preset could not be saved."), true);
+        return false;
+    }
+    refreshPresets();
+    setPresetStatus(tr("Saved the preset \"%1\".").arg(preset.name));
+    return true;
+}
+
+bool ProjectSettingsDialog::updatePreset(const QString& name)
+{
+    if (!projectpresets::load(name)) {
+        setPresetStatus(tr("There is no preset called \"%1\".").arg(name), true);
+        return false;
+    }
+    if (!saveAsPreset(name))
+        return false;
+    setPresetStatus(tr("Updated the preset \"%1\".").arg(name));
+    return true;
+}
+
+bool ProjectSettingsDialog::deletePreset(const QString& name)
+{
+    if (!projectpresets::remove(name)) {
+        setPresetStatus(tr("There is no preset called \"%1\".").arg(name), true);
+        return false;
+    }
+    refreshPresets();
+    setPresetStatus(tr("Deleted the preset \"%1\".").arg(name));
+    return true;
+}
+
+bool ProjectSettingsDialog::loadPreset(const QString& name)
+{
+    const auto preset = projectpresets::load(name);
+    if (!preset) {
+        setPresetStatus(tr("There is no preset called \"%1\".").arg(name), true);
+        return false;
+    }
+    const ProjectSettings current = m_project->settings();
+    ProjectSettings wanted = preset->settings;
+    wanted.name = current.name; // a preset never renames the project
+    QString note;
+    if (wanted.fps != current.fps && followersHaveClips()) {
+        // The frame rate cannot change under clips here: take everything else, say so.
+        note = tr(" The frame rate stays at %1 fps: a timeline that uses the project settings "
+                  "already has clips (the preset has %2 fps).")
+                   .arg(fpsLabel(current.fps), fpsLabel(wanted.fps));
+        wanted.fps = current.fps;
+        wanted.timelineStart = current.timelineStart;
+    }
+    m_project->setSettings(wanted);
+    m_project->setCacheSettings(preset->cache);
+    setSettings(m_project->settings());
+    setCacheSettings(m_project->cacheSettings());
+    refreshPresets();
+    setPresetStatus(tr("Loaded the preset \"%1\".").arg(preset->name) + note, !note.isEmpty());
+    return true;
+}
+
+bool ProjectSettingsDialog::importPreset(const QString& path)
+{
+    QString error;
+    auto preset = projectpresets::readFile(path, &error);
+    if (!preset) {
+        setPresetStatus(tr("Could not import \"%1\": %2").arg(QFileInfo(path).fileName(), error),
+            true);
+        return false;
+    }
+    if (preset->name.isEmpty())
+        preset->name = QFileInfo(path).completeBaseName().simplified();
+    if (preset->name.isEmpty() || !projectpresets::save(*preset)) {
+        setPresetStatus(tr("The preset could not be saved."), true);
+        return false;
+    }
+    refreshPresets();
+    setPresetStatus(tr("Imported the preset \"%1\".").arg(preset->name));
+    return true;
+}
+
+bool ProjectSettingsDialog::exportPreset(const QString& name, const QString& path)
+{
+    std::optional<projectpresets::Preset> preset;
+    if (name.isEmpty()) {
+        preset = projectpresets::Preset {};
+        preset->name = m_project->name();
+        preset->settings = settings();
+        preset->cache = cacheSettings();
+    } else {
+        preset = projectpresets::load(name);
+    }
+    if (!preset) {
+        setPresetStatus(tr("There is no preset called \"%1\".").arg(name), true);
+        return false;
+    }
+    if (!projectpresets::writeFile(path, *preset)) {
+        setPresetStatus(tr("The file \"%1\" could not be written.").arg(path), true);
+        return false;
+    }
+    setPresetStatus(tr("Exported the preset to \"%1\".").arg(path));
+    return true;
+}
+
+bool ProjectSettingsDialog::saveAsUserDefault()
+{
+    projectpresets::Preset preset;
+    preset.name = QStringLiteral("User Default");
+    preset.settings = settings();
+    preset.cache = cacheSettings();
+    if (!projectpresets::setUserDefault(preset)) {
+        setPresetStatus(tr("The default config could not be saved."), true);
+        return false;
+    }
+    setPresetStatus(tr("New projects now start with these settings (%1 at %2 fps).")
+                        .arg(sizeText(preset.settings.width, preset.settings.height),
+                            fpsLabel(preset.settings.fps)));
+    return true;
+}
+
+bool ProjectSettingsDialog::resetFactoryDefault()
+{
+    if (!projectpresets::resetUserDefault()) {
+        setPresetStatus(tr("The default config could not be removed."), true);
+        return false;
+    }
+    setPresetStatus(tr("New projects start with the built-in settings again."));
+    return true;
 }
 
 QWidget* ProjectSettingsDialog::buildMaster()
@@ -506,12 +854,17 @@ QWidget* ProjectSettingsDialog::buildCache()
                                     "others) by itself so they play smoothly."));
     form->addRow(QString(), m_userComposites);
 
+    setCacheSettings(m_project->cacheSettings());
+    return formWidget(form);
+}
+
+void ProjectSettingsDialog::setCacheSettings(const MediaCacheSettings& cs)
+{
     auto select = [](QComboBox* c, const QVariant& v) {
         const int i = c->findData(v);
         if (i >= 0)
             c->setCurrentIndex(i);
     };
-    const MediaCacheSettings& cs = m_project->cacheSettings();
     select(m_proxyResolution, int(cs.proxyResolution));
     select(m_proxyFormat, cs.proxyFormat);
     select(m_optimizedResolution, int(cs.optimizedResolution));
@@ -521,7 +874,6 @@ QWidget* ProjectSettingsDialog::buildCache()
     m_backgroundDelay->setValue(cs.backgroundCacheDelaySec);
     m_userTransitions->setChecked(cs.userCacheTransitions);
     m_userComposites->setChecked(cs.userCacheComposites);
-    return formWidget(form);
 }
 
 MediaCacheSettings ProjectSettingsDialog::cacheSettings() const

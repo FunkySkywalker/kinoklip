@@ -700,6 +700,14 @@ The program was probably closed by the system because the computer ran out of me
         <source>the window is outside the picture</source>
         <translation>вікно за межами кадру</translation>
     </message>
+    <message>
+        <source>The file could not be opened.</source>
+        <translation>Не вдалося відкрити файл.</translation>
+    </message>
+    <message>
+        <source>The file is not a project settings preset.</source>
+        <translation>Файл не є пресетом налаштувань проєкту.</translation>
+    </message>
 </context>
 <context>
     <name>TimelineRepair</name>
@@ -1690,12 +1698,24 @@ The program was probably closed by the system because the computer ran out of me
         <translation>Пов’язано</translation>
     </message>
     <message>
+        <source>Change Project Frame Rate and Resolution</source>
+        <translation>Змінити частоту кадрів і роздільність проєкту</translation>
+    </message>
+    <message>
         <source>Change Project Frame Rate</source>
         <translation>Змінити частоту кадрів проєкту</translation>
     </message>
     <message>
         <source>The clips you added run at %1 fps, the project at %2 fps.</source>
         <translation>Додані кліпи мають %1 к/с, а проєкт — %2 к/с.</translation>
+    </message>
+    <message>
+        <source>Their pictures are %1 x %2, the project&apos;s %3 x %4.</source>
+        <translation>Розмір їхнього кадру %1 x %2, а в проєкту %3 x %4.</translation>
+    </message>
+    <message>
+        <source>Change the project frame rate to %1 fps and the resolution to %2 x %3 to match them? Once a timeline has clips, its frame rate cannot change.</source>
+        <translation>Змінити частоту кадрів проєкту на %1 к/с і роздільність на %2 x %3, щоб вони збігалися? Коли на таймлайні є кліпи, його частоту кадрів уже не можна змінити.</translation>
     </message>
     <message>
         <source>Change the project frame rate to %1 fps to match them? Once a timeline has clips, its frame rate cannot change.</source>
@@ -18601,6 +18621,14 @@ You can also double-click the header, or drag the header out of the panel.</sour
         <translation>Змінити частоту кадрів проєкту</translation>
     </message>
     <message>
+        <source>Change Project Frame Rate and Resolution</source>
+        <translation>Змінити частоту кадрів і роздільність проєкту</translation>
+    </message>
+    <message>
+        <source>Change the project frame rate to %1 fps and the resolution to %2 x %3 to match them? Once a timeline has clips, its frame rate cannot change.</source>
+        <translation>Змінити частоту кадрів проєкту на %1 к/с і роздільність на %2 x %3, щоб вони збігалися? Коли на таймлайні є кліпи, його частоту кадрів уже не можна змінити.</translation>
+    </message>
+    <message>
         <source>Change the project frame rate to %1 fps to match them? Once a timeline has clips, its frame rate cannot change.</source>
         <translation>Змінити частоту кадрів проєкту на %1 к/с, щоб вона збігалася? Коли на таймлайні є кліпи, змінити його частоту кадрів уже не можна.</translation>
     </message>
@@ -18639,6 +18667,10 @@ You can also double-click the header, or drag the header out of the panel.</sour
     <message>
         <source>The clips you added run at %1 fps, the project at %2 fps.</source>
         <translation>Додані кліпи мають %1 к/с, а проєкт — %2 к/с.</translation>
+    </message>
+    <message>
+        <source>Their pictures are %1 x %2, the project&apos;s %3 x %4.</source>
+        <translation>Розмір їхнього кадру %1 x %2, а в проєкту %3 x %4.</translation>
     </message>
     <message>
         <source>… and %1 more</source>
@@ -24929,8 +24961,208 @@ Estimated size after compacting: %3</source>
         <translation>%1 к/с</translation>
     </message>
     <message>
+        <source>Presets</source>
+        <translation>Пресети</translation>
+    </message>
+    <message>
         <source>Timeline frame rate</source>
         <translation>Частота кадрів таймлайну</translation>
+    </message>
+    <message>
+        <source>Preset</source>
+        <translation>Пресет</translation>
+    </message>
+    <message>
+        <source>Your saved project settings. Current Project shows the settings of the open project. Pick a preset to load, update, delete or export it.</source>
+        <translation>Ваші збережені налаштування проєкту. «Поточний проєкт» показує налаштування відкритого проєкту. Виберіть пресет, щоб завантажити, оновити, видалити або експортувати його.</translation>
+    </message>
+    <message>
+        <source>Save As...</source>
+        <translation>Зберегти як...</translation>
+    </message>
+    <message>
+        <source>Save all the settings of this project under a name, so you can load them into another project later.</source>
+        <translation>Зберігає всі налаштування цього проєкту під назвою, щоб пізніше завантажити їх в інший проєкт.</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Завантажити</translation>
+    </message>
+    <message>
+        <source>Apply the selected preset to this project. The frame rate stays as it is once a timeline that follows the project settings has clips.</source>
+        <translation>Застосовує вибраний пресет до цього проєкту. Частота кадрів не змінюється, якщо на таймлайні, що використовує налаштування проєкту, є кліпи.</translation>
+    </message>
+    <message>
+        <source>Update</source>
+        <translation>Оновити</translation>
+    </message>
+    <message>
+        <source>Replace the selected preset with the settings now entered in this dialog.</source>
+        <translation>Замінює вибраний пресет налаштуваннями, введеними зараз у цьому вікні.</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Видалити</translation>
+    </message>
+    <message>
+        <source>Remove the selected preset. You are asked first.</source>
+        <translation>Видаляє вибраний пресет. Спершу буде запитання.</translation>
+    </message>
+    <message>
+        <source>Import...</source>
+        <translation>Імпорт...</translation>
+    </message>
+    <message>
+        <source>Add a preset from a file, for example one that someone sent you.</source>
+        <translation>Додає пресет із файлу, наприклад надісланий вам кимось.</translation>
+    </message>
+    <message>
+        <source>Export...</source>
+        <translation>Експорт...</translation>
+    </message>
+    <message>
+        <source>Write the selected preset (or the current project&apos;s settings) to a file.</source>
+        <translation>Записує вибраний пресет (або налаштування поточного проєкту) у файл.</translation>
+    </message>
+    <message>
+        <source>New Projects</source>
+        <translation>Нові проєкти</translation>
+    </message>
+    <message>
+        <source>Save As User Default Config</source>
+        <translation>Зберегти як типову конфігурацію користувача</translation>
+    </message>
+    <message>
+        <source>Make the settings entered here the starting point of every new project: Project Manager, File &gt; New Project and the project new command.</source>
+        <translation>Робить уведені тут налаштування відправною точкою кожного нового проєкту: менеджер проєктів, Файл &gt; Новий проєкт і команда project new.</translation>
+    </message>
+    <message>
+        <source>Reset to factory default</source>
+        <translation>Скинути до заводських налаштувань</translation>
+    </message>
+    <message>
+        <source>Forget your default config: new projects start from the built-in settings (1920 x 1080 at 24 fps) again. The open project does not change.</source>
+        <translation>Забуває вашу типову конфігурацію: нові проєкти знову починаються зі вбудованих налаштувань (1920 x 1080, 24 к/с). Відкритий проєкт не змінюється.</translation>
+    </message>
+    <message>
+        <source>Save Preset</source>
+        <translation>Зберегти пресет</translation>
+    </message>
+    <message>
+        <source>Preset name:</source>
+        <translation>Назва пресета:</translation>
+    </message>
+    <message>
+        <source>A preset called &quot;%1&quot; exists. Replace it?</source>
+        <translation>Пресет «%1» уже існує. Замінити його?</translation>
+    </message>
+    <message>
+        <source>Update Preset</source>
+        <translation>Оновити пресет</translation>
+    </message>
+    <message>
+        <source>Replace the preset &quot;%1&quot; with the settings entered here?</source>
+        <translation>Замінити пресет «%1» налаштуваннями, введеними тут?</translation>
+    </message>
+    <message>
+        <source>Delete Preset</source>
+        <translation>Видалити пресет</translation>
+    </message>
+    <message>
+        <source>Delete the preset &quot;%1&quot;? This cannot be undone.</source>
+        <translation>Видалити пресет «%1»? Це не можна скасувати.</translation>
+    </message>
+    <message>
+        <source>Import Preset</source>
+        <translation>Імпорт пресета</translation>
+    </message>
+    <message>
+        <source>Project settings presets (*.json);;All files (*)</source>
+        <translation>Пресети налаштувань проєкту (*.json);;Усі файли (*)</translation>
+    </message>
+    <message>
+        <source>Export Preset</source>
+        <translation>Експорт пресета</translation>
+    </message>
+    <message>
+        <source>Project settings presets (*.json)</source>
+        <translation>Пресети налаштувань проєкту (*.json)</translation>
+    </message>
+    <message>
+        <source>Start every new project with the settings entered here?</source>
+        <translation>Починати кожен новий проєкт із введених тут налаштувань?</translation>
+    </message>
+    <message>
+        <source>Reset to Factory Default</source>
+        <translation>Скинути до заводських налаштувань</translation>
+    </message>
+    <message>
+        <source>Forget your default config? New projects will start with 1920 x 1080 at 24 fps again.</source>
+        <translation>Забути вашу типову конфігурацію? Нові проєкти знову починатимуться з 1920 x 1080 при 24 к/с.</translation>
+    </message>
+    <message>
+        <source>Current Project</source>
+        <translation>Поточний проєкт</translation>
+    </message>
+    <message>
+        <source>The preset could not be saved.</source>
+        <translation>Не вдалося зберегти пресет.</translation>
+    </message>
+    <message>
+        <source>Saved the preset &quot;%1&quot;.</source>
+        <translation>Пресет «%1» збережено.</translation>
+    </message>
+    <message>
+        <source>There is no preset called &quot;%1&quot;.</source>
+        <translation>Пресета «%1» немає.</translation>
+    </message>
+    <message>
+        <source>Updated the preset &quot;%1&quot;.</source>
+        <translation>Пресет «%1» оновлено.</translation>
+    </message>
+    <message>
+        <source>Deleted the preset &quot;%1&quot;.</source>
+        <translation>Пресет «%1» видалено.</translation>
+    </message>
+    <message>
+        <source> The frame rate stays at %1 fps: a timeline that uses the project settings already has clips (the preset has %2 fps).</source>
+        <translation> Частота кадрів залишається %1 к/с: на таймлайні, що використовує налаштування проєкту, вже є кліпи (у пресеті %2 к/с).</translation>
+    </message>
+    <message>
+        <source>Loaded the preset &quot;%1&quot;.</source>
+        <translation>Пресет «%1» завантажено.</translation>
+    </message>
+    <message>
+        <source>Could not import &quot;%1&quot;: %2</source>
+        <translation>Не вдалося імпортувати «%1»: %2</translation>
+    </message>
+    <message>
+        <source>Imported the preset &quot;%1&quot;.</source>
+        <translation>Пресет «%1» імпортовано.</translation>
+    </message>
+    <message>
+        <source>The file &quot;%1&quot; could not be written.</source>
+        <translation>Не вдалося записати файл «%1».</translation>
+    </message>
+    <message>
+        <source>Exported the preset to &quot;%1&quot;.</source>
+        <translation>Пресет експортовано в «%1».</translation>
+    </message>
+    <message>
+        <source>The default config could not be saved.</source>
+        <translation>Не вдалося зберегти типову конфігурацію.</translation>
+    </message>
+    <message>
+        <source>New projects now start with these settings (%1 at %2 fps).</source>
+        <translation>Нові проєкти тепер починаються з цих налаштувань (%1, %2 к/с).</translation>
+    </message>
+    <message>
+        <source>The default config could not be removed.</source>
+        <translation>Не вдалося видалити типову конфігурацію.</translation>
+    </message>
+    <message>
+        <source>New projects start with the built-in settings again.</source>
+        <translation>Нові проєкти знову починаються зі вбудованих налаштувань.</translation>
     </message>
     <message>
         <source>Playback always runs at the timeline frame rate in this version.</source>

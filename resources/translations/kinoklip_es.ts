@@ -697,6 +697,14 @@ Probablemente el sistema cerró el programa porque el equipo se quedó sin memor
         <source>the window is outside the picture</source>
         <translation>la ventana está fuera de la imagen</translation>
     </message>
+    <message>
+        <source>The file could not be opened.</source>
+        <translation>No se pudo abrir el archivo.</translation>
+    </message>
+    <message>
+        <source>The file is not a project settings preset.</source>
+        <translation>El archivo no es un preajuste de ajustes de proyecto.</translation>
+    </message>
 </context>
 <context>
     <name>TimelineRepair</name>
@@ -1682,12 +1690,24 @@ Probablemente el sistema cerró el programa porque el equipo se quedó sin memor
         <translation>Vinculado</translation>
     </message>
     <message>
+        <source>Change Project Frame Rate and Resolution</source>
+        <translation>Cambiar la velocidad de fotogramas y la resolución del proyecto</translation>
+    </message>
+    <message>
         <source>Change Project Frame Rate</source>
         <translation>Cambiar velocidad de fotogramas del proyecto</translation>
     </message>
     <message>
         <source>The clips you added run at %1 fps, the project at %2 fps.</source>
         <translation>Los clips añadidos van a %1 fps y el proyecto a %2 fps.</translation>
+    </message>
+    <message>
+        <source>Their pictures are %1 x %2, the project&apos;s %3 x %4.</source>
+        <translation>Su imagen mide %1 x %2 y la del proyecto %3 x %4.</translation>
+    </message>
+    <message>
+        <source>Change the project frame rate to %1 fps and the resolution to %2 x %3 to match them? Once a timeline has clips, its frame rate cannot change.</source>
+        <translation>¿Cambiar la velocidad del proyecto a %1 fps y la resolución a %2 x %3 para que coincidan? Cuando una línea de tiempo tiene clips, su velocidad ya no se puede cambiar.</translation>
     </message>
     <message>
         <source>Change the project frame rate to %1 fps to match them? Once a timeline has clips, its frame rate cannot change.</source>
@@ -18587,6 +18607,14 @@ También se puede hacer doble clic en el encabezado o arrastrarlo fuera del pane
         <translation>Cambiar velocidad de fotogramas del proyecto</translation>
     </message>
     <message>
+        <source>Change Project Frame Rate and Resolution</source>
+        <translation>Cambiar la velocidad de fotogramas y la resolución del proyecto</translation>
+    </message>
+    <message>
+        <source>Change the project frame rate to %1 fps and the resolution to %2 x %3 to match them? Once a timeline has clips, its frame rate cannot change.</source>
+        <translation>¿Cambiar la velocidad del proyecto a %1 fps y la resolución a %2 x %3 para que coincidan? Cuando una línea de tiempo tiene clips, su velocidad ya no se puede cambiar.</translation>
+    </message>
+    <message>
         <source>Change the project frame rate to %1 fps to match them? Once a timeline has clips, its frame rate cannot change.</source>
         <translation>¿Cambiar la velocidad de fotogramas del proyecto a %1 fps para que coincida? Cuando una línea de tiempo tiene clips, su velocidad de fotogramas no se puede cambiar.</translation>
     </message>
@@ -18625,6 +18653,10 @@ También se puede hacer doble clic en el encabezado o arrastrarlo fuera del pane
     <message>
         <source>The clips you added run at %1 fps, the project at %2 fps.</source>
         <translation>Los clips añadidos van a %1 fps y el proyecto a %2 fps.</translation>
+    </message>
+    <message>
+        <source>Their pictures are %1 x %2, the project&apos;s %3 x %4.</source>
+        <translation>Su imagen mide %1 x %2 y la del proyecto %3 x %4.</translation>
     </message>
     <message>
         <source>… and %1 more</source>
@@ -24911,8 +24943,208 @@ Tamaño estimado tras compactar: %3</translation>
         <translation>%1 fps</translation>
     </message>
     <message>
+        <source>Presets</source>
+        <translation>Preajustes</translation>
+    </message>
+    <message>
         <source>Timeline frame rate</source>
         <translation>Velocidad de fotogramas de la línea de tiempo</translation>
+    </message>
+    <message>
+        <source>Preset</source>
+        <translation>Preajuste</translation>
+    </message>
+    <message>
+        <source>Your saved project settings. Current Project shows the settings of the open project. Pick a preset to load, update, delete or export it.</source>
+        <translation>Sus ajustes de proyecto guardados. Proyecto actual muestra los ajustes del proyecto abierto. Elija un preajuste para cargarlo, actualizarlo, eliminarlo o exportarlo.</translation>
+    </message>
+    <message>
+        <source>Save As...</source>
+        <translation>Guardar como...</translation>
+    </message>
+    <message>
+        <source>Save all the settings of this project under a name, so you can load them into another project later.</source>
+        <translation>Guarda todos los ajustes de este proyecto con un nombre, para poder cargarlos más tarde en otro proyecto.</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Cargar</translation>
+    </message>
+    <message>
+        <source>Apply the selected preset to this project. The frame rate stays as it is once a timeline that follows the project settings has clips.</source>
+        <translation>Aplica el preajuste seleccionado a este proyecto. La velocidad de fotogramas no cambia cuando una línea de tiempo que sigue los ajustes del proyecto tiene clips.</translation>
+    </message>
+    <message>
+        <source>Update</source>
+        <translation>Actualizar</translation>
+    </message>
+    <message>
+        <source>Replace the selected preset with the settings now entered in this dialog.</source>
+        <translation>Reemplaza el preajuste seleccionado con los ajustes introducidos ahora en este diálogo.</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Eliminar</translation>
+    </message>
+    <message>
+        <source>Remove the selected preset. You are asked first.</source>
+        <translation>Quita el preajuste seleccionado. Se le pregunta antes.</translation>
+    </message>
+    <message>
+        <source>Import...</source>
+        <translation>Importar...</translation>
+    </message>
+    <message>
+        <source>Add a preset from a file, for example one that someone sent you.</source>
+        <translation>Añade un preajuste desde un archivo, por ejemplo uno que alguien le envió.</translation>
+    </message>
+    <message>
+        <source>Export...</source>
+        <translation>Exportar...</translation>
+    </message>
+    <message>
+        <source>Write the selected preset (or the current project&apos;s settings) to a file.</source>
+        <translation>Escribe el preajuste seleccionado (o los ajustes del proyecto actual) en un archivo.</translation>
+    </message>
+    <message>
+        <source>New Projects</source>
+        <translation>Proyectos nuevos</translation>
+    </message>
+    <message>
+        <source>Save As User Default Config</source>
+        <translation>Guardar como configuración predeterminada del usuario</translation>
+    </message>
+    <message>
+        <source>Make the settings entered here the starting point of every new project: Project Manager, File &gt; New Project and the project new command.</source>
+        <translation>Convierte los ajustes introducidos aquí en el punto de partida de cada proyecto nuevo: Gestor de proyectos, Archivo &gt; Proyecto nuevo y el comando project new.</translation>
+    </message>
+    <message>
+        <source>Reset to factory default</source>
+        <translation>Restablecer a los valores de fábrica</translation>
+    </message>
+    <message>
+        <source>Forget your default config: new projects start from the built-in settings (1920 x 1080 at 24 fps) again. The open project does not change.</source>
+        <translation>Olvida su configuración predeterminada: los proyectos nuevos vuelven a empezar con los ajustes integrados (1920 x 1080 a 24 fps). El proyecto abierto no cambia.</translation>
+    </message>
+    <message>
+        <source>Save Preset</source>
+        <translation>Guardar preajuste</translation>
+    </message>
+    <message>
+        <source>Preset name:</source>
+        <translation>Nombre del preajuste:</translation>
+    </message>
+    <message>
+        <source>A preset called &quot;%1&quot; exists. Replace it?</source>
+        <translation>Ya existe un preajuste llamado «%1». ¿Reemplazarlo?</translation>
+    </message>
+    <message>
+        <source>Update Preset</source>
+        <translation>Actualizar preajuste</translation>
+    </message>
+    <message>
+        <source>Replace the preset &quot;%1&quot; with the settings entered here?</source>
+        <translation>¿Reemplazar el preajuste «%1» con los ajustes introducidos aquí?</translation>
+    </message>
+    <message>
+        <source>Delete Preset</source>
+        <translation>Eliminar preajuste</translation>
+    </message>
+    <message>
+        <source>Delete the preset &quot;%1&quot;? This cannot be undone.</source>
+        <translation>¿Eliminar el preajuste «%1»? No se puede deshacer.</translation>
+    </message>
+    <message>
+        <source>Import Preset</source>
+        <translation>Importar preajuste</translation>
+    </message>
+    <message>
+        <source>Project settings presets (*.json);;All files (*)</source>
+        <translation>Preajustes de ajustes de proyecto (*.json);;Todos los archivos (*)</translation>
+    </message>
+    <message>
+        <source>Export Preset</source>
+        <translation>Exportar preajuste</translation>
+    </message>
+    <message>
+        <source>Project settings presets (*.json)</source>
+        <translation>Preajustes de ajustes de proyecto (*.json)</translation>
+    </message>
+    <message>
+        <source>Start every new project with the settings entered here?</source>
+        <translation>¿Empezar cada proyecto nuevo con los ajustes introducidos aquí?</translation>
+    </message>
+    <message>
+        <source>Reset to Factory Default</source>
+        <translation>Restablecer a los valores de fábrica</translation>
+    </message>
+    <message>
+        <source>Forget your default config? New projects will start with 1920 x 1080 at 24 fps again.</source>
+        <translation>¿Olvidar su configuración predeterminada? Los proyectos nuevos volverán a empezar con 1920 x 1080 a 24 fps.</translation>
+    </message>
+    <message>
+        <source>Current Project</source>
+        <translation>Proyecto actual</translation>
+    </message>
+    <message>
+        <source>The preset could not be saved.</source>
+        <translation>No se pudo guardar el preajuste.</translation>
+    </message>
+    <message>
+        <source>Saved the preset &quot;%1&quot;.</source>
+        <translation>Preajuste «%1» guardado.</translation>
+    </message>
+    <message>
+        <source>There is no preset called &quot;%1&quot;.</source>
+        <translation>No hay ningún preajuste llamado «%1».</translation>
+    </message>
+    <message>
+        <source>Updated the preset &quot;%1&quot;.</source>
+        <translation>Preajuste «%1» actualizado.</translation>
+    </message>
+    <message>
+        <source>Deleted the preset &quot;%1&quot;.</source>
+        <translation>Preajuste «%1» eliminado.</translation>
+    </message>
+    <message>
+        <source> The frame rate stays at %1 fps: a timeline that uses the project settings already has clips (the preset has %2 fps).</source>
+        <translation> La velocidad de fotogramas se queda en %1 fps: una línea de tiempo que usa los ajustes del proyecto ya tiene clips (el preajuste tiene %2 fps).</translation>
+    </message>
+    <message>
+        <source>Loaded the preset &quot;%1&quot;.</source>
+        <translation>Preajuste «%1» cargado.</translation>
+    </message>
+    <message>
+        <source>Could not import &quot;%1&quot;: %2</source>
+        <translation>No se pudo importar «%1»: %2</translation>
+    </message>
+    <message>
+        <source>Imported the preset &quot;%1&quot;.</source>
+        <translation>Preajuste «%1» importado.</translation>
+    </message>
+    <message>
+        <source>The file &quot;%1&quot; could not be written.</source>
+        <translation>No se pudo escribir el archivo «%1».</translation>
+    </message>
+    <message>
+        <source>Exported the preset to &quot;%1&quot;.</source>
+        <translation>Preajuste exportado a «%1».</translation>
+    </message>
+    <message>
+        <source>The default config could not be saved.</source>
+        <translation>No se pudo guardar la configuración predeterminada.</translation>
+    </message>
+    <message>
+        <source>New projects now start with these settings (%1 at %2 fps).</source>
+        <translation>Los proyectos nuevos ahora empiezan con estos ajustes (%1 a %2 fps).</translation>
+    </message>
+    <message>
+        <source>The default config could not be removed.</source>
+        <translation>No se pudo quitar la configuración predeterminada.</translation>
+    </message>
+    <message>
+        <source>New projects start with the built-in settings again.</source>
+        <translation>Los proyectos nuevos vuelven a empezar con los ajustes integrados.</translation>
     </message>
     <message>
         <source>Playback always runs at the timeline frame rate in this version.</source>

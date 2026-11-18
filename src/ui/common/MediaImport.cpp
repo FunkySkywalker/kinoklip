@@ -35,6 +35,21 @@ std::function<bool(Rational, Rational)>& frameRatePromptHandler()
     return handler;
 }
 
+std::function<bool(Rational, Rational, QSize, QSize)>& firstClipPromptHandler()
+{
+    static std::function<bool(Rational, Rational, QSize, QSize)> handler;
+    return handler;
+}
+
+constexpr int kMinPictureSide = 16;
+constexpr int kMaxPictureSide = 8192;
+
+/// A clip side as a timeline side: even (encoders want that) and within the dialog's range.
+int timelineSide(int side)
+{
+    return std::clamp(side - side % 2, kMinPictureSide, kMaxPictureSide);
+}
+
 QString rateText(Rational fps)
 {
     return QString::number(fps.toDouble(), 'g', 5);
@@ -192,11 +207,16 @@ bool offerProjectFrameRate(
         return false;
     const MediaPool* pool = ctx.project->mediaPool();
     Rational clipRate {0, 1};
+    QSize clipSize;
     for (const QString& id : importedIds) {
         const MediaItem* m = pool->item(id);
         if (m && !m->isTimeline() && m->info.hasVideo && !m->info.isStillImage
             && m->info.frameRate.isValid()) {
             clipRate = m->info.frameRate;
+            // The picture as shown: a clip rotated by 90 degrees swaps its sides.
+            clipSize = QSize(m->info.width, m->info.height);
+            if (m->info.rotation == 90 || m->info.rotation == 270)
+                clipSize.transpose();
             break;
         }
     }
@@ -210,17 +230,43 @@ bool offerProjectFrameRate(
         if (data && data->useProjectSettings && data->duration() > 0)
             return false;
     }
+    // The same question also offers the clip's picture size, when it is another one.
+    const bool sizeDiffers = clipSize.width() >= kMinPictureSide
+        && clipSize.height() >= kMinPictureSide
+        && (timelineSide(clipSize.width()) != settings.width
+            || timelineSide(clipSize.height()) != settings.height);
+    const QSize projectSize(settings.width, settings.height);
     bool change = false;
-    if (frameRatePromptHandler()) {
+    if (firstClipPromptHandler()) {
+        change = firstClipPromptHandler()(clipRate, settings.fps,
+            sizeDiffers ? clipSize : QSize(), projectSize);
+    } else if (frameRatePromptHandler()) {
         change = frameRatePromptHandler()(clipRate, settings.fps);
     } else {
-        QMessageBox box(QMessageBox::Question, tr("Change Project Frame Rate"),
+        QMessageBox box(QMessageBox::Question,
+            sizeDiffers ? tr("Change Project Frame Rate and Resolution")
+                        : tr("Change Project Frame Rate"),
             tr("The clips you added run at %1 fps, the project at %2 fps.")
                 .arg(rateText(clipRate), rateText(settings.fps)),
             QMessageBox::NoButton, parent);
-        box.setInformativeText(tr("Change the project frame rate to %1 fps to match them? "
-                                  "Once a timeline has clips, its frame rate cannot change.")
-                                   .arg(rateText(clipRate)));
+        if (sizeDiffers) {
+            box.setText(box.text() + QLatin1Char(' ')
+                + tr("Their pictures are %1 x %2, the project's %3 x %4.")
+                      .arg(clipSize.width())
+                      .arg(clipSize.height())
+                      .arg(settings.width)
+                      .arg(settings.height));
+            box.setInformativeText(
+                tr("Change the project frame rate to %1 fps and the resolution to %2 x %3 to "
+                   "match them? Once a timeline has clips, its frame rate cannot change.")
+                    .arg(rateText(clipRate))
+                    .arg(timelineSide(clipSize.width()))
+                    .arg(timelineSide(clipSize.height())));
+        } else {
+            box.setInformativeText(tr("Change the project frame rate to %1 fps to match them? "
+                                      "Once a timeline has clips, its frame rate cannot change.")
+                                       .arg(rateText(clipRate)));
+        }
         QPushButton* changeButton = box.addButton(tr("Change"), QMessageBox::AcceptRole);
         box.addButton(tr("Don't Change"), QMessageBox::RejectRole);
         box.setDefaultButton(changeButton);
@@ -230,6 +276,11 @@ bool offerProjectFrameRate(
     if (!change)
         return false;
     settings.fps = clipRate;
+    // One answer for both: Change matches the picture size too.
+    if (sizeDiffers) {
+        settings.width = timelineSide(clipSize.width());
+        settings.height = timelineSide(clipSize.height());
+    }
     ctx.project->setSettings(settings);
     return true;
 }
@@ -237,6 +288,12 @@ bool offerProjectFrameRate(
 void setFrameRatePromptHandlerForTests(std::function<bool(Rational, Rational)> handler)
 {
     frameRatePromptHandler() = std::move(handler);
+}
+
+void setFirstClipPromptHandlerForTests(
+    std::function<bool(Rational, Rational, QSize, QSize)> handler)
+{
+    firstClipPromptHandler() = std::move(handler);
 }
 
 } // namespace kk

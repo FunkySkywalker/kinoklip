@@ -2,6 +2,7 @@
 // Project implementation: snapshot undo commands, settings, JSON save/load.
 // Timelines, tabs and compound clips: ProjectTimelines.cpp.
 #include "core/Project.h"
+#include "core/ProjectPresets.h"
 
 #include "core/AudioTransitions.h"
 #include "core/EditBehaviour.h"
@@ -331,21 +332,41 @@ void Project::newProject()
     m_undoStack->clear();
     m_name = ProjectSettings {}.name;
     // New projects: 24 fps and timelines starting at 01:00:00:00, as in Resolve (spec 25.12).
-    m_format = Format {kDefaultWidth, kDefaultHeight, kDefaultFps, RetimeProcess::Nearest,
-        oneHourTimecode(kDefaultFps), {}, {}, 0};
-    // New projects start from the Preferences > Editing duration; later preference changes
-    // do not reach them.
-    m_format.stdTransitionFrames = standardTransitionFrames();
+    // A saved user default config (Project Settings > Presets) replaces the built-in values.
+    const auto userDefault = projectpresets::userDefault();
+    const ProjectSettings start = userDefault ? userDefault->settings : ProjectSettings {};
+    const int width = userDefault ? start.width : kDefaultWidth;
+    const int height = userDefault ? start.height : kDefaultHeight;
+    const Rational fps = userDefault ? start.fps : kDefaultFps;
+    m_format = Format {width, height, fps,
+        userDefault && start.retimeProcess != RetimeProcess::ProjectDefault
+            ? start.retimeProcess
+            : RetimeProcess::Nearest,
+        userDefault ? start.timelineStart : oneHourTimecode(fps), {}, {}, 0};
+    if (userDefault) {
+        const auto storedId = [](const QString& id, bool audio) {
+            return id == defaultTransition(audio) ? QString() : id;
+        };
+        m_format.stdVideoTransition = storedId(start.stdVideoTransition, false);
+        m_format.stdAudioTransition = storedId(start.stdAudioTransition, true);
+        m_format.stdTransitionFrames = start.stdTransitionFrames;
+        m_format.toneMap = start.toneMap;
+    }
+    // New projects start from the Preferences > Editing duration (unless the user default
+    // config has its own); later preference changes do not reach them.
+    if (m_format.stdTransitionFrames <= 0)
+        m_format.stdTransitionFrames = standardTransitionFrames();
     m_mediaPool->clear();
     m_links->clear();
     {
         const QScopedValueRollback guard(m_galleryLoading, true);
         m_gallery->clear();
     }
-    m_cacheSettings = {};
+    m_cacheSettings = userDefault ? userDefault->cache : MediaCacheSettings {};
     m_binViews.clear();
-    TimelineData first
-        = makeDefaultTimeline(tr("Timeline 1"), kDefaultFps, kDefaultWidth, kDefaultHeight);
+    TimelineData first = makeDefaultTimeline(tr("Timeline 1"), fps, width, height);
+    first.retimeProcess = m_format.retimeProcess;
+    first.toneMap = m_format.toneMap;
     first.uid = 1;
     first.startTimecode = m_format.timelineStart;
     std::vector<TimelineSlot> timelineSlots;

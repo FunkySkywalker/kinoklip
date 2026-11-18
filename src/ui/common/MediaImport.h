@@ -5,6 +5,7 @@
 
 #include "core/Rational.h"
 
+#include <QSize>
 #include <QStringList>
 
 #include <functional>
@@ -53,12 +54,20 @@ int storeItemsInProject(AppContext& ctx, const QStringList& ids, QWidget* parent
 /// Resolve: when the first imported video of @p importedIds runs at another frame rate than
 /// the project and the rate can still change (no timeline that follows the project has
 /// clips, spec 25.13), asks "Change the project frame rate?" (Change / Don't Change); Change
-/// sets the project frame rate (one undo step). Returns true when the rate changed.
+/// sets the project frame rate (one undo step). When that clip's picture size also differs
+/// from the project's, the same question offers the resolution as well and Change sets both
+/// (spec 127). Returns true when the project changed.
 bool offerProjectFrameRate(
     AppContext& ctx, bool firstImport, const QStringList& importedIds, QWidget* parent);
 /// Tests: while set, offerProjectFrameRate() asks @p handler (clip rate, project rate; true =
 /// Change) instead of showing the question. Pass an empty function to restore the dialog.
 void setFrameRatePromptHandlerForTests(std::function<bool(Rational, Rational)> handler);
+/// Tests: like the hook above, but also told the clip's picture size (an invalid QSize when it
+/// equals the project's, so the question is only about the frame rate) and the project's;
+/// true = Change, which then sets the frame rate and, when a size was given, the resolution
+/// too. Takes precedence over the hook above while set.
+void setFirstClipPromptHandlerForTests(
+    std::function<bool(Rational, Rational, QSize, QSize)> handler);
 
 /// True if @p path is an existing media file outside any single-file project (a linked file).
 [[nodiscard]] bool isLinkedFile(const QString& path);

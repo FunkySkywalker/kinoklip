@@ -1326,6 +1326,8 @@ QCoreApplication::translate("kk::MediaImport", "%1 of %2 file could not be impor
 QCoreApplication::translate("kk::MediaImport", "%1 of %2 files could not be imported.");
 QCoreApplication::translate("kk::MediaImport", "Change");
 QCoreApplication::translate("kk::MediaImport", "Change Project Frame Rate");
+QCoreApplication::translate("kk::MediaImport", "Change Project Frame Rate and Resolution");
+QCoreApplication::translate("kk::MediaImport", "Change the project frame rate to %1 fps and the resolution to %2 x %3 to match them? Once a timeline has clips, its frame rate cannot change.");
 QCoreApplication::translate("kk::MediaImport", "Change the project frame rate to %1 fps to match them? Once a timeline has clips, its frame rate cannot change.");
 QCoreApplication::translate("kk::MediaImport", "Don't Change");
 QCoreApplication::translate("kk::MediaImport", "Import Media");
@@ -1336,6 +1338,7 @@ QCoreApplication::translate("kk::MediaImport", "Store Media in Project");
 QCoreApplication::translate("kk::MediaImport", "Stored in the project file (%1)");
 QCoreApplication::translate("kk::MediaImport", "Subtitle files (*.srt *.vtt *.SRT *.VTT);;All files (*)");
 QCoreApplication::translate("kk::MediaImport", "The clips you added run at %1 fps, the project at %2 fps.");
+QCoreApplication::translate("kk::MediaImport", "Their pictures are %1 x %2, the project's %3 x %4.");
 QCoreApplication::translate("kk::MediaImport", "… and %1 more");
 QCoreApplication::translate("kk::MenuLayouts", "&Audio");
 QCoreApplication::translate("kk::MenuLayouts", "&Clip");

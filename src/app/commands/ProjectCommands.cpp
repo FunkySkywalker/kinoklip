@@ -158,11 +158,15 @@ void registerProjectCommands(CommandRegistry& registry)
              {{QStringLiteral("name"), ParamType::String,
                   QStringLiteral("project name (default: the file name)"), false, {}, {}},
                  {QStringLiteral("width"), ParamType::Integer,
-                     QStringLiteral("picture width in pixels"), false, QStringLiteral("1920"), {}},
+                     QStringLiteral("picture width in pixels (default: your user default config, else 1920)"),
+                     false, QStringLiteral("1920"), {}},
                  {QStringLiteral("height"), ParamType::Integer,
-                     QStringLiteral("picture height in pixels"), false, QStringLiteral("1080"), {}},
+                     QStringLiteral("picture height in pixels (default: your user default config, else 1080)"),
+                     false, QStringLiteral("1080"), {}},
                  {QStringLiteral("fps"), ParamType::Number,
-                     QStringLiteral("frame rate, e.g. 24, 25, 29.97, 59.94"), false,
+                     QStringLiteral("frame rate, e.g. 24, 25, 29.97, 59.94 (default: your user default "
+                                    "config, else 24)"),
+                     false,
                      QStringLiteral("24"), {}}},
              ProjectUse::Create, false},
             runProjectNew});

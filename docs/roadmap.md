@@ -215,6 +215,7 @@ Beginner and intermediate tutorial workflows for Resolve's Color, Fairlight and 
 - [ ] Background Removal: Keep / Remove brush to correct the model by hand
 - [ ] Media: New Fusion Clip, and Fusion / compound clips as Media Pool entries you can drag to the timeline
 - [ ] Titles: underline and strikethrough
+- [x] Project Settings: a Presets page (Save As, Load, Update, Delete, Import, Export), Save As User Default Config and Reset to factory default, so new projects start at your own resolution and frame rate (user request); the first-clip question also matches the resolution
 
 ## Next big release
 

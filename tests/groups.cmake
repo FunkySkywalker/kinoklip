@@ -55,7 +55,7 @@ set(KK_TESTS_QUICK
   test_panelscreens test_parity test_parity_edit test_pasteaudio test_planartracker
   test_planartrackernode test_playbackengine test_playbacklogic test_playheadscrub test_polish2
   test_polish3 test_polish3shots test_polish4 test_poolfolders test_poolnavigation
-  test_poolpaste test_preferences test_probe test_project test_projectlibrary
+  test_poolpaste test_preferences test_projectpresets test_probe test_project test_projectlibrary
   test_projectmanager test_projectpackage test_proxies test_rendercache test_renderdemo
   test_rendermath test_rendernotify test_retime test_retimebar test_retimerender test_robustness
   test_rvmbackend test_scopes test_serialization test_session test_sessionlog

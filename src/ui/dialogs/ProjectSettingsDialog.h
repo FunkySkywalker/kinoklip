@@ -13,6 +13,8 @@ class QComboBox;
 class QLabel;
 class QLineEdit;
 class QListWidget;
+class QPushButton;
+class QTreeWidget;
 class QSpinBox;
 class QStackedWidget;
 
@@ -23,6 +25,9 @@ namespace kk {
 /// modified).
 ///
 /// Sections (left list, like Resolve):
+/// - Presets: the saved presets (name, timeline resolution, frame rate) and "Current Project";
+///   Save As, Load, Update, Delete, Import and Export; Save As User Default Config (what new
+///   projects start from) and Reset to factory default (core/ProjectPresets.h, spec 127).
 /// - Master Settings: timeline resolution presets (UHD, QHD, HD, 720p, vertical, square) or
 ///   Custom, pixel aspect ratio (square only), timeline frame rate (23.976 ... 60; locked
 ///   once a timeline that follows the project settings has clips, as in Resolve), playback
@@ -64,7 +69,31 @@ public:
     static void selectResolutionPreset(QComboBox* presets, int width, int height);
 
     void accept() override;
-    /// Shows the section @p sectionId ("master", "scaling", "audio", "general", "cache").
+    // ---- Presets page (the buttons call these) ----
+    /// Saves the settings entered here under @p name, replacing a preset of that name.
+    bool saveAsPreset(const QString& name);
+    /// Applies the saved preset @p name to the project at once (one undo step) and shows it
+    /// here. The frame rate (and starting timecode) stay as they are while a timeline that
+    /// follows the project has clips; presetStatus() says so. False if there is no such preset.
+    bool loadPreset(const QString& name);
+    /// Overwrites the saved preset @p name with the settings entered here.
+    bool updatePreset(const QString& name);
+    /// Removes the saved preset @p name (the button asks first).
+    bool deletePreset(const QString& name);
+    /// Reads a preset file and adds it to the saved presets (a preset of that name is replaced).
+    bool importPreset(const QString& path);
+    /// Writes the saved preset @p name (empty = the settings entered here) to @p path.
+    bool exportPreset(const QString& name, const QString& path);
+    /// Stores the settings entered here as the user default config: new projects start from it.
+    bool saveAsUserDefault();
+    /// Removes the user default config: new projects start from the built-in defaults again.
+    bool resetFactoryDefault();
+    /// The sentence the Presets page shows after the last action (also for failures).
+    [[nodiscard]] QString presetStatus() const { return m_presetStatusText; }
+    /// Fills the cache controls from @p settings.
+    void setCacheSettings(const MediaCacheSettings& settings);
+
+    /// Shows the section @p sectionId ("presets", "master", "scaling", "audio", "general", "cache").
     bool showSection(const QString& sectionId);
 
 signals:
@@ -72,6 +101,11 @@ signals:
     void preferencesChanged();
 
 private:
+    QWidget* buildPresets();
+    void refreshPresets();
+    void updatePresetButtons();
+    void setPresetStatus(const QString& text, bool problem = false);
+    [[nodiscard]] QString selectedPresetName() const;
     QWidget* buildMaster();
     QWidget* buildScaling();
     QWidget* buildAudio();
@@ -110,6 +144,13 @@ private:
     QSpinBox* m_backgroundDelay = nullptr;
     QCheckBox* m_userTransitions = nullptr;
     QCheckBox* m_userComposites = nullptr;
+    QTreeWidget* m_presetList = nullptr;
+    QLabel* m_presetStatus = nullptr;
+    QString m_presetStatusText;
+    QPushButton* m_presetLoad = nullptr;
+    QPushButton* m_presetUpdate = nullptr;
+    QPushButton* m_presetDelete = nullptr;
+    QPushButton* m_presetExport = nullptr;
     QListWidget* m_sections = nullptr;
     QStackedWidget* m_stack = nullptr;
 };
