@@ -2,6 +2,8 @@
 // Keyframe animation value types: Interp, KeyHandle, Keyframe, AnimatedValue and ParamSet.
 #pragma once
 
+#include "core/ParamModifier.h"
+
 #include <QMap>
 #include <QString>
 #include <QVariant>
@@ -120,6 +122,10 @@ struct AnimatedValue
     QVector<Keyframe> keys; ///< always sorted by frame, at most one key per frame
     Extrapolation pre = Extrapolation::Constant; ///< before the first key
     Extrapolation post = Extrapolation::Constant; ///< after the last key
+    /// Modifiers applied to the keyframed value by ParamSet::value() / valueAtTime() (not by
+    /// valueAt() of this struct alone: they read their controls from the ParamSet). Compositing
+    /// page parameters only.
+    QVector<ParamModifier> modifiers;
 
     AnimatedValue() = default;
     /// Creates a non-animated value.
@@ -189,6 +195,15 @@ private:
     [[nodiscard]] double smoothSlope(qsizetype index) const;
 };
 
+/// Values of other parameters read by Connect To and by expressions, filled for one frame by
+/// complinks::resolved() into the copy of a composition that is rendered. Runtime only: never
+/// saved, and every BoundValues compares equal so it does not make two ParamSets differ.
+struct BoundValues
+{
+    QMap<QString, double> values; ///< "<modifier id>" (Connect) or "<modifier id>/<name>" (expression)
+    friend bool operator==(const BoundValues&, const BoundValues&) { return true; }
+};
+
 /// A named set of parameters: keyframeable scalars in `values`, non-animatable settings
 /// (colours, strings, bools, choice ids) in `statics`. Keys are the well-known names from
 /// core/ParamKeys.h or an EffectDescriptor's ParamDescriptor::key.
@@ -196,6 +211,7 @@ struct ParamSet
 {
     QMap<QString, AnimatedValue> values;
     QMap<QString, QVariant> statics;
+    BoundValues bound; ///< see BoundValues
 
     /// Value of animated parameter @p key at @p localFrame, or @p fallback if the key is absent.
     [[nodiscard]] double value(const QString& key, int64_t localFrame, double fallback) const;

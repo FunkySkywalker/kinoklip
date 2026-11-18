@@ -9,10 +9,12 @@
 #include "app/Theme.h"
 #include "app/pages/CompositingPage.h"
 #include "compositing/tracking/TrackStore.h"
+#include "core/CompLinks.h"
 #include "core/CompOps.h"
 #include "core/EditOps.h"
 #include "core/KeyframeOps.h"
 #include "core/MediaPool.h"
+#include "core/Modifiers.h"
 #include "core/NodeRegistry.h"
 #include "core/Project.h"
 #include "core/Serialization.h"
@@ -55,7 +57,9 @@
 #include <QLineEdit>
 #include <QListWidget>
 #include <QMimeData>
+#include <QMenu>
 #include <QMouseEvent>
+#include <QRegularExpression>
 #include <QProgressBar>
 #include <QSettings>
 #include <QShortcut>
@@ -937,6 +941,208 @@ private slots:
         QVERIFY(std::abs(moved.y() - (p.y() + 9)) < 1.0);
         f.project.undo();
         QCOMPARE(f.comp().node(poly)->path.at(double(frame))[1].x, path0[1].x);
+    }
+
+    void modifierMenuAndSections()
+    {
+        // Spec 119.6 / 119.7 / 119.10: the right-click menu of a number row puts modifiers on a
+        // parameter and connects it to another node's; the Inspector shows a section per modifier.
+        Fixture f;
+        f.project.timeline()->setPlayhead(20);
+        f.showPage();
+        const quint64 a = f.session()->addNode(nodetypes::Transform);
+        const quint64 b = f.session()->addNode(nodetypes::Transform);
+        f.session()->setSelection({a});
+        CompInspector* host = f.page()->inspector();
+        QCOMPARE(host->shownNode(), a);
+        QVERIFY(host->modifierGroups().isEmpty());
+        const compadapter::NodeTypeInfo* info = compadapter::nodeType(nodetypes::Transform);
+        const auto descOf = [&](const QString& key) {
+            for (const ParamDescriptor& d : info->params)
+                if (d.key == key)
+                    return d;
+            return ParamDescriptor {};
+        };
+        const auto refOf = [&](quint64 node, const QString& key) {
+            ParamRef r;
+            r.clipId = CompInspector::kProxyClipId;
+            r.scope = ParamScope::Effect;
+            r.effectId = node;
+            r.key = key;
+            return r;
+        };
+        // The menu offers Modify With, Connect To and Publish; XY Path only on a point.
+        {
+            QMenu menu;
+            host->fillParamMenu(refOf(a, nodekeys::Size), descOf(nodekeys::Size), menu);
+            QVERIFY(!menu.findChildren<QAction*>(QStringLiteral("modify:perturb")).isEmpty());
+            QVERIFY(menu.findChildren<QAction*>(QStringLiteral("modify:path")).isEmpty());
+            QVERIFY(!menu.findChildren<QAction*>(QStringLiteral("modify:publish")).isEmpty());
+        }
+        // Perturb on Center X: both halves of the point get one, as two sections with tooltips.
+        int before = f.steps();
+        {
+            QMenu menu;
+            host->fillParamMenu(refOf(a, nodekeys::CenterX), descOf(nodekeys::CenterX), menu);
+            QVERIFY(!menu.findChildren<QAction*>(QStringLiteral("modify:path")).isEmpty());
+            menu.findChildren<QAction*>(QStringLiteral("modify:perturb")).first()->trigger();
+        }
+        QCOMPARE(f.steps(), before + 1);
+        QVERIFY(modifiers::first(f.comp().node(a)->params, nodekeys::CenterX, ModifierKind::Perturb));
+        QVERIFY(modifiers::first(f.comp().node(a)->params, nodekeys::CenterY, ModifierKind::Perturb));
+        QCOMPARE(host->modifierGroups().size(), 2);
+        for (ParamGroupBox* box : host->modifierGroups()) {
+            QVERIFY(box->objectName().startsWith(QStringLiteral("CompModifier:")));
+            QCOMPARE(box->rows().size(), 3); // Period, Strength, Random Seed
+            for (ParamRow* row : box->rows())
+                for (QWidget* w : row->vimWidgets())
+                    QVERIFY2(!w->toolTip().isEmpty(), qPrintable(row->descriptor().label));
+        }
+        QVERIFY(host->paramModifierNote(refOf(a, nodekeys::CenterX)).contains(QStringLiteral("Perturb")));
+        f.project.undoStack()->undo();
+        QVERIFY(modifiers::modifiedKeys(f.comp().node(a)->params).isEmpty());
+        QVERIFY(host->modifierGroups().isEmpty());
+        f.project.undoStack()->redo();
+        QCOMPARE(host->modifierGroups().size(), 2);
+        // Remove it through the menu: the section goes.
+        {
+            QMenu menu;
+            host->fillParamMenu(refOf(a, nodekeys::CenterX), descOf(nodekeys::CenterX), menu);
+            QVERIFY(!menu.findChildren<QAction*>(QRegularExpression(QStringLiteral("^remove:"))).isEmpty());
+            menu.findChildren<QAction*>(QRegularExpression(QStringLiteral("^remove:"))).first()->trigger();
+        }
+        QVERIFY(!modifiers::first(f.comp().node(a)->params, nodekeys::CenterX, ModifierKind::Perturb));
+        QCOMPARE(host->modifierGroups().size(), 1);
+        // Connect To: Node b's Size follows node a's Size, found by name in the menu.
+        f.session()->setSelection({b});
+        QVERIFY(host->shownNode() == b);
+        before = f.steps();
+        {
+            QMenu menu;
+            host->fillParamMenu(refOf(b, nodekeys::Size), descOf(nodekeys::Size), menu);
+            QMenu* connectMenu = nullptr;
+            for (QAction* act : menu.actions())
+                if (act->menu() && act->text() == QStringLiteral("Connect To"))
+                    connectMenu = act->menu();
+            QVERIFY(connectMenu);
+            QAction* target = nullptr;
+            for (QAction* act : connectMenu->actions())
+                if (act->menu() && act->text() == f.comp().node(a)->name)
+                    for (QAction* leaf : act->menu()->actions())
+                        if (leaf->text() == descOf(nodekeys::Size).label)
+                            target = leaf;
+            QVERIFY(target);
+            target->trigger();
+        }
+        QCOMPARE(f.steps(), before + 1);
+        const ParamModifier* link = modifiers::first(f.comp().node(b)->params, nodekeys::Size, ModifierKind::Connect);
+        QVERIFY(link && link->targetNode == a);
+        QVERIFY(host->paramModifierNote(refOf(b, nodekeys::Size)).contains(f.comp().node(a)->name));
+        QCOMPARE(host->modifierGroups().size(), 1);
+        // The linked value shows what the target has.
+        f.session()->edit(QStringLiteral("Set"), [a](Composition& c) {
+            c.node(a)->params.setBase(nodekeys::Size, 2.5);
+            return true;
+        });
+        QVERIFY(complinks::hasLinks(f.comp()));
+        QCOMPARE(complinks::resolved(f.comp(), 20).node(b)->params.value(nodekeys::Size, 20, 0), 2.5);
+        // A circle is refused: a cannot connect to b.
+        f.session()->setSelection({a});
+        before = f.steps();
+        {
+            QMenu menu;
+            host->fillParamMenu(refOf(a, nodekeys::Size), descOf(nodekeys::Size), menu);
+            QMenu* connectMenu = nullptr;
+            for (QAction* act : menu.actions())
+                if (act->menu() && act->text() == QStringLiteral("Connect To"))
+                    connectMenu = act->menu();
+            for (QAction* act : connectMenu->actions())
+                if (act->menu() && act->text() == f.comp().node(b)->name)
+                    for (QAction* leaf : act->menu()->actions())
+                        if (leaf->text() == descOf(nodekeys::Size).label)
+                            leaf->trigger();
+        }
+        QCOMPARE(f.steps(), before);
+        // Disconnect keeps the value.
+        f.session()->setSelection({b});
+        {
+            QMenu menu;
+            host->fillParamMenu(refOf(b, nodekeys::Size), descOf(nodekeys::Size), menu);
+            menu.findChildren<QAction*>(QRegularExpression(QStringLiteral("^remove:"))).first()->trigger();
+        }
+        QVERIFY(f.comp().node(b)->params.values[nodekeys::Size].modifiers.isEmpty());
+        QCOMPARE(f.comp().node(b)->params.value(nodekeys::Size, 20, 0), 2.5);
+        // Publish and the Nodes library entry (the parameter touched last).
+        before = f.steps();
+        {
+            QMenu menu;
+            host->fillParamMenu(refOf(b, nodekeys::Size), descOf(nodekeys::Size), menu);
+            menu.findChildren<QAction*>(QStringLiteral("modify:publish")).first()->trigger();
+        }
+        QCOMPARE(f.steps(), before + 1);
+        QCOMPARE(complinks::published(f.comp()).size(), 1);
+        QVERIFY(f.session()->addModifier(0, QString(), ModifierKind::Wiggle));
+        QVERIFY(modifiers::first(f.comp().node(b)->params, nodekeys::Size, ModifierKind::Wiggle));
+    }
+
+    void expressionsTypedIntoValueFields()
+    {
+        // Spec 119.10: "= formula" typed into a number makes an Expression modifier.
+        Fixture f;
+        f.project.timeline()->setPlayhead(20);
+        f.showPage();
+        const quint64 a = f.session()->addNode(nodetypes::Transform);
+        f.session()->setSelection({a});
+        CompInspector* host = f.page()->inspector();
+        auto* field = host->group()->findChild<ValueField*>(QStringLiteral("value:") + nodekeys::Size);
+        QVERIFY(field);
+        const int before = f.steps();
+        field->startTextEdit();
+        auto* editor = field->findChild<QLineEdit*>();
+        QVERIFY(editor);
+        editor->setText(QStringLiteral("= 1 + time / 10"));
+        emit editor->editingFinished();
+        QCOMPARE(f.steps(), before + 1);
+        const ParamModifier* m = modifiers::first(f.comp().node(a)->params, nodekeys::Size, ModifierKind::Expression);
+        QVERIFY(m);
+        QCOMPARE(m->text, QStringLiteral("1 + time / 10"));
+        // The field shows the value at the playhead (frame 10 of the clip: 1 + 10 / 10).
+        QCOMPARE(f.comp().node(a)->params.value(nodekeys::Size, 10, 0), 2.0);
+        // The Inspector was rebuilt for the new section: the field is a new widget.
+        field = host->group()->findChild<ValueField*>(QStringLiteral("value:") + nodekeys::Size);
+        QVERIFY(field && field->toolTip().contains(QStringLiteral("Expression")));
+        QCOMPARE(host->modifierGroups().size(), 1);
+        auto* formula = host->modifierGroups().first()->findChild<QLineEdit*>(
+            QStringLiteral("CompModifierFormula:") + m->id);
+        QVERIFY(formula && !formula->toolTip().isEmpty());
+        QCOMPARE(formula->text(), QStringLiteral("1 + time / 10"));
+        // A formula with a mistake is refused (no step), and one edit of the formula line is a step.
+        host->setParamExpression(
+            [&] { ParamRef r; r.key = nodekeys::Size; return r; }(), ParamDescriptor {}, QStringLiteral("1 +"));
+        QCOMPARE(f.steps(), before + 1);
+        formula->setText(QStringLiteral("n1 * 3"));
+        emit formula->editingFinished();
+        QCOMPARE(f.steps(), before + 2);
+        QCOMPARE(modifiers::first(f.comp().node(a)->params, nodekeys::Size, ModifierKind::Expression)->text,
+            QStringLiteral("n1 * 3"));
+        // A formula that reads a parameter that reads this one: refused.
+        const quint64 b = f.session()->addNode(nodetypes::Transform);
+        const QString an = f.comp().node(a)->name;
+        f.session()->edit(QStringLiteral("Link"), [&](Composition& c) {
+            const QString id = modifiers::add(c.node(b)->params, nodekeys::Size, ModifierKind::Expression);
+            modifiers::find(c.node(b)->params, nodekeys::Size, id)->text = an + QStringLiteral(".Size");
+            return true;
+        });
+        f.session()->setSelection({a});
+        const int steps = f.steps();
+        host->setParamExpression(
+            [&] { ParamRef r; r.key = nodekeys::Size; return r; }(), ParamDescriptor {},
+            f.comp().node(b)->name + QStringLiteral(".Size"));
+        QCOMPARE(f.steps(), steps);
+        // An empty formula removes the modifier.
+        host->setParamExpression(
+            [&] { ParamRef r; r.key = nodekeys::Size; return r; }(), ParamDescriptor {}, QString());
+        QVERIFY(!modifiers::first(f.comp().node(a)->params, nodekeys::Size, ModifierKind::Expression));
     }
 
     void viewerBezierAndTextPathHandles()

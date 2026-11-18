@@ -4,7 +4,9 @@
 // filters. Every case renders on the GPU and on the CPU and checks both against the expectation
 // and against each other.
 #include "RenderTestUtil.h"
+#include "core/CompLinks.h"
 #include "core/CompOps.h"
+#include "core/Modifiers.h"
 #include "core/NodeRegistry.h"
 #include "render/CompFilterMath.h"
 #include "render/CompMatteMath.h"
@@ -746,6 +748,42 @@ private slots:
         const QVector<QImage> stab = nodeImages(compTimeline(c), tr, 10);
         QVERIFY(differing(stab[0], stab[1], 14) < 300);
         QVERIFY(differing(stab[0], at10[0], 14) > 100); // a different picture
+    }
+
+    void linkedAndModifiedParametersRenderTheSame()
+    {
+        // Spec 119.8: a Transform whose Center X is connected to another node's and whose Center Y
+        // is an expression of the frame draws the same on the GPU and on the CPU.
+        Composition c = co::defaultComposition();
+        const quint64 box = colorSource(c, Qt::white, true, 130, 70, 190, 110);
+        const quint64 other = co::addNode(c, nodetypes::Transform, {});
+        c.node(other)->params.setBase(nodekeys::CenterX, 0.7);
+        const quint64 tr = co::addNode(c, nodetypes::Transform, {});
+        co::connect(c, box, 0, tr, nodeports::Input);
+        co::connect(c, tr, 0, c.mediaOutId, nodeports::Input);
+        QCOMPARE(complinks::connectParam(c, tr, nodekeys::CenterX, {other, nodekeys::CenterX}),
+            complinks::LinkError::None);
+        const QString id = modifiers::add(c.node(tr)->params, nodekeys::CenterY, ModifierKind::Expression);
+        modifiers::find(c.node(tr)->params, nodekeys::CenterY, id)->text = QStringLiteral("0.5 + time / 100");
+        const TimelineData tl = compTimeline(c);
+        for (const int64_t frame : {int64_t(0), int64_t(20)}) {
+            const QVector<QImage> imgs = nodeImages(tl, tr, frame);
+            // The box (60 x 40 px, centre 160, 90) moved right by 0.2 * 320 = 64 px, and up by
+            // frame / 100 * 180 px (the Transform's Y goes up).
+            const int cx = 160 + 64, cy = 90 - int(std::lround(frame * 1.8));
+            for (const QImage& img : imgs) {
+                QVERIFY(!img.isNull());
+                QVERIFY2(px(img, cx, cy).a > 240, qPrintable(QStringLiteral("frame %1: %2").arg(frame).arg(describe(px(img, cx, cy)))));
+                QVERIFY(px(img, 160, 90).a < 15);
+            }
+            int worst = 0;
+            const int bad = differing(imgs[0], imgs[1], 14, &worst);
+            QVERIFY2(bad < 300, qPrintable(QStringLiteral("frame %1: %2 pixels differ, worst %3").arg(frame).arg(bad).arg(worst)));
+        }
+        // Without the link the box would stay at the middle: the link made the difference.
+        c.node(tr)->params.values[nodekeys::CenterX].modifiers.clear();
+        for (const QImage& img : nodeImages(compTimeline(c), tr, 0))
+            QVERIFY(px(img, 160, 90).a > 240);
     }
 };
 

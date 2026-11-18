@@ -187,8 +187,8 @@ progress and stop); a job with `planar` set carries the four corners.
 is rendered for each frame next to the plane's, and `PlanarTracker::reset()` / `track()` take it as a
 `GrayImage`; patches under black (below 0.5) are not placed / not used.
 
-**Linking other nodes to a track.** Kinoklip has no parameter links: every parameter is a constant
-or keyframes. The smallest mechanism that fits is *Connect to Tracker n*: nodes with a Center
+**Linking other nodes to a track.** (Since spec 119 there are live parameter links, Connect To; a track is still
+copied, not linked.) The mechanism for tracks is *Connect to Tracker n*: nodes with a Center
 (Transform, Merge, Text, the shape masks, and so on) have a "Follow Track" row in the Inspector;
 Connect copies the chosen track (a Tracker's point, or the centre of a Planar Tracker's region)
 into the node's Center X / Y keyframes at the frames of the track, with a fixed offset that keeps
@@ -201,6 +201,35 @@ the renderers.
 prediction for very fast movement, per-frame manual correction with re-tracking from the
 corrected frame, and a live (re-resolving) link. Size, angle and shape points can be
 followed (`TrackFollow`, spec 117).
+
+## Modifiers, links and expressions (1.11, spec 119)
+
+A number parameter of a node can carry modifiers: `AnimatedValue::modifiers` is a list of `ParamModifier`
+(`core/ParamModifier.h`: kind, id, formula text, link target, on / off). A modifier's own numbers are normal
+parameters of the same node under `~<id>.<name>` (`modifiers::controlKey()`; Perturb: period, strength, seed; Wiggle:
+wavelength, amplitude, octaves, seed; Offset: offset, scale, timeOffset; Expression: n1 to n3 and the text on the
+modifier; Cycle: start, end, mode (a static choice), repeats; Path: path), so rows, keyframes, undo, the Curves view,
+save and load come for free. `ParamSet::value()` and `valueAtTime()` call `modifiers::evaluate()` when a value has
+modifiers: it folds the stack from the keyframed value up, each modifier able to read the value under it at another
+time (Offset's Time Offset, Cycle). Nothing else needs to know: the renderers, the viewer overlays and the Inspector
+rows all read through `ParamSet`.
+
+Links (Connect To, and `Node.Parameter` references in a formula) need other nodes, which a `ParamSet` cannot see.
+`complinks::resolved(comp, frame)` returns a copy of the composition with their values filled into
+`ParamSet::bound` (runtime only: not saved, ignored by `operator==`); `GlRenderer::compositionTarget()` and the CPU
+renderer's `compositionImage()` call it once per frame when `complinks::hasLinks()` says there is something to
+resolve, so both renderers see the same numbers. Cycles are cut where they close (the reference stays unfilled and the
+parameter keeps its own value); `connectParam()` and the Expression entry refuse to make one (`dependsOn()`).
+
+`core/Expression.*` is the formula language: a recursive-descent parser to a small tree (cached by text), evaluation
+without loops or calls, numbers only, a hard limit on length and depth. A formula's references are returned by
+`Program::references()` and their values passed in that order.
+
+Inspector (`CompInspectorModifiers.cpp`): `ParamRow` asks its `ParamEditHost` (`supportsModifiers()`, `fillParamMenu()`,
+`setParamExpression()`, `paramModifierNote()`) for the right-click menu, the typed `= formula` and the "fx" mark, so the
+Edit page Inspector is untouched. The Modifiers sections are built from `modifiers::controls()` with ordinary rows, and
+the Inspector rebuilds when the set of modifiers changes. `CompSession::addModifier()` is the one command behind the menu
+and the Modifiers folder of the Nodes library.
 
 ## Motion Blur (1.7, spec 94)
 

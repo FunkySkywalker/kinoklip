@@ -7,6 +7,7 @@
 // and edge blur, colour effects; render/EffectMath.h) are applied to the clip's picture, the
 // others are skipped (one warning per effect id); masks are applied as hard-edged clip paths
 // (maskMatte()).
+#include "core/CompLinks.h"
 #include "core/CompOps.h"
 #include "core/ParamKeys.h"
 #include "core/Retime.h"
@@ -467,8 +468,12 @@ private:
     {
         const QSizeF frameSize(m_timeline->width, m_timeline->height);
         const double scale = canvas.width() / frameSize.width();
+        Composition linked; // parameter links filled in for this frame
+        const bool hasLinks = complinks::hasLinks(*clip.composition);
+        if (hasLinks)
+            linked = complinks::resolved(*clip.composition, double(compFrame));
         CpuCompEval ev;
-        ev.comp = &*clip.composition;
+        ev.comp = hasLinks ? &linked : &*clip.composition;
         ev.compFrame = compFrame;
         ev.frame = frameSize;
         ev.size = canvas;

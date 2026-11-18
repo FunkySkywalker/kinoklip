@@ -3,6 +3,7 @@
 // helpers.
 #include "core/Animation.h"
 
+#include "core/Modifiers.h"
 #include "core/ParamKeys.h"
 
 #include <QSettings>
@@ -484,20 +485,29 @@ void migrateLegacyInterp(AnimatedValue& value, const QVector<Interp>& legacy)
 double ParamSet::value(const QString& key, int64_t localFrame, double fallback) const
 {
     const auto it = values.constFind(key);
-    return it == values.cend() ? fallback : it->valueAt(localFrame);
+    if (it == values.cend())
+        return fallback;
+    return it->modifiers.isEmpty() ? it->valueAt(localFrame)
+                                   : modifiers::evaluate(*this, *it, double(localFrame));
 }
 
 double ParamSet::valueAtTime(const QString& key, double localFrame, double fallback) const
 {
     const auto it = values.constFind(key);
-    return it == values.cend() ? fallback : it->valueAtTime(localFrame);
+    if (it == values.cend())
+        return fallback;
+    return it->modifiers.isEmpty() ? it->valueAtTime(localFrame)
+                                   : modifiers::evaluate(*this, *it, localFrame);
 }
 
 double ParamSet::value(const QString& key, int64_t localFrame) const
 {
     // Look up first: the default table is only consulted for absent keys.
     const auto it = values.constFind(key);
-    return it == values.cend() ? keys::defaultValue(key) : it->valueAt(localFrame);
+    if (it == values.cend())
+        return keys::defaultValue(key);
+    return it->modifiers.isEmpty() ? it->valueAt(localFrame)
+                                   : modifiers::evaluate(*this, *it, double(localFrame));
 }
 
 QVariant ParamSet::staticValue(const QString& key, const QVariant& fallback) const

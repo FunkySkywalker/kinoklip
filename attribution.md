@@ -109,6 +109,14 @@ The least-squares move / turn / scale of several tracked patterns uses the close
 only decides which patches are used; the idea is the same as the mask input of the Planar Tracker nodes of Natron and
 Fusion. No code was taken from either.
 
+### Modifiers, parameter links and expressions (Compositing page)
+`src/core/Modifiers.*`, `src/core/Expression.*`, `src/core/CompLinks.*`. The design was studied in Blender (GPL-2.0-or-later):
+drivers evaluated with a restricted, side-effect-free "simple expression" language compiled once and run many times,
+and the F-Curve Noise and Cycles modifiers (strength, scale, depth, repeat modes with offset); and in Natron
+(GPL-2.0-or-later): parameter expressions and links between nodes. Control names follow the Modifiers, Connect To and
+Publish features of the public Fusion reference manual. The expression evaluator, the noise functions and the link
+resolving are written for Kinoklip; no code was taken from any of these projects.
+
 ### Keyframe loops
 The extrapolation modes of animated values (`src/core/Animation.cpp`, `AnimatedValue::extrapolatedValue()`)
 follow the documented behaviour of Blender's F-Curve Cycles modifier (GPL-2.0-or-later: Repeat Motion, Repeat

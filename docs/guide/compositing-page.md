@@ -229,6 +229,27 @@ move looks the same with Motion Blur on or off.
 - **Corner Positioner** (Transform): drag the four corners in the viewer (or type them) to pin the picture to a
   new quadrilateral in perspective.
 
+## Modifiers, links and formulas
+
+Right-click the name or the number of a parameter in the Inspector:
+
+- **Modify With** puts a modifier on it. **Perturb** and **Wiggle** move the value by smooth random amounts (set the
+  **Period** / **Wavelength**, the **Strength** / **Amplitude** and the **Random Seed**). **Offset** adds an amount,
+  scales the value and can read it a few frames earlier or later. **Expression** computes the value with a formula.
+  **Cycle** repeats a range of frames as a loop, a ping-pong or a relative repeat. **XY Path** (on a position) gives X
+  and Y a path of their own.
+- **Connect To** makes the value follow another node's parameter, live. **Disconnect** cuts the link and keeps the value.
+- **Publish** lists the parameter first in every Connect To menu.
+
+The modifiers of the node get a section under its parameters, where their controls are (all of them can be keyframed, and
+each section has a switch and a remove button). A modified value is marked **fx**.
+
+To type a formula straight into a number, double-click it and start with `=`, for example `= sin(time / 12) * 40`.
+You can use `time` (the frame), `value` (what the parameter would be without the formula), `n1` to `n3`, and other
+parameters as `Blur1.Size`. Functions: sin, cos, tan, asin, acos, atan, atan2, sqrt, abs, pow, exp, log, log10, floor,
+ceil, round, fract, sign, min, max, clamp, mix, step, smoothstep, fmod, noise, rand, deg, rad and `if(test, a, b)`.
+A formula with a mistake does nothing, and Kinoklip tells you when one would make a circle.
+
 ## Sound
 
 The Compositing page plays the same sound as the Edit page: the timeline's mix, so a clip on a

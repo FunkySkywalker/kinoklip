@@ -2,6 +2,7 @@
 // NodeLibraryPanel and SelectNodePopup implementation.
 #include "ui/comp/NodeLibrary.h"
 
+#include "core/Modifiers.h"
 #include "ui/common/DragMime.h"
 #include "ui/common/Metrics.h"
 #include "ui/common/PanelInfo.h"
@@ -24,6 +25,8 @@ namespace kk {
 namespace {
 
 constexpr int kTypeRole = Qt::UserRole + 1;
+constexpr int kModifierRole = Qt::UserRole + 2;
+constexpr int kFolderRole = Qt::UserRole + 3;
 const QSize kPopupSize(280, 340);
 
 /// The library tree: items drag as their node type.
@@ -85,8 +88,31 @@ NodeLibraryPanel::NodeLibraryPanel(CompSession* session, QWidget* parent)
         }
         folder->setExpanded(category != compadapter::categories().last());
     }
+    // Modifiers (spec 119): double-click puts one on the parameter touched last in the Inspector.
+    {
+        auto* folder = new QTreeWidgetItem(m_tree, {tr("Modifiers")});
+        folder->setFlags(Qt::ItemIsEnabled);
+        folder->setData(0, kFolderRole, QStringLiteral("modifiers"));
+        for (const ModifierKind kind : {ModifierKind::Perturb, ModifierKind::Wiggle,
+                 ModifierKind::Offset, ModifierKind::Expression, ModifierKind::Cycle,
+                 ModifierKind::Path, ModifierKind::Publish}) {
+            auto* item = new QTreeWidgetItem(folder, {modifiers::kindName(kind)});
+            item->setData(0, kModifierRole, modifierKindId(kind));
+            item->setToolTip(0,
+                modifiers::kindDescription(kind) + QLatin1Char('\n')
+                    + tr("Double-click to put it on the parameter you touched last."));
+            item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        }
+    }
     connect(m_search, &QLineEdit::textChanged, this, &NodeLibraryPanel::setFilter);
     connect(m_tree, &QTreeWidget::itemDoubleClicked, this, [this](QTreeWidgetItem* item) {
+        const QString modifier = item->data(0, kModifierRole).toString();
+        ModifierKind kind;
+        if (!modifier.isEmpty() && modifierKindFromId(modifier, &kind)) {
+            if (m_session)
+                m_session->addModifier(0, QString(), kind);
+            return;
+        }
         const QString type = item->data(0, kTypeRole).toString();
         if (m_session && !type.isEmpty())
             m_session->addNode(type);

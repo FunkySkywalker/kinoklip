@@ -2,6 +2,9 @@
 // CompSession implementation: graph commands as copy-mutate-store, one undo step each.
 #include "ui/comp/CompSession.h"
 
+#include "core/CompLinks.h"
+#include "core/Modifiers.h"
+
 #include "core/CompOps.h"
 #include "core/EditOps.h"
 #include "core/MediaPool.h"
@@ -295,6 +298,23 @@ bool CompSession::setMediaInSource(quint64 id, const QString& mediaId)
             return false;
         n->mediaId = mediaId;
         return true;
+    });
+}
+
+bool CompSession::addModifier(quint64 id, const QString& key, ModifierKind kind)
+{
+    if (id == 0 && key.isEmpty()) {
+        id = m_activeNode;
+    }
+    const QString k = key.isEmpty() ? m_activeKey : key;
+    if (k.isEmpty() || (key.isEmpty() && m_activeNode != id))
+        return false;
+    const int64_t frame = compFrame();
+    return edit(tr("Modify With %1").arg(modifiers::kindName(kind)), [&](Composition& c) {
+        const CompNode* n = c.node(id);
+        if (!n || n->locked)
+            return false;
+        return !complinks::addModifier(c, id, k, kind, frame).isEmpty();
     });
 }
 

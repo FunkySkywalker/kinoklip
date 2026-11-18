@@ -4,9 +4,11 @@
 #pragma once
 
 #include "core/Composition.h"
+#include "core/ParamModifier.h"
 
 #include <QColor>
 #include <QObject>
+#include <QPair>
 #include <QPointF>
 #include <QSet>
 #include <QSize>
@@ -148,6 +150,20 @@ public:
     /// True if the node clipboard holds a node of the same type as a selected node.
     [[nodiscard]] bool canPasteSettings() const;
 
+    // ---- Parameter modifiers (spec 119; each one undo step) ----
+
+    /// Adds a modifier of @p kind to parameter @p key of node @p id (Perturb, Wiggle and XY Path
+    /// on both halves of a point). An empty @p key means the active parameter. False when there
+    /// is nothing to modify, the node is locked, or an Expression is already there.
+    bool addModifier(quint64 id, const QString& key, ModifierKind kind);
+    /// The parameter the user touched last (set by the Inspector's rows): node and key.
+    [[nodiscard]] QPair<quint64, QString> activeParam() const { return {m_activeNode, m_activeKey}; }
+    void setActiveParam(quint64 node, const QString& key)
+    {
+        m_activeNode = node;
+        m_activeKey = key;
+    }
+
     // ---- Selection (UI state) ----
 
     [[nodiscard]] const QVector<quint64>& selectedNodes() const { return m_selNodes; }
@@ -197,6 +213,8 @@ private:
     bool m_snap = false;
     QVector<quint64> m_selNodes, m_selNotes;
     quint64 m_current = 0;
+    quint64 m_activeNode = 0; ///< activeParam()
+    QString m_activeKey;
     quint64 m_viewer[2] = {0, 0};
     QPointF m_viewCentre;
     double m_viewZoom = 1.0;

@@ -14,6 +14,7 @@
 //     the layer is then drawn through the transform with opacity.
 #include "render/GlRenderer.h"
 
+#include "core/CompLinks.h"
 #include "core/CompOps.h"
 #include "core/NodeRegistry.h"
 #include "core/ParamKeys.h"
@@ -1426,9 +1427,14 @@ const RenderTarget* GlRenderer::compositionTarget(const ClipData& clip, int64_t 
     if (!clip.composition)
         return nullptr;
     const Composition& comp = *clip.composition;
+    // Parameter links (Connect To, expressions) are filled in on a copy for this frame.
+    Composition linked;
+    const bool hasLinks = complinks::hasLinks(comp);
+    if (hasLinks)
+        linked = complinks::resolved(comp, double(compFrame));
     CompHost host(this, clip, fc, zoom, size, scale);
     CompEval ev;
-    ev.comp = &comp;
+    ev.comp = hasLinks ? &linked : &comp;
     ev.compFrame = compFrame;
     ev.frame = QSizeF(fc.timeline->width, fc.timeline->height);
     ev.size = size;

@@ -193,7 +193,14 @@ double scalar(
         return t ? double(t->duration) : desc.def;
     }
     const AnimatedValue* value = animated(clip, ref);
-    return value ? value->valueAt(localFrame) : desc.def;
+    if (!value)
+        return desc.def;
+    if (!value->modifiers.isEmpty()) {
+        // Modified (Compositing page): the value the renderer sees.
+        if (const ParamSet* set = paramSet(clip, ref))
+            return set->valueAtTime(ref.key, double(localFrame), desc.def);
+    }
+    return value->valueAt(localFrame);
 }
 
 void setScalar(ClipData& clip, const ParamRef& ref, const ParamDescriptor& desc, int64_t localFrame,

@@ -63,6 +63,15 @@ public:
     /// Text shown for @p value (number with the configured decimals plus suffix).
     [[nodiscard]] QString textForValue(double value) const;
 
+    /// Lets the user type a formula: text that starts with "=" is not a number but an expression
+    /// (expressionEntered()). Off by default; the Compositing page Inspector turns it on.
+    void setExpressionsAllowed(bool allowed) { m_expressionsAllowed = allowed; }
+    /// The formula of the parameter, shown after "=" when the editor opens (empty: none).
+    void setExpressionText(const QString& text) { m_expressionText = text; }
+    /// Marks the value as made by a modifier: a small "fx" and @p note as the tooltip (empty:
+    /// no mark).
+    void setModifierNote(const QString& note);
+
     /// Opens the inline text editor (same as a double-click).
     void startTextEdit();
 
@@ -78,6 +87,8 @@ signals:
     void scrubFinished();
     /// The user changed the value in one step (typed, wheel, keys).
     void valueCommitted(double value);
+    /// A formula was typed ("= sin(time / 10) * 20", @p text without the "=").
+    void expressionEntered(const QString& text);
 
 protected:
     void paintEvent(QPaintEvent* event) override;
@@ -104,6 +115,10 @@ private:
     double m_value = 0.0;
     QString m_text; ///< cached display text of m_value (formatted once per change)
     bool m_mixed = false;
+    bool m_expressionsAllowed = false;
+    QString m_expressionText;
+    QString m_modifierNote;
+    QString m_defaultTip;
 
     // Drag state. The value is accumulated in double precision from the press position so
     // switching modifiers mid-drag never makes the value jump.

@@ -130,6 +130,23 @@ public:
         m_field->setToolTip(tr("Drag to change (Shift: fine, Ctrl: coarse), double-click to type"));
         grid->addWidget(m_field, gridRow, paramgrid::kEditor);
         m_main = m_field;
+        if (host.supportsModifiers()) {
+            // Compositing page: "= formula" in the field, and the right-click menu of modifiers.
+            m_field->setExpressionsAllowed(true);
+            connect(m_field, &ValueField::expressionEntered, this,
+                [this](const QString& text) { m_host.setParamExpression(m_ref, m_desc, text); });
+            for (QWidget* w : {static_cast<QWidget*>(m_field), static_cast<QWidget*>(m_label)}) {
+                if (!w)
+                    continue;
+                w->setContextMenuPolicy(Qt::CustomContextMenu);
+                connect(w, &QWidget::customContextMenuRequested, this, [this, w](const QPoint& pos) {
+                    QMenu menu;
+                    m_host.fillParamMenu(m_ref, m_desc, menu);
+                    if (!menu.isEmpty())
+                        menu.exec(w->mapToGlobal(pos));
+                });
+            }
+        }
 
         connect(m_field, &ValueField::scrubStarted, this, [this] {
             m_host.setActiveParam(m_ref, m_desc);
@@ -205,6 +222,10 @@ public:
         if (!m_field->isScrubbing()) {
             m_field->setValue(v);
             m_field->setMixed(m_host.isMixed(m_ref, m_desc));
+        }
+        if (m_host.supportsModifiers()) {
+            m_field->setExpressionText(m_host.paramExpression(m_ref));
+            m_field->setModifierNote(m_host.paramModifierNote(m_ref));
         }
         if (m_slider && !m_slider->isSliderDown()) {
             const int position = toSlider(v);

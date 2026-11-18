@@ -9,6 +9,7 @@
 #include <functional>
 
 class QColor;
+class QMenu;
 class QString;
 
 namespace kk {
@@ -61,6 +62,37 @@ public:
     {
         (void)ref;
         return false;
+    }
+    /// True if the host supports parameter modifiers (the Compositing page Inspector): number
+    /// rows then offer the right-click menu and accept a typed "= formula".
+    [[nodiscard]] virtual bool supportsModifiers() const { return false; }
+    /// Adds the host's actions for parameter @p ref (Modify With, Connect To, Remove ...) to the
+    /// right-click menu of its row.
+    virtual void fillParamMenu(const ParamRef& ref, const ParamDescriptor& desc, QMenu& menu)
+    {
+        (void)ref;
+        (void)desc;
+        (void)menu;
+    }
+    /// A formula was typed into the value field of @p ref (@p text without the "=").
+    virtual void setParamExpression(const ParamRef& ref, const ParamDescriptor& desc, const QString& text)
+    {
+        (void)ref;
+        (void)desc;
+        (void)text;
+    }
+    /// The formula of the Expression modifier of @p ref, or empty.
+    [[nodiscard]] virtual QString paramExpression(const ParamRef& ref) const
+    {
+        (void)ref;
+        return {};
+    }
+    /// A short description of what modifies @p ref ("Expression", "Connected to Blur1 > Size"),
+    /// or empty when nothing does.
+    [[nodiscard]] virtual QString paramModifierNote(const ParamRef& ref) const
+    {
+        (void)ref;
+        return {};
     }
     /// Asks the user for a colour (modal). Returns an invalid colour if cancelled.
     [[nodiscard]] virtual QColor pickColor(const QColor& initial, const QString& title) = 0;

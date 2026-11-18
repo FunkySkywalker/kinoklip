@@ -296,6 +296,23 @@ QJsonObject paramSetToJson(const ParamSet& params)
             if (it->post != Extrapolation::Constant)
                 v[QLatin1String("post")] = extrapolationToString(it->post);
         }
+        if (!it->modifiers.isEmpty()) {
+            QJsonArray mods;
+            for (const ParamModifier& m : it->modifiers) {
+                QJsonObject o {{QLatin1String("kind"), modifierKindId(m.kind)},
+                    {QLatin1String("id"), m.id}};
+                if (!m.text.isEmpty())
+                    o[QLatin1String("text")] = m.text;
+                if (m.targetNode != 0) {
+                    o[QLatin1String("node")] = qint64(m.targetNode);
+                    o[QLatin1String("key")] = m.targetKey;
+                }
+                if (!m.enabled)
+                    o[QLatin1String("enabled")] = false;
+                mods.append(o);
+            }
+            v[QLatin1String("modifiers")] = mods;
+        }
         values[it.key()] = v;
     }
     QJsonObject statics;
@@ -343,6 +360,19 @@ ParamSet paramSetFromJson(const QJsonObject& json)
         }
         value.pre = extrapolationFromString(v.value(QLatin1String("pre")).toString());
         value.post = extrapolationFromString(v.value(QLatin1String("post")).toString());
+        for (const QJsonValue& mv : v.value(QLatin1String("modifiers")).toArray()) {
+            const QJsonObject o = mv.toObject();
+            ParamModifier m;
+            if (!modifierKindFromId(o.value(QLatin1String("kind")).toString(), &m.kind))
+                continue; // a modifier of a newer version: dropped, the value stays
+            m.id = o.value(QLatin1String("id")).toString();
+            m.text = o.value(QLatin1String("text")).toString();
+            m.targetNode = quint64(o.value(QLatin1String("node")).toInteger());
+            m.targetKey = o.value(QLatin1String("key")).toString();
+            m.enabled = o.value(QLatin1String("enabled")).toBool(true);
+            if (!m.id.isEmpty())
+                value.modifiers.append(m);
+        }
         params.values.insert(it.key(), value);
     }
     const QJsonObject statics = json.value(QLatin1String("statics")).toObject();

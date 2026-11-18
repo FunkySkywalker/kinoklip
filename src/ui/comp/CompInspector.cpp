@@ -5,6 +5,7 @@
 #include "compositing/tracking/TrackFollow.h"
 #include "compositing/tracking/TrackLink.h"
 #include "core/MediaPool.h"
+#include "core/Modifiers.h"
 #include "core/NodeRegistry.h"
 #include "core/Project.h"
 #include "core/Timeline.h"
@@ -138,7 +139,18 @@ void CompInspector::rebuild()
     const CompNode* n = m_session ? m_session->composition().node(node) : nullptr;
     const QString type = n ? n->type : QString();
     syncProxy();
-    if (node != m_node || type != m_nodeType || (n && !m_group)) {
+    // The Modifiers sections follow the modifiers (added, removed, connected elsewhere).
+    QString signature;
+    if (n) {
+        for (const QString& key : modifiers::modifiedKeys(n->params)) {
+            for (const ParamModifier& m : n->params.values.value(key).modifiers)
+                signature += key + QLatin1Char('/') + m.id + QLatin1Char('/') + modifierKindId(m.kind)
+                    + QLatin1Char('/') + QString::number(m.targetNode) + m.targetKey
+                    + (m.enabled ? QLatin1Char('+') : QLatin1Char('-')) + QLatin1Char(';');
+        }
+    }
+    if (node != m_node || type != m_nodeType || (n && !m_group) || signature != m_modSignature) {
+        m_modSignature = signature;
         m_node = n ? node : 0;
         m_nodeType = type;
         m_proxy.effects.clear();
@@ -147,6 +159,7 @@ void CompInspector::rebuild()
         m_tracker->hide();
         delete m_scroll->takeWidget();
         m_group = nullptr;
+        m_modifierBoxes.clear();
         m_settings = nullptr;
         m_source = nullptr;
         m_audioMode = nullptr;
@@ -180,6 +193,7 @@ void CompInspector::rebuild()
                 m_tracker->show();
             }
             l->addWidget(m_group);
+            buildModifiers(l, *n);
             const QVector<ParamDescriptor> common
                 = NodeRegistry::instance().commonControls(n->type);
             if (!common.isEmpty()) {
@@ -419,6 +433,8 @@ void CompInspector::refreshRows()
         return;
     syncProxy();
     m_group->refresh(m_proxy, m_session->compFrame(), true);
+    for (ParamGroupBox* box : std::as_const(m_modifierBoxes))
+        box->refresh(m_proxy, m_session->compFrame(), true);
     if (m_settings)
         m_settings->refresh(m_proxy, m_session->compFrame(), true);
 }
@@ -480,7 +496,11 @@ void CompInspector::seekLocalFrame(quint64, int64_t frame)
         m_session->seekCompFrame(frame);
 }
 
-void CompInspector::setActiveParam(const ParamRef&, const ParamDescriptor&) { }
+void CompInspector::setActiveParam(const ParamRef& ref, const ParamDescriptor&)
+{
+    if (m_session && m_node && !modifiers::isControlKey(ref.key))
+        m_session->setActiveParam(m_node, ref.key);
+}
 
 QColor CompInspector::pickColor(const QColor& initial, const QString& title)
 {

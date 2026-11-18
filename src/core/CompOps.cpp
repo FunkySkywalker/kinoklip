@@ -605,6 +605,14 @@ QVector<quint64> pasteNodes(Composition& comp, const QVector<CompNode>& nodes, Q
                 ++it;
             }
         }
+        // Parameter links (Connect To) between pasted nodes follow the copies.
+        for (AnimatedValue& v : n.params.values) {
+            for (ParamModifier& m : v.modifiers) {
+                const auto mapped = idMap.constFind(m.targetNode);
+                if (m.kind == ModifierKind::Connect && mapped != idMap.constEnd())
+                    m.targetNode = *mapped;
+            }
+        }
     }
     return created;
 }

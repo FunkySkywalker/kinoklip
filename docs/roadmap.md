@@ -176,7 +176,7 @@ Beginner and intermediate tutorial workflows for Resolve's Color, Fairlight and 
 - [ ] Compositing: particles: pEmitter, pRender, pMerge, pGravity, pTurbulence
 - [ ] Compositing: 3D: Image Plane 3D, Text3D, Shape3D, Merge3D, Camera3D, lights, Renderer3D and a 3D viewer
 - [ ] Compositing: Paint node (Stroke, Clone, Eraser, Smear, stroke duration) and Magic Mask / Object Removal in the node graph (optional local open model)
-- [ ] Compositing: modifiers (Perturb, Wiggle, Offset, Expression, Cycle, XY Path), parameter links with Connect To and Publish, and expressions in value fields
+- [x] Compositing: modifiers (Perturb, Wiggle, Offset, Expression, Cycle, XY Path), parameter links with Connect To and Publish, and expressions in value fields
 - [ ] Compositing: Group, Macro (Make Macro, published controls, save as a title in the Effects Library), Underlay and Instance nodes
 - [x] Compositing: Grid Warp, Displace and Vector Distort nodes
 - [ ] Compositing: build a transition on the page (MediaIn1 / MediaIn2 composite), Loader and Saver nodes, Time Speed and Time Stretcher nodes

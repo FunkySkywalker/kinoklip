@@ -2,6 +2,283 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="ru_RU">
 <context>
+    <name>CompInspector</name>
+    <message>
+        <source>A parameter cannot be connected to itself</source>
+        <translation>Параметр нельзя соединить с самим собой</translation>
+    </message>
+    <message>
+        <source>That would make a circle: the other parameter already reads this one</source>
+        <translation>Получится замкнутый круг: другой параметр уже читает этот</translation>
+    </message>
+    <message>
+        <source>Only number parameters can be connected</source>
+        <translation>Соединять можно только числовые параметры</translation>
+    </message>
+    <message>
+        <source>That parameter no longer exists</source>
+        <translation>Этого параметра больше нет</translation>
+    </message>
+</context>
+<context>
+    <name>Expression</name>
+    <message>
+        <source>Unexpected &quot;%1&quot;</source>
+        <translation>Неожиданный символ «%1»</translation>
+    </message>
+    <message>
+        <source>The formula is nested too deeply</source>
+        <translation>Формула слишком глубоко вложена</translation>
+    </message>
+    <message>
+        <source>Expected &quot;:&quot;</source>
+        <translation>Ожидалось «:»</translation>
+    </message>
+    <message>
+        <source>The formula ends too early</source>
+        <translation>Формула обрывается слишком рано</translation>
+    </message>
+    <message>
+        <source>Expected &quot;)&quot;</source>
+        <translation>Ожидалось «)»</translation>
+    </message>
+    <message>
+        <source>Bad number &quot;%1&quot;</source>
+        <translation>Неверное число «%1»</translation>
+    </message>
+    <message>
+        <source>Unknown function &quot;%1&quot;</source>
+        <translation>Неизвестная функция «%1»</translation>
+    </message>
+    <message>
+        <source>%1 takes %2 argument(s)</source>
+        <translation>%1 принимает аргументов: %2</translation>
+    </message>
+    <message>
+        <source>The formula is empty</source>
+        <translation>Формула пуста</translation>
+    </message>
+    <message>
+        <source>The formula is too long</source>
+        <translation>Формула слишком длинная</translation>
+    </message>
+</context>
+<context>
+    <name>Modifiers</name>
+    <message>
+        <source> fr</source>
+        <translation> кадр.</translation>
+    </message>
+    <message>
+        <source>Added to the value</source>
+        <translation>Добавляется к значению</translation>
+    </message>
+    <message>
+        <source>Adds an amount to the value, scales it, and can read it earlier or later in time.</source>
+        <translation>Добавляет к значению величину, масштабирует его и может читать его раньше или позже по времени.</translation>
+    </message>
+    <message>
+        <source>Amplitude</source>
+        <translation>Амплитуда</translation>
+    </message>
+    <message>
+        <source>Another number gives another random sequence</source>
+        <translation>Другое число даёт другую случайную последовательность</translation>
+    </message>
+    <message>
+        <source>Available in the formula as n1</source>
+        <translation>Доступно в формуле как n1</translation>
+    </message>
+    <message>
+        <source>Available in the formula as n2</source>
+        <translation>Доступно в формуле как n2</translation>
+    </message>
+    <message>
+        <source>Available in the formula as n3</source>
+        <translation>Доступно в формуле как n3</translation>
+    </message>
+    <message>
+        <source>Computes the value with a formula that can read other parameters.</source>
+        <translation>Вычисляет значение по формуле, которая может читать другие параметры.</translation>
+    </message>
+    <message>
+        <source>Connect To</source>
+        <translation>Соединить с</translation>
+    </message>
+    <message>
+        <source>Cycle</source>
+        <translation>Цикл</translation>
+    </message>
+    <message>
+        <source>End Frame</source>
+        <translation>Конечный кадр</translation>
+    </message>
+    <message>
+        <source>Expression</source>
+        <translation>Выражение</translation>
+    </message>
+    <message>
+        <source>First frame of the repeated range</source>
+        <translation>Первый кадр повторяемого диапазона</translation>
+    </message>
+    <message>
+        <source>Frames between two random targets; the value glides from one to the next</source>
+        <translation>Кадров между двумя случайными целями; значение плавно переходит от одной к другой</translation>
+    </message>
+    <message>
+        <source>Frames of the slowest wiggle; each octave is twice as fast</source>
+        <translation>Кадров самого медленного колебания; каждая октава вдвое быстрее</translation>
+    </message>
+    <message>
+        <source>How far the value moves away from where it would be, in the parameter&apos;s own units</source>
+        <translation>Насколько значение уходит от того, каким оно было бы, в единицах параметра</translation>
+    </message>
+    <message>
+        <source>How far the value wiggles, in the parameter&apos;s own units</source>
+        <translation>Насколько значение колеблется, в единицах параметра</translation>
+    </message>
+    <message>
+        <source>How many rounds to run; 0 repeats for ever</source>
+        <translation>Сколько кругов выполнить; 0 повторяет бесконечно</translation>
+    </message>
+    <message>
+        <source>Last frame of the repeated range</source>
+        <translation>Последний кадр повторяемого диапазона</translation>
+    </message>
+    <message>
+        <source>Layers of finer, weaker wiggle (1 to 6)</source>
+        <translation>Слои более мелкого и слабого колебания (от 1 до 6)</translation>
+    </message>
+    <message>
+        <source>Loop</source>
+        <translation>Цикл</translation>
+    </message>
+    <message>
+        <source>Loop: start again at the Start frame. Ping-Pong: run backwards and forwards. Relative: start again from where the last round ended.</source>
+        <translation>Цикл: начать заново с начального кадра. Пинг-понг: идти назад и вперёд. Относительный: начать заново с того места, где закончился прошлый круг.</translation>
+    </message>
+    <message>
+        <source>Makes the value follow another node&apos;s parameter.</source>
+        <translation>Значение следует за параметром другого узла.</translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <translation>Режим</translation>
+    </message>
+    <message>
+        <source>Moves the value by smooth random amounts, a new random target every Period frames.</source>
+        <translation>Смещает значение на плавные случайные величины, новая случайная цель каждые «Период» кадров.</translation>
+    </message>
+    <message>
+        <source>Number In 1</source>
+        <translation>Число на входе 1</translation>
+    </message>
+    <message>
+        <source>Number In 2</source>
+        <translation>Число на входе 2</translation>
+    </message>
+    <message>
+        <source>Number In 3</source>
+        <translation>Число на входе 3</translation>
+    </message>
+    <message>
+        <source>Octaves</source>
+        <translation>Октавы</translation>
+    </message>
+    <message>
+        <source>Offers the parameter in the Connect To lists and on a Macro.</source>
+        <translation>Предлагает параметр в списках «Соединить с» и в макросе.</translation>
+    </message>
+    <message>
+        <source>Offset</source>
+        <translation>Смещение</translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation>Путь</translation>
+    </message>
+    <message>
+        <source>Period</source>
+        <translation>Период</translation>
+    </message>
+    <message>
+        <source>Perturb</source>
+        <translation>Возмущение</translation>
+    </message>
+    <message>
+        <source>Ping-Pong</source>
+        <translation>Пинг-понг</translation>
+    </message>
+    <message>
+        <source>Publish</source>
+        <translation>Опубликовать</translation>
+    </message>
+    <message>
+        <source>Random Seed</source>
+        <translation>Случайное зерно</translation>
+    </message>
+    <message>
+        <source>Reads the value this many frames later (negative: earlier)</source>
+        <translation>Читает значение на столько кадров позже (отрицательное: раньше)</translation>
+    </message>
+    <message>
+        <source>Relative</source>
+        <translation>Относительный</translation>
+    </message>
+    <message>
+        <source>Repeats</source>
+        <translation>Повторы</translation>
+    </message>
+    <message>
+        <source>Repeats a range of frames of the value as a loop, a ping-pong or a relative repeat.</source>
+        <translation>Повторяет диапазон кадров значения как цикл, пинг-понг или относительный повтор.</translation>
+    </message>
+    <message>
+        <source>Replaces a position&apos;s X and Y with two paths of their own.</source>
+        <translation>Заменяет X и Y положения двумя собственными путями.</translation>
+    </message>
+    <message>
+        <source>Scale</source>
+        <translation>Масштаб</translation>
+    </message>
+    <message>
+        <source>Shakes the value with layered noise of a chosen Wavelength and Amplitude.</source>
+        <translation>Встряхивает значение многослойным шумом выбранной длины волны и амплитуды.</translation>
+    </message>
+    <message>
+        <source>Start Frame</source>
+        <translation>Начальный кадр</translation>
+    </message>
+    <message>
+        <source>Strength</source>
+        <translation>Сила</translation>
+    </message>
+    <message>
+        <source>The path of this axis over time; add keyframes to move it</source>
+        <translation>Путь этой оси во времени; добавьте ключевые кадры, чтобы его изменить</translation>
+    </message>
+    <message>
+        <source>The value is multiplied by this before the Offset is added</source>
+        <translation>Значение умножается на это перед добавлением смещения</translation>
+    </message>
+    <message>
+        <source>Time Offset</source>
+        <translation>Смещение по времени</translation>
+    </message>
+    <message>
+        <source>Wavelength</source>
+        <translation>Длина волны</translation>
+    </message>
+    <message>
+        <source>Wiggle</source>
+        <translation>Колебание</translation>
+    </message>
+    <message>
+        <source>XY Path</source>
+        <translation>XY-путь</translation>
+    </message>
+</context>
+<context>
     <name>QObject</name>
     <message>
         <source>%1 projects (*.%2 *.%3);;All files (*)</source>
@@ -9673,6 +9950,134 @@ Thank you for watching</source>
         <source>No tracks yet</source>
         <translation>Треков пока нет</translation>
     </message>
+    <message>
+        <source>Connected to %1</source>
+        <translation>Соединено с %1</translation>
+    </message>
+    <message>
+        <source>(missing)</source>
+        <translation>(отсутствует)</translation>
+    </message>
+    <message>
+        <source>Expression: %1</source>
+        <translation>Выражение: %1</translation>
+    </message>
+    <message>
+        <source>Expression</source>
+        <translation>Выражение</translation>
+    </message>
+    <message>
+        <source>That would make a circle: the formula reads a parameter that reads this one</source>
+        <translation>Получится замкнутый круг: формула читает параметр, который читает этот</translation>
+    </message>
+    <message>
+        <source>Modify With</source>
+        <translation>Изменить с помощью</translation>
+    </message>
+    <message>
+        <source>Changes the value over time or by a formula</source>
+        <translation>Изменяет значение во времени или по формуле</translation>
+    </message>
+    <message>
+        <source>Perturb</source>
+        <translation>Возмущение</translation>
+    </message>
+    <message>
+        <source>Wiggle</source>
+        <translation>Колебание</translation>
+    </message>
+    <message>
+        <source>Offset</source>
+        <translation>Смещение</translation>
+    </message>
+    <message>
+        <source>Cycle</source>
+        <translation>Цикл</translation>
+    </message>
+    <message>
+        <source>XY Path</source>
+        <translation>XY-путь</translation>
+    </message>
+    <message>
+        <source>Connect To</source>
+        <translation>Соединить с</translation>
+    </message>
+    <message>
+        <source>Makes this value follow another node&apos;s parameter</source>
+        <translation>Значение следует за параметром другого узла</translation>
+    </message>
+    <message>
+        <source>Published Values</source>
+        <translation>Опубликованные значения</translation>
+    </message>
+    <message>
+        <source>Unpublish</source>
+        <translation>Отменить публикацию</translation>
+    </message>
+    <message>
+        <source>Publish</source>
+        <translation>Опубликовать</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>Отсоединить</translation>
+    </message>
+    <message>
+        <source>Remove %1</source>
+        <translation>Удалить %1</translation>
+    </message>
+    <message>
+        <source>Cuts the link and keeps the value it showed</source>
+        <translation>Разрывает связь и сохраняет показанное значение</translation>
+    </message>
+    <message>
+        <source>Takes this modifier off the parameter</source>
+        <translation>Снимает этот модификатор с параметра</translation>
+    </message>
+    <message>
+        <source>Remove Modifier</source>
+        <translation>Удалить модификатор</translation>
+    </message>
+    <message>
+        <source>%1: %2</source>
+        <translation>%1: %2</translation>
+    </message>
+    <message>
+        <source>Disconnect: cut the link and keep the value it showed</source>
+        <translation>Отсоединить: разорвать связь и сохранить показанное значение</translation>
+    </message>
+    <message>
+        <source>Remove this modifier</source>
+        <translation>Удалить этот модификатор</translation>
+    </message>
+    <message>
+        <source>Turns this modifier on or off without removing it</source>
+        <translation>Включает или выключает этот модификатор, не удаляя его</translation>
+    </message>
+    <message>
+        <source>Modifier On / Off</source>
+        <translation>Модификатор вкл. / выкл.</translation>
+    </message>
+    <message>
+        <source>for example  sin(time / 12) * 40 + n1</source>
+        <translation>например  sin(time / 12) * 40 + n1</translation>
+    </message>
+    <message>
+        <source>The formula. Variables: time, value (the value without the expression), n1 to n3, pi, e. Other parameters: Node.Parameter (Blur1.Size) or a parameter of this node by name. Functions: %1.</source>
+        <translation>Формула. Переменные: time, value (значение без выражения), n1–n3, pi, e. Другие параметры: Узел.Параметр (Blur1.Size) или параметр этого узла по имени. Функции: %1.</translation>
+    </message>
+    <message>
+        <source>Formula</source>
+        <translation>Формула</translation>
+    </message>
+    <message>
+        <source>The parameter this value follows</source>
+        <translation>Параметр, за которым следует это значение</translation>
+    </message>
+    <message>
+        <source>Connected To</source>
+        <translation>Соединено с</translation>
+    </message>
 </context>
 <context>
     <name>kk::CompSession</name>
@@ -9691,6 +10096,10 @@ Thank you for watching</source>
     <message>
         <source>Change MediaIn Source</source>
         <translation>Изменить источник MediaIn</translation>
+    </message>
+    <message>
+        <source>Modify With %1</source>
+        <translation>Изменить с помощью: %1</translation>
     </message>
     <message>
         <source>Add Note</source>
@@ -20932,6 +21341,14 @@ Import files with %1 or drop them here.</source>
         <source>Search nodes</source>
         <translation>Поиск нод</translation>
     </message>
+    <message>
+        <source>Modifiers</source>
+        <translation>Модификаторы</translation>
+    </message>
+    <message>
+        <source>Double-click to put it on the parameter you touched last.</source>
+        <translation>Двойной щелчок: применить к параметру, которого вы касались последним.</translation>
+    </message>
 </context>
 <context>
     <name>kk::NodeRegistry</name>
@@ -30810,6 +31227,221 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
     <message>
         <source>The model is installed.</source>
         <translation>Модель установлена.</translation>
+    </message>
+</context>
+<context>
+    <name>kk::modifiers</name>
+    <message>
+        <source>Period</source>
+        <translation>Период</translation>
+    </message>
+    <message>
+        <source>Frames between two random targets; the value glides from one to the next</source>
+        <translation>Кадров между двумя случайными целями; значение плавно переходит от одной к другой</translation>
+    </message>
+    <message>
+        <source> fr</source>
+        <translation> кадр.</translation>
+    </message>
+    <message>
+        <source>Strength</source>
+        <translation>Сила</translation>
+    </message>
+    <message>
+        <source>How far the value moves away from where it would be, in the parameter&apos;s own units</source>
+        <translation>Насколько значение уходит от того, каким оно было бы, в единицах параметра</translation>
+    </message>
+    <message>
+        <source>Random Seed</source>
+        <translation>Случайное зерно</translation>
+    </message>
+    <message>
+        <source>Another number gives another random sequence</source>
+        <translation>Другое число даёт другую случайную последовательность</translation>
+    </message>
+    <message>
+        <source>Wavelength</source>
+        <translation>Длина волны</translation>
+    </message>
+    <message>
+        <source>Frames of the slowest wiggle; each octave is twice as fast</source>
+        <translation>Кадров самого медленного колебания; каждая октава вдвое быстрее</translation>
+    </message>
+    <message>
+        <source>Amplitude</source>
+        <translation>Амплитуда</translation>
+    </message>
+    <message>
+        <source>How far the value wiggles, in the parameter&apos;s own units</source>
+        <translation>Насколько значение колеблется, в единицах параметра</translation>
+    </message>
+    <message>
+        <source>Octaves</source>
+        <translation>Октавы</translation>
+    </message>
+    <message>
+        <source>Layers of finer, weaker wiggle (1 to 6)</source>
+        <translation>Слои более мелкого и слабого колебания (от 1 до 6)</translation>
+    </message>
+    <message>
+        <source>Offset</source>
+        <translation>Смещение</translation>
+    </message>
+    <message>
+        <source>Added to the value</source>
+        <translation>Добавляется к значению</translation>
+    </message>
+    <message>
+        <source>Scale</source>
+        <translation>Масштаб</translation>
+    </message>
+    <message>
+        <source>The value is multiplied by this before the Offset is added</source>
+        <translation>Значение умножается на это перед добавлением смещения</translation>
+    </message>
+    <message>
+        <source>Time Offset</source>
+        <translation>Смещение по времени</translation>
+    </message>
+    <message>
+        <source>Reads the value this many frames later (negative: earlier)</source>
+        <translation>Читает значение на столько кадров позже (отрицательное: раньше)</translation>
+    </message>
+    <message>
+        <source>Number In 1</source>
+        <translation>Число на входе 1</translation>
+    </message>
+    <message>
+        <source>Available in the formula as n1</source>
+        <translation>Доступно в формуле как n1</translation>
+    </message>
+    <message>
+        <source>Number In 2</source>
+        <translation>Число на входе 2</translation>
+    </message>
+    <message>
+        <source>Available in the formula as n2</source>
+        <translation>Доступно в формуле как n2</translation>
+    </message>
+    <message>
+        <source>Number In 3</source>
+        <translation>Число на входе 3</translation>
+    </message>
+    <message>
+        <source>Available in the formula as n3</source>
+        <translation>Доступно в формуле как n3</translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <translation>Режим</translation>
+    </message>
+    <message>
+        <source>Loop: start again at the Start frame. Ping-Pong: run backwards and forwards. Relative: start again from where the last round ended.</source>
+        <translation>Цикл: начать заново с начального кадра. Пинг-понг: идти назад и вперёд. Относительный: начать заново с того места, где закончился прошлый круг.</translation>
+    </message>
+    <message>
+        <source>Loop</source>
+        <translation>Цикл</translation>
+    </message>
+    <message>
+        <source>Ping-Pong</source>
+        <translation>Пинг-понг</translation>
+    </message>
+    <message>
+        <source>Relative</source>
+        <translation>Относительный</translation>
+    </message>
+    <message>
+        <source>Start Frame</source>
+        <translation>Начальный кадр</translation>
+    </message>
+    <message>
+        <source>First frame of the repeated range</source>
+        <translation>Первый кадр повторяемого диапазона</translation>
+    </message>
+    <message>
+        <source>End Frame</source>
+        <translation>Конечный кадр</translation>
+    </message>
+    <message>
+        <source>Last frame of the repeated range</source>
+        <translation>Последний кадр повторяемого диапазона</translation>
+    </message>
+    <message>
+        <source>Repeats</source>
+        <translation>Повторы</translation>
+    </message>
+    <message>
+        <source>How many rounds to run; 0 repeats for ever</source>
+        <translation>Сколько кругов выполнить; 0 повторяет бесконечно</translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation>Путь</translation>
+    </message>
+    <message>
+        <source>The path of this axis over time; add keyframes to move it</source>
+        <translation>Путь этой оси во времени; добавьте ключевые кадры, чтобы его изменить</translation>
+    </message>
+    <message>
+        <source>Perturb</source>
+        <translation>Возмущение</translation>
+    </message>
+    <message>
+        <source>Wiggle</source>
+        <translation>Колебание</translation>
+    </message>
+    <message>
+        <source>Expression</source>
+        <translation>Выражение</translation>
+    </message>
+    <message>
+        <source>Cycle</source>
+        <translation>Цикл</translation>
+    </message>
+    <message>
+        <source>XY Path</source>
+        <translation>XY-путь</translation>
+    </message>
+    <message>
+        <source>Connect To</source>
+        <translation>Соединить с</translation>
+    </message>
+    <message>
+        <source>Publish</source>
+        <translation>Опубликовать</translation>
+    </message>
+    <message>
+        <source>Moves the value by smooth random amounts, a new random target every Period frames.</source>
+        <translation>Смещает значение на плавные случайные величины, новая случайная цель каждые «Период» кадров.</translation>
+    </message>
+    <message>
+        <source>Shakes the value with layered noise of a chosen Wavelength and Amplitude.</source>
+        <translation>Встряхивает значение многослойным шумом выбранной длины волны и амплитуды.</translation>
+    </message>
+    <message>
+        <source>Adds an amount to the value, scales it, and can read it earlier or later in time.</source>
+        <translation>Добавляет к значению величину, масштабирует его и может читать его раньше или позже по времени.</translation>
+    </message>
+    <message>
+        <source>Computes the value with a formula that can read other parameters.</source>
+        <translation>Вычисляет значение по формуле, которая может читать другие параметры.</translation>
+    </message>
+    <message>
+        <source>Repeats a range of frames of the value as a loop, a ping-pong or a relative repeat.</source>
+        <translation>Повторяет диапазон кадров значения как цикл, пинг-понг или относительный повтор.</translation>
+    </message>
+    <message>
+        <source>Replaces a position&apos;s X and Y with two paths of their own.</source>
+        <translation>Заменяет X и Y положения двумя собственными путями.</translation>
+    </message>
+    <message>
+        <source>Makes the value follow another node&apos;s parameter.</source>
+        <translation>Значение следует за параметром другого узла.</translation>
+    </message>
+    <message>
+        <source>Offers the parameter in the Connect To lists and on a Macro.</source>
+        <translation>Предлагает параметр в списках «Соединить с» и в макросе.</translation>
     </message>
 </context>
 <context>

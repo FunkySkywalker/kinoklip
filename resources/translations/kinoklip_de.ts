@@ -2,6 +2,283 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="de_DE">
 <context>
+    <name>CompInspector</name>
+    <message>
+        <source>A parameter cannot be connected to itself</source>
+        <translation>Ein Parameter kann nicht mit sich selbst verbunden werden</translation>
+    </message>
+    <message>
+        <source>That would make a circle: the other parameter already reads this one</source>
+        <translation>Das ergäbe einen Kreis: Der andere Parameter liest bereits diesen</translation>
+    </message>
+    <message>
+        <source>Only number parameters can be connected</source>
+        <translation>Nur Zahlenparameter können verbunden werden</translation>
+    </message>
+    <message>
+        <source>That parameter no longer exists</source>
+        <translation>Dieser Parameter existiert nicht mehr</translation>
+    </message>
+</context>
+<context>
+    <name>Expression</name>
+    <message>
+        <source>Unexpected &quot;%1&quot;</source>
+        <translation>Unerwartetes Zeichen "%1"</translation>
+    </message>
+    <message>
+        <source>The formula is nested too deeply</source>
+        <translation>Die Formel ist zu tief verschachtelt</translation>
+    </message>
+    <message>
+        <source>Expected &quot;:&quot;</source>
+        <translation>":" erwartet</translation>
+    </message>
+    <message>
+        <source>The formula ends too early</source>
+        <translation>Die Formel endet zu früh</translation>
+    </message>
+    <message>
+        <source>Expected &quot;)&quot;</source>
+        <translation>")" erwartet</translation>
+    </message>
+    <message>
+        <source>Bad number &quot;%1&quot;</source>
+        <translation>Ungültige Zahl "%1"</translation>
+    </message>
+    <message>
+        <source>Unknown function &quot;%1&quot;</source>
+        <translation>Unbekannte Funktion "%1"</translation>
+    </message>
+    <message>
+        <source>%1 takes %2 argument(s)</source>
+        <translation>%1 braucht %2 Argument(e)</translation>
+    </message>
+    <message>
+        <source>The formula is empty</source>
+        <translation>Die Formel ist leer</translation>
+    </message>
+    <message>
+        <source>The formula is too long</source>
+        <translation>Die Formel ist zu lang</translation>
+    </message>
+</context>
+<context>
+    <name>Modifiers</name>
+    <message>
+        <source> fr</source>
+        <translation> Bi.</translation>
+    </message>
+    <message>
+        <source>Added to the value</source>
+        <translation>Wird zum Wert addiert</translation>
+    </message>
+    <message>
+        <source>Adds an amount to the value, scales it, and can read it earlier or later in time.</source>
+        <translation>Addiert einen Betrag zum Wert, skaliert ihn und kann ihn früher oder später in der Zeit lesen.</translation>
+    </message>
+    <message>
+        <source>Amplitude</source>
+        <translation>Amplitude</translation>
+    </message>
+    <message>
+        <source>Another number gives another random sequence</source>
+        <translation>Eine andere Zahl ergibt eine andere Zufallsfolge</translation>
+    </message>
+    <message>
+        <source>Available in the formula as n1</source>
+        <translation>In der Formel als n1 verfügbar</translation>
+    </message>
+    <message>
+        <source>Available in the formula as n2</source>
+        <translation>In der Formel als n2 verfügbar</translation>
+    </message>
+    <message>
+        <source>Available in the formula as n3</source>
+        <translation>In der Formel als n3 verfügbar</translation>
+    </message>
+    <message>
+        <source>Computes the value with a formula that can read other parameters.</source>
+        <translation>Berechnet den Wert mit einer Formel, die andere Parameter lesen kann.</translation>
+    </message>
+    <message>
+        <source>Connect To</source>
+        <translation>Verbinden mit</translation>
+    </message>
+    <message>
+        <source>Cycle</source>
+        <translation>Zyklus</translation>
+    </message>
+    <message>
+        <source>End Frame</source>
+        <translation>Endbild</translation>
+    </message>
+    <message>
+        <source>Expression</source>
+        <translation>Ausdruck</translation>
+    </message>
+    <message>
+        <source>First frame of the repeated range</source>
+        <translation>Erstes Bild des wiederholten Bereichs</translation>
+    </message>
+    <message>
+        <source>Frames between two random targets; the value glides from one to the next</source>
+        <translation>Bilder zwischen zwei Zufallszielen; der Wert gleitet von einem zum nächsten</translation>
+    </message>
+    <message>
+        <source>Frames of the slowest wiggle; each octave is twice as fast</source>
+        <translation>Bilder des langsamsten Wackelns; jede Oktave ist doppelt so schnell</translation>
+    </message>
+    <message>
+        <source>How far the value moves away from where it would be, in the parameter&apos;s own units</source>
+        <translation>Wie weit sich der Wert von seiner eigentlichen Stelle entfernt, in den Einheiten des Parameters</translation>
+    </message>
+    <message>
+        <source>How far the value wiggles, in the parameter&apos;s own units</source>
+        <translation>Wie weit der Wert wackelt, in den Einheiten des Parameters</translation>
+    </message>
+    <message>
+        <source>How many rounds to run; 0 repeats for ever</source>
+        <translation>Wie viele Durchläufe; 0 wiederholt endlos</translation>
+    </message>
+    <message>
+        <source>Last frame of the repeated range</source>
+        <translation>Letztes Bild des wiederholten Bereichs</translation>
+    </message>
+    <message>
+        <source>Layers of finer, weaker wiggle (1 to 6)</source>
+        <translation>Schichten feineren, schwächeren Wackelns (1 bis 6)</translation>
+    </message>
+    <message>
+        <source>Loop</source>
+        <translation>Schleife</translation>
+    </message>
+    <message>
+        <source>Loop: start again at the Start frame. Ping-Pong: run backwards and forwards. Relative: start again from where the last round ended.</source>
+        <translation>Schleife: am Startbild neu beginnen. Ping-Pong: rückwärts und vorwärts laufen. Relativ: dort neu beginnen, wo die letzte Runde endete.</translation>
+    </message>
+    <message>
+        <source>Makes the value follow another node&apos;s parameter.</source>
+        <translation>Lässt den Wert dem Parameter eines anderen Nodes folgen.</translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <translation>Modus</translation>
+    </message>
+    <message>
+        <source>Moves the value by smooth random amounts, a new random target every Period frames.</source>
+        <translation>Bewegt den Wert um sanfte Zufallsbeträge, alle Periode Bilder ein neues Zufallsziel.</translation>
+    </message>
+    <message>
+        <source>Number In 1</source>
+        <translation>Zahl ein 1</translation>
+    </message>
+    <message>
+        <source>Number In 2</source>
+        <translation>Zahl ein 2</translation>
+    </message>
+    <message>
+        <source>Number In 3</source>
+        <translation>Zahl ein 3</translation>
+    </message>
+    <message>
+        <source>Octaves</source>
+        <translation>Oktaven</translation>
+    </message>
+    <message>
+        <source>Offers the parameter in the Connect To lists and on a Macro.</source>
+        <translation>Bietet den Parameter in den Listen "Verbinden mit" und an einem Makro an.</translation>
+    </message>
+    <message>
+        <source>Offset</source>
+        <translation>Versatz</translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation>Pfad</translation>
+    </message>
+    <message>
+        <source>Period</source>
+        <translation>Periode</translation>
+    </message>
+    <message>
+        <source>Perturb</source>
+        <translation>Perturb</translation>
+    </message>
+    <message>
+        <source>Ping-Pong</source>
+        <translation>Ping-Pong</translation>
+    </message>
+    <message>
+        <source>Publish</source>
+        <translation>Veröffentlichen</translation>
+    </message>
+    <message>
+        <source>Random Seed</source>
+        <translation>Zufalls-Seed</translation>
+    </message>
+    <message>
+        <source>Reads the value this many frames later (negative: earlier)</source>
+        <translation>Liest den Wert so viele Bilder später (negativ: früher)</translation>
+    </message>
+    <message>
+        <source>Relative</source>
+        <translation>Relativ</translation>
+    </message>
+    <message>
+        <source>Repeats</source>
+        <translation>Wiederholungen</translation>
+    </message>
+    <message>
+        <source>Repeats a range of frames of the value as a loop, a ping-pong or a relative repeat.</source>
+        <translation>Wiederholt einen Bildbereich des Werts als Schleife, Ping-Pong oder relative Wiederholung.</translation>
+    </message>
+    <message>
+        <source>Replaces a position&apos;s X and Y with two paths of their own.</source>
+        <translation>Ersetzt X und Y einer Position durch zwei eigene Pfade.</translation>
+    </message>
+    <message>
+        <source>Scale</source>
+        <translation>Skalierung</translation>
+    </message>
+    <message>
+        <source>Shakes the value with layered noise of a chosen Wavelength and Amplitude.</source>
+        <translation>Schüttelt den Wert mit geschichtetem Rauschen gewählter Wellenlänge und Amplitude.</translation>
+    </message>
+    <message>
+        <source>Start Frame</source>
+        <translation>Startbild</translation>
+    </message>
+    <message>
+        <source>Strength</source>
+        <translation>Stärke</translation>
+    </message>
+    <message>
+        <source>The path of this axis over time; add keyframes to move it</source>
+        <translation>Der Pfad dieser Achse über die Zeit; Keyframes setzen, um ihn zu bewegen</translation>
+    </message>
+    <message>
+        <source>The value is multiplied by this before the Offset is added</source>
+        <translation>Der Wert wird damit multipliziert, bevor der Versatz addiert wird</translation>
+    </message>
+    <message>
+        <source>Time Offset</source>
+        <translation>Zeitversatz</translation>
+    </message>
+    <message>
+        <source>Wavelength</source>
+        <translation>Wellenlänge</translation>
+    </message>
+    <message>
+        <source>Wiggle</source>
+        <translation>Wackeln</translation>
+    </message>
+    <message>
+        <source>XY Path</source>
+        <translation>XY-Pfad</translation>
+    </message>
+</context>
+<context>
     <name>QObject</name>
     <message>
         <source>%1 projects (*.%2 *.%3);;All files (*)</source>
@@ -9663,6 +9940,134 @@ Danke fürs Zuschauen</translation>
         <source>No tracks yet</source>
         <translation>Noch keine Spuren</translation>
     </message>
+    <message>
+        <source>Connected to %1</source>
+        <translation>Verbunden mit %1</translation>
+    </message>
+    <message>
+        <source>(missing)</source>
+        <translation>(fehlt)</translation>
+    </message>
+    <message>
+        <source>Expression: %1</source>
+        <translation>Ausdruck: %1</translation>
+    </message>
+    <message>
+        <source>Expression</source>
+        <translation>Ausdruck</translation>
+    </message>
+    <message>
+        <source>That would make a circle: the formula reads a parameter that reads this one</source>
+        <translation>Das ergäbe einen Kreis: Die Formel liest einen Parameter, der diesen liest</translation>
+    </message>
+    <message>
+        <source>Modify With</source>
+        <translation>Ändern mit</translation>
+    </message>
+    <message>
+        <source>Changes the value over time or by a formula</source>
+        <translation>Ändert den Wert über die Zeit oder durch eine Formel</translation>
+    </message>
+    <message>
+        <source>Perturb</source>
+        <translation>Perturb</translation>
+    </message>
+    <message>
+        <source>Wiggle</source>
+        <translation>Wackeln</translation>
+    </message>
+    <message>
+        <source>Offset</source>
+        <translation>Versatz</translation>
+    </message>
+    <message>
+        <source>Cycle</source>
+        <translation>Zyklus</translation>
+    </message>
+    <message>
+        <source>XY Path</source>
+        <translation>XY-Pfad</translation>
+    </message>
+    <message>
+        <source>Connect To</source>
+        <translation>Verbinden mit</translation>
+    </message>
+    <message>
+        <source>Makes this value follow another node&apos;s parameter</source>
+        <translation>Lässt diesen Wert dem Parameter eines anderen Nodes folgen</translation>
+    </message>
+    <message>
+        <source>Published Values</source>
+        <translation>Veröffentlichte Werte</translation>
+    </message>
+    <message>
+        <source>Unpublish</source>
+        <translation>Veröffentlichung aufheben</translation>
+    </message>
+    <message>
+        <source>Publish</source>
+        <translation>Veröffentlichen</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>Trennen</translation>
+    </message>
+    <message>
+        <source>Remove %1</source>
+        <translation>%1 entfernen</translation>
+    </message>
+    <message>
+        <source>Cuts the link and keeps the value it showed</source>
+        <translation>Trennt die Verbindung und behält den gezeigten Wert</translation>
+    </message>
+    <message>
+        <source>Takes this modifier off the parameter</source>
+        <translation>Nimmt diesen Modifikator vom Parameter</translation>
+    </message>
+    <message>
+        <source>Remove Modifier</source>
+        <translation>Modifikator entfernen</translation>
+    </message>
+    <message>
+        <source>%1: %2</source>
+        <translation>%1: %2</translation>
+    </message>
+    <message>
+        <source>Disconnect: cut the link and keep the value it showed</source>
+        <translation>Trennen: Verbindung lösen und den gezeigten Wert behalten</translation>
+    </message>
+    <message>
+        <source>Remove this modifier</source>
+        <translation>Diesen Modifikator entfernen</translation>
+    </message>
+    <message>
+        <source>Turns this modifier on or off without removing it</source>
+        <translation>Schaltet diesen Modifikator ein oder aus, ohne ihn zu entfernen</translation>
+    </message>
+    <message>
+        <source>Modifier On / Off</source>
+        <translation>Modifikator an / aus</translation>
+    </message>
+    <message>
+        <source>for example  sin(time / 12) * 40 + n1</source>
+        <translation>zum Beispiel  sin(time / 12) * 40 + n1</translation>
+    </message>
+    <message>
+        <source>The formula. Variables: time, value (the value without the expression), n1 to n3, pi, e. Other parameters: Node.Parameter (Blur1.Size) or a parameter of this node by name. Functions: %1.</source>
+        <translation>Die Formel. Variablen: time, value (der Wert ohne den Ausdruck), n1 bis n3, pi, e. Andere Parameter: Node.Parameter (Blur1.Size) oder ein Parameter dieses Nodes mit Namen. Funktionen: %1.</translation>
+    </message>
+    <message>
+        <source>Formula</source>
+        <translation>Formel</translation>
+    </message>
+    <message>
+        <source>The parameter this value follows</source>
+        <translation>Der Parameter, dem dieser Wert folgt</translation>
+    </message>
+    <message>
+        <source>Connected To</source>
+        <translation>Verbunden mit</translation>
+    </message>
 </context>
 <context>
     <name>kk::CompSession</name>
@@ -9681,6 +10086,10 @@ Danke fürs Zuschauen</translation>
     <message>
         <source>Change MediaIn Source</source>
         <translation>MediaIn-Quelle ändern</translation>
+    </message>
+    <message>
+        <source>Modify With %1</source>
+        <translation>Mit %1 ändern</translation>
     </message>
     <message>
         <source>Add Note</source>
@@ -20915,6 +21324,14 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
         <source>Search nodes</source>
         <translation>Nodes suchen</translation>
     </message>
+    <message>
+        <source>Modifiers</source>
+        <translation>Modifikatoren</translation>
+    </message>
+    <message>
+        <source>Double-click to put it on the parameter you touched last.</source>
+        <translation>Doppelklick, um es auf den zuletzt berührten Parameter zu legen.</translation>
+    </message>
 </context>
 <context>
     <name>kk::NodeRegistry</name>
@@ -30790,6 +31207,221 @@ Einen Multicam-Clip aus dem Medienpool öffnen oder den Abspielkopf über einen 
     <message>
         <source>The model is installed.</source>
         <translation>Das Modell ist installiert.</translation>
+    </message>
+</context>
+<context>
+    <name>kk::modifiers</name>
+    <message>
+        <source>Period</source>
+        <translation>Periode</translation>
+    </message>
+    <message>
+        <source>Frames between two random targets; the value glides from one to the next</source>
+        <translation>Bilder zwischen zwei Zufallszielen; der Wert gleitet von einem zum nächsten</translation>
+    </message>
+    <message>
+        <source> fr</source>
+        <translation> Bi.</translation>
+    </message>
+    <message>
+        <source>Strength</source>
+        <translation>Stärke</translation>
+    </message>
+    <message>
+        <source>How far the value moves away from where it would be, in the parameter&apos;s own units</source>
+        <translation>Wie weit sich der Wert von seiner eigentlichen Stelle entfernt, in den Einheiten des Parameters</translation>
+    </message>
+    <message>
+        <source>Random Seed</source>
+        <translation>Zufalls-Seed</translation>
+    </message>
+    <message>
+        <source>Another number gives another random sequence</source>
+        <translation>Eine andere Zahl ergibt eine andere Zufallsfolge</translation>
+    </message>
+    <message>
+        <source>Wavelength</source>
+        <translation>Wellenlänge</translation>
+    </message>
+    <message>
+        <source>Frames of the slowest wiggle; each octave is twice as fast</source>
+        <translation>Bilder des langsamsten Wackelns; jede Oktave ist doppelt so schnell</translation>
+    </message>
+    <message>
+        <source>Amplitude</source>
+        <translation>Amplitude</translation>
+    </message>
+    <message>
+        <source>How far the value wiggles, in the parameter&apos;s own units</source>
+        <translation>Wie weit der Wert wackelt, in den Einheiten des Parameters</translation>
+    </message>
+    <message>
+        <source>Octaves</source>
+        <translation>Oktaven</translation>
+    </message>
+    <message>
+        <source>Layers of finer, weaker wiggle (1 to 6)</source>
+        <translation>Schichten feineren, schwächeren Wackelns (1 bis 6)</translation>
+    </message>
+    <message>
+        <source>Offset</source>
+        <translation>Versatz</translation>
+    </message>
+    <message>
+        <source>Added to the value</source>
+        <translation>Wird zum Wert addiert</translation>
+    </message>
+    <message>
+        <source>Scale</source>
+        <translation>Skalierung</translation>
+    </message>
+    <message>
+        <source>The value is multiplied by this before the Offset is added</source>
+        <translation>Der Wert wird damit multipliziert, bevor der Versatz addiert wird</translation>
+    </message>
+    <message>
+        <source>Time Offset</source>
+        <translation>Zeitversatz</translation>
+    </message>
+    <message>
+        <source>Reads the value this many frames later (negative: earlier)</source>
+        <translation>Liest den Wert so viele Bilder später (negativ: früher)</translation>
+    </message>
+    <message>
+        <source>Number In 1</source>
+        <translation>Zahl ein 1</translation>
+    </message>
+    <message>
+        <source>Available in the formula as n1</source>
+        <translation>In der Formel als n1 verfügbar</translation>
+    </message>
+    <message>
+        <source>Number In 2</source>
+        <translation>Zahl ein 2</translation>
+    </message>
+    <message>
+        <source>Available in the formula as n2</source>
+        <translation>In der Formel als n2 verfügbar</translation>
+    </message>
+    <message>
+        <source>Number In 3</source>
+        <translation>Zahl ein 3</translation>
+    </message>
+    <message>
+        <source>Available in the formula as n3</source>
+        <translation>In der Formel als n3 verfügbar</translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <translation>Modus</translation>
+    </message>
+    <message>
+        <source>Loop: start again at the Start frame. Ping-Pong: run backwards and forwards. Relative: start again from where the last round ended.</source>
+        <translation>Schleife: am Startbild neu beginnen. Ping-Pong: rückwärts und vorwärts laufen. Relativ: dort neu beginnen, wo die letzte Runde endete.</translation>
+    </message>
+    <message>
+        <source>Loop</source>
+        <translation>Schleife</translation>
+    </message>
+    <message>
+        <source>Ping-Pong</source>
+        <translation>Ping-Pong</translation>
+    </message>
+    <message>
+        <source>Relative</source>
+        <translation>Relativ</translation>
+    </message>
+    <message>
+        <source>Start Frame</source>
+        <translation>Startbild</translation>
+    </message>
+    <message>
+        <source>First frame of the repeated range</source>
+        <translation>Erstes Bild des wiederholten Bereichs</translation>
+    </message>
+    <message>
+        <source>End Frame</source>
+        <translation>Endbild</translation>
+    </message>
+    <message>
+        <source>Last frame of the repeated range</source>
+        <translation>Letztes Bild des wiederholten Bereichs</translation>
+    </message>
+    <message>
+        <source>Repeats</source>
+        <translation>Wiederholungen</translation>
+    </message>
+    <message>
+        <source>How many rounds to run; 0 repeats for ever</source>
+        <translation>Wie viele Durchläufe; 0 wiederholt endlos</translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation>Pfad</translation>
+    </message>
+    <message>
+        <source>The path of this axis over time; add keyframes to move it</source>
+        <translation>Der Pfad dieser Achse über die Zeit; Keyframes setzen, um ihn zu bewegen</translation>
+    </message>
+    <message>
+        <source>Perturb</source>
+        <translation>Perturb</translation>
+    </message>
+    <message>
+        <source>Wiggle</source>
+        <translation>Wackeln</translation>
+    </message>
+    <message>
+        <source>Expression</source>
+        <translation>Ausdruck</translation>
+    </message>
+    <message>
+        <source>Cycle</source>
+        <translation>Zyklus</translation>
+    </message>
+    <message>
+        <source>XY Path</source>
+        <translation>XY-Pfad</translation>
+    </message>
+    <message>
+        <source>Connect To</source>
+        <translation>Verbinden mit</translation>
+    </message>
+    <message>
+        <source>Publish</source>
+        <translation>Veröffentlichen</translation>
+    </message>
+    <message>
+        <source>Moves the value by smooth random amounts, a new random target every Period frames.</source>
+        <translation>Bewegt den Wert um sanfte Zufallsbeträge, alle Periode Bilder ein neues Zufallsziel.</translation>
+    </message>
+    <message>
+        <source>Shakes the value with layered noise of a chosen Wavelength and Amplitude.</source>
+        <translation>Schüttelt den Wert mit geschichtetem Rauschen gewählter Wellenlänge und Amplitude.</translation>
+    </message>
+    <message>
+        <source>Adds an amount to the value, scales it, and can read it earlier or later in time.</source>
+        <translation>Addiert einen Betrag zum Wert, skaliert ihn und kann ihn früher oder später in der Zeit lesen.</translation>
+    </message>
+    <message>
+        <source>Computes the value with a formula that can read other parameters.</source>
+        <translation>Berechnet den Wert mit einer Formel, die andere Parameter lesen kann.</translation>
+    </message>
+    <message>
+        <source>Repeats a range of frames of the value as a loop, a ping-pong or a relative repeat.</source>
+        <translation>Wiederholt einen Bildbereich des Werts als Schleife, Ping-Pong oder relative Wiederholung.</translation>
+    </message>
+    <message>
+        <source>Replaces a position&apos;s X and Y with two paths of their own.</source>
+        <translation>Ersetzt X und Y einer Position durch zwei eigene Pfade.</translation>
+    </message>
+    <message>
+        <source>Makes the value follow another node&apos;s parameter.</source>
+        <translation>Lässt den Wert dem Parameter eines anderen Nodes folgen.</translation>
+    </message>
+    <message>
+        <source>Offers the parameter in the Connect To lists and on a Macro.</source>
+        <translation>Bietet den Parameter in den Listen "Verbinden mit" und an einem Makro an.</translation>
     </message>
 </context>
 <context>

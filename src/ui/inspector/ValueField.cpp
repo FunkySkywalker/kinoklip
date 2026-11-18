@@ -146,6 +146,25 @@ void ValueField::paintEvent(QPaintEvent*)
         isEnabled() ? pal.color(QPalette::Link) : pal.color(QPalette::Disabled, QPalette::Text));
     p.drawText(rect().adjusted(kHorizontalPadding, 0, -kHorizontalPadding, 0),
         Qt::AlignVCenter | Qt::AlignRight, m_mixed && !m_scrubbing ? tr("Mixed") : m_text);
+    if (!m_modifierNote.isEmpty()) {
+        QFont small = font();
+        small.setItalic(true);
+        p.setFont(small);
+        p.setPen(pal.color(QPalette::Disabled, QPalette::Text));
+        p.drawText(rect().adjusted(kHorizontalPadding, 0, -kHorizontalPadding, 0),
+            Qt::AlignVCenter | Qt::AlignLeft, QStringLiteral("fx"));
+    }
+}
+
+void ValueField::setModifierNote(const QString& note)
+{
+    if (m_modifierNote == note)
+        return;
+    if (m_modifierNote.isEmpty())
+        m_defaultTip = toolTip(); // restored when the mark goes away
+    m_modifierNote = note;
+    setToolTip(note.isEmpty() ? m_defaultTip : note);
+    update();
 }
 
 void ValueField::setMixed(bool mixed)
@@ -273,18 +292,22 @@ void ValueField::startTextEdit()
         m_editor = new QLineEdit(this);
         m_editor->setFrame(false);
         m_editor->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-        auto* validator = new QDoubleValidator(m_editor);
-        validator->setNotation(QDoubleValidator::StandardNotation);
-        validator->setLocale(QLocale::c());
-        m_editor->setValidator(validator);
+        if (!m_expressionsAllowed) {
+            auto* validator = new QDoubleValidator(m_editor);
+            validator->setNotation(QDoubleValidator::StandardNotation);
+            validator->setLocale(QLocale::c());
+            m_editor->setValidator(validator);
+        }
         connect(m_editor, &QLineEdit::editingFinished, this, [this] { finishTextEdit(true); });
         m_editor->installEventFilter(this);
     }
-    auto* validator
-        = static_cast<QDoubleValidator*>(const_cast<QValidator*>(m_editor->validator()));
-    validator->setRange(m_min, m_max, m_decimals);
+    if (auto* validator
+        = static_cast<QDoubleValidator*>(const_cast<QValidator*>(m_editor->validator())))
+        validator->setRange(m_min, m_max, m_decimals);
     m_editor->setGeometry(rect().adjusted(2, 2, -2, -2));
-    m_editor->setText(QString::number(m_value, 'f', m_decimals));
+    m_editor->setText(m_expressionsAllowed && !m_expressionText.isEmpty()
+            ? QStringLiteral("=") + m_expressionText
+            : QString::number(m_value, 'f', m_decimals));
     m_editor->selectAll();
     m_editor->show();
     m_editor->setFocus(Qt::OtherFocusReason);
@@ -302,6 +325,10 @@ void ValueField::finishTextEdit(bool commit)
     update();
     if (!commit)
         return;
+    if (m_expressionsAllowed && text.trimmed().startsWith(QLatin1Char('='))) {
+        emit expressionEntered(text.trimmed().mid(1).trimmed());
+        return;
+    }
     bool ok = false;
     const double typed = QLocale::c().toDouble(text, &ok);
     if (!ok)

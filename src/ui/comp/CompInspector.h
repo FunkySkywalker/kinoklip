@@ -13,6 +13,8 @@ class QCheckBox;
 class QComboBox;
 class QDoubleSpinBox;
 class QLabel;
+class QMenu;
+class QVBoxLayout;
 class QScrollArea;
 class QToolButton;
 
@@ -70,6 +72,9 @@ public:
     [[nodiscard]] QCheckBox* followPoints() const { return m_followPoints; }
     /// The Tracker controls (a Tracker node must be shown to see them).
     [[nodiscard]] TrackerPanel* trackerPanel() const { return m_tracker; }
+    /// The Modifiers sections: one ParamGroupBox per modifier of the shown node, in node order
+    /// (objectName "CompModifier:<id>"). Empty when the node has no modifiers.
+    [[nodiscard]] QVector<ParamGroupBox*> modifierGroups() const { return m_modifierBoxes; }
     /// The header's enable toggle (tests).
     [[nodiscard]] QCheckBox* enableToggle() const { return m_enable; }
 
@@ -83,6 +88,12 @@ public:
         const std::function<void(ClipData&)>& mutate) override;
     void seekLocalFrame(quint64 clipId, int64_t localFrame) override;
     void setActiveParam(const ParamRef& ref, const ParamDescriptor& desc) override;
+    [[nodiscard]] bool supportsModifiers() const override { return true; }
+    void fillParamMenu(const ParamRef& ref, const ParamDescriptor& desc, QMenu& menu) override;
+    void setParamExpression(
+        const ParamRef& ref, const ParamDescriptor& desc, const QString& text) override;
+    [[nodiscard]] QString paramExpression(const ParamRef& ref) const override;
+    [[nodiscard]] QString paramModifierNote(const ParamRef& ref) const override;
     [[nodiscard]] QColor pickColor(const QColor& initial, const QString& title) override;
     [[nodiscard]] QString pickFile(
         const QString& current, const QString& title, const QString& filter) override;
@@ -110,6 +121,12 @@ private:
     ParamGroupBox* m_settings = nullptr; ///< Settings > Common Controls
     QComboBox* m_source = nullptr; ///< sourcePicker()
     void fillSourcePicker(const CompNode& node);
+    /// Adds the Modifiers sections of @p node to @p layout (CompInspectorModifiers.cpp).
+    void buildModifiers(QVBoxLayout* layout, const CompNode& node);
+    /// The shown node's parameter @p key and its partner of a point (centerX <-> centerY), or "".
+    [[nodiscard]] QString partnerKey(const QString& key) const;
+    QVector<ParamGroupBox*> m_modifierBoxes;
+    QString m_modSignature; ///< what the Modifiers sections were built from
     void fillFollowPicker(const CompNode& node);
     ParamGroupBox* m_audioGroup = nullptr;
     QComboBox* m_audioMode = nullptr; ///< audioPicker()
