@@ -1,5 +1,6 @@
 <section class="hero">
 <div class="wrap">
+<img class="hero-icon" src="{{root}}static/kinoklip-icon.png" width="72" height="72" alt="">
 <h1>A free video editor for Linux, laid out like DaVinci Resolve</h1>
 <p class="lead">Kinoklip has the pages, menus and keyboard shortcuts of Resolve, so most Resolve tutorials carry over. It is free software written in C++ with Qt and FFmpeg, and it includes H.264, H.265 and AAC.</p>
 <div class="btn-row">
@@ -15,14 +16,14 @@
 <div class="wrap">
 <h2>Seven pages, as in Resolve</h2>
 <p class="muted narrow">The buttons along the bottom of the window. Shift+2 opens Media, up to Shift+8 for Deliver.</p>
-<dl class="pagelist">
-<dt>Media</dt><dd>Look through your files and bring them into the project. Bins, smart bins, metadata.</dd>
-<dt>Cut</dt><dd>A quick editor for first versions, with a source tape and two timelines.</dd>
-<dt>Edit</dt><dd>The main editor: tracks, trims, transitions, titles, keyframes.</dd>
-<dt>Compositing</dt><dd>Node graphs for pictures made of several layers, masks and keyers.</dd>
-<dt>Color</dt><dd>Wheels, curves, a qualifier, windows and LUTs, as a node graph per clip.</dd>
-<dt>Audio</dt><dd>Track levels, meters, equaliser, dynamics and voice-over recording.</dd>
-<dt>Deliver</dt><dd>Presets, a render queue and per-clip export, in H.264 or H.265 with AAC.</dd>
+<dl class="pagelist" data-stagger>
+<div><dt>Media</dt><dd>Look through your files and bring them into the project. Bins, smart bins, metadata.</dd></div>
+<div><dt>Cut</dt><dd>A quick editor for first versions, with a source tape and two timelines.</dd></div>
+<div><dt>Edit</dt><dd>The main editor: tracks, trims, transitions, titles, keyframes.</dd></div>
+<div><dt>Compositing</dt><dd>Node graphs for pictures made of several layers, masks and keyers.</dd></div>
+<div><dt>Color</dt><dd>Wheels, curves, a qualifier, windows and LUTs, as a node graph per clip.</dd></div>
+<div><dt>Audio</dt><dd>Track levels, meters, equaliser, dynamics and voice-over recording.</dd></div>
+<div><dt>Deliver</dt><dd>Presets, a render queue and per-clip export, in H.264 or H.265 with AAC.</dd></div>
 </dl>
 <p style="margin-top:14px"><a href="{{root}}features/">All features</a></p>
 </div>
@@ -32,7 +33,7 @@
 <div class="wrap">
 <h2>Start here</h2>
 <p class="muted narrow">Six short articles take you from the download to a finished video.</p>
-<ol class="path">
+<ol class="path" data-stagger>
 <li><div><a href="{{root}}guide/install-kinoklip/">Install and start Kinoklip</a><span>One AppImage, no installer.</span></div></li>
 <li><div><a href="{{root}}guide/getting-started/">Make your first project</a><span>The pages, and the Project Manager.</span></div></li>
 <li><div><a href="{{root}}guide/import-your-clips/">Import your clips</a><span>Files, drag and drop, and the frame rate question.</span></div></li>
@@ -41,6 +42,34 @@
 <li><div><a href="{{root}}guide/export-for-youtube/">Export a video</a><span>The Deliver page and the render queue.</span></div></li>
 </ol>
 <p style="margin-top:14px"><a href="{{root}}guide/">The whole guide</a>, with search.</p>
+</div>
+</section>
+
+<section class="section" id="keys">
+<div class="wrap">
+<h2>Try the keys</h2>
+<p class="muted narrow">A tiny timeline with Kinoklip's real keys. Click a key, or click the timeline and use your keyboard.</p>
+<div class="demo" data-demo>
+<div class="demo-bar"><span class="demo-msg" role="status" aria-live="polite">Click a key below, or focus the timeline and press it</span><span class="tc" aria-label="Timecode">01:00:18:00</span></div>
+<div class="demo-tl" tabindex="0" aria-label="Demo timeline. Keys: J, K, L, I, O, B and Shift plus Delete.">
+<div class="demo-ruler"></div>
+<div class="demo-range" hidden></div>
+<div class="demo-clips"></div>
+<div class="demo-aud" aria-hidden="true"><span style="height:40%"></span><span style="height:70%"></span><span style="height:30%"></span><span style="height:85%"></span><span style="height:50%"></span><span style="height:65%"></span><span style="height:35%"></span><span style="height:80%"></span><span style="height:45%"></span><span style="height:75%"></span><span style="height:30%"></span><span style="height:60%"></span><span style="height:90%"></span><span style="height:40%"></span><span style="height:55%"></span><span style="height:70%"></span><span style="height:35%"></span><span style="height:80%"></span><span style="height:50%"></span><span style="height:65%"></span><span style="height:40%"></span><span style="height:75%"></span><span style="height:30%"></span><span style="height:60%"></span></div>
+<div class="demo-head"></div>
+</div>
+<div class="demo-keys">
+<button type="button" class="keybtn" data-key="j" aria-label="J, play backwards"><b>J</b><small>back</small></button>
+<button type="button" class="keybtn" data-key="k" aria-label="K, stop"><b>K</b><small>stop</small></button>
+<button type="button" class="keybtn" data-key="l" aria-label="L, play forwards"><b>L</b><small>play</small></button>
+<button type="button" class="keybtn" data-key="i" aria-label="I, mark in"><b>I</b><small>mark in</small></button>
+<button type="button" class="keybtn" data-key="o" aria-label="O, mark out"><b>O</b><small>mark out</small></button>
+<button type="button" class="keybtn" data-key="b" aria-label="B, blade, cut at the playhead"><b>B</b><small>blade</small></button>
+<button type="button" class="keybtn" data-key="del" aria-label="Shift Delete, ripple delete"><b>Shift Del</b><small>ripple delete</small></button>
+<button type="button" class="link-btn" data-reset>Reset</button>
+</div>
+<p class="demo-note">The real Edit page has many more shortcuts; see the <a href="https://github.com/SeniorMatt/kinoklip/blob/main/docs/keymap-resolve-windows.md">Resolve keymap</a>. <a href="{{root}}guide/use-the-shortcuts-of-your-old-editor/">Use the keys of your old editor</a> if Resolve's are not yours.</p>
+</div>
 </div>
 </section>
 
