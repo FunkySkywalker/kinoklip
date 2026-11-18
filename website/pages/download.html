@@ -4,10 +4,10 @@
 <h1 class="a-rise" style="--i:1">Kinoklip {{version_short}} for Linux</h1>
 <p class="lead a-rise" style="--i:2">One AppImage: a single file that contains the whole program. No installer, no account.</p>
 <div class="cta-row a-rise" style="--i:3">
-<a class="btn btn-primary btn-lg" href="https://github.com/SeniorMatt/kinoklip/releases/latest">{{> dl-icon}} Download the AppImage</a>
+<a class="btn btn-primary btn-lg" href="https://github.com/SeniorMatt/kinoklip/releases/latest/download/Kinoklip-x86_64.AppImage" data-donate>{{> dl-icon}} Download the AppImage</a>
 <a class="btn btn-quiet btn-lg" href="{{root}}releases/">Release notes</a>
 </div>
-<p class="fineprint">The button opens the latest release on GitHub. The file is called <code>Kinoklip-x86_64.AppImage</code>. Kinoklip is still a beta version: save often and keep a copy of your original files.</p>
+<p class="fineprint">The button downloads <code>Kinoklip-x86_64.AppImage</code> from the <a href="https://github.com/SeniorMatt/kinoklip/releases/latest">latest release on GitHub</a>. Kinoklip is still a beta version: save often and keep a copy of your original files.</p>
 </div>
 </section>
 
@@ -56,3 +56,15 @@
 </div>
 </div>
 </section>
+
+<dialog class="donate" id="donate" aria-labelledby="donate-title">
+<form method="dialog">
+<h2 id="donate-title">Your download is starting</h2>
+<p>Kinoklip is free and open source, with no ads and no account. If it is useful to you, a small donation helps keep the project alive.</p>
+<div class="cta-row">
+<a class="btn btn-primary" href="https://ko-fi.com/seniormatthew" target="_blank" rel="noopener">Donate on Ko-fi</a>
+<button class="btn btn-quiet" value="close">No thanks</button>
+</div>
+<p class="fineprint">Download did not start? Get it from the <a href="https://github.com/SeniorMatt/kinoklip/releases/latest">release page</a>.</p>
+</form>
+</dialog>

@@ -239,4 +239,14 @@
       window.open(url, '_blank', 'noopener');
     });
   }
+
+  /* Download button: the download starts, and a small window asks about a donation. */
+  var donate = $('#donate');
+  if (donate && typeof donate.showModal === 'function') {
+    $$('[data-donate]').forEach(function (a) {
+      a.addEventListener('click', function () {
+        setTimeout(function () { if (!donate.open) donate.showModal(); }, 300);
+      });
+    });
+  }
 })();

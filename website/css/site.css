@@ -449,3 +449,10 @@ pre code { background: none; border: 0; padding: 0; font-size: inherit; overflow
   .js .reveal { opacity: 1; transform: none; }
 }
 [hidden] { display: none !important; }
+
+/* Donation window after a download starts */
+.donate { max-width: 520px; width: calc(100% - 32px); background: var(--panel); color: var(--text); border: 1px solid var(--line2); border-radius: 8px; padding: 28px; box-shadow: 0 24px 60px rgba(0, 0, 0, .5); }
+.donate::backdrop { background: rgba(10, 12, 14, .6); }
+.donate h2 { font-size: 24px; margin-bottom: 12px; }
+.donate p { color: var(--muted); margin: 0 0 20px; }
+.donate .fineprint { margin: 18px 0 0; }
