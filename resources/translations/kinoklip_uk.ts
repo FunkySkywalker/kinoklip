@@ -22568,6 +22568,10 @@ Import files with %1 or drop them here.</source>
         <translation>Розмиття попередньої маски</translation>
     </message>
     <message>
+        <source>Lets the light of the background spill over the edges of the foreground. Connect the keyed subject to Foreground and the picture it is merged over to Background, then Merge the result over that same picture</source>
+        <translation>Дозволяє світлу тла лягати на краї переднього плану. Підключіть ключований об'єкт до Foreground, а зображення, поверх якого його накладають, до Background, потім накладіть результат на те саме зображення вузлом Merge</translation>
+    </message>
+    <message>
         <source>Clean Background</source>
         <translation>Чисте тло</translation>
     </message>
@@ -22738,10 +22742,6 @@ Import files with %1 or drop them here.</source>
     <message>
         <source>Light Wrap</source>
         <translation>Обтікання світлом</translation>
-    </message>
-    <message>
-        <source>Lets the light of the background spill over the edges of the foreground</source>
-        <translation>Пропускає світло тла на краї переднього плану</translation>
     </message>
     <message>
         <source>Intensity</source>

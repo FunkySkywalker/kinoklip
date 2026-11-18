@@ -22551,6 +22551,10 @@ Importar archivos con %1 o soltarlos aquí.</translation>
         <translation>Desenfoque del pre-matte</translation>
     </message>
     <message>
+        <source>Lets the light of the background spill over the edges of the foreground. Connect the keyed subject to Foreground and the picture it is merged over to Background, then Merge the result over that same picture</source>
+        <translation>Deja que la luz del fondo se derrame sobre los bordes del primer plano. Conecta el sujeto con clave a Foreground y la imagen sobre la que se fusiona a Background, y luego fusiona el resultado sobre esa misma imagen con Merge</translation>
+    </message>
+    <message>
         <source>Clean Background</source>
         <translation>Fondo limpio</translation>
     </message>
@@ -22721,10 +22725,6 @@ Importar archivos con %1 o soltarlos aquí.</translation>
     <message>
         <source>Light Wrap</source>
         <translation>Envoltura de luz</translation>
-    </message>
-    <message>
-        <source>Lets the light of the background spill over the edges of the foreground</source>
-        <translation>Deja que la luz del fondo se derrame sobre los bordes del primer plano</translation>
     </message>
     <message>
         <source>Intensity</source>

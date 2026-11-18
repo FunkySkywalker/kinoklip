@@ -941,8 +941,10 @@ NodeRegistry::NodeRegistry()
     {
         NodeDescriptor d = node(nodetypes::LightWrap, tr("Light Wrap"), QStringLiteral("LWr"),
             QStringLiteral("LightWrap"), C::Filter,
-            tr("Lets the light of the background spill over the edges of the foreground"));
-        d.inputs = {inputPort(),
+            tr("Lets the light of the background spill over the edges of the foreground. "
+               "Connect the keyed subject to Foreground and the picture it is merged over to "
+               "Background, then Merge the result over that same picture"));
+        d.inputs = {port(nodeports::Input, tr("Foreground"), PortKind::Image, true),
             port(nodeports::Background, tr("Background"), PortKind::Image, true), maskPort()};
         d.mainInput = nodeports::Input;
         d.params = {number(k::WrapIntensity, tr("Intensity"), 0, 4, 0.5, 0.01),

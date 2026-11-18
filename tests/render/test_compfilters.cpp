@@ -264,6 +264,58 @@ private slots:
             QVERIFY2(near(px(img, 104, 90), 90, 90, 90, 255, 2), describe(px(img, 104, 90)));
     }
 
+    /// A Merge node of @p fg over @p bg, wired port by port (mergeOnto() would also move the
+    /// other consumers of @p bg to the Merge).
+    static quint64 plainMerge(Composition& c, quint64 fg, quint64 bg)
+    {
+        const quint64 m = co::addNode(c, nodetypes::Merge, {});
+        co::connect(c, bg, 0, m, nodeports::Background);
+        co::connect(c, fg, 0, m, nodeports::Foreground);
+        return m;
+    }
+
+    void lightWrapInKeyedComposite()
+    {
+        // The 1.10.0 report: Delta Keyer -> Light Wrap -> Merge came out black. The graph that
+        // works as documented: a green-screen shot is keyed, the keyed subject goes into Light
+        // Wrap's Input, the new background plate goes to Light Wrap's Background AND to the
+        // Merge's Background, and the Light Wrap output is the Merge's Foreground. Sharing the
+        // plate (or the shot) between several nodes must not matter.
+        for (int variant = 0; variant < 2; ++variant) {
+            Composition c = co::defaultComposition();
+            const quint64 green = colorSource(c, QColor(0, 200, 0), false);
+            const quint64 subject = colorSource(c, QColor(90, 90, 90), true, 100, 40, 220, 140);
+            const quint64 shot = co::mergeOnto(c, subject, green);
+            const quint64 key = co::addNode(c, nodetypes::DeltaKeyer, {});
+            co::connect(c, shot, 0, key, nodeports::Input);
+            // 0: the plate feeds Light Wrap's Background and the Merge; 1: Light Wrap has no
+            // Background (it passes the keyed subject through, never black).
+            const quint64 plate = colorSource(c, QColor(255, 140, 0), false);
+            const quint64 lw = co::addNode(c, nodetypes::LightWrap, {});
+            co::connect(c, key, 0, lw, nodeports::Input);
+            if (variant == 0)
+                co::connect(c, plate, 0, lw, nodeports::Background);
+            const quint64 m = plainMerge(c, lw, plate);
+            co::connect(c, m, 0, c.mediaOutId, nodeports::Input);
+            c.node(lw)->params.setBase(nodekeys::WrapIntensity, 1.0);
+            const TimelineData tl = compTimeline(c);
+            for (const quint64 id : {lw, m}) {
+                const QVector<QImage> imgs = nodeImages(tl, id);
+                for (const QImage& img : imgs) {
+                    const Px mid = px(img, 160, 90);
+                    QVERIFY2(near(mid, 90, 90, 90, 255, 4), describe(mid)); // the subject, not black
+                    const Px edge = px(img, 104, 90);
+                    if (variant == 0)
+                        QVERIFY2(edge.r > edge.b + 20 && edge.a == 255, describe(edge)); // wrapped
+                    if (id == m) {
+                        const Px out = px(img, 40, 90);
+                        QVERIFY2(near(out, 255, 140, 0, 255, 3), describe(out)); // the plate
+                    }
+                }
+            }
+        }
+    }
+
     /// A white box [120, 200) x [60, 120) as the picture, @p type's node fed by it and by @p map.
     Composition warpSetup(const QString& type, QColor mapColor, quint64* node)
     {
@@ -669,8 +721,8 @@ private slots:
     void bezierMaskGpuMatchesCpu()
     {
         // A Bezier mask node (spec 117): a curved shape with uneven tangents, a
-        // rotation and a smaller size. Both renderers fill the same shape (the soft edge is
-        // GPU only on the CPU reference, so it stays 0 here).
+        // rotation and a smaller size. Both renderers fill the same shape; the Soft Edge
+        // section below feathers it.
         Composition c = co::defaultComposition();
         const quint64 bz = co::addNode(c, nodetypes::BezierMask, {});
         CompNode& n = *c.node(bz);
@@ -702,6 +754,29 @@ private slots:
             QVERIFY(px(img, 3, 3).a > 240);
         }
         QVERIFY(differing(inv[0], inv[1], 12) < 700);
+        // Soft Edge: the edge fades out over a band on both renderers and they agree.
+        n.params.setStatic(nodekeys::Invert, false);
+        const QVector<QImage> hard = nodeImages(compTimeline(c), bz);
+        n.params.setBase(nodekeys::SoftEdge, 0.1);
+        const QVector<QImage> soft = nodeImages(compTimeline(c), bz);
+        for (int i = 0; i < 2; ++i) {
+            int partial = 0, partialHard = 0;
+            for (int y = 0; y < soft[i].height(); ++y)
+                for (int x = 0; x < soft[i].width(); ++x) {
+                    const int a = px(soft[i], x, y).a;
+                    partial += a > 25 && a < 230;
+                    const int ah = px(hard[i], x, y).a;
+                    partialHard += ah > 25 && ah < 230;
+                }
+            QVERIFY2(partial > 4 * partialHard + 200, qPrintable(QString::number(partial)));
+        }
+        int softWorst = 0;
+        const int softBad = differing(soft[0], soft[1], 16, &softWorst);
+        QVERIFY2(softBad < 1500,
+            qPrintable(QStringLiteral("%1 soft pixels differ, worst %2").arg(softBad).arg(softWorst)));
+        const double softGpu = alphaSum(soft[0]), softCpu = alphaSum(soft[1]);
+        QVERIFY2(std::abs(softGpu - softCpu) < 0.03 * softCpu,
+            qPrintable(QStringLiteral("soft areas %1 %2").arg(softGpu).arg(softCpu)));
     }
 
     void multiPatternTrackerGpuMatchesCpu()

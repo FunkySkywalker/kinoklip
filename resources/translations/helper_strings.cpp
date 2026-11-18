@@ -1875,7 +1875,7 @@ QCoreApplication::translate("kk::NodeRegistry", "Keys out a green or blue screen
 QCoreApplication::translate("kk::NodeRegistry", "Lanczos");
 QCoreApplication::translate("kk::NodeRegistry", "Layout");
 QCoreApplication::translate("kk::NodeRegistry", "Left");
-QCoreApplication::translate("kk::NodeRegistry", "Lets the light of the background spill over the edges of the foreground");
+QCoreApplication::translate("kk::NodeRegistry", "Lets the light of the background spill over the edges of the foreground. Connect the keyed subject to Foreground and the picture it is merged over to Background, then Merge the result over that same picture");
 QCoreApplication::translate("kk::NodeRegistry", "Letterbox");
 QCoreApplication::translate("kk::NodeRegistry", "Level");
 QCoreApplication::translate("kk::NodeRegistry", "Levels Gamma");

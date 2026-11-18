@@ -22551,6 +22551,10 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
         <translation>Vor-Matte weichzeichnen</translation>
     </message>
     <message>
+        <source>Lets the light of the background spill over the edges of the foreground. Connect the keyed subject to Foreground and the picture it is merged over to Background, then Merge the result over that same picture</source>
+        <translation>Lässt das Licht des Hintergrunds über die Kanten des Vordergrunds fallen. Das gekeyte Motiv an Foreground und das Bild, über das es gemischt wird, an Background anschließen, dann das Ergebnis mit Merge über dasselbe Bild legen</translation>
+    </message>
+    <message>
         <source>Clean Background</source>
         <translation>Sauberer Hintergrund</translation>
     </message>
@@ -22721,10 +22725,6 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
     <message>
         <source>Light Wrap</source>
         <translation>Lichtumhüllung</translation>
-    </message>
-    <message>
-        <source>Lets the light of the background spill over the edges of the foreground</source>
-        <translation>Lässt das Licht des Hintergrunds über die Kanten des Vordergrunds fallen</translation>
     </message>
     <message>
         <source>Intensity</source>

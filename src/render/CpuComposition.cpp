@@ -562,28 +562,46 @@ private:
         return out;
     }
 
-    /// Mask nodes: the shape filled white (hard edge: the soft edge is GPU only), inverted /
-    /// faded by Level, united with the mask input.
+    /// Mask nodes: the shape filled white, softened by the Soft Edge (a Gaussian of the coverage,
+    /// sigma = feather / 3.76 as in GlMasks), inverted / faded by Level, united with the mask input.
+    /// The GPU draws rectangle and ellipse edges as an analytic smoothstep; the Gaussian here
+    /// has the same slope at the edge, so they agree to a few levels.
     QImage maskImage(const CompNode& n, const QImage& in)
     {
         const QSize size = m_ev.size;
         const MaskData m = compmath::maskOf(n, m_ev.compFrame, m_ev.frame);
         QImage out = blank(size);
         if (m.isRenderable()) {
-            QPainter p(&out);
-            p.setRenderHint(QPainter::Antialiasing);
-            p.setTransform(
-                QTransform::fromTranslate(m_ev.frame.width() / 2, m_ev.frame.height() / 2)
-                * QTransform::fromScale(m_ev.scale, m_ev.scale));
-            QPainterPath shape = maskOutline(m, m_ev.compFrame);
-            if (m.invert) {
-                QPainterPath all;
-                all.addRect(QRectF(-m_ev.frame.width() / 2, -m_ev.frame.height() / 2,
-                    m_ev.frame.width(), m_ev.frame.height()));
-                shape = all.subtracted(shape);
+            QImage cov = blank(size);
+            {
+                QPainter p(&cov);
+                p.setRenderHint(QPainter::Antialiasing);
+                p.setTransform(
+                    QTransform::fromTranslate(m_ev.frame.width() / 2, m_ev.frame.height() / 2)
+                    * QTransform::fromScale(m_ev.scale, m_ev.scale));
+                p.fillPath(maskOutline(m, m_ev.compFrame), Qt::white);
             }
-            p.setOpacity(std::clamp(m.value(maskkeys::Opacity, 0) / 100.0, 0.0, 1.0));
-            p.fillPath(shape, Qt::white);
+            const double feather = (std::max(0.0, m.value(maskkeys::FeatherIn, 0))
+                                       + std::max(0.0, m.value(maskkeys::FeatherOut, 0)))
+                * m_ev.scale;
+            if (feather > 0.0) {
+                const double sigma = std::max(0.5, feather / 3.76);
+                cov = compmath::toImage(compmath::gaussian(compmath::toFloat(cov), sigma, sigma));
+            }
+            const float opacity
+                = float(std::clamp(m.value(maskkeys::Opacity, 0) / 100.0, 0.0, 1.0));
+            for (int y = 0; y < size.height(); ++y) {
+                const QRgb* pc = reinterpret_cast<const QRgb*>(cov.constScanLine(y));
+                QRgb* po = reinterpret_cast<QRgb*>(out.scanLine(y));
+                for (int x = 0; x < size.width(); ++x) {
+                    float a = qAlpha(pc[x]) / 255.0f;
+                    if (m.invert)
+                        a = 1.0f - a;
+                    const float v = a * opacity;
+                    const float c4[4] = {v, v, v, v};
+                    po[x] = pack(c4);
+                }
+            }
         }
         if (!in.isNull()) {
             // The mask plugged in joins this one by the Paint Mode (Merge: the union).

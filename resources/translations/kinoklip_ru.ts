@@ -22568,6 +22568,10 @@ Import files with %1 or drop them here.</source>
         <translation>Размытие предварительной маски</translation>
     </message>
     <message>
+        <source>Lets the light of the background spill over the edges of the foreground. Connect the keyed subject to Foreground and the picture it is merged over to Background, then Merge the result over that same picture</source>
+        <translation>Позволяет свету фона ложиться на края переднего плана. Подключите ключёванный объект к Foreground, а картинку, поверх которой он накладывается, к Background, затем наложите результат на ту же картинку узлом Merge</translation>
+    </message>
+    <message>
         <source>Clean Background</source>
         <translation>Чистка фона</translation>
     </message>
@@ -22738,10 +22742,6 @@ Import files with %1 or drop them here.</source>
     <message>
         <source>Light Wrap</source>
         <translation>Обтекание светом</translation>
-    </message>
-    <message>
-        <source>Lets the light of the background spill over the edges of the foreground</source>
-        <translation>Пропускает свет фона на края переднего плана</translation>
     </message>
     <message>
         <source>Intensity</source>

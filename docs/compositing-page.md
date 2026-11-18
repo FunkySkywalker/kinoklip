@@ -69,7 +69,7 @@ general knowledge of node compositors, our own drawing, names and icons; never R
   solid mattes and a clean plate input), Ultra Keyer and Matte Control; spec section 115. Maths
   `src/render/CompMatteMath.*`, GPU `src/render/GlCompMatte.*`.
 - **Filter**: Soft Glow (threshold, gain, filter, glow size X / Y, colour scale and channels) and Light Wrap
-  (the background's light spilling over the foreground's edges); spec section 113. The float reference maths is
+  (the background's light spilling over the foreground's edges; Foreground and Background inputs); spec sections 113 and 122. The float reference maths is
   `src/render/CompFilterMath.*`, the GPU passes `src/render/GlCompFilters.*`.
 - **Warp**: Grid Warp (a grid of draggable points, 2 to 9 per side), Displace (a second picture moves the
   pixels: X / Y or Radial) and Vector Distort (vectors in a second picture's red and green); spec section 114.

@@ -32,7 +32,7 @@ struct CpuCompEval
 };
 
 /// The image of node @p nodeId (ARGB32_Premultiplied, `ev.size`, transparent where the node
-/// draws nothing). Supported: every built-in node (masks with hard edges: soft edge ignored)
+/// draws nothing). Supported: every built-in node (masks, Soft Edge included)
 /// and the pointwise effect nodes (fxmath::applyPointEffect()); other effect nodes pass
 /// their input through.
 [[nodiscard]] QImage evaluateCompositionCpu(const CpuCompEval& ev, quint64 nodeId);
