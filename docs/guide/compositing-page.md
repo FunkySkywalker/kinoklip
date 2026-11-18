@@ -314,6 +314,18 @@ The **Particles** folder of the Nodes library makes sparks, snow, smoke puffs an
 
 Particle lines only connect to particle inputs, and pRender is the way back to pictures. Random Seed 0 and Random Seed 1 give two different, but each time identical, patterns, so a scrub or a render shows exactly what you saw. Lengths are parts of the frame width, so the picture looks the same at any resolution. Particles are 2D only for now.
 
+## 3D
+
+The **3D** folder of the Nodes library builds a small 3D scene and turns it into a picture:
+
+1. Add an **Image Plane 3D** and connect a picture (a MediaIn, a Background) to its **Image** input. It is a flat plane; move, turn and scale it with **Translate**, **Rotate** and **Scale**, all of which can be keyframed. **Shape3D** makes a plane, cube, sphere, cylinder or cone with a colour or a picture as texture; **Text3D** puts flat text on a plane.
+2. Join the objects with **Merge3D**. Its own move, turn and scale apply to everything it joins. Objects in front hide objects behind them, whatever order they are joined in.
+3. Add a **Camera3D** to the Merge3D to choose the point of view (set it by angle of view or focal length). Without one, the picture is seen from a default camera that shows an Image Plane 3D of Size 1 exactly filling the frame.
+4. Add **Ambient**, **Directional**, **Point** or **Spot** lights to shade the objects. Without any light, every surface shows its own colour.
+5. A **Renderer3D** draws the scene as a normal picture the size of the composition. Connect it to a Merge or to MediaOut. **Lighting** switches the lights off, **Shading** adds a shiny highlight (Blinn-Phong), **Anti-Aliasing** smooths edges.
+
+Show a scene node (anything but the Renderer3D) in a viewer to see it from outside: drag to orbit, middle-drag to pan, turn the wheel to zoom. The grid is the ground. This view does not change the Renderer3D picture. 3D lines only connect to 3D inputs; Renderer3D is the way back to pictures. Text is flat for now.
+
 ## Sound
 
 The Compositing page plays the same sound as the Edit page: the timeline's mix, so a clip on a

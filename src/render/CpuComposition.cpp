@@ -11,6 +11,7 @@
 #include "render/CompLoader.h"
 #include "render/CompMath.h"
 #include "render/CompParticles.h"
+#include "render/CompScene3D.h"
 #include "render/CompTimeMath.h"
 #include "render/CompWarpMath.h"
 #include "render/EffectMath.h"
@@ -244,8 +245,9 @@ QImage shifted(const QImage& in, double dx, double dy)
 class Evaluator
 {
 public:
-    explicit Evaluator(const CpuCompEval& ev)
+    explicit Evaluator(const CpuCompEval& ev, quint64 root = 0)
         : m_ev(ev)
+        , m_root(root)
     { }
 
     QImage eval(quint64 id, int depth)
@@ -270,6 +272,15 @@ private:
         return normalized(eval(it->nodeId, depth + 1), m_ev.size);
     }
 
+    /// The pictures on the Texture inputs of the 3D nodes (spec 130).
+    scene3d::TextureFn sceneTextures(int depth)
+    {
+        return [this, depth](quint64 id) {
+            const CompNode* t = m_ev.comp->node(id);
+            return t ? input(*t, nodeports::Texture, depth) : QImage();
+        };
+    }
+
     void warn(const QString& type)
     {
         if (m_ev.warned && !m_ev.warned->contains(type)) {
@@ -283,6 +294,14 @@ private:
         const NodeDescriptor* d = NodeRegistry::instance().find(n.type);
         const QString main = d ? d->mainInput : QString();
         const int64_t f = m_ev.compFrame;
+        if (d && d->outputKind == PortKind::Scene3D) {
+            // A 3D scene is not a picture (spec 130): only a viewer that asks for the scene node
+            // itself gets the orbit view of it; Renderer3D draws the scene for the image graph.
+            if (n.id != m_root)
+                return {};
+            return scene3d::viewerNode(*m_ev.comp, n.id, f, m_ev.size, m_ev.frame, m_ev.scale,
+                scene3d::viewerOrbit(), sceneTextures(depth));
+        }
         const bool common = NodeRegistry::instance().hasCommonControls(n.type);
         const compmath::CommonParams cp
             = common ? compmath::commonParams(n, f) : compmath::CommonParams();
@@ -312,6 +331,9 @@ private:
                 const CompNode* e = m_ev.comp->node(emitter);
                 return e ? input(*e, nodeports::Sprite, depth) : QImage();
             });
+        } else if (n.type == nodetypes::Renderer3D) {
+            out = scene3d::renderNode(*m_ev.comp, n, f, size, m_ev.frame, m_ev.scale,
+                sceneTextures(depth));
         } else if (n.type == nodetypes::Saver) {
             out = in; // writes only when the composition is rendered to files (CompSaverRun)
         } else if (n.type == nodetypes::Merge) {
@@ -739,6 +761,7 @@ private:
     }
 
     const CpuCompEval& m_ev;
+    quint64 m_root = 0; ///< the node the caller asked for
     QHash<quint64, QImage> m_done;
 };
 
@@ -748,7 +771,7 @@ QImage evaluateCompositionCpu(const CpuCompEval& ev, quint64 nodeId)
 {
     if (!ev.comp || ev.size.isEmpty())
         return blank(ev.size.expandedTo(QSize(1, 1)));
-    Evaluator e(ev);
+    Evaluator e(ev, nodeId);
     QImage out = normalized(e.eval(nodeId, 0), ev.size);
     return out.isNull() ? blank(ev.size) : out;
 }

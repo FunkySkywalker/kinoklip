@@ -97,7 +97,12 @@ general knowledge of node compositors, our own drawing, names and icons; never R
   a pure function of the graph, seed and frame (`src/render/CompParticles.*`): every batch has its own random sequence and a
   particle's place is the integral of the forces over its life, so scrubbing equals playing and nothing is cached. Both renderers
   call `particles::renderNode()` (the GPU uploads the CPU picture, like the Loader).
-- Later: paint, 3D (the older lines of the roadmap, from the Spline panel to the node editor extras, are all made: spec 123).
+- **3D** (spec 130): **Image Plane 3D**, **Shape3D**, **Text3D** (flat), **Merge3D**, **Camera3D**, four lights and **Renderer3D**
+  on a new port kind `PortKind::Scene3D` (connects only to 3D inputs); Renderer3D turns the scene into a picture. Scene building,
+  matrices and a small software rasterizer are in `src/render/CompScene3D.*`; both renderers call `scene3d::renderNode()` (the GPU
+  reads the texture pictures back and uploads the result). A 3D node in a viewer shows an orbit view with a grid (`CompViewer`
+  event filter; the orbit is `scene3d::viewerOrbit()`).
+- Later: paint (the older lines of the roadmap, from the Spline panel to the node editor extras, are all made: spec 123).
 
 ## Data model and evaluation
 - `src/core/Composition.h`: value types (Composition, CompNode, NodeLink, CompNote). A clip

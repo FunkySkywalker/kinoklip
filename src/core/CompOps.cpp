@@ -280,8 +280,10 @@ AddResult addNodeAfter(Composition& comp, const QString& type, quint64 selected)
             connect(comp, result.node, 0, selId, nodeports::Mask);
         return result;
     }
-    if (d->outputKind == PortKind::Particles && d->mainInput.isEmpty()) {
-        // A particle source (pEmitter) is not merged over a picture: it sits below the node.
+    if ((d->outputKind == PortKind::Particles || d->outputKind == PortKind::Scene3D)
+        && d->mainInput.isEmpty()) {
+        // A particle or 3D source (pEmitter, Image Plane 3D, a camera) is not merged over a
+        // picture: it sits below the node.
         result.node = addNode(comp, type, selPos - QPointF(0, kStepY));
         return result;
     }

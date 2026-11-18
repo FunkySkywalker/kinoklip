@@ -1162,6 +1162,110 @@ Das Programm wurde wahrscheinlich vom System beendet, weil der Arbeitsspeicher d
         <translation>Garbage-Matte umkehren</translation>
     </message>
     <message>
+        <source>Translate X</source>
+        <translation>Verschieben X</translation>
+    </message>
+    <message>
+        <source>Moves the object to the right (negative: left), in scene units</source>
+        <translation>Verschiebt das Objekt nach rechts (negativ: links), in Szeneneinheiten</translation>
+    </message>
+    <message>
+        <source>Translate Y</source>
+        <translation>Verschieben Y</translation>
+    </message>
+    <message>
+        <source>Moves the object up (negative: down), in scene units</source>
+        <translation>Verschiebt das Objekt nach oben (negativ: unten), in Szeneneinheiten</translation>
+    </message>
+    <message>
+        <source>Translate Z</source>
+        <translation>Verschieben Z</translation>
+    </message>
+    <message>
+        <source>Moves the object towards the default camera (negative: away from it), in scene units</source>
+        <translation>Verschiebt das Objekt zur Standardkamera hin (negativ: von ihr weg), in Szeneneinheiten</translation>
+    </message>
+    <message>
+        <source>Rotate X</source>
+        <translation>Drehen X</translation>
+    </message>
+    <message>
+        <source>Turns the object about the X axis (tilts it forwards or back); X is turned first, then Y, then Z</source>
+        <translation>Dreht das Objekt um die X-Achse (kippt es nach vorn oder hinten); zuerst wird X gedreht, dann Y, dann Z</translation>
+    </message>
+    <message>
+        <source>Rotate Y</source>
+        <translation>Drehen Y</translation>
+    </message>
+    <message>
+        <source>Turns the object about the Y axis (turns it left or right)</source>
+        <translation>Dreht das Objekt um die Y-Achse (nach links oder rechts)</translation>
+    </message>
+    <message>
+        <source>Rotate Z</source>
+        <translation>Drehen Z</translation>
+    </message>
+    <message>
+        <source>Turns the object about the Z axis (rolls it like a clock face)</source>
+        <translation>Dreht das Objekt um die Z-Achse (wie ein Zifferblatt)</translation>
+    </message>
+    <message>
+        <source>Scale</source>
+        <translation>Skalierung</translation>
+    </message>
+    <message>
+        <source>Makes the object bigger or smaller in every direction</source>
+        <translation>Macht das Objekt in alle Richtungen größer oder kleiner</translation>
+    </message>
+    <message>
+        <source>Scale X</source>
+        <translation>Skalierung X</translation>
+    </message>
+    <message>
+        <source>Stretches the object along the X axis; multiplies Scale</source>
+        <translation>Streckt das Objekt entlang der X-Achse; wird mit der Skalierung multipliziert</translation>
+    </message>
+    <message>
+        <source>Scale Y</source>
+        <translation>Skalierung Y</translation>
+    </message>
+    <message>
+        <source>Stretches the object along the Y axis; multiplies Scale</source>
+        <translation>Streckt das Objekt entlang der Y-Achse; wird mit der Skalierung multipliziert</translation>
+    </message>
+    <message>
+        <source>Scale Z</source>
+        <translation>Skalierung Z</translation>
+    </message>
+    <message>
+        <source>Stretches the object along the Z axis; multiplies Scale</source>
+        <translation>Streckt das Objekt entlang der Z-Achse; wird mit der Skalierung multipliziert</translation>
+    </message>
+    <message>
+        <source>The colour of the surface; a picture on the object is multiplied by it</source>
+        <translation>Die Farbe der Oberfläche; ein Bild auf dem Objekt wird damit multipliziert</translation>
+    </message>
+    <message>
+        <source>How solid the object is; 0 makes it invisible</source>
+        <translation>Wie deckend das Objekt ist; 0 macht es unsichtbar</translation>
+    </message>
+    <message>
+        <source>Specular</source>
+        <translation>Glanz</translation>
+    </message>
+    <message>
+        <source>The strength of the shiny highlight when the Renderer3D uses Blinn-Phong shading</source>
+        <translation>Die Stärke des glänzenden Lichtpunkts, wenn der Renderer3D Blinn-Phong-Schattierung verwendet</translation>
+    </message>
+    <message>
+        <source>Shininess</source>
+        <translation>Glanzschärfe</translation>
+    </message>
+    <message>
+        <source>How small and sharp the highlight is; a high number is a small, hard highlight</source>
+        <translation>Wie klein und scharf der Lichtpunkt ist; eine hohe Zahl ergibt einen kleinen, harten Lichtpunkt</translation>
+    </message>
+    <message>
         <source>Center X</source>
         <translation>Mitte X</translation>
     </message>
@@ -22651,6 +22755,10 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
         <translation>Partikel</translation>
     </message>
     <message>
+        <source>3D</source>
+        <translation>3D</translation>
+    </message>
+    <message>
         <source>pEmitter</source>
         <translation>pEmitter</translation>
     </message>
@@ -22961,6 +23069,406 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
     <message>
         <source>Draws a stream of particles as a picture the size of the composition (2D)</source>
         <translation>Zeichnet einen Partikelstrom als Bild in der Größe der Komposition (2D)</translation>
+    </message>
+    <message>
+        <source>Image Plane 3D</source>
+        <translation>Bildebene 3D</translation>
+    </message>
+    <message>
+        <source>A picture on a flat plane in a 3D scene</source>
+        <translation>Ein Bild auf einer flachen Ebene in einer 3D-Szene</translation>
+    </message>
+    <message>
+        <source>Image</source>
+        <translation>Bild</translation>
+    </message>
+    <message>
+        <source>The width of the plane in scene units; the height follows the picture&apos;s shape</source>
+        <translation>Die Breite der Ebene in Szeneneinheiten; die Höhe folgt der Form des Bildes</translation>
+    </message>
+    <message>
+        <source>How solid the plane is; 0 makes it invisible</source>
+        <translation>Wie deckend die Ebene ist; 0 macht sie unsichtbar</translation>
+    </message>
+    <message>
+        <source>Specular</source>
+        <translation>Glanz</translation>
+    </message>
+    <message>
+        <source>The strength of the shiny highlight when the Renderer3D uses Blinn-Phong shading</source>
+        <translation>Die Stärke des glänzenden Lichtpunkts, wenn der Renderer3D Blinn-Phong-Schattierung verwendet</translation>
+    </message>
+    <message>
+        <source>Shininess</source>
+        <translation>Glanzschärfe</translation>
+    </message>
+    <message>
+        <source>How small and sharp the highlight is; a high number is a small, hard highlight</source>
+        <translation>Wie klein und scharf der Lichtpunkt ist; eine hohe Zahl ergibt einen kleinen, harten Lichtpunkt</translation>
+    </message>
+    <message>
+        <source>Shape3D</source>
+        <translation>Shape3D</translation>
+    </message>
+    <message>
+        <source>A plane, cube, sphere, cylinder or cone in a 3D scene</source>
+        <translation>Eine Ebene, ein Würfel, eine Kugel, ein Zylinder oder ein Kegel in einer 3D-Szene</translation>
+    </message>
+    <message>
+        <source>Texture</source>
+        <translation>Textur</translation>
+    </message>
+    <message>
+        <source>Shape</source>
+        <translation>Form</translation>
+    </message>
+    <message>
+        <source>Plane</source>
+        <translation>Ebene</translation>
+    </message>
+    <message>
+        <source>Cube</source>
+        <translation>Würfel</translation>
+    </message>
+    <message>
+        <source>Sphere</source>
+        <translation>Kugel</translation>
+    </message>
+    <message>
+        <source>Cylinder</source>
+        <translation>Zylinder</translation>
+    </message>
+    <message>
+        <source>Cone</source>
+        <translation>Kegel</translation>
+    </message>
+    <message>
+        <source>The kind of shape</source>
+        <translation>Die Art der Form</translation>
+    </message>
+    <message>
+        <source>The width of a plane or cube, the diameter of a sphere, cylinder or cone, in scene units</source>
+        <translation>Die Breite einer Ebene oder eines Würfels, der Durchmesser einer Kugel, eines Zylinders oder eines Kegels, in Szeneneinheiten</translation>
+    </message>
+    <message>
+        <source>Subdivisions</source>
+        <translation>Unterteilungen</translation>
+    </message>
+    <message>
+        <source>How many pieces a sphere, cylinder or cone is cut into round its middle, and a plane or cube across each side</source>
+        <translation>In wie viele Stücke eine Kugel, ein Zylinder oder ein Kegel um die Mitte geteilt wird, und eine Ebene oder ein Würfel über jede Seite</translation>
+    </message>
+    <message>
+        <source>Subdivisions Height</source>
+        <translation>Unterteilungen Höhe</translation>
+    </message>
+    <message>
+        <source>How many pieces a sphere, cylinder or cone is cut into from top to bottom</source>
+        <translation>In wie viele Stücke eine Kugel, ein Zylinder oder ein Kegel von oben nach unten geteilt wird</translation>
+    </message>
+    <message>
+        <source>Text3D</source>
+        <translation>Text3D</translation>
+    </message>
+    <message>
+        <source>Flat text on a plane in a 3D scene</source>
+        <translation>Flacher Text auf einer Ebene in einer 3D-Szene</translation>
+    </message>
+    <message>
+        <source>The words to show</source>
+        <translation>Die anzuzeigenden Wörter</translation>
+    </message>
+    <message>
+        <source>The font family</source>
+        <translation>Die Schriftfamilie</translation>
+    </message>
+    <message>
+        <source>The height of the letters, in pixels of the composition</source>
+        <translation>Die Höhe der Buchstaben, in Pixeln der Komposition</translation>
+    </message>
+    <message>
+        <source>Heavy letters</source>
+        <translation>Fette Buchstaben</translation>
+    </message>
+    <message>
+        <source>Slanted letters</source>
+        <translation>Kursive Buchstaben</translation>
+    </message>
+    <message>
+        <source>The colour of the letters</source>
+        <translation>Die Farbe der Buchstaben</translation>
+    </message>
+    <message>
+        <source>How the lines of a text with several lines line up</source>
+        <translation>Wie die Zeilen eines mehrzeiligen Textes ausgerichtet werden</translation>
+    </message>
+    <message>
+        <source>Extra space between the letters</source>
+        <translation>Zusätzlicher Abstand zwischen den Buchstaben</translation>
+    </message>
+    <message>
+        <source>The space between lines; 100 is the normal space</source>
+        <translation>Der Abstand zwischen den Zeilen; 100 ist der normale Abstand</translation>
+    </message>
+    <message>
+        <source>How solid the text is; 0 makes it invisible</source>
+        <translation>Wie deckend der Text ist; 0 macht ihn unsichtbar</translation>
+    </message>
+    <message>
+        <source>Merge3D</source>
+        <translation>Merge3D</translation>
+    </message>
+    <message>
+        <source>Joins 3D scenes into one; its own move, turn and scale apply to everything it joins</source>
+        <translation>Verbindet 3D-Szenen zu einer; die eigene Verschiebung, Drehung und Skalierung gelten für alles, was es verbindet</translation>
+    </message>
+    <message>
+        <source>Scene 1</source>
+        <translation>Szene 1</translation>
+    </message>
+    <message>
+        <source>Scene 2</source>
+        <translation>Szene 2</translation>
+    </message>
+    <message>
+        <source>Scene 3</source>
+        <translation>Szene 3</translation>
+    </message>
+    <message>
+        <source>Scene 4</source>
+        <translation>Szene 4</translation>
+    </message>
+    <message>
+        <source>Camera3D</source>
+        <translation>Camera3D</translation>
+    </message>
+    <message>
+        <source>The camera a Renderer3D looks through; it looks along its own minus Z axis</source>
+        <translation>Die Kamera, durch die ein Renderer3D blickt; sie blickt entlang ihrer eigenen negativen Z-Achse</translation>
+    </message>
+    <message>
+        <source>View By</source>
+        <translation>Ansicht nach</translation>
+    </message>
+    <message>
+        <source>Angle of View</source>
+        <translation>Blickwinkel</translation>
+    </message>
+    <message>
+        <source>Focal Length</source>
+        <translation>Brennweite</translation>
+    </message>
+    <message>
+        <source>Which of the two controls below sets how wide the camera sees</source>
+        <translation>Welcher der beiden Regler darunter bestimmt, wie weit die Kamera sieht</translation>
+    </message>
+    <message>
+        <source>How wide the camera sees across the picture; a big angle is a wide lens</source>
+        <translation>Wie weit die Kamera über das Bild sieht; ein großer Winkel ist ein Weitwinkelobjektiv</translation>
+    </message>
+    <message>
+        <source>The lens, for a 36 mm wide film back; a small number is a wide lens</source>
+        <translation>Das Objektiv, für eine 36 mm breite Filmebene; eine kleine Zahl ist ein Weitwinkelobjektiv</translation>
+    </message>
+    <message>
+        <source>Near Clip</source>
+        <translation>Nahe Schnittebene</translation>
+    </message>
+    <message>
+        <source>Anything closer to the camera than this is not drawn</source>
+        <translation>Alles, was näher an der Kamera ist, wird nicht gezeichnet</translation>
+    </message>
+    <message>
+        <source>Far Clip</source>
+        <translation>Ferne Schnittebene</translation>
+    </message>
+    <message>
+        <source>Anything further from the camera than this is not drawn</source>
+        <translation>Alles, was weiter von der Kamera entfernt ist, wird nicht gezeichnet</translation>
+    </message>
+    <message>
+        <source>Translate X</source>
+        <translation>Verschieben X</translation>
+    </message>
+    <message>
+        <source>Moves the camera to the right (negative: left), in scene units</source>
+        <translation>Verschiebt die Kamera nach rechts (negativ: links), in Szeneneinheiten</translation>
+    </message>
+    <message>
+        <source>Translate Y</source>
+        <translation>Verschieben Y</translation>
+    </message>
+    <message>
+        <source>Moves the camera up (negative: down), in scene units</source>
+        <translation>Verschiebt die Kamera nach oben (negativ: unten), in Szeneneinheiten</translation>
+    </message>
+    <message>
+        <source>Translate Z</source>
+        <translation>Verschieben Z</translation>
+    </message>
+    <message>
+        <source>Moves the camera along Z; the default shows a plane of Size 1 at the centre exactly filling the frame</source>
+        <translation>Verschiebt die Kamera entlang Z; der Standardwert zeigt eine Ebene der Größe 1 in der Mitte, die das Bild genau ausfüllt</translation>
+    </message>
+    <message>
+        <source>Rotate X</source>
+        <translation>Drehen X</translation>
+    </message>
+    <message>
+        <source>Tilts the camera up or down</source>
+        <translation>Neigt die Kamera nach oben oder unten</translation>
+    </message>
+    <message>
+        <source>Rotate Y</source>
+        <translation>Drehen Y</translation>
+    </message>
+    <message>
+        <source>Pans the camera left or right</source>
+        <translation>Schwenkt die Kamera nach links oder rechts</translation>
+    </message>
+    <message>
+        <source>Rotate Z</source>
+        <translation>Drehen Z</translation>
+    </message>
+    <message>
+        <source>Rolls the camera</source>
+        <translation>Rollt die Kamera</translation>
+    </message>
+    <message>
+        <source>The colour of the light</source>
+        <translation>Die Farbe des Lichts</translation>
+    </message>
+    <message>
+        <source>How bright the light is</source>
+        <translation>Wie hell das Licht ist</translation>
+    </message>
+    <message>
+        <source>Cone Angle</source>
+        <translation>Kegelwinkel</translation>
+    </message>
+    <message>
+        <source>Half the width of the cone of light; outside it nothing is lit</source>
+        <translation>Die halbe Breite des Lichtkegels; außerhalb davon wird nichts beleuchtet</translation>
+    </message>
+    <message>
+        <source>Penumbra</source>
+        <translation>Halbschatten</translation>
+    </message>
+    <message>
+        <source>The soft edge of the cone, as a part of the cone angle; 0 is a hard edge</source>
+        <translation>Der weiche Rand des Kegels, als Teil des Kegelwinkels; 0 ist ein harter Rand</translation>
+    </message>
+    <message>
+        <source>Moves the light to the right (negative: left), in scene units</source>
+        <translation>Verschiebt das Licht nach rechts (negativ: links), in Szeneneinheiten</translation>
+    </message>
+    <message>
+        <source>Moves the light up (negative: down), in scene units</source>
+        <translation>Verschiebt das Licht nach oben (negativ: unten), in Szeneneinheiten</translation>
+    </message>
+    <message>
+        <source>Moves the light towards the default camera (negative: away from it), in scene units</source>
+        <translation>Verschiebt das Licht zur Standardkamera hin (negativ: von ihr weg), in Szeneneinheiten</translation>
+    </message>
+    <message>
+        <source>Turns the light about the X axis; it shines along its own minus Z axis</source>
+        <translation>Dreht das Licht um die X-Achse; es leuchtet entlang seiner eigenen negativen Z-Achse</translation>
+    </message>
+    <message>
+        <source>Turns the light about the Y axis</source>
+        <translation>Dreht das Licht um die Y-Achse</translation>
+    </message>
+    <message>
+        <source>Turns the light about the Z axis</source>
+        <translation>Dreht das Licht um die Z-Achse</translation>
+    </message>
+    <message>
+        <source>Ambient Light</source>
+        <translation>Umgebungslicht</translation>
+    </message>
+    <message>
+        <source>Light that reaches every surface the same, from no direction</source>
+        <translation>Licht, das jede Oberfläche gleich erreicht, ohne Richtung</translation>
+    </message>
+    <message>
+        <source>Directional Light</source>
+        <translation>Richtungslicht</translation>
+    </message>
+    <message>
+        <source>Parallel light like the sun; only its turn matters, not its place</source>
+        <translation>Paralleles Licht wie die Sonne; nur seine Drehung zählt, nicht sein Ort</translation>
+    </message>
+    <message>
+        <source>Point Light</source>
+        <translation>Punktlicht</translation>
+    </message>
+    <message>
+        <source>Light that shines in every direction from one point</source>
+        <translation>Licht, das von einem Punkt aus in alle Richtungen scheint</translation>
+    </message>
+    <message>
+        <source>Spot Light</source>
+        <translation>Spotlicht</translation>
+    </message>
+    <message>
+        <source>Light that shines in a cone from one point</source>
+        <translation>Licht, das von einem Punkt aus in einem Kegel scheint</translation>
+    </message>
+    <message>
+        <source>Renderer3D</source>
+        <translation>Renderer3D</translation>
+    </message>
+    <message>
+        <source>Draws a 3D scene as a picture the size of the composition, through the first Camera3D in the scene</source>
+        <translation>Zeichnet eine 3D-Szene als Bild in der Größe der Komposition, durch die erste Camera3D in der Szene</translation>
+    </message>
+    <message>
+        <source>Scene</source>
+        <translation>Szene</translation>
+    </message>
+    <message>
+        <source>Lighting</source>
+        <translation>Beleuchtung</translation>
+    </message>
+    <message>
+        <source>On: the lights in the scene shade the objects; off, or with no lights in the scene, every surface shows its own colour</source>
+        <translation>An: die Lichter der Szene schattieren die Objekte; aus, oder ohne Lichter in der Szene, zeigt jede Oberfläche ihre eigene Farbe</translation>
+    </message>
+    <message>
+        <source>Shading</source>
+        <translation>Schattierung</translation>
+    </message>
+    <message>
+        <source>Lambert</source>
+        <translation>Lambert</translation>
+    </message>
+    <message>
+        <source>Blinn-Phong</source>
+        <translation>Blinn-Phong</translation>
+    </message>
+    <message>
+        <source>Lambert is soft, matt shading; Blinn-Phong adds a shiny highlight where an object&apos;s Specular is above 0</source>
+        <translation>Lambert ist weiche, matte Schattierung; Blinn-Phong fügt einen glänzenden Lichtpunkt hinzu, wo der Glanz eines Objekts über 0 liegt</translation>
+    </message>
+    <message>
+        <source>Anti-Aliasing</source>
+        <translation>Kantenglättung</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation>Aus</translation>
+    </message>
+    <message>
+        <source>2 x 2</source>
+        <translation>2 x 2</translation>
+    </message>
+    <message>
+        <source>4 x 4</source>
+        <translation>4 x 4</translation>
+    </message>
+    <message>
+        <source>Smooths the edges of the objects by drawing several samples for each pixel; slower with more samples</source>
+        <translation>Glättet die Kanten der Objekte, indem mehrere Samples pro Pixel gezeichnet werden; mit mehr Samples langsamer</translation>
     </message>
     <message>
         <source>A rectangular mask</source>
@@ -23815,6 +24323,10 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
         <translation>Garbage-Matte</translation>
     </message>
     <message>
+        <source>How solid the object is; 0 makes it invisible</source>
+        <translation>Wie deckend das Objekt ist; 0 macht es unsichtbar</translation>
+    </message>
+    <message>
         <source>Ignore</source>
         <translation>Ignorieren</translation>
     </message>
@@ -23851,6 +24363,10 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
         <translation>Magenta / Grün</translation>
     </message>
     <message>
+        <source>Makes the object bigger or smaller in every direction</source>
+        <translation>Macht das Objekt in alle Richtungen größer oder kleiner</translation>
+    </message>
+    <message>
         <source>Maximum</source>
         <translation>Maximum</translation>
     </message>
@@ -23869,6 +24385,18 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
     <message>
         <source>Mitchell</source>
         <translation>Mitchell</translation>
+    </message>
+    <message>
+        <source>Moves the object to the right (negative: left), in scene units</source>
+        <translation>Verschiebt das Objekt nach rechts (negativ: links), in Szeneneinheiten</translation>
+    </message>
+    <message>
+        <source>Moves the object towards the default camera (negative: away from it), in scene units</source>
+        <translation>Verschiebt das Objekt zur Standardkamera hin (negativ: von ihr weg), in Szeneneinheiten</translation>
+    </message>
+    <message>
+        <source>Moves the object up (negative: down), in scene units</source>
+        <translation>Verschiebt das Objekt nach oben (negativ: unten), in Szeneneinheiten</translation>
     </message>
     <message>
         <source>Multiply</source>
@@ -23899,6 +24427,18 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
         <translation>Rand wiederherstellen</translation>
     </message>
     <message>
+        <source>Scale X</source>
+        <translation>Skalierung X</translation>
+    </message>
+    <message>
+        <source>Scale Y</source>
+        <translation>Skalierung Y</translation>
+    </message>
+    <message>
+        <source>Scale Z</source>
+        <translation>Skalierung Z</translation>
+    </message>
+    <message>
         <source>Soft Edge</source>
         <translation>Weiche Kante</translation>
     </message>
@@ -23911,8 +24451,36 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
         <translation>Spill-Methode</translation>
     </message>
     <message>
+        <source>Stretches the object along the X axis; multiplies Scale</source>
+        <translation>Streckt das Objekt entlang der X-Achse; wird mit der Skalierung multipliziert</translation>
+    </message>
+    <message>
+        <source>Stretches the object along the Y axis; multiplies Scale</source>
+        <translation>Streckt das Objekt entlang der Y-Achse; wird mit der Skalierung multipliziert</translation>
+    </message>
+    <message>
+        <source>Stretches the object along the Z axis; multiplies Scale</source>
+        <translation>Streckt das Objekt entlang der Z-Achse; wird mit der Skalierung multipliziert</translation>
+    </message>
+    <message>
         <source>Subtract</source>
         <translation>Subtrahieren</translation>
+    </message>
+    <message>
+        <source>The colour of the surface; a picture on the object is multiplied by it</source>
+        <translation>Die Farbe der Oberfläche; ein Bild auf dem Objekt wird damit multipliziert</translation>
+    </message>
+    <message>
+        <source>Turns the object about the X axis (tilts it forwards or back); X is turned first, then Y, then Z</source>
+        <translation>Dreht das Objekt um die X-Achse (kippt es nach vorn oder hinten); zuerst wird X gedreht, dann Y, dann Z</translation>
+    </message>
+    <message>
+        <source>Turns the object about the Y axis (turns it left or right)</source>
+        <translation>Dreht das Objekt um die Y-Achse (nach links oder rechts)</translation>
+    </message>
+    <message>
+        <source>Turns the object about the Z axis (rolls it like a clock face)</source>
+        <translation>Dreht das Objekt um die Z-Achse (wie ein Zifferblatt)</translation>
     </message>
     <message>
         <source>View Mode</source>

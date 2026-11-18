@@ -144,6 +144,10 @@ private:
     /// Particle nodes make no picture; a pEmitter with a Bitmap style keeps its Sprite input's
     /// picture (read back from the GPU) for pRender.
     void particleNode(GlKit& kit, const CompEval& ev, int index);
+    /// @p owner's target read back as a premultiplied picture (null for no target).
+    QImage readBack(GlKit& kit, int owner);
+    /// Renderer3D: the scene drawn by the software rasterizer (spec 130), uploaded into a new target.
+    PooledTarget sceneRender(GlKit& kit, const CompEval& ev, const CompNode& n);
     /// Time Speed / Time Stretcher: the input pulled again at the mapped frame (and the next
     /// one, mixed, with Blend interpolation).
     PooledTarget timeNode(GlKit& kit, const CompEval& ev, const CompNode& n);

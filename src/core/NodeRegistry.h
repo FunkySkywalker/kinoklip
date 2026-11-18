@@ -17,7 +17,8 @@ namespace kk {
 enum class PortKind : quint8 {
     Image,
     Mask,
-    Particles ///< a stream of particles (pEmitter, pGravity, ...): connects only to particle inputs
+    Particles, ///< a stream of particles (pEmitter, pGravity, ...): connects only to particle inputs
+    Scene3D ///< a 3D scene (Image Plane 3D, Merge3D, Camera3D, ...): connects only to 3D inputs (spec 130)
 };
 
 /// One input port of a node type.
@@ -48,6 +49,7 @@ enum class NodeCategory : quint8 {
     Warp, ///< Grid Warp, Displace, Vector Distort
     Time, ///< Time Speed, Time Stretcher
     Particles, ///< pEmitter, pGravity, pTurbulence, pMerge, pRender
+    ThreeD, ///< Image Plane 3D, Shape3D, Text3D, Merge3D, Camera3D, lights, Renderer3D
     Effect ///< every EffectRegistry video effect ("fx:<id>")
 };
 
@@ -172,6 +174,17 @@ inline const QString PGravity = QStringLiteral("p_gravity");
 inline const QString PTurbulence = QStringLiteral("p_turbulence");
 inline const QString PMerge = QStringLiteral("p_merge");
 inline const QString PRender = QStringLiteral("p_render");
+// Spec 130.
+inline const QString ImagePlane3D = QStringLiteral("image_plane_3d");
+inline const QString Shape3D = QStringLiteral("shape_3d");
+inline const QString Text3D = QStringLiteral("text_3d");
+inline const QString Merge3D = QStringLiteral("merge_3d");
+inline const QString Camera3D = QStringLiteral("camera_3d");
+inline const QString AmbientLight = QStringLiteral("ambient_light");
+inline const QString DirectionalLight = QStringLiteral("directional_light");
+inline const QString PointLight = QStringLiteral("point_light");
+inline const QString SpotLight = QStringLiteral("spot_light");
+inline const QString Renderer3D = QStringLiteral("renderer_3d");
 /// Prefix of the effect nodes: "fx:" + EffectRegistry id.
 inline const QString EffectPrefix = QStringLiteral("fx:");
 } // namespace nodetypes
@@ -194,6 +207,23 @@ inline const QString Line = QStringLiteral("line");
 inline const QString Rectangle = QStringLiteral("rectangle");
 inline const QString Circle = QStringLiteral("circle");
 } // namespace particleregions
+
+/// Shape3D shapes, Camera3D "view by" and Renderer3D shading / anti-aliasing (spec 130).
+namespace shapes3d {
+inline const QString Plane = QStringLiteral("plane");
+inline const QString Cube = QStringLiteral("cube");
+inline const QString Sphere = QStringLiteral("sphere");
+inline const QString Cylinder = QStringLiteral("cylinder");
+inline const QString Cone = QStringLiteral("cone");
+} // namespace shapes3d
+namespace cameraviews {
+inline const QString AngleOfView = QStringLiteral("angleOfView");
+inline const QString FocalLength = QStringLiteral("focalLength");
+} // namespace cameraviews
+namespace shadings3d {
+inline const QString Lambert = QStringLiteral("lambert");
+inline const QString BlinnPhong = QStringLiteral("blinnPhong");
+} // namespace shadings3d
 
 /// Saver file formats (spec 128).
 namespace saverformats {
@@ -224,6 +254,12 @@ inline const QString CleanPlate = QStringLiteral("cleanPlate");
 /// pMerge: the second particle stream; pEmitter: the picture used as a Bitmap sprite.
 inline const QString Input2 = QStringLiteral("input2");
 inline const QString Sprite = QStringLiteral("sprite");
+/// 3D (spec 130): the picture on a plane or shape; the scenes Merge3D joins; the scene Renderer3D draws.
+inline const QString Texture = QStringLiteral("texture");
+inline const QString Scene1 = QStringLiteral("scene1");
+inline const QString Scene2 = QStringLiteral("scene2");
+inline const QString Scene3 = QStringLiteral("scene3");
+inline const QString Scene4 = QStringLiteral("scene4");
 } // namespace nodeports
 
 /// Parameter keys of the built-in nodes (see NodeDescriptor for the units).
@@ -336,6 +372,34 @@ inline const QString PEnd = QStringLiteral("pEnd"); ///< last frame that emits
 inline const QString PStrength = QStringLiteral("pStrength"); ///< forces
 inline const QString PDensity = QStringLiteral("pDensity"); ///< pTurbulence: noise cells across the frame width
 inline const QString PEvolution = QStringLiteral("pEvolution"); ///< pTurbulence: noise change per frame
+// 3D (spec 130). Units: scene units (an Image Plane 3D of Size 1 is one unit wide); angles in degrees.
+inline const QString TranslateX = QStringLiteral("translateX");
+inline const QString TranslateY = QStringLiteral("translateY");
+inline const QString TranslateZ = QStringLiteral("translateZ");
+inline const QString RotateX = QStringLiteral("rotateX");
+inline const QString RotateY = QStringLiteral("rotateY");
+inline const QString RotateZ = QStringLiteral("rotateZ");
+inline const QString ScaleUniform = QStringLiteral("scaleUniform");
+inline const QString ScaleX = QStringLiteral("scaleX");
+inline const QString ScaleY = QStringLiteral("scaleY");
+inline const QString ScaleZ = QStringLiteral("scaleZ");
+inline const QString Shape = QStringLiteral("shape"); ///< Shape3D: choice (shapes3d::)
+inline const QString Subdivisions = QStringLiteral("subdivisions"); ///< Shape3D: segments round / across
+inline const QString SubdivisionsHeight = QStringLiteral("subdivisionsHeight");
+inline const QString Specular = QStringLiteral("specular"); ///< material, 0..1
+inline const QString Shininess = QStringLiteral("shininess"); ///< material, Blinn-Phong exponent
+inline const QString ViewBy = QStringLiteral("viewBy"); ///< Camera3D: choice (cameraviews::)
+inline const QString AngleOfView = QStringLiteral("angleOfView"); ///< horizontal, degrees
+inline const QString FocalLength = QStringLiteral("focalLength"); ///< mm, with a 36 mm wide film back
+inline const QString NearClip = QStringLiteral("nearClip");
+inline const QString FarClip = QStringLiteral("farClip");
+inline const QString LightColor = QStringLiteral("lightColor");
+inline const QString Intensity = QStringLiteral("intensity");
+inline const QString ConeAngle = QStringLiteral("coneAngle"); ///< Spot: half angle of the cone, degrees
+inline const QString Penumbra = QStringLiteral("penumbra"); ///< Spot: soft part of the cone, 0..1
+inline const QString Lighting = QStringLiteral("lighting"); ///< Renderer3D: bool
+inline const QString Shading = QStringLiteral("shading"); ///< Renderer3D: choice (shadings3d::)
+inline const QString AntiAlias = QStringLiteral("antiAlias"); ///< Renderer3D: samples per pixel side, 1..4
 // Letterbox.
 inline const QString TargetAspect = QStringLiteral("targetAspect"); ///< width / height, e.g. 2.39
 inline const QString Color = QStringLiteral("color"); ///< colour static

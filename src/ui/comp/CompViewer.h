@@ -147,6 +147,8 @@ signals:
 
 protected:
     bool event(QEvent* event) override;
+    /// The 3D viewer (spec 130): on a 3D node, drag orbits, middle-drag pans, the wheel zooms.
+    bool eventFilter(QObject* watched, QEvent* event) override;
     void keyPressEvent(QKeyEvent* event) override;
     void showEvent(QShowEvent* event) override;
     void hideEvent(QHideEvent* event) override;
@@ -155,6 +157,10 @@ protected:
     void dropEvent(QDropEvent* event) override;
 
 private:
+    /// True when the node shown in this viewer outputs a 3D scene.
+    [[nodiscard]] bool shows3D() const;
+    Qt::MouseButton m_nav3D = Qt::NoButton; ///< the button of the running 3D view drag
+    QPointF m_navPos; ///< its last global position
     void refresh();
     void updateHeader();
     void updateOutputClient();

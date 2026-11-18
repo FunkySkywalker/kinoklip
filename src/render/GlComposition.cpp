@@ -4,6 +4,7 @@
 
 #include "render/CompLoader.h"
 #include "render/CompParticles.h"
+#include "render/CompScene3D.h"
 #include "render/CompTimeMath.h"
 
 #include "core/CompOps.h"
@@ -519,7 +520,8 @@ void GlComposition::evalNode(GlKit& kit, const CompEval& ev, int index)
         for (auto it = n.inputs.constBegin(); it != n.inputs.constEnd(); ++it)
             release(inputOwner(n, it.key()));
     };
-    if (d && d->outputKind == PortKind::Particles && n.type != nodetypes::MediaOut) {
+    if (d && (d->outputKind == PortKind::Particles || d->outputKind == PortKind::Scene3D)
+        && n.type != nodetypes::MediaOut) {
         particleNode(kit, ev, index);
         return;
     }
@@ -550,6 +552,8 @@ void GlComposition::evalNode(GlKit& kit, const CompEval& ev, int index)
         out = timeNode(kit, ev, n);
     } else if (n.type == nodetypes::PRender) {
         out = particleRender(kit, ev, n);
+    } else if (n.type == nodetypes::Renderer3D) {
+        out = sceneRender(kit, ev, n);
     } else if (n.type == nodetypes::Saver) {
         // Passes its input through; the files are written only by a render of the composition
         // (CompSaverRun), never while a frame is drawn for playback.
@@ -925,6 +929,30 @@ PooledTarget GlComposition::particleRender(GlKit& kit, const CompEval& ev, const
     return uploadedImage(kit, ev, image);
 }
 
+QImage GlComposition::readBack(GlKit& kit, int owner)
+{
+    const RenderTarget* t = owner >= 0 ? targetOf(owner) : nullptr;
+    if (!t)
+        return {};
+    QImage image(t->size, QImage::Format_ARGB32_Premultiplied);
+    GlFunctions* gl = kit.gl();
+    gl->glBindFramebuffer(GL_READ_FRAMEBUFFER, t->fbo);
+    gl->glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+    gl->glPixelStorei(GL_PACK_ALIGNMENT, 4);
+    gl->glPixelStorei(GL_PACK_ROW_LENGTH, GLint(image.bytesPerLine() / 4));
+    gl->glReadPixels(0, 0, t->size.width(), t->size.height(), GL_BGRA, GL_UNSIGNED_BYTE, image.bits());
+    gl->glPixelStorei(GL_PACK_ROW_LENGTH, 0);
+    return image;
+}
+
+PooledTarget GlComposition::sceneRender(GlKit& kit, const CompEval& ev, const CompNode& n)
+{
+    const QHash<quint64, QImage>& sprites = m_sprites[size_t(m_depth)];
+    const QImage image = scene3d::renderNode(*ev.comp, n, ev.compFrame, ev.size, ev.frame, ev.scale,
+        [&sprites](quint64 node) { return sprites.value(node); });
+    return uploadedImage(kit, ev, image);
+}
+
 void GlComposition::particleNode(GlKit& kit, const CompEval& ev, int index)
 {
     std::vector<Slot>& list = m_stack[size_t(m_depth)];
@@ -934,20 +962,29 @@ void GlComposition::particleNode(GlKit& kit, const CompEval& ev, int index)
         const bool bitmap
             = n.params.staticValue(nodekeys::PStyle).toString() == particlestyles::Bitmap;
         if (owner >= 0 && bitmap) {
-            if (const RenderTarget* t = targetOf(owner)) {
-                QImage image(t->size, QImage::Format_ARGB32_Premultiplied);
-                GlFunctions* gl = kit.gl();
-                gl->glBindFramebuffer(GL_READ_FRAMEBUFFER, t->fbo);
-                gl->glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-                gl->glPixelStorei(GL_PACK_ALIGNMENT, 4);
-                gl->glPixelStorei(GL_PACK_ROW_LENGTH, GLint(image.bytesPerLine() / 4));
-                gl->glReadPixels(0, 0, t->size.width(), t->size.height(), GL_BGRA,
-                    GL_UNSIGNED_BYTE, image.bits());
-                gl->glPixelStorei(GL_PACK_ROW_LENGTH, 0);
+            const QImage image = readBack(kit, owner);
+            if (!image.isNull())
                 m_sprites[size_t(m_depth)].insert(n.id, image);
-            }
         }
         release(owner);
+    } else if (scene3d::isSceneNode(n.type)) {
+        // The picture on a plane or shape is read back for the software rasterizer (spec 130).
+        const int owner = inputOwner(n, nodeports::Texture);
+        if (owner >= 0) {
+            const QImage image = readBack(kit, owner);
+            if (!image.isNull())
+                m_sprites[size_t(m_depth)].insert(n.id, image);
+        }
+        release(owner);
+        if (index + 1 == int(list.size())) {
+            // The node a viewer asked for: the orbit view of the scene.
+            const QHash<quint64, QImage>& sprites = m_sprites[size_t(m_depth)];
+            list[size_t(index)].own = uploadedImage(kit, ev,
+                scene3d::viewerNode(*ev.comp, n.id, ev.compFrame, ev.size, ev.frame, ev.scale,
+                    scene3d::viewerOrbit(), [&sprites](quint64 node) { return sprites.value(node); }));
+            list[size_t(index)].owner = index;
+            return;
+        }
     }
     alias(index, -1);
 }

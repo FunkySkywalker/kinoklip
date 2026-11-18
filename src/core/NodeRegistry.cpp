@@ -109,6 +109,50 @@ QVector<ParamDescriptor> maskInvertParams()
         boolean(nodekeys::GarbageInvert, tr("Invert Garbage Matte"), false)};
 }
 
+/// Translate / Rotate / Scale of a 3D node (spec 130), after the node's own parameters.
+QVector<ParamDescriptor> transform3D(bool withScale = true)
+{
+    namespace k = nodekeys;
+    QVector<ParamDescriptor> out {
+        tip(number(k::TranslateX, tr("Translate X"), -1000, 1000, 0, 0.01),
+            tr("Moves the object to the right (negative: left), in scene units")),
+        tip(number(k::TranslateY, tr("Translate Y"), -1000, 1000, 0, 0.01),
+            tr("Moves the object up (negative: down), in scene units")),
+        tip(number(k::TranslateZ, tr("Translate Z"), -1000, 1000, 0, 0.01),
+            tr("Moves the object towards the default camera (negative: away from it), in scene units")),
+        tip(number(k::RotateX, tr("Rotate X"), -36000, 36000, 0, 0.1, kDegrees),
+            tr("Turns the object about the X axis (tilts it forwards or back); X is turned first, then Y, then Z")),
+        tip(number(k::RotateY, tr("Rotate Y"), -36000, 36000, 0, 0.1, kDegrees),
+            tr("Turns the object about the Y axis (turns it left or right)")),
+        tip(number(k::RotateZ, tr("Rotate Z"), -36000, 36000, 0, 0.1, kDegrees),
+            tr("Turns the object about the Z axis (rolls it like a clock face)"))};
+    if (withScale) {
+        out += {tip(number(k::ScaleUniform, tr("Scale"), 0.0001, 1000, 1, 0.01),
+                    tr("Makes the object bigger or smaller in every direction")),
+            tip(number(k::ScaleX, tr("Scale X"), 0.0001, 1000, 1, 0.01),
+                tr("Stretches the object along the X axis; multiplies Scale")),
+            tip(number(k::ScaleY, tr("Scale Y"), 0.0001, 1000, 1, 0.01),
+                tr("Stretches the object along the Y axis; multiplies Scale")),
+            tip(number(k::ScaleZ, tr("Scale Z"), 0.0001, 1000, 1, 0.01),
+                tr("Stretches the object along the Z axis; multiplies Scale"))};
+    }
+    return out;
+}
+
+/// Colour, opacity and highlight of a 3D object's surface.
+QVector<ParamDescriptor> material3D()
+{
+    namespace k = nodekeys;
+    return {tip(color(k::Color, tr("Color"), QColor(255, 255, 255)),
+                tr("The colour of the surface; a picture on the object is multiplied by it")),
+        tip(number(k::Opacity, tr("Opacity"), 0, 1, 1, 0.01),
+            tr("How solid the object is; 0 makes it invisible")),
+        tip(number(k::Specular, tr("Specular"), 0, 1, 0, 0.01),
+            tr("The strength of the shiny highlight when the Renderer3D uses Blinn-Phong shading")),
+        tip(number(k::Shininess, tr("Shininess"), 1, 256, 32, 1),
+            tr("How small and sharp the highlight is; a high number is a small, hard highlight"))};
+}
+
 NodeDescriptor node(const QString& id, const QString& name, const QString& shortName,
     const QString& nameBase, NodeCategory category, const QString& description)
 {
@@ -369,7 +413,7 @@ bool NodeRegistry::hasCommonControls(const QString& id) const
     const NodeDescriptor* d = find(id);
     return d && id != nodetypes::MediaOut && d->category != NodeCategory::Mask
         && d->category != NodeCategory::Time && id != nodetypes::Saver
-        && d->outputKind != PortKind::Particles;
+        && d->outputKind != PortKind::Particles && d->outputKind != PortKind::Scene3D;
 }
 
 QVector<ParamDescriptor> NodeRegistry::commonControls(const QString& id) const
@@ -421,6 +465,8 @@ QString NodeRegistry::categoryName(NodeCategory category)
         return tr("Time");
     case NodeCategory::Particles:
         return tr("Particles");
+    case NodeCategory::ThreeD:
+        return tr("3D");
     case NodeCategory::Effect:
         return tr("Effects");
     }
@@ -649,6 +695,178 @@ NodeRegistry::NodeRegistry()
             tr("Draws a stream of particles as a picture the size of the composition (2D)"));
         d.inputs = {port(nodeports::Input, tr("Particles"), PortKind::Particles, true)};
         d.mainInput = nodeports::Input;
+        add(d);
+    }
+
+    // ---- 3D (spec 130) ----
+    {
+        NodeDescriptor d = node(nodetypes::ImagePlane3D, tr("Image Plane 3D"), QStringLiteral("IP3"),
+            QStringLiteral("ImagePlane3D"), C::ThreeD,
+            tr("A picture on a flat plane in a 3D scene"));
+        d.outputKind = PortKind::Scene3D;
+        d.inputs = {port(nodeports::Texture, tr("Image"), PortKind::Image, true)};
+        d.params = {tip(number(k::Size, tr("Size"), 0.0001, 1000, 1, 0.01),
+                        tr("The width of the plane in scene units; the height follows the picture's shape")),
+            tip(number(k::Opacity, tr("Opacity"), 0, 1, 1, 0.01),
+                tr("How solid the plane is; 0 makes it invisible")),
+            tip(number(k::Specular, tr("Specular"), 0, 1, 0, 0.01),
+                tr("The strength of the shiny highlight when the Renderer3D uses Blinn-Phong shading")),
+            tip(number(k::Shininess, tr("Shininess"), 1, 256, 32, 1),
+                tr("How small and sharp the highlight is; a high number is a small, hard highlight"))};
+        d.params += transform3D();
+        add(d);
+    }
+    {
+        NodeDescriptor d = node(nodetypes::Shape3D, tr("Shape3D"), QStringLiteral("Sh3"),
+            QStringLiteral("Shape3D"), C::ThreeD,
+            tr("A plane, cube, sphere, cylinder or cone in a 3D scene"));
+        d.outputKind = PortKind::Scene3D;
+        d.inputs = {port(nodeports::Texture, tr("Texture"), PortKind::Image, false)};
+        d.params = {tip(choice(k::Shape, tr("Shape"),
+                            {shapes3d::Plane, shapes3d::Cube, shapes3d::Sphere, shapes3d::Cylinder,
+                                shapes3d::Cone},
+                            {tr("Plane"), tr("Cube"), tr("Sphere"), tr("Cylinder"), tr("Cone")},
+                            shapes3d::Cube),
+                        tr("The kind of shape")),
+            tip(number(k::Size, tr("Size"), 0.0001, 1000, 1, 0.01),
+                tr("The width of a plane or cube, the diameter of a sphere, cylinder or cone, in scene units")),
+            tip(integer(k::Subdivisions, tr("Subdivisions"), 1, 128, 16),
+                tr("How many pieces a sphere, cylinder or cone is cut into round its middle, and a plane or cube across each side")),
+            tip(integer(k::SubdivisionsHeight, tr("Subdivisions Height"), 1, 128, 16),
+                tr("How many pieces a sphere, cylinder or cone is cut into from top to bottom"))};
+        d.params += material3D();
+        d.params += transform3D();
+        add(d);
+    }
+    {
+        NodeDescriptor d = node(nodetypes::Text3D, tr("Text3D"), QStringLiteral("Tx3"),
+            QStringLiteral("Text3D"), C::ThreeD,
+            tr("Flat text on a plane in a 3D scene"));
+        d.outputKind = PortKind::Scene3D;
+        d.params = {tip(text(k::Text, tr("Text"), tr("Custom Title")), tr("The words to show")),
+            tip(text(k::Font, tr("Font"), QStringLiteral("Sans Serif")), tr("The font family")),
+            tip(number(k::FontSize, tr("Size"), 1, 1000, 96, 1, kPx),
+                tr("The height of the letters, in pixels of the composition")),
+            tip(boolean(k::Bold, tr("Bold"), false), tr("Heavy letters")),
+            tip(boolean(k::Italic, tr("Italic"), false), tr("Slanted letters")),
+            tip(color(k::Color, tr("Color"), QColor(Qt::white)), tr("The colour of the letters")),
+            tip(choice(k::Justify, tr("Justify"),
+                    {justifies::Start, justifies::Center, justifies::End},
+                    {tr("Left"), tr("Center"), tr("Right")}, justifies::Center),
+                tr("How the lines of a text with several lines line up")),
+            tip(number(k::TextTracking, tr("Tracking"), -50, 500, 0, 0.5, QStringLiteral("%")),
+                tr("Extra space between the letters")),
+            tip(number(k::LineSpacing, tr("Line Spacing"), 10, 500, 100, 0.5, QStringLiteral("%")),
+                tr("The space between lines; 100 is the normal space")),
+            tip(number(k::Opacity, tr("Opacity"), 0, 1, 1, 0.01),
+                tr("How solid the text is; 0 makes it invisible"))};
+        d.params += transform3D();
+        add(d);
+    }
+    {
+        NodeDescriptor d = node(nodetypes::Merge3D, tr("Merge3D"), QStringLiteral("M3"),
+            QStringLiteral("Merge3D"), C::ThreeD,
+            tr("Joins 3D scenes into one; its own move, turn and scale apply to everything it joins"));
+        d.outputKind = PortKind::Scene3D;
+        d.inputs = {port(nodeports::Scene1, tr("Scene 1"), PortKind::Scene3D, false),
+            port(nodeports::Scene2, tr("Scene 2"), PortKind::Scene3D, false),
+            port(nodeports::Scene3, tr("Scene 3"), PortKind::Scene3D, false),
+            port(nodeports::Scene4, tr("Scene 4"), PortKind::Scene3D, false)};
+        d.mainInput = nodeports::Scene1;
+        d.params = transform3D();
+        add(d);
+    }
+    {
+        NodeDescriptor d = node(nodetypes::Camera3D, tr("Camera3D"), QStringLiteral("Cm3"),
+            QStringLiteral("Camera3D"), C::ThreeD,
+            tr("The camera a Renderer3D looks through; it looks along its own minus Z axis"));
+        d.outputKind = PortKind::Scene3D;
+        d.params = {tip(choice(k::ViewBy, tr("View By"),
+                            {cameraviews::AngleOfView, cameraviews::FocalLength},
+                            {tr("Angle of View"), tr("Focal Length")}, cameraviews::AngleOfView),
+                        tr("Which of the two controls below sets how wide the camera sees")),
+            tip(number(k::AngleOfView, tr("Angle of View"), 1, 170, 39.5978, 0.1, kDegrees),
+                tr("How wide the camera sees across the picture; a big angle is a wide lens")),
+            tip(number(k::FocalLength, tr("Focal Length"), 1, 1000, 50, 0.5, QStringLiteral("mm")),
+                tr("The lens, for a 36 mm wide film back; a small number is a wide lens")),
+            tip(number(k::NearClip, tr("Near Clip"), 0.0001, 1000, 0.05, 0.01),
+                tr("Anything closer to the camera than this is not drawn")),
+            tip(number(k::FarClip, tr("Far Clip"), 0.01, 100000, 1000, 1),
+                tr("Anything further from the camera than this is not drawn"))};
+        d.params += {tip(number(k::TranslateX, tr("Translate X"), -1000, 1000, 0, 0.01),
+                             tr("Moves the camera to the right (negative: left), in scene units")),
+            tip(number(k::TranslateY, tr("Translate Y"), -1000, 1000, 0, 0.01),
+                tr("Moves the camera up (negative: down), in scene units")),
+            tip(number(k::TranslateZ, tr("Translate Z"), -1000, 1000, 25.0 / 18.0, 0.01),
+                tr("Moves the camera along Z; the default shows a plane of Size 1 at the centre exactly filling the frame")),
+            tip(number(k::RotateX, tr("Rotate X"), -36000, 36000, 0, 0.1, kDegrees),
+                tr("Tilts the camera up or down")),
+            tip(number(k::RotateY, tr("Rotate Y"), -36000, 36000, 0, 0.1, kDegrees),
+                tr("Pans the camera left or right")),
+            tip(number(k::RotateZ, tr("Rotate Z"), -36000, 36000, 0, 0.1, kDegrees),
+                tr("Rolls the camera"))};
+        add(d);
+    }
+    const auto lightNode = [&](const QString& id, const QString& name, const QString& shortName,
+                               const QString& base, const QString& description, bool position,
+                               bool direction, bool cone, double z) {
+        NodeDescriptor d = node(id, name, shortName, base, C::ThreeD, description);
+        d.outputKind = PortKind::Scene3D;
+        d.params = {tip(color(k::LightColor, tr("Color"), QColor(255, 255, 255)),
+                            tr("The colour of the light")),
+            tip(number(k::Intensity, tr("Intensity"), 0, 100, id == nodetypes::AmbientLight ? 0.3 : 1, 0.01),
+                tr("How bright the light is"))};
+        if (cone) {
+            d.params += {tip(number(k::ConeAngle, tr("Cone Angle"), 1, 89, 30, 0.1, kDegrees),
+                                 tr("Half the width of the cone of light; outside it nothing is lit")),
+                tip(number(k::Penumbra, tr("Penumbra"), 0, 1, 0.2, 0.01),
+                    tr("The soft edge of the cone, as a part of the cone angle; 0 is a hard edge"))};
+        }
+        if (position) {
+            d.params += {tip(number(k::TranslateX, tr("Translate X"), -1000, 1000, 0, 0.01),
+                                 tr("Moves the light to the right (negative: left), in scene units")),
+                tip(number(k::TranslateY, tr("Translate Y"), -1000, 1000, 0, 0.01),
+                    tr("Moves the light up (negative: down), in scene units")),
+                tip(number(k::TranslateZ, tr("Translate Z"), -1000, 1000, z, 0.01),
+                    tr("Moves the light towards the default camera (negative: away from it), in scene units"))};
+        }
+        if (direction) {
+            d.params += {tip(number(k::RotateX, tr("Rotate X"), -36000, 36000, 0, 0.1, kDegrees),
+                                 tr("Turns the light about the X axis; it shines along its own minus Z axis")),
+                tip(number(k::RotateY, tr("Rotate Y"), -36000, 36000, 0, 0.1, kDegrees),
+                    tr("Turns the light about the Y axis")),
+                tip(number(k::RotateZ, tr("Rotate Z"), -36000, 36000, 0, 0.1, kDegrees),
+                    tr("Turns the light about the Z axis"))};
+        }
+        add(d);
+    };
+    lightNode(nodetypes::AmbientLight, tr("Ambient Light"), QStringLiteral("AL"),
+        QStringLiteral("AmbientLight"), tr("Light that reaches every surface the same, from no direction"),
+        false, false, false, 0);
+    lightNode(nodetypes::DirectionalLight, tr("Directional Light"), QStringLiteral("DL"),
+        QStringLiteral("DirectionalLight"),
+        tr("Parallel light like the sun; only its turn matters, not its place"), false, true, false, 0);
+    lightNode(nodetypes::PointLight, tr("Point Light"), QStringLiteral("PL"),
+        QStringLiteral("PointLight"), tr("Light that shines in every direction from one point"), true,
+        false, false, 1.5);
+    lightNode(nodetypes::SpotLight, tr("Spot Light"), QStringLiteral("SL"),
+        QStringLiteral("SpotLight"), tr("Light that shines in a cone from one point"), true, true, true,
+        2);
+    {
+        NodeDescriptor d = node(nodetypes::Renderer3D, tr("Renderer3D"), QStringLiteral("R3"),
+            QStringLiteral("Renderer3D"), C::ThreeD,
+            tr("Draws a 3D scene as a picture the size of the composition, through the first Camera3D in the scene"));
+        d.inputs = {port(nodeports::Input, tr("Scene"), PortKind::Scene3D, true)};
+        d.mainInput = nodeports::Input;
+        d.params = {tip(boolean(k::Lighting, tr("Lighting"), true),
+                            tr("On: the lights in the scene shade the objects; off, or with no lights in the scene, every surface shows its own colour")),
+            tip(choice(k::Shading, tr("Shading"),
+                    {shadings3d::Lambert, shadings3d::BlinnPhong},
+                    {tr("Lambert"), tr("Blinn-Phong")}, shadings3d::Lambert),
+                tr("Lambert is soft, matt shading; Blinn-Phong adds a shiny highlight where an object's Specular is above 0")),
+            tip(choice(k::AntiAlias, tr("Anti-Aliasing"), {QStringLiteral("1"), QStringLiteral("2"), QStringLiteral("4")},
+                    {tr("Off"), tr("2 x 2"), tr("4 x 4")}, QStringLiteral("2")),
+                tr("Smooths the edges of the objects by drawing several samples for each pixel; slower with more samples"))};
         add(d);
     }
 

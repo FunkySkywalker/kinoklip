@@ -1170,6 +1170,110 @@ The program was probably closed by the system because the computer ran out of me
         <translation>Инвертировать мусорную маску</translation>
     </message>
     <message>
+        <source>Translate X</source>
+        <translation>Сдвиг X</translation>
+    </message>
+    <message>
+        <source>Moves the object to the right (negative: left), in scene units</source>
+        <translation>Сдвигает объект вправо (отрицательное: влево) в единицах сцены</translation>
+    </message>
+    <message>
+        <source>Translate Y</source>
+        <translation>Сдвиг Y</translation>
+    </message>
+    <message>
+        <source>Moves the object up (negative: down), in scene units</source>
+        <translation>Сдвигает объект вверх (отрицательное: вниз) в единицах сцены</translation>
+    </message>
+    <message>
+        <source>Translate Z</source>
+        <translation>Сдвиг Z</translation>
+    </message>
+    <message>
+        <source>Moves the object towards the default camera (negative: away from it), in scene units</source>
+        <translation>Сдвигает объект к камере по умолчанию (отрицательное: от неё) в единицах сцены</translation>
+    </message>
+    <message>
+        <source>Rotate X</source>
+        <translation>Поворот X</translation>
+    </message>
+    <message>
+        <source>Turns the object about the X axis (tilts it forwards or back); X is turned first, then Y, then Z</source>
+        <translation>Поворачивает объект вокруг оси X (наклоняет вперёд или назад); сначала поворачивается X, затем Y, затем Z</translation>
+    </message>
+    <message>
+        <source>Rotate Y</source>
+        <translation>Поворот Y</translation>
+    </message>
+    <message>
+        <source>Turns the object about the Y axis (turns it left or right)</source>
+        <translation>Поворачивает объект вокруг оси Y (влево или вправо)</translation>
+    </message>
+    <message>
+        <source>Rotate Z</source>
+        <translation>Поворот Z</translation>
+    </message>
+    <message>
+        <source>Turns the object about the Z axis (rolls it like a clock face)</source>
+        <translation>Поворачивает объект вокруг оси Z (как циферблат часов)</translation>
+    </message>
+    <message>
+        <source>Scale</source>
+        <translation>Масштаб</translation>
+    </message>
+    <message>
+        <source>Makes the object bigger or smaller in every direction</source>
+        <translation>Делает объект больше или меньше во всех направлениях</translation>
+    </message>
+    <message>
+        <source>Scale X</source>
+        <translation>Масштаб X</translation>
+    </message>
+    <message>
+        <source>Stretches the object along the X axis; multiplies Scale</source>
+        <translation>Растягивает объект вдоль оси X; умножается на масштаб</translation>
+    </message>
+    <message>
+        <source>Scale Y</source>
+        <translation>Масштаб Y</translation>
+    </message>
+    <message>
+        <source>Stretches the object along the Y axis; multiplies Scale</source>
+        <translation>Растягивает объект вдоль оси Y; умножается на масштаб</translation>
+    </message>
+    <message>
+        <source>Scale Z</source>
+        <translation>Масштаб Z</translation>
+    </message>
+    <message>
+        <source>Stretches the object along the Z axis; multiplies Scale</source>
+        <translation>Растягивает объект вдоль оси Z; умножается на масштаб</translation>
+    </message>
+    <message>
+        <source>The colour of the surface; a picture on the object is multiplied by it</source>
+        <translation>Цвет поверхности; картинка на объекте умножается на него</translation>
+    </message>
+    <message>
+        <source>How solid the object is; 0 makes it invisible</source>
+        <translation>Насколько объект непрозрачен; 0 делает его невидимым</translation>
+    </message>
+    <message>
+        <source>Specular</source>
+        <translation>Блик</translation>
+    </message>
+    <message>
+        <source>The strength of the shiny highlight when the Renderer3D uses Blinn-Phong shading</source>
+        <translation>Сила блика, когда Renderer3D использует затенение Блинна-Фонга</translation>
+    </message>
+    <message>
+        <source>Shininess</source>
+        <translation>Глянцевитость</translation>
+    </message>
+    <message>
+        <source>How small and sharp the highlight is; a high number is a small, hard highlight</source>
+        <translation>Насколько мал и резок блик; большое число даёт маленький жёсткий блик</translation>
+    </message>
+    <message>
         <source>Center X</source>
         <translation>Центр X</translation>
     </message>
@@ -22668,6 +22772,10 @@ Import files with %1 or drop them here.</source>
         <translation>Частицы</translation>
     </message>
     <message>
+        <source>3D</source>
+        <translation>3D</translation>
+    </message>
+    <message>
         <source>pEmitter</source>
         <translation>pEmitter</translation>
     </message>
@@ -22978,6 +23086,406 @@ Import files with %1 or drop them here.</source>
     <message>
         <source>Draws a stream of particles as a picture the size of the composition (2D)</source>
         <translation>Рисует поток частиц как картинку размером с композицию (2D)</translation>
+    </message>
+    <message>
+        <source>Image Plane 3D</source>
+        <translation>Плоскость изображения 3D</translation>
+    </message>
+    <message>
+        <source>A picture on a flat plane in a 3D scene</source>
+        <translation>Картинка на плоскости в 3D-сцене</translation>
+    </message>
+    <message>
+        <source>Image</source>
+        <translation>Изображение</translation>
+    </message>
+    <message>
+        <source>The width of the plane in scene units; the height follows the picture&apos;s shape</source>
+        <translation>Ширина плоскости в единицах сцены; высота повторяет форму картинки</translation>
+    </message>
+    <message>
+        <source>How solid the plane is; 0 makes it invisible</source>
+        <translation>Насколько плоскость непрозрачна; 0 делает её невидимой</translation>
+    </message>
+    <message>
+        <source>Specular</source>
+        <translation>Блик</translation>
+    </message>
+    <message>
+        <source>The strength of the shiny highlight when the Renderer3D uses Blinn-Phong shading</source>
+        <translation>Сила блика, когда Renderer3D использует затенение Блинна-Фонга</translation>
+    </message>
+    <message>
+        <source>Shininess</source>
+        <translation>Глянцевитость</translation>
+    </message>
+    <message>
+        <source>How small and sharp the highlight is; a high number is a small, hard highlight</source>
+        <translation>Насколько мал и резок блик; большое число даёт маленький жёсткий блик</translation>
+    </message>
+    <message>
+        <source>Shape3D</source>
+        <translation>Shape3D</translation>
+    </message>
+    <message>
+        <source>A plane, cube, sphere, cylinder or cone in a 3D scene</source>
+        <translation>Плоскость, куб, сфера, цилиндр или конус в 3D-сцене</translation>
+    </message>
+    <message>
+        <source>Texture</source>
+        <translation>Текстура</translation>
+    </message>
+    <message>
+        <source>Shape</source>
+        <translation>Форма</translation>
+    </message>
+    <message>
+        <source>Plane</source>
+        <translation>Плоскость</translation>
+    </message>
+    <message>
+        <source>Cube</source>
+        <translation>Куб</translation>
+    </message>
+    <message>
+        <source>Sphere</source>
+        <translation>Сфера</translation>
+    </message>
+    <message>
+        <source>Cylinder</source>
+        <translation>Цилиндр</translation>
+    </message>
+    <message>
+        <source>Cone</source>
+        <translation>Конус</translation>
+    </message>
+    <message>
+        <source>The kind of shape</source>
+        <translation>Вид фигуры</translation>
+    </message>
+    <message>
+        <source>The width of a plane or cube, the diameter of a sphere, cylinder or cone, in scene units</source>
+        <translation>Ширина плоскости или куба, диаметр сферы, цилиндра или конуса в единицах сцены</translation>
+    </message>
+    <message>
+        <source>Subdivisions</source>
+        <translation>Разбиение</translation>
+    </message>
+    <message>
+        <source>How many pieces a sphere, cylinder or cone is cut into round its middle, and a plane or cube across each side</source>
+        <translation>На сколько частей разрезаются сфера, цилиндр или конус вокруг середины, а плоскость или куб — вдоль каждой стороны</translation>
+    </message>
+    <message>
+        <source>Subdivisions Height</source>
+        <translation>Разбиение по высоте</translation>
+    </message>
+    <message>
+        <source>How many pieces a sphere, cylinder or cone is cut into from top to bottom</source>
+        <translation>На сколько частей разрезаются сфера, цилиндр или конус сверху вниз</translation>
+    </message>
+    <message>
+        <source>Text3D</source>
+        <translation>Text3D</translation>
+    </message>
+    <message>
+        <source>Flat text on a plane in a 3D scene</source>
+        <translation>Плоский текст на плоскости в 3D-сцене</translation>
+    </message>
+    <message>
+        <source>The words to show</source>
+        <translation>Показываемые слова</translation>
+    </message>
+    <message>
+        <source>The font family</source>
+        <translation>Семейство шрифта</translation>
+    </message>
+    <message>
+        <source>The height of the letters, in pixels of the composition</source>
+        <translation>Высота букв в пикселях композиции</translation>
+    </message>
+    <message>
+        <source>Heavy letters</source>
+        <translation>Жирные буквы</translation>
+    </message>
+    <message>
+        <source>Slanted letters</source>
+        <translation>Наклонные буквы</translation>
+    </message>
+    <message>
+        <source>The colour of the letters</source>
+        <translation>Цвет букв</translation>
+    </message>
+    <message>
+        <source>How the lines of a text with several lines line up</source>
+        <translation>Как выравниваются строки многострочного текста</translation>
+    </message>
+    <message>
+        <source>Extra space between the letters</source>
+        <translation>Дополнительный промежуток между буквами</translation>
+    </message>
+    <message>
+        <source>The space between lines; 100 is the normal space</source>
+        <translation>Расстояние между строками; 100 — обычное расстояние</translation>
+    </message>
+    <message>
+        <source>How solid the text is; 0 makes it invisible</source>
+        <translation>Насколько текст непрозрачен; 0 делает его невидимым</translation>
+    </message>
+    <message>
+        <source>Merge3D</source>
+        <translation>Merge3D</translation>
+    </message>
+    <message>
+        <source>Joins 3D scenes into one; its own move, turn and scale apply to everything it joins</source>
+        <translation>Объединяет 3D-сцены в одну; собственные сдвиг, поворот и масштаб действуют на всё, что он объединяет</translation>
+    </message>
+    <message>
+        <source>Scene 1</source>
+        <translation>Сцена 1</translation>
+    </message>
+    <message>
+        <source>Scene 2</source>
+        <translation>Сцена 2</translation>
+    </message>
+    <message>
+        <source>Scene 3</source>
+        <translation>Сцена 3</translation>
+    </message>
+    <message>
+        <source>Scene 4</source>
+        <translation>Сцена 4</translation>
+    </message>
+    <message>
+        <source>Camera3D</source>
+        <translation>Camera3D</translation>
+    </message>
+    <message>
+        <source>The camera a Renderer3D looks through; it looks along its own minus Z axis</source>
+        <translation>Камера, через которую смотрит Renderer3D; она смотрит вдоль своей отрицательной оси Z</translation>
+    </message>
+    <message>
+        <source>View By</source>
+        <translation>Задать через</translation>
+    </message>
+    <message>
+        <source>Angle of View</source>
+        <translation>Угол обзора</translation>
+    </message>
+    <message>
+        <source>Focal Length</source>
+        <translation>Фокусное расстояние</translation>
+    </message>
+    <message>
+        <source>Which of the two controls below sets how wide the camera sees</source>
+        <translation>Какой из двух параметров ниже задаёт, насколько широко видит камера</translation>
+    </message>
+    <message>
+        <source>How wide the camera sees across the picture; a big angle is a wide lens</source>
+        <translation>Насколько широко камера видит по ширине кадра; большой угол — широкоугольный объектив</translation>
+    </message>
+    <message>
+        <source>The lens, for a 36 mm wide film back; a small number is a wide lens</source>
+        <translation>Объектив для плёнки шириной 36 мм; малое число — широкоугольный объектив</translation>
+    </message>
+    <message>
+        <source>Near Clip</source>
+        <translation>Ближняя плоскость отсечения</translation>
+    </message>
+    <message>
+        <source>Anything closer to the camera than this is not drawn</source>
+        <translation>Всё, что ближе к камере, не рисуется</translation>
+    </message>
+    <message>
+        <source>Far Clip</source>
+        <translation>Дальняя плоскость отсечения</translation>
+    </message>
+    <message>
+        <source>Anything further from the camera than this is not drawn</source>
+        <translation>Всё, что дальше от камеры, не рисуется</translation>
+    </message>
+    <message>
+        <source>Translate X</source>
+        <translation>Сдвиг X</translation>
+    </message>
+    <message>
+        <source>Moves the camera to the right (negative: left), in scene units</source>
+        <translation>Сдвигает камеру вправо (отрицательное: влево) в единицах сцены</translation>
+    </message>
+    <message>
+        <source>Translate Y</source>
+        <translation>Сдвиг Y</translation>
+    </message>
+    <message>
+        <source>Moves the camera up (negative: down), in scene units</source>
+        <translation>Сдвигает камеру вверх (отрицательное: вниз) в единицах сцены</translation>
+    </message>
+    <message>
+        <source>Translate Z</source>
+        <translation>Сдвиг Z</translation>
+    </message>
+    <message>
+        <source>Moves the camera along Z; the default shows a plane of Size 1 at the centre exactly filling the frame</source>
+        <translation>Сдвигает камеру вдоль Z; значение по умолчанию показывает плоскость размера 1 в центре, точно заполняющую кадр</translation>
+    </message>
+    <message>
+        <source>Rotate X</source>
+        <translation>Поворот X</translation>
+    </message>
+    <message>
+        <source>Tilts the camera up or down</source>
+        <translation>Наклоняет камеру вверх или вниз</translation>
+    </message>
+    <message>
+        <source>Rotate Y</source>
+        <translation>Поворот Y</translation>
+    </message>
+    <message>
+        <source>Pans the camera left or right</source>
+        <translation>Поворачивает камеру влево или вправо</translation>
+    </message>
+    <message>
+        <source>Rotate Z</source>
+        <translation>Поворот Z</translation>
+    </message>
+    <message>
+        <source>Rolls the camera</source>
+        <translation>Наклоняет камеру набок</translation>
+    </message>
+    <message>
+        <source>The colour of the light</source>
+        <translation>Цвет света</translation>
+    </message>
+    <message>
+        <source>How bright the light is</source>
+        <translation>Яркость света</translation>
+    </message>
+    <message>
+        <source>Cone Angle</source>
+        <translation>Угол конуса</translation>
+    </message>
+    <message>
+        <source>Half the width of the cone of light; outside it nothing is lit</source>
+        <translation>Половина ширины конуса света; вне его ничего не освещается</translation>
+    </message>
+    <message>
+        <source>Penumbra</source>
+        <translation>Полутень</translation>
+    </message>
+    <message>
+        <source>The soft edge of the cone, as a part of the cone angle; 0 is a hard edge</source>
+        <translation>Мягкий край конуса как часть угла конуса; 0 — жёсткий край</translation>
+    </message>
+    <message>
+        <source>Moves the light to the right (negative: left), in scene units</source>
+        <translation>Сдвигает свет вправо (отрицательное: влево) в единицах сцены</translation>
+    </message>
+    <message>
+        <source>Moves the light up (negative: down), in scene units</source>
+        <translation>Сдвигает свет вверх (отрицательное: вниз) в единицах сцены</translation>
+    </message>
+    <message>
+        <source>Moves the light towards the default camera (negative: away from it), in scene units</source>
+        <translation>Сдвигает свет к камере по умолчанию (отрицательное: от неё) в единицах сцены</translation>
+    </message>
+    <message>
+        <source>Turns the light about the X axis; it shines along its own minus Z axis</source>
+        <translation>Поворачивает свет вокруг оси X; он светит вдоль своей отрицательной оси Z</translation>
+    </message>
+    <message>
+        <source>Turns the light about the Y axis</source>
+        <translation>Поворачивает свет вокруг оси Y</translation>
+    </message>
+    <message>
+        <source>Turns the light about the Z axis</source>
+        <translation>Поворачивает свет вокруг оси Z</translation>
+    </message>
+    <message>
+        <source>Ambient Light</source>
+        <translation>Рассеянный свет</translation>
+    </message>
+    <message>
+        <source>Light that reaches every surface the same, from no direction</source>
+        <translation>Свет, одинаково достигающий каждой поверхности, без направления</translation>
+    </message>
+    <message>
+        <source>Directional Light</source>
+        <translation>Направленный свет</translation>
+    </message>
+    <message>
+        <source>Parallel light like the sun; only its turn matters, not its place</source>
+        <translation>Параллельный свет, как солнце; важен только его поворот, а не место</translation>
+    </message>
+    <message>
+        <source>Point Light</source>
+        <translation>Точечный свет</translation>
+    </message>
+    <message>
+        <source>Light that shines in every direction from one point</source>
+        <translation>Свет, который светит во все стороны из одной точки</translation>
+    </message>
+    <message>
+        <source>Spot Light</source>
+        <translation>Прожектор</translation>
+    </message>
+    <message>
+        <source>Light that shines in a cone from one point</source>
+        <translation>Свет, который светит конусом из одной точки</translation>
+    </message>
+    <message>
+        <source>Renderer3D</source>
+        <translation>Renderer3D</translation>
+    </message>
+    <message>
+        <source>Draws a 3D scene as a picture the size of the composition, through the first Camera3D in the scene</source>
+        <translation>Рисует 3D-сцену как картинку размером с композицию через первую Camera3D в сцене</translation>
+    </message>
+    <message>
+        <source>Scene</source>
+        <translation>Сцена</translation>
+    </message>
+    <message>
+        <source>Lighting</source>
+        <translation>Освещение</translation>
+    </message>
+    <message>
+        <source>On: the lights in the scene shade the objects; off, or with no lights in the scene, every surface shows its own colour</source>
+        <translation>Вкл.: источники света в сцене затеняют объекты; выкл. или без источников света каждая поверхность показывает свой цвет</translation>
+    </message>
+    <message>
+        <source>Shading</source>
+        <translation>Затенение</translation>
+    </message>
+    <message>
+        <source>Lambert</source>
+        <translation>Ламберт</translation>
+    </message>
+    <message>
+        <source>Blinn-Phong</source>
+        <translation>Блинн-Фонг</translation>
+    </message>
+    <message>
+        <source>Lambert is soft, matt shading; Blinn-Phong adds a shiny highlight where an object&apos;s Specular is above 0</source>
+        <translation>Ламберт — мягкое матовое затенение; Блинн-Фонг добавляет блик там, где блик объекта больше 0</translation>
+    </message>
+    <message>
+        <source>Anti-Aliasing</source>
+        <translation>Сглаживание</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation>Выкл.</translation>
+    </message>
+    <message>
+        <source>2 x 2</source>
+        <translation>2 x 2</translation>
+    </message>
+    <message>
+        <source>4 x 4</source>
+        <translation>4 x 4</translation>
+    </message>
+    <message>
+        <source>Smooths the edges of the objects by drawing several samples for each pixel; slower with more samples</source>
+        <translation>Сглаживает края объектов, рисуя несколько выборок на пиксель; чем больше выборок, тем медленнее</translation>
     </message>
     <message>
         <source>A rectangular mask</source>
@@ -23832,6 +24340,10 @@ Import files with %1 or drop them here.</source>
         <translation>Мусорная маска</translation>
     </message>
     <message>
+        <source>How solid the object is; 0 makes it invisible</source>
+        <translation>Насколько объект непрозрачен; 0 делает его невидимым</translation>
+    </message>
+    <message>
         <source>Ignore</source>
         <translation>Игнорировать</translation>
     </message>
@@ -23868,6 +24380,10 @@ Import files with %1 or drop them here.</source>
         <translation>Пурпурный / Зелёный</translation>
     </message>
     <message>
+        <source>Makes the object bigger or smaller in every direction</source>
+        <translation>Делает объект больше или меньше во всех направлениях</translation>
+    </message>
+    <message>
         <source>Maximum</source>
         <translation>Максимум</translation>
     </message>
@@ -23886,6 +24402,18 @@ Import files with %1 or drop them here.</source>
     <message>
         <source>Mitchell</source>
         <translation>Митчелл</translation>
+    </message>
+    <message>
+        <source>Moves the object to the right (negative: left), in scene units</source>
+        <translation>Сдвигает объект вправо (отрицательное: влево) в единицах сцены</translation>
+    </message>
+    <message>
+        <source>Moves the object towards the default camera (negative: away from it), in scene units</source>
+        <translation>Сдвигает объект к камере по умолчанию (отрицательное: от неё) в единицах сцены</translation>
+    </message>
+    <message>
+        <source>Moves the object up (negative: down), in scene units</source>
+        <translation>Сдвигает объект вверх (отрицательное: вниз) в единицах сцены</translation>
     </message>
     <message>
         <source>Multiply</source>
@@ -23916,6 +24444,18 @@ Import files with %1 or drop them here.</source>
         <translation>Восстановить кайму</translation>
     </message>
     <message>
+        <source>Scale X</source>
+        <translation>Масштаб X</translation>
+    </message>
+    <message>
+        <source>Scale Y</source>
+        <translation>Масштаб Y</translation>
+    </message>
+    <message>
+        <source>Scale Z</source>
+        <translation>Масштаб Z</translation>
+    </message>
+    <message>
         <source>Soft Edge</source>
         <translation>Мягкие края</translation>
     </message>
@@ -23928,8 +24468,36 @@ Import files with %1 or drop them here.</source>
         <translation>Метод подавления засветки</translation>
     </message>
     <message>
+        <source>Stretches the object along the X axis; multiplies Scale</source>
+        <translation>Растягивает объект вдоль оси X; умножается на масштаб</translation>
+    </message>
+    <message>
+        <source>Stretches the object along the Y axis; multiplies Scale</source>
+        <translation>Растягивает объект вдоль оси Y; умножается на масштаб</translation>
+    </message>
+    <message>
+        <source>Stretches the object along the Z axis; multiplies Scale</source>
+        <translation>Растягивает объект вдоль оси Z; умножается на масштаб</translation>
+    </message>
+    <message>
         <source>Subtract</source>
         <translation>Вычесть</translation>
+    </message>
+    <message>
+        <source>The colour of the surface; a picture on the object is multiplied by it</source>
+        <translation>Цвет поверхности; картинка на объекте умножается на него</translation>
+    </message>
+    <message>
+        <source>Turns the object about the X axis (tilts it forwards or back); X is turned first, then Y, then Z</source>
+        <translation>Поворачивает объект вокруг оси X (наклоняет вперёд или назад); сначала поворачивается X, затем Y, затем Z</translation>
+    </message>
+    <message>
+        <source>Turns the object about the Y axis (turns it left or right)</source>
+        <translation>Поворачивает объект вокруг оси Y (влево или вправо)</translation>
+    </message>
+    <message>
+        <source>Turns the object about the Z axis (rolls it like a clock face)</source>
+        <translation>Поворачивает объект вокруг оси Z (как циферблат часов)</translation>
     </message>
     <message>
         <source>View Mode</source>

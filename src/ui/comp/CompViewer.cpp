@@ -7,7 +7,9 @@
 #include "core/Serialization.h"
 #include "core/Timeline.h"
 #include "playback/PlaybackEngine.h"
+#include "render/CompScene3D.h"
 #include "render/Compositor.h"
+#include "core/NodeRegistry.h"
 #include "ui/common/AppContext.h"
 #include "ui/common/DragMime.h"
 #include "ui/common/Metrics.h"
@@ -35,6 +37,7 @@
 #include <QLabel>
 #include <QMimeData>
 #include <QMouseEvent>
+#include <QWheelEvent>
 #include <QPainter>
 #include <QPolygon>
 #include <QRegion>
@@ -236,6 +239,9 @@ CompViewer::CompViewer(int index, AppContext& ctx, CompSession* session, QWidget
     m_controls = new CompViewerOverlay(session, m_surface, m_index);
     m_regionOverlay = new ViewerRegion(m_surface);
     m_regionOverlay->raise();
+    for (QObject* o : {static_cast<QObject*>(m_surface->widget()), static_cast<QObject*>(m_controls),
+             static_cast<QObject*>(m_regionOverlay)})
+        o->installEventFilter(this);
     connect(m_regionOverlay, &ViewerRegion::changed, this, [this] { requestRender(); });
     connect(m_regionOverlay, &ViewerRegion::dragFinished, this, [this] { refresh(); });
     connect(&CompViewOptions::instance(), &CompViewOptions::changed, this, [this] { refresh(); });
@@ -402,6 +408,64 @@ void CompViewer::refresh()
         m_surface->clear();
 }
 
+bool CompViewer::shows3D() const
+{
+    if (!m_session)
+        return false;
+    const CompNode* n = m_session->composition().node(shownNode());
+    const NodeDescriptor* d = n ? NodeRegistry::instance().find(n->type) : nullptr;
+    return d && d->outputKind == PortKind::Scene3D;
+}
+
+bool CompViewer::eventFilter(QObject* watched, QEvent* event)
+{
+    namespace s3 = render::scene3d;
+    switch (event->type()) {
+    case QEvent::MouseButtonPress: {
+        auto* me = static_cast<QMouseEvent*>(event);
+        if (shows3D() && (me->button() == Qt::LeftButton || me->button() == Qt::MiddleButton)) {
+            m_nav3D = me->button();
+            m_navPos = me->globalPosition();
+            return true;
+        }
+        break;
+    }
+    case QEvent::MouseMove: {
+        auto* me = static_cast<QMouseEvent*>(event);
+        if (m_nav3D != Qt::NoButton) {
+            const QPointF d = me->globalPosition() - m_navPos;
+            m_navPos = me->globalPosition();
+            const s3::Orbit o = s3::viewerOrbit();
+            s3::setViewerOrbit(m_nav3D == Qt::MiddleButton
+                    ? s3::panned(o, d.x(), d.y(), m_surface->pictureRect().width())
+                    : s3::orbited(o, d.x(), d.y()));
+            requestRender();
+            return true;
+        }
+        break;
+    }
+    case QEvent::MouseButtonRelease:
+        if (m_nav3D != Qt::NoButton) {
+            m_nav3D = Qt::NoButton;
+            refresh();
+            return true;
+        }
+        break;
+    case QEvent::Wheel: {
+        auto* we = static_cast<QWheelEvent*>(event);
+        if (shows3D() && we->angleDelta().y() != 0) {
+            s3::setViewerOrbit(s3::zoomed(s3::viewerOrbit(), we->angleDelta().y() / 120.0));
+            requestRender();
+            return true;
+        }
+        break;
+    }
+    default:
+        break;
+    }
+    return PanelFrame::eventFilter(watched, event);
+}
+
 bool CompViewer::rendersNodes() const
 {
     return m_engine && m_engine->compositor() && m_session && m_session->isStored();
@@ -432,7 +496,7 @@ void CompViewer::requestRender()
     // High Quality / Motion Blur off: a draft of the composition (the viewer only).
     const std::shared_ptr<const TimelineData> timeline
         = options.viewerTimeline(m_ctx.project->timeline()->snapshot(), m_session->clipId());
-    const bool useCache = options.options().diskCache;
+    const bool useCache = options.options().diskCache && !shows3D(); // the orbit view is not saved
     const QByteArray content = useCache ? cacheContent() : QByteArray();
     const int cacheFlags = options.cacheFlags();
     const int64_t compFrame = m_session->compFrame();
