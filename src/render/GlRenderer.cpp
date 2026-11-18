@@ -223,7 +223,6 @@ bool GlRenderer::initialize(QString* why)
         if (auto planes = std::static_pointer_cast<PlaneTextures>(e.userData))
             GlVideo::release(*m_kit, *planes);
     });
-    m_decoded.reserve(16);
     // One list per depth, allocated up front: a deeper level must never reallocate the
     // outer vector while a shallower level iterates its list.
     m_trackFrames.resize(size_t(kMaxNestingDepth) + 1);
@@ -431,7 +430,7 @@ void GlRenderer::queueDecode(const ClipData* clip, int64_t frame, int64_t nextFr
 void GlRenderer::queueDecodeAt(const ClipData* clip, int64_t frame, int64_t nextFrame,
     const TimelineData& tl, const NestedTimelines& nested, const MediaPathMap* media, int depth)
 {
-    if (clip->composition)
+    if (clip->composition && !m_skipCompositionQueue)
         queueCompositionDecodes(clip, frame, nextFrame, tl, nested, media, depth);
     if (clip->kind == ClipKind::Nested) {
         const TimelineData* n = nested.findClip(*clip);
@@ -629,15 +628,29 @@ void GlRenderer::render(RenderJob& job)
     // Compositing page viewer: one node of one clip's composition instead of the timeline.
     const ClipData* compClipOwner = nullptr;
     std::optional<ClipData> defaultOwner;
+    std::optional<TransitionSpan> viewSpan; // set: the node belongs to a transition's graph
     if (rq.compositionNode) {
         for (const TrackData& track : tl.videoTracks) {
             const int i = track.indexOfClip(rq.compositionNode->clipId);
-            if (i >= 0)
+            if (i >= 0) {
                 compClipOwner = &track.clips[size_t(i)];
+                if (rq.compositionNode->transition)
+                    viewSpan = ownTransition(track, i, rq.compositionNode->transition == 2);
+            }
+        }
+        if (rq.compositionNode->transition) {
+            compClipOwner = nullptr;
+            if (viewSpan) {
+                fc.frame = viewSpan->start
+                    + std::clamp<int64_t>(
+                        rq.compositionNode->compFrame, 0, std::max<int64_t>(0, viewSpan->length() - 1));
+                queueDecode(viewSpan->outgoing, fc.frame, fc.frame + 1, tl, tl.nested, job.media.get(), 0);
+                queueDecode(viewSpan->incoming, fc.frame, fc.frame + 1, tl, tl.nested, job.media.get(), 0);
+            }
         }
         // No stored graph: the default MediaIn -> MediaOut, the clip's own picture (not the
         // tracks above it; issue #7).
-        if (compClipOwner && !compClipOwner->composition) {
+        if (compClipOwner && !compClipOwner->composition && !rq.compositionNode->transition) {
             defaultOwner = *compClipOwner;
             defaultOwner->composition = compops::defaultComposition();
             compClipOwner = &*defaultOwner;
@@ -660,7 +673,19 @@ void GlRenderer::render(RenderJob& job)
         accumulator = m_kit->acquire(out);
         m_kit->bindTarget(*accumulator);
         m_kit->clearTransparent();
-        if (compClipOwner && compClipOwner->composition) {
+        if (viewSpan) {
+            PooledTarget a, b;
+            drawTransitionSides(*viewSpan, fc, a, b);
+            const RenderTarget* node = transitionCompositionTarget(*viewSpan, fc,
+                a ? a->texture : m_kit->transparentTexture(),
+                b ? b->texture : m_kit->transparentTexture(), rq.compositionNode->nodeId,
+                fc.frame - viewSpan->start);
+            if (node) {
+                m_kit->bindTarget(*accumulator);
+                m_kit->setBlendOver(false);
+                m_kit->blit(node->texture, kFullscreenNdc);
+            }
+        } else if (compClipOwner && compClipOwner->composition) {
             const RenderTarget* node
                 = compositionTarget(*compClipOwner, rq.compositionNode->compFrame, fc, 1.0,
                     rq.compositionNode->nodeId, out, std::min(fc.sx, fc.sy));
@@ -850,17 +875,19 @@ void GlRenderer::drawTrack(
     // with the transition shader over the accumulator.
     const TransitionSpan& span = *tf.transition;
     PooledTarget a, b;
-    if (span.outgoing && span.outgoing->enabled) {
-        a = m_kit->acquire(fc.outSize);
-        m_kit->bindTarget(*a);
-        m_kit->clearTransparent();
-        drawClip(*span.outgoing, fc, *a);
-    }
-    if (span.incoming && span.incoming->enabled) {
-        b = m_kit->acquire(fc.outSize);
-        m_kit->bindTarget(*b);
-        m_kit->clearTransparent();
-        drawClip(*span.incoming, fc, *b);
+    drawTransitionSides(span, fc, a, b);
+    if (span.transition->type == kCompositionTransition) {
+        // Built on the Compositing page (spec 128): evaluate its graph with the two sides as
+        // MediaIn1 / MediaIn2 and draw the result over the tracks below.
+        const RenderTarget* result = transitionCompositionTarget(span, fc,
+            a ? a->texture : m_kit->transparentTexture(),
+            b ? b->texture : m_kit->transparentTexture(), 0, fc.frame - span.start);
+        if (result) {
+            m_kit->bindTarget(accumulator);
+            m_kit->setBlendOver(true);
+            m_kit->blit(result->texture, kFullscreenNdc);
+        }
+        return;
     }
     GlTransition* transition = transitionFor(span.transition->type);
     if (!transition)
@@ -877,6 +904,91 @@ void GlRenderer::drawTrack(
     m_kit->bindTarget(accumulator);
     m_kit->setBlendOver(true);
     transition->draw(*m_kit, in);
+}
+
+void GlRenderer::drawTransitionSides(
+    const TransitionSpan& span, const FrameContext& fc, PooledTarget& a, PooledTarget& b)
+{
+    if (span.outgoing && span.outgoing->enabled) {
+        a = m_kit->acquire(fc.outSize);
+        m_kit->bindTarget(*a);
+        m_kit->clearTransparent();
+        drawClip(*span.outgoing, fc, *a);
+    }
+    if (span.incoming && span.incoming->enabled) {
+        b = m_kit->acquire(fc.outSize);
+        m_kit->bindTarget(*b);
+        m_kit->clearTransparent();
+        drawClip(*span.incoming, fc, *b);
+    }
+}
+
+namespace {
+/// CompSources of a transition's composition: MediaIn1 and MediaIn2 are the two sides.
+class TransitionHost final : public CompSources
+{
+public:
+    TransitionHost(GlKit* kit, GLuint a, GLuint b, std::function<GLuint(const TitleStyle&, QRectF*)> title)
+        : m_kit(kit)
+        , m_a(a)
+        , m_b(b)
+        , m_title(std::move(title))
+    { }
+    bool drawMediaIn(const CompNode& node, int64_t, const RenderTarget& target) override
+    {
+        if (node.transitionSide == 0)
+            return false;
+        m_kit->bindTarget(target);
+        m_kit->setBlendOver(false);
+        m_kit->blit(node.transitionSide == 1 ? m_a : m_b, QTransform(2, 0, 0, 2, -1, -1));
+        return true;
+    }
+    GLuint titleTexture(const TitleStyle& style, QRectF* rect) override
+    {
+        return m_title(style, rect);
+    }
+
+private:
+    GlKit* m_kit;
+    GLuint m_a, m_b;
+    std::function<GLuint(const TitleStyle&, QRectF*)> m_title;
+};
+} // namespace
+
+const RenderTarget* GlRenderer::transitionCompositionTarget(const TransitionSpan& span,
+    const FrameContext& fc, GLuint a, GLuint b, quint64 node, int64_t compFrame)
+{
+    Composition fallback;
+    const Composition* comp = nullptr;
+    if (span.transition->composition) {
+        comp = &*span.transition->composition;
+    } else {
+        fallback = compops::defaultTransitionComposition(span.length());
+        comp = &fallback;
+    }
+    Composition linked;
+    if (complinks::hasLinks(*comp)) {
+        linked = complinks::resolved(*comp, double(compFrame));
+        comp = &linked;
+    }
+    TransitionHost host(m_kit.get(), a, b, [this](const TitleStyle& style, QRectF* rect) -> GLuint {
+        const TitleTexture* t = titleTexture(style);
+        if (!t)
+            return 0;
+        *rect = t->rect;
+        return t->texture;
+    });
+    CompEval ev;
+    ev.comp = comp;
+    ev.compFrame = compFrame;
+    ev.frame = QSizeF(fc.timeline->width, fc.timeline->height);
+    ev.size = fc.outSize;
+    ev.scale = double(fc.outSize.width()) / fc.timeline->width;
+    ev.fps = fc.timeline->fps.isValid() ? fc.timeline->fps.toDouble() : 25.0;
+    ev.sources = &host;
+    PooledTarget target = m_comp.evaluate(*m_kit, ev, node ? node : comp->mediaOutId);
+    m_generated.push_back(std::move(target));
+    return m_generated.back().get();
 }
 
 bool GlRenderer::resolveSource(const ClipData& clip, int64_t localFrame, const FrameContext& fc,
@@ -1456,6 +1568,17 @@ bool GlRenderer::drawCompositionInput(const ClipData& owner, const CompNode& nod
     // The clip's own picture at that comp frame: the timeline frame moves with it.
     FrameContext at = fc;
     at.frame = owner.start + compFrame;
+    // A time node (Time Speed, Time Stretcher) asks for frames the frame's decode pass did not
+    // queue: decode this one now.
+    if (clip->kind == ClipKind::Media
+        && !decoded(clip, clampedSourceTimeUs(*clip, at.frame, fc.timeline->fps))) {
+        const size_t before = m_decoded.size();
+        m_skipCompositionQueue = true;
+        queueDecodeAt(clip, at.frame, at.frame + 1, *fc.timeline, *fc.nested, m_media, fc.depth);
+        m_skipCompositionQueue = false;
+        for (size_t i = before; i < m_decoded.size(); ++i)
+            decodeOne(m_decoded[i]);
+    }
     ClipSource src;
     if (!resolveSource(*clip, compFrame, at, zoom, src, false))
         return false;

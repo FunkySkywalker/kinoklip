@@ -18,6 +18,8 @@
 
 #include <cstdint>
 #include <functional>
+#include <optional>
+#include <utility>
 
 namespace kk {
 
@@ -54,7 +56,16 @@ public:
     [[nodiscard]] quint64 clipForPage() const;
     /// Opens clip @p clipId of the active timeline (0 closes). Selection: the MediaOut node.
     void openClip(quint64 clipId);
-    /// The open clip (0 = none).
+    /// Opens the transition stored in clip @p clipId on the Compositing page (its transitionOut
+    /// when @p tail, else its transitionIn; spec 128): the graph has MediaIn1 (the outgoing clip)
+    /// and MediaIn2 (the incoming clip), and the comp frames are the frames of the transition
+    /// window. A transition without a stored graph shows the default one (a Merge whose Blend
+    /// runs over the transition); the graph is stored by the first edit.
+    void openTransition(quint64 clipId, bool tail);
+    /// 0 = a clip's composition is open, 1 = the transitionIn of the open clip, 2 = its
+    /// transitionOut.
+    [[nodiscard]] int transition() const { return m_transition; }
+    /// The open clip (0 = none); with transition() set, the clip that holds the transition.
     [[nodiscard]] quint64 clipId() const { return m_clipId; }
     /// The open clip's current state, or nullptr.
     [[nodiscard]] const ClipData* clip() const;
@@ -234,12 +245,20 @@ signals:
 
 private:
     void reload();
+    void open(quint64 clipId, int transition);
+    /// The stored graph of the open clip or transition.
+    [[nodiscard]] std::optional<Composition> storedComposition() const;
+    /// Stores @p comp (std::nullopt resets it) in the open clip or transition.
+    bool storeComposition(const std::optional<Composition>& comp, const QString& label);
+    /// First timeline frame and length of the transition window (0, 0 without a transition).
+    [[nodiscard]] std::pair<int64_t, int64_t> transitionWindow() const;
     void pruneSelection();
     /// Copies the UI view state into @p comp before it is stored.
     void stampViewState(Composition& comp) const;
 
     AppContext& m_ctx;
     quint64 m_clipId = 0;
+    int m_transition = 0;
     Composition m_comp;
     bool m_stored = false;
     bool m_snap = false;

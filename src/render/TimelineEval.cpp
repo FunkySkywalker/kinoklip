@@ -89,6 +89,30 @@ std::optional<TransitionSpan> tailTransition(const TrackData& track, int index)
     return span;
 }
 
+std::optional<TransitionSpan> ownTransition(const TrackData& track, int index, bool tail)
+{
+    if (index < 0 || index >= int(track.clips.size()))
+        return std::nullopt;
+    const ClipData& clip = track.clips[size_t(index)];
+    if (!tail) {
+        if (!clip.transitionIn)
+            return std::nullopt;
+        if (const ClipData* prev = adjacentPrev(track, index))
+            return centredSpan(*clip.transitionIn, *prev, clip);
+        return headTransition(track, index);
+    }
+    if (!clip.transitionOut)
+        return std::nullopt;
+    if (const ClipData* next = adjacentNext(track, index))
+        return centredSpan(*clip.transitionOut, clip, *next);
+    TransitionSpan span;
+    span.transition = &*clip.transitionOut;
+    span.end = clip.end();
+    span.start = span.end - std::clamp<int64_t>(clip.transitionOut->duration, 1, clip.duration);
+    span.outgoing = &clip;
+    return span;
+}
+
 int clipIndexAt(const TrackData& track, int64_t frame)
 {
     // First clip starting after `frame`; the candidate is the one before it.

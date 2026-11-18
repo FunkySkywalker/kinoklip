@@ -189,6 +189,9 @@ const std::vector<GlTransitionFactory>& builtinGlTransitions()
         t.push_back({QStringLiteral("dip_to_color"), &makeDip});
         t.push_back({QStringLiteral("wipe"), &makeWipe});
         t.push_back({QStringLiteral("push"), &makePush});
+        // The Compositing page transition (spec 128) is drawn by the renderer from its graph;
+        // this plain dissolve only stands in where a transition is drawn on its own.
+        t.push_back({QStringLiteral("fusion_composition"), &makeDissolve});
         appendDissolveTransitions(t);
         appendShapeTransitions(t);
         appendMotionTransitions(t);

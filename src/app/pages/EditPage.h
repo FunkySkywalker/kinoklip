@@ -83,6 +83,9 @@ public:
 signals:
     /// Single viewer mode was switched on or off (the main window syncs its menu entry).
     void singleViewerChanged(bool single);
+    /// "Open in Compositing Page" on a transition of the timeline (see
+    /// TimelineWidget::openTransitionInCompositingRequested()).
+    void openTransitionInCompositingRequested(quint64 clipId, bool head);
 
 public:
     // Panel accessors for modules that wire behaviour (playback, timeline, panels agents).

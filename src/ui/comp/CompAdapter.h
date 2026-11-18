@@ -147,6 +147,17 @@ bool setClipComposition(
 /// Removes the compositions of clips @p clipIds (those that have one) as one undo step
 /// "Reset Composition". Returns the number of clips changed.
 int resetCompositions(Project& project, const QVector<quint64>& clipIds);
+/// The stored graph of the transition in clip @p clipId (its transitionOut when @p tail, else
+/// transitionIn), or std::nullopt (none stored yet, or the clip has no such transition).
+[[nodiscard]] std::optional<Composition> transitionComposition(
+    const Project& project, quint64 clipId, bool tail);
+/// Replaces the stored graph of that transition as one undo step labelled @p label. False when the
+/// transition does not exist or nothing changed.
+bool setTransitionComposition(Project& project, quint64 clipId, bool tail,
+    const std::optional<Composition>& comp, const QString& label);
+/// Live change of that graph inside an open gesture, like modifyClipComposition().
+bool modifyTransitionComposition(
+    Project& project, quint64 clipId, bool tail, const Composition& comp);
 /// Opens a gesture (a slider drag): the modifyClipComposition() calls until endCompEdit()
 /// form one undo step labelled @p label. Nesting-safe like Project::beginEdit().
 void beginCompEdit(Project& project, const QString& label);

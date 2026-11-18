@@ -298,6 +298,8 @@ EditPage::EditPage(AppContext& ctx, QWidget* parent)
                 target == TimelineWidget::InspectTarget::Transition ? InspectorPanel::TransitionTab
                                                                     : InspectorPanel::EffectsTab);
         });
+    connect(m_timeline->timelineWidget(), &TimelineWidget::openTransitionInCompositingRequested,
+        this, &EditPage::openTransitionInCompositingRequested);
     // Keyframes panel: float / dock, Follow Timeline, "Open in Keyframes Panel" from a lane.
     connect(m_keyframes, &KeyframesPanel::floatToggleRequested, this,
         [this] { setKeyframesFloating(!m_keyframesFloating); });

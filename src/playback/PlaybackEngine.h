@@ -264,7 +264,10 @@ public:
     /// plays with the Edit page's pipeline: look-ahead, frame skipping, proxy size, frame
     /// dropping and statistics. Several viewers may ask; the lowest @p priority is served.
     /// @p owner identifies the asker for clearCompositionView().
-    void setCompositionView(const void* owner, int priority, quint64 clipId, quint64 nodeId);
+    /// @p transition 1 / 2: node of the composition of the clip's own transitionIn / transitionOut
+    /// (spec 128); the program then plays the transition window.
+    void setCompositionView(
+        const void* owner, int priority, quint64 clipId, quint64 nodeId, int transition = 0);
     void clearCompositionView(const void* owner);
     /// The asker whose node the program frames show now (nullptr = the timeline).
     [[nodiscard]] const void* compositionViewOwner() const;
@@ -294,7 +297,7 @@ public:
     /// program shows.
     [[nodiscard]] std::future<RenderedFramePtr> renderCompositionNode(
         std::shared_ptr<const TimelineData> timeline, quint64 clipId, quint64 nodeId,
-        int64_t compFrame, QSize outSize, unsigned outputs) const;
+        int64_t compFrame, QSize outSize, unsigned outputs, int transition = 0) const;
 
     // ---- State ----
 
@@ -499,6 +502,7 @@ private:
         const void* owner = nullptr;
         int priority = 0;
         quint64 clipId = 0, nodeId = 0;
+        int transition = 0;
     };
     std::vector<CompView> m_compViews; ///< setCompositionView()
     struct CompAudio

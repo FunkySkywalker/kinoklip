@@ -259,7 +259,7 @@ CompViewer::CompViewer(int index, AppContext& ctx, CompSession* session, QWidget
         const quint64 id = node();
         auto future = m_engine->renderCompositionNode(m_ctx.project->timeline()->snapshot(),
             m_session->clipId(), id == comp.mediaOutId ? 0 : id, m_session->compFrame(), logical,
-            OutputImage);
+            OutputImage, m_session->transition());
         const RenderedFramePtr frame = future.get();
         return frame && frame->ok ? frame->image : QImage();
     });
@@ -315,7 +315,7 @@ void CompViewer::updateEngineView()
         return;
     }
     const quint64 id = node() == m_session->composition().mediaOutId ? 0 : node();
-    m_engine->setCompositionView(this, m_index, m_session->clipId(), id);
+    m_engine->setCompositionView(this, m_index, m_session->clipId(), id, m_session->transition());
 }
 
 quint64 CompViewer::node() const
@@ -468,7 +468,8 @@ void CompViewer::requestRender()
         }
         pending.future = std::make_shared<std::future<RenderedFramePtr>>(m_engine->renderCompositionNode(
             timeline, m_session->clipId(), nodeId, frame, pixels,
-            fx || !m_surface->canDrawTextures() ? OutputImage : OutputTexture));
+            fx || !m_surface->canDrawTextures() ? OutputImage : OutputTexture,
+            m_session->transition()));
         return pending;
     };
     const bool split = fx && m_split;
@@ -574,6 +575,8 @@ QByteArray CompViewer::cacheContent() const
 {
     // The composition's picture-relevant JSON, the clip's source, the timeline's format and the
     // files the composition reads (path, size, time).
+    if (m_session->transition())
+        return {}; // a transition's pictures are not cached on disk
     const TimelineData& data = m_ctx.project->timeline()->data();
     QByteArray content;
     const ClipData* clip = nullptr;

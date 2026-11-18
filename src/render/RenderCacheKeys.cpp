@@ -4,6 +4,7 @@
 
 #include "core/CompOps.h"
 #include "core/MediaItem.h"
+#include "core/NodeRegistry.h"
 #include "core/Retime.h"
 #include "core/Serialization.h"
 
@@ -146,6 +147,21 @@ private:
             for (const CompNode& n : clip.composition->nodes) {
                 if (!n.mediaId.isEmpty())
                     h.addData(m_mediaKeys.value(n.mediaId, QByteArrayLiteral("unknown-media")));
+            }
+        }
+        // Loader nodes (spec 128) read files the project does not list: their size and time count.
+        for (const std::optional<Composition>* comp :
+            {&clip.composition, clip.transitionIn ? &clip.transitionIn->composition : nullptr,
+                clip.transitionOut ? &clip.transitionOut->composition : nullptr}) {
+            if (!comp || !*comp)
+                continue;
+            for (const CompNode& n : (*comp)->nodes) {
+                if (n.type != nodetypes::Loader)
+                    continue;
+                const QFileInfo info(n.params.staticValue(nodekeys::LoaderPath).toString());
+                h.addData(QByteArrayLiteral("loader:"));
+                h.addData(QByteArray::number(info.size()) + '@'
+                    + QByteArray::number(info.lastModified().toMSecsSinceEpoch()));
             }
         }
         h.addData(canonicalJson(json));

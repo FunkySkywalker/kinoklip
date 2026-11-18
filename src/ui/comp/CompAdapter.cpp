@@ -22,7 +22,7 @@ namespace {
 constexpr NodeCategory kCategoryOrder[]
     = {NodeCategory::InputOutput, NodeCategory::Composite, NodeCategory::Transform,
         NodeCategory::Generator, NodeCategory::Mask, NodeCategory::Color, NodeCategory::Matte,
-        NodeCategory::Filter, NodeCategory::Warp, NodeCategory::Effect};
+        NodeCategory::Filter, NodeCategory::Warp, NodeCategory::Time, NodeCategory::Effect};
 
 LinkRole roleOf(const NodePort& port)
 {
@@ -296,6 +296,27 @@ bool setClipComposition(
     if (!c || c->composition == comp)
         return false;
     return project.setClipComposition(activeUid(project), clipId, comp, label);
+}
+
+std::optional<Composition> transitionComposition(const Project& project, quint64 clipId, bool tail)
+{
+    return project.transitionComposition(activeUid(project), clipId, tail);
+}
+
+bool setTransitionComposition(Project& project, quint64 clipId, bool tail,
+    const std::optional<Composition>& comp, const QString& label)
+{
+    if (transitionComposition(project, clipId, tail) == comp)
+        return false;
+    return project.setTransitionComposition(activeUid(project), clipId, tail, comp, label);
+}
+
+bool modifyTransitionComposition(Project& project, quint64 clipId, bool tail, const Composition& comp)
+{
+    if (!setTransitionComposition(project, clipId, tail, comp, QString()))
+        return false;
+    project.timeline()->notifyChanged();
+    return true;
 }
 
 int resetCompositions(Project& project, const QVector<quint64>& clipIds)

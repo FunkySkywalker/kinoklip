@@ -756,6 +756,12 @@ void TimelineWidget::transitionMenu(QMenu& menu, const TransitionRef& ref)
     const bool editable = track && !track->locked;
     menu.addAction(tr("Open in Inspector"), this,
         [this, ref] { emit inspectRequested(ref.clipId, InspectTarget::Transition); });
+    QAction* compose = menu.addAction(tr("Open in Compositing Page"), this,
+        [this, ref] { emit openTransitionInCompositingRequested(ref.clipId, ref.head); });
+    compose->setEnabled(slot->type == kCompositionTransition);
+    compose->setToolTip(slot->type == kCompositionTransition
+            ? tr("Builds the transition as a node graph from the outgoing and the incoming clip")
+            : tr("Only a Fusion Composition transition can be built on the page: drag it from the Effects Library, Fusion Transitions"));
     menu.addSeparator();
     QAction* duration = menu.addAction(tr("Change Transition Duration…"), this, [this, ref] {
         const ClipData* c = editops::clipById(m_ctx.project->timeline()->data(), ref.clipId);

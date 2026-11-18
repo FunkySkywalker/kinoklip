@@ -3,6 +3,7 @@
 #include "core/FileParams.h"
 
 #include "core/EffectRegistry.h"
+#include "core/NodeRegistry.h"
 
 #include <QFileInfo>
 #include <QVariantMap>
@@ -27,18 +28,31 @@ void forEachFileParam(Timeline& timeline, Fn&& fn)
                 fn(*it);
         }
     };
+    const auto visitComposition = [&](auto& comp) {
+        for (auto& node : comp.nodes) {
+            if (node.type.startsWith(QLatin1String("fx:")))
+                visit(registry.find(node.type.mid(3)), node.params);
+            else if (node.type == nodetypes::Loader) {
+                // The Loader's file (spec 128) is the only File parameter of a node of its own.
+                auto it = node.params.statics.find(nodekeys::LoaderPath);
+                if (it != node.params.statics.end())
+                    fn(*it);
+            }
+        }
+    };
     for (auto* tracks : {&timeline.videoTracks, &timeline.audioTracks}) {
         for (auto& track : *tracks) {
             for (auto& clip : track.clips) {
                 for (auto& effect : clip.effects)
                     visit(registry.find(effect.type), effect.params);
                 // Effects used as Compositing page nodes ("fx:<id>") have the same parameters.
-                if (clip.composition) {
-                    for (auto& node : clip.composition->nodes) {
-                        if (node.type.startsWith(QLatin1String("fx:")))
-                            visit(registry.find(node.type.mid(3)), node.params);
-                    }
-                }
+                if (clip.composition)
+                    visitComposition(*clip.composition);
+                // A transition built on the Compositing page has its own graph (spec 128).
+                if (clip.transitionIn && clip.transitionIn->composition)
+                    visitComposition(*clip.transitionIn->composition);
+                if (clip.transitionOut && clip.transitionOut->composition)
+                    visitComposition(*clip.transitionOut->composition);
             }
         }
     }

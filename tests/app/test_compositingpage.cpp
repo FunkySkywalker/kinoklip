@@ -2255,6 +2255,50 @@ private slots:
         QTRY_COMPARE_WITH_TIMEOUT(shown(), 7, 10000);
     }
 
+    void openTransitionOnThePage()
+    {
+        Fixture f;
+        // A second clip right after the first one, with a Fusion Composition transition.
+        ClipData b;
+        b.kind = ClipKind::Solid;
+        b.start = 60;
+        b.duration = 40;
+        TransitionData t;
+        t.type = kCompositionTransition;
+        t.duration = 10;
+        b.transitionIn = t;
+        f.project.beginEdit(QStringLiteral("Add Clip"));
+        const quint64 second = editops::overwriteClip(
+            f.project.timeline()->mutableData(), TrackRef {TrackType::Video, 0}, b);
+        f.project.endEdit();
+        f.showPage();
+        f.session()->openTransition(second, false);
+        QCOMPARE(f.session()->transition(), 1);
+        QCOMPARE(f.session()->clipId(), second);
+        QVERIFY(!f.session()->isStored()); // the default graph is only shown
+        int sides[3] = {0, 0, 0};
+        for (const CompNode& n : f.comp().nodes)
+            ++sides[n.transitionSide];
+        QCOMPARE(sides[1], 1);
+        QCOMPARE(sides[2], 1);
+        QCOMPARE(f.session()->compFrameCount(), 10);
+        // Centred on the cut at 60: the window is frames 55 .. 64.
+        f.session()->seekCompFrame(3);
+        QCOMPARE(f.project.timeline()->playhead(), 58);
+        QCOMPARE(f.session()->compFrame(), 3);
+        // The first edit stores the graph in the transition, as one undo step.
+        QVERIFY(f.session()->addNode(nodetypes::Transform) != 0);
+        const ClipData* stored = editops::clipById(f.project.timeline()->data(), second);
+        QVERIFY(stored->transitionIn->composition);
+        QVERIFY(f.session()->isStored());
+        QVERIFY(!f.clip()->composition); // the first clip is not touched
+        f.project.undo();
+        QVERIFY(!editops::clipById(f.project.timeline()->data(), second)->transitionIn->composition);
+        // Opening a clip again leaves the transition.
+        f.session()->openClip(f.clipId);
+        QCOMPARE(f.session()->transition(), 0);
+    }
+
     void resetComposition()
     {
         Fixture f;

@@ -149,6 +149,34 @@ Composition defaultComposition()
     return comp;
 }
 
+Composition defaultTransitionComposition(int64_t duration)
+{
+    Composition comp;
+    const quint64 in1 = addNode(comp, nodetypes::MediaIn, QPointF(0, 0));
+    const quint64 in2 = addNode(comp, nodetypes::MediaIn, QPointF(0, 2.5));
+    comp.node(in1)->transitionSide = 1;
+    comp.node(in1)->name = QStringLiteral("MediaIn1");
+    comp.node(in2)->transitionSide = 2;
+    comp.node(in2)->name = QStringLiteral("MediaIn2");
+    const quint64 merge = addNode(comp, nodetypes::Merge, QPointF(kStepX, 0));
+    const quint64 out = addNode(comp, nodetypes::MediaOut, QPointF(2 * kStepX, 0));
+    comp.mediaOutId = out;
+    connect(comp, in1, 0, merge, nodeports::Background);
+    connect(comp, in2, 0, merge, nodeports::Foreground);
+    connect(comp, merge, 0, out, nodeports::Input);
+    // The Blend runs from the outgoing to the incoming clip over the window: the same
+    // (frame + 1) / (duration + 1) steps as the built-in transitions (TransitionSpan::progress()).
+    AnimatedValue& blend = comp.node(merge)->params.animated(nodekeys::Opacity, 0.0);
+    Keyframe first;
+    first.frame = -1;
+    first.value = 0.0;
+    Keyframe last;
+    last.frame = std::max<int64_t>(1, duration);
+    last.value = 1.0;
+    blend.keys = {first, last};
+    return comp;
+}
+
 bool isPassThrough(const Composition& comp)
 {
     const CompNode* out = comp.node(comp.mediaOutId);
@@ -694,6 +722,9 @@ QVector<quint64> evaluationOrder(const Composition& comp, quint64 target)
         if (!n->enabled) {
             if (const NodeLink* main = mainInputLink(*n))
                 visit(main->nodeId);
+        } else if (isTimeNode(n->type)) {
+            // The input of a time node is evaluated at another time, by its own pull (the
+            // renderer calls evaluate() again for it), so it is not part of this order.
         } else {
             // Descriptor order first (deterministic, matches the tiles), then any other port.
             const NodeDescriptor* d = descriptorOf(*n);
@@ -713,6 +744,11 @@ QVector<quint64> evaluationOrder(const Composition& comp, quint64 target)
     };
     visit(target);
     return order;
+}
+
+bool isTimeNode(const QString& type)
+{
+    return type == nodetypes::TimeSpeed || type == nodetypes::TimeStretcher;
 }
 
 const NodeLink* mainInputLink(const CompNode& node)

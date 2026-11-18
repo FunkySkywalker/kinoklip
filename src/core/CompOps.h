@@ -30,6 +30,14 @@ namespace kk::compops {
 /// |(dx, dy)| / 3 of the way to the neighbours: the caller passes the Catmull-Rom direction).
 [[nodiscard]] MaskPoint smoothPoint(double x, double y, double dx, double dy);
 
+/// A new composition of a transition built on the Compositing page (spec 128): MediaIn1 (the
+/// outgoing clip) and MediaIn2 (the incoming clip) into a Merge whose Blend runs from 0 to 1 over
+/// @p duration frames, then MediaOut. Comp frame 0 is the first frame of the transition window.
+[[nodiscard]] Composition defaultTransitionComposition(int64_t duration);
+
+/// True for Time Speed and Time Stretcher: nodes that ask their input for another frame.
+[[nodiscard]] bool isTimeNode(const QString& type);
+
 /// True if @p comp renders exactly the clip's own picture: following MediaOut's input
 /// (through disabled nodes, which pass their main input through) arrives at an enabled
 /// MediaIn of the owning clip (no media id). The renderer then skips the evaluation, so a

@@ -45,6 +45,9 @@ enum class TransitionAlignment {
     EndOnCut ///< ends at the cut: all frames in the outgoing clip (needs incoming handles)
 };
 
+/// TransitionData::type of a transition built on the Compositing page (spec 128).
+inline const QString kCompositionTransition = QStringLiteral("fusion_composition");
+
 /// A transition attached to the head (transitionIn) or tail (transitionOut) of a clip.
 /// Semantics are described in PLAN §5.4 (placed on the cut by `alignment` if there is an
 /// adjacent neighbour, otherwise a fade from/to transparent).
@@ -54,6 +57,10 @@ struct TransitionData
     int64_t duration = 25; ///< length in timeline frames
     TransitionAlignment alignment = TransitionAlignment::Centre;
     ParamSet params;
+    /// Type "fusion_composition" (spec 128): the node graph built on the Compositing page, with
+    /// MediaIn1 (outgoing clip) and MediaIn2 (incoming clip) nodes; comp frame 0 = the first frame
+    /// of the transition window.
+    std::optional<Composition> composition;
 
     /// Frames of the transition that lie before the cut (at a cut between two clips).
     [[nodiscard]] int64_t framesBeforeCut() const

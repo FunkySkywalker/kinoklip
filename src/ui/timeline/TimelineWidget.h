@@ -160,6 +160,9 @@ public:
 signals:
     /// The user asked to inspect @p clipId (the page shows the Inspector on that tab).
     void inspectRequested(quint64 clipId, kk::TimelineWidget::InspectTarget target);
+    /// The user chose "Open in Compositing Page" on the transition stored in clip @p clipId (its
+    /// transitionIn when @p head, else its transitionOut).
+    void openTransitionInCompositingRequested(quint64 clipId, bool head);
     /// Zoom or horizontal scroll changed (the Keyframes panel's Follow Timeline mode).
     void viewChanged();
     /// A trim, roll, slip or slide drag changed the frames at its edit (spec 8.15); an

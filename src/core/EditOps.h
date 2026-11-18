@@ -37,6 +37,11 @@ struct ClipLocation
 /// Replaces the Compositing page composition of clip @p clipId (std::nullopt removes it).
 /// False if the clip does not exist or is on a locked track.
 bool setClipComposition(TimelineData& data, quint64 clipId, std::optional<Composition> composition);
+/// Replaces the graph of the Compositing page transition stored in clip @p clipId (its
+/// transitionOut when @p tail, else its transitionIn); std::nullopt removes it (the default graph
+/// is used again). False if the clip has no such transition or is on a locked track. Spec 128.
+bool setTransitionComposition(
+    TimelineData& data, quint64 clipId, bool tail, std::optional<Composition> composition);
 
 /// Predicate selecting the tracks an operation applies to.
 using TrackFilter = std::function<bool(TrackRef ref, const TrackData& track)>;

@@ -14,6 +14,7 @@
 #include "core/SelectionModel.h"
 #include "core/Timeline.h"
 #include "ui/common/AppContext.h"
+#include "render/TimelineEval.h"
 #include "ui/comp/CompAdapter.h"
 
 #include <QCoreApplication>
@@ -72,10 +73,26 @@ quint64 CompSession::clipForPage() const
 
 void CompSession::openClip(quint64 clipId)
 {
-    if (clipId && !editops::clipById(m_ctx.project->timeline()->data(), clipId))
+    open(clipId, 0);
+}
+
+void CompSession::openTransition(quint64 clipId, bool tail)
+{
+    open(clipId, tail ? 2 : 1);
+}
+
+void CompSession::open(quint64 clipId, int transition)
+{
+    const ClipData* target
+        = clipId ? editops::clipById(m_ctx.project->timeline()->data(), clipId) : nullptr;
+    if (!target || (transition == 1 && !target->transitionIn)
+        || (transition == 2 && !target->transitionOut)) {
         clipId = 0;
-    const bool other = clipId != m_clipId;
+        transition = 0;
+    }
+    const bool other = clipId != m_clipId || transition != m_transition;
     m_clipId = clipId;
+    m_transition = transition;
     if (other) {
         m_selNodes.clear();
         m_selNotes.clear();
@@ -83,8 +100,7 @@ void CompSession::openClip(quint64 clipId)
     }
     reload();
     if (other) {
-        const std::optional<Composition> stored
-            = clipId ? compadapter::clipComposition(*m_ctx.project, clipId) : std::nullopt;
+        const std::optional<Composition> stored = clipId ? storedComposition() : std::nullopt;
         m_viewer[0] = stored ? stored->leftViewerNode : 0;
         m_viewer[1] = stored ? stored->rightViewerNode : 0;
         m_viewCentre = m_comp.viewCentre;
@@ -109,11 +125,21 @@ void CompSession::reload()
         openClip(0);
         return;
     }
-    std::optional<Composition> stored
-        = m_clipId ? compadapter::clipComposition(*m_ctx.project, m_clipId) : std::nullopt;
+    if (m_transition) {
+        const ClipData* owner = clip();
+        if (owner && !(m_transition == 1 ? owner->transitionIn : owner->transitionOut)) {
+            openClip(0); // the transition was deleted
+            return;
+        }
+    }
+    std::optional<Composition> stored = m_clipId ? storedComposition() : std::nullopt;
     m_stored = stored.has_value();
-    Composition next
-        = m_clipId ? (stored ? *stored : compadapter::defaultComposition()) : Composition();
+    Composition fallback;
+    if (m_clipId) {
+        fallback = m_transition ? compops::defaultTransitionComposition(transitionWindow().second)
+                                : compadapter::defaultComposition();
+    }
+    Composition next = m_clipId ? (stored ? *stored : fallback) : Composition();
     if (next == m_comp)
         return;
     m_comp = std::move(next);
@@ -143,8 +169,43 @@ void CompSession::pruneSelection()
         emit selectionChanged();
 }
 
+std::optional<Composition> CompSession::storedComposition() const
+{
+    if (!m_clipId)
+        return std::nullopt;
+    return m_transition ? compadapter::transitionComposition(*m_ctx.project, m_clipId, m_transition == 2)
+                        : compadapter::clipComposition(*m_ctx.project, m_clipId);
+}
+
+bool CompSession::storeComposition(const std::optional<Composition>& comp, const QString& label)
+{
+    return m_transition ? compadapter::setTransitionComposition(
+                              *m_ctx.project, m_clipId, m_transition == 2, comp, label)
+                        : compadapter::setClipComposition(*m_ctx.project, m_clipId, comp, label);
+}
+
+std::pair<int64_t, int64_t> CompSession::transitionWindow() const
+{
+    if (!m_transition)
+        return {0, 0};
+    const TimelineData& data = m_ctx.project->timeline()->data();
+    for (const TrackData& track : data.videoTracks) {
+        const int i = track.indexOfClip(m_clipId);
+        if (i < 0)
+            continue;
+        if (const auto span = render::ownTransition(track, i, m_transition == 2))
+            return {span->start, span->length()};
+    }
+    return {0, 0};
+}
+
 int64_t CompSession::compFrame() const
 {
+    if (m_transition) {
+        const auto [start, length] = transitionWindow();
+        return std::clamp<int64_t>(m_ctx.project->timeline()->playhead() - start, 0,
+            std::max<int64_t>(0, length - 1));
+    }
     const ClipData* c = clip();
     if (!c)
         return 0;
@@ -154,6 +215,8 @@ int64_t CompSession::compFrame() const
 
 int64_t CompSession::compFrameCount() const
 {
+    if (m_transition)
+        return transitionWindow().second;
     const ClipData* c = clip();
     return c ? c->duration : 0;
 }
@@ -166,6 +229,12 @@ QSize CompSession::frameSize() const
 
 void CompSession::seekCompFrame(int64_t frame)
 {
+    if (m_transition) {
+        const auto [start, length] = transitionWindow();
+        m_ctx.project->timeline()->setPlayhead(
+            start + std::clamp<int64_t>(frame, 0, std::max<int64_t>(0, length - 1)));
+        return;
+    }
     if (const ClipData* c = clip())
         m_ctx.project->timeline()->setPlayhead(
             c->start + std::clamp<int64_t>(frame, 0, std::max<int64_t>(0, c->duration - 1)));
@@ -187,7 +256,7 @@ bool CompSession::edit(const QString& label, const std::function<bool(Compositio
     if (!mutate(next) || next == m_comp)
         return false;
     stampViewState(next);
-    return compadapter::setClipComposition(*m_ctx.project, m_clipId, next, label);
+    return storeComposition(next, label);
 }
 
 void CompSession::beginGesture(const QString& label)
@@ -205,7 +274,9 @@ bool CompSession::modifyLive(const std::function<void(Composition&)>& mutate)
     if (next == m_comp)
         return false;
     stampViewState(next);
-    return compadapter::modifyClipComposition(*m_ctx.project, m_clipId, next);
+    return m_transition ? compadapter::modifyTransitionComposition(
+                              *m_ctx.project, m_clipId, m_transition == 2, next)
+                        : compadapter::modifyClipComposition(*m_ctx.project, m_clipId, next);
 }
 
 void CompSession::endGesture()
@@ -220,8 +291,7 @@ bool CompSession::resetComposition()
 {
     if (!m_clipId || !m_stored)
         return false;
-    return compadapter::setClipComposition(
-        *m_ctx.project, m_clipId, std::nullopt, tr("Reset Composition"));
+    return storeComposition(std::nullopt, tr("Reset Composition"));
 }
 
 // ---- Node commands ----

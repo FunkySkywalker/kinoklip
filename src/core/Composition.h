@@ -56,6 +56,9 @@ struct CompNode
     /// MediaIn only: MediaItem::id of the picture it reads; empty = the clip that owns the
     /// composition (its source at the clip's time, with the clip's speed and retime).
     QString mediaId;
+    /// MediaIn only, in a transition's composition (spec 128): 0 = an ordinary MediaIn, 1 = MediaIn1
+    /// (the outgoing clip), 2 = MediaIn2 (the incoming clip). Such a node ignores mediaId.
+    int transitionSide = 0;
     /// Polygon mask node only: the closed point path (core/Mask.h AnimatedPath, shape
     /// keyframes in comp frames). Points are mask-local frame pixels (timeline pixels, origin
     /// at the node's centre, y down), like MaskData::path.

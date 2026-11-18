@@ -121,6 +121,8 @@ QJsonObject transitionToJson(const TransitionData& t)
         o[QLatin1String("alignment")] = QStringLiteral("end");
     if (t.params != ParamSet {})
         o[QLatin1String("params")] = paramSetToJson(t.params);
+    if (t.composition)
+        o[QLatin1String("composition")] = compositionToJson(*t.composition);
     return o;
 }
 
@@ -135,6 +137,8 @@ TransitionData transitionFromJson(const QJsonObject& o)
     else if (alignment == QLatin1String("end"))
         t.alignment = TransitionAlignment::EndOnCut;
     t.params = paramSetFromJson(o.value(QLatin1String("params")).toObject());
+    if (o.contains(QLatin1String("composition")))
+        t.composition = compositionFromJson(o.value(QLatin1String("composition")).toObject());
     return t;
 }
 

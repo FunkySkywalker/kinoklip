@@ -103,6 +103,10 @@ struct CompositionNodeView
     quint64 clipId = 0; ///< a video clip of the request's root timeline
     quint64 nodeId = 0; ///< node of its composition (0 = its MediaOut)
     int64_t compFrame = 0; ///< clip-local frame (0 = the clip's first frame)
+    /// 0 = the clip's composition; 1 / 2 = the composition of the clip's own transitionIn /
+    /// transitionOut (spec 128): comp frame 0 is then the first frame of the transition window,
+    /// and MediaIn1 / MediaIn2 are the two clips of the transition.
+    int transition = 0;
 };
 
 /// Look-ahead over frames [first, end) of a playing timeline: no picture is rendered; decoders

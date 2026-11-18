@@ -115,6 +115,26 @@ private:
         image.fill(Qt::transparent);
         if (!clip)
             return image;
+        if (view.transition) {
+            // A node of the clip's own transition graph (spec 128).
+            for (const TrackData& track : tl.videoTracks) {
+                const int i = track.indexOfClip(view.clipId);
+                if (i < 0)
+                    continue;
+                const auto span = ownTransition(track, i, view.transition == 2);
+                if (!span)
+                    return image;
+                m_timeline = &tl;
+                m_frame = span->start
+                    + std::clamp<int64_t>(view.compFrame, 0, std::max<int64_t>(0, span->length() - 1));
+                m_out = out;
+                m_scale = QTransform::fromScale(
+                    double(out.width()) / tl.width, double(out.height()) / tl.height);
+                image = transitionComposition(*span, view.nodeId);
+                m_timeline = nullptr;
+            }
+            return image;
+        }
         // No stored graph: the default MediaIn -> MediaOut (the clip's own picture).
         std::optional<ClipData> defaultOwner;
         if (!clip->composition) {
@@ -222,6 +242,10 @@ private:
     /// adds premultiplied values), then temp over the output.
     void drawTransition(QPainter& painter, const TransitionSpan& span)
     {
+        if (span.transition->type == kCompositionTransition) {
+            painter.drawImage(0, 0, transitionComposition(span, 0));
+            return;
+        }
         const double t = span.progress(m_frame);
         QImage temp(m_out, QImage::Format_ARGB32_Premultiplied);
         temp.fill(Qt::transparent);
@@ -234,6 +258,49 @@ private:
                 drawClipPlus(p, *span.incoming, t);
         }
         painter.drawImage(0, 0, temp);
+    }
+
+    /// Node @p node (0 = MediaOut) of the graph of the Compositing page transition @p span at the
+    /// current frame; MediaIn1 / MediaIn2 are the outgoing and the incoming clip (spec 128).
+    QImage transitionComposition(const TransitionSpan& span, quint64 node)
+    {
+        const auto side = [&](const ClipData* clip) {
+            QImage layer(m_out, QImage::Format_ARGB32_Premultiplied);
+            layer.fill(Qt::transparent);
+            if (clip) {
+                QPainter p(&layer);
+                drawClip(p, *clip, 1.0);
+            }
+            return layer;
+        };
+        const QImage a = side(span.outgoing);
+        const QImage b = side(span.incoming);
+        Composition fallback;
+        const Composition* comp = nullptr;
+        if (span.transition->composition) {
+            comp = &*span.transition->composition;
+        } else {
+            fallback = compops::defaultTransitionComposition(span.length());
+            comp = &fallback;
+        }
+        Composition linked;
+        const int64_t compFrame = m_frame - span.start;
+        if (complinks::hasLinks(*comp)) {
+            linked = complinks::resolved(*comp, double(compFrame));
+            comp = &linked;
+        }
+        CpuCompEval ev;
+        ev.comp = comp;
+        ev.compFrame = compFrame;
+        ev.frame = QSizeF(m_timeline->width, m_timeline->height);
+        ev.size = m_out;
+        ev.scale = m_scale.m11();
+        ev.fps = m_timeline->fps.isValid() ? m_timeline->fps.toDouble() : 25.0;
+        ev.warned = &m_warned;
+        ev.mediaIn = [&](const CompNode& n, int64_t) -> QImage {
+            return n.transitionSide == 1 ? a : n.transitionSide == 2 ? b : QImage();
+        };
+        return evaluateCompositionCpu(ev, node ? node : comp->mediaOutId);
     }
 
     /// drawClip() for the B side of a dissolve: rendered into its own layer first so the
@@ -488,6 +555,24 @@ private:
             p.setRenderHint(QPainter::SmoothPixmapTransform);
             p.scale(scale, scale);
             if (n.mediaId.isEmpty()) {
+                if (at != compFrame) {
+                    // A time node asks for another frame of the clip's own picture.
+                    QSizeF c, sp;
+                    QImage otherPicture;
+                    QRectF otherRect;
+                    QColor otherSolid;
+                    if (!clipPicture(clip, std::max<int64_t>(0, at),
+                            std::max(m_scale.m11(), m_scale.m22()), c, sp, otherPicture, otherRect,
+                            otherSolid))
+                        return out;
+                    const QRectF r = otherRect.translated(
+                        frameSize.width() / 2, frameSize.height() / 2);
+                    if (otherSolid.isValid())
+                        p.fillRect(r, otherSolid);
+                    else if (!otherPicture.isNull())
+                        p.drawImage(r, otherPicture);
+                    return out;
+                }
                 if (solid.isValid())
                     p.fillRect(own, solid);
                 else if (!picture.isNull())

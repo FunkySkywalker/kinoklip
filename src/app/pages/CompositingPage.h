@@ -64,6 +64,11 @@ public:
 
     /// Opens clip @p clipId (0: the clip the page would pick itself, see the class doc).
     void openClip(quint64 clipId = 0);
+    /// Render Savers: renders the open composition and writes what its Saver nodes save (spec 128).
+    void renderSavers();
+    /// Opens the transition stored in clip @p clipId (its transitionOut when @p tail, else its
+    /// transitionIn); when the page is not shown yet, it opens when it is (spec 128).
+    void openTransition(quint64 clipId, bool tail);
 
     [[nodiscard]] CompSession* session() const { return m_session; }
     [[nodiscard]] NodeEditor* nodeEditor() const { return m_editor; }
@@ -107,6 +112,9 @@ private:
 
     AppContext& m_ctx;
     CompSession* m_session = nullptr;
+    QToolButton* m_renderSavers = nullptr;
+    quint64 m_pendingTransitionClip = 0; ///< openTransition() before the page was shown
+    bool m_pendingTransitionTail = false;
     CompViewer* m_left = nullptr;
     CompViewer* m_right = nullptr;
     CompTransport* m_transport = nullptr;

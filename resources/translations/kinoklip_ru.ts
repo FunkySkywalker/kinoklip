@@ -5343,6 +5343,10 @@ Thank you for watching</source>
         <translation>Вихрь затягивает изображение в следующий клип</translation>
     </message>
     <message>
+        <source>A transition you build as a node graph on the Compositing page, from the outgoing clip (MediaIn1) and the incoming clip (MediaIn2)</source>
+        <translation>Переход, который вы собираете как граф узлов на странице композитинга из уходящего клипа (MediaIn1) и приходящего клипа (MediaIn2)</translation>
+    </message>
+    <message>
         <source>A triangle grows from the centre</source>
         <translation>Треугольник увеличивается из центра</translation>
     </message>
@@ -5565,6 +5569,10 @@ Thank you for watching</source>
     <message>
         <source>Frame Size</source>
         <translation>Размер кадра</translation>
+    </message>
+    <message>
+        <source>Fusion Composition</source>
+        <translation>Композиция Fusion</translation>
     </message>
     <message>
         <source>Glitch</source>
@@ -9983,6 +9991,14 @@ Thank you for watching</source>
         <translation>Подключить к %1</translation>
     </message>
     <message>
+        <source>Outgoing clip</source>
+        <translation>Уходящий клип</translation>
+    </message>
+    <message>
+        <source>Incoming clip</source>
+        <translation>Приходящий клип</translation>
+    </message>
+    <message>
         <source>This clip</source>
         <translation>Этот клип</translation>
     </message>
@@ -10732,6 +10748,34 @@ Thank you for watching</source>
     <message>
         <source>Add %1 after the selected node</source>
         <translation>Добавить %1 после выбранной ноды</translation>
+    </message>
+    <message>
+        <source>Render Savers</source>
+        <translation>Рендер Saver</translation>
+    </message>
+    <message>
+        <source>Renders every frame of the open composition and writes the pictures of its Saver nodes to their image files. Playing and scrubbing never write files</source>
+        <translation>Рендерит каждый кадр открытой композиции и записывает картинки её узлов Saver в файлы изображений. Воспроизведение и прокрутка файлы не записывают</translation>
+    </message>
+    <message>
+        <source>The composition has no Saver node with a file name that is switched on.</source>
+        <translation>В композиции нет включённого узла Saver с именем файла.</translation>
+    </message>
+    <message>
+        <source>Writing the Saver images…</source>
+        <translation>Запись изображений Saver…</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
+    </message>
+    <message>
+        <source>%1 image(s) written.</source>
+        <translation>Записано изображений: %1.</translation>
+    </message>
+    <message>
+        <source>Cancelled.</source>
+        <translation>Отменено.</translation>
     </message>
 </context>
 <context>
@@ -13346,6 +13390,14 @@ Thank you for watching</source>
     <message>
         <source>Both pictures pan %1 with a motion blur</source>
         <translation>Оба изображения панорамируются %1 с размытием движения</translation>
+    </message>
+    <message>
+        <source>Fusion Composition</source>
+        <translation>Композиция Fusion</translation>
+    </message>
+    <message>
+        <source>A transition you build as a node graph on the Compositing page, from the outgoing clip (MediaIn1) and the incoming clip (MediaIn2)</source>
+        <translation>Переход, который вы собираете как граф узлов на странице композитинга из уходящего клипа (MediaIn1) и приходящего клипа (MediaIn2)</translation>
     </message>
     <message>
         <source>Fall and Bounce</source>
@@ -22080,12 +22132,188 @@ Import files with %1 or drop them here.</source>
         <translation> X</translation>
     </message>
     <message>
+        <source>Time</source>
+        <translation>Время</translation>
+    </message>
+    <message>
         <source>Group</source>
         <translation>Группа</translation>
     </message>
     <message>
         <source>Holds other nodes together: a frame around them, or one tile; with controls it is a Macro</source>
         <translation>Объединяет другие узлы: рамка вокруг них или одна плитка; с элементами управления это макрос</translation>
+    </message>
+    <message>
+        <source>Loader</source>
+        <translation>Loader (загрузка)</translation>
+    </message>
+    <message>
+        <source>Reads an image, an image sequence or a movie file from disk into the graph</source>
+        <translation>Читает с диска изображение, последовательность изображений или видеофайл в граф</translation>
+    </message>
+    <message>
+        <source>Filename</source>
+        <translation>Имя файла</translation>
+    </message>
+    <message>
+        <source>Images and movies (*)</source>
+        <translation>Изображения и видео (*)</translation>
+    </message>
+    <message>
+        <source>The file to read. Pick one file of a numbered sequence (name_0001.png) and the whole sequence is read; a single image is shown on every frame</source>
+        <translation>Файл для чтения. Выберите один файл пронумерованной последовательности (name_0001.png), и будет прочитана вся последовательность; одно изображение показывается на каждом кадре</translation>
+    </message>
+    <message>
+        <source>Global In</source>
+        <translation>Глобальный вход</translation>
+    </message>
+    <message>
+        <source>The composition frame where the first frame of the clip plays</source>
+        <translation>Кадр композиции, на котором играет первый кадр клипа</translation>
+    </message>
+    <message>
+        <source>Trim In</source>
+        <translation>Обрезка в начале</translation>
+    </message>
+    <message>
+        <source>How many frames are cut from the start of the clip</source>
+        <translation>Сколько кадров отрезается от начала клипа</translation>
+    </message>
+    <message>
+        <source>Trim Out</source>
+        <translation>Обрезка в конце</translation>
+    </message>
+    <message>
+        <source>How many frames are cut from the end of the clip</source>
+        <translation>Сколько кадров отрезается от конца клипа</translation>
+    </message>
+    <message>
+        <source>Hold First Frame</source>
+        <translation>Удержать первый кадр</translation>
+    </message>
+    <message>
+        <source>How many frames the first frame stays before the clip plays</source>
+        <translation>Сколько кадров первый кадр остаётся на экране до начала воспроизведения клипа</translation>
+    </message>
+    <message>
+        <source>Hold Last Frame</source>
+        <translation>Удержать последний кадр</translation>
+    </message>
+    <message>
+        <source>How many frames the last frame stays after the clip has played</source>
+        <translation>Сколько кадров последний кадр остаётся на экране после воспроизведения клипа</translation>
+    </message>
+    <message>
+        <source>Loop</source>
+        <translation>Зациклить</translation>
+    </message>
+    <message>
+        <source>Plays the clip again and again, with its held frames, instead of showing nothing after the end</source>
+        <translation>Играет клип снова и снова, вместе с удержанными кадрами, вместо того чтобы ничего не показывать после конца</translation>
+    </message>
+    <message>
+        <source>Reverse</source>
+        <translation>Реверс</translation>
+    </message>
+    <message>
+        <source>Plays the clip backwards</source>
+        <translation>Играет клип задом наперёд</translation>
+    </message>
+    <message>
+        <source>Saver</source>
+        <translation>Saver (сохранение)</translation>
+    </message>
+    <message>
+        <source>Writes its input to image files when the composition is rendered; the picture passes through unchanged</source>
+        <translation>Записывает свой вход в файлы изображений при рендере композиции; картинка проходит дальше без изменений</translation>
+    </message>
+    <message>
+        <source>Where the files go. The frame number is added to the name: shot.png becomes shot0000.png, shot0001.png and so on</source>
+        <translation>Куда записываются файлы. К имени добавляется номер кадра: shot.png станет shot0000.png, shot0001.png и так далее</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>Формат</translation>
+    </message>
+    <message>
+        <source>PNG</source>
+        <translation>PNG</translation>
+    </message>
+    <message>
+        <source>TIFF</source>
+        <translation>TIFF</translation>
+    </message>
+    <message>
+        <source>The file format of the images</source>
+        <translation>Формат файлов изображений</translation>
+    </message>
+    <message>
+        <source>First Number</source>
+        <translation>Первый номер</translation>
+    </message>
+    <message>
+        <source>The number added to the first file name (the first frame of the range written)</source>
+        <translation>Номер в имени первого файла (первого записанного кадра)</translation>
+    </message>
+    <message>
+        <source>Save When Rendered</source>
+        <translation>Сохранять при рендере</translation>
+    </message>
+    <message>
+        <source>Off: this Saver writes nothing when the composition is rendered</source>
+        <translation>Выключено: этот Saver ничего не записывает при рендере композиции</translation>
+    </message>
+    <message>
+        <source>Time Speed</source>
+        <translation>Скорость времени</translation>
+    </message>
+    <message>
+        <source>Plays the input faster, slower, backwards or later</source>
+        <translation>Играет вход быстрее, медленнее, задом наперёд или позже</translation>
+    </message>
+    <message>
+        <source>Speed</source>
+        <translation>Скорость</translation>
+    </message>
+    <message>
+        <source>1 plays at the normal speed, 0.5 at half speed, 2 twice as fast, a negative number backwards</source>
+        <translation>1 — обычная скорость, 0,5 — вполовину медленнее, 2 — вдвое быстрее, отрицательное число — задом наперёд</translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation>Задержка</translation>
+    </message>
+    <message>
+        <source>Frames the input starts later (positive) or earlier (negative)</source>
+        <translation>На сколько кадров вход начинается позже (положительное число) или раньше (отрицательное)</translation>
+    </message>
+    <message>
+        <source>Interpolation</source>
+        <translation>Интерполяция</translation>
+    </message>
+    <message>
+        <source>Nearest</source>
+        <translation>Ближайший</translation>
+    </message>
+    <message>
+        <source>Nearest shows the closest frame; Blend mixes the two frames around the time</source>
+        <translation>Ближайший показывает ближайший кадр; Смешивание смешивает два кадра вокруг этого момента</translation>
+    </message>
+    <message>
+        <source>Time Stretcher</source>
+        <translation>Растяжение времени</translation>
+    </message>
+    <message>
+        <source>Shows the input at a time you set, which can be keyframed to speed up, slow down, freeze or reverse</source>
+        <translation>Показывает вход в заданный вами момент времени; его можно анимировать ключами, чтобы ускорить, замедлить, заморозить или обратить</translation>
+    </message>
+    <message>
+        <source>Source Time</source>
+        <translation>Исходное время</translation>
+    </message>
+    <message>
+        <source>The frame of the input to show now. Keyframe it: 0 at the first frame and 100 at the last frame plays 100 frames of the input; the steeper the curve, the faster</source>
+        <translation>Кадр входа, который показывается сейчас. Анимируйте его ключами: 0 на первом кадре и 100 на последнем проигрывает 100 кадров входа; чем круче кривая, тем быстрее</translation>
     </message>
     <message>
         <source>Patterns</source>
@@ -29579,6 +29807,14 @@ Trim the clips so the media covers the transition?</source>
     <message>
         <source>Open in Inspector</source>
         <translation>Открыть в инспекторе</translation>
+    </message>
+    <message>
+        <source>Builds the transition as a node graph from the outgoing and the incoming clip</source>
+        <translation>Собирает переход как граф узлов из уходящего и приходящего клипа</translation>
+    </message>
+    <message>
+        <source>Only a Fusion Composition transition can be built on the page: drag it from the Effects Library, Fusion Transitions</source>
+        <translation>На странице можно собрать только переход «Композиция Fusion»: перетащите его из библиотеки эффектов, Fusion Transitions</translation>
     </message>
     <message>
         <source>Change Transition Duration…</source>

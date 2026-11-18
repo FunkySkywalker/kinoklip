@@ -8,7 +8,9 @@
 #include "render/CompColorMath.h"
 #include "render/CompFilterMath.h"
 #include "render/CompMatteMath.h"
+#include "render/CompLoader.h"
 #include "render/CompMath.h"
+#include "render/CompTimeMath.h"
 #include "render/CompWarpMath.h"
 #include "render/EffectMath.h"
 #include "render/Generators.h"
@@ -285,6 +287,8 @@ private:
             = common ? compmath::commonParams(n, f) : compmath::CommonParams();
         if (!d || !n.enabled || n.type == nodetypes::MediaOut || cp.skipped())
             return main.isEmpty() ? QImage() : input(n, main, depth);
+        if (compops::isTimeNode(n.type))
+            return timeNode(n, depth);
         const QSize size = m_ev.size;
         const double s = m_ev.scale;
         const QImage mask = d->input(nodeports::Mask) ? input(n, nodeports::Mask, depth) : QImage();
@@ -298,6 +302,10 @@ private:
             out = m_ev.mediaIn ? normalized(m_ev.mediaIn(n, f), size) : QImage();
             if (out.isNull())
                 out = blank(size);
+        } else if (n.type == nodetypes::Loader) {
+            out = loaderImage(n, f);
+        } else if (n.type == nodetypes::Saver) {
+            out = in; // writes only when the composition is rendered to files (CompSaverRun)
         } else if (n.type == nodetypes::Merge) {
             out = merge(n, in, input(n, nodeports::Foreground, depth), nodeMask);
             maskDone = true;
@@ -491,6 +499,38 @@ private:
         if (!mask.isNull() && !maskDone)
             out = mixImages(in, out, mask, 1.0f, size);
         return out;
+    }
+
+    /// The picture a Loader node shows at comp frame @p f: its clip frame, fitted into the frame.
+    QImage loaderImage(const CompNode& n, int64_t f)
+    {
+        return CompLoader::picture(n.params, f, m_ev.size, m_ev.frame);
+    }
+
+    /// The input of time node @p n evaluated at comp frame @p frame (its own pass, own cache).
+    QImage inputAt(const CompNode& n, int64_t frame, int depth)
+    {
+        const NodeLink* link = compops::mainInputLink(n);
+        if (!link || link->outputIndex != 0)
+            return {};
+        CpuCompEval sub = m_ev;
+        sub.compFrame = frame;
+        Evaluator inner(sub);
+        return normalized(inner.eval(link->nodeId, depth + 1), m_ev.size);
+    }
+
+    /// Time Speed and Time Stretcher: the input at the mapped time, or a blend of its two frames.
+    QImage timeNode(const CompNode& n, int depth)
+    {
+        const int64_t f = m_ev.compFrame;
+        const double time = n.type == nodetypes::TimeSpeed ? timemath::speedSourceTime(n.params, f)
+                                                           : timemath::stretchSourceTime(n.params, f);
+        const timemath::Taps t = timemath::taps(time, timemath::blends(n.params));
+        const QImage a = inputAt(n, t.from, depth);
+        if (t.single() || t.to == t.from)
+            return a;
+        const QImage b = inputAt(n, t.to, depth);
+        return mixImages(a, b, QImage(), float(t.blend), m_ev.size);
     }
 
     /// The Common Controls on @p res (the node's result) against @p in (its main input).

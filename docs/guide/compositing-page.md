@@ -286,6 +286,24 @@ A formula with a mistake does nothing, and Kinoklip tells you when one would mak
   instance follows. **Make Independent** cuts it loose.
 - **Add Underlay** puts a coloured box behind nodes to keep them apart visually; the nodes on it move with it.
 
+## Read files, change time and save images
+
+The **I/O** folder of the Nodes library has two more nodes, and the new **Time** folder has two:
+
+- **Loader** reads a picture from disk. Pick a still image, one file of a numbered sequence (`shot_0001.png`: the whole sequence is read) or a movie file under **Filename**. **Global In** is the composition frame where the clip starts, **Trim In** and **Trim Out** cut frames off its ends, **Hold First Frame** and **Hold Last Frame** keep the first or last picture on screen for that many frames, **Loop** plays it again and again and **Reverse** plays it backwards. A still image shows on every frame. Outside the clip the Loader shows nothing.
+- **Saver** writes the picture arriving at it to image files (PNG or TIFF), one per frame, named like `shot0000.png`. Nothing is written while you play or scrub. Click **Render Savers** in the tool bar above the node editor to render every frame of the composition and write the files.
+- **Time Speed** plays its input faster (Speed 2), slower (0.5), backwards (-1) or later (**Delay**). **Interpolation** Nearest shows the closest frame, Blend mixes the two frames around the time.
+- **Time Stretcher** shows the input at the **Source Time** you set. Keyframe it: 0 at the first frame and 100 at frame 100 plays normally, a line that falls from 100 to 0 plays backwards, a flat line freezes a frame.
+
+## Build a transition
+
+1. On the Edit page, put a **Fusion Composition** transition (Effects Library, Fusion Transitions) on a cut, or on the start or end of a clip.
+2. Right-click the transition in the timeline and choose **Open in Compositing Page**.
+3. The graph has **MediaIn1** (the outgoing clip), **MediaIn2** (the incoming clip), a **Merge** and **MediaOut1**. The Merge **Blend** already runs from 0 to 1 over the transition, so it plays as a dissolve. Change it as you like: animate the Blend with other keyframes, add Transform, Blur or Background nodes, feed MediaIn2 through a mask.
+4. The comp frames are the frames of the transition: frame 0 is its first frame. The timeline shows the same result, and so does the Deliver page. Undo, Redo and saving the project include the graph.
+
+Only a Fusion Composition transition can be built this way; the other transitions have their own settings in the Inspector.
+
 ## Sound
 
 The Compositing page plays the same sound as the Edit page: the timeline's mix, so a clip on a

@@ -2,7 +2,9 @@
 // CompositingPage layout and wiring of the comp.* commands.
 #include "app/pages/CompositingPage.h"
 
+#include "core/EditOps.h"
 #include "core/Project.h"
+#include "render/CompSaver.h"
 #include "core/SelectionModel.h"
 #include "core/Timeline.h"
 #include "playback/PlaybackEngine.h"
@@ -31,6 +33,7 @@
 #include <QHBoxLayout>
 #include <QInputDialog>
 #include <QMessageBox>
+#include <QProgressDialog>
 #include <QHideEvent>
 #include <QSettings>
 #include <QShowEvent>
@@ -97,7 +100,8 @@ CompositingPage::CompositingPage(AppContext& ctx, QWidget* parent)
                 return {};
             const bool out = nodeId == m_session->composition().mediaOutId;
             return engine->renderCompositionNode(m_ctx.project->timeline()->snapshot(),
-                m_session->clipId(), out ? 0 : nodeId, m_session->compFrame(), px, OutputImage);
+                m_session->clipId(), out ? 0 : nodeId, m_session->compFrame(), px, OutputImage,
+                m_session->transition());
         });
     setPanelInfo(m_editor, tr("Node Editor"),
         tr("The node graph of the open clip: select, move, connect and edit nodes."));
@@ -233,7 +237,51 @@ QWidget* CompositingPage::buildToolBar()
         });
         bar->addWidget(b);
     }
+    bar->addSeparator();
+    m_renderSavers = new QToolButton(bar);
+    m_renderSavers->setObjectName(QStringLiteral("CompRenderSavers"));
+    m_renderSavers->setText(tr("Render Savers"));
+    m_renderSavers->setToolTip(
+        tr("Renders every frame of the open composition and writes the pictures of its Saver nodes to their image files. Playing and scrubbing never write files"));
+    m_renderSavers->setAutoRaise(true);
+    m_renderSavers->setFocusPolicy(Qt::NoFocus);
+    connect(m_renderSavers, &QToolButton::clicked, this, [this] { renderSavers(); });
+    bar->addWidget(m_renderSavers);
     return bar;
+}
+
+void CompositingPage::renderSavers()
+{
+    PlaybackEngine* engine = m_ctx.playback;
+    const quint64 clipId = m_session->clipId();
+    if (!engine || !engine->compositor() || !clipId || m_session->transition())
+        return;
+    const auto snapshot = m_ctx.project->timeline()->snapshot();
+    const ClipData* clip = editops::clipById(*snapshot, clipId);
+    if (!clip || !clip->composition || render::compsaver::activeSavers(*clip->composition).isEmpty()) {
+        QMessageBox::information(this, tr("Render Savers"),
+            tr("The composition has no Saver node with a file name that is switched on."));
+        return;
+    }
+    QProgressDialog progress(tr("Writing the Saver images…"), tr("Cancel"), 0, 100, this);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.setMinimumDuration(0);
+    const render::compsaver::Result result = render::compsaver::run(*engine->compositor(), snapshot,
+        clipId, 0, std::max<int64_t>(0, clip->duration - 1),
+        [&progress](int done, int total) {
+            progress.setMaximum(std::max(1, total));
+            progress.setValue(done);
+            QCoreApplication::processEvents();
+            return !progress.wasCanceled();
+        },
+        m_ctx.playback->mediaPaths());
+    progress.close();
+    QString text = tr("%1 image(s) written.").arg(result.files);
+    if (result.cancelled)
+        text += QLatin1Char(' ') + tr("Cancelled.");
+    if (!result.errors.isEmpty())
+        text += QLatin1String("\n") + result.errors.mid(0, 5).join(QLatin1Char('\n'));
+    QMessageBox::information(this, tr("Render Savers"), text);
 }
 
 QToolButton* CompositingPage::toolButton(const QString& type) const
@@ -341,6 +389,16 @@ void CompositingPage::openClip(quint64 clipId)
     m_session->openClip(clipId ? clipId : m_session->clipForPage());
 }
 
+void CompositingPage::openTransition(quint64 clipId, bool tail)
+{
+    if (isVisible()) {
+        m_session->openTransition(clipId, tail);
+        return;
+    }
+    m_pendingTransitionClip = clipId;
+    m_pendingTransitionTail = tail;
+}
+
 QStringList CompositingPage::keptCommandIds()
 {
     // Besides TimelineCommandSuspension::alwaysKept(): the page's own clip commands and the
@@ -369,7 +427,12 @@ void CompositingPage::showEvent(QShowEvent* event)
     if (event->spontaneous())
         return;
     setNodeCommandsEnabled(true);
-    openClip(); // the timeline commands are already suspended (TimelineCommandSuspension)
+    if (m_pendingTransitionClip) {
+        m_session->openTransition(m_pendingTransitionClip, m_pendingTransitionTail);
+        m_pendingTransitionClip = 0;
+    } else {
+        openClip(); // the timeline commands are already suspended (TimelineCommandSuspension)
+    }
     // The node editor's keys act while it has the focus (1 / 2, Shift+Space, Delete right
     // after Shift+5, as in Resolve): when the page that had the focus went away, it takes it.
     QTimer::singleShot(0, this, [this] {

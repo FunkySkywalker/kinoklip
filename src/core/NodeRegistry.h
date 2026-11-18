@@ -45,6 +45,7 @@ enum class NodeCategory : quint8 {
     Matte, ///< Luma Keyer, Delta Keyer, Ultra Keyer, Matte Control
     Filter, ///< Soft Glow, Light Wrap
     Warp, ///< Grid Warp, Displace, Vector Distort
+    Time, ///< Time Speed, Time Stretcher
     Effect ///< every EffectRegistry video effect ("fx:<id>")
 };
 
@@ -158,9 +159,26 @@ inline const QString ColorCurves = QStringLiteral("color_curves");
 inline const QString HueCurves = QStringLiteral("hue_curves");
 inline const QString CustomTool = QStringLiteral("custom_tool");
 inline const QString VectorMotionBlur = QStringLiteral("vector_motion_blur");
+// Spec 128.
+inline const QString Loader = QStringLiteral("loader");
+inline const QString Saver = QStringLiteral("saver");
+inline const QString TimeSpeed = QStringLiteral("time_speed");
+inline const QString TimeStretcher = QStringLiteral("time_stretcher");
 /// Prefix of the effect nodes: "fx:" + EffectRegistry id.
 inline const QString EffectPrefix = QStringLiteral("fx:");
 } // namespace nodetypes
+
+/// Time Speed / Time Stretcher interpolation (spec 128).
+namespace timeinterps {
+inline const QString Nearest = QStringLiteral("nearest");
+inline const QString Blend = QStringLiteral("blend");
+} // namespace timeinterps
+
+/// Saver file formats (spec 128).
+namespace saverformats {
+inline const QString Png = QStringLiteral("png");
+inline const QString Tiff = QStringLiteral("tiff");
+} // namespace saverformats
 
 /// Well-known port ids.
 namespace nodeports {
@@ -251,6 +269,23 @@ inline QString planarCorner(int corner, bool y)
         .arg(corner + 1)
         .arg(y ? QLatin1Char('Y') : QLatin1Char('X'));
 }
+// Loader / Saver / Time Speed / Time Stretcher (spec 128).
+inline const QString LoaderPath = QStringLiteral("loaderPath"); ///< file: an image, one file of a sequence, or a movie
+inline const QString GlobalIn = QStringLiteral("globalIn"); ///< comp frame where the clip starts
+inline const QString TrimIn = QStringLiteral("trimIn"); ///< frames cut from the start of the clip
+inline const QString TrimOut = QStringLiteral("trimOut"); ///< frames cut from the end of the clip
+inline const QString HoldFirst = QStringLiteral("holdFirst"); ///< frames the first frame is held before it plays
+inline const QString HoldLast = QStringLiteral("holdLast"); ///< frames the last frame is held after it played
+inline const QString Loop = QStringLiteral("loop"); ///< bool
+inline const QString Reverse = QStringLiteral("reverse"); ///< bool
+inline const QString SaverPath = QStringLiteral("saverPath"); ///< output file name; the frame number is added
+inline const QString SaverFormat = QStringLiteral("saverFormat"); ///< choice (saverformats::)
+inline const QString SaverStart = QStringLiteral("saverStart"); ///< number of the first written file
+inline const QString SaverActive = QStringLiteral("saverActive"); ///< bool: Save When Rendered
+inline const QString TimeSpeedKey = QStringLiteral("timeSpeed"); ///< Time Speed: speed factor
+inline const QString TimeDelay = QStringLiteral("timeDelay"); ///< Time Speed: frames
+inline const QString TimeInterp = QStringLiteral("timeInterp"); ///< choice (timeinterps::)
+inline const QString SourceTime = QStringLiteral("sourceTime"); ///< Time Stretcher: frame of the input shown
 // Letterbox.
 inline const QString TargetAspect = QStringLiteral("targetAspect"); ///< width / height, e.g. 2.39
 inline const QString Color = QStringLiteral("color"); ///< colour static

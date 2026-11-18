@@ -51,6 +51,13 @@ struct TransitionSpan
 /// neighbour's centred transitionIn), if any.
 [[nodiscard]] std::optional<TransitionSpan> tailTransition(const TrackData& track, int index);
 
+/// The span of the transition stored in `track.clips[index]` itself: its transitionIn (@p tail
+/// false) or transitionOut (@p tail true), placed like headTransition() / tailTransition() place
+/// it, but without the "the incoming clip's transitionIn wins" rule. std::nullopt when the clip
+/// has no such transition. (The Compositing page opens a transition by its owner.)
+[[nodiscard]] std::optional<TransitionSpan> ownTransition(
+    const TrackData& track, int index, bool tail);
+
 /// What one track shows at one frame.
 ///
 /// * Plain clip: `single` set, `transition` empty.

@@ -36,7 +36,7 @@ set(KK_TESTS_QUICK
   test_bughunt5 test_bughunt6 test_bughunt6edit test_bughunt7 test_bughunt7edit test_bughunt8 test_multiedit test_multiaudio
   test_bughunt9 test_bughuntkeys test_bugreport test_childprocessenv test_clipattributes
   test_clipeqeditor test_colorpage test_colorpageui test_commoncontrols test_compcolor test_compexport
-  test_compfilters test_compositemode test_composition test_compositor test_compound test_comprender
+  test_compfilters test_compositemode test_comptransition test_composition test_compositor test_compound test_comprender
   test_compviewerview test_cutedits test_deliverpage test_dialogs test_dialogsizing test_dmabuf
   test_droptargets test_dynamiczoom test_dynamiczoomcontrols test_editaids test_editindex
   test_editops test_editops_ripple test_editops_timeline test_editpolish test_edlexport

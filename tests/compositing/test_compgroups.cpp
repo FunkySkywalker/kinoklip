@@ -238,7 +238,7 @@ private slots:
             {{ch.transform, nodekeys::Size, QStringLiteral("Zoom")}, {ch.crop, nodekeys::Left, {}},
                 {ch.transform, nodekeys::Size, QStringLiteral("again")}},
             0));
-        const CompNode& m = *c.node(g);
+        const CompNode m = *c.node(g); // a copy: addNode() below reallocates the node list
         QVERIFY(m.macro);
         QCOMPARE(m.name, QStringLiteral("Zoom Box"));
         QCOMPARE(m.controls.size(), 2); // the repeat is skipped

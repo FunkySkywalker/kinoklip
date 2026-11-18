@@ -324,6 +324,12 @@ void EffectRegistry::registerTransitions()
             Params {number(k::MotionBlur, tr("Motion Blur"), 0, 100, 50, 1, kPercent)}
                 + curveParams()));
     }
+    // Built on the Compositing page (spec 128): the graph is TransitionData::composition; it has no
+    // parameters of its own.
+    add(transition("fusion_composition", tr("Fusion Composition"), FusionTransitions,
+        tr("A transition you build as a node graph on the Compositing page, from the outgoing "
+           "clip (MediaIn1) and the incoming clip (MediaIn2)"),
+        {}));
     add(transition("fall_and_bounce", tr("Fall and Bounce"), FusionTransitions,
         tr("The next clip falls in over the current one and bounces to rest"),
         {number(k::Angle, tr("Fall Angle"), -360, 360, 90, 1, kDegrees)}));

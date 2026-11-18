@@ -5343,6 +5343,10 @@ Thank you for watching</source>
         <translation>Вир втягує зображення в наступне</translation>
     </message>
     <message>
+        <source>A transition you build as a node graph on the Compositing page, from the outgoing clip (MediaIn1) and the incoming clip (MediaIn2)</source>
+        <translation>Перехід, який ви збираєте як граф вузлів на сторінці композитингу з вихідного кліпу (MediaIn1) і вхідного кліпу (MediaIn2)</translation>
+    </message>
+    <message>
         <source>A triangle grows from the centre</source>
         <translation>Трикутник росте від центру</translation>
     </message>
@@ -5565,6 +5569,10 @@ Thank you for watching</source>
     <message>
         <source>Frame Size</source>
         <translation>Розмір кадру</translation>
+    </message>
+    <message>
+        <source>Fusion Composition</source>
+        <translation>Композиція Fusion</translation>
     </message>
     <message>
         <source>Glitch</source>
@@ -9983,6 +9991,14 @@ Thank you for watching</source>
         <translation>Підключити до %1</translation>
     </message>
     <message>
+        <source>Outgoing clip</source>
+        <translation>Вихідний кліп</translation>
+    </message>
+    <message>
+        <source>Incoming clip</source>
+        <translation>Вхідний кліп</translation>
+    </message>
+    <message>
         <source>This clip</source>
         <translation>Цей кліп</translation>
     </message>
@@ -10732,6 +10748,34 @@ Thank you for watching</source>
     <message>
         <source>Add %1 after the selected node</source>
         <translation>Додати %1 після вибраної ноди</translation>
+    </message>
+    <message>
+        <source>Render Savers</source>
+        <translation>Рендер Saver</translation>
+    </message>
+    <message>
+        <source>Renders every frame of the open composition and writes the pictures of its Saver nodes to their image files. Playing and scrubbing never write files</source>
+        <translation>Рендерить кожен кадр відкритої композиції та записує картинки її вузлів Saver у файли зображень. Відтворення й прокручування файли не записують</translation>
+    </message>
+    <message>
+        <source>The composition has no Saver node with a file name that is switched on.</source>
+        <translation>У композиції немає ввімкненого вузла Saver з іменем файлу.</translation>
+    </message>
+    <message>
+        <source>Writing the Saver images…</source>
+        <translation>Запис зображень Saver…</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Скасувати</translation>
+    </message>
+    <message>
+        <source>%1 image(s) written.</source>
+        <translation>Записано зображень: %1.</translation>
+    </message>
+    <message>
+        <source>Cancelled.</source>
+        <translation>Скасовано.</translation>
     </message>
 </context>
 <context>
@@ -13346,6 +13390,14 @@ Thank you for watching</source>
     <message>
         <source>Both pictures pan %1 with a motion blur</source>
         <translation>Обидва зображення панорамуються %1 з розмиттям руху</translation>
+    </message>
+    <message>
+        <source>Fusion Composition</source>
+        <translation>Композиція Fusion</translation>
+    </message>
+    <message>
+        <source>A transition you build as a node graph on the Compositing page, from the outgoing clip (MediaIn1) and the incoming clip (MediaIn2)</source>
+        <translation>Перехід, який ви збираєте як граф вузлів на сторінці композитингу з вихідного кліпу (MediaIn1) і вхідного кліпу (MediaIn2)</translation>
     </message>
     <message>
         <source>Fall and Bounce</source>
@@ -22080,12 +22132,188 @@ Import files with %1 or drop them here.</source>
         <translation> X</translation>
     </message>
     <message>
+        <source>Time</source>
+        <translation>Час</translation>
+    </message>
+    <message>
         <source>Group</source>
         <translation>Група</translation>
     </message>
     <message>
         <source>Holds other nodes together: a frame around them, or one tile; with controls it is a Macro</source>
         <translation>Об&apos;єднує інші вузли: рамка навколо них або одна плитка; з елементами керування це макрос</translation>
+    </message>
+    <message>
+        <source>Loader</source>
+        <translation>Loader (завантаження)</translation>
+    </message>
+    <message>
+        <source>Reads an image, an image sequence or a movie file from disk into the graph</source>
+        <translation>Читає з диска зображення, послідовність зображень або відеофайл у граф</translation>
+    </message>
+    <message>
+        <source>Filename</source>
+        <translation>Ім’я файлу</translation>
+    </message>
+    <message>
+        <source>Images and movies (*)</source>
+        <translation>Зображення та відео (*)</translation>
+    </message>
+    <message>
+        <source>The file to read. Pick one file of a numbered sequence (name_0001.png) and the whole sequence is read; a single image is shown on every frame</source>
+        <translation>Файл для читання. Виберіть один файл пронумерованої послідовності (name_0001.png), і буде прочитано всю послідовність; одне зображення показується на кожному кадрі</translation>
+    </message>
+    <message>
+        <source>Global In</source>
+        <translation>Глобальний вхід</translation>
+    </message>
+    <message>
+        <source>The composition frame where the first frame of the clip plays</source>
+        <translation>Кадр композиції, на якому грає перший кадр кліпу</translation>
+    </message>
+    <message>
+        <source>Trim In</source>
+        <translation>Обрізання на початку</translation>
+    </message>
+    <message>
+        <source>How many frames are cut from the start of the clip</source>
+        <translation>Скільки кадрів відрізається від початку кліпу</translation>
+    </message>
+    <message>
+        <source>Trim Out</source>
+        <translation>Обрізання в кінці</translation>
+    </message>
+    <message>
+        <source>How many frames are cut from the end of the clip</source>
+        <translation>Скільки кадрів відрізається від кінця кліпу</translation>
+    </message>
+    <message>
+        <source>Hold First Frame</source>
+        <translation>Утримати перший кадр</translation>
+    </message>
+    <message>
+        <source>How many frames the first frame stays before the clip plays</source>
+        <translation>Скільки кадрів перший кадр залишається на екрані до початку відтворення кліпу</translation>
+    </message>
+    <message>
+        <source>Hold Last Frame</source>
+        <translation>Утримати останній кадр</translation>
+    </message>
+    <message>
+        <source>How many frames the last frame stays after the clip has played</source>
+        <translation>Скільки кадрів останній кадр залишається на екрані після відтворення кліпу</translation>
+    </message>
+    <message>
+        <source>Loop</source>
+        <translation>Зациклити</translation>
+    </message>
+    <message>
+        <source>Plays the clip again and again, with its held frames, instead of showing nothing after the end</source>
+        <translation>Грає кліп знову й знову, разом з утримуваними кадрами, замість того щоб нічого не показувати після кінця</translation>
+    </message>
+    <message>
+        <source>Reverse</source>
+        <translation>Реверс</translation>
+    </message>
+    <message>
+        <source>Plays the clip backwards</source>
+        <translation>Грає кліп у зворотному напрямку</translation>
+    </message>
+    <message>
+        <source>Saver</source>
+        <translation>Saver (збереження)</translation>
+    </message>
+    <message>
+        <source>Writes its input to image files when the composition is rendered; the picture passes through unchanged</source>
+        <translation>Записує свій вхід у файли зображень під час рендеру композиції; картинка проходить далі без змін</translation>
+    </message>
+    <message>
+        <source>Where the files go. The frame number is added to the name: shot.png becomes shot0000.png, shot0001.png and so on</source>
+        <translation>Куди записуються файли. До імені додається номер кадру: shot.png стане shot0000.png, shot0001.png і так далі</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>Формат</translation>
+    </message>
+    <message>
+        <source>PNG</source>
+        <translation>PNG</translation>
+    </message>
+    <message>
+        <source>TIFF</source>
+        <translation>TIFF</translation>
+    </message>
+    <message>
+        <source>The file format of the images</source>
+        <translation>Формат файлів зображень</translation>
+    </message>
+    <message>
+        <source>First Number</source>
+        <translation>Перший номер</translation>
+    </message>
+    <message>
+        <source>The number added to the first file name (the first frame of the range written)</source>
+        <translation>Номер в імені першого файлу (першого записаного кадру)</translation>
+    </message>
+    <message>
+        <source>Save When Rendered</source>
+        <translation>Зберігати під час рендеру</translation>
+    </message>
+    <message>
+        <source>Off: this Saver writes nothing when the composition is rendered</source>
+        <translation>Вимкнено: цей Saver нічого не записує під час рендеру композиції</translation>
+    </message>
+    <message>
+        <source>Time Speed</source>
+        <translation>Швидкість часу</translation>
+    </message>
+    <message>
+        <source>Plays the input faster, slower, backwards or later</source>
+        <translation>Грає вхід швидше, повільніше, у зворотному напрямку або пізніше</translation>
+    </message>
+    <message>
+        <source>Speed</source>
+        <translation>Швидкість</translation>
+    </message>
+    <message>
+        <source>1 plays at the normal speed, 0.5 at half speed, 2 twice as fast, a negative number backwards</source>
+        <translation>1 — звичайна швидкість, 0,5 — удвічі повільніше, 2 — удвічі швидше, від’ємне число — у зворотному напрямку</translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation>Затримка</translation>
+    </message>
+    <message>
+        <source>Frames the input starts later (positive) or earlier (negative)</source>
+        <translation>На скільки кадрів вхід починається пізніше (додатне число) або раніше (від’ємне)</translation>
+    </message>
+    <message>
+        <source>Interpolation</source>
+        <translation>Інтерполяція</translation>
+    </message>
+    <message>
+        <source>Nearest</source>
+        <translation>Найближчий</translation>
+    </message>
+    <message>
+        <source>Nearest shows the closest frame; Blend mixes the two frames around the time</source>
+        <translation>Найближчий показує найближчий кадр; Змішування змішує два кадри навколо цього моменту</translation>
+    </message>
+    <message>
+        <source>Time Stretcher</source>
+        <translation>Розтягування часу</translation>
+    </message>
+    <message>
+        <source>Shows the input at a time you set, which can be keyframed to speed up, slow down, freeze or reverse</source>
+        <translation>Показує вхід у заданий вами момент часу; його можна анімувати ключами, щоб прискорити, уповільнити, заморозити або обернути</translation>
+    </message>
+    <message>
+        <source>Source Time</source>
+        <translation>Вихідний час</translation>
+    </message>
+    <message>
+        <source>The frame of the input to show now. Keyframe it: 0 at the first frame and 100 at the last frame plays 100 frames of the input; the steeper the curve, the faster</source>
+        <translation>Кадр входу, який показується зараз. Анімуйте його ключами: 0 на першому кадрі й 100 на останньому програє 100 кадрів входу; чим крутіша крива, тим швидше</translation>
     </message>
     <message>
         <source>Patterns</source>
@@ -29579,6 +29807,14 @@ Trim the clips so the media covers the transition?</source>
     <message>
         <source>Open in Inspector</source>
         <translation>Відкрити в Інспекторі</translation>
+    </message>
+    <message>
+        <source>Builds the transition as a node graph from the outgoing and the incoming clip</source>
+        <translation>Збирає перехід як граф вузлів з вихідного та вхідного кліпу</translation>
+    </message>
+    <message>
+        <source>Only a Fusion Composition transition can be built on the page: drag it from the Effects Library, Fusion Transitions</source>
+        <translation>На сторінці можна зібрати лише перехід «Композиція Fusion»: перетягніть його з бібліотеки ефектів, Fusion Transitions</translation>
     </message>
     <message>
         <source>Change Transition Duration…</source>

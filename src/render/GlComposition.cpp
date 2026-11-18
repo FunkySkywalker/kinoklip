@@ -2,6 +2,9 @@
 // GlComposition implementation: the node passes of the Compositing page on the GPU.
 #include "render/GlComposition.h"
 
+#include "render/CompLoader.h"
+#include "render/CompTimeMath.h"
+
 #include "core/CompOps.h"
 #include "core/NodeRegistry.h"
 #include "render/CompMath.h"
@@ -475,6 +478,8 @@ PooledTarget GlComposition::evaluate(GlKit& kit, const CompEval& ev, quint64 nod
         if (!n->enabled || commonSkips(*n, ev.compFrame)) {
             if (const NodeLink* main = compops::mainInputLink(*n))
                 count(*main);
+        } else if (compops::isTimeNode(n->type)) {
+            // Its input is pulled by evaluate() again at another time, not read from here.
         } else {
             for (const NodeLink& l : n->inputs)
                 count(l);
@@ -531,7 +536,14 @@ void GlComposition::evalNode(GlKit& kit, const CompEval& ev, int index)
         = common ? compmath::commonParams(n, ev.compFrame) : compmath::CommonParams();
     // The Common Controls pass (Blend, channels, mask options) does the mask work itself.
     const bool commonPass = common && (cp.needsPass() || (maskOwner >= 0 && cp.maskInverted));
-    if (n.type == nodetypes::MediaIn) {
+    if (n.type == nodetypes::Loader) {
+        out = loaderNode(kit, ev, n);
+    } else if (compops::isTimeNode(n.type)) {
+        out = timeNode(kit, ev, n);
+    } else if (n.type == nodetypes::Saver) {
+        // Passes its input through; the files are written only by a render of the composition
+        // (CompSaverRun), never while a frame is drawn for playback.
+    } else if (n.type == nodetypes::MediaIn) {
         out = newTarget(kit, ev, true);
         if (ev.sources)
             ev.sources->drawMediaIn(n, ev.compFrame, *out);
@@ -599,7 +611,8 @@ void GlComposition::evalNode(GlKit& kit, const CompEval& ev, int index)
     }
     list[size_t(index)].own = std::move(out);
     list[size_t(index)].owner = index;
-    releaseInputs(false);
+    if (!compops::isTimeNode(n.type))
+        releaseInputs(false);
 }
 
 // ---- Passes ----
@@ -863,6 +876,53 @@ PooledTarget GlComposition::rectNode(GlKit& kit, const CompEval& ev, const CompN
             kit.fill(GlKit::quadToNdc(toTarget(b), ev.size), c.data());
     }
     return out;
+}
+
+PooledTarget GlComposition::loaderNode(GlKit& kit, const CompEval& ev, const CompNode& n)
+{
+    PooledTarget out = newTarget(kit, ev, true);
+    const QImage image = CompLoader::picture(n.params, ev.compFrame, ev.size, ev.frame);
+    if (image.isNull())
+        return out;
+    GlFunctions* gl = kit.gl();
+    GLuint texture = 0;
+    gl->glGenTextures(1, &texture);
+    kit.bindTexture(1, texture);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    gl->glPixelStorei(GL_UNPACK_ROW_LENGTH, GLint(image.bytesPerLine() / 4));
+    gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image.width(), image.height(), 0, GL_BGRA,
+        GL_UNSIGNED_BYTE, image.constBits());
+    gl->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+    kit.bindTarget(*out);
+    kit.setBlendOver(false);
+    kit.blit(texture, GlKit::quadToNdc(QRectF(QPointF(0, 0), QSizeF(ev.size)), ev.size));
+    gl->glDeleteTextures(1, &texture);
+    return out;
+}
+
+PooledTarget GlComposition::timeNode(GlKit& kit, const CompEval& ev, const CompNode& n)
+{
+    const NodeLink* link = compops::mainInputLink(n);
+    if (!link || link->outputIndex != 0)
+        return newTarget(kit, ev, true);
+    const double time = n.type == nodetypes::TimeSpeed
+        ? timemath::speedSourceTime(n.params, ev.compFrame)
+        : timemath::stretchSourceTime(n.params, ev.compFrame);
+    const timemath::Taps t = timemath::taps(time, timemath::blends(n.params));
+    const quint64 source = link->nodeId;
+    const auto at = [&](int64_t frame) {
+        CompEval sub = ev;
+        sub.compFrame = frame;
+        return evaluate(kit, sub, source);
+    };
+    PooledTarget a = at(t.from);
+    if (t.single() || t.to == t.from)
+        return a;
+    PooledTarget b = at(t.to);
+    return mixPass(kit, ev, a->texture, b->texture, 0, float(t.blend));
 }
 
 PooledTarget GlComposition::background(GlKit& kit, const CompEval& ev, const CompNode& n)

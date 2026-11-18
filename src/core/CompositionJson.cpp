@@ -65,6 +65,8 @@ QJsonObject nodeToJson(const CompNode& n, bool pictureOnly)
         o[QLatin1String("inputs")] = inputs;
     if (!n.mediaId.isEmpty())
         o[QLatin1String("mediaId")] = n.mediaId;
+    if (n.transitionSide != 0)
+        o[QLatin1String("side")] = n.transitionSide;
     if (n.path != AnimatedPath {})
         animatedPathToJson(n.path, o);
     return o;
@@ -110,6 +112,7 @@ CompNode nodeFromJson(const QJsonObject& o)
             n.inputs.insert(it.key(), link);
     }
     n.mediaId = o.value(QLatin1String("mediaId")).toString();
+    n.transitionSide = std::clamp(o.value(QLatin1String("side")).toInt(), 0, 2);
     if (o.contains(QLatin1String("points")) || o.contains(QLatin1String("shapeKeys")))
         animatedPathFromJson(o, n.path);
     return n;

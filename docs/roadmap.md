@@ -179,7 +179,8 @@ Beginner and intermediate tutorial workflows for Resolve's Color, Fairlight and 
 - [x] Compositing: modifiers (Perturb, Wiggle, Offset, Expression, Cycle, XY Path), parameter links with Connect To and Publish, and expressions in value fields
 - [x] Compositing: Group, Macro (Make Macro, published controls, save as a title in the Effects Library), Underlay and Instance nodes
 - [x] Compositing: Grid Warp, Displace and Vector Distort nodes
-- [ ] Compositing: build a transition on the page (MediaIn1 / MediaIn2 composite), Loader and Saver nodes, Time Speed and Time Stretcher nodes
+- [x] Compositing: build a transition on the page (MediaIn1 / MediaIn2 composite), Loader and Saver nodes, Time Speed and Time Stretcher nodes
+- [ ] Compositing: save a transition built on the page as a reusable preset in the Effects Library, Saver output as EXR, and a Saver in a transition graph (spec 128.10)
 - [x] Compositing: Vector Motion Blur, Custom Tool (pixel expressions), Color Curves, Hue Curves, Brightness Contrast, Alpha Multiply / Divide and Channel Mapper nodes
 - [x] Compositing: viewer Onion Skin, Region of Interest, Rulers, safe area overlay, and Proxy / Auto Proxy / High Quality / Motion Blur toggle buttons with a disk cache
 - [x] Audio: files with several audio tracks (an OBS recording with game, mic and Discord): every stream becomes its own linked audio clip on consecutive tracks on every kind of edit, the Media Pool and the metadata show the track count, Clip Attributes chooses the tracks, the project stores the stream per clip, and the waveforms, meters, Audio page and render play the right one (spec 126)

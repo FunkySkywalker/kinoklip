@@ -328,6 +328,14 @@ public:
     [[nodiscard]] std::optional<Composition> clipComposition(
         quint64 timelineUid, quint64 clipId) const;
 
+    /// setClipComposition() for the graph of the transition stored in the clip (transitionOut when
+    /// @p tail, else transitionIn; spec 128).
+    bool setTransitionComposition(quint64 timelineUid, quint64 clipId, bool tail,
+        std::optional<Composition> composition, const QString& label);
+    /// The stored graph of that transition (std::nullopt: none stored yet, or no such transition).
+    [[nodiscard]] std::optional<Composition> transitionComposition(
+        quint64 timelineUid, quint64 clipId, bool tail) const;
+
     // ---- Color page (ProjectGrades.cpp) ----
 
     /// Replaces the grade of clip @p clipId in timeline @p timelineUid (the active one or any

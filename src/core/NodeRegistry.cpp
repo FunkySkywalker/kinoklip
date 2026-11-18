@@ -367,7 +367,8 @@ ParamSet NodeRegistry::defaultParams(const QString& id) const
 bool NodeRegistry::hasCommonControls(const QString& id) const
 {
     const NodeDescriptor* d = find(id);
-    return d && id != nodetypes::MediaOut && d->category != NodeCategory::Mask;
+    return d && id != nodetypes::MediaOut && d->category != NodeCategory::Mask
+        && d->category != NodeCategory::Time && id != nodetypes::Saver;
 }
 
 QVector<ParamDescriptor> NodeRegistry::commonControls(const QString& id) const
@@ -415,6 +416,8 @@ QString NodeRegistry::categoryName(NodeCategory category)
         return tr("Filter");
     case NodeCategory::Warp:
         return tr("Warp");
+    case NodeCategory::Time:
+        return tr("Time");
     case NodeCategory::Effect:
         return tr("Effects");
     }
@@ -449,6 +452,77 @@ NodeRegistry::NodeRegistry()
             QStringLiteral("Group"), C::InputOutput,
             tr("Holds other nodes together: a frame around them, or one tile; with controls it is a Macro"));
         d.outputs = 0;
+        add(d);
+    }
+
+    {
+        NodeDescriptor d = node(nodetypes::Loader, tr("Loader"), QStringLiteral("Ldr"),
+            QStringLiteral("Loader"), C::InputOutput,
+            tr("Reads an image, an image sequence or a movie file from disk into the graph"));
+        d.params = {tip(builders::file(k::LoaderPath, tr("Filename"),
+                            tr("Images and movies (*)")),
+                        tr("The file to read. Pick one file of a numbered sequence (name_0001.png) and the whole sequence is read; a single image is shown on every frame")),
+            tip(integer(k::GlobalIn, tr("Global In"), -100000, 100000, 0),
+                tr("The composition frame where the first frame of the clip plays")),
+            tip(integer(k::TrimIn, tr("Trim In"), 0, 100000, 0),
+                tr("How many frames are cut from the start of the clip")),
+            tip(integer(k::TrimOut, tr("Trim Out"), 0, 100000, 0),
+                tr("How many frames are cut from the end of the clip")),
+            tip(integer(k::HoldFirst, tr("Hold First Frame"), 0, 100000, 0),
+                tr("How many frames the first frame stays before the clip plays")),
+            tip(integer(k::HoldLast, tr("Hold Last Frame"), 0, 100000, 0),
+                tr("How many frames the last frame stays after the clip has played")),
+            tip(boolean(k::Loop, tr("Loop"), false),
+                tr("Plays the clip again and again, with its held frames, instead of showing nothing after the end")),
+            tip(boolean(k::Reverse, tr("Reverse"), false), tr("Plays the clip backwards"))};
+        add(d);
+    }
+    {
+        NodeDescriptor d = node(nodetypes::Saver, tr("Saver"), QStringLiteral("Svr"),
+            QStringLiteral("Saver"), C::InputOutput,
+            tr("Writes its input to image files when the composition is rendered; the picture passes through unchanged"));
+        d.inputs = {inputPort()};
+        d.mainInput = nodeports::Input;
+        d.params = {tip(builders::text(k::SaverPath, tr("Filename"), QString()),
+                        tr("Where the files go. The frame number is added to the name: shot.png becomes shot0000.png, shot0001.png and so on")),
+            tip(choice(k::SaverFormat, tr("Format"),
+                    {saverformats::Png, saverformats::Tiff}, {tr("PNG"), tr("TIFF")},
+                    saverformats::Png),
+                tr("The file format of the images")),
+            tip(integer(k::SaverStart, tr("First Number"), 0, 1000000, 0),
+                tr("The number added to the first file name (the first frame of the range written)")),
+            tip(boolean(k::SaverActive, tr("Save When Rendered"), true),
+                tr("Off: this Saver writes nothing when the composition is rendered"))};
+        add(d);
+    }
+    {
+        NodeDescriptor d = node(nodetypes::TimeSpeed, tr("Time Speed"), QStringLiteral("Spd"),
+            QStringLiteral("TimeSpeed"), C::Time,
+            tr("Plays the input faster, slower, backwards or later"));
+        d.inputs = {inputPort()};
+        d.mainInput = nodeports::Input;
+        d.params = {tip(number(k::TimeSpeedKey, tr("Speed"), -100, 100, 1, 0.01),
+                        tr("1 plays at the normal speed, 0.5 at half speed, 2 twice as fast, a negative number backwards")),
+            tip(number(k::TimeDelay, tr("Delay"), -100000, 100000, 0, 1),
+                tr("Frames the input starts later (positive) or earlier (negative)")),
+            tip(choice(k::TimeInterp, tr("Interpolation"),
+                    {timeinterps::Nearest, timeinterps::Blend}, {tr("Nearest"), tr("Blend")},
+                    timeinterps::Nearest),
+                tr("Nearest shows the closest frame; Blend mixes the two frames around the time"))};
+        add(d);
+    }
+    {
+        NodeDescriptor d = node(nodetypes::TimeStretcher, tr("Time Stretcher"), QStringLiteral("Str"),
+            QStringLiteral("TimeStretcher"), C::Time,
+            tr("Shows the input at a time you set, which can be keyframed to speed up, slow down, freeze or reverse"));
+        d.inputs = {inputPort()};
+        d.mainInput = nodeports::Input;
+        d.params = {tip(number(k::SourceTime, tr("Source Time"), -100000, 100000, 0, 1),
+                        tr("The frame of the input to show now. Keyframe it: 0 at the first frame and 100 at the last frame plays 100 frames of the input; the steeper the curve, the faster")),
+            tip(choice(k::TimeInterp, tr("Interpolation"),
+                    {timeinterps::Nearest, timeinterps::Blend}, {tr("Nearest"), tr("Blend")},
+                    timeinterps::Nearest),
+                tr("Nearest shows the closest frame; Blend mixes the two frames around the time"))};
         add(d);
     }
 

@@ -157,6 +157,15 @@ private:
 
     void drawTrack(
         const TrackFrame& track, const FrameContext& fc, const RenderTarget& accumulator);
+    /// Draws the outgoing and incoming clip of @p span (transformed, output size) into @p a / @p b
+    /// (left empty for a side that is missing or disabled).
+    void drawTransitionSides(
+        const TransitionSpan& span, const FrameContext& fc, PooledTarget& a, PooledTarget& b);
+    /// Evaluates the graph of the transition @p span (its own, or the default one) at comp frame
+    /// @p compFrame with textures @p a / @p b as MediaIn1 / MediaIn2; node 0 = MediaOut. The
+    /// result lives until the end of the frame.
+    const RenderTarget* transitionCompositionTarget(const TransitionSpan& span,
+        const FrameContext& fc, GLuint a, GLuint b, quint64 node, int64_t compFrame);
     /// How drawClip() combines the clip with the target.
     enum class ClipBlend {
         Over, ///< premultiplied over (every normal clip)
@@ -278,7 +287,8 @@ private:
     const MediaPathMap* m_media = nullptr; ///< media id -> path of the current frame (matte keys)
     bool m_waitForAi = false; ///< RenderRequest::waitForAi of the current frame
     QThreadPool m_decodeThreads; ///< parallel decoding of the clips visible in one frame
-    std::vector<DecodedClip> m_decoded; ///< per-frame scratch (capacity reused)
+    std::deque<DecodedClip> m_decoded; ///< per-frame scratch (capacity reused)
+    bool m_skipCompositionQueue = false; ///< queueDecodeAt() leaves the clip's composition alone
     qint64 m_uploadNs = 0; ///< plane upload time of the current frame (statistics)
     /// Per-frame scratch of the track walk, one list per nesting depth (a nested timeline is
     /// composited while its parent's list is still in use).

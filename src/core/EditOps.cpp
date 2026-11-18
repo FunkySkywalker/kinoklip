@@ -56,6 +56,21 @@ bool setClipComposition(TimelineData& data, quint64 clipId, std::optional<Compos
     return true;
 }
 
+bool setTransitionComposition(
+    TimelineData& data, quint64 clipId, bool tail, std::optional<Composition> composition)
+{
+    const auto loc = findClip(data, clipId);
+    TrackData* track = loc ? data.track(loc->track) : nullptr;
+    if (!track || track->locked)
+        return false;
+    ClipData& clip = track->clips[size_t(loc->clipIndex)];
+    std::optional<TransitionData>& slot = tail ? clip.transitionOut : clip.transitionIn;
+    if (!slot)
+        return false;
+    slot->composition = std::move(composition);
+    return true;
+}
+
 TrackFilter syncLockTracks()
 {
     return [](TrackRef, const TrackData& track) { return !track.locked && track.syncLock; };

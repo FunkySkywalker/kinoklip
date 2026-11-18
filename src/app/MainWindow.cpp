@@ -653,6 +653,14 @@ void MainWindow::connectAppActions()
                 setCurrentPage(QStringLiteral("compositing"));
         });
 
+    // ---- Compositing page: a transition of the timeline opened as a node graph (spec 128) ----
+    connect(m_editPage, &EditPage::openTransitionInCompositingRequested, this,
+        [this](quint64 clipId, bool head) {
+            m_compositingPage->openTransition(clipId, !head);
+            if (currentPageId() != QLatin1String("compositing"))
+                setCurrentPage(QStringLiteral("compositing"));
+        });
+
     // ---- Help ----
     connect(actions.action(QStringLiteral("help.about")), &QAction::triggered, this, [this] {
         const QString title = tr("About %1").arg(appinfo::displayName());

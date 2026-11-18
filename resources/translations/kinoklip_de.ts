@@ -5335,6 +5335,10 @@ Danke fürs Zuschauen</translation>
         <translation>Ein Strudel zieht das Bild in das nächste hinein</translation>
     </message>
     <message>
+        <source>A transition you build as a node graph on the Compositing page, from the outgoing clip (MediaIn1) and the incoming clip (MediaIn2)</source>
+        <translation>Ein Übergang, den Sie auf der Compositing-Seite als Knotengraph aus dem ausgehenden Clip (MediaIn1) und dem eingehenden Clip (MediaIn2) aufbauen</translation>
+    </message>
+    <message>
         <source>A triangle grows from the centre</source>
         <translation>Ein Dreieck wächst aus der Mitte</translation>
     </message>
@@ -5557,6 +5561,10 @@ Danke fürs Zuschauen</translation>
     <message>
         <source>Frame Size</source>
         <translation>Bildgröße</translation>
+    </message>
+    <message>
+        <source>Fusion Composition</source>
+        <translation>Fusion-Komposition</translation>
     </message>
     <message>
         <source>Glitch</source>
@@ -9973,6 +9981,14 @@ Danke fürs Zuschauen</translation>
         <translation>Mit %1 verbinden</translation>
     </message>
     <message>
+        <source>Outgoing clip</source>
+        <translation>Ausgehender Clip</translation>
+    </message>
+    <message>
+        <source>Incoming clip</source>
+        <translation>Eingehender Clip</translation>
+    </message>
+    <message>
         <source>This clip</source>
         <translation>Dieser Clip</translation>
     </message>
@@ -10722,6 +10738,34 @@ Danke fürs Zuschauen</translation>
     <message>
         <source>Add %1 after the selected node</source>
         <translation>%1 nach der gewählten Node hinzufügen</translation>
+    </message>
+    <message>
+        <source>Render Savers</source>
+        <translation>Saver rendern</translation>
+    </message>
+    <message>
+        <source>Renders every frame of the open composition and writes the pictures of its Saver nodes to their image files. Playing and scrubbing never write files</source>
+        <translation>Rendert jedes Bild der geöffneten Komposition und schreibt die Bilder ihrer Saver-Knoten in deren Bilddateien. Wiedergabe und Scrubben schreiben nie Dateien</translation>
+    </message>
+    <message>
+        <source>The composition has no Saver node with a file name that is switched on.</source>
+        <translation>Die Komposition hat keinen eingeschalteten Saver-Knoten mit Dateinamen.</translation>
+    </message>
+    <message>
+        <source>Writing the Saver images…</source>
+        <translation>Saver-Bilder werden geschrieben…</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Abbrechen</translation>
+    </message>
+    <message>
+        <source>%1 image(s) written.</source>
+        <translation>%1 Bild(er) geschrieben.</translation>
+    </message>
+    <message>
+        <source>Cancelled.</source>
+        <translation>Abgebrochen.</translation>
     </message>
 </context>
 <context>
@@ -13335,6 +13379,14 @@ Danke fürs Zuschauen</translation>
     <message>
         <source>Both pictures pan %1 with a motion blur</source>
         <translation>Beide Bilder schwenken %1 mit Bewegungsunschärfe</translation>
+    </message>
+    <message>
+        <source>Fusion Composition</source>
+        <translation>Fusion-Komposition</translation>
+    </message>
+    <message>
+        <source>A transition you build as a node graph on the Compositing page, from the outgoing clip (MediaIn1) and the incoming clip (MediaIn2)</source>
+        <translation>Ein Übergang, den Sie auf der Compositing-Seite als Knotengraph aus dem ausgehenden Clip (MediaIn1) und dem eingehenden Clip (MediaIn2) aufbauen</translation>
     </message>
     <message>
         <source>Fall and Bounce</source>
@@ -22063,12 +22115,188 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
         <translation> X</translation>
     </message>
     <message>
+        <source>Time</source>
+        <translation>Zeit</translation>
+    </message>
+    <message>
         <source>Group</source>
         <translation>Gruppe</translation>
     </message>
     <message>
         <source>Holds other nodes together: a frame around them, or one tile; with controls it is a Macro</source>
         <translation>Hält andere Nodes zusammen: ein Rahmen um sie oder eine Kachel; mit Reglern ist es ein Makro</translation>
+    </message>
+    <message>
+        <source>Loader</source>
+        <translation>Loader (Laden)</translation>
+    </message>
+    <message>
+        <source>Reads an image, an image sequence or a movie file from disk into the graph</source>
+        <translation>Liest ein Bild, eine Bildsequenz oder eine Filmdatei von der Festplatte in den Graphen</translation>
+    </message>
+    <message>
+        <source>Filename</source>
+        <translation>Dateiname</translation>
+    </message>
+    <message>
+        <source>Images and movies (*)</source>
+        <translation>Bilder und Filme (*)</translation>
+    </message>
+    <message>
+        <source>The file to read. Pick one file of a numbered sequence (name_0001.png) and the whole sequence is read; a single image is shown on every frame</source>
+        <translation>Die Datei, die gelesen wird. Wählen Sie eine Datei einer nummerierten Sequenz (name_0001.png), dann wird die ganze Sequenz gelesen; ein einzelnes Bild wird in jedem Bild gezeigt</translation>
+    </message>
+    <message>
+        <source>Global In</source>
+        <translation>Globaler Einstiegspunkt</translation>
+    </message>
+    <message>
+        <source>The composition frame where the first frame of the clip plays</source>
+        <translation>Das Bild der Komposition, in dem das erste Bild des Clips abgespielt wird</translation>
+    </message>
+    <message>
+        <source>Trim In</source>
+        <translation>Anfang kürzen</translation>
+    </message>
+    <message>
+        <source>How many frames are cut from the start of the clip</source>
+        <translation>Wie viele Bilder vom Anfang des Clips abgeschnitten werden</translation>
+    </message>
+    <message>
+        <source>Trim Out</source>
+        <translation>Ende kürzen</translation>
+    </message>
+    <message>
+        <source>How many frames are cut from the end of the clip</source>
+        <translation>Wie viele Bilder vom Ende des Clips abgeschnitten werden</translation>
+    </message>
+    <message>
+        <source>Hold First Frame</source>
+        <translation>Erstes Bild halten</translation>
+    </message>
+    <message>
+        <source>How many frames the first frame stays before the clip plays</source>
+        <translation>Wie viele Bilder das erste Bild steht, bevor der Clip abgespielt wird</translation>
+    </message>
+    <message>
+        <source>Hold Last Frame</source>
+        <translation>Letztes Bild halten</translation>
+    </message>
+    <message>
+        <source>How many frames the last frame stays after the clip has played</source>
+        <translation>Wie viele Bilder das letzte Bild steht, nachdem der Clip abgespielt wurde</translation>
+    </message>
+    <message>
+        <source>Loop</source>
+        <translation>Schleife</translation>
+    </message>
+    <message>
+        <source>Plays the clip again and again, with its held frames, instead of showing nothing after the end</source>
+        <translation>Spielt den Clip mit seinen gehaltenen Bildern immer wieder ab, statt nach dem Ende nichts zu zeigen</translation>
+    </message>
+    <message>
+        <source>Reverse</source>
+        <translation>Rückwärts</translation>
+    </message>
+    <message>
+        <source>Plays the clip backwards</source>
+        <translation>Spielt den Clip rückwärts ab</translation>
+    </message>
+    <message>
+        <source>Saver</source>
+        <translation>Saver (Speichern)</translation>
+    </message>
+    <message>
+        <source>Writes its input to image files when the composition is rendered; the picture passes through unchanged</source>
+        <translation>Schreibt seinen Eingang in Bilddateien, wenn die Komposition gerendert wird; das Bild läuft unverändert durch</translation>
+    </message>
+    <message>
+        <source>Where the files go. The frame number is added to the name: shot.png becomes shot0000.png, shot0001.png and so on</source>
+        <translation>Wohin die Dateien geschrieben werden. Die Bildnummer wird an den Namen angehängt: shot.png wird zu shot0000.png, shot0001.png und so weiter</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>Format</translation>
+    </message>
+    <message>
+        <source>PNG</source>
+        <translation>PNG</translation>
+    </message>
+    <message>
+        <source>TIFF</source>
+        <translation>TIFF</translation>
+    </message>
+    <message>
+        <source>The file format of the images</source>
+        <translation>Das Dateiformat der Bilder</translation>
+    </message>
+    <message>
+        <source>First Number</source>
+        <translation>Erste Nummer</translation>
+    </message>
+    <message>
+        <source>The number added to the first file name (the first frame of the range written)</source>
+        <translation>Die Nummer im Namen der ersten Datei (das erste geschriebene Bild)</translation>
+    </message>
+    <message>
+        <source>Save When Rendered</source>
+        <translation>Beim Rendern speichern</translation>
+    </message>
+    <message>
+        <source>Off: this Saver writes nothing when the composition is rendered</source>
+        <translation>Aus: Dieser Saver schreibt beim Rendern der Komposition nichts</translation>
+    </message>
+    <message>
+        <source>Time Speed</source>
+        <translation>Zeitgeschwindigkeit</translation>
+    </message>
+    <message>
+        <source>Plays the input faster, slower, backwards or later</source>
+        <translation>Spielt den Eingang schneller, langsamer, rückwärts oder später ab</translation>
+    </message>
+    <message>
+        <source>Speed</source>
+        <translation>Geschwindigkeit</translation>
+    </message>
+    <message>
+        <source>1 plays at the normal speed, 0.5 at half speed, 2 twice as fast, a negative number backwards</source>
+        <translation>1 spielt in normaler Geschwindigkeit, 0,5 mit halber, 2 doppelt so schnell, eine negative Zahl rückwärts</translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation>Verzögerung</translation>
+    </message>
+    <message>
+        <source>Frames the input starts later (positive) or earlier (negative)</source>
+        <translation>Um wie viele Bilder der Eingang später (positiv) oder früher (negativ) beginnt</translation>
+    </message>
+    <message>
+        <source>Interpolation</source>
+        <translation>Interpolation</translation>
+    </message>
+    <message>
+        <source>Nearest</source>
+        <translation>Nächstes</translation>
+    </message>
+    <message>
+        <source>Nearest shows the closest frame; Blend mixes the two frames around the time</source>
+        <translation>Nächstes zeigt das nächstliegende Bild; Überblenden mischt die beiden Bilder um diese Zeit</translation>
+    </message>
+    <message>
+        <source>Time Stretcher</source>
+        <translation>Zeitdehner</translation>
+    </message>
+    <message>
+        <source>Shows the input at a time you set, which can be keyframed to speed up, slow down, freeze or reverse</source>
+        <translation>Zeigt den Eingang zu einer von Ihnen gesetzten Zeit; sie lässt sich mit Keyframes animieren, um zu beschleunigen, zu verlangsamen, einzufrieren oder umzukehren</translation>
+    </message>
+    <message>
+        <source>Source Time</source>
+        <translation>Quellzeit</translation>
+    </message>
+    <message>
+        <source>The frame of the input to show now. Keyframe it: 0 at the first frame and 100 at the last frame plays 100 frames of the input; the steeper the curve, the faster</source>
+        <translation>Das Bild des Eingangs, das jetzt gezeigt wird. Setzen Sie Keyframes: 0 im ersten und 100 im letzten Bild spielt 100 Bilder des Eingangs ab; je steiler die Kurve, desto schneller</translation>
     </message>
     <message>
         <source>Patterns</source>
@@ -29560,6 +29788,14 @@ Die Clips trimmen, damit die Medien den Übergang abdecken?</translation>
     <message>
         <source>Open in Inspector</source>
         <translation>Im Inspektor öffnen</translation>
+    </message>
+    <message>
+        <source>Builds the transition as a node graph from the outgoing and the incoming clip</source>
+        <translation>Baut den Übergang als Knotengraph aus dem ausgehenden und dem eingehenden Clip auf</translation>
+    </message>
+    <message>
+        <source>Only a Fusion Composition transition can be built on the page: drag it from the Effects Library, Fusion Transitions</source>
+        <translation>Auf der Seite lässt sich nur ein Übergang „Fusion-Komposition“ aufbauen: Ziehen Sie ihn aus der Effektbibliothek, Fusion Transitions</translation>
     </message>
     <message>
         <source>Change Transition Duration…</source>

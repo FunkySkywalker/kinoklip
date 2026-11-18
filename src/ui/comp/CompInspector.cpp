@@ -397,7 +397,7 @@ void CompInspector::rebuild()
             m_audioMode->setCurrentIndex(comp.soloAudio ? 1 : 0);
             m_soundOffset->setValue(comp.soundOffset);
             // The Audio section belongs to the MediaIn of the clip's own picture.
-            m_audioGroup->setVisible(n->mediaId.isEmpty());
+            m_audioGroup->setVisible(n->mediaId.isEmpty() && n->transitionSide == 0);
             m_audioMode->setEnabled(!n->locked);
             m_soundOffset->setEnabled(!n->locked);
         }
@@ -411,6 +411,13 @@ void CompInspector::fillSourcePicker(const CompNode& node)
 {
     const QSignalBlocker block(m_source);
     m_source->clear();
+    if (node.transitionSide != 0) {
+        // MediaIn1 / MediaIn2 of a transition: always the two clips of the transition.
+        m_source->addItem(node.transitionSide == 1 ? tr("Outgoing clip") : tr("Incoming clip"), QString());
+        m_source->setCurrentIndex(0);
+        m_source->setEnabled(false);
+        return;
+    }
     m_source->addItem(tr("This clip"), QString());
     for (const MediaItem& item : m_ctx.project->mediaPool()->items()) {
         if (m_session->canReadIntoMediaIn(item.id))

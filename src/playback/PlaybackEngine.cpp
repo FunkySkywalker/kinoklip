@@ -242,18 +242,19 @@ void PlaybackEngine::setDynamicZoomApplied(bool applied)
 }
 
 void PlaybackEngine::setCompositionView(
-    const void* owner, int priority, quint64 clipId, quint64 nodeId)
+    const void* owner, int priority, quint64 clipId, quint64 nodeId, int transition)
 {
     for (CompView& v : m_compViews) {
         if (v.owner == owner) {
-            if (v.priority == priority && v.clipId == clipId && v.nodeId == nodeId)
+            if (v.priority == priority && v.clipId == clipId && v.nodeId == nodeId
+                && v.transition == transition)
                 return;
-            v = CompView {owner, priority, clipId, nodeId};
+            v = CompView {owner, priority, clipId, nodeId, transition};
             updateParams(true);
             return;
         }
     }
-    m_compViews.push_back(CompView {owner, priority, clipId, nodeId});
+    m_compViews.push_back(CompView {owner, priority, clipId, nodeId, transition});
     updateParams(true);
 }
 
@@ -615,10 +616,10 @@ void PlaybackEngine::setQualityMode(QualityMode mode)
 
 std::future<RenderedFramePtr> PlaybackEngine::renderCompositionNode(
     std::shared_ptr<const TimelineData> timeline, quint64 clipId, quint64 nodeId, int64_t compFrame,
-    QSize outSize, unsigned outputs) const
+    QSize outSize, unsigned outputs, int transition) const
 {
     return m_compositor->renderCompositionNode(std::move(timeline), clipId, nodeId, compFrame,
-        outSize, currentQuality(), outputs, m_media, m_proxies);
+        outSize, currentQuality(), outputs, m_media, m_proxies, transition);
 }
 
 std::future<RenderedFramePtr> PlaybackEngine::renderImage(
@@ -733,9 +734,16 @@ void PlaybackEngine::updateParams(bool rerender)
                 if (i < 0)
                     continue;
                 const ClipData& clip = track.clips[size_t(i)];
-                params.compNode = CompositionNodeView {v.clipId, v.nodeId, 0};
+                params.compNode = CompositionNodeView {v.clipId, v.nodeId, 0, v.transition};
                 params.compStart = clip.start;
                 params.compLength = clip.duration;
+                if (v.transition) {
+                    // The transition window of the clip's own transition is the comp range.
+                    if (const auto span = render::ownTransition(track, i, v.transition == 2)) {
+                        params.compStart = span->start;
+                        params.compLength = span->length();
+                    }
+                }
                 params.renderCache = nullptr; // the cache holds timeline pictures
             }
         }
@@ -756,7 +764,8 @@ void PlaybackEngine::updateParams(bool rerender)
         || old.compNode.has_value() != params.compNode.has_value()
         || (old.compNode && params.compNode
             && (old.compNode->clipId != params.compNode->clipId
-                || old.compNode->nodeId != params.compNode->nodeId))
+                || old.compNode->nodeId != params.compNode->nodeId
+                || old.compNode->transition != params.compNode->transition))
         || old.compStart != params.compStart || old.compLength != params.compLength;
     const bool changed
         = contentChanged || old.outSize != params.outSize || old.outputs != params.outputs;

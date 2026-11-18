@@ -134,6 +134,11 @@ private:
     PooledTarget merge(GlKit& kit, const CompEval& ev, const CompNode& n, int bg, int fg, int mask);
     PooledTarget transformNode(GlKit& kit, const CompEval& ev, const CompNode& n, int input);
     PooledTarget rectNode(GlKit& kit, const CompEval& ev, const CompNode& n, int input);
+    /// Loader: the clip frame (CompLoader) uploaded into a new target.
+    PooledTarget loaderNode(GlKit& kit, const CompEval& ev, const CompNode& n);
+    /// Time Speed / Time Stretcher: the input pulled again at the mapped frame (and the next
+    /// one, mixed, with Blend interpolation).
+    PooledTarget timeNode(GlKit& kit, const CompEval& ev, const CompNode& n);
     PooledTarget background(GlKit& kit, const CompEval& ev, const CompNode& n);
     PooledTarget text(GlKit& kit, const CompEval& ev, const CompNode& n);
     PooledTarget noise(GlKit& kit, const CompEval& ev, const CompNode& n);
