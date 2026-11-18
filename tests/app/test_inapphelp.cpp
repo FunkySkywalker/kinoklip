@@ -96,9 +96,17 @@ GuideIndex testIndex()
     return index;
 }
 
+/// The website URL of the test-index article whose source file is @p file ("readme.md" is the
+/// guide front page).
 QUrl articleUrl(const char* file)
 {
-    return QUrl(kBase + QLatin1String(file));
+    if (QLatin1String(file) == QLatin1String("readme.md"))
+        return QUrl(kBase);
+    const GuideIndex index = testIndex();
+    for (const GuideArticle& a : index.articles())
+        if (a.file == QLatin1String(file))
+            return QUrl(kBase + a.id + QLatin1Char('/'));
+    return QUrl(kBase + QString::fromLatin1(file));
 }
 
 /// Everything main() creates, plus a recording URL opener.
@@ -218,7 +226,7 @@ private slots:
     void badIndexesFallBackToTheStartPage()
     {
         const QUrl builtInStart(
-            QLatin1String(GuideIndex::kDefaultBase) + QLatin1String("readme.md"));
+            QLatin1String(GuideIndex::kDefaultBase));
         for (const QByteArray& text : {QByteArray(), QByteArray("{not json"), QByteArray("[1, 2]"),
                  json("{'formatVersion': 2, 'base': 'https://example.org/', 'articles': [\n"
                       "                    {'id': 'a', 'title': 'A', 'file': 'a.md', 'contexts': "
@@ -247,7 +255,7 @@ private slots:
         QCOMPARE(partial.articles().size(), 1);
         QCOMPARE(partial.articles()[0].contexts, QStringList {QStringLiteral("page:edit")});
         QCOMPARE(partial.url(partial.articles()[0]),
-            QUrl(QLatin1String(GuideIndex::kDefaultBase) + QLatin1String("ok.md")));
+            QUrl(QLatin1String(GuideIndex::kDefaultBase) + QLatin1String("ok/")));
     }
 
     void resolutionOrder()
@@ -424,9 +432,9 @@ private slots:
         ColorPage* page = f.window->colorPage();
         HelpController* help = f.window->helpController();
         auto fileFor
-            = [help](QWidget* w) { return help->urlFor(help->contexts(nullptr, w)).fileName(); };
-        const QString basics = QStringLiteral("colour-correct-a-clip.md");
-        const QString object = QStringLiteral("change-the-colour-of-one-object.md");
+            = [help](QWidget* w) { return help->urlFor(help->contexts(nullptr, w)).path().split(QLatin1Char('/'), Qt::SkipEmptyParts).last(); };
+        const QString basics = QStringLiteral("colour-correct-a-clip");
+        const QString object = QStringLiteral("change-the-colour-of-one-object");
         QCOMPARE(fileFor(page->primaries()), basics);
         QCOMPARE(fileFor(page->curves()), basics);
         QCOMPARE(fileFor(page->gallery()), basics);
@@ -435,10 +443,10 @@ private slots:
         QCOMPARE(fileFor(page->qualifier()), object);
         QCOMPARE(fileFor(page->windows()), object);
         QCOMPARE(fileFor(page->nodeEditor()), object);
-        QCOMPARE(fileFor(page->luts()), QStringLiteral("use-a-lut.md"));
+        QCOMPARE(fileFor(page->luts()), QStringLiteral("use-a-lut"));
         // Elsewhere on the page: the basics.
         f.action("help.guide_context")->trigger();
-        QCOMPARE(f.opened.last().fileName(), basics);
+        QCOMPARE(f.opened.last().path().split(QLatin1Char('/'), Qt::SkipEmptyParts).last(), basics);
     }
 
     void f1WithABrokenIndexOpensTheBuiltInStartPage()
@@ -447,7 +455,7 @@ private slots:
         f.action("help.guide_context")->trigger();
         QCOMPARE(f.opened,
             QList<QUrl> {
-                QUrl(QLatin1String(GuideIndex::kDefaultBase) + QLatin1String("readme.md"))});
+                QUrl(QLatin1String(GuideIndex::kDefaultBase))});
     }
 
     void f1InAnOpenMenuUsesTheHighlightedCommand()

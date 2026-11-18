@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "base": "https://github.com/SeniorMatt/kinoklip/blob/main/docs/guide/",
+  "base": "https://seniormatt.github.io/kinoklip/guide/",
   "start": "readme.md",
   "articles": [
     {

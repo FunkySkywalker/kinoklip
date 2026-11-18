@@ -170,12 +170,12 @@ QVector<const GuideArticle*> GuideIndex::search(const QString& text) const
 
 QUrl GuideIndex::startUrl() const
 {
-    return QUrl(m_base + m_start);
+    return QUrl(m_base);
 }
 
 QUrl GuideIndex::url(const GuideArticle& article) const
 {
-    return QUrl(m_base + article.file);
+    return QUrl(m_base + article.id + QLatin1Char('/'));
 }
 
 } // namespace kk

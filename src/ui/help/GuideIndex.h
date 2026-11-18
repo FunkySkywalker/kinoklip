@@ -15,7 +15,7 @@ struct GuideArticle
 {
     QString id; ///< "remove-a-green-screen"
     QString title; ///< "Remove a green screen"
-    QString file; ///< path relative to the guide's base URL ("remove-a-green-screen.md")
+    QString file; ///< source file under docs/guide ("remove-a-green-screen.md"); the public URL uses the id
     QString summary;
     QStringList keywords;
     QStringList contexts; ///< context keys: "effect:chroma_key", "panel:inspector", "page:edit"
@@ -39,7 +39,7 @@ public:
     static constexpr int kFormatVersion = 1;
     /// Where the guide lives when the index does not say (or cannot be read).
     static constexpr char kDefaultBase[]
-        = "https://github.com/SeniorMatt/kinoklip/blob/main/docs/guide/";
+        = "https://seniormatt.github.io/kinoklip/guide/";
     static constexpr char kDefaultStart[] = "readme.md";
 
     /// An empty, invalid index (start page only).
@@ -66,11 +66,11 @@ public:
     /// (case-insensitive); all articles for an empty text.
     [[nodiscard]] QVector<const GuideArticle*> search(const QString& text) const;
 
-    /// The base URL every file is relative to.
+    /// The guide's base URL on the website; articles live at base + id + "/".
     [[nodiscard]] QString base() const { return m_base; }
-    /// The guide's start page.
+    /// The guide's front page (the base URL).
     [[nodiscard]] QUrl startUrl() const;
-    /// The public URL of @p article.
+    /// The public URL of @p article: base + id + "/".
     [[nodiscard]] QUrl url(const GuideArticle& article) const;
 
     /// Rank of a context key's kind: 0 effect, 1 action, 2 panel, 3 page, 4 anything else.

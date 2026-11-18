@@ -1,6 +1,6 @@
 # src/ui/help — in-app help
 
-Links the app to the user guide (`docs/guide/`, rendered by GitHub). Depends on `ui/common`,
+Links the app to the user guide (`docs/guide/`, rendered on the website). Depends on `ui/common`,
 `platform` and `core` (logging); used by `app/MainWindow`, `ui/inspector` and `ui/effects`.
 
 | File | What |
@@ -18,7 +18,7 @@ Links the app to the user guide (`docs/guide/`, rendered by GitHub). Depends on 
 always carries the index of its own version. The guide writer owns that file; its format:
 
 ```json
-{ "formatVersion": 1, "base": "https://.../docs/guide/", "start": "readme.md",
+{ "formatVersion": 1, "base": "https://seniormatt.github.io/kinoklip/guide/", "start": "readme.md",
   "articles": [ { "id": "...", "title": "...", "file": "....md", "summary": "...",
                   "keywords": ["..."], "contexts": ["effect:chroma_key", "page:edit"] } ] }
 ```

@@ -19,7 +19,7 @@ cat <<EOF
 <p align="center"><img src="$raw/kinoklip-128.png" width="128" alt="Kinoklip"></p>
 <p align="center">A free video editor for Linux that works like DaVinci Resolve</p>
 <p align="center"><a href="$dl/Kinoklip-x86_64.AppImage"><b>Download for Linux</b></a> · <a href="$dl/Kinoklip-aarch64.AppImage">ARM64</a></p>
-<p align="center"><a href="$repo/blob/main/docs/guide/readme.md">Guide</a> · <a href="https://discord.gg/pCeHnvDn3x">Discord</a> · <a href="https://seniormatt.github.io/kinoklip/">Website</a> · <a href="$repo/blob/main/docs/install.md">Install help</a></p>
+<p align="center"><a href="https://seniormatt.github.io/kinoklip/guide/">Guide</a> · <a href="https://discord.gg/pCeHnvDn3x">Discord</a> · <a href="https://seniormatt.github.io/kinoklip/">Website</a> · <a href="$repo/blob/main/docs/install.md">Install help</a></p>
 
 > [!TIP]
 > Open it with [Gear Lever](https://flathub.org/apps/it.mijorus.gearlever) and later versions update in one click.
