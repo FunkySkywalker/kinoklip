@@ -507,9 +507,25 @@ NodeRegistry::NodeRegistry()
             choice(nodekeys::TrackMode, tr("Output"),
                 {trackmodes::MatchMove, trackmodes::Stabilize}, {tr("Match Move"), tr("Stabilize")},
                 trackmodes::MatchMove),
-            integer(nodekeys::RefFrame, tr("Reference Frame"), 0, 1000000, 0)};
-        for (const QString& key :
-            {nodekeys::PatternSize, nodekeys::SearchSize, nodekeys::RefFrame}) {
+            integer(nodekeys::RefFrame, tr("Reference Frame"), 0, 1000000, 0),
+            integer(nodekeys::Patterns, tr("Patterns"), 1, nodekeys::kMaxPatterns, 1),
+            integer(nodekeys::ActivePattern, tr("Active Pattern"), 1, nodekeys::kMaxPatterns, 1),
+            boolean(nodekeys::TrackPosition, tr("Match Position"), true),
+            boolean(nodekeys::TrackRotation, tr("Match Rotation"), true),
+            boolean(nodekeys::TrackScale, tr("Match Scale"), true)};
+        // Patterns 2 to 4: positions kept as hidden keyframes (the viewer drags them).
+        static constexpr double kStartX[4] = {0.5, 0.6, 0.5, 0.6}, kStartY[4] = {0.5, 0.5, 0.6, 0.6};
+        for (int n = 2; n <= nodekeys::kMaxPatterns; ++n) {
+            for (const bool y : {false, true}) {
+                ParamDescriptor p = number(nodekeys::patternKey(n, y),
+                    tr("Pattern %1").arg(n) + (y ? tr(" Y") : tr(" X")), -10, 10,
+                    y ? kStartY[n - 1] : kStartX[n - 1], 0.001);
+                p.hidden = true;
+                d.params += p;
+            }
+        }
+        for (const QString& key : {nodekeys::PatternSize, nodekeys::SearchSize, nodekeys::RefFrame,
+                 nodekeys::Patterns, nodekeys::ActivePattern}) {
             for (ParamDescriptor& p : d.params) {
                 if (p.key == key)
                     p.animatable = false;
@@ -524,7 +540,8 @@ NodeRegistry::NodeRegistry()
             tr("Follows a flat surface (four corners); the input is pinned onto it (Corner Pin) "
                "or moves with it (Unsteady) or is held steady (Steady)"));
         d.inputs = {inputPort(),
-            port(nodeports::Source, tr("Tracking Source"), PortKind::Image, false, true)};
+            port(nodeports::Source, tr("Tracking Source"), PortKind::Image, false, true),
+            port(nodeports::TrackMask, tr("Track Mask"), PortKind::Mask, false, true)};
         d.mainInput = nodeports::Input;
         // Default region: the middle half of the frame. Corner order: top-left, top-right,
         // bottom-right, bottom-left (names of the Inspector rows).

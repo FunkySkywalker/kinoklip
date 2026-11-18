@@ -44,6 +44,7 @@ bool TrackerRunner::start(TrackJob job)
         return false;
     m_samples.clear();
     m_pending.clear();
+    m_pendingMask.clear();
     m_total = std::llabs(job.lastFrame - job.firstFrame) + 1;
     m_nextToRequest = job.firstFrame;
     m_run = std::make_shared<Run>();
@@ -73,6 +74,9 @@ void TrackerRunner::requestFrame()
     m_nextToRequest += forward ? 1 : -1;
     m_pending.emplace_back(
         frame, std::make_shared<std::future<RenderedFramePtr>>(job.source(frame)));
+    m_pendingMask.push_back(job.planar && job.maskSource
+            ? std::make_shared<std::future<RenderedFramePtr>>(job.maskSource(frame))
+            : nullptr);
 }
 
 void TrackerRunner::launchStep()
@@ -83,6 +87,8 @@ void TrackerRunner::launchStep()
     }
     auto [frame, picture] = std::move(m_pending.front());
     m_pending.pop_front();
+    const auto maskPicture = std::move(m_pendingMask.front());
+    m_pendingMask.pop_front();
     requestFrame(); // keep the render queue filled while this one is matched
     const bool first = m_samples.empty();
     const std::shared_ptr<Run> run = m_run;
@@ -92,7 +98,7 @@ void TrackerRunner::launchStep()
     const quint64 generation = m_generation;
     connect(m_watcher, &QFutureWatcher<Step>::finished, this,
         [this, generation] { onStepDone(generation); });
-    m_watcher->setFuture(QtConcurrent::run([run, picture, frame, first]() -> Step {
+    m_watcher->setFuture(QtConcurrent::run([run, picture, maskPicture, frame, first]() -> Step {
         Step step;
         step.sample.frame = frame;
         const RenderedFramePtr rendered = picture->get();
@@ -104,7 +110,27 @@ void TrackerRunner::launchStep()
         const GrayImage gray = grayFromImage(rendered->image);
         const double w = gray.width, h = gray.height;
         if (run->job.planar) {
-            runPlanar(*run, gray, first, step);
+            GrayImage mask;
+            if (maskPicture) {
+                const RenderedFramePtr m = maskPicture->get();
+                if (m && m->ok && !m->image.isNull())
+                    mask = grayFromImage(m->image);
+                // A mask of another size is stretched to the picture (nearest pixel).
+                if (!mask.isEmpty() && (mask.width != gray.width || mask.height != gray.height)) {
+                    GrayImage fit;
+                    fit.width = gray.width;
+                    fit.height = gray.height;
+                    fit.data.resize(size_t(fit.width) * size_t(fit.height));
+                    for (int y = 0; y < fit.height; ++y) {
+                        for (int x = 0; x < fit.width; ++x) {
+                            fit.data[size_t(y) * size_t(fit.width) + size_t(x)]
+                                = mask.at(x * mask.width / fit.width, y * mask.height / fit.height);
+                        }
+                    }
+                    mask = std::move(fit);
+                }
+            }
+            runPlanar(*run, gray, mask.isEmpty() ? nullptr : &mask, first, step);
             return step;
         }
         if (run->job.mesh) {
@@ -143,7 +169,8 @@ void TrackerRunner::launchStep()
     }));
 }
 
-void TrackerRunner::runPlanar(Run& run, const GrayImage& gray, bool first, Step& step)
+void TrackerRunner::runPlanar(
+    Run& run, const GrayImage& gray, const GrayImage* mask, bool first, Step& step)
 {
     const double w = gray.width, h = gray.height;
     const TrackJob& job = run.job;
@@ -166,7 +193,7 @@ void TrackerRunner::runPlanar(Run& run, const GrayImage& gray, bool first, Step&
         Quad q;
         for (size_t i = 0; i < 4; ++i)
             q[i] = toPixels(job.startCorners[2 * i], job.startCorners[2 * i + 1], w, h);
-        if (!run.planarTracker.reset(gray, q)) {
+        if (!run.planarTracker.reset(gray, q, mask)) {
             step.outcome = TrackOutcome::Lost;
             step.reason = QObject::tr("The region has no detail to follow. Move the corners "
                                       "onto a textured, fully visible surface.");
@@ -176,7 +203,7 @@ void TrackerRunner::runPlanar(Run& run, const GrayImage& gray, bool first, Step&
         step.sample.correlation = 1.0;
         return;
     }
-    const PlanarResult r = run.planarTracker.track(gray);
+    const PlanarResult r = run.planarTracker.track(gray, mask);
     step.sample.correlation = r.correlation;
     if (!r.ok) {
         step.outcome = TrackOutcome::Lost;
@@ -255,6 +282,7 @@ void TrackerRunner::end(TrackOutcome outcome, const QString& reason)
     m_running = false;
     ++m_generation; // late results of the step in flight are dropped
     m_pending.clear();
+    m_pendingMask.clear();
     if (m_watcher) {
         m_watcher->disconnect(this);
         m_watcher->deleteLater();

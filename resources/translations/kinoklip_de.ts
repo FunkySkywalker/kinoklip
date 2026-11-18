@@ -21203,8 +21203,36 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
         <translation> X</translation>
     </message>
     <message>
+        <source>Patterns</source>
+        <translation>Muster</translation>
+    </message>
+    <message>
+        <source>Active Pattern</source>
+        <translation>Aktives Muster</translation>
+    </message>
+    <message>
+        <source>Match Position</source>
+        <translation>Position übernehmen</translation>
+    </message>
+    <message>
+        <source>Match Rotation</source>
+        <translation>Drehung übernehmen</translation>
+    </message>
+    <message>
+        <source>Match Scale</source>
+        <translation>Maßstab übernehmen</translation>
+    </message>
+    <message>
         <source> Y</source>
         <translation> Y</translation>
+    </message>
+    <message>
+        <source>Pattern %1</source>
+        <translation>Muster %1</translation>
+    </message>
+    <message>
+        <source>Track Mask</source>
+        <translation>Tracking-Maske</translation>
     </message>
     <message>
         <source>Corner Pin</source>

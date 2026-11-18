@@ -127,8 +127,21 @@ std::optional<CompViewerOverlay::State> CompViewerOverlay::state() const
     auto value = [&](const QString& key, double fallback) {
         return key.isEmpty() ? fallback : n->params.value(key, f, fallback);
     };
-    s.centre = QPointF(value(s.keys.centerX, 0.5), value(s.keys.centerY, 0.5));
     const bool tracker = s.keys.kind == compadapter::ViewerControl::Tracker;
+    if (tracker) {
+        // Several patterns in one Tracker: the box and the centre handle are the active one's.
+        s.patterns = std::clamp(
+            int(int(std::lround(n->params.value(nodekeys::Patterns, 0, 1)))), 1, nodekeys::kMaxPatterns);
+        s.activePattern = std::clamp(
+            int(int(std::lround(n->params.value(nodekeys::ActivePattern, 0, 1)))), 1, s.patterns);
+        s.keys.centerX = nodekeys::patternKey(s.activePattern, false);
+        s.keys.centerY = nodekeys::patternKey(s.activePattern, true);
+        for (int i = 1; i <= s.patterns; ++i) {
+            s.points.append(QPointF(value(nodekeys::patternKey(i, false), 0.5),
+                value(nodekeys::patternKey(i, true), 0.5)));
+        }
+    }
+    s.centre = QPointF(value(s.keys.centerX, 0.5), value(s.keys.centerY, 0.5));
     s.size = value(s.keys.size, tracker ? 48.0 : 1.0); // Tracker: pattern box, timeline px
     s.width = value(s.keys.width, tracker ? 160.0 : 0.5); // Tracker: search box, timeline px
     s.height = value(s.keys.height, 0.5);
@@ -279,6 +292,11 @@ std::optional<QPointF> CompViewerOverlay::handlePos(Handle handle, int pointInde
             return std::nullopt;
         return pointToWidget(*s, s->points[pointIndex]);
     }
+    if (s->keys.kind == compadapter::ViewerControl::Tracker && handle == Handle::Point) {
+        if (pointIndex < 0 || pointIndex >= s->points.size())
+            return std::nullopt;
+        return toWidget(s->points[pointIndex]);
+    }
     if (s->keys.kind == compadapter::ViewerControl::Grid) {
         if (handle != Handle::Point || pointIndex < 0 || pointIndex >= s->points.size())
             return std::nullopt;
@@ -400,6 +418,20 @@ CompViewerOverlay::Handle CompViewerOverlay::handleAt(QPointF pos, int* pointInd
         }
         // Inside the quad: drag the whole region (the cross at its centre is the grip).
         return quad.containsPoint(pos, Qt::OddEvenFill) ? Handle::Centre : Handle::None;
+    }
+    if (s->keys.kind == compadapter::ViewerControl::Tracker && s->patterns > 1) {
+        const QSizeF half = halfExtents(*s);
+        for (int i = 0; i < s->points.size(); ++i) {
+            if (i + 1 == s->activePattern)
+                continue;
+            const QPointF o = toWidget(s->points[i]);
+            if (std::abs(pos.x() - o.x()) <= std::max(half.width(), kHandleHitPx)
+                && std::abs(pos.y() - o.y()) <= std::max(half.height(), kHandleHitPx)) {
+                if (pointIndex)
+                    *pointIndex = i;
+                return Handle::Point;
+            }
+        }
     }
     for (Handle h : {Handle::Angle, Handle::Size, Handle::Width, Handle::Height, Handle::Centre}) {
         const std::optional<QPointF> p = handlePos(h);
@@ -610,6 +642,22 @@ void CompViewerOverlay::paintEvent(QPaintEvent*)
         stroke(cross);
         handle(*handlePos(Handle::Size));
         handle(*handlePos(Handle::Width));
+        // The other patterns: a box of the same size with its number; click one to make it
+        // the active pattern.
+        for (int i = 0; i < s->points.size() && s->patterns > 1; ++i) {
+            if (i + 1 == s->activePattern)
+                continue;
+            const QPointF o = toWidget(s->points[i]);
+            QPainterPath other;
+            other.addRect(QRectF(o.x() - h.width(), o.y() - h.height(), h.width() * 2, h.height() * 2));
+            p.setBrush(Qt::NoBrush);
+            p.setPen(QPen(QColor(255, 255, 255, 200), 1.0, Qt::DashLine));
+            p.drawPath(other);
+            p.setPen(QColor(255, 255, 255));
+            p.drawText(o + QPointF(h.width() + 3, -h.height()), QString::number(i + 1));
+        }
+        p.setPen(QColor(255, 255, 255));
+        p.drawText(c + QPointF(h.width() + 3, -h.height()), QString::number(s->activePattern));
         return;
     }
     QTransform t = rotation(s->angleDeg);
@@ -692,6 +740,7 @@ void CompViewerOverlay::applyDrag(QPointF pos)
     QMap<QString, double> scalars;
     std::optional<std::pair<int, QPointF>> movedPoint; ///< polygon point index, new position
     std::function<void(MaskPath&)> pathEdit; ///< Bezier / Text path: edits the path in place
+    int activate = 0; ///< Tracker: the pattern that becomes the active one
     switch (m_drag) {
     case Handle::Centre: {
         const QPointF d = pos - m_pressPos;
@@ -754,6 +803,16 @@ void CompViewerOverlay::applyDrag(QPointF pos)
                     (n.x() - double(c) / (cols - 1)) * frame.width());
                 scalars.insert(nodekeys::gridKey(r, c, 1),
                     -(n.y() - (1.0 - double(r) / (rows - 1))) * frame.height());
+            }
+            break;
+        }
+        if (s0.keys.kind == compadapter::ViewerControl::Tracker) {
+            if (m_dragPoint >= 0 && m_dragPoint < s0.points.size()) {
+                // Another pattern: it becomes the active one and moves.
+                const QPointF n = toNormalised(pos);
+                scalars.insert(nodekeys::patternKey(m_dragPoint + 1, false), n.x());
+                scalars.insert(nodekeys::patternKey(m_dragPoint + 1, true), n.y());
+                activate = m_dragPoint + 1;
             }
             break;
         }
@@ -835,6 +894,8 @@ void CompViewerOverlay::applyDrag(QPointF pos)
             if (!it.key().isEmpty())
                 n->params.animated(it.key(), it.value()).setValue(frame, it.value());
         }
+        if (activate > 0)
+            n->params.setBase(nodekeys::ActivePattern, activate);
         if (pathEdit) {
             MaskPath path = n->path.at(double(frame));
             pathEdit(path);

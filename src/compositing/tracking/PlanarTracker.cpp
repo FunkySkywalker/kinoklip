@@ -32,6 +32,7 @@ constexpr int kMinCoarsePatch = 5;
 /// plane) correlates worse and would only pull the fit by up to the RANSAC distance. The second
 /// pass therefore asks for at least this much, unless that leaves too few patches.
 constexpr double kFinePassMinCorrelation = 0.85;
+constexpr float kMaskThreshold = 0.5f; ///< Track Mask: at least this white to track there
 
 int oddClamped(double v)
 {
@@ -87,7 +88,7 @@ PlanarTracker::PlanarTracker(PlanarSettings settings)
     m_settings.searchRadius = std::max(2, m_settings.searchRadius);
 }
 
-bool PlanarTracker::reset(const GrayImage& frame, const Quad& corners)
+bool PlanarTracker::reset(const GrayImage& frame, const Quad& corners, const GrayImage* mask)
 {
     m_ready = false;
     if (frame.isEmpty() || !isConvexQuad(corners, kMinAreaPixels))
@@ -119,6 +120,8 @@ bool PlanarTracker::reset(const GrayImage& frame, const Quad& corners)
             const double u = kGridMargin + (1 - 2 * kGridMargin) * i / (m_settings.gridSize - 1);
             const double v = kGridMargin + (1 - 2 * kGridMargin) * j / (m_settings.gridSize - 1);
             const Vec2 p = plane->map({u, v});
+            if (mask && !mask->isEmpty() && mask->sample(p.x, p.y) < kMaskThreshold)
+                continue;
             double contrast = 0;
             if (warpedPatch(frame, Homography(), p, m_patch, values, &contrast) > 0
                 && contrast >= kMinContrast)
@@ -130,8 +133,8 @@ bool PlanarTracker::reset(const GrayImage& frame, const Quad& corners)
 }
 
 void PlanarTracker::matchPatches(const GrayImage& next, const GrayImage& nextHalf,
-    const Homography& predicted, int radius, double minCorrelation, std::vector<Vec2>& from,
-    std::vector<Vec2>& to, std::vector<double>& correlation) const
+    const Homography& predicted, int radius, double minCorrelation, const GrayImage* mask,
+    std::vector<Vec2>& from, std::vector<Vec2>& to, std::vector<double>& correlation) const
 {
     const std::optional<Homography> back = predicted.inverse();
     if (!back)
@@ -142,6 +145,8 @@ void PlanarTracker::matchPatches(const GrayImage& next, const GrayImage& nextHal
     for (const Vec2& p : m_points) {
         const Vec2 q = predicted.map(p);
         if (!(std::abs(q.x) < 1e7 && std::abs(q.y) < 1e7))
+            continue;
+        if (mask && !mask->isEmpty() && mask->sample(q.x, q.y) < kMaskThreshold)
             continue;
         double contrast = 0;
         const double norm = warpedPatch(m_template, toTemplate, q, m_patch, values, &contrast);
@@ -186,7 +191,7 @@ void PlanarTracker::matchPatches(const GrayImage& next, const GrayImage& nextHal
     }
 }
 
-PlanarResult PlanarTracker::track(const GrayImage& next)
+PlanarResult PlanarTracker::track(const GrayImage& next, const GrayImage* mask)
 {
     PlanarResult result;
     result.corners = m_corners;
@@ -207,14 +212,14 @@ PlanarResult PlanarTracker::track(const GrayImage& next)
         matchPatches(next, nextHalf, current, radius,
             coarsePass ? m_settings.minCorrelation
                        : std::max(m_settings.minCorrelation, kFinePassMinCorrelation),
-            from, to, corr);
+            mask, from, to, corr);
         if (!coarsePass && int(from.size()) < std::max(kMinPatches, int(inliers.size() / 2))) {
             // Too few good matches for the strict pass: match again with the normal limit.
             from.clear();
             to.clear();
             corr.clear();
-            matchPatches(
-                next, nextHalf, current, radius, m_settings.minCorrelation, from, to, corr);
+            matchPatches(next, nextHalf, current, radius, m_settings.minCorrelation, mask, from,
+                to, corr);
         }
         coarsePass = false;
         matched = int(from.size());

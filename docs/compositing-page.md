@@ -143,6 +143,13 @@ are rendered by `PlaybackEngine::renderCompositionNode()` of the tracking source
 path as the viewers, so decoding, proxies and quality are not duplicated), the next picture
 already rendering while the current one is matched. `storeTrack()` writes the result to the node.
 
+**Several patterns (spec 118).** A Tracker holds up to four patterns (Patterns, Active Pattern). Pattern 1
+is the node's Center; patterns 2 to 4 are hidden keyframed positions (`nodekeys::patternKey()`). The Track
+buttons act on the active pattern, the viewer shows all boxes. With more than one pattern the output is the
+least-squares move, turn and scale of the group about its middle at the reference frame
+(`compmath::trackerMatrix()`, Match Position / Rotation / Scale), and a node that follows the track gets the
+same size and angle (`tracking::sourceMotion()`).
+
 ## Planar Tracker and track links (1.2, issue #3)
 
 **What the user does.** Add a Planar Tracker node (Transform folder) after the picture to pin or
@@ -175,6 +182,10 @@ below 0.85. The corners are the homography applied to the start corners; a resul
 convex quad, or whose area changed more than 40 times, or with too few agreeing patches, is a loss.
 `TrackerRunner` runs it exactly as it runs the point tracker (same thread, same pictures, same
 progress and stop); a job with `planar` set carries the four corners.
+
+**Track Mask (spec 118.1).** A Mask-kind input, analysis only like Tracking Source: the mask node's picture
+is rendered for each frame next to the plane's, and `PlanarTracker::reset()` / `track()` take it as a
+`GrayImage`; patches under black (below 0.5) are not placed / not used.
 
 **Linking other nodes to a track.** Kinoklip has no parameter links: every parameter is a constant
 or keyframes. The smallest mechanism that fits is *Connect to Tracker n*: nodes with a Center

@@ -5,6 +5,7 @@
 #include "core/NodeRegistry.h"
 
 #include <algorithm>
+#include <cmath>
 #include <set>
 
 namespace kk::tracking {
@@ -25,8 +26,12 @@ std::vector<int64_t> trackFrames(const CompNode& source)
             frames.insert(k.frame);
     };
     if (source.type == nodetypes::Tracker) {
-        addKeys(nodekeys::CenterX);
-        addKeys(nodekeys::CenterY);
+        const int patterns = std::clamp(
+            int(int(std::lround(source.params.value(nodekeys::Patterns, 0, 1)))), 1, nodekeys::kMaxPatterns);
+        for (int i = 1; i <= patterns; ++i) {
+            addKeys(nodekeys::patternKey(i, false));
+            addKeys(nodekeys::patternKey(i, true));
+        }
     } else if (source.type == nodetypes::PlanarTracker) {
         for (int i = 0; i < nodekeys::kPlanarCorners; ++i) {
             addKeys(nodekeys::planarCorner(i, false));
@@ -67,7 +72,14 @@ QPointF trackCentre(const CompNode& source, int64_t frame)
         const Vec2 c = quadCentre(q);
         return {c.x, c.y};
     }
-    return {p.value(nodekeys::CenterX, frame, 0.5), p.value(nodekeys::CenterY, frame, 0.5)};
+    const int patterns = std::clamp(
+        int(int(std::lround(p.value(nodekeys::Patterns, 0, 1)))), 1, nodekeys::kMaxPatterns);
+    QPointF sum;
+    for (int i = 1; i <= patterns; ++i) {
+        sum += QPointF(p.value(nodekeys::patternKey(i, false), frame, 0.5),
+            p.value(nodekeys::patternKey(i, true), frame, 0.5));
+    }
+    return sum / patterns; // several patterns: where their middle is
 }
 
 bool linkToTrack(CompNode& target, const CompNode& source, int64_t offsetFrame)

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "compositing/tracking/TrackFollow.h"
 
+#include "compositing/tracking/Homography.h"
 #include "compositing/tracking/TrackLink.h"
 #include "core/EffectTrack.h"
 #include "core/NodeRegistry.h"
@@ -101,6 +102,33 @@ matchmove::Motion sourceMotion(
         const std::array<float, 8> a = cornersAt(source.params, refFrame);
         const std::array<float, 8> b = cornersAt(source.params, frame);
         return matchmove::motionBetween(a.data(), b.data(), matchmove::kRegionStride, frameSize);
+    }
+    const int patterns = std::clamp(
+        int(int(std::lround(source.params.value(nk::Patterns, 0, 1)))), 1, nk::kMaxPatterns);
+    if (patterns > 1) {
+        // Several patterns: the best move, turn and scale of the group (spec 118.3).
+        std::vector<Vec2> then, now;
+        QPointF ct, cn;
+        for (int i = 1; i <= patterns; ++i) {
+            const double ax = source.params.value(nk::patternKey(i, false), refFrame, 0.5);
+            const double ay = source.params.value(nk::patternKey(i, true), refFrame, 0.5);
+            const double bx = source.params.value(nk::patternKey(i, false), frame, 0.5);
+            const double by = source.params.value(nk::patternKey(i, true), frame, 0.5);
+            then.push_back({ax * frameSize.width(), (1.0 - ay) * frameSize.height()});
+            now.push_back({bx * frameSize.width(), (1.0 - by) * frameSize.height()});
+            ct += QPointF(then.back().x, then.back().y) / patterns;
+            cn += QPointF(now.back().x, now.back().y) / patterns;
+        }
+        matchmove::Motion m;
+        m.pivotX = ct.x();
+        m.pivotY = ct.y();
+        m.dx = cn.x() - ct.x();
+        m.dy = cn.y() - ct.y();
+        if (const auto sim = similarityFromPoints(then, now)) {
+            m.angleDeg = sim->angleRad * 180.0 / M_PI;
+            m.scale = sim->scale;
+        }
+        return m;
     }
     // A point: in doubles (the float arrays of the effect tables lose digits a Tracker keeps).
     matchmove::Motion m;

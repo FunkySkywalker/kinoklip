@@ -15,10 +15,13 @@ namespace kk::tracking {
 /// leaves the picture where it is at the frame it started on. A Planar Tracker node gets the
 /// eight corner keys instead (nodekeys::planarCorner()), from the samples' corners. False if
 /// there is nothing to store.
-bool storeTrack(CompNode& node, const std::vector<TrackSample>& samples, int64_t referenceFrame);
+/// A Tracker with several patterns stores into pattern @p pattern (1-based; nodekeys::patternKey()).
+bool storeTrack(CompNode& node, const std::vector<TrackSample>& samples, int64_t referenceFrame,
+    int pattern = 1);
 
 /// Removes all tracked keys: the point (a planar node: every corner) stays where it is at
 /// @p frame.
-void clearTrack(CompNode& node, int64_t frame);
+/// A Tracker clears only pattern @p pattern (0 = every pattern).
+void clearTrack(CompNode& node, int64_t frame, int pattern = 0);
 
 } // namespace kk::tracking

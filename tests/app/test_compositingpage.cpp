@@ -1136,6 +1136,51 @@ private slots:
         QVERIFY(!inspector->followPoints() && !inspector->followSize() && inspector->followAngle());
     }
 
+    void trackerPatternBoxes()
+    {
+        // Spec 118.2: a Tracker with several patterns shows a box for each; the others can be
+        // picked and dragged, which makes them the active one.
+        Fixture f;
+        f.project.timeline()->setPlayhead(20);
+        f.showPage();
+        CompViewerOverlay* overlay = f.page()->viewer(1)->controls();
+        auto send = [overlay](QEvent::Type type, QPointF p, Qt::MouseButton b, Qt::MouseButtons bs) {
+            QMouseEvent e(type, p, overlay->mapToGlobal(p), b, bs, Qt::NoModifier);
+            QApplication::sendEvent(overlay, &e);
+        };
+        const quint64 in = f.nodeNamed(QStringLiteral("MediaIn1"));
+        f.session()->setSelection({in});
+        f.session()->addNode(nodetypes::Tracker);
+        const quint64 tr = f.nodeOfType(nodetypes::Tracker);
+        f.session()->setSelection({tr});
+        QVERIFY(!overlay->handlePos(CompViewerOverlay::Handle::Point, 1)); // one pattern only
+        f.session()->edit(QStringLiteral("Patterns"), [tr](Composition& c) {
+            c.node(tr)->params.setBase(nodekeys::Patterns, 2);
+            return true;
+        });
+        const QPointF second = *overlay->handlePos(CompViewerOverlay::Handle::Point, 1);
+        int index = -1;
+        QCOMPARE(overlay->handleAt(second, &index), CompViewerOverlay::Handle::Point);
+        QCOMPARE(index, 1);
+        const int before = f.steps();
+        const QPointF to = second + QPointF(25, 15);
+        send(QEvent::MouseButtonPress, second, Qt::LeftButton, Qt::LeftButton);
+        send(QEvent::MouseMove, to, Qt::NoButton, Qt::LeftButton);
+        send(QEvent::MouseButtonRelease, to, Qt::LeftButton, Qt::NoButton);
+        QCOMPARE(f.steps(), before + 1);
+        const CompNode* n = f.comp().node(tr);
+        const int64_t frame = f.session()->compFrame();
+        QCOMPARE(int(std::lround(n->params.value(nodekeys::ActivePattern, 0, 1))), 2);
+        QVERIFY(n->params.value(nodekeys::patternKey(2, false), frame, 0) > 0.6 + 0.01);
+        QVERIFY(n->params.value(nodekeys::patternKey(2, true), frame, 1) < 0.5 - 0.01);
+        QCOMPARE(n->params.value(nodekeys::CenterX, frame, 0), 0.5); // pattern 1 stays
+        // Now pattern 1 is the other box.
+        QCOMPARE(overlay->handleAt(*overlay->handlePos(CompViewerOverlay::Handle::Point, 0)),
+            CompViewerOverlay::Handle::Point);
+        f.project.undo();
+        QCOMPARE(int(std::lround(f.comp().node(tr)->params.value(nodekeys::ActivePattern, 0, 1))), 1);
+    }
+
     void pointFollowerFromTheViewerMenu()
     {
         // Spec 117.5: a point of a Bezier mask follows a track from the viewer.

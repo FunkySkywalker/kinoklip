@@ -103,6 +103,12 @@ edges) is common to Blender's mask editor and Natron's Roto (both GPL-2.0-or-lat
 not be read in full while writing this, and no code was taken from either. The Bezier point maths reuses the Edit
 page mask code (`core/Mask.*`).
 
+### Tracker patterns and Track Mask (Compositing page)
+The least-squares move / turn / scale of several tracked patterns uses the closed-form similarity fit of Umeyama
+(1991), `similarityFromPoints()` in `src/compositing/tracking/Homography.cpp`. The Track Mask of the Planar Tracker
+only decides which patches are used; the idea is the same as the mask input of the Planar Tracker nodes of Natron and
+Fusion. No code was taken from either.
+
 ### Keyframe loops
 The extrapolation modes of animated values (`src/core/Animation.cpp`, `AnimatedValue::extrapolatedValue()`)
 follow the documented behaviour of Blender's F-Curve Cycles modifier (GPL-2.0-or-later: Repeat Motion, Repeat

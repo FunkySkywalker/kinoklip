@@ -59,9 +59,13 @@ public:
     /// Starts on @p frame with the region @p corners (a convex quad inside the picture, image
     /// pixels, pixel (i, j) centred at (i, j)). False if the region is degenerate or has too
     /// little detail (fewer than 6 usable patches).
-    bool reset(const GrayImage& frame, const Quad& corners);
-    /// Finds the plane in @p next.
-    PlanarResult track(const GrayImage& next);
+    /// With @p mask (the Track Mask input: white = track here, black = ignore, same size as the
+    /// pictures) patches are only placed where the mask is at least half white.
+    bool reset(const GrayImage& frame, const Quad& corners, const GrayImage* mask = nullptr);
+    /// Finds the plane in @p next. With @p mask (the mask of this frame) a patch whose predicted
+    /// place is under a black part of the mask is not used, so something moving in front of the
+    /// plane, or a part that does not belong to it, cannot pull the fit.
+    PlanarResult track(const GrayImage& next, const GrayImage* mask = nullptr);
 
     [[nodiscard]] const Quad& corners() const { return m_corners; }
     [[nodiscard]] const PlanarSettings& settings() const { return m_settings; }
@@ -70,8 +74,8 @@ private:
     /// Matches every patch around its place predicted by @p predicted, within @p radius.
     /// Returns the pairs (plane point -> found position) and their correlations.
     void matchPatches(const GrayImage& next, const GrayImage& nextHalf, const Homography& predicted,
-        int radius, double minCorrelation, std::vector<Vec2>& from, std::vector<Vec2>& to,
-        std::vector<double>& correlation) const;
+        int radius, double minCorrelation, const GrayImage* mask, std::vector<Vec2>& from,
+        std::vector<Vec2>& to, std::vector<double>& correlation) const;
 
     PlanarSettings m_settings;
     Quad m_startCorners; ///< the region in the start frame

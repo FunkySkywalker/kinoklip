@@ -17,6 +17,7 @@
 #include <QVBoxLayout>
 
 #include <algorithm>
+#include <cmath>
 
 namespace kk {
 
@@ -78,12 +79,16 @@ TrackerPanel::TrackerPanel(AppContext& ctx, CompSession* session, QWidget* paren
         const quint64 id = m_node;
         const int64_t frame = m_session->compFrame();
         const CompNode* n = m_session->composition().node(id);
-        m_session->edit(
-            tr("Clear Track %1").arg(n ? n->name : QString()), [id, frame](Composition& c) {
+        // A Tracker with several patterns clears the active one.
+        const int pattern = n ? std::clamp(int(int(std::lround(n->params.value(nodekeys::ActivePattern, 0, 1)))),
+                                    1, nodekeys::kMaxPatterns)
+                              : 1;
+        m_session->edit(tr("Clear Track %1").arg(n ? n->name : QString()),
+            [id, frame, pattern](Composition& c) {
                 CompNode* node = c.node(id);
                 if (!node || node->locked)
                     return false;
-                tracking::clearTrack(*node, frame);
+                tracking::clearTrack(*node, frame, pattern);
                 return true;
             });
     });
@@ -137,7 +142,11 @@ void TrackerPanel::updateState()
     // The point tracker's track is its X key; the planar tracker's its first corner's.
     const QString trackKey = n && n->type == nodetypes::PlanarTracker
         ? nodekeys::planarCorner(0, false)
-        : nodekeys::CenterX;
+        : nodekeys::patternKey(
+            n ? std::clamp(int(int(std::lround(n->params.value(nodekeys::ActivePattern, 0, 1)))), 1,
+                    nodekeys::kMaxPatterns)
+              : 1,
+            false);
     m_clear->setEnabled(
         n && !n->locked && !running && n->params.values.value(trackKey).isAnimated());
     m_bar->setVisible(running && m_runNode == m_node);
@@ -180,8 +189,12 @@ bool TrackerPanel::track(bool forward)
     tracking::TrackJob job;
     job.firstFrame = start;
     job.lastFrame = last;
-    job.startU = n->params.value(nodekeys::CenterX, start, 0.5);
-    job.startV = n->params.value(nodekeys::CenterY, start, 0.5);
+    // A Tracker with several patterns tracks the active one.
+    m_runPattern = planar ? 1
+                          : std::clamp(int(int(std::lround(n->params.value(nodekeys::ActivePattern, 0, 1)))),
+                                1, nodekeys::kMaxPatterns);
+    job.startU = n->params.value(nodekeys::patternKey(m_runPattern, false), start, 0.5);
+    job.startV = n->params.value(nodekeys::patternKey(m_runPattern, true), start, 0.5);
     if (planar) {
         // Pattern Size is the side of a patch, Search Size the side of the box it may move in.
         job.planar = true;
@@ -205,6 +218,15 @@ bool TrackerPanel::track(bool forward)
     job.source = [engine, timeline, clipId, renderId, outSize](int64_t f) {
         return engine->renderCompositionNode(timeline, clipId, renderId, f, outSize, OutputImage);
     };
+    // The Track Mask of a Planar Tracker: rendered like the picture, frame by frame.
+    const NodeLink maskLink = n->inputs.value(nodeports::TrackMask);
+    if (planar && maskLink.isConnected()) {
+        const quint64 maskId = maskLink.nodeId;
+        job.maskSource = [engine, timeline, clipId, maskId, outSize](int64_t f) {
+            return engine->renderCompositionNode(
+                timeline, clipId, maskId, f, outSize, OutputImage);
+        };
+    }
     m_runNode = m_node;
     m_runStart = start;
     setStatus(forward ? tr("Tracking forward...") : tr("Tracking backward..."));
@@ -227,11 +249,13 @@ void TrackerPanel::onFinished(tracking::TrackOutcome outcome, const QString& rea
         const quint64 id = m_runNode;
         const std::vector<tracking::TrackSample> found = samples;
         const int64_t start = m_runStart;
+        const int pattern = m_runPattern;
         const CompNode* n = m_session->composition().node(id);
-        m_session->edit(
-            tr("Track %1").arg(n ? n->name : QString()), [id, found, start](Composition& c) {
+        m_session->edit(tr("Track %1").arg(n ? n->name : QString()),
+            [id, found, start, pattern](Composition& c) {
                 CompNode* node = c.node(id);
-                return node && !node->locked && tracking::storeTrack(*node, found, start);
+                return node && !node->locked
+                    && tracking::storeTrack(*node, found, start, pattern);
             });
     }
     switch (outcome) {

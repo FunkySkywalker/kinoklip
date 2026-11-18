@@ -160,6 +160,9 @@ inline const QString Foreground = QStringLiteral("foreground");
 inline const QString Mask = QStringLiteral("mask");
 /// Tracker: the picture the point is followed in (the main input when not connected).
 inline const QString Source = QStringLiteral("source");
+/// Planar Tracker: a mask that limits where the plane is tracked (white = track here); analysis
+/// only, like Source.
+inline const QString TrackMask = QStringLiteral("trackMask");
 /// Displace and Vector Distort: the picture that holds the displacement / the vectors.
 inline const QString Map = QStringLiteral("map");
 /// Keyers and Matte Control: masks that take the matte out (Garbage) or keep it (Solid), and the
@@ -210,6 +213,21 @@ inline const QString PatternSize = QStringLiteral("patternSize"); ///< px, side 
 inline const QString SearchSize = QStringLiteral("searchSize"); ///< px, side of the search box
 inline const QString TrackMode = QStringLiteral("trackMode"); ///< choice (trackmodes::)
 inline const QString RefFrame = QStringLiteral("refFrame"); ///< comp frame where the offset is 0
+// Tracker with several patterns (spec section 118): 1 .. kMaxPatterns patterns in one node.
+// Pattern 1 is CenterX / CenterY; the others have hidden keys, see patternKey().
+inline constexpr int kMaxPatterns = 4;
+inline const QString Patterns = QStringLiteral("patterns"); ///< number of patterns in use, static
+inline const QString ActivePattern = QStringLiteral("activePattern"); ///< the one the viewer box and Track buttons use (1-based), static
+inline const QString TrackPosition = QStringLiteral("trackPosition"); ///< bool: output follows the patterns' middle
+inline const QString TrackRotation = QStringLiteral("trackRotation"); ///< bool: output turns (2 or more patterns)
+inline const QString TrackScale = QStringLiteral("trackScale"); ///< bool: output scales (2 or more patterns)
+/// Key of the X or Y position of pattern @p n (1-based); pattern 1 is CenterX / CenterY.
+inline QString patternKey(int n, bool y)
+{
+    if (n <= 1)
+        return y ? QStringLiteral("centerY") : QStringLiteral("centerX");
+    return QStringLiteral("pattern%1%2").arg(n).arg(y ? QLatin1Char('Y') : QLatin1Char('X'));
+}
 // Planar Tracker: the region's corners, normalised like CenterX / CenterY (y from the bottom),
 // keyframed by the tracking. Also uses PatternSize, SearchSize, TrackMode and RefFrame.
 inline constexpr int kPlanarCorners = 4;

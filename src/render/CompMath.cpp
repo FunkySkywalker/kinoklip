@@ -63,12 +63,51 @@ QTransform transformMatrix(const ParamSet& p, double frame, QSizeF frameSize)
 QTransform trackerMatrix(const ParamSet& p, int64_t frame, QSizeF frameSize)
 {
     const int64_t ref = int64_t(std::llround(num(p, k::RefFrame, 0, 0.0)));
+    const bool stabilize
+        = p.staticValue(k::TrackMode, trackmodes::MatchMove).toString() == trackmodes::Stabilize;
+    const int patterns = std::clamp(int(int(std::lround(p.value(k::Patterns, 0, 1)))), 1, k::kMaxPatterns);
+    if (patterns > 1) {
+        // Several patterns: the best move / turn / scale of the group (Match Position / Rotation /
+        // Scale choose which parts the output takes), about where the group was at the reference.
+        std::vector<tracking::Vec2> then, now;
+        QPointF ct, cn;
+        for (int i = 1; i <= patterns; ++i) {
+            const QPointF a = toFrame(num(p, k::patternKey(i, false), ref, 0.5),
+                num(p, k::patternKey(i, true), ref, 0.5), frameSize);
+            const QPointF b = toFrame(num(p, k::patternKey(i, false), frame, 0.5),
+                num(p, k::patternKey(i, true), frame, 0.5), frameSize);
+            then.push_back({a.x(), a.y()});
+            now.push_back({b.x(), b.y()});
+            ct += a / patterns;
+            cn += b / patterns;
+        }
+        const bool wantMove = p.staticValue(k::TrackPosition, true).toBool();
+        const bool wantTurn = p.staticValue(k::TrackRotation, true).toBool();
+        const bool wantScale = p.staticValue(k::TrackScale, true).toBool();
+        double angle = 0, scale = 1;
+        if (const auto sim = tracking::similarityFromPoints(then, now)) {
+            angle = sim->angleRad * 180.0 / M_PI; // clockwise on the screen (y down)
+            scale = sim->scale;
+        }
+        QTransform t = translate(ct + (wantMove ? cn - ct : QPointF()));
+        if (wantTurn)
+            t = QTransform().rotate(angle) * t;
+        if (wantScale)
+            t = QTransform::fromScale(scale, scale) * t;
+        t = translate(-ct) * t;
+        if (stabilize) {
+            bool ok = false;
+            const QTransform inv = t.inverted(&ok);
+            return ok ? inv : QTransform();
+        }
+        return t;
+    }
     const QPointF now
         = toFrame(num(p, k::CenterX, frame, 0.5), num(p, k::CenterY, frame, 0.5), frameSize);
     const QPointF then
         = toFrame(num(p, k::CenterX, ref, 0.5), num(p, k::CenterY, ref, 0.5), frameSize);
     QPointF move = now - then;
-    if (p.staticValue(k::TrackMode, trackmodes::MatchMove).toString() == trackmodes::Stabilize)
+    if (stabilize)
         move = -move;
     return translate(move);
 }

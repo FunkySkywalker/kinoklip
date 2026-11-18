@@ -21220,8 +21220,36 @@ Import files with %1 or drop them here.</source>
         <translation> X</translation>
     </message>
     <message>
+        <source>Patterns</source>
+        <translation>Шаблони</translation>
+    </message>
+    <message>
+        <source>Active Pattern</source>
+        <translation>Активний шаблон</translation>
+    </message>
+    <message>
+        <source>Match Position</source>
+        <translation>Повторювати позицію</translation>
+    </message>
+    <message>
+        <source>Match Rotation</source>
+        <translation>Повторювати поворот</translation>
+    </message>
+    <message>
+        <source>Match Scale</source>
+        <translation>Повторювати масштаб</translation>
+    </message>
+    <message>
         <source> Y</source>
         <translation> Y</translation>
+    </message>
+    <message>
+        <source>Pattern %1</source>
+        <translation>Шаблон %1</translation>
+    </message>
+    <message>
+        <source>Track Mask</source>
+        <translation>Маска трекінгу</translation>
     </message>
     <message>
         <source>Corner Pin</source>

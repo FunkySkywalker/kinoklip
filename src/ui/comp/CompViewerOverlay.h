@@ -96,6 +96,8 @@ private:
         bool showBez = false; ///< the Bezier path is drawn and edited
         bool bezClosed = false;
         bool roto = false; ///< Roto Assist is on
+        int patterns = 1; ///< Tracker: patterns in use; points then holds all their positions
+        int activePattern = 1; ///< Tracker: the one the box and the Centre handle belong to
         bool locked = false;
     };
     [[nodiscard]] std::optional<State> state() const;

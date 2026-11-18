@@ -63,6 +63,7 @@ private:
     quint64 m_node = 0; ///< node shown
     quint64 m_runNode = 0; ///< node being tracked
     int64_t m_runStart = 0;
+    int m_runPattern = 1; ///< the Tracker pattern being tracked (1-based)
     bool m_discard = false;
     QToolButton* m_backward = nullptr;
     QToolButton* m_stop = nullptr;

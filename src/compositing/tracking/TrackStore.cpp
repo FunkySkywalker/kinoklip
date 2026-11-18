@@ -3,9 +3,12 @@
 
 #include "core/NodeRegistry.h"
 
+#include <algorithm>
+
 namespace kk::tracking {
 
-bool storeTrack(CompNode& node, const std::vector<TrackSample>& samples, int64_t referenceFrame)
+bool storeTrack(CompNode& node, const std::vector<TrackSample>& samples, int64_t referenceFrame,
+    int pattern)
 {
     if (samples.empty())
         return false;
@@ -25,9 +28,14 @@ bool storeTrack(CompNode& node, const std::vector<TrackSample>& samples, int64_t
         }
         return true;
     }
-    AnimatedValue& x = node.params.animated(nodekeys::CenterX, 0.5);
-    AnimatedValue& y = node.params.animated(nodekeys::CenterY, 0.5);
-    if (!x.isAnimated() && !y.isAnimated())
+    pattern = std::clamp(pattern, 1, nodekeys::kMaxPatterns);
+    AnimatedValue& x = node.params.animated(nodekeys::patternKey(pattern, false), 0.5);
+    AnimatedValue& y = node.params.animated(nodekeys::patternKey(pattern, true), 0.5);
+    bool anyTracked = false;
+    for (int i = 1; i <= nodekeys::kMaxPatterns; ++i)
+        anyTracked = anyTracked
+            || node.params.values.value(nodekeys::patternKey(i, false)).isAnimated();
+    if (!anyTracked)
         node.params.setBase(nodekeys::RefFrame, double(referenceFrame));
     for (const TrackSample& s : samples) {
         x.setKey(s.frame, s.u, Interp::Linear);
@@ -36,7 +44,7 @@ bool storeTrack(CompNode& node, const std::vector<TrackSample>& samples, int64_t
     return true;
 }
 
-void clearTrack(CompNode& node, int64_t frame)
+void clearTrack(CompNode& node, int64_t frame, int pattern)
 {
     if (node.type == nodetypes::PlanarTracker) {
         for (int i = 0; i < nodekeys::kPlanarCorners; ++i) {
@@ -47,10 +55,15 @@ void clearTrack(CompNode& node, int64_t frame)
         }
         return;
     }
-    const double u = node.params.value(nodekeys::CenterX, frame, 0.5);
-    const double v = node.params.value(nodekeys::CenterY, frame, 0.5);
-    node.params.animated(nodekeys::CenterX, 0.5) = AnimatedValue(u);
-    node.params.animated(nodekeys::CenterY, 0.5) = AnimatedValue(v);
+    for (int i = 1; i <= nodekeys::kMaxPatterns; ++i) {
+        if (pattern != 0 && i != pattern)
+            continue;
+        const QString kx = nodekeys::patternKey(i, false), ky = nodekeys::patternKey(i, true);
+        const double u = node.params.value(kx, frame, 0.5);
+        const double v = node.params.value(ky, frame, 0.5);
+        node.params.animated(kx, 0.5) = AnimatedValue(u);
+        node.params.animated(ky, 0.5) = AnimatedValue(v);
+    }
 }
 
 } // namespace kk::tracking

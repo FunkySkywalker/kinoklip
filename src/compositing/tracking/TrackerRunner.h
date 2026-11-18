@@ -69,6 +69,9 @@ struct TrackJob
     /// The picture of a comp frame. Called on the thread that calls start(); the returned
     /// future may be waited on from any thread. A frame that is not ok ends the run (Failed).
     std::function<std::future<RenderedFramePtr>(int64_t frame)> source;
+    /// Planar jobs: the Track Mask picture of a comp frame (same size as `source`'s pictures;
+    /// white = track here). Empty = no mask. A mask frame that is not ok counts as "no mask".
+    std::function<std::future<RenderedFramePtr>(int64_t frame)> maskSource;
 };
 
 enum class TrackOutcome {
@@ -126,7 +129,8 @@ private:
     /// One background step of a mesh job (reset on the first frame, track on the others).
     static void runMesh(Run& run, const GrayImage& gray, bool first, Step& step);
     /// One background step of a planar job (reset on the first frame, track on the others).
-    static void runPlanar(Run& run, const GrayImage& gray, bool first, Step& step);
+    static void runPlanar(
+        Run& run, const GrayImage& gray, const GrayImage* mask, bool first, Step& step);
     void requestFrame();
     void launchStep();
     void onStepDone(quint64 generation);
@@ -134,6 +138,7 @@ private:
 
     std::shared_ptr<Run> m_run;
     std::deque<std::pair<int64_t, std::shared_ptr<std::future<RenderedFramePtr>>>> m_pending;
+    std::deque<std::shared_ptr<std::future<RenderedFramePtr>>> m_pendingMask; ///< parallel to m_pending
     QFutureWatcher<Step>* m_watcher = nullptr;
     std::vector<TrackSample> m_samples;
     int64_t m_nextToRequest = 0;

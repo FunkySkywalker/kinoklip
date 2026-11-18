@@ -219,6 +219,13 @@ move looks the same with Motion Blur on or off.
   the tracker in **Follow Track** and tick what should follow (**Position**, **Size**, **Angle**, or **Points** to move
   the points of the shape instead of the mask), then press **Connect**. On the Edit page the same row sits in each
   mask's group (**Track Mask**) and uses a tracked Match Move effect of the clip.
+- **Tracker with several patterns:** set **Patterns** to 2, 3 or 4, pick one with **Active Pattern** (or click its box in
+  the viewer), put each on a corner or edge of the moving object and track each one. The Tracker then also turns and
+  scales the picture the way the patterns moved; **Match Position**, **Match Rotation** and **Match Scale** switch the
+  parts. In **Follow Track** a node can take **Size** and **Angle** from such a Tracker or from a Planar Tracker.
+- **Planar Tracker Track Mask:** connect a mask (for example an Ellipse around a person who walks in front of the
+  wall) to **Track Mask**. White parts are tracked, black parts are ignored, so things moving in front of the surface do
+  not pull the track.
 - **Corner Positioner** (Transform): drag the four corners in the viewer (or type them) to pin the picture to a
   new quadrilateral in perspective.
 
