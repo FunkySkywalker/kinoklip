@@ -92,7 +92,12 @@ general knowledge of node compositors, our own drawing, names and icons; never R
   MediaIn1 / MediaIn2 (`CompNode::transitionSide`); "Open in Compositing Page" on a timeline transition opens it
   (`CompSession::openTransition()`); comp frame 0 is the first frame of the transition window.
 - **Tracking**: Tracker (point tracker, see "Tracker" below), Planar Tracker.
-- Later: paint, particles, 3D (the older lines of the roadmap, from the Spline panel to the node editor extras, are all made: spec 123).
+- **Particles** (spec 129): **pEmitter**, **pGravity**, **pTurbulence**, **pMerge** (stream nodes; the new port kind
+  `PortKind::Particles` connects only to particle inputs) and **pRender** (draws the stream as a picture). The stream at a frame is
+  a pure function of the graph, seed and frame (`src/render/CompParticles.*`): every batch has its own random sequence and a
+  particle's place is the integral of the forces over its life, so scrubbing equals playing and nothing is cached. Both renderers
+  call `particles::renderNode()` (the GPU uploads the CPU picture, like the Loader).
+- Later: paint, 3D (the older lines of the roadmap, from the Spline panel to the node editor extras, are all made: spec 123).
 
 ## Data model and evaluation
 - `src/core/Composition.h`: value types (Composition, CompNode, NodeLink, CompNote). A clip

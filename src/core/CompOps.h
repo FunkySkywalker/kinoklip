@@ -86,7 +86,8 @@ enum class ConnectError {
 };
 
 /// True if an output of kind @p output may feed an input of kind @p input: same kind, or an
-/// image into a mask input (its alpha is the matte); a mask never feeds an image input.
+/// image into a mask input (its alpha is the matte); a mask never feeds an image input; a particle
+/// stream (spec 129) only feeds particle inputs and a picture never feeds one.
 [[nodiscard]] bool kindsCompatible(PortKind output, PortKind input);
 
 /// True if @p node depends (through its inputs, transitively) on node @p on (or is it).

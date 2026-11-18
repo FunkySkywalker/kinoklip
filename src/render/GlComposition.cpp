@@ -3,6 +3,7 @@
 #include "render/GlComposition.h"
 
 #include "render/CompLoader.h"
+#include "render/CompParticles.h"
 #include "render/CompTimeMath.h"
 
 #include "core/CompOps.h"
@@ -365,6 +366,7 @@ bool GlComposition::initialize(GlKit& kit, QString* why)
     m_nColor2 = m_noise.uniform(gl, "uColor2");
     m_maskClip.masks.resize(1);
     m_stack.resize(kMaxDepth);
+    m_sprites.resize(kMaxDepth);
     for (auto& s : m_stack)
         s.reserve(16);
     return true;
@@ -379,6 +381,7 @@ void GlComposition::destroy(GlKit& kit)
     m_fxColor.destroy(kit);
     m_fxMatte.destroy(kit);
     m_stack.clear();
+    m_sprites.clear();
 }
 
 // ---- Evaluation ----
@@ -463,6 +466,7 @@ PooledTarget GlComposition::evaluate(GlKit& kit, const CompEval& ev, quint64 nod
     ++m_depth;
     std::vector<Slot>& list = m_stack[size_t(m_depth)];
     list.clear();
+    m_sprites[size_t(m_depth)].clear();
     const QVector<quint64> order = compops::evaluationOrder(*ev.comp, nodeId);
     for (quint64 id : order)
         list.push_back(Slot {id, {}, -1, 0});
@@ -515,6 +519,10 @@ void GlComposition::evalNode(GlKit& kit, const CompEval& ev, int index)
         for (auto it = n.inputs.constBegin(); it != n.inputs.constEnd(); ++it)
             release(inputOwner(n, it.key()));
     };
+    if (d && d->outputKind == PortKind::Particles && n.type != nodetypes::MediaOut) {
+        particleNode(kit, ev, index);
+        return;
+    }
     const int mainOwner = d && !d->mainInput.isEmpty() ? inputOwner(n, d->mainInput) : -1;
     if (!d || !n.enabled || n.type == nodetypes::MediaOut || commonSkips(n, ev.compFrame)) {
         if (!d && !m_warned.contains(n.type)) {
@@ -540,6 +548,8 @@ void GlComposition::evalNode(GlKit& kit, const CompEval& ev, int index)
         out = loaderNode(kit, ev, n);
     } else if (compops::isTimeNode(n.type)) {
         out = timeNode(kit, ev, n);
+    } else if (n.type == nodetypes::PRender) {
+        out = particleRender(kit, ev, n);
     } else if (n.type == nodetypes::Saver) {
         // Passes its input through; the files are written only by a render of the composition
         // (CompSaverRun), never while a frame is drawn for playback.
@@ -880,8 +890,12 @@ PooledTarget GlComposition::rectNode(GlKit& kit, const CompEval& ev, const CompN
 
 PooledTarget GlComposition::loaderNode(GlKit& kit, const CompEval& ev, const CompNode& n)
 {
+    return uploadedImage(kit, ev, CompLoader::picture(n.params, ev.compFrame, ev.size, ev.frame));
+}
+
+PooledTarget GlComposition::uploadedImage(GlKit& kit, const CompEval& ev, const QImage& image)
+{
     PooledTarget out = newTarget(kit, ev, true);
-    const QImage image = CompLoader::picture(n.params, ev.compFrame, ev.size, ev.frame);
     if (image.isNull())
         return out;
     GlFunctions* gl = kit.gl();
@@ -901,6 +915,41 @@ PooledTarget GlComposition::loaderNode(GlKit& kit, const CompEval& ev, const Com
     kit.blit(texture, GlKit::quadToNdc(QRectF(QPointF(0, 0), QSizeF(ev.size)), ev.size));
     gl->glDeleteTextures(1, &texture);
     return out;
+}
+
+PooledTarget GlComposition::particleRender(GlKit& kit, const CompEval& ev, const CompNode& n)
+{
+    const QHash<quint64, QImage>& sprites = m_sprites[size_t(m_depth)];
+    const QImage image = particles::renderNode(*ev.comp, n, ev.compFrame, ev.size,
+        [&sprites](quint64 emitter) { return sprites.value(emitter); });
+    return uploadedImage(kit, ev, image);
+}
+
+void GlComposition::particleNode(GlKit& kit, const CompEval& ev, int index)
+{
+    std::vector<Slot>& list = m_stack[size_t(m_depth)];
+    const CompNode& n = *ev.comp->node(list[size_t(index)].id);
+    if (n.type == nodetypes::PEmitter) {
+        const int owner = inputOwner(n, nodeports::Sprite);
+        const bool bitmap
+            = n.params.staticValue(nodekeys::PStyle).toString() == particlestyles::Bitmap;
+        if (owner >= 0 && bitmap) {
+            if (const RenderTarget* t = targetOf(owner)) {
+                QImage image(t->size, QImage::Format_ARGB32_Premultiplied);
+                GlFunctions* gl = kit.gl();
+                gl->glBindFramebuffer(GL_READ_FRAMEBUFFER, t->fbo);
+                gl->glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+                gl->glPixelStorei(GL_PACK_ALIGNMENT, 4);
+                gl->glPixelStorei(GL_PACK_ROW_LENGTH, GLint(image.bytesPerLine() / 4));
+                gl->glReadPixels(0, 0, t->size.width(), t->size.height(), GL_BGRA,
+                    GL_UNSIGNED_BYTE, image.bits());
+                gl->glPixelStorei(GL_PACK_ROW_LENGTH, 0);
+                m_sprites[size_t(m_depth)].insert(n.id, image);
+            }
+        }
+        release(owner);
+    }
+    alias(index, -1);
 }
 
 PooledTarget GlComposition::timeNode(GlKit& kit, const CompEval& ev, const CompNode& n)

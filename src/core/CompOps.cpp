@@ -280,6 +280,11 @@ AddResult addNodeAfter(Composition& comp, const QString& type, quint64 selected)
             connect(comp, result.node, 0, selId, nodeports::Mask);
         return result;
     }
+    if (d->outputKind == PortKind::Particles && d->mainInput.isEmpty()) {
+        // A particle source (pEmitter) is not merged over a picture: it sits below the node.
+        result.node = addNode(comp, type, selPos - QPointF(0, kStepY));
+        return result;
+    }
     if (d->isSource()) {
         // Background / Text / noise / another MediaIn: merged over the selected node.
         shiftDownstream(comp, selId, kStepX);

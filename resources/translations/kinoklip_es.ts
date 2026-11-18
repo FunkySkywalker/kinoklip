@@ -22647,6 +22647,322 @@ Importar archivos con %1 o soltarlos aquí.</translation>
         <translation>Rectángulo</translation>
     </message>
     <message>
+        <source>Particles</source>
+        <translation>Partículas</translation>
+    </message>
+    <message>
+        <source>pEmitter</source>
+        <translation>pEmitter</translation>
+    </message>
+    <message>
+        <source>Creates particles every frame from a point, a line, a rectangle or a circle</source>
+        <translation>Crea partículas en cada fotograma desde un punto, una línea, un rectángulo o un círculo</translation>
+    </message>
+    <message>
+        <source>Sprite</source>
+        <translation>Sprite</translation>
+    </message>
+    <message>
+        <source>Random Seed</source>
+        <translation>Semilla aleatoria</translation>
+    </message>
+    <message>
+        <source>The same seed gives the same particles; change it for another random pattern</source>
+        <translation>La misma semilla da las mismas partículas; cámbiela para obtener otro patrón aleatorio</translation>
+    </message>
+    <message>
+        <source>Number</source>
+        <translation>Número</translation>
+    </message>
+    <message>
+        <source>How many particles are born on every frame</source>
+        <translation>Cuántas partículas nacen en cada fotograma</translation>
+    </message>
+    <message>
+        <source>Number Variance</source>
+        <translation>Variación del número</translation>
+    </message>
+    <message>
+        <source>A random amount, up to this many more or fewer, added to Number on each frame</source>
+        <translation>Una cantidad aleatoria, hasta este número más o menos, que se suma al número en cada fotograma</translation>
+    </message>
+    <message>
+        <source>Lifespan</source>
+        <translation>Duración de vida</translation>
+    </message>
+    <message>
+        <source>How many frames a particle lives</source>
+        <translation>Cuántos fotogramas vive una partícula</translation>
+    </message>
+    <message>
+        <source>Lifespan Variance</source>
+        <translation>Variación de la duración</translation>
+    </message>
+    <message>
+        <source>A random amount, up to this many frames more or fewer, added to each particle&apos;s lifespan</source>
+        <translation>Una cantidad aleatoria, hasta este número de fotogramas más o menos, que se suma a la vida de cada partícula</translation>
+    </message>
+    <message>
+        <source>Start Frame</source>
+        <translation>Fotograma inicial</translation>
+    </message>
+    <message>
+        <source>The first frame that creates particles</source>
+        <translation>El primer fotograma que crea partículas</translation>
+    </message>
+    <message>
+        <source>End Frame</source>
+        <translation>Fotograma final</translation>
+    </message>
+    <message>
+        <source>The last frame that creates particles</source>
+        <translation>El último fotograma que crea partículas</translation>
+    </message>
+    <message>
+        <source>Region</source>
+        <translation>Región</translation>
+    </message>
+    <message>
+        <source>Line</source>
+        <translation>Línea</translation>
+    </message>
+    <message>
+        <source>Where particles appear: at the centre, along a line, inside a rectangle or inside a circle</source>
+        <translation>Dónde aparecen las partículas: en el centro, a lo largo de una línea, dentro de un rectángulo o de un círculo</translation>
+    </message>
+    <message>
+        <source>The middle of the region, 0 left, 1 right</source>
+        <translation>El centro de la región, 0 a la izquierda, 1 a la derecha</translation>
+    </message>
+    <message>
+        <source>The middle of the region, 0 bottom, 1 top</source>
+        <translation>El centro de la región, 0 abajo, 1 arriba</translation>
+    </message>
+    <message>
+        <source>Region Width</source>
+        <translation>Ancho de la región</translation>
+    </message>
+    <message>
+        <source>Width of the line or rectangle, or the diameter of the circle, as a part of the frame width</source>
+        <translation>Ancho de la línea o del rectángulo, o diámetro del círculo, como parte del ancho del fotograma</translation>
+    </message>
+    <message>
+        <source>Region Height</source>
+        <translation>Alto de la región</translation>
+    </message>
+    <message>
+        <source>Height of the rectangle as a part of the frame width</source>
+        <translation>Alto del rectángulo como parte del ancho del fotograma</translation>
+    </message>
+    <message>
+        <source>Velocity</source>
+        <translation>Velocidad</translation>
+    </message>
+    <message>
+        <source>How far a particle moves on every frame, as a part of the frame width</source>
+        <translation>Cuánto se mueve una partícula en cada fotograma, como parte del ancho del fotograma</translation>
+    </message>
+    <message>
+        <source>Velocity Variance</source>
+        <translation>Variación de velocidad</translation>
+    </message>
+    <message>
+        <source>A random amount, up to this much more or less, added to each particle&apos;s velocity</source>
+        <translation>Una cantidad aleatoria, hasta este valor más o menos, que se suma a la velocidad de cada partícula</translation>
+    </message>
+    <message>
+        <source>The direction the particles fly: 0 to the right, 90 up, 180 to the left, 270 down</source>
+        <translation>La dirección en que vuelan las partículas: 0 a la derecha, 90 arriba, 180 a la izquierda, 270 abajo</translation>
+    </message>
+    <message>
+        <source>Angle Variance</source>
+        <translation>Variación del ángulo</translation>
+    </message>
+    <message>
+        <source>A random amount, up to this many degrees either way, added to the direction</source>
+        <translation>Una cantidad aleatoria, hasta este número de grados en cualquier sentido, que se suma a la dirección</translation>
+    </message>
+    <message>
+        <source>Rotation</source>
+        <translation>Rotación</translation>
+    </message>
+    <message>
+        <source>The turn of a particle when it is born (only a Bitmap shows it)</source>
+        <translation>El giro de una partícula al nacer (solo un mapa de bits lo muestra)</translation>
+    </message>
+    <message>
+        <source>Rotation Variance</source>
+        <translation>Variación de la rotación</translation>
+    </message>
+    <message>
+        <source>A random amount, up to this many degrees either way, added to the turn at birth</source>
+        <translation>Una cantidad aleatoria, hasta este número de grados en cualquier sentido, que se suma al giro al nacer</translation>
+    </message>
+    <message>
+        <source>Spin</source>
+        <translation>Giro</translation>
+    </message>
+    <message>
+        <source>How many degrees a particle turns on every frame</source>
+        <translation>Cuántos grados gira una partícula en cada fotograma</translation>
+    </message>
+    <message>
+        <source>Spin Variance</source>
+        <translation>Variación del giro</translation>
+    </message>
+    <message>
+        <source>A random amount, up to this many degrees either way, added to the spin</source>
+        <translation>Una cantidad aleatoria, hasta este número de grados en cualquier sentido, que se suma al giro</translation>
+    </message>
+    <message>
+        <source>Style</source>
+        <translation>Estilo</translation>
+    </message>
+    <message>
+        <source>Blob</source>
+        <translation>Mancha</translation>
+    </message>
+    <message>
+        <source>Bitmap</source>
+        <translation>Mapa de bits</translation>
+    </message>
+    <message>
+        <source>Point is a hard dot, Blob a soft dot, Bitmap draws the picture on the Sprite input</source>
+        <translation>Punto es un punto duro, Mancha un punto suave, Mapa de bits dibuja la imagen de la entrada Sprite</translation>
+    </message>
+    <message>
+        <source>The colour of a particle when it is born</source>
+        <translation>El color de una partícula al nacer</translation>
+    </message>
+    <message>
+        <source>End Color</source>
+        <translation>Color final</translation>
+    </message>
+    <message>
+        <source>The colour at the end of its life; the colour changes smoothly between the two</source>
+        <translation>El color al final de su vida; el color cambia suavemente entre los dos</translation>
+    </message>
+    <message>
+        <source>The diameter of a particle when it is born, as a part of the frame width</source>
+        <translation>El diámetro de una partícula al nacer, como parte del ancho del fotograma</translation>
+    </message>
+    <message>
+        <source>End Size</source>
+        <translation>Tamaño final</translation>
+    </message>
+    <message>
+        <source>The diameter at the end of its life; the size changes smoothly between the two</source>
+        <translation>El diámetro al final de su vida; el tamaño cambia suavemente entre los dos</translation>
+    </message>
+    <message>
+        <source>Size Variance</source>
+        <translation>Variación del tamaño</translation>
+    </message>
+    <message>
+        <source>A random part of the size, up to this much more or less, for each particle</source>
+        <translation>Una parte aleatoria del tamaño, hasta este valor más o menos, para cada partícula</translation>
+    </message>
+    <message>
+        <source>Opacity</source>
+        <translation>Opacidad</translation>
+    </message>
+    <message>
+        <source>How solid a particle is when it is born</source>
+        <translation>Qué tan sólida es una partícula al nacer</translation>
+    </message>
+    <message>
+        <source>End Opacity</source>
+        <translation>Opacidad final</translation>
+    </message>
+    <message>
+        <source>How solid it is at the end of its life; 0 fades the particle out</source>
+        <translation>Qué tan sólida es al final de su vida; 0 hace desaparecer la partícula</translation>
+    </message>
+    <message>
+        <source>pGravity</source>
+        <translation>pGravity</translation>
+    </message>
+    <message>
+        <source>A constant force that pulls the particles in one direction</source>
+        <translation>Una fuerza constante que tira de las partículas en una dirección</translation>
+    </message>
+    <message>
+        <source>Strength</source>
+        <translation>Fuerza</translation>
+    </message>
+    <message>
+        <source>How much the speed changes on every frame, as a part of the frame width</source>
+        <translation>Cuánto cambia la velocidad en cada fotograma, como parte del ancho del fotograma</translation>
+    </message>
+    <message>
+        <source>Direction</source>
+        <translation>Dirección</translation>
+    </message>
+    <message>
+        <source>The direction of the pull: 270 is down, 90 up, 0 to the right</source>
+        <translation>La dirección de la atracción: 270 es abajo, 90 arriba, 0 a la derecha</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Activo</translation>
+    </message>
+    <message>
+        <source>Off: the force does nothing</source>
+        <translation>Desactivado: la fuerza no hace nada</translation>
+    </message>
+    <message>
+        <source>pTurbulence</source>
+        <translation>pTurbulence</translation>
+    </message>
+    <message>
+        <source>Pushes the particles about with smooth random noise</source>
+        <translation>Empuja las partículas con ruido aleatorio suave</translation>
+    </message>
+    <message>
+        <source>The most the noise can change the speed on one frame, as a part of the frame width</source>
+        <translation>Lo máximo que el ruido puede cambiar la velocidad en un fotograma, como parte del ancho del fotograma</translation>
+    </message>
+    <message>
+        <source>Density</source>
+        <translation>Densidad</translation>
+    </message>
+    <message>
+        <source>How many noise cells fit across the frame width; a high number gives small, busy swirls</source>
+        <translation>Cuántas celdas de ruido caben a lo ancho del fotograma; un número alto da remolinos pequeños y agitados</translation>
+    </message>
+    <message>
+        <source>Evolution</source>
+        <translation>Evolución</translation>
+    </message>
+    <message>
+        <source>How fast the noise pattern changes from frame to frame</source>
+        <translation>Con qué rapidez cambia el patrón de ruido de un fotograma a otro</translation>
+    </message>
+    <message>
+        <source>The same seed gives the same noise; change it for another pattern</source>
+        <translation>La misma semilla da el mismo ruido; cámbiela para obtener otro patrón</translation>
+    </message>
+    <message>
+        <source>pMerge</source>
+        <translation>pMerge</translation>
+    </message>
+    <message>
+        <source>Joins two streams of particles into one</source>
+        <translation>Une dos flujos de partículas en uno</translation>
+    </message>
+    <message>
+        <source>Merge Particles</source>
+        <translation>Fusionar partículas</translation>
+    </message>
+    <message>
+        <source>pRender</source>
+        <translation>pRender</translation>
+    </message>
+    <message>
+        <source>Draws a stream of particles as a picture the size of the composition (2D)</source>
+        <translation>Dibuja un flujo de partículas como una imagen del tamaño de la composición (2D)</translation>
+    </message>
+    <message>
         <source>A rectangular mask</source>
         <translation>Una máscara rectangular</translation>
     </message>

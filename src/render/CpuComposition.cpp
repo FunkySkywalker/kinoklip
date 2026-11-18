@@ -10,6 +10,7 @@
 #include "render/CompMatteMath.h"
 #include "render/CompLoader.h"
 #include "render/CompMath.h"
+#include "render/CompParticles.h"
 #include "render/CompTimeMath.h"
 #include "render/CompWarpMath.h"
 #include "render/EffectMath.h"
@@ -287,6 +288,8 @@ private:
             = common ? compmath::commonParams(n, f) : compmath::CommonParams();
         if (!d || !n.enabled || n.type == nodetypes::MediaOut || cp.skipped())
             return main.isEmpty() ? QImage() : input(n, main, depth);
+        if (d->outputKind == PortKind::Particles)
+            return {}; // a particle stream is not a picture; pRender simulates it (spec 129)
         if (compops::isTimeNode(n.type))
             return timeNode(n, depth);
         const QSize size = m_ev.size;
@@ -304,6 +307,11 @@ private:
                 out = blank(size);
         } else if (n.type == nodetypes::Loader) {
             out = loaderImage(n, f);
+        } else if (n.type == nodetypes::PRender) {
+            out = particles::renderNode(*m_ev.comp, n, f, size, [&](quint64 emitter) {
+                const CompNode* e = m_ev.comp->node(emitter);
+                return e ? input(*e, nodeports::Sprite, depth) : QImage();
+            });
         } else if (n.type == nodetypes::Saver) {
             out = in; // writes only when the composition is rendered to files (CompSaverRun)
         } else if (n.type == nodetypes::Merge) {

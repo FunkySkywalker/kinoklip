@@ -16,7 +16,8 @@ namespace kk {
 /// used; mask nodes output white with alpha = coverage).
 enum class PortKind : quint8 {
     Image,
-    Mask
+    Mask,
+    Particles ///< a stream of particles (pEmitter, pGravity, ...): connects only to particle inputs
 };
 
 /// One input port of a node type.
@@ -46,6 +47,7 @@ enum class NodeCategory : quint8 {
     Filter, ///< Soft Glow, Light Wrap
     Warp, ///< Grid Warp, Displace, Vector Distort
     Time, ///< Time Speed, Time Stretcher
+    Particles, ///< pEmitter, pGravity, pTurbulence, pMerge, pRender
     Effect ///< every EffectRegistry video effect ("fx:<id>")
 };
 
@@ -164,6 +166,12 @@ inline const QString Loader = QStringLiteral("loader");
 inline const QString Saver = QStringLiteral("saver");
 inline const QString TimeSpeed = QStringLiteral("time_speed");
 inline const QString TimeStretcher = QStringLiteral("time_stretcher");
+// Spec 129.
+inline const QString PEmitter = QStringLiteral("p_emitter");
+inline const QString PGravity = QStringLiteral("p_gravity");
+inline const QString PTurbulence = QStringLiteral("p_turbulence");
+inline const QString PMerge = QStringLiteral("p_merge");
+inline const QString PRender = QStringLiteral("p_render");
 /// Prefix of the effect nodes: "fx:" + EffectRegistry id.
 inline const QString EffectPrefix = QStringLiteral("fx:");
 } // namespace nodetypes
@@ -173,6 +181,19 @@ namespace timeinterps {
 inline const QString Nearest = QStringLiteral("nearest");
 inline const QString Blend = QStringLiteral("blend");
 } // namespace timeinterps
+
+/// pEmitter sprite style and region (spec 129).
+namespace particlestyles {
+inline const QString Point = QStringLiteral("point");
+inline const QString Blob = QStringLiteral("blob");
+inline const QString Bitmap = QStringLiteral("bitmap");
+} // namespace particlestyles
+namespace particleregions {
+inline const QString Point = QStringLiteral("point");
+inline const QString Line = QStringLiteral("line");
+inline const QString Rectangle = QStringLiteral("rectangle");
+inline const QString Circle = QStringLiteral("circle");
+} // namespace particleregions
 
 /// Saver file formats (spec 128).
 namespace saverformats {
@@ -200,6 +221,9 @@ inline const QString Image2 = QStringLiteral("image2");
 inline const QString GarbageMatte = QStringLiteral("garbageMatte");
 inline const QString SolidMatte = QStringLiteral("solidMatte");
 inline const QString CleanPlate = QStringLiteral("cleanPlate");
+/// pMerge: the second particle stream; pEmitter: the picture used as a Bitmap sprite.
+inline const QString Input2 = QStringLiteral("input2");
+inline const QString Sprite = QStringLiteral("sprite");
 } // namespace nodeports
 
 /// Parameter keys of the built-in nodes (see NodeDescriptor for the units).
@@ -286,6 +310,32 @@ inline const QString TimeSpeedKey = QStringLiteral("timeSpeed"); ///< Time Speed
 inline const QString TimeDelay = QStringLiteral("timeDelay"); ///< Time Speed: frames
 inline const QString TimeInterp = QStringLiteral("timeInterp"); ///< choice (timeinterps::)
 inline const QString SourceTime = QStringLiteral("sourceTime"); ///< Time Stretcher: frame of the input shown
+// Particles (spec 129). Positions use the node conventions; lengths are fractions of the frame width.
+inline const QString PNumber = QStringLiteral("pNumber"); ///< pEmitter: particles per frame
+inline const QString PNumberVar = QStringLiteral("pNumberVar");
+inline const QString PLife = QStringLiteral("pLife"); ///< frames
+inline const QString PLifeVar = QStringLiteral("pLifeVar");
+inline const QString PVelocity = QStringLiteral("pVelocity"); ///< frame widths per frame
+inline const QString PVelocityVar = QStringLiteral("pVelocityVar");
+inline const QString PAngleVar = QStringLiteral("pAngleVar"); ///< degrees (the direction is Angle)
+inline const QString PRotation = QStringLiteral("pRotation"); ///< degrees
+inline const QString PRotationVar = QStringLiteral("pRotationVar");
+inline const QString PSpin = QStringLiteral("pSpin"); ///< degrees per frame
+inline const QString PSpinVar = QStringLiteral("pSpinVar");
+inline const QString PColorEnd = QStringLiteral("pColorEnd"); ///< colour at the end of life (Color is the start)
+inline const QString PSize = QStringLiteral("pSize"); ///< diameter at birth, frame widths
+inline const QString PSizeEnd = QStringLiteral("pSizeEnd"); ///< size at the end of life
+inline const QString PSizeVar = QStringLiteral("pSizeVar"); ///< fraction of the size
+inline const QString POpacity = QStringLiteral("pOpacity");
+inline const QString POpacityEnd = QStringLiteral("pOpacityEnd");
+inline const QString PStyle = QStringLiteral("pStyle"); ///< choice (particlestyles::)
+inline const QString PRegion = QStringLiteral("pRegion"); ///< choice (particleregions::)
+inline const QString PActive = QStringLiteral("pActive"); ///< forces: bool
+inline const QString PStart = QStringLiteral("pStart"); ///< first frame that emits
+inline const QString PEnd = QStringLiteral("pEnd"); ///< last frame that emits
+inline const QString PStrength = QStringLiteral("pStrength"); ///< forces
+inline const QString PDensity = QStringLiteral("pDensity"); ///< pTurbulence: noise cells across the frame width
+inline const QString PEvolution = QStringLiteral("pEvolution"); ///< pTurbulence: noise change per frame
 // Letterbox.
 inline const QString TargetAspect = QStringLiteral("targetAspect"); ///< width / height, e.g. 2.39
 inline const QString Color = QStringLiteral("color"); ///< colour static

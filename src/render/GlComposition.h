@@ -136,6 +136,14 @@ private:
     PooledTarget rectNode(GlKit& kit, const CompEval& ev, const CompNode& n, int input);
     /// Loader: the clip frame (CompLoader) uploaded into a new target.
     PooledTarget loaderNode(GlKit& kit, const CompEval& ev, const CompNode& n);
+    /// @p image (premultiplied ARGB32, any size: stretched to the frame) uploaded into a new target.
+    PooledTarget uploadedImage(GlKit& kit, const CompEval& ev, const QImage& image);
+    /// pRender: the particle stream simulated and drawn like the CPU renderer does (the same
+    /// code, spec 129), uploaded into a new target.
+    PooledTarget particleRender(GlKit& kit, const CompEval& ev, const CompNode& n);
+    /// Particle nodes make no picture; a pEmitter with a Bitmap style keeps its Sprite input's
+    /// picture (read back from the GPU) for pRender.
+    void particleNode(GlKit& kit, const CompEval& ev, int index);
     /// Time Speed / Time Stretcher: the input pulled again at the mapped frame (and the next
     /// one, mixed, with Blend interpolation).
     PooledTarget timeNode(GlKit& kit, const CompEval& ev, const CompNode& n);
@@ -185,6 +193,7 @@ private:
     // showing a nested timeline may evaluate another composition while this one runs).
     static constexpr int kMaxDepth = 18;
     std::vector<std::vector<Slot>> m_stack;
+    std::vector<QHash<quint64, QImage>> m_sprites; ///< per depth: pEmitter id -> its Sprite picture
     int m_depth = 0; ///< current list (0 = unused, 1 = outermost evaluation)
     ClipData m_maskClip; ///< carries one MaskData for GlMasks::apply()
     QSet<QString> m_warned; ///< node types without a GPU implementation, reported once

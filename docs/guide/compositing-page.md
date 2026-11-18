@@ -304,6 +304,16 @@ The **I/O** folder of the Nodes library has two more nodes, and the new **Time**
 
 Only a Fusion Composition transition can be built this way; the other transitions have their own settings in the Inspector.
 
+## Particles
+
+The **Particles** folder of the Nodes library makes sparks, snow, smoke puffs and dust from a stream of tiny pictures:
+
+1. Add a **pEmitter**. It creates **Number** particles on every frame; each lives for its **Lifespan** in frames and flies off in its **Angle** at its **Velocity**. Set **Region** to Line, Rectangle or Circle to let them start from a larger place. **Style** is Point (a hard dot), Blob (a soft dot) or Bitmap (the picture you connect to the **Sprite** input). **Color** to **End Color**, **Size** to **End Size** and **Opacity** to **End Opacity** change smoothly over a particle's life, so an end opacity of 0 makes them fade out.
+2. Join **pGravity** (a steady pull, for example down) and **pTurbulence** (smooth random pushing) after the emitter. **pMerge** joins two streams into one.
+3. A **pRender** at the end draws the particles as a normal picture the size of the composition. Connect it to a **Merge** over your clip, or on to **MediaOut**.
+
+Particle lines only connect to particle inputs, and pRender is the way back to pictures. Random Seed 0 and Random Seed 1 give two different, but each time identical, patterns, so a scrub or a render shows exactly what you saw. Lengths are parts of the frame width, so the picture looks the same at any resolution. Particles are 2D only for now.
+
 ## Sound
 
 The Compositing page plays the same sound as the Edit page: the timeline's mix, so a clip on a

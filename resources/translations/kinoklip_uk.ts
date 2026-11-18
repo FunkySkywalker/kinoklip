@@ -22664,6 +22664,322 @@ Import files with %1 or drop them here.</source>
         <translation>Прямокутник</translation>
     </message>
     <message>
+        <source>Particles</source>
+        <translation>Частинки</translation>
+    </message>
+    <message>
+        <source>pEmitter</source>
+        <translation>pEmitter</translation>
+    </message>
+    <message>
+        <source>Creates particles every frame from a point, a line, a rectangle or a circle</source>
+        <translation>Створює частинки на кожному кадрі з точки, лінії, прямокутника або кола</translation>
+    </message>
+    <message>
+        <source>Sprite</source>
+        <translation>Спрайт</translation>
+    </message>
+    <message>
+        <source>Random Seed</source>
+        <translation>Випадкове зерно</translation>
+    </message>
+    <message>
+        <source>The same seed gives the same particles; change it for another random pattern</source>
+        <translation>Те саме зерно дає ті самі частинки; змініть його, щоб отримати інший випадковий візерунок</translation>
+    </message>
+    <message>
+        <source>Number</source>
+        <translation>Кількість</translation>
+    </message>
+    <message>
+        <source>How many particles are born on every frame</source>
+        <translation>Скільки частинок народжується на кожному кадрі</translation>
+    </message>
+    <message>
+        <source>Number Variance</source>
+        <translation>Розкид кількості</translation>
+    </message>
+    <message>
+        <source>A random amount, up to this many more or fewer, added to Number on each frame</source>
+        <translation>Випадкова добавка, до цього числа в плюс або в мінус, до кількості на кожному кадрі</translation>
+    </message>
+    <message>
+        <source>Lifespan</source>
+        <translation>Час життя</translation>
+    </message>
+    <message>
+        <source>How many frames a particle lives</source>
+        <translation>Скільки кадрів живе частинка</translation>
+    </message>
+    <message>
+        <source>Lifespan Variance</source>
+        <translation>Розкид часу життя</translation>
+    </message>
+    <message>
+        <source>A random amount, up to this many frames more or fewer, added to each particle&apos;s lifespan</source>
+        <translation>Випадкова добавка, до цього числа кадрів у плюс або в мінус, до часу життя кожної частинки</translation>
+    </message>
+    <message>
+        <source>Start Frame</source>
+        <translation>Початковий кадр</translation>
+    </message>
+    <message>
+        <source>The first frame that creates particles</source>
+        <translation>Перший кадр, що створює частинки</translation>
+    </message>
+    <message>
+        <source>End Frame</source>
+        <translation>Кінцевий кадр</translation>
+    </message>
+    <message>
+        <source>The last frame that creates particles</source>
+        <translation>Останній кадр, що створює частинки</translation>
+    </message>
+    <message>
+        <source>Region</source>
+        <translation>Область</translation>
+    </message>
+    <message>
+        <source>Line</source>
+        <translation>Лінія</translation>
+    </message>
+    <message>
+        <source>Where particles appear: at the centre, along a line, inside a rectangle or inside a circle</source>
+        <translation>Де з'являються частинки: у центрі, уздовж лінії, всередині прямокутника або всередині кола</translation>
+    </message>
+    <message>
+        <source>The middle of the region, 0 left, 1 right</source>
+        <translation>Середина області, 0 ліворуч, 1 праворуч</translation>
+    </message>
+    <message>
+        <source>The middle of the region, 0 bottom, 1 top</source>
+        <translation>Середина області, 0 внизу, 1 угорі</translation>
+    </message>
+    <message>
+        <source>Region Width</source>
+        <translation>Ширина області</translation>
+    </message>
+    <message>
+        <source>Width of the line or rectangle, or the diameter of the circle, as a part of the frame width</source>
+        <translation>Ширина лінії або прямокутника чи діаметр кола, у частках ширини кадру</translation>
+    </message>
+    <message>
+        <source>Region Height</source>
+        <translation>Висота області</translation>
+    </message>
+    <message>
+        <source>Height of the rectangle as a part of the frame width</source>
+        <translation>Висота прямокутника в частках ширини кадру</translation>
+    </message>
+    <message>
+        <source>Velocity</source>
+        <translation>Швидкість</translation>
+    </message>
+    <message>
+        <source>How far a particle moves on every frame, as a part of the frame width</source>
+        <translation>На скільки зміщується частинка за кадр, у частках ширини кадру</translation>
+    </message>
+    <message>
+        <source>Velocity Variance</source>
+        <translation>Розкид швидкості</translation>
+    </message>
+    <message>
+        <source>A random amount, up to this much more or less, added to each particle&apos;s velocity</source>
+        <translation>Випадкова добавка, до цієї величини в плюс або в мінус, до швидкості кожної частинки</translation>
+    </message>
+    <message>
+        <source>The direction the particles fly: 0 to the right, 90 up, 180 to the left, 270 down</source>
+        <translation>Напрямок польоту частинок: 0 праворуч, 90 угору, 180 ліворуч, 270 униз</translation>
+    </message>
+    <message>
+        <source>Angle Variance</source>
+        <translation>Розкид кута</translation>
+    </message>
+    <message>
+        <source>A random amount, up to this many degrees either way, added to the direction</source>
+        <translation>Випадкова добавка, до цього числа градусів в обидва боки, до напрямку</translation>
+    </message>
+    <message>
+        <source>Rotation</source>
+        <translation>Поворот</translation>
+    </message>
+    <message>
+        <source>The turn of a particle when it is born (only a Bitmap shows it)</source>
+        <translation>Поворот частинки при народженні (видно лише в растра)</translation>
+    </message>
+    <message>
+        <source>Rotation Variance</source>
+        <translation>Розкид повороту</translation>
+    </message>
+    <message>
+        <source>A random amount, up to this many degrees either way, added to the turn at birth</source>
+        <translation>Випадкова добавка, до цього числа градусів в обидва боки, до повороту при народженні</translation>
+    </message>
+    <message>
+        <source>Spin</source>
+        <translation>Обертання</translation>
+    </message>
+    <message>
+        <source>How many degrees a particle turns on every frame</source>
+        <translation>На скільки градусів повертається частинка за кадр</translation>
+    </message>
+    <message>
+        <source>Spin Variance</source>
+        <translation>Розкид обертання</translation>
+    </message>
+    <message>
+        <source>A random amount, up to this many degrees either way, added to the spin</source>
+        <translation>Випадкова добавка, до цього числа градусів в обидва боки, до обертання</translation>
+    </message>
+    <message>
+        <source>Style</source>
+        <translation>Стиль</translation>
+    </message>
+    <message>
+        <source>Blob</source>
+        <translation>Пляма</translation>
+    </message>
+    <message>
+        <source>Bitmap</source>
+        <translation>Растр</translation>
+    </message>
+    <message>
+        <source>Point is a hard dot, Blob a soft dot, Bitmap draws the picture on the Sprite input</source>
+        <translation>Точка — різка точка, Пляма — м'яка точка, Растр малює картинку з входу Спрайт</translation>
+    </message>
+    <message>
+        <source>The colour of a particle when it is born</source>
+        <translation>Колір частинки при народженні</translation>
+    </message>
+    <message>
+        <source>End Color</source>
+        <translation>Кінцевий колір</translation>
+    </message>
+    <message>
+        <source>The colour at the end of its life; the colour changes smoothly between the two</source>
+        <translation>Колір наприкінці життя; колір плавно змінюється між двома</translation>
+    </message>
+    <message>
+        <source>The diameter of a particle when it is born, as a part of the frame width</source>
+        <translation>Діаметр частинки при народженні, у частках ширини кадру</translation>
+    </message>
+    <message>
+        <source>End Size</source>
+        <translation>Кінцевий розмір</translation>
+    </message>
+    <message>
+        <source>The diameter at the end of its life; the size changes smoothly between the two</source>
+        <translation>Діаметр наприкінці життя; розмір плавно змінюється між двома</translation>
+    </message>
+    <message>
+        <source>Size Variance</source>
+        <translation>Розкид розміру</translation>
+    </message>
+    <message>
+        <source>A random part of the size, up to this much more or less, for each particle</source>
+        <translation>Випадкова частина розміру, до цієї величини в плюс або в мінус, для кожної частинки</translation>
+    </message>
+    <message>
+        <source>Opacity</source>
+        <translation>Непрозорість</translation>
+    </message>
+    <message>
+        <source>How solid a particle is when it is born</source>
+        <translation>Наскільки щільна частинка при народженні</translation>
+    </message>
+    <message>
+        <source>End Opacity</source>
+        <translation>Кінцева непрозорість</translation>
+    </message>
+    <message>
+        <source>How solid it is at the end of its life; 0 fades the particle out</source>
+        <translation>Наскільки вона щільна наприкінці життя; 0 — частинка зникає</translation>
+    </message>
+    <message>
+        <source>pGravity</source>
+        <translation>pGravity</translation>
+    </message>
+    <message>
+        <source>A constant force that pulls the particles in one direction</source>
+        <translation>Постійна сила, що тягне частинки в один бік</translation>
+    </message>
+    <message>
+        <source>Strength</source>
+        <translation>Сила</translation>
+    </message>
+    <message>
+        <source>How much the speed changes on every frame, as a part of the frame width</source>
+        <translation>На скільки змінюється швидкість за кадр, у частках ширини кадру</translation>
+    </message>
+    <message>
+        <source>Direction</source>
+        <translation>Напрямок</translation>
+    </message>
+    <message>
+        <source>The direction of the pull: 270 is down, 90 up, 0 to the right</source>
+        <translation>Напрямок притягання: 270 вниз, 90 вгору, 0 праворуч</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Увімкнено</translation>
+    </message>
+    <message>
+        <source>Off: the force does nothing</source>
+        <translation>Вимк.: сила нічого не робить</translation>
+    </message>
+    <message>
+        <source>pTurbulence</source>
+        <translation>pTurbulence</translation>
+    </message>
+    <message>
+        <source>Pushes the particles about with smooth random noise</source>
+        <translation>Штовхає частинки плавним випадковим шумом</translation>
+    </message>
+    <message>
+        <source>The most the noise can change the speed on one frame, as a part of the frame width</source>
+        <translation>Найбільша зміна швидкості шумом за один кадр, у частках ширини кадру</translation>
+    </message>
+    <message>
+        <source>Density</source>
+        <translation>Щільність</translation>
+    </message>
+    <message>
+        <source>How many noise cells fit across the frame width; a high number gives small, busy swirls</source>
+        <translation>Скільки комірок шуму вміщається по ширині кадру; велике число дає дрібні часті завихрення</translation>
+    </message>
+    <message>
+        <source>Evolution</source>
+        <translation>Еволюція</translation>
+    </message>
+    <message>
+        <source>How fast the noise pattern changes from frame to frame</source>
+        <translation>Як швидко візерунок шуму змінюється від кадру до кадру</translation>
+    </message>
+    <message>
+        <source>The same seed gives the same noise; change it for another pattern</source>
+        <translation>Те саме зерно дає той самий шум; змініть його для іншого візерунка</translation>
+    </message>
+    <message>
+        <source>pMerge</source>
+        <translation>pMerge</translation>
+    </message>
+    <message>
+        <source>Joins two streams of particles into one</source>
+        <translation>Об'єднує два потоки частинок в один</translation>
+    </message>
+    <message>
+        <source>Merge Particles</source>
+        <translation>Об'єднати частинки</translation>
+    </message>
+    <message>
+        <source>pRender</source>
+        <translation>pRender</translation>
+    </message>
+    <message>
+        <source>Draws a stream of particles as a picture the size of the composition (2D)</source>
+        <translation>Малює потік частинок як картинку розміром з композицію (2D)</translation>
+    </message>
+    <message>
         <source>A rectangular mask</source>
         <translation>Прямокутна маска</translation>
     </message>

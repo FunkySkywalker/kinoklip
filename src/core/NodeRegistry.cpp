@@ -368,7 +368,8 @@ bool NodeRegistry::hasCommonControls(const QString& id) const
 {
     const NodeDescriptor* d = find(id);
     return d && id != nodetypes::MediaOut && d->category != NodeCategory::Mask
-        && d->category != NodeCategory::Time && id != nodetypes::Saver;
+        && d->category != NodeCategory::Time && id != nodetypes::Saver
+        && d->outputKind != PortKind::Particles;
 }
 
 QVector<ParamDescriptor> NodeRegistry::commonControls(const QString& id) const
@@ -418,6 +419,8 @@ QString NodeRegistry::categoryName(NodeCategory category)
         return tr("Warp");
     case NodeCategory::Time:
         return tr("Time");
+    case NodeCategory::Particles:
+        return tr("Particles");
     case NodeCategory::Effect:
         return tr("Effects");
     }
@@ -523,6 +526,129 @@ NodeRegistry::NodeRegistry()
                     {timeinterps::Nearest, timeinterps::Blend}, {tr("Nearest"), tr("Blend")},
                     timeinterps::Nearest),
                 tr("Nearest shows the closest frame; Blend mixes the two frames around the time"))};
+        add(d);
+    }
+
+    // ---- Particles (spec 129) ----
+    {
+        NodeDescriptor d = node(nodetypes::PEmitter, tr("pEmitter"), QStringLiteral("pEm"),
+            QStringLiteral("pEmitter"), C::Particles,
+            tr("Creates particles every frame from a point, a line, a rectangle or a circle"));
+        d.outputKind = PortKind::Particles;
+        d.inputs = {port(nodeports::Sprite, tr("Sprite"), PortKind::Image, false)};
+        d.params = {tip(integer(k::Seed, tr("Random Seed"), 0, 100000, 0),
+                        tr("The same seed gives the same particles; change it for another random pattern")),
+            tip(number(k::PNumber, tr("Number"), 0, 10000, 5, 0.1),
+                tr("How many particles are born on every frame")),
+            tip(number(k::PNumberVar, tr("Number Variance"), 0, 10000, 0, 0.1),
+                tr("A random amount, up to this many more or fewer, added to Number on each frame")),
+            tip(number(k::PLife, tr("Lifespan"), 1, 10000, 50, 1),
+                tr("How many frames a particle lives")),
+            tip(number(k::PLifeVar, tr("Lifespan Variance"), 0, 10000, 0, 1),
+                tr("A random amount, up to this many frames more or fewer, added to each particle's lifespan")),
+            tip(integer(k::PStart, tr("Start Frame"), -100000, 100000, 0),
+                tr("The first frame that creates particles")),
+            tip(integer(k::PEnd, tr("End Frame"), -100000, 1000000, 100000),
+                tr("The last frame that creates particles")),
+            tip(choice(k::PRegion, tr("Region"),
+                    {particleregions::Point, particleregions::Line, particleregions::Rectangle,
+                        particleregions::Circle},
+                    {tr("Point"), tr("Line"), tr("Rectangle"), tr("Circle")}, particleregions::Point),
+                tr("Where particles appear: at the centre, along a line, inside a rectangle or inside a circle")),
+            tip(number(k::CenterX, tr("Center X"), -10, 10, 0.5, 0.001),
+                tr("The middle of the region, 0 left, 1 right")),
+            tip(number(k::CenterY, tr("Center Y"), -10, 10, 0.5, 0.001),
+                tr("The middle of the region, 0 bottom, 1 top")),
+            tip(number(k::Width, tr("Region Width"), 0, 10, 0.2, 0.001),
+                tr("Width of the line or rectangle, or the diameter of the circle, as a part of the frame width")),
+            tip(number(k::Height, tr("Region Height"), 0, 10, 0.2, 0.001),
+                tr("Height of the rectangle as a part of the frame width")),
+            tip(number(k::PVelocity, tr("Velocity"), -1, 1, 0.01, 0.0005),
+                tr("How far a particle moves on every frame, as a part of the frame width")),
+            tip(number(k::PVelocityVar, tr("Velocity Variance"), 0, 1, 0, 0.0005),
+                tr("A random amount, up to this much more or less, added to each particle's velocity")),
+            tip(number(k::Angle, tr("Angle"), -3600, 3600, 90, 0.1, kDegrees),
+                tr("The direction the particles fly: 0 to the right, 90 up, 180 to the left, 270 down")),
+            tip(number(k::PAngleVar, tr("Angle Variance"), 0, 360, 15, 0.1, kDegrees),
+                tr("A random amount, up to this many degrees either way, added to the direction")),
+            tip(number(k::PRotation, tr("Rotation"), -3600, 3600, 0, 0.1, kDegrees),
+                tr("The turn of a particle when it is born (only a Bitmap shows it)")),
+            tip(number(k::PRotationVar, tr("Rotation Variance"), 0, 360, 0, 0.1, kDegrees),
+                tr("A random amount, up to this many degrees either way, added to the turn at birth")),
+            tip(number(k::PSpin, tr("Spin"), -360, 360, 0, 0.1, kDegrees),
+                tr("How many degrees a particle turns on every frame")),
+            tip(number(k::PSpinVar, tr("Spin Variance"), 0, 360, 0, 0.1, kDegrees),
+                tr("A random amount, up to this many degrees either way, added to the spin")),
+            tip(choice(k::PStyle, tr("Style"),
+                    {particlestyles::Point, particlestyles::Blob, particlestyles::Bitmap},
+                    {tr("Point"), tr("Blob"), tr("Bitmap")}, particlestyles::Blob),
+                tr("Point is a hard dot, Blob a soft dot, Bitmap draws the picture on the Sprite input")),
+            tip(color(k::Color, tr("Color"), QColor(255, 255, 255)),
+                tr("The colour of a particle when it is born")),
+            tip(color(k::PColorEnd, tr("End Color"), QColor(255, 255, 255)),
+                tr("The colour at the end of its life; the colour changes smoothly between the two")),
+            tip(number(k::PSize, tr("Size"), 0, 2, 0.03, 0.001),
+                tr("The diameter of a particle when it is born, as a part of the frame width")),
+            tip(number(k::PSizeEnd, tr("End Size"), 0, 2, 0.03, 0.001),
+                tr("The diameter at the end of its life; the size changes smoothly between the two")),
+            tip(number(k::PSizeVar, tr("Size Variance"), 0, 1, 0, 0.01),
+                tr("A random part of the size, up to this much more or less, for each particle")),
+            tip(number(k::POpacity, tr("Opacity"), 0, 1, 1, 0.01),
+                tr("How solid a particle is when it is born")),
+            tip(number(k::POpacityEnd, tr("End Opacity"), 0, 1, 0, 0.01),
+                tr("How solid it is at the end of its life; 0 fades the particle out"))};
+        add(d);
+    }
+    {
+        NodeDescriptor d = node(nodetypes::PGravity, tr("pGravity"), QStringLiteral("pGr"),
+            QStringLiteral("pGravity"), C::Particles,
+            tr("A constant force that pulls the particles in one direction"));
+        d.outputKind = PortKind::Particles;
+        d.inputs = {port(nodeports::Input, tr("Particles"), PortKind::Particles, true)};
+        d.mainInput = nodeports::Input;
+        d.params = {tip(number(k::PStrength, tr("Strength"), -1, 1, 0.0005, 0.0001),
+                        tr("How much the speed changes on every frame, as a part of the frame width")),
+            tip(number(k::Angle, tr("Direction"), -3600, 3600, 270, 0.1, kDegrees),
+                tr("The direction of the pull: 270 is down, 90 up, 0 to the right")),
+            tip(boolean(k::PActive, tr("Active"), true),
+                tr("Off: the force does nothing"))};
+        add(d);
+    }
+    {
+        NodeDescriptor d = node(nodetypes::PTurbulence, tr("pTurbulence"), QStringLiteral("pTb"),
+            QStringLiteral("pTurbulence"), C::Particles,
+            tr("Pushes the particles about with smooth random noise"));
+        d.outputKind = PortKind::Particles;
+        d.inputs = {port(nodeports::Input, tr("Particles"), PortKind::Particles, true)};
+        d.mainInput = nodeports::Input;
+        d.params = {tip(number(k::PStrength, tr("Strength"), 0, 1, 0.002, 0.0001),
+                        tr("The most the noise can change the speed on one frame, as a part of the frame width")),
+            tip(number(k::PDensity, tr("Density"), 0.1, 200, 4, 0.1),
+                tr("How many noise cells fit across the frame width; a high number gives small, busy swirls")),
+            tip(number(k::PEvolution, tr("Evolution"), 0, 10, 0.05, 0.01),
+                tr("How fast the noise pattern changes from frame to frame")),
+            tip(integer(k::Seed, tr("Random Seed"), 0, 100000, 0),
+                tr("The same seed gives the same noise; change it for another pattern")),
+            tip(boolean(k::PActive, tr("Active"), true),
+                tr("Off: the force does nothing"))};
+        add(d);
+    }
+    {
+        NodeDescriptor d = node(nodetypes::PMerge, tr("pMerge"), QStringLiteral("pMg"),
+            QStringLiteral("pMerge"), C::Particles,
+            tr("Joins two streams of particles into one"));
+        d.outputKind = PortKind::Particles;
+        d.inputs = {port(nodeports::Input, tr("Particles"), PortKind::Particles, true),
+            port(nodeports::Input2, tr("Merge Particles"), PortKind::Particles, true)};
+        d.mainInput = nodeports::Input;
+        add(d);
+    }
+    {
+        NodeDescriptor d = node(nodetypes::PRender, tr("pRender"), QStringLiteral("pRn"),
+            QStringLiteral("pRender"), C::Particles,
+            tr("Draws a stream of particles as a picture the size of the composition (2D)"));
+        d.inputs = {port(nodeports::Input, tr("Particles"), PortKind::Particles, true)};
+        d.mainInput = nodeports::Input;
         add(d);
     }
 
