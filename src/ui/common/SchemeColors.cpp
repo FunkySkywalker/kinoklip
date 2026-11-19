@@ -119,7 +119,11 @@ SchemeColors compute(const SchemeRoles& r, const QPalette& p, quint64 generation
     c.selection = c.neutral;
     c.transition = c.focus;
     c.playhead = c.negative;
-    c.timecode = mixColors(c.negative, c.neutral, 0.45);
+    // Resolve shows the big timeline timecode in light grey; the Kinoklip scheme (near-black
+    // header below a lighter window) follows it, other schemes keep the warm accent.
+    c.timecode = c.dark && c.header.lightness() < c.window.lightness()
+        ? c.text
+        : mixColors(c.negative, c.neutral, 0.45);
     c.snap = yellow;
     c.locked = c.negative;
     c.muted = c.neutral;

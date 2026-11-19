@@ -47,7 +47,7 @@ COMMIT="$(git rev-parse --short=7 HEAD)"
 git diff --quiet HEAD -- 2>/dev/null || COMMIT="$COMMIT-dirty"
 
 log "building $BUILD"
-podman exec -w "$PWD" kk-arch cmake --build "$BUILD" -j2
+podman exec -w "$PWD" kk-arch cmake --build "$BUILD" -j4
 
 if [ -n "$GROUP" ]; then
     log "tests: $GROUP"

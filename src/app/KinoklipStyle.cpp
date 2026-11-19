@@ -218,6 +218,7 @@ int KinoklipStyle::styleHint(StyleHint hint, const QStyleOption* option, const Q
     switch (hint) {
     case SH_Menu_FadeOutOnHide:
     case SH_Menu_FlashTriggeredItem: return 0; // menus close at once, like Resolve's
+    case SH_UnderlineShortcut: return 0; // no always-visible mnemonic underlines, like Resolve
     case SH_EtchDisabledText: return 0;
     case SH_ToolTipLabel_Opacity: return 255;
     case SH_Table_GridLineColor:
