@@ -73,6 +73,13 @@ void ring(QPainter* p, const QRectF& r, double radius, const QColor& color)
 }
 
 /// A chevron in @p r, pointing @p dir (0 right, 1 down, 2 left, 3 up).
+// A tool button whose whole face opens a menu (no separate arrow part).
+bool instantMenu(const QStyleOptionToolButton* tb)
+{
+    return (tb->features & QStyleOptionToolButton::HasMenu)
+        && !(tb->features & QStyleOptionToolButton::MenuButtonPopup);
+}
+
 void chevron(QPainter* p, const QRectF& r, int dir, const QColor& color, double size = 3.5)
 {
     p->save();
@@ -204,6 +211,13 @@ QSize KinoklipStyle::sizeFromContents(
         break;
     case CT_HeaderSection:
         s.setHeight(std::max(s.height(), tk::kHeaderHeight));
+        break;
+    case CT_ToolButton:
+        // A button that opens its menu on click gets a chevron after the text instead of
+        // Fusion's small corner arrow, which overlaps the label.
+        if (const auto* tb = qstyleoption_cast<const QStyleOptionToolButton*>(option);
+            tb && instantMenu(tb) && tb->toolButtonStyle != Qt::ToolButtonIconOnly)
+            s.setWidth(s.width() + tk::kMenuArrowWidth);
         break;
     case CT_MenuItem: {
         const auto* item = qstyleoption_cast<const QStyleOptionMenuItem*>(option);
@@ -828,6 +842,18 @@ void KinoklipStyle::drawComplexControl(ComplexControl control, const QStyleOptio
     case CC_ToolButton: {
         const bool page = flag(widget, "kkPage");
         const bool tab = flag(widget, "kkTab");
+        if (const auto* tb = qstyleoption_cast<const QStyleOptionToolButton*>(o);
+            tb && instantMenu(tb) && tb->toolButtonStyle != Qt::ToolButtonIconOnly && !page && !tab) {
+            // Draw the button without Fusion's corner arrow in the room left of a chevron.
+            QStyleOptionToolButton copy(*tb);
+            copy.features &= ~QStyleOptionToolButton::HasMenu;
+            copy.rect.setRight(o->rect.right() - tk::kMenuArrowWidth + 4);
+            const QRect arrow(o->rect.right() - tk::kMenuArrowWidth + 1, o->rect.top(), tk::kMenuArrowWidth, o->rect.height());
+            drawComplexControl(control, &copy, p, widget);
+            chevron(p, QRectF(arrow).adjusted(0, 0, -3, 0), 1,
+                enabled ? tk::mix(c.window, c.text, 0.9) : c.textDisabled, 3.0);
+            return;
+        }
         if (!flag(widget, "kkFrameless") && !page && !tab)
             break;
         // Bar buttons (top toolbar, page bar, tab-like tool buttons): no frame; the current one has

@@ -28,6 +28,7 @@ inline constexpr int kToggleWidth = 22;     ///< pill switch
 inline constexpr int kToggleHeight = 12;
 inline constexpr int kToggleDot = 8;
 inline constexpr int kTabUnderline = 2;     ///< active tab underline
+inline constexpr int kMenuArrowWidth = 14;  ///< room for the chevron of a tool button that opens a menu
 inline constexpr int kTabHeight = 26;
 inline constexpr int kMenuItemHeight = 20;
 inline constexpr int kMenuBarPadding = 10;  ///< each side of a menu bar title (about 20 px between words)
