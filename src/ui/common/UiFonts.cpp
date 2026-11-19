@@ -34,9 +34,7 @@ QFont resolveFont(double pt, QFont::Weight weight)
     QFont f{QString::fromLatin1(kFamily)};
     f.setPointSizeF(pt);
     f.setWeight(weight);
-    // No hinting: stems keep their natural weight (hinted Open Sans is about 14 % lighter than
-    // Resolve's text at these sizes, unhinted 8 %), and the widths stay the same.
-    f.setHintingPreference(QFont::PreferNoHinting);
+    // Hinted Medium has the ink density of Resolve's text (within 3 %); Regular is 14 % lighter.
     return f;
 }
 
@@ -93,7 +91,7 @@ QFont fontScaled(Role role, Choice which, const QFont& base, double scale)
             return QFontDatabase::systemFont(QFontDatabase::FixedFont);
         }
     } else {
-        QFont::Weight w = QFont::Normal;
+        QFont::Weight w = QFont::Medium; // Resolve's text is heavier than Regular (readme)
         switch (role) {
         case Role::Body: pt = kBodyPt; break;
         case Role::SectionHeader: pt = kPanelPt; break;
@@ -175,7 +173,7 @@ void loadBundledFonts()
     if (done)
         return;
     done = true;
-    for (const char* file : {"Regular", "Italic", "SemiBold", "Bold"})
+    for (const char* file : {"Regular", "Italic", "Medium", "SemiBold", "Bold"})
         QFontDatabase::addApplicationFont(QStringLiteral(":/fonts/OpenSans-%1.ttf").arg(QLatin1String(file)));
 }
 
@@ -235,7 +233,7 @@ QString css(Role role)
         }
     }
     QString out = QStringLiteral("font-weight: %1; font-size: %2pt;")
-                      .arg(f.weight() >= QFont::Bold ? 700 : f.weight() >= QFont::DemiBold ? 600 : 400)
+                      .arg(f.weight() >= QFont::Bold ? 700 : f.weight() >= QFont::DemiBold ? 600 : f.weight() >= QFont::Medium ? 500 : 400)
                       .arg(f.pointSizeF());
     return out;
 }
