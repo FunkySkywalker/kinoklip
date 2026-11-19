@@ -517,6 +517,7 @@ private:
     void addTimeline(TimelineData data, const QString& binId);
     /// Derived data after every edit: nested clip lengths, media pool items of timelines.
     void syncDerived();
+    void notifyLiveGrade();
     /// Applies a set (undo/redo/cancel); emits the change signals.
     void applySet(const TimelineSet& set);
     /// Activates @p uid without storing the current active data (it no longer exists).

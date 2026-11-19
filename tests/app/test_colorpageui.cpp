@@ -253,6 +253,29 @@ private slots:
         QCOMPARE(f.grade(clip), stored);
     }
 
+    void wheelDragUpdatesTheTimelineBeforeRelease()
+    {
+        // The viewer re-renders on Timeline::changed: it must fire during the drag (spec 44b.x),
+        // with the new grade in the timeline, while the undo step is still one at the release.
+        Fixture f;
+        f.showPage();
+        ColorWheel* gain = f.page()->primaries()->wheel(gk::Wheel::Gain);
+        const int base = f.steps();
+        QSignalSpy changed(f.project.timeline(), &Timeline::changed);
+        const QPointF c = gain->discRect().center();
+        QTest::mousePress(gain, Qt::LeftButton, {}, c.toPoint());
+        QTest::mouseMove(gain, (c + QPointF(-4, 3)).toPoint());
+        QTest::mouseMove(gain, (c + QPointF(-9, 6)).toPoint());
+        QTest::mouseMove(gain, (c + QPointF(-14, 9)).toPoint());
+        QVERIFY(changed.count() >= 2);
+        const ClipGrade live = f.grade(f.clips[0]);
+        QVERIFY(!live.nodes.isEmpty());
+        QVERIFY(live.nodes[0].value(gk::GainR, 1) != 1.0 || live.nodes[0].value(gk::GainB, 1) != 1.0);
+        QCOMPARE(f.steps(), base); // not pushed yet
+        QTest::mouseRelease(gain, Qt::LeftButton, {}, (c + QPointF(-14, 9)).toPoint());
+        QCOMPARE(f.steps(), base + 1);
+    }
+
     void wheelAndBarsDragsAreOneStep()
     {
         Fixture f;

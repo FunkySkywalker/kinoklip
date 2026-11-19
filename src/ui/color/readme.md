@@ -9,7 +9,8 @@ through ColorSession (one undo step per command or gesture).
   strip, or the timeline grade), the selected node and window, the strip's selected clips and
   the copied grade; every command through `Project::setClipGrade()` / `setTimelineGrade()`.
   Values are set at the playhead (a key when keyframed); drags are one step via
-  `beginGesture()` / `endGesture()`.
+  `beginGesture()` / `endGesture()`; every commit inside a drag still notifies the timeline
+  (`Project::notifyLiveGrade()`), so the viewer follows the mouse (spec 44b.31).
 - **ColorFrameSource**: the ungraded frame at the playhead and the clip thumbnails (renders
   through `PlaybackEngine::renderImage()`), node outputs, the highlight and eyedropper samples
   (graded on the CPU with `render::applyGrade()`).

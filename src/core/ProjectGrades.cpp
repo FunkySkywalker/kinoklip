@@ -19,6 +19,16 @@ ClipGrade* mutableClipGrade(TimelineData& data, quint64 clipId)
 
 } // namespace
 
+void Project::notifyLiveGrade()
+{
+    // Inside a drag (wheel, curve, qualifier...) the outer edit tells the timeline's listeners
+    // only at its end, so the viewer showed the grade only after the release. Tell them now:
+    // the engine keeps the latest snapshot and drops what it has in flight; the undo step stays
+    // one (pushed by the outer endEdit).
+    if (m_editDepth > 0)
+        m_timeline->notifyChanged();
+}
+
 bool Project::setClipGrade(
     quint64 timelineUid, quint64 clipId, const ClipGrade& grade, const QString& label)
 {
@@ -51,6 +61,7 @@ int Project::setClipGrades(quint64 timelineUid, const QVector<quint64>& clipIds,
                 *slot = grade;
         }
         endEdit();
+        notifyLiveGrade();
         return int(changing.size());
     }
     auto copy = std::make_shared<TimelineData>(*source);
@@ -82,6 +93,7 @@ bool Project::setTimelineGrade(quint64 timelineUid, const ClipGrade& grade, cons
         beginEdit(label);
         m_timeline->mutableData().grade = grade;
         endEdit();
+        notifyLiveGrade();
         return true;
     }
     auto copy = std::make_shared<TimelineData>(*source);
