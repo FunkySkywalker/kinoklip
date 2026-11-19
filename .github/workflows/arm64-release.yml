@@ -49,7 +49,7 @@ jobs:
         run: |
           apt-get update
           apt-get install -y --no-install-recommends \
-            build-essential cmake ninja-build pkg-config git ca-certificates curl file patchelf \
+            build-essential cmake ninja-build pkg-config git ca-certificates curl unzip file patchelf \
             zstd xz-utils ccache binutils bsdextrautils appstream xvfb xauth \
             qt6-base-dev qt6-base-dev-tools qt6-base-private-dev qt6-multimedia-dev qt6-svg-dev \
             qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools qt6-wayland libqt6opengl6-dev \
@@ -61,12 +61,21 @@ jobs:
           # ONNX Runtime (Background Removal): Microsoft's release (MIT, CPU), pinned and checked.
           # Debian's libonnxruntime-dev loads onnx twice (libonnx.so + its own copy) and aborts at
           # start with a protobuf descriptor error, so it is not used.
+          # The GitHub release files went away with the microsoft/onnxruntime repository (404 since
+          # 2026-11), so the same 1.22.0 build comes from Microsoft's NuGet package, laid out like the tarball.
           ORT=1.22.0
-          ORT_SHA256=bb76395092d150b52c7092dc6b8f2fe4d80f0f3bf0416d2f269193e347e24702
-          curl -fsSL --retry 3 -o /tmp/ort.tgz \
-            "https://github.com/microsoft/onnxruntime/releases/download/v$ORT/onnxruntime-linux-aarch64-$ORT.tgz"
-          echo "$ORT_SHA256  /tmp/ort.tgz" | sha256sum -c -
-          mkdir -p /opt/onnxruntime && tar -xzf /tmp/ort.tgz -C /opt/onnxruntime --strip-components=1
+          ORT_SHA256=d571e63a2329baacb713f441e65ad75284de354db6e1ac435fe4bebbb417986a
+          curl -fsSL --retry 3 -o /tmp/ort.nupkg \
+            "https://api.nuget.org/v3-flatcontainer/microsoft.ml.onnxruntime/$ORT/microsoft.ml.onnxruntime.$ORT.nupkg"
+          echo "$ORT_SHA256  /tmp/ort.nupkg" | sha256sum -c -
+          rm -rf /tmp/ort && mkdir -p /tmp/ort && unzip -q /tmp/ort.nupkg -d /tmp/ort
+          mkdir -p /opt/onnxruntime/include /opt/onnxruntime/lib
+          cp /tmp/ort/build/native/include/*.h /opt/onnxruntime/include/
+          cp /tmp/ort/runtimes/linux-arm64/native/libonnxruntime.so /opt/onnxruntime/lib/libonnxruntime.so.$ORT
+          ln -sf libonnxruntime.so.$ORT /opt/onnxruntime/lib/libonnxruntime.so.1
+          ln -sf libonnxruntime.so.1 /opt/onnxruntime/lib/libonnxruntime.so
+          cp /tmp/ort/LICENSE /tmp/ort/ThirdPartyNotices.txt /opt/onnxruntime/
+          echo "$ORT" > /opt/onnxruntime/VERSION_NUMBER
           gcc --version | head -1; cmake --version | head -1; qtpaths6 --version || true
           pkg-config --modversion libavcodec libheif libraw_r
 
