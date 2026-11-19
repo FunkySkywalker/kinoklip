@@ -305,6 +305,30 @@
       ]
     },
     {
+      "id": "make-your-audio-loud-enough-for-youtube",
+      "title": "Make your audio loud enough for YouTube",
+      "file": "make-your-audio-loud-enough-for-youtube.md",
+      "summary": "Measure how loud your video is against a standard (YouTube -14 LUFS, podcast -16, EBU R128 -23, ATSC -24), normalize a track or the main mix in one step, or let the render reach the target.",
+      "keywords": [
+        "loudness",
+        "lufs",
+        "loudness meter",
+        "normalize",
+        "youtube",
+        "podcast",
+        "ebu r128",
+        "lra",
+        "true peak",
+        "main mix",
+        "target loudness"
+      ],
+      "contexts": [
+        "page:audio",
+        "panel:mixer",
+        "page:deliver"
+      ]
+    },
+    {
       "id": "remove-noise-from-a-clip",
       "title": "Remove background noise from a clip",
       "file": "remove-noise-from-a-clip.md",

@@ -370,12 +370,14 @@ void AudioFeeder::run()
         // Meters: loudness of the output, then publish the time-stamped frame.
         if (m_resetLoudness.exchange(false))
             loudness->reset();
-        loudness->process(chunk.data(), kChunkFrames);
+        if (!m_loudnessPaused.load(std::memory_order_relaxed))
+            loudness->process(chunk.data(), kChunkFrames);
         frame->sample = chunkStart;
         frame->levels = *chunkLevels;
         frame->momentaryLufs = loudness->momentary();
         frame->shortTermLufs = loudness->shortTerm();
         frame->integratedLufs = loudness->integrated();
+        frame->loudnessRange = loudness->loudnessRange();
         frame->truePeakDb = loudness->truePeakRecent();
         frame->truePeakMaxDb = loudness->truePeakMax();
         {

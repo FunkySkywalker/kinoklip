@@ -3,6 +3,7 @@
 #include "render/AudioNormalize.h"
 
 #include "media/AudioDecoder.h"
+#include "render/AudioMixer.h"
 #include "render/LoudnessMeter.h"
 
 #include <algorithm>
@@ -82,7 +83,62 @@ Measurement measure(const Source& source, const std::atomic<bool>* cancel,
     result.samplePeakDb = toDb(peak);
     result.truePeakDb = meter.truePeakMax();
     result.loudnessLufs = meter.integrated();
+    result.loudnessRange = meter.loudnessRange();
     return result;
+}
+
+Measurement measureMix(const TimelineData& timeline, std::shared_ptr<const MediaPathMap> media,
+    const std::optional<MixTarget>& channel, int64_t firstFrame, int64_t endFrame,
+    const std::atomic<bool>* cancel, const std::function<void(double)>& progress)
+{
+    Measurement result;
+    if (!timeline.fps.isValid() || endFrame <= firstFrame) {
+        result.error = QStringLiteral("no audio");
+        return result;
+    }
+    const int64_t first = framesToSamples48k(firstFrame, timeline.fps);
+    const int64_t last = framesToSamples48k(endFrame, timeline.fps);
+    const int64_t total = last - first;
+    AudioMixer mixer;
+    mixer.setMediaPaths(std::move(media));
+    constexpr int ch = AudioMixer::kChannels;
+    std::vector<float> out(size_t(kBlockFrames) * ch), tap(size_t(kBlockFrames) * ch);
+    if (channel)
+        mixer.setTap(*channel, tap.data());
+    dsp::LoudnessMeter meter;
+    float peak = 0.0f;
+    for (int64_t at = first; at < last; at += kBlockFrames) {
+        if (cancel && cancel->load(std::memory_order_relaxed)) {
+            result.error = QStringLiteral("cancelled");
+            return result;
+        }
+        const int frames = int(std::min<int64_t>(kBlockFrames, last - at));
+        mixer.mix(timeline, at, frames, out.data());
+        const float* heard = channel ? tap.data() : out.data();
+        for (int i = 0; i < frames * ch; ++i)
+            peak = std::max(peak, std::abs(heard[size_t(i)]));
+        meter.process(heard, frames);
+        if (progress && total > 0)
+            progress(double(at + frames - first) / double(total));
+    }
+    result.valid = true;
+    result.samplePeakDb = toDb(peak);
+    result.truePeakDb = meter.truePeakMax();
+    result.loudnessLufs = meter.integrated();
+    result.loudnessRange = meter.loudnessRange();
+    return result;
+}
+
+std::pair<int64_t, int64_t> mixRange(const TimelineData& timeline)
+{
+    const int64_t first = timeline.markIn >= 0 ? timeline.markIn : 0;
+    const int64_t end = timeline.markOut >= 0 ? timeline.markOut : timeline.duration();
+    return {std::max<int64_t>(0, first), std::max<int64_t>(0, end)};
+}
+
+double faderChange(double measured, double target)
+{
+    return measured <= kSilentDb ? std::numeric_limits<double>::quiet_NaN() : target - measured;
 }
 
 std::vector<double> gains(const std::vector<double>& levels, double target, Scope scope)

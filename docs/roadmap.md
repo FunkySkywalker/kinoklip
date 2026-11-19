@@ -187,13 +187,13 @@ Beginner and intermediate tutorial workflows for Resolve's Color, Fairlight and 
 - [x] Audio: files with several audio tracks (an OBS recording with game, mic and Discord): every stream becomes its own linked audio clip on consecutive tracks on every kind of edit, the Media Pool and the metadata show the track count, Clip Attributes chooses the tracks, the project stores the stream per clip, and the waveforms, meters, Audio page and render play the right one (spec 126)
 - [x] Audio: noise reduction with a local, open model (RNNoise, BSD-3-Clause, built in; spectral gate with Manual Learn; DeepFilterNet left open; spec 132)
 - [x] Audio: Effects Library and Inspector on the Audio page, effect slots on mixer tracks (tracks only; buses left open; spec 133)
-- [ ] Audio: Normalize a whole track or bus / the main mix to a loudness target in one step
+- [x] Audio: Normalize a whole track or bus / the main mix to a loudness target in one step (right-click a mixer strip or a track header, Normalize Audio Levels...; spec 134)
 - [ ] Audio: Voice Isolation button on a track and in the Inspector (local open model, optional)
 - [ ] Audio: Gate and Expander in the Dynamics window, a De-Esser effect, and a Dialogue Leveler
 - [ ] Audio: sidechain input on the compressor (key from another track) for ducking music under a voice
 - [ ] Audio: Sends (level, Pre / Post fader) to buses and aux buses, bus-to-bus feeds, and a bus Pan
 - [ ] Audio: automation lane under a track with Volume, Pan and effect parameter curves, plus Latch and Trim modes
-- [ ] Audio: loudness meter standards and targets (-14 YouTube, -16, -23 EBU R128, ATSC), Loudness Range (LRA) and a history graph, and normalize to a loudness target when rendering
+- [x] Audio: loudness meter standards and targets (-14 YouTube, -16, -23 EBU R128, ATSC), Loudness Range (LRA) and a history graph, and normalize to a loudness target when rendering (spec 134)
 - [ ] Audio: Chorus, Flanger, Distortion and Stereo Width effects, and Reverb with Pre-delay, Decay and room presets
 - [ ] Audio: EQ presets (voice, music, telephone) and a Phase Invert button on the strip
 - [ ] Audio: Spectrum analyzer and Phase / correlation meters, and monitor controls (Dim, Mono, Mute) on the Audio page

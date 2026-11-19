@@ -286,6 +286,7 @@ void ExportSettings::normalize()
             audio.sampleRate = codec->sampleRates.first();
         }
     }
+    audio.normalizeTarget = loudness::clamped(audio.normalizeTarget);
     if (!outputPath.isEmpty()) {
         outputPath = withContainerExtension(outputPath, container);
     }
@@ -314,6 +315,10 @@ QJsonObject ExportSettings::toJson() const
     a[QStringLiteral("bitrateKbps")] = audio.bitrateKbps;
     a[QStringLiteral("sampleRate")] = audio.sampleRate;
     a[QStringLiteral("bitDepth")] = audio.bitDepth;
+    if (audio.normalize) {
+        a[QStringLiteral("normalize")] = true;
+        a[QStringLiteral("normalizeTarget")] = loudness::targetToString(audio.normalizeTarget);
+    }
     QJsonObject o;
     o[QStringLiteral("container")] = container;
     o[QStringLiteral("videoEnabled")] = videoEnabled;
@@ -382,6 +387,9 @@ ExportSettings ExportSettings::fromJson(const QJsonObject& o, const ExportSettin
     s.audio.bitrateKbps = int(num(a, "bitrateKbps", s.audio.bitrateKbps));
     s.audio.sampleRate = int(num(a, "sampleRate", s.audio.sampleRate));
     s.audio.bitDepth = int(num(a, "bitDepth", s.audio.bitDepth));
+    s.audio.normalize = boolean(a, "normalize", s.audio.normalize);
+    s.audio.normalizeTarget
+        = loudness::targetFromString(str(a, "normalizeTarget", {}), s.audio.normalizeTarget);
     s.range = rangeFromId(str(o, "range", {}), s.range);
     s.rangeIn = int64_t(num(o, "rangeIn", double(s.rangeIn)));
     s.rangeOut = int64_t(num(o, "rangeOut", double(s.rangeOut)));

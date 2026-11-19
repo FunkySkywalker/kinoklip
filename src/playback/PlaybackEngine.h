@@ -370,6 +370,9 @@ public:
     [[nodiscard]] const MeterFrame& meters() const { return m_meterFrame; }
     /// Restarts the integrated loudness and the maximum true peak.
     void resetLoudness();
+    /// Pauses or continues the loudness measurement (Start / Pause of the loudness meter).
+    void setLoudnessPaused(bool paused);
+    [[nodiscard]] bool loudnessPaused() const { return m_loudnessPaused; }
     /// Throttle of metersUpdated() (about 30 updates per second).
     static constexpr int kMeterIntervalMs = 33;
     void resetStats();
@@ -540,6 +543,7 @@ private:
     int64_t m_lastPlayheadWriteUs = 0;
     int64_t m_audioStartUs = 0;
     MeterFrame m_meterFrame; ///< meters(); sample -1 = silent
+    bool m_loudnessPaused = false;
     int64_t m_lastMeterUs = 0;
     /// Last snapshot handed to the renderer: an edit that only changes the sound (mixer,
     /// automation, clip volume) keeps it, so fader moves never re-render or drop pictures.

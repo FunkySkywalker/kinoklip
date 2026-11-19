@@ -18662,6 +18662,66 @@ También se puede hacer doble clic en el encabezado o arrastrarlo fuera del pane
         <source>Output bus: %1</source>
         <translation>Bus de salida: %1</translation>
     </message>
+    <message>
+        <source>Output and bus meters, and the loudness of the output bus (momentary, short-term, integrated, loudness range, true peak) against a loudness standard, with a history graph.</source>
+        <translation>Medidores de la salida y de los buses, y la sonoridad del bus de salida (momentánea, a corto plazo, integrada, rango de sonoridad, pico real) frente a un estándar de sonoridad, con gráfico de historial.</translation>
+    </message>
+    <message>
+        <source>Loudness standard to measure against: EBU R128 -23 LUFS, ATSC A/85 -24 LKFS, YouTube / streaming -14 LUFS, podcast -16 LUFS, or your own target</source>
+        <translation>Estándar de sonoridad con el que medir: EBU R128 -23 LUFS, ATSC A/85 -24 LKFS, YouTube / streaming -14 LUFS, pódcast -16 LUFS o un objetivo propio</translation>
+    </message>
+    <message>
+        <source>Target loudness (editable with Custom)</source>
+        <translation>Sonoridad objetivo (editable con Personalizado)</translation>
+    </message>
+    <message>
+        <source> LUFS</source>
+        <translation> LUFS</translation>
+    </message>
+    <message>
+        <source>Pause</source>
+        <translation>Pausa</translation>
+    </message>
+    <message>
+        <source>Start</source>
+        <translation>Iniciar</translation>
+    </message>
+    <message>
+        <source>Pause the loudness measurement; the readings stay</source>
+        <translation>Pausar la medición de sonoridad; las lecturas se mantienen</translation>
+    </message>
+    <message>
+        <source>Continue the loudness measurement</source>
+        <translation>Continuar la medición de sonoridad</translation>
+    </message>
+    <message>
+        <source>Loudness of the last 0.4 seconds</source>
+        <translation>Sonoridad de los últimos 0,4 segundos</translation>
+    </message>
+    <message>
+        <source>Loudness of the last 3 seconds</source>
+        <translation>Sonoridad de los últimos 3 segundos</translation>
+    </message>
+    <message>
+        <source>Loudness of everything measured since Reset (gated, BS.1770)</source>
+        <translation>Sonoridad de todo lo medido desde el reinicio (con compuerta, BS.1770)</translation>
+    </message>
+    <message>
+        <source>Loudness range (LRA): how much the loudness varies, in LU</source>
+        <translation>Rango de sonoridad (LRA): cuánto varía la sonoridad, en LU</translation>
+    </message>
+    <message>
+        <source>Highest true peak since Reset</source>
+        <translation>Pico real más alto desde el reinicio</translation>
+    </message>
+    <message>
+        <source>The target, and whether the integrated loudness is over or under it</source>
+        <translation>El objetivo y si la sonoridad integrada está por encima o por debajo</translation>
+    </message>
+    <message>
+        <source>Loudness range</source>
+        <translation>Rango de sonoridad</translation>
+    </message>
 </context>
 <context>
     <name>kk::LutBrowser</name>
@@ -21834,6 +21894,14 @@ Importar archivos con %1 o soltarlos aquí.</translation>
     <message>
         <source>Channel Format</source>
         <translation>Formato de canal</translation>
+    </message>
+    <message>
+        <source>Normalize Audio Levels…</source>
+        <translation>Normalizar niveles de audio…</translation>
+    </message>
+    <message>
+        <source>Measure the whole mix of this channel and move its fader by one gain so it reaches a loudness or peak target</source>
+        <translation>Mide toda la mezcla de este canal y mueve su fader una sola ganancia hasta alcanzar un objetivo de sonoridad o de pico</translation>
     </message>
 </context>
 <context>
@@ -27979,6 +28047,42 @@ Las líneas de tiempo que usan los ajustes del proyecto se convierten: los clips
         <source>Delete the preset &quot;%1&quot;?</source>
         <translation>¿Eliminar el preajuste &quot;%1&quot;?</translation>
     </message>
+    <message>
+        <source>Normalize audio to</source>
+        <translation>Normalizar el audio a</translation>
+    </message>
+    <message>
+        <source>Measure the loudness of the whole mix first and raise or lower it so the file reaches the target; the peaks are limited if they would pass the true peak limit</source>
+        <translation>Mide primero la sonoridad de toda la mezcla y la sube o baja para que el archivo alcance el objetivo; los picos se limitan si superan el límite de pico real</translation>
+    </message>
+    <message>
+        <source>The loudness standard to reach: EBU R128, ATSC A/85, YouTube / streaming, podcast or your own numbers (Custom)</source>
+        <translation>El estándar de sonoridad que alcanzar: EBU R128, ATSC A/85, YouTube / streaming, pódcast o sus propios números (Personalizado)</translation>
+    </message>
+    <message>
+        <source> LUFS</source>
+        <translation> LUFS</translation>
+    </message>
+    <message>
+        <source> dBTP</source>
+        <translation> dBTP</translation>
+    </message>
+    <message>
+        <source>Integrated loudness the file should reach (editable with Custom)</source>
+        <translation>Sonoridad integrada que debe alcanzar el archivo (editable con Personalizado)</translation>
+    </message>
+    <message>
+        <source>Loudness target</source>
+        <translation>Sonoridad objetivo</translation>
+    </message>
+    <message>
+        <source>True peak limit: peaks above it are limited (editable with Custom)</source>
+        <translation>Límite de pico real: los picos por encima se limitan (editable con Personalizado)</translation>
+    </message>
+    <message>
+        <source>True peak limit</source>
+        <translation>Límite de pico real</translation>
+    </message>
 </context>
 <context>
     <name>kk::RgbMixerPanel</name>
@@ -31350,6 +31454,10 @@ Trim the clips so the media covers the transition?</source>
         <source>Delete Marker</source>
         <translation>Eliminar marcador</translation>
     </message>
+    <message>
+        <source>Normalize Audio Levels…</source>
+        <translation>Normalizar niveles de audio…</translation>
+    </message>
 </context>
 <context>
     <name>kk::TitleLayers</name>
@@ -34312,6 +34420,127 @@ Los clips, marcadores y efectos se mantienen en el mismo momento y los fotograma
     <message>
         <source>Text</source>
         <translation>Texto</translation>
+    </message>
+</context>
+<context>
+    <name>kk::LoudnessHistoryGraph</name>
+    <message>
+        <source>Short-term loudness over the last minutes; the dashed line is the target</source>
+        <translation>Sonoridad a corto plazo de los últimos minutos; la línea discontinua es el objetivo</translation>
+    </message>
+</context>
+<context>
+    <name>kk::loudness</name>
+    <message>
+        <source>EBU R128 (-23 LUFS)</source>
+        <translation>EBU R128 (-23 LUFS)</translation>
+    </message>
+    <message>
+        <source>ATSC A/85 (-24 LKFS)</source>
+        <translation>ATSC A/85 (-24 LKFS)</translation>
+    </message>
+    <message>
+        <source>YouTube / streaming (-14 LUFS)</source>
+        <translation>YouTube / streaming (-14 LUFS)</translation>
+    </message>
+    <message>
+        <source>Podcast (-16 LUFS)</source>
+        <translation>Pódcast (-16 LUFS)</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>Personalizado</translation>
+    </message>
+    <message>
+        <source>On target</source>
+        <translation>En el objetivo</translation>
+    </message>
+    <message>
+        <source>Over by %1 LU</source>
+        <translation>%1 LU por encima</translation>
+    </message>
+    <message>
+        <source>Under by %1 LU</source>
+        <translation>%1 LU por debajo</translation>
+    </message>
+</context>
+<context>
+    <name>kk::NormalizeMixDialog</name>
+    <message>
+        <source>Normalize Audio Levels</source>
+        <translation>Normalizar niveles de audio</translation>
+    </message>
+    <message>
+        <source>ITU-R BS.1770-4 (loudness)</source>
+        <translation>ITU-R BS.1770-4 (sonoridad)</translation>
+    </message>
+    <message>
+        <source>True Peak</source>
+        <translation>Pico real</translation>
+    </message>
+    <message>
+        <source>Sample Peak Program</source>
+        <translation>Pico de muestra del programa</translation>
+    </message>
+    <message>
+        <source>What the target measures: the integrated loudness of the whole mix, its highest true peak, or its highest sample</source>
+        <translation>Qué mide el objetivo: la sonoridad integrada de toda la mezcla, su pico real más alto o su muestra más alta</translation>
+    </message>
+    <message>
+        <source>Loudness standard: choosing one sets the target; Custom keeps your own number</source>
+        <translation>Estándar de sonoridad: al elegir uno se fija el objetivo; Personalizado conserva su número</translation>
+    </message>
+    <message>
+        <source>The level the mix should reach</source>
+        <translation>El nivel que debe alcanzar la mezcla</translation>
+    </message>
+    <message>
+        <source>Normalization Mode</source>
+        <translation>Modo de normalización</translation>
+    </message>
+    <message>
+        <source>Standard</source>
+        <translation>Estándar</translation>
+    </message>
+    <message>
+        <source>Target Level</source>
+        <translation>Nivel objetivo</translation>
+    </message>
+    <message>
+        <source>Main mix</source>
+        <translation>Mezcla principal</translation>
+    </message>
+    <message>
+        <source>%1: the whole mix of the In / Out range, or of the timeline.</source>
+        <translation>%1: toda la mezcla del rango de entrada / salida o de la línea de tiempo.</translation>
+    </message>
+    <message>
+        <source>The fader of this channel is moved by one gain; one undo step</source>
+        <translation>El fader de este canal se mueve una sola ganancia; un paso de deshacer</translation>
+    </message>
+    <message>
+        <source>Normalize</source>
+        <translation>Normalizar</translation>
+    </message>
+    <message>
+        <source>Measuring…</source>
+        <translation>Midiendo…</translation>
+    </message>
+    <message>
+        <source>Nothing to normalize: there is no sound in this range.</source>
+        <translation>Nada que normalizar: no hay sonido en este rango.</translation>
+    </message>
+    <message>
+        <source> dBFS</source>
+        <translation> dBFS</translation>
+    </message>
+    <message>
+        <source> dBTP</source>
+        <translation> dBTP</translation>
+    </message>
+    <message>
+        <source> LUFS</source>
+        <translation> LUFS</translation>
     </message>
 </context>
 </TS>

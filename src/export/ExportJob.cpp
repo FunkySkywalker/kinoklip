@@ -12,6 +12,8 @@
 #include "export/SubtitleExport.h"
 #include "export/VideoEncoder.h"
 #include "render/AudioMixer.h"
+#include "render/AudioNormalize.h"
+#include "render/Dynamics.h"
 #include "render/Compositor.h"
 
 #include <QCoreApplication>
@@ -40,6 +42,10 @@ QString tr(const char* text)
 constexpr int kMixBlock = 4096;
 /// Audio-only jobs advance this many timeline frames per loop iteration.
 constexpr int64_t kAudioOnlyStep = 50;
+/// Normalize audio to: the limiter works this far under the true peak ceiling, and releases in
+/// this time (ms).
+constexpr double kLimiterMarginDb = 0.5;
+constexpr double kLimiterReleaseMs = 100.0;
 /// Speed is measured over this window.
 constexpr double kSpeedWindowSeconds = 1.0;
 
@@ -217,6 +223,33 @@ ExportResult ExportJob::runStreams(const ProgressCallback& progress)
     result.outputPath = sequence ? sequencePattern(s.outputPath) : s.outputPath;
     const QSize size = s.outputSize(tl);
 
+    // Normalize audio to (spec 134): measure the whole mix of the range first, then one gain
+    // (and a limiter only if the true peak ceiling needs it) is applied to every block.
+    double normalizeGain = 1.0;
+    bool normalizeLimit = false;
+    double limitCeilingDb = -1.0;
+    if (s.hasAudio() && s.audio.normalize) {
+        const audionorm::Measurement m = audionorm::measureMix(
+            tl, m_media, std::nullopt, first, end, &m_cancel);
+        if (isCancelled()) {
+            result.cancelled = true;
+            result.error = tr("Cancelled.");
+            return result;
+        }
+        if (m.valid && m.loudnessLufs > -70.0) {
+            const double gainDb = s.audio.normalizeTarget.lufs() - m.loudnessLufs;
+            const double ceiling = s.audio.normalizeTarget.truePeakDb();
+            normalizeGain = AudioMixer::dbToGain(gainDb);
+            result.audioMeasuredLufs = m.loudnessLufs;
+            result.audioGainDb = gainDb;
+            // A sample limiter half a dB under the ceiling keeps the inter-sample peaks of
+            // ordinary material below it.
+            limitCeilingDb = std::max(ceiling - kLimiterMarginDb, kLimiterMinCeilingDb);
+            normalizeLimit = m.truePeakDb + gainDb > limitCeilingDb;
+            result.audioLimited = normalizeLimit;
+        }
+    }
+
     MediaWriter writer;
     QString error;
     if (!writer.open(container->muxer, result.outputPath, &error)) {
@@ -357,6 +390,14 @@ ExportResult ExportJob::runStreams(const ProgressCallback& progress)
 
     AudioMixer mixer;
     mixer.setMediaPaths(m_media);
+    dsp::Dynamics limiter;
+    if (normalizeLimit) {
+        DynamicsSettings ds;
+        ds.limiterEnabled = true;
+        ds.limiterCeilingDb = limitCeilingDb;
+        ds.limiterReleaseMs = kLimiterReleaseMs;
+        limiter.setTarget(ds);
+    }
     std::vector<float> mixBuffer(size_t(kMixBlock) * AudioMixer::kChannels);
     const int64_t audioBase = framesToSamples48k(first, tl.fps);
     int64_t audioDone = 0; ///< 48 kHz sample frames mixed so far (relative to audioBase)
@@ -366,6 +407,12 @@ ExportResult ExportJob::runStreams(const ProgressCallback& progress)
         while (audioDone < target) {
             const int n = int(std::min<int64_t>(kMixBlock, target - audioDone));
             mixer.mix(tl, audioBase + audioDone, n, mixBuffer.data());
+            if (normalizeGain != 1.0) {
+                for (int i = 0; i < n * AudioMixer::kChannels; ++i)
+                    mixBuffer[size_t(i)] *= float(normalizeGain);
+                if (normalizeLimit)
+                    limiter.process(mixBuffer.data(), n);
+            }
             if (!audio.encode(mixBuffer.data(), n, audioSink, &error)) {
                 return false;
             }

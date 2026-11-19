@@ -813,8 +813,16 @@ void PlaybackEngine::resetLoudness()
     if (m_feeder)
         m_feeder->resetLoudness();
     m_meterFrame.integratedLufs = -200.0;
+    m_meterFrame.loudnessRange = 0.0;
     m_meterFrame.truePeakMaxDb = -200.0;
     Q_EMIT metersUpdated();
+}
+
+void PlaybackEngine::setLoudnessPaused(bool paused)
+{
+    if (m_feeder)
+        m_feeder->setLoudnessPaused(paused);
+    m_loudnessPaused = paused;
 }
 
 void PlaybackEngine::updateMeters(int64_t nowUs, double heardFrame)
@@ -835,10 +843,12 @@ void PlaybackEngine::clearMeters()
     if (m_meterFrame.sample < 0)
         return;
     const double integrated = m_meterFrame.integratedLufs;
+    const double range = m_meterFrame.loudnessRange;
     const double truePeakMax = m_meterFrame.truePeakMaxDb;
     m_meterFrame = MeterFrame {};
     // The program's integrated loudness stays on display until it is reset (Resolve).
     m_meterFrame.integratedLufs = integrated;
+    m_meterFrame.loudnessRange = range;
     m_meterFrame.truePeakMaxDb = truePeakMax;
     Q_EMIT metersUpdated();
 }

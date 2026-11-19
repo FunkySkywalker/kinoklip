@@ -19,6 +19,10 @@ namespace kk::dsp {
 ///   relative gate 10 LU below the loudness of the blocks above the absolute gate. Blocks are
 ///   counted in a 0.01 LU histogram (energy sum + count per bin), so the measurement can run
 ///   for hours without allocating;
+/// * loudness range (LRA, EBU Tech 3342): every short-term value (3 s window, a new one every
+///   100 ms) above the absolute gate -70 LUFS goes into a second histogram; the relative gate is
+///   20 LU below the energy mean of those values; LRA is the distance between the 10th and the
+///   95th percentile of the values above it;
 /// * true peak: 4x oversampling with a 48-tap windowed-sinc interpolator (12 taps per phase,
 ///   designed once in the constructor), the largest absolute value of all phases.
 ///
@@ -43,6 +47,9 @@ public:
     [[nodiscard]] double shortTerm() const { return m_shortTerm; }
     /// Integrated (gated) loudness since the last reset (LUFS).
     [[nodiscard]] double integrated() const;
+    /// Loudness range (LU, EBU Tech 3342) of the audio since the last reset; 0 until a
+    /// short-term window (3 s) was measured.
+    [[nodiscard]] double loudnessRange() const;
     /// Largest true peak since the last reset (dBTP).
     [[nodiscard]] double truePeakMax() const;
     /// Largest true peak of the audio passed to the last process() call (dBTP).
@@ -73,6 +80,8 @@ private:
     double m_shortTerm = kSilence;
     std::vector<double> m_histEnergy; ///< sum of gating-block mean squares per bin
     std::vector<int64_t> m_histCount;
+    std::vector<double> m_rangeEnergy; ///< the same for short-term values (loudness range)
+    std::vector<int64_t> m_rangeCount;
     std::array<float, kTaps> m_kernel {}; ///< interpolator, kernel[phase + kPhases * k]
     std::array<std::array<float, kTaps / kPhases>, 2> m_history {}; ///< recent input per channel
     int m_historyHead = 0;

@@ -91,6 +91,18 @@ bool moveTrackEffect(TimelineData& data, quint64 trackId, quint64 effectId, int 
 /// The slot @p effectId of track @p trackId, or nullptr.
 [[nodiscard]] EffectInstance* trackEffect(TimelineData& data, quint64 trackId, quint64 effectId);
 
+// ---- Normalize (spec 134) ----
+
+/// Raises (or lowers) the level of @p target by @p deltaDb with its fader, as Normalize Audio
+/// Levels does for a track, a bus or the main mix (the output bus): the static fader value and,
+/// for a track with a volume curve, every key of the curve move by the same amount, so a
+/// written automation keeps its shape. Values stay within kFaderMinDb ... kFaderMaxDb. Returns
+/// whether anything changed (false for an unknown target, a zero or non-finite delta, or a
+/// fader already at its limit).
+bool offsetFader(TimelineData& data, const MixTarget& target, double deltaDb);
+/// The fader value (static) of @p target in dB, or 0 for an unknown target.
+[[nodiscard]] double staticFaderDb(const TimelineData& data, const MixTarget& target);
+
 /// Clamps every value of @p strip to the documented control ranges (loader, ops).
 void clampStrip(ChannelStrip& strip);
 

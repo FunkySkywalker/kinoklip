@@ -79,9 +79,9 @@ Every missing piece has a line in [roadmap.md](roadmap.md) under "Next version (
 | A10 | Noise Reduction (Fairlight FX, Learn noise print) | works | Noise Reduction audio effect on a clip: Auto Speech (RNNoise, optional AI) or Manual Learn (spectral gate with a learned profile), Threshold, Attack, Sensitivity, Ratio, Reduction, Dry / Wet, Output Gain (spec 132); also as a mixer track slot (spec 133), no DeepFilterNet |
 | A11 | Dialogue Leveler / Dialogue Processor | missing | Dialogue Leveler and Dialogue Processor effects (spec 37.28) |
 | A12 | Normalize Audio Levels on clips (Sample Peak, True Peak, ITU-R BS.1770) | works | |
-| A13 | Normalize a whole track, bus or the main mix to a loudness target | missing | Normalize action for a track, bus or the main mix |
-| A14 | Loudness meter in LUFS (momentary, short-term, integrated, true peak) | partly | Selectable standard / target (-14 LUFS for YouTube, -16, -23, ATSC), Loudness Range (LRA), history graph (spec 37.21) |
-| A15 | Loudness normalisation when rendering | missing | Normalize to a loudness target in the Deliver page Audio settings |
+| A13 | Normalize a whole track, bus or the main mix to a loudness target | works | Normalize Audio Levels... on a mixer strip, a track header and the main bus: loudness, true peak or sample peak, one fader gain, one undo step (spec 134) |
+| A14 | Loudness meter in LUFS (momentary, short-term, integrated, true peak) | works | Standard list (EBU R128, ATSC A/85, YouTube -14, Podcast -16, Custom), Loudness Range, over / under read-out, history graph, Start / Pause / Reset (spec 134) |
+| A15 | Loudness normalisation when rendering | works | Deliver > Audio > Normalize audio to a standard, true peak limited (spec 134) |
 | A16 | Buses: main bus and submix buses | partly | Bus-to-bus feeds, Main / Submix / Aux bus types (spec 37.32) |
 | A17 | Aux sends (reverb or delay send with a level knob) | missing | Send slots with level and Pre / Post fader on every track strip (spec 37.22) |
 | A18 | Effects Library with track effect slots (insert effects in the mixer) | works | Audio page: Effects Library (Audio FX) and Inspector panels, a + FX button, drop target and slots (bypass, remove, controls in the Inspector) on every track strip, saved with the project (spec 133); no slots on buses yet |

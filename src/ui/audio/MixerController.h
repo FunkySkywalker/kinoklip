@@ -14,6 +14,7 @@
 namespace kk {
 
 struct AppContext;
+class Project;
 class PlaybackEngine;
 class VoiceOverController;
 
@@ -48,6 +49,8 @@ public:
 
     /// The voice-over tool (AppContext::voiceOver), or nullptr: the strips' arm buttons use it.
     [[nodiscard]] VoiceOverController* voiceOver() const;
+    /// The project (AppContext::project).
+    [[nodiscard]] Project* project() const;
     /// The active timeline's data.
     [[nodiscard]] const TimelineData& data() const;
     /// Applies @p change as one undo step named @p label; nothing is pushed if it returns

@@ -15,6 +15,7 @@
 #include <QButtonGroup>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QDoubleSpinBox>
 #include <QDir>
 #include <QFileInfo>
 #include <QFormLayout>
@@ -502,11 +503,48 @@ QWidget* RenderSettingsPanel::buildAudioTab()
     for (int kbps : kAudioBitrates)
         m_audioBitrate->addItem(tr("%1 Kb/s").arg(kbps), kbps);
     m_audioForm->addRow(tr("Bitrate"), m_audioBitrate);
+    // Normalize audio to a loudness standard (spec 134).
+    m_normalize = new QCheckBox(tr("Normalize audio to"));
+    m_normalize->setObjectName(QStringLiteral("RenderNormalize"));
+    m_normalize->setToolTip(tr("Measure the loudness of the whole mix first and raise or lower "
+                               "it so the file reaches the target; the peaks are limited if "
+                               "they would pass the true peak limit"));
+    m_normalizeStandard = new QComboBox;
+    m_normalizeStandard->setObjectName(QStringLiteral("RenderNormalizeStandard"));
+    for (const loudness::Standard standard : loudness::standards())
+        m_normalizeStandard->addItem(loudness::standardName(standard), int(standard));
+    m_normalizeStandard->setToolTip(
+        tr("The loudness standard to reach: EBU R128, ATSC A/85, YouTube / streaming, podcast "
+           "or your own numbers (Custom)"));
+    m_normalizeRow = row({m_normalize, m_normalizeStandard});
+    m_audioForm->addRow(m_normalizeRow);
+    m_normalizeLufs = new QDoubleSpinBox;
+    m_normalizeLufs->setObjectName(QStringLiteral("RenderNormalizeTarget"));
+    m_normalizeLufs->setRange(loudness::kMinTargetLufs, loudness::kMaxTargetLufs);
+    m_normalizeLufs->setDecimals(1);
+    m_normalizeLufs->setSingleStep(0.5);
+    m_normalizeLufs->setSuffix(tr(" LUFS"));
+    m_normalizeLufs->setToolTip(
+        tr("Integrated loudness the file should reach (editable with Custom)"));
+    m_audioForm->addRow(tr("Loudness target"), m_normalizeLufs);
+    m_normalizePeak = new QDoubleSpinBox;
+    m_normalizePeak->setObjectName(QStringLiteral("RenderNormalizePeak"));
+    m_normalizePeak->setRange(loudness::kMinCeilingDb, loudness::kMaxCeilingDb);
+    m_normalizePeak->setDecimals(1);
+    m_normalizePeak->setSingleStep(0.5);
+    m_normalizePeak->setSuffix(tr(" dBTP"));
+    m_normalizePeak->setToolTip(
+        tr("True peak limit: peaks above it are limited (editable with Custom)"));
+    m_audioForm->addRow(tr("True peak limit"), m_normalizePeak);
 
     auto changed = [this] { refresh(); };
     connect(m_audioEnabled, &QCheckBox::toggled, this, changed);
-    for (QComboBox* combo : {m_audioCodec, m_audioBitrate, m_sampleRate, m_bitDepth})
+    connect(m_normalize, &QCheckBox::toggled, this, changed);
+    for (QComboBox* combo :
+        {m_audioCodec, m_audioBitrate, m_sampleRate, m_bitDepth, m_normalizeStandard})
         connect(combo, &QComboBox::currentIndexChanged, this, changed);
+    for (QDoubleSpinBox* spin : {m_normalizeLufs, m_normalizePeak})
+        connect(spin, &QDoubleSpinBox::valueChanged, this, changed);
     return page;
 }
 
@@ -707,6 +745,10 @@ ExportSettings RenderSettingsPanel::settings() const
     s.audio.bitrateKbps = m_audioBitrate->currentData().toInt();
     s.audio.sampleRate = m_sampleRate->currentData().toInt();
     s.audio.bitDepth = m_bitDepth->currentData().toInt();
+    s.audio.normalize = m_normalize->isChecked();
+    s.audio.normalizeTarget.standard = loudness::Standard(m_normalizeStandard->currentData().toInt());
+    s.audio.normalizeTarget.customLufs = m_normalizeLufs->value();
+    s.audio.normalizeTarget.customTruePeakDb = m_normalizePeak->value();
     s.range = RangeMode(m_range->currentData().toInt());
     s.individualClips = m_individualClips->isChecked();
     s.clipNaming = ClipNaming(m_clipNaming->currentData().toInt());
@@ -826,6 +868,11 @@ void RenderSettingsPanel::setSettings(const ExportSettings& input)
     }
     selectData(m_sampleRate, s.audio.sampleRate);
     selectData(m_bitDepth, s.audio.bitDepth);
+    m_normalize->setChecked(s.audio.normalize);
+    selectData(m_normalizeStandard, int(s.audio.normalizeTarget.standard));
+    // A preset shows its own numbers (read only); Custom shows the stored ones.
+    m_normalizeLufs->setValue(s.audio.normalizeTarget.lufs());
+    m_normalizePeak->setValue(s.audio.normalizeTarget.truePeakDb());
     selectData(m_range, int(s.range));
     (s.individualClips ? m_individualClips : m_singleClip)->setChecked(true);
     selectData(m_clipNaming, int(s.clipNaming));
@@ -939,6 +986,13 @@ void RenderSettingsPanel::updateVisibility()
     m_audioForm->setRowVisible(m_bitDepth, audioOn && s.audio.codec == QLatin1String("flac"));
     m_audioForm->setRowVisible(m_channels, audioOn);
     m_audioForm->setRowVisible(m_audioBitrate, audioOn && a && !a->lossless);
+    m_audioForm->setRowVisible(m_normalizeRow, audioOn);
+    m_audioForm->setRowVisible(m_normalizeLufs, audioOn);
+    m_audioForm->setRowVisible(m_normalizePeak, audioOn);
+    const bool customTarget = s.audio.normalizeTarget.standard == loudness::Standard::Custom;
+    m_normalizeStandard->setEnabled(s.audio.normalize);
+    m_normalizeLufs->setEnabled(s.audio.normalize && customTarget);
+    m_normalizePeak->setEnabled(s.audio.normalize && customTarget);
     m_tabs->setTabEnabled(1, audioPossible);
     m_tabs->setTabToolTip(1, audioPossible ? QString() : tr("This format has no audio"));
     m_range->setEnabled(kind != OutputKind::Still);

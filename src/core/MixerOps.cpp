@@ -5,6 +5,7 @@
 #include "core/EffectRegistry.h"
 
 #include <algorithm>
+#include <cmath>
 
 namespace kk::mixerops {
 
@@ -166,6 +167,39 @@ bool setAutomationMode(TimelineData& data, quint64 trackId, AutomationMode mode)
         return false;
     t->mix.automation = mode;
     return true;
+}
+
+double staticFaderDb(const TimelineData& data, const MixTarget& target)
+{
+    const ChannelStrip* s = strip(data, target);
+    return s ? s->volumeDb : 0.0;
+}
+
+bool offsetFader(TimelineData& data, const MixTarget& target, double deltaDb)
+{
+    ChannelStrip* s = strip(data, target);
+    if (!s || !std::isfinite(deltaDb) || deltaDb == 0.0)
+        return false;
+    auto shifted = [&](double v) { return std::clamp(v + deltaDb, kFaderMinDb, kFaderMaxDb); };
+    bool changed = false;
+    const double before = s->volumeDb;
+    s->volumeDb = shifted(s->volumeDb);
+    changed |= s->volumeDb != before;
+    if (!target.isBus()) {
+        TrackData* t = audioTrack(data, target.id);
+        const auto it = t->mix.automationKeys.values.find(mixkeys::kVolumeDb);
+        if (it != t->mix.automationKeys.values.end()) {
+            const double base = it->base;
+            it->base = shifted(it->base);
+            changed |= it->base != base;
+            for (Keyframe& k : it->keys) {
+                const double old = k.value;
+                k.value = shifted(k.value);
+                changed |= k.value != old;
+            }
+        }
+    }
+    return changed;
 }
 
 void clampStrip(ChannelStrip& s)

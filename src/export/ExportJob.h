@@ -13,6 +13,7 @@
 #include <atomic>
 #include <cstdint>
 #include <functional>
+#include <limits>
 #include <memory>
 
 namespace kk {
@@ -48,6 +49,11 @@ struct ExportResult
     QString videoEncoder; ///< libavcodec encoder used ("h264_vaapi", ...), empty if none
     EncoderBackend videoBackend = EncoderBackend::Software;
     int64_t frames = 0; ///< frames written
+    /// Normalize audio to (spec 134): the integrated loudness measured before rendering (LUFS)
+    /// and the gain applied (dB); NaN / 0 when normalizing was off or the mix was silent.
+    double audioMeasuredLufs = std::numeric_limits<double>::quiet_NaN();
+    double audioGainDb = 0.0;
+    bool audioLimited = false; ///< the true peak ceiling needed the limiter
     double seconds = 0.0; ///< wall-clock time of the job
     /// Average speed in frames per second (frames / seconds).
     [[nodiscard]] double averageFps() const { return seconds > 0 ? double(frames) / seconds : 0.0; }

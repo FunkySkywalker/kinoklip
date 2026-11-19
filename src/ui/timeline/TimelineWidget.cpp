@@ -18,6 +18,7 @@
 #include "ui/common/MenuLayouts.h"
 #include "ui/common/SchemeColors.h"
 #include "ui/common/UiAnimation.h"
+#include "ui/dialogs/NormalizeMixDialog.h"
 #include "ui/timeline/ClipColorMenu.h"
 #include "ui/timeline/KeyframeLanes.h"
 #include "ui/timeline/NestedPreview.h"
@@ -1098,6 +1099,10 @@ void TimelineWidget::contextMenuEvent(QContextMenuEvent* event)
                 [this, ref] { m_controller->toggleTrackFlag(ref, TimelineController::FlagMuted); });
             menu.addAction(track->solo ? tr("Unsolo Track") : tr("Solo Track"), this,
                 [this, ref] { m_controller->toggleTrackFlag(ref, TimelineController::FlagSolo); });
+            const quint64 mixTrack = track->id;
+            menu.addAction(tr("Normalize Audio Levels…"), this, [this, mixTrack] {
+                normalizeMix(m_ctx.project, MixTarget::track(mixTrack), this);
+            });
             if (m_ctx.voiceOver) {
                 const quint64 id = track->id;
                 VoiceOverController* vo = m_ctx.voiceOver;

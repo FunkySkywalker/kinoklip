@@ -18677,6 +18677,66 @@ You can also double-click the header, or drag the header out of the panel.</sour
         <source>Output bus: %1</source>
         <translation>Выходная шина: %1</translation>
     </message>
+    <message>
+        <source>Output and bus meters, and the loudness of the output bus (momentary, short-term, integrated, loudness range, true peak) against a loudness standard, with a history graph.</source>
+        <translation>Индикаторы выхода и шин и громкость выходной шины (моментальная, кратковременная, интегральная, диапазон громкости, истинный пик) относительно стандарта громкости, с графиком истории.</translation>
+    </message>
+    <message>
+        <source>Loudness standard to measure against: EBU R128 -23 LUFS, ATSC A/85 -24 LKFS, YouTube / streaming -14 LUFS, podcast -16 LUFS, or your own target</source>
+        <translation>Стандарт громкости для сравнения: EBU R128 -23 LUFS, ATSC A/85 -24 LKFS, YouTube / стриминг -14 LUFS, подкаст -16 LUFS или своя цель</translation>
+    </message>
+    <message>
+        <source>Target loudness (editable with Custom)</source>
+        <translation>Целевая громкость (редактируется при выборе «Свой»)</translation>
+    </message>
+    <message>
+        <source> LUFS</source>
+        <translation> LUFS</translation>
+    </message>
+    <message>
+        <source>Pause</source>
+        <translation>Пауза</translation>
+    </message>
+    <message>
+        <source>Start</source>
+        <translation>Старт</translation>
+    </message>
+    <message>
+        <source>Pause the loudness measurement; the readings stay</source>
+        <translation>Приостановить измерение громкости; показания сохраняются</translation>
+    </message>
+    <message>
+        <source>Continue the loudness measurement</source>
+        <translation>Продолжить измерение громкости</translation>
+    </message>
+    <message>
+        <source>Loudness of the last 0.4 seconds</source>
+        <translation>Громкость за последние 0,4 секунды</translation>
+    </message>
+    <message>
+        <source>Loudness of the last 3 seconds</source>
+        <translation>Громкость за последние 3 секунды</translation>
+    </message>
+    <message>
+        <source>Loudness of everything measured since Reset (gated, BS.1770)</source>
+        <translation>Громкость всего, что измерено после сброса (со стробированием, BS.1770)</translation>
+    </message>
+    <message>
+        <source>Loudness range (LRA): how much the loudness varies, in LU</source>
+        <translation>Диапазон громкости (LRA): насколько меняется громкость, в LU</translation>
+    </message>
+    <message>
+        <source>Highest true peak since Reset</source>
+        <translation>Наибольший истинный пик после сброса</translation>
+    </message>
+    <message>
+        <source>The target, and whether the integrated loudness is over or under it</source>
+        <translation>Цель и то, выше или ниже неё интегральная громкость</translation>
+    </message>
+    <message>
+        <source>Loudness range</source>
+        <translation>Диапазон громкости</translation>
+    </message>
 </context>
 <context>
     <name>kk::LutBrowser</name>
@@ -21852,6 +21912,14 @@ Import files with %1 or drop them here.</source>
     <message>
         <source>Channel Format</source>
         <translation>Формат канала</translation>
+    </message>
+    <message>
+        <source>Normalize Audio Levels…</source>
+        <translation>Нормализовать уровни звука…</translation>
+    </message>
+    <message>
+        <source>Measure the whole mix of this channel and move its fader by one gain so it reaches a loudness or peak target</source>
+        <translation>Измерить весь микс этого канала и сдвинуть его фейдер на одно значение, чтобы достичь цели по громкости или пику</translation>
     </message>
 </context>
 <context>
@@ -27998,6 +28066,42 @@ The timelines that use the project settings are converted: clips, markers and ef
         <source>Delete the preset &quot;%1&quot;?</source>
         <translation>Удалить пресет &quot;%1&quot;?</translation>
     </message>
+    <message>
+        <source>Normalize audio to</source>
+        <translation>Нормализовать звук до</translation>
+    </message>
+    <message>
+        <source>Measure the loudness of the whole mix first and raise or lower it so the file reaches the target; the peaks are limited if they would pass the true peak limit</source>
+        <translation>Сначала измерить громкость всего микса и поднять или опустить её так, чтобы файл достиг цели; пики ограничиваются, если превысят предел истинного пика</translation>
+    </message>
+    <message>
+        <source>The loudness standard to reach: EBU R128, ATSC A/85, YouTube / streaming, podcast or your own numbers (Custom)</source>
+        <translation>Стандарт громкости: EBU R128, ATSC A/85, YouTube / стриминг, подкаст или свои числа («Свой»)</translation>
+    </message>
+    <message>
+        <source> LUFS</source>
+        <translation> LUFS</translation>
+    </message>
+    <message>
+        <source> dBTP</source>
+        <translation> dBTP</translation>
+    </message>
+    <message>
+        <source>Integrated loudness the file should reach (editable with Custom)</source>
+        <translation>Интегральная громкость, которой должен достичь файл (редактируется при «Свой»)</translation>
+    </message>
+    <message>
+        <source>Loudness target</source>
+        <translation>Целевая громкость</translation>
+    </message>
+    <message>
+        <source>True peak limit: peaks above it are limited (editable with Custom)</source>
+        <translation>Предел истинного пика: пики выше него ограничиваются (редактируется при «Свой»)</translation>
+    </message>
+    <message>
+        <source>True peak limit</source>
+        <translation>Предел истинного пика</translation>
+    </message>
 </context>
 <context>
     <name>kk::RgbMixerPanel</name>
@@ -31370,6 +31474,10 @@ Trim the clips so the media covers the transition?</source>
         <source>Delete Marker</source>
         <translation>Удалить маркер</translation>
     </message>
+    <message>
+        <source>Normalize Audio Levels…</source>
+        <translation>Нормализовать уровни звука…</translation>
+    </message>
 </context>
 <context>
     <name>kk::TitleLayers</name>
@@ -34333,6 +34441,127 @@ Clips, markers and effects stay at the same time and the keyframes are re-timed.
     <message>
         <source>Text</source>
         <translation>Текст</translation>
+    </message>
+</context>
+<context>
+    <name>kk::LoudnessHistoryGraph</name>
+    <message>
+        <source>Short-term loudness over the last minutes; the dashed line is the target</source>
+        <translation>Кратковременная громкость за последние минуты; штриховая линия — цель</translation>
+    </message>
+</context>
+<context>
+    <name>kk::loudness</name>
+    <message>
+        <source>EBU R128 (-23 LUFS)</source>
+        <translation>EBU R128 (-23 LUFS)</translation>
+    </message>
+    <message>
+        <source>ATSC A/85 (-24 LKFS)</source>
+        <translation>ATSC A/85 (-24 LKFS)</translation>
+    </message>
+    <message>
+        <source>YouTube / streaming (-14 LUFS)</source>
+        <translation>YouTube / стриминг (-14 LUFS)</translation>
+    </message>
+    <message>
+        <source>Podcast (-16 LUFS)</source>
+        <translation>Подкаст (-16 LUFS)</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>Свой</translation>
+    </message>
+    <message>
+        <source>On target</source>
+        <translation>В цели</translation>
+    </message>
+    <message>
+        <source>Over by %1 LU</source>
+        <translation>Выше на %1 LU</translation>
+    </message>
+    <message>
+        <source>Under by %1 LU</source>
+        <translation>Ниже на %1 LU</translation>
+    </message>
+</context>
+<context>
+    <name>kk::NormalizeMixDialog</name>
+    <message>
+        <source>Normalize Audio Levels</source>
+        <translation>Нормализовать уровни звука</translation>
+    </message>
+    <message>
+        <source>ITU-R BS.1770-4 (loudness)</source>
+        <translation>ITU-R BS.1770-4 (громкость)</translation>
+    </message>
+    <message>
+        <source>True Peak</source>
+        <translation>Истинный пик</translation>
+    </message>
+    <message>
+        <source>Sample Peak Program</source>
+        <translation>Пик по отсчётам</translation>
+    </message>
+    <message>
+        <source>What the target measures: the integrated loudness of the whole mix, its highest true peak, or its highest sample</source>
+        <translation>Что измеряет цель: интегральную громкость всего микса, его наибольший истинный пик или наибольший отсчёт</translation>
+    </message>
+    <message>
+        <source>Loudness standard: choosing one sets the target; Custom keeps your own number</source>
+        <translation>Стандарт громкости: его выбор задаёт цель; «Свой» сохраняет ваше число</translation>
+    </message>
+    <message>
+        <source>The level the mix should reach</source>
+        <translation>Уровень, которого должен достичь микс</translation>
+    </message>
+    <message>
+        <source>Normalization Mode</source>
+        <translation>Режим нормализации</translation>
+    </message>
+    <message>
+        <source>Standard</source>
+        <translation>Стандарт</translation>
+    </message>
+    <message>
+        <source>Target Level</source>
+        <translation>Целевой уровень</translation>
+    </message>
+    <message>
+        <source>Main mix</source>
+        <translation>Главный микс</translation>
+    </message>
+    <message>
+        <source>%1: the whole mix of the In / Out range, or of the timeline.</source>
+        <translation>%1: весь микс диапазона вход / выход или всей таймлайна.</translation>
+    </message>
+    <message>
+        <source>The fader of this channel is moved by one gain; one undo step</source>
+        <translation>Фейдер этого канала сдвигается на одно значение усиления; один шаг отмены</translation>
+    </message>
+    <message>
+        <source>Normalize</source>
+        <translation>Нормализовать</translation>
+    </message>
+    <message>
+        <source>Measuring…</source>
+        <translation>Измерение…</translation>
+    </message>
+    <message>
+        <source>Nothing to normalize: there is no sound in this range.</source>
+        <translation>Нормализовать нечего: в этом диапазоне нет звука.</translation>
+    </message>
+    <message>
+        <source> dBFS</source>
+        <translation> dBFS</translation>
+    </message>
+    <message>
+        <source> dBTP</source>
+        <translation> dBTP</translation>
+    </message>
+    <message>
+        <source> LUFS</source>
+        <translation> LUFS</translation>
     </message>
 </context>
 </TS>

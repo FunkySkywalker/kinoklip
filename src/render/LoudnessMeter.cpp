@@ -20,6 +20,9 @@ constexpr double kRlbB0 = 1.0, kRlbB1 = -2.0, kRlbB2 = 1.0, kRlbA1 = -1.99004745
 constexpr double kLoudnessOffset = -0.691;
 constexpr double kAbsoluteGate = -70.0; ///< LUFS
 constexpr double kRelativeGate = -10.0; ///< LU below the absolutely gated loudness
+constexpr double kRangeRelativeGate = -20.0; ///< LU below, for the loudness range (Tech 3342)
+constexpr double kRangeLowPercentile = 0.10;
+constexpr double kRangeHighPercentile = 0.95;
 constexpr double kKaiserBeta = 5.0; ///< true-peak interpolator window
 
 double besselI0(double x)
@@ -48,6 +51,8 @@ inline double filter(
 LoudnessMeter::LoudnessMeter()
     : m_histEnergy(kHistogramBins, 0.0)
     , m_histCount(kHistogramBins, 0)
+    , m_rangeEnergy(kHistogramBins, 0.0)
+    , m_rangeCount(kHistogramBins, 0)
 {
     // Windowed-sinc 4x interpolator: tap n sits at (n - (kTaps - 1) / 2) / 4 input samples
     // from the centre; each phase is normalised to unity gain at DC.
@@ -85,6 +90,8 @@ void LoudnessMeter::reset()
     m_shortTerm = kSilence;
     std::fill(m_histEnergy.begin(), m_histEnergy.end(), 0.0);
     std::fill(m_histCount.begin(), m_histCount.end(), 0);
+    std::fill(m_rangeEnergy.begin(), m_rangeEnergy.end(), 0.0);
+    std::fill(m_rangeCount.begin(), m_rangeCount.end(), 0);
     m_history = {};
     m_historyHead = 0;
     m_truePeak = 0.0;
@@ -155,8 +162,48 @@ void LoudnessMeter::finishBlock()
             ++m_histCount[size_t(bin)];
         }
     }
-    if (m_blockCount >= kShortTermBlocks)
-        m_shortTerm = loudnessOf(meanOfLast(kShortTermBlocks));
+    if (m_blockCount >= kShortTermBlocks) {
+        const double window = meanOfLast(kShortTermBlocks);
+        m_shortTerm = loudnessOf(window);
+        if (m_shortTerm > kAbsoluteGate) {
+            const int bin = std::clamp(
+                int((m_shortTerm - kHistogramMin) / kHistogramStep), 0, kHistogramBins - 1);
+            m_rangeEnergy[size_t(bin)] += window;
+            ++m_rangeCount[size_t(bin)];
+        }
+    }
+}
+
+double LoudnessMeter::loudnessRange() const
+{
+    double energy = 0.0;
+    int64_t count = 0;
+    for (int b = 0; b < kHistogramBins; ++b) {
+        energy += m_rangeEnergy[size_t(b)];
+        count += m_rangeCount[size_t(b)];
+    }
+    if (count == 0)
+        return 0.0;
+    const double relative = loudnessOf(energy / double(count)) + kRangeRelativeGate;
+    const int first = std::clamp(
+        int(std::ceil((relative - kHistogramMin) / kHistogramStep)), 0, kHistogramBins);
+    int64_t total = 0;
+    for (int b = first; b < kHistogramBins; ++b)
+        total += m_rangeCount[size_t(b)];
+    if (total == 0)
+        return 0.0;
+    // The loudness (bin centre) at which the running count reaches the given share.
+    auto percentile = [&](double share) {
+        const double wanted = share * double(total - 1);
+        int64_t seen = 0;
+        for (int b = first; b < kHistogramBins; ++b) {
+            seen += m_rangeCount[size_t(b)];
+            if (double(seen) > wanted)
+                return kHistogramMin + (b + 0.5) * kHistogramStep;
+        }
+        return kHistogramMin + (kHistogramBins - 0.5) * kHistogramStep;
+    };
+    return std::max(0.0, percentile(kRangeHighPercentile) - percentile(kRangeLowPercentile));
 }
 
 double LoudnessMeter::integrated() const

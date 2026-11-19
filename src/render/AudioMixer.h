@@ -2,6 +2,7 @@
 // AudioMixer — mixes the audio tracks of a timeline into 48 kHz interleaved stereo float.
 #pragma once
 
+#include "core/MixerOps.h"
 #include "core/TimelineData.h"
 #include "render/MixLevels.h"
 #include "render/RenderTypes.h"
@@ -104,6 +105,17 @@ public:
     /// (not owned; nullptr = no metering).
     void setLevels(MixLevels* levels) { m_levels = levels; }
 
+    /// Tap: while set, every mix() also copies the signal of one mixer channel after its fader
+    /// (a track's or a bus's, before it goes on to the buses) into @p dest, which must hold
+    /// 2 * frames floats of every mix() call; silence where the channel does not sound (muted,
+    /// not soloed, unknown). Used to measure one track's or bus's own mix (render/MixLoudness.h).
+    void setTap(const MixTarget& target, float* dest)
+    {
+        m_tap = target;
+        m_tapDest = dest;
+    }
+    void clearTap() { m_tapDest = nullptr; }
+
     /// Number of open decoders (tests, stats).
     [[nodiscard]] int openDecoders() const { return int(m_decoders.size()); }
 
@@ -175,6 +187,8 @@ private:
     std::vector<std::vector<float>> m_busBuffers; ///< per MixerData::buses index (scratch)
     int64_t m_nextSample = std::numeric_limits<int64_t>::min(); ///< contiguity check
     MixLevels* m_levels = nullptr;
+    MixTarget m_tap; ///< setTap()
+    float* m_tapDest = nullptr;
 };
 
 } // namespace kk

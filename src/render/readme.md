@@ -11,7 +11,7 @@ logging category `kk.render`. Depends on `core` and `media`; never on widgets.
 | `Compositor.h` | `Compositor`: render thread + GL context; `render()`, `renderAsync()`, `renderImage()`, `setMediaPaths()`, `isGpu()` |
 | `RenderTypes.h` | `Quality` (Full/Half/Quarter), `MediaPathMap` + `makeMediaPathMap()`, `RenderOutput` flags, `RenderRequest`, `RenderedFrame` / `RenderedFramePtr` |
 | `AudioMixer.h` | `AudioMixer::mix(timeline, startSample48k, frames, out)` — 48 kHz interleaved stereo float; per clip: pitch shift (WSOLA stretch + resample, spec 67), clip EQ, clip effects, volume, pan |
-| `AudioNormalize.h` | Clip > Normalize Audio Levels (spec 37.35): `audionorm::measure()` decodes a clip's source range in 100 ms blocks into a `LoudnessMeter` (true peak, integrated LUFS) plus a sample peak, cancellable, with progress; `gains()` (relative / independent) |
+| `AudioNormalize.h` | Clip > Normalize Audio Levels (spec 37.35): `audionorm::measure()` decodes a clip's source range in 100 ms blocks into a `LoudnessMeter` (true peak, integrated LUFS) plus a sample peak, cancellable, with progress; `gains()` (relative / independent); `measureMix()` measures a track, bus or the main mix through the real `AudioMixer` (tap), used by Normalize Audio Levels on the mixer and by the render's Normalize audio to (spec 134) |
 | `RenderFrameCommand.h` | `runRenderFrame()` behind `kinoklip --render-frame <project.kkproj> <frame> <out.png>` |
 
 ### Viewer / playback (zero copy)
@@ -499,7 +499,8 @@ comment of `DecoderPool`. `Compositor::prepareStats()` has the counters.
 | `Biquad.*` | RBJ cookbook biquad design (high / low pass, shelves, bell, notch) and response |
 | `Equalizer.*` | smoothed 6-band EQ (real-time safe) |
 | `Dynamics.*` | compressor (dB-domain attack / release, soft knee, make-up) and peak limiter |
-| `LoudnessMeter.*` | BS.1770-4 / EBU R128 loudness and 4x true peak |
+| `LoudnessMeter.*` | BS.1770-4 / EBU R128 loudness, loudness range (EBU Tech 3342) and 4x true peak |
+| `LoudnessStandards.*` | the meter's standards (EBU R128, ATSC A/85, streaming, podcast, custom): targets, true peak ceilings, over / under text (spec 134) |
 | `MixLevels.*` | meter readings of a mix call (`MixLevels`) and the time-stamped `MeterFrame` |
 | `GlComposition.*` | Compositing page: GPU evaluation of a node graph (passes, per-evaluation target reference counts) |
 | `CpuComposition.*` | Compositing page: CPU fallback evaluation |

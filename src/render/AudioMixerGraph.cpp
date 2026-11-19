@@ -76,6 +76,8 @@ void AudioMixer::mixTimeline(const TimelineData& tl, const NestedTimelines& nest
     if (m_trackBuffer.size() < count)
         m_trackBuffer.resize(count);
     float* trackBuffer = m_trackBuffer.data();
+    if (m_tapDest)
+        std::fill_n(m_tapDest, count, 0.0f);
 
     const qint64 now = m_clock.elapsed();
     const bool anySolo = std::any_of(
@@ -139,6 +141,8 @@ void AudioMixer::mixTimeline(const TimelineData& tl, const NestedTimelines& nest
             panGains(mixerops::panAt(track, frame), g.left, g.right);
             return g;
         });
+        if (m_tapDest && !m_tap.isBus() && m_tap.id == track.id)
+            std::copy_n(trackBuffer, count, m_tapDest);
         if (level) {
             level->peak[0] = proc.peak(0);
             level->peak[1] = proc.peak(1);
@@ -181,6 +185,8 @@ void AudioMixer::mixTimeline(const TimelineData& tl, const NestedTimelines& nest
         const float gain = bus.strip.muted ? 0.0f : dbToGain(bus.strip.volumeDb);
         proc.applyGains(
             buffer, frames, [gain](int) { return dsp::ChannelGains {gain, 1.0f, 1.0f}; });
+        if (m_tapDest && m_tap.isBus() && m_tap.id == quint64(bus.id))
+            std::copy_n(buffer, count, m_tapDest);
         if (level) {
             level->peak[0] = proc.peak(0);
             level->peak[1] = proc.peak(1);

@@ -16,6 +16,7 @@
 #include "ui/common/Metrics.h"
 #include "ui/common/SchemeColors.h"
 #include "ui/common/TextFit.h"
+#include "ui/dialogs/NormalizeMixDialog.h"
 
 #include <QComboBox>
 #include <QCoreApplication>
@@ -675,9 +676,20 @@ void MixerStrip::showNameMenu(const QPoint& globalPos)
         remove = menu.addAction(tr("Delete Bus"));
         remove->setEnabled(m_target.id != quint64(kMainBusId));
     }
+    menu.addSeparator();
+    QAction* normalize = menu.addAction(tr("Normalize Audio Levels…"));
+    normalize->setToolTip(tr("Measure the whole mix of this channel and move its fader by one "
+                             "gain so it reaches a loudness or peak target"));
     QAction* chosen = menu.exec(globalPos);
     if (!chosen)
         return;
+    if (chosen == normalize) {
+        // The output bus is the main mix (what is heard and rendered).
+        const bool mainMix = bus && int(m_target.id) == d.mixer.outputBus;
+        normalizeMix(m_controller->project(),
+            mainMix ? std::nullopt : std::optional<MixTarget>(m_target), this);
+        return;
+    }
     if (chosen == monoAction || chosen == stereoAction) {
         const bool wantMono = chosen == monoAction;
         m_controller->edit(tr("Channel Format"), [&](TimelineData& data) {

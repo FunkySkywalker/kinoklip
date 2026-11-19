@@ -106,6 +106,9 @@ public:
     bool meterFrameAt(int64_t sample, MeterFrame* out) const;
     /// Restarts the integrated loudness and the maximum true peak (from the next chunk).
     void resetLoudness() { m_resetLoudness = true; }
+    /// Pauses (true) or continues the loudness measurement: while paused the output is not
+    /// measured and the readings stay where they were.
+    void setLoudnessPaused(bool paused) { m_loudnessPaused = paused; }
     /// Forgets the meter frames (after stop, so a later start shows no stale levels).
     void clearMeters();
 
@@ -149,6 +152,7 @@ private:
     std::array<MeterFrame, kMeterFrames> m_meters {};
     int m_meterHead = 0;
     std::atomic<bool> m_resetLoudness {false};
+    std::atomic<bool> m_loudnessPaused {false};
 };
 
 } // namespace kk

@@ -77,6 +77,7 @@ struct MeterFrame
     double momentaryLufs = -200.0;
     double shortTermLufs = -200.0;
     double integratedLufs = -200.0;
+    double loudnessRange = 0.0; ///< LRA since the last loudness reset (LU)
     double truePeakDb = -200.0; ///< of this block (dBTP)
     double truePeakMaxDb = -200.0; ///< since the last loudness reset (dBTP)
 };

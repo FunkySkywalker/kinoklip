@@ -43,6 +43,11 @@ MixerController::~MixerController()
     stopRecordings();
 }
 
+Project* MixerController::project() const
+{
+    return m_ctx.project;
+}
+
 const TimelineData& MixerController::data() const
 {
     return m_ctx.project->timeline()->data();

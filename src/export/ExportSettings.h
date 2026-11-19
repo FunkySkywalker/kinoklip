@@ -6,6 +6,7 @@
 
 #include "export/ExportFormats.h"
 #include "export/SubtitleExport.h"
+#include "render/LoudnessStandards.h"
 
 #include <QJsonObject>
 #include <QSize>
@@ -82,6 +83,11 @@ struct AudioExportSettings
     int bitrateKbps = 320; ///< lossy codecs only
     int sampleRate = 48000; ///< Hz (the mixer runs at 48 kHz; other rates are resampled)
     int bitDepth = 16; ///< FLAC only: 16 or 24
+    /// Deliver > Audio > "Normalize audio to" (spec 134): the render measures the integrated
+    /// loudness of the whole mix first and sets one gain so the file reaches the target; if the
+    /// true peak would pass the target's ceiling the output is limited. Off by default.
+    bool normalize = false;
+    loudness::Target normalizeTarget; ///< the standard (or custom numbers) to reach
 
     friend bool operator==(const AudioExportSettings&, const AudioExportSettings&) = default;
 };

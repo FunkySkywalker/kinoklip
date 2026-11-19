@@ -13,6 +13,7 @@
 class QButtonGroup;
 class QCheckBox;
 class QComboBox;
+class QDoubleSpinBox;
 class QFormLayout;
 class QLabel;
 class QLineEdit;
@@ -159,6 +160,11 @@ private:
     QComboBox* m_bitDepth = nullptr;
     QComboBox* m_channels = nullptr;
     QComboBox* m_audioBitrate = nullptr;
+    QWidget* m_normalizeRow = nullptr;
+    QCheckBox* m_normalize = nullptr; ///< Normalize audio to (spec 134)
+    QComboBox* m_normalizeStandard = nullptr;
+    QDoubleSpinBox* m_normalizeLufs = nullptr; ///< target (LUFS), editable for Custom
+    QDoubleSpinBox* m_normalizePeak = nullptr; ///< true peak limit (dBTP), editable for Custom
     // File
     QRadioButton* m_nameCustom = nullptr;
     QRadioButton* m_nameTimeline = nullptr;
