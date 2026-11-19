@@ -4085,12 +4085,24 @@ The program was probably closed by the system because the computer ran out of me
 <context>
     <name>kk::BuiltinAudioEffects</name>
     <message>
+        <source>0 is the original sound, 100 is the cleaned sound.</source>
+        <translation>0 — исходный звук, 100 — очищенный звук.</translation>
+    </message>
+    <message>
         <source>A simple room: the sound dies away slowly</source>
         <translation>Простая комната: звук затухает постепенно</translation>
     </message>
     <message>
         <source>Attack</source>
         <translation>Атака</translation>
+    </message>
+    <message>
+        <source>Auto Speech</source>
+        <translation>Авто (речь)</translation>
+    </message>
+    <message>
+        <source>Auto Speech finds the noise by itself. Manual Learn removes the noise you taught it with Learn.</source>
+        <translation>Авто (речь) сам находит шум. Ручное обучение убирает шум, который вы показали кнопкой «Обучить».</translation>
     </message>
     <message>
         <source>Ceiling</source>
@@ -4107,6 +4119,10 @@ The program was probably closed by the system because the computer ran out of me
     <message>
         <source>Delay</source>
         <translation>Задержка</translation>
+    </message>
+    <message>
+        <source>Dry / Wet</source>
+        <translation>Оригинал / обработка</translation>
     </message>
     <message>
         <source>Echoes of the sound</source>
@@ -4141,6 +4157,22 @@ The program was probably closed by the system because the computer ran out of me
         <translation>Фильтр высоких частот</translation>
     </message>
     <message>
+        <source>Higher removes more noise but can make speech sound thin or watery.</source>
+        <translation>Чем выше, тем больше шума убирается, но речь может звучать тонко или «водянисто».</translation>
+    </message>
+    <message>
+        <source>How fast the reduction lets go when sound returns.</source>
+        <translation>Как быстро ослабление отпускает, когда звук возвращается.</translation>
+    </message>
+    <message>
+        <source>How much quieter the sound below the Threshold gets: 1 is not at all, higher is more (never more than the Reduction).</source>
+        <translation>Насколько тише становится звук ниже порога: 1 — совсем не тише, больше — тише (не сильнее, чем «Подавление»).</translation>
+    </message>
+    <message>
+        <source>Level of the result.</source>
+        <translation>Уровень результата.</translation>
+    </message>
+    <message>
         <source>Limiter</source>
         <translation>Лимитер</translation>
     </message>
@@ -4165,6 +4197,10 @@ The program was probably closed by the system because the computer ran out of me
         <translation>Компенсация усиления</translation>
     </message>
     <message>
+        <source>Manual Learn</source>
+        <translation>Ручное обучение</translation>
+    </message>
+    <message>
         <source>Mid Frequency</source>
         <translation>Средняя частота</translation>
     </message>
@@ -4181,8 +4217,32 @@ The program was probably closed by the system because the computer ran out of me
         <translation>Микс</translation>
     </message>
     <message>
+        <source>Mode</source>
+        <translation>Режим</translation>
+    </message>
+    <message>
+        <source>Model</source>
+        <translation>Модель</translation>
+    </message>
+    <message>
         <source>Never let a sample go above the ceiling</source>
         <translation>Не допускать превышения сигналом порогового уровня</translation>
+    </message>
+    <message>
+        <source>Noise Profile</source>
+        <translation>Профиль шума</translation>
+    </message>
+    <message>
+        <source>Noise Reduction</source>
+        <translation>Подавление шума</translation>
+    </message>
+    <message>
+        <source>Output Gain</source>
+        <translation>Выходное усиление</translation>
+    </message>
+    <message>
+        <source>RNNoise (AI, optional)</source>
+        <translation>RNNoise (ИИ, необязательно)</translation>
     </message>
     <message>
         <source>Raise or lower the level of the clip</source>
@@ -4195,6 +4255,10 @@ The program was probably closed by the system because the computer ran out of me
     <message>
         <source>Reduce the level of loud parts</source>
         <translation>Снижение уровня громких участков</translation>
+    </message>
+    <message>
+        <source>Reduction</source>
+        <translation>Подавление</translation>
     </message>
     <message>
         <source>Release</source>
@@ -4215,6 +4279,30 @@ The program was probably closed by the system because the computer ran out of me
     <message>
         <source>Room Size</source>
         <translation>Размер комнаты</translation>
+    </message>
+    <message>
+        <source>Sensitivity</source>
+        <translation>Чувствительность</translation>
+    </message>
+    <message>
+        <source>Sound quieter than this is treated as noise only and gets the reduction set by Ratio.</source>
+        <translation>Звук тише этого уровня считается только шумом и ослабляется по параметру «Соотношение».</translation>
+    </message>
+    <message>
+        <source>Spectral Gate</source>
+        <translation>Спектральный гейт</translation>
+    </message>
+    <message>
+        <source>Take hiss, hum and room noise out of speech (the RNNoise model is optional AI; a spectral gate always works)</source>
+        <translation>Убирает шипение, гул и шум помещения из речи (модель RNNoise — необязательный ИИ; спектральный гейт работает всегда)</translation>
+    </message>
+    <message>
+        <source>The engine of Auto Speech. RNNoise is a small open neural network that runs on this computer; the spectral gate needs no model.</source>
+        <translation>Движок режима «Авто (речь)». RNNoise — небольшая открытая нейросеть, работающая на этом компьютере; спектральному гейту модель не нужна.</translation>
+    </message>
+    <message>
+        <source>The most the noise is made quieter.</source>
+        <translation>Максимум, на сколько шум становится тише.</translation>
     </message>
     <message>
         <source>Threshold</source>
@@ -11884,6 +11972,82 @@ Thank you for watching</source>
         <translation>Демпфирование</translation>
     </message>
     <message>
+        <source>Take hiss, hum and room noise out of speech (the RNNoise model is optional AI; a spectral gate always works)</source>
+        <translation>Убирает шипение, гул и шум помещения из речи (модель RNNoise — необязательный ИИ; спектральный гейт работает всегда)</translation>
+    </message>
+    <message>
+        <source>Auto Speech</source>
+        <translation>Авто (речь)</translation>
+    </message>
+    <message>
+        <source>Manual Learn</source>
+        <translation>Ручное обучение</translation>
+    </message>
+    <message>
+        <source>Auto Speech finds the noise by itself. Manual Learn removes the noise you taught it with Learn.</source>
+        <translation>Авто (речь) сам находит шум. Ручное обучение убирает шум, который вы показали кнопкой «Обучить».</translation>
+    </message>
+    <message>
+        <source>RNNoise (AI, optional)</source>
+        <translation>RNNoise (ИИ, необязательно)</translation>
+    </message>
+    <message>
+        <source>Spectral Gate</source>
+        <translation>Спектральный гейт</translation>
+    </message>
+    <message>
+        <source>The engine of Auto Speech. RNNoise is a small open neural network that runs on this computer; the spectral gate needs no model.</source>
+        <translation>Движок режима «Авто (речь)». RNNoise — небольшая открытая нейросеть, работающая на этом компьютере; спектральному гейту модель не нужна.</translation>
+    </message>
+    <message>
+        <source>Sound quieter than this is treated as noise only and gets the reduction set by Ratio.</source>
+        <translation>Звук тише этого уровня считается только шумом и ослабляется по параметру «Соотношение».</translation>
+    </message>
+    <message>
+        <source>How fast the reduction lets go when sound returns.</source>
+        <translation>Как быстро ослабление отпускает, когда звук возвращается.</translation>
+    </message>
+    <message>
+        <source>Sensitivity</source>
+        <translation>Чувствительность</translation>
+    </message>
+    <message>
+        <source>Higher removes more noise but can make speech sound thin or watery.</source>
+        <translation>Чем выше, тем больше шума убирается, но речь может звучать тонко или «водянисто».</translation>
+    </message>
+    <message>
+        <source>How much quieter the sound below the Threshold gets: 1 is not at all, higher is more (never more than the Reduction).</source>
+        <translation>Насколько тише становится звук ниже порога: 1 — совсем не тише, больше — тише (не сильнее, чем «Подавление»).</translation>
+    </message>
+    <message>
+        <source>Reduction</source>
+        <translation>Подавление</translation>
+    </message>
+    <message>
+        <source>The most the noise is made quieter.</source>
+        <translation>Максимум, на сколько шум становится тише.</translation>
+    </message>
+    <message>
+        <source>Dry / Wet</source>
+        <translation>Оригинал / обработка</translation>
+    </message>
+    <message>
+        <source>0 is the original sound, 100 is the cleaned sound.</source>
+        <translation>0 — исходный звук, 100 — очищенный звук.</translation>
+    </message>
+    <message>
+        <source>Output Gain</source>
+        <translation>Выходное усиление</translation>
+    </message>
+    <message>
+        <source>Level of the result.</source>
+        <translation>Уровень результата.</translation>
+    </message>
+    <message>
+        <source>Noise Profile</source>
+        <translation>Профиль шума</translation>
+    </message>
+    <message>
         <source>Transform</source>
         <translation>Трансформация</translation>
     </message>
@@ -17477,6 +17641,58 @@ Drag one from the Effects library onto the clip, or add one here.</source>
     <message>
         <source>Tracked: %1 frames.</source>
         <translation>Обработано: %1 кадров.</translation>
+    </message>
+    <message>
+        <source>Optional AI: the RNNoise model is built into Kinoklip and runs on this computer; nothing is downloaded or uploaded. The spectral gate needs no model.</source>
+        <translation>Необязательный ИИ: модель RNNoise встроена в Kinoklip и работает на этом компьютере; ничего не скачивается и не отправляется. Спектральному гейту модель не нужна.</translation>
+    </message>
+    <message>
+        <source>Learn</source>
+        <translation>Обучить</translation>
+    </message>
+    <message>
+        <source>Learn the noise from the stretch between the timeline&apos;s In and Out marks that lies on this clip (mark a pause with only the noise in it); without marks the first second of the clip is used. Switches the mode to Manual Learn.</source>
+        <translation>Запоминает шум на участке между отметками In и Out на таймлайне, лежащем на этом клипе (отметьте паузу, где слышен только шум); без отметок берётся первая секунда клипа. Переключает режим на «Ручное обучение».</translation>
+    </message>
+    <message>
+        <source>Clear Profile</source>
+        <translation>Сбросить профиль</translation>
+    </message>
+    <message>
+        <source>Forget the learned noise profile.</source>
+        <translation>Забыть выученный профиль шума.</translation>
+    </message>
+    <message>
+        <source>This clip has no sound file to learn from.</source>
+        <translation>У этого клипа нет звукового файла, из которого можно учиться.</translation>
+    </message>
+    <message>
+        <source>Could not learn a profile: %1. Mark a longer stretch (at least a tenth of a second) that holds only the noise.</source>
+        <translation>Не удалось выучить профиль: %1. Отметьте более длинный участок (не короче десятой доли секунды), где только шум.</translation>
+    </message>
+    <message>
+        <source>Learned from %1 s of sound.</source>
+        <translation>Выучено по %1 с звука.</translation>
+    </message>
+    <message>
+        <source>Learn Noise Profile</source>
+        <translation>Выучить профиль шума</translation>
+    </message>
+    <message>
+        <source>Clear Noise Profile</source>
+        <translation>Сбросить профиль шума</translation>
+    </message>
+    <message>
+        <source>A noise profile is learned.</source>
+        <translation>Профиль шума выучен.</translation>
+    </message>
+    <message>
+        <source>No noise profile yet.</source>
+        <translation>Профиля шума пока нет.</translation>
+    </message>
+    <message>
+        <source> Manual Learn works like Auto Speech&apos;s spectral gate until you press Learn.</source>
+        <translation> «Ручное обучение» работает как спектральный гейт режима «Авто (речь)», пока вы не нажмёте «Обучить».</translation>
     </message>
 </context>
 <context>

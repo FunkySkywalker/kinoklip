@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.24)
 set(APP_NAME "Kinoklip")
 set(APP_ID   "kinoklip")
 
-project(${APP_NAME} VERSION 1.10.1 LANGUAGES CXX)
+project(${APP_NAME} VERSION 1.10.1 LANGUAGES C CXX)
 
 # Reuse compiled files between build folders and worktrees when ccache is installed.
 find_program(KK_CCACHE ccache)
@@ -94,6 +94,19 @@ file(GLOB_RECURSE KK_SOURCES CONFIGURE_DEPENDS
 list(FILTER KK_SOURCES EXCLUDE REGEX ".*/src/main\\.cpp$")
 
 add_library(kinoklip_core STATIC ${KK_SOURCES})
+
+# RNNoise (BSD-3-Clause, third_party/rnnoise/readme.md): the neural noise suppressor of the Noise
+# Reduction audio effect. Plain C, unchanged, built with warnings off.
+add_library(kk_rnnoise STATIC
+  third_party/rnnoise/src/denoise.c third_party/rnnoise/src/celt_lpc.c
+  third_party/rnnoise/src/kiss_fft.c third_party/rnnoise/src/pitch.c
+  third_party/rnnoise/src/rnn.c third_party/rnnoise/src/rnn_data.c
+  third_party/rnnoise/src/rnn_reader.c)
+target_include_directories(kk_rnnoise PUBLIC third_party/rnnoise/include
+  PRIVATE third_party/rnnoise/src)
+target_compile_options(kk_rnnoise PRIVATE -w -O2)
+set_target_properties(kk_rnnoise PROPERTIES POSITION_INDEPENDENT_CODE ON)
+target_link_libraries(kinoklip_core PUBLIC kk_rnnoise)
 target_include_directories(kinoklip_core PUBLIC ${CMAKE_SOURCE_DIR}/src)
 target_compile_definitions(kinoklip_core PUBLIC
   KK_APP_NAME="${APP_NAME}" KK_APP_ID="${APP_ID}" KK_APP_VERSION="${PROJECT_VERSION}"

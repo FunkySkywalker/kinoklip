@@ -1175,7 +1175,7 @@ The program was probably closed by the system because the computer ran out of me
     </message>
     <message>
         <source>Moves the object to the right (negative: left), in scene units</source>
-        <translation>Зсуває об'єкт праворуч (від'ємне: ліворуч) в одиницях сцени</translation>
+        <translation>Зсуває об&apos;єкт праворуч (від&apos;ємне: ліворуч) в одиницях сцени</translation>
     </message>
     <message>
         <source>Translate Y</source>
@@ -1183,7 +1183,7 @@ The program was probably closed by the system because the computer ran out of me
     </message>
     <message>
         <source>Moves the object up (negative: down), in scene units</source>
-        <translation>Зсуває об'єкт угору (від'ємне: униз) в одиницях сцени</translation>
+        <translation>Зсуває об&apos;єкт угору (від&apos;ємне: униз) в одиницях сцени</translation>
     </message>
     <message>
         <source>Translate Z</source>
@@ -1191,7 +1191,7 @@ The program was probably closed by the system because the computer ran out of me
     </message>
     <message>
         <source>Moves the object towards the default camera (negative: away from it), in scene units</source>
-        <translation>Зсуває об'єкт до камери за замовчуванням (від'ємне: від неї) в одиницях сцени</translation>
+        <translation>Зсуває об&apos;єкт до камери за замовчуванням (від&apos;ємне: від неї) в одиницях сцени</translation>
     </message>
     <message>
         <source>Rotate X</source>
@@ -1199,7 +1199,7 @@ The program was probably closed by the system because the computer ran out of me
     </message>
     <message>
         <source>Turns the object about the X axis (tilts it forwards or back); X is turned first, then Y, then Z</source>
-        <translation>Повертає об'єкт навколо осі X (нахиляє вперед або назад); спочатку повертається X, потім Y, потім Z</translation>
+        <translation>Повертає об&apos;єкт навколо осі X (нахиляє вперед або назад); спочатку повертається X, потім Y, потім Z</translation>
     </message>
     <message>
         <source>Rotate Y</source>
@@ -1207,7 +1207,7 @@ The program was probably closed by the system because the computer ran out of me
     </message>
     <message>
         <source>Turns the object about the Y axis (turns it left or right)</source>
-        <translation>Повертає об'єкт навколо осі Y (ліворуч або праворуч)</translation>
+        <translation>Повертає об&apos;єкт навколо осі Y (ліворуч або праворуч)</translation>
     </message>
     <message>
         <source>Rotate Z</source>
@@ -1215,7 +1215,7 @@ The program was probably closed by the system because the computer ran out of me
     </message>
     <message>
         <source>Turns the object about the Z axis (rolls it like a clock face)</source>
-        <translation>Повертає об'єкт навколо осі Z (як циферблат годинника)</translation>
+        <translation>Повертає об&apos;єкт навколо осі Z (як циферблат годинника)</translation>
     </message>
     <message>
         <source>Scale</source>
@@ -1223,7 +1223,7 @@ The program was probably closed by the system because the computer ran out of me
     </message>
     <message>
         <source>Makes the object bigger or smaller in every direction</source>
-        <translation>Робить об'єкт більшим або меншим в усіх напрямках</translation>
+        <translation>Робить об&apos;єкт більшим або меншим в усіх напрямках</translation>
     </message>
     <message>
         <source>Scale X</source>
@@ -1231,7 +1231,7 @@ The program was probably closed by the system because the computer ran out of me
     </message>
     <message>
         <source>Stretches the object along the X axis; multiplies Scale</source>
-        <translation>Розтягує об'єкт уздовж осі X; множиться на масштаб</translation>
+        <translation>Розтягує об&apos;єкт уздовж осі X; множиться на масштаб</translation>
     </message>
     <message>
         <source>Scale Y</source>
@@ -1239,7 +1239,7 @@ The program was probably closed by the system because the computer ran out of me
     </message>
     <message>
         <source>Stretches the object along the Y axis; multiplies Scale</source>
-        <translation>Розтягує об'єкт уздовж осі Y; множиться на масштаб</translation>
+        <translation>Розтягує об&apos;єкт уздовж осі Y; множиться на масштаб</translation>
     </message>
     <message>
         <source>Scale Z</source>
@@ -1247,15 +1247,15 @@ The program was probably closed by the system because the computer ran out of me
     </message>
     <message>
         <source>Stretches the object along the Z axis; multiplies Scale</source>
-        <translation>Розтягує об'єкт уздовж осі Z; множиться на масштаб</translation>
+        <translation>Розтягує об&apos;єкт уздовж осі Z; множиться на масштаб</translation>
     </message>
     <message>
         <source>The colour of the surface; a picture on the object is multiplied by it</source>
-        <translation>Колір поверхні; картинка на об'єкті множиться на нього</translation>
+        <translation>Колір поверхні; картинка на об&apos;єкті множиться на нього</translation>
     </message>
     <message>
         <source>How solid the object is; 0 makes it invisible</source>
-        <translation>Наскільки об'єкт непрозорий; 0 робить його невидимим</translation>
+        <translation>Наскільки об&apos;єкт непрозорий; 0 робить його невидимим</translation>
     </message>
     <message>
         <source>Specular</source>
@@ -4085,12 +4085,24 @@ The program was probably closed by the system because the computer ran out of me
 <context>
     <name>kk::BuiltinAudioEffects</name>
     <message>
+        <source>0 is the original sound, 100 is the cleaned sound.</source>
+        <translation>0 — вихідний звук, 100 — очищений звук.</translation>
+    </message>
+    <message>
         <source>A simple room: the sound dies away slowly</source>
         <translation>Проста кімната: звук повільно завмирає</translation>
     </message>
     <message>
         <source>Attack</source>
         <translation>Атака</translation>
+    </message>
+    <message>
+        <source>Auto Speech</source>
+        <translation>Авто (мовлення)</translation>
+    </message>
+    <message>
+        <source>Auto Speech finds the noise by itself. Manual Learn removes the noise you taught it with Learn.</source>
+        <translation>Авто (мовлення) сам знаходить шум. Ручне навчання прибирає шум, який ви показали кнопкою «Навчити».</translation>
     </message>
     <message>
         <source>Ceiling</source>
@@ -4107,6 +4119,10 @@ The program was probably closed by the system because the computer ran out of me
     <message>
         <source>Delay</source>
         <translation>Затримка</translation>
+    </message>
+    <message>
+        <source>Dry / Wet</source>
+        <translation>Оригінал / обробка</translation>
     </message>
     <message>
         <source>Echoes of the sound</source>
@@ -4141,6 +4157,22 @@ The program was probably closed by the system because the computer ran out of me
         <translation>Фільтр високих частот</translation>
     </message>
     <message>
+        <source>Higher removes more noise but can make speech sound thin or watery.</source>
+        <translation>Чим вище, тим більше шуму прибирається, але мовлення може звучати тонко або «водянисто».</translation>
+    </message>
+    <message>
+        <source>How fast the reduction lets go when sound returns.</source>
+        <translation>Як швидко послаблення відпускає, коли звук повертається.</translation>
+    </message>
+    <message>
+        <source>How much quieter the sound below the Threshold gets: 1 is not at all, higher is more (never more than the Reduction).</source>
+        <translation>Наскільки тихішим стає звук нижче порогу: 1 — зовсім ні, більше — тихіше (не сильніше за «Послаблення»).</translation>
+    </message>
+    <message>
+        <source>Level of the result.</source>
+        <translation>Рівень результату.</translation>
+    </message>
+    <message>
         <source>Limiter</source>
         <translation>Лімітер</translation>
     </message>
@@ -4165,6 +4197,10 @@ The program was probably closed by the system because the computer ran out of me
         <translation>Компенсаційне підсилення</translation>
     </message>
     <message>
+        <source>Manual Learn</source>
+        <translation>Ручне навчання</translation>
+    </message>
+    <message>
         <source>Mid Frequency</source>
         <translation>Частота середніх</translation>
     </message>
@@ -4181,8 +4217,32 @@ The program was probably closed by the system because the computer ran out of me
         <translation>Мікс</translation>
     </message>
     <message>
+        <source>Mode</source>
+        <translation>Режим</translation>
+    </message>
+    <message>
+        <source>Model</source>
+        <translation>Модель</translation>
+    </message>
+    <message>
         <source>Never let a sample go above the ceiling</source>
         <translation>Не пропускати жодного семпла вище стелі</translation>
+    </message>
+    <message>
+        <source>Noise Profile</source>
+        <translation>Профіль шуму</translation>
+    </message>
+    <message>
+        <source>Noise Reduction</source>
+        <translation>Зменшення шуму</translation>
+    </message>
+    <message>
+        <source>Output Gain</source>
+        <translation>Вихідне підсилення</translation>
+    </message>
+    <message>
+        <source>RNNoise (AI, optional)</source>
+        <translation>RNNoise (ШІ, необов&apos;язково)</translation>
     </message>
     <message>
         <source>Raise or lower the level of the clip</source>
@@ -4195,6 +4255,10 @@ The program was probably closed by the system because the computer ran out of me
     <message>
         <source>Reduce the level of loud parts</source>
         <translation>Знизити рівень гучних фрагментів</translation>
+    </message>
+    <message>
+        <source>Reduction</source>
+        <translation>Послаблення</translation>
     </message>
     <message>
         <source>Release</source>
@@ -4215,6 +4279,30 @@ The program was probably closed by the system because the computer ran out of me
     <message>
         <source>Room Size</source>
         <translation>Розмір кімнати</translation>
+    </message>
+    <message>
+        <source>Sensitivity</source>
+        <translation>Чутливість</translation>
+    </message>
+    <message>
+        <source>Sound quieter than this is treated as noise only and gets the reduction set by Ratio.</source>
+        <translation>Звук тихіший за цей рівень вважається лише шумом і послаблюється за параметром «Співвідношення».</translation>
+    </message>
+    <message>
+        <source>Spectral Gate</source>
+        <translation>Спектральний гейт</translation>
+    </message>
+    <message>
+        <source>Take hiss, hum and room noise out of speech (the RNNoise model is optional AI; a spectral gate always works)</source>
+        <translation>Прибирає шипіння, гул і шум приміщення з мовлення (модель RNNoise — необов&apos;язковий ШІ; спектральний гейт працює завжди)</translation>
+    </message>
+    <message>
+        <source>The engine of Auto Speech. RNNoise is a small open neural network that runs on this computer; the spectral gate needs no model.</source>
+        <translation>Рушій режиму «Авто (мовлення)». RNNoise — невелика відкрита нейромережа, що працює на цьому комп&apos;ютері; спектральному гейту модель не потрібна.</translation>
+    </message>
+    <message>
+        <source>The most the noise is made quieter.</source>
+        <translation>Максимум, на скільки шум стає тихішим.</translation>
     </message>
     <message>
         <source>Threshold</source>
@@ -11884,6 +11972,82 @@ Thank you for watching</source>
         <translation>Згасання</translation>
     </message>
     <message>
+        <source>Take hiss, hum and room noise out of speech (the RNNoise model is optional AI; a spectral gate always works)</source>
+        <translation>Прибирає шипіння, гул і шум приміщення з мовлення (модель RNNoise — необов&apos;язковий ШІ; спектральний гейт працює завжди)</translation>
+    </message>
+    <message>
+        <source>Auto Speech</source>
+        <translation>Авто (мовлення)</translation>
+    </message>
+    <message>
+        <source>Manual Learn</source>
+        <translation>Ручне навчання</translation>
+    </message>
+    <message>
+        <source>Auto Speech finds the noise by itself. Manual Learn removes the noise you taught it with Learn.</source>
+        <translation>Авто (мовлення) сам знаходить шум. Ручне навчання прибирає шум, який ви показали кнопкою «Навчити».</translation>
+    </message>
+    <message>
+        <source>RNNoise (AI, optional)</source>
+        <translation>RNNoise (ШІ, необов&apos;язково)</translation>
+    </message>
+    <message>
+        <source>Spectral Gate</source>
+        <translation>Спектральний гейт</translation>
+    </message>
+    <message>
+        <source>The engine of Auto Speech. RNNoise is a small open neural network that runs on this computer; the spectral gate needs no model.</source>
+        <translation>Рушій режиму «Авто (мовлення)». RNNoise — невелика відкрита нейромережа, що працює на цьому комп&apos;ютері; спектральному гейту модель не потрібна.</translation>
+    </message>
+    <message>
+        <source>Sound quieter than this is treated as noise only and gets the reduction set by Ratio.</source>
+        <translation>Звук тихіший за цей рівень вважається лише шумом і послаблюється за параметром «Співвідношення».</translation>
+    </message>
+    <message>
+        <source>How fast the reduction lets go when sound returns.</source>
+        <translation>Як швидко послаблення відпускає, коли звук повертається.</translation>
+    </message>
+    <message>
+        <source>Sensitivity</source>
+        <translation>Чутливість</translation>
+    </message>
+    <message>
+        <source>Higher removes more noise but can make speech sound thin or watery.</source>
+        <translation>Чим вище, тим більше шуму прибирається, але мовлення може звучати тонко або «водянисто».</translation>
+    </message>
+    <message>
+        <source>How much quieter the sound below the Threshold gets: 1 is not at all, higher is more (never more than the Reduction).</source>
+        <translation>Наскільки тихішим стає звук нижче порогу: 1 — зовсім ні, більше — тихіше (не сильніше за «Послаблення»).</translation>
+    </message>
+    <message>
+        <source>Reduction</source>
+        <translation>Послаблення</translation>
+    </message>
+    <message>
+        <source>The most the noise is made quieter.</source>
+        <translation>Максимум, на скільки шум стає тихішим.</translation>
+    </message>
+    <message>
+        <source>Dry / Wet</source>
+        <translation>Оригінал / обробка</translation>
+    </message>
+    <message>
+        <source>0 is the original sound, 100 is the cleaned sound.</source>
+        <translation>0 — вихідний звук, 100 — очищений звук.</translation>
+    </message>
+    <message>
+        <source>Output Gain</source>
+        <translation>Вихідне підсилення</translation>
+    </message>
+    <message>
+        <source>Level of the result.</source>
+        <translation>Рівень результату.</translation>
+    </message>
+    <message>
+        <source>Noise Profile</source>
+        <translation>Профіль шуму</translation>
+    </message>
+    <message>
         <source>Transform</source>
         <translation>Трансформація</translation>
     </message>
@@ -17477,6 +17641,58 @@ Drag one from the Effects library onto the clip, or add one here.</source>
     <message>
         <source>Tracked: %1 frames.</source>
         <translation>Відстежено: кадрів %1.</translation>
+    </message>
+    <message>
+        <source>Optional AI: the RNNoise model is built into Kinoklip and runs on this computer; nothing is downloaded or uploaded. The spectral gate needs no model.</source>
+        <translation>Необов&apos;язковий ШІ: модель RNNoise вбудована в Kinoklip і працює на цьому комп&apos;ютері; нічого не завантажується й не надсилається. Спектральному гейту модель не потрібна.</translation>
+    </message>
+    <message>
+        <source>Learn</source>
+        <translation>Навчити</translation>
+    </message>
+    <message>
+        <source>Learn the noise from the stretch between the timeline&apos;s In and Out marks that lies on this clip (mark a pause with only the noise in it); without marks the first second of the clip is used. Switches the mode to Manual Learn.</source>
+        <translation>Запам&apos;ятовує шум на ділянці між позначками In і Out на таймлайні, що лежить на цьому кліпі (позначте паузу, де чути лише шум); без позначок береться перша секунда кліпу. Перемикає режим на «Ручне навчання».</translation>
+    </message>
+    <message>
+        <source>Clear Profile</source>
+        <translation>Скинути профіль</translation>
+    </message>
+    <message>
+        <source>Forget the learned noise profile.</source>
+        <translation>Забути вивчений профіль шуму.</translation>
+    </message>
+    <message>
+        <source>This clip has no sound file to learn from.</source>
+        <translation>У цього кліпу немає звукового файлу, з якого можна навчатися.</translation>
+    </message>
+    <message>
+        <source>Could not learn a profile: %1. Mark a longer stretch (at least a tenth of a second) that holds only the noise.</source>
+        <translation>Не вдалося вивчити профіль: %1. Позначте довшу ділянку (не коротшу за десяту частку секунди), де лише шум.</translation>
+    </message>
+    <message>
+        <source>Learned from %1 s of sound.</source>
+        <translation>Вивчено з %1 с звуку.</translation>
+    </message>
+    <message>
+        <source>Learn Noise Profile</source>
+        <translation>Вивчити профіль шуму</translation>
+    </message>
+    <message>
+        <source>Clear Noise Profile</source>
+        <translation>Скинути профіль шуму</translation>
+    </message>
+    <message>
+        <source>A noise profile is learned.</source>
+        <translation>Профіль шуму вивчено.</translation>
+    </message>
+    <message>
+        <source>No noise profile yet.</source>
+        <translation>Профілю шуму ще немає.</translation>
+    </message>
+    <message>
+        <source> Manual Learn works like Auto Speech&apos;s spectral gate until you press Learn.</source>
+        <translation> «Ручне навчання» працює як спектральний гейт режиму «Авто (мовлення)», доки ви не натиснете «Навчити».</translation>
     </message>
 </context>
 <context>
@@ -23241,7 +23457,7 @@ Import files with %1 or drop them here.</source>
     </message>
     <message>
         <source>Joins 3D scenes into one; its own move, turn and scale apply to everything it joins</source>
-        <translation>Об'єднує 3D-сцени в одну; власні зсув, поворот і масштаб діють на все, що він об'єднує</translation>
+        <translation>Об&apos;єднує 3D-сцени в одну; власні зсув, поворот і масштаб діють на все, що він об&apos;єднує</translation>
     </message>
     <message>
         <source>Scene 1</source>
@@ -23265,7 +23481,7 @@ Import files with %1 or drop them here.</source>
     </message>
     <message>
         <source>The camera a Renderer3D looks through; it looks along its own minus Z axis</source>
-        <translation>Камера, через яку дивиться Renderer3D; вона дивиться вздовж своєї від'ємної осі Z</translation>
+        <translation>Камера, через яку дивиться Renderer3D; вона дивиться вздовж своєї від&apos;ємної осі Z</translation>
     </message>
     <message>
         <source>View By</source>
@@ -23285,11 +23501,11 @@ Import files with %1 or drop them here.</source>
     </message>
     <message>
         <source>How wide the camera sees across the picture; a big angle is a wide lens</source>
-        <translation>Наскільки широко камера бачить по ширині кадру; великий кут — ширококутний об'єктив</translation>
+        <translation>Наскільки широко камера бачить по ширині кадру; великий кут — ширококутний об&apos;єктив</translation>
     </message>
     <message>
         <source>The lens, for a 36 mm wide film back; a small number is a wide lens</source>
-        <translation>Об'єктив для плівки завширшки 36 мм; мале число — ширококутний об'єктив</translation>
+        <translation>Об&apos;єктив для плівки завширшки 36 мм; мале число — ширококутний об&apos;єктив</translation>
     </message>
     <message>
         <source>Near Clip</source>
@@ -23313,7 +23529,7 @@ Import files with %1 or drop them here.</source>
     </message>
     <message>
         <source>Moves the camera to the right (negative: left), in scene units</source>
-        <translation>Зсуває камеру праворуч (від'ємне: ліворуч) в одиницях сцени</translation>
+        <translation>Зсуває камеру праворуч (від&apos;ємне: ліворуч) в одиницях сцени</translation>
     </message>
     <message>
         <source>Translate Y</source>
@@ -23321,7 +23537,7 @@ Import files with %1 or drop them here.</source>
     </message>
     <message>
         <source>Moves the camera up (negative: down), in scene units</source>
-        <translation>Зсуває камеру вгору (від'ємне: вниз) в одиницях сцени</translation>
+        <translation>Зсуває камеру вгору (від&apos;ємне: вниз) в одиницях сцени</translation>
     </message>
     <message>
         <source>Translate Z</source>
@@ -23377,23 +23593,23 @@ Import files with %1 or drop them here.</source>
     </message>
     <message>
         <source>The soft edge of the cone, as a part of the cone angle; 0 is a hard edge</source>
-        <translation>М'який край конуса як частина кута конуса; 0 — жорсткий край</translation>
+        <translation>М&apos;який край конуса як частина кута конуса; 0 — жорсткий край</translation>
     </message>
     <message>
         <source>Moves the light to the right (negative: left), in scene units</source>
-        <translation>Зсуває світло праворуч (від'ємне: ліворуч) в одиницях сцени</translation>
+        <translation>Зсуває світло праворуч (від&apos;ємне: ліворуч) в одиницях сцени</translation>
     </message>
     <message>
         <source>Moves the light up (negative: down), in scene units</source>
-        <translation>Зсуває світло вгору (від'ємне: вниз) в одиницях сцени</translation>
+        <translation>Зсуває світло вгору (від&apos;ємне: вниз) в одиницях сцени</translation>
     </message>
     <message>
         <source>Moves the light towards the default camera (negative: away from it), in scene units</source>
-        <translation>Зсуває світло до камери за замовчуванням (від'ємне: від неї) в одиницях сцени</translation>
+        <translation>Зсуває світло до камери за замовчуванням (від&apos;ємне: від неї) в одиницях сцени</translation>
     </message>
     <message>
         <source>Turns the light about the X axis; it shines along its own minus Z axis</source>
-        <translation>Повертає світло навколо осі X; воно світить вздовж своєї від'ємної осі Z</translation>
+        <translation>Повертає світло навколо осі X; воно світить вздовж своєї від&apos;ємної осі Z</translation>
     </message>
     <message>
         <source>Turns the light about the Y axis</source>
@@ -23453,7 +23669,7 @@ Import files with %1 or drop them here.</source>
     </message>
     <message>
         <source>On: the lights in the scene shade the objects; off, or with no lights in the scene, every surface shows its own colour</source>
-        <translation>Увімк.: джерела світла в сцені затінюють об'єкти; вимк. або без джерел світла кожна поверхня показує свій колір</translation>
+        <translation>Увімк.: джерела світла в сцені затінюють об&apos;єкти; вимк. або без джерел світла кожна поверхня показує свій колір</translation>
     </message>
     <message>
         <source>Shading</source>
@@ -23469,7 +23685,7 @@ Import files with %1 or drop them here.</source>
     </message>
     <message>
         <source>Lambert is soft, matt shading; Blinn-Phong adds a shiny highlight where an object&apos;s Specular is above 0</source>
-        <translation>Ламберт — м'яке матове затінення; Блінн-Фонг додає відблиск там, де відблиск об'єкта більший за 0</translation>
+        <translation>Ламберт — м&apos;яке матове затінення; Блінн-Фонг додає відблиск там, де відблиск об&apos;єкта більший за 0</translation>
     </message>
     <message>
         <source>Anti-Aliasing</source>
@@ -23489,7 +23705,7 @@ Import files with %1 or drop them here.</source>
     </message>
     <message>
         <source>Smooths the edges of the objects by drawing several samples for each pixel; slower with more samples</source>
-        <translation>Згладжує краї об'єктів, малюючи кілька вибірок на піксель; чим більше вибірок, тим повільніше</translation>
+        <translation>Згладжує краї об&apos;єктів, малюючи кілька вибірок на піксель; чим більше вибірок, тим повільніше</translation>
     </message>
     <message>
         <source>A rectangular mask</source>
@@ -24345,7 +24561,7 @@ Import files with %1 or drop them here.</source>
     </message>
     <message>
         <source>How solid the object is; 0 makes it invisible</source>
-        <translation>Наскільки об'єкт непрозорий; 0 робить його невидимим</translation>
+        <translation>Наскільки об&apos;єкт непрозорий; 0 робить його невидимим</translation>
     </message>
     <message>
         <source>Ignore</source>
@@ -24385,7 +24601,7 @@ Import files with %1 or drop them here.</source>
     </message>
     <message>
         <source>Makes the object bigger or smaller in every direction</source>
-        <translation>Робить об'єкт більшим або меншим в усіх напрямках</translation>
+        <translation>Робить об&apos;єкт більшим або меншим в усіх напрямках</translation>
     </message>
     <message>
         <source>Maximum</source>
@@ -24409,15 +24625,15 @@ Import files with %1 or drop them here.</source>
     </message>
     <message>
         <source>Moves the object to the right (negative: left), in scene units</source>
-        <translation>Зсуває об'єкт праворуч (від'ємне: ліворуч) в одиницях сцени</translation>
+        <translation>Зсуває об&apos;єкт праворуч (від&apos;ємне: ліворуч) в одиницях сцени</translation>
     </message>
     <message>
         <source>Moves the object towards the default camera (negative: away from it), in scene units</source>
-        <translation>Зсуває об'єкт до камери за замовчуванням (від'ємне: від неї) в одиницях сцени</translation>
+        <translation>Зсуває об&apos;єкт до камери за замовчуванням (від&apos;ємне: від неї) в одиницях сцени</translation>
     </message>
     <message>
         <source>Moves the object up (negative: down), in scene units</source>
-        <translation>Зсуває об'єкт угору (від'ємне: униз) в одиницях сцени</translation>
+        <translation>Зсуває об&apos;єкт угору (від&apos;ємне: униз) в одиницях сцени</translation>
     </message>
     <message>
         <source>Multiply</source>
@@ -24473,15 +24689,15 @@ Import files with %1 or drop them here.</source>
     </message>
     <message>
         <source>Stretches the object along the X axis; multiplies Scale</source>
-        <translation>Розтягує об'єкт уздовж осі X; множиться на масштаб</translation>
+        <translation>Розтягує об&apos;єкт уздовж осі X; множиться на масштаб</translation>
     </message>
     <message>
         <source>Stretches the object along the Y axis; multiplies Scale</source>
-        <translation>Розтягує об'єкт уздовж осі Y; множиться на масштаб</translation>
+        <translation>Розтягує об&apos;єкт уздовж осі Y; множиться на масштаб</translation>
     </message>
     <message>
         <source>Stretches the object along the Z axis; multiplies Scale</source>
-        <translation>Розтягує об'єкт уздовж осі Z; множиться на масштаб</translation>
+        <translation>Розтягує об&apos;єкт уздовж осі Z; множиться на масштаб</translation>
     </message>
     <message>
         <source>Subtract</source>
@@ -24489,19 +24705,19 @@ Import files with %1 or drop them here.</source>
     </message>
     <message>
         <source>The colour of the surface; a picture on the object is multiplied by it</source>
-        <translation>Колір поверхні; картинка на об'єкті множиться на нього</translation>
+        <translation>Колір поверхні; картинка на об&apos;єкті множиться на нього</translation>
     </message>
     <message>
         <source>Turns the object about the X axis (tilts it forwards or back); X is turned first, then Y, then Z</source>
-        <translation>Повертає об'єкт навколо осі X (нахиляє вперед або назад); спочатку повертається X, потім Y, потім Z</translation>
+        <translation>Повертає об&apos;єкт навколо осі X (нахиляє вперед або назад); спочатку повертається X, потім Y, потім Z</translation>
     </message>
     <message>
         <source>Turns the object about the Y axis (turns it left or right)</source>
-        <translation>Повертає об'єкт навколо осі Y (ліворуч або праворуч)</translation>
+        <translation>Повертає об&apos;єкт навколо осі Y (ліворуч або праворуч)</translation>
     </message>
     <message>
         <source>Turns the object about the Z axis (rolls it like a clock face)</source>
-        <translation>Повертає об'єкт навколо осі Z (як циферблат годинника)</translation>
+        <translation>Повертає об&apos;єкт навколо осі Z (як циферблат годинника)</translation>
     </message>
     <message>
         <source>View Mode</source>
@@ -24529,7 +24745,7 @@ Import files with %1 or drop them here.</source>
     </message>
     <message>
         <source>Brush Softness</source>
-        <translation>М'якість пензля</translation>
+        <translation>М&apos;якість пензля</translation>
     </message>
     <message>
         <source>Clone</source>
@@ -24545,11 +24761,11 @@ Import files with %1 or drop them here.</source>
     </message>
     <message>
         <source>Clone: how far above the brush the picture is copied from, as a fraction of the frame height (negative: below)</source>
-        <translation>Клон: на якій відстані вище пензля береться зображення, в частках висоти кадру (від'ємне: нижче)</translation>
+        <translation>Клон: на якій відстані вище пензля береться зображення, в частках висоти кадру (від&apos;ємне: нижче)</translation>
     </message>
     <message>
         <source>Clone: how far to the right of the brush the picture is copied from, as a fraction of the frame width (negative: left)</source>
-        <translation>Клон: на якій відстані правіше пензля береться зображення, в частках ширини кадру (від'ємне: лівіше)</translation>
+        <translation>Клон: на якій відстані правіше пензля береться зображення, в частках ширини кадру (від&apos;ємне: лівіше)</translation>
     </message>
     <message>
         <source>Duration Frames</source>
@@ -24569,7 +24785,7 @@ Import files with %1 or drop them here.</source>
     </message>
     <message>
         <source>How soft the edge of the brush is; 0 is a hard edge, 1 fades from the centre</source>
-        <translation>Наскільки м'який край пензля; 0 — різкий край, 1 — плавний спад від центру</translation>
+        <translation>Наскільки м&apos;який край пензля; 0 — різкий край, 1 — плавний спад від центру</translation>
     </message>
     <message>
         <source>How strongly the next stroke acts; a stroke is one even layer, it does not build up where it crosses itself</source>

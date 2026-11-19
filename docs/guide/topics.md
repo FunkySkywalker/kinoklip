@@ -38,11 +38,11 @@ not a count.
 | 23 | Control Kinoklip from the command line | Scripts, batch jobs and automation need to cut and render without a window; the same commands are the base of the MCP server (topic 24). | [Control Kinoklip from the command line](control-kinoklip-from-the-command-line.md) |
 | 24 | Let an AI assistant edit with Kinoklip | People ask for a server that lets a language model control the editor; the Model Context Protocol is how assistants connect to tools (version 1.2 owner request). | [Control Kinoklip from an AI assistant (MCP)](control-kinoklip-from-an-ai-assistant.md) |
 | 25 | Record a voice-over (narration) | Narration over the picture is part of most explainers and tutorials; people look for a record button on the audio track (version 1.3 roadmap). | [Record a voice-over](record-a-voice-over.md) |
+| 26 | Remove background noise (hiss, hum, room noise) from a voice | Phone and camera recordings carry noise; Resolve users look for Fairlight's Noise Reduction with Learn (version 1.11 roadmap). | [Remove background noise from a clip](remove-noise-from-a-clip.md) |
 
 Topics that come up often but that Kinoklip cannot do yet (no article until it can):
 
 - needs: video stabilisation (no stabiliser effect yet).
 - needs: motion tracking (to make a blur, a title or a Color page window follow a moving object).
 - needs: automatic subtitles from speech (speech-to-text).
-- needs: noise reduction for audio (voice clean-up); the Noise Reduction in the effects library is for video.
 - needs: Difference Key against a clean plate (spec 40.10), for screens that are not green or blue.

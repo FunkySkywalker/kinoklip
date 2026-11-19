@@ -33,6 +33,13 @@ ParamDescriptor value(const char* key, const QString& label, double min, double 
     return p;
 }
 
+/// @p p with the tooltip @p text.
+ParamDescriptor tip(ParamDescriptor p, const QString& text)
+{
+    p.tooltip = text;
+    return p;
+}
+
 EffectDescriptor effect(const char* id, const QString& name, const QString& description,
     QVector<ParamDescriptor> params)
 {
@@ -86,6 +93,43 @@ void EffectRegistry::registerAudioEffects()
             value(k::RoomSize, tr("Room Size"), 0, 100, 50, 1, kPercent),
             value(k::Damping, tr("Damping"), 0, 100, 50, 1, kPercent),
             value(k::Mix, tr("Mix"), 0, 100, 25, 1, kPercent),
+        }));
+    add(effect(NoiseReduction, tr("Noise Reduction"),
+        tr("Take hiss, hum and room noise out of speech (the RNNoise model is optional AI; a "
+           "spectral gate always works)"),
+        {
+            tip(choice(QLatin1String(k::NrMode), tr("Mode"),
+                    {QLatin1String(afxchoice::NrAuto), QLatin1String(afxchoice::NrLearn)},
+                    {tr("Auto Speech"), tr("Manual Learn")}, QLatin1String(afxchoice::NrAuto)),
+                tr("Auto Speech finds the noise by itself. Manual Learn removes the noise you "
+                   "taught it with Learn.")),
+            tip(choice(QLatin1String(k::NrEngine), tr("Model"),
+                    {QLatin1String(afxchoice::NrRnnoise), QLatin1String(afxchoice::NrGate)},
+                    {tr("RNNoise (AI, optional)"), tr("Spectral Gate")},
+                    QLatin1String(afxchoice::NrRnnoise)),
+                tr("The engine of Auto Speech. RNNoise is a small open neural network that runs "
+                   "on this computer; the spectral gate needs no model.")),
+            tip(value(k::ThresholdDb, tr("Threshold"), -80, 0, -70, 0.5, kDb),
+                tr("Sound quieter than this is treated as noise only and gets the reduction "
+                   "set by Ratio.")),
+            tip(value(k::AttackMs, tr("Attack"), 1, 500, 20, 1, kMs),
+                tr("How fast the reduction lets go when sound returns.")),
+            tip(value(k::NrSensitivity, tr("Sensitivity"), 0, 100, 50, 1, kPercent),
+                tr("Higher removes more noise but can make speech sound thin or watery.")),
+            tip(value(k::Ratio, tr("Ratio"), 1, 10, 2, 0.1),
+                tr("How much quieter the sound below the Threshold gets: 1 is not at all, "
+                   "higher is more (never more than the Reduction).")),
+            tip(value(k::NrReductionDb, tr("Reduction"), 0, 60, 20, 0.5, kDb),
+                tr("The most the noise is made quieter.")),
+            tip(value(k::Mix, tr("Dry / Wet"), 0, 100, 100, 1, kPercent),
+                tr("0 is the original sound, 100 is the cleaned sound.")),
+            tip(value(k::NrOutputDb, tr("Output Gain"), -24, 24, 0, 0.1, kDb),
+                tr("Level of the result.")),
+            [] {
+                ParamDescriptor p = text(QLatin1String(afxkeys::NrProfile), tr("Noise Profile"), QString());
+                p.hidden = true;
+                return p;
+            }(),
         }));
 }
 

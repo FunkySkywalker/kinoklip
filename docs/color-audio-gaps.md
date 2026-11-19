@@ -76,7 +76,7 @@ Every missing piece has a line in [roadmap.md](roadmap.md) under "Next version (
 | A7 | De-esser | missing | De-Esser effect (Frequency, Range, Reduction) |
 | A8 | Duck music under a voice (sidechain compressor) | partly | Level lines and fader automation work by hand; Dynamics has no Sidechain input / Key listen, and no Ducking helper |
 | A9 | Voice Isolation | missing | Voice Isolation button on the track and in the Inspector (local open model) |
-| A10 | Noise Reduction (Fairlight FX, Learn noise print) | missing | Noise Reduction effect with a learned profile (roadmap: RNNoise / DeepFilterNet) |
+| A10 | Noise Reduction (Fairlight FX, Learn noise print) | works | Noise Reduction audio effect on a clip: Auto Speech (RNNoise, optional AI) or Manual Learn (spectral gate with a learned profile), Threshold, Attack, Sensitivity, Ratio, Reduction, Dry / Wet, Output Gain (spec 132); no mixer track slot yet, no DeepFilterNet |
 | A11 | Dialogue Leveler / Dialogue Processor | missing | Dialogue Leveler and Dialogue Processor effects (spec 37.28) |
 | A12 | Normalize Audio Levels on clips (Sample Peak, True Peak, ITU-R BS.1770) | works | |
 | A13 | Normalize a whole track, bus or the main mix to a loudness target | missing | Normalize action for a track, bus or the main mix |

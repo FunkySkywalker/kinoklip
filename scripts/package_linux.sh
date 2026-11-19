@@ -536,6 +536,9 @@ SOURCE
 # /usr/share/licenses/spdx/ -- copied for every SPDX id a bundled package names).
 log "collecting licence files"
 LICENSES="$APPDIR/usr/share/doc/kinoklip/licenses"
+# RNNoise is compiled into the program (third_party/rnnoise, BSD-3-Clause): keep its notice.
+mkdir -p "$LICENSES/rnnoise"
+install -m 644 "$ROOT/third_party/rnnoise/COPYING" "$LICENSES/rnnoise/COPYING"
 pkg_of() {
     local f
     f="$(readlink -f "$1")"

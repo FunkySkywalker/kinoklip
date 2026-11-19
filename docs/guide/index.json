@@ -283,6 +283,29 @@
       ]
     },
     {
+      "id": "remove-noise-from-a-clip",
+      "title": "Remove background noise from a clip",
+      "file": "remove-noise-from-a-clip.md",
+      "summary": "Take hiss, hum and room noise out of a voice with the Noise Reduction audio effect: Auto Speech with RNNoise, or Manual Learn with a spectral gate.",
+      "keywords": [
+        "noise reduction",
+        "denoise",
+        "hiss",
+        "hum",
+        "background noise",
+        "voice",
+        "speech",
+        "rnnoise",
+        "learn",
+        "clean audio"
+      ],
+      "contexts": [
+        "effect:audio_noise_reduction",
+        "page:audio",
+        "panel:inspector"
+      ]
+    },
+    {
       "id": "fade-to-black",
       "title": "Fade to or from black",
       "file": "fade-to-black.md",

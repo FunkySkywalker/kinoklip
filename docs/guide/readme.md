@@ -58,6 +58,7 @@ Also early: [Add a title](add-a-title.md) and [Transitions between clips](transi
 - [Animate with keyframes](keyframe-animation.md)
 - [Make quiet and loud clips the same volume](even-out-clip-volumes.md)
 - [Change the pitch of a clip and equalize it](change-pitch-and-equalize-a-clip.md)
+- [Remove background noise from a clip](remove-noise-from-a-clip.md)
 - [Record a voice-over](record-a-voice-over.md)
 - [Put text over a clip on the Compositing page](compositing-page.md)
 - [Change the colour of one object](change-the-colour-of-one-object.md)

@@ -4077,12 +4077,24 @@ Probablemente el sistema cerró el programa porque el equipo se quedó sin memor
 <context>
     <name>kk::BuiltinAudioEffects</name>
     <message>
+        <source>0 is the original sound, 100 is the cleaned sound.</source>
+        <translation>0 es el sonido original, 100 es el sonido limpio.</translation>
+    </message>
+    <message>
         <source>A simple room: the sound dies away slowly</source>
         <translation>Una sala sencilla: el sonido se apaga lentamente</translation>
     </message>
     <message>
         <source>Attack</source>
         <translation>Ataque</translation>
+    </message>
+    <message>
+        <source>Auto Speech</source>
+        <translation>Voz automática</translation>
+    </message>
+    <message>
+        <source>Auto Speech finds the noise by itself. Manual Learn removes the noise you taught it with Learn.</source>
+        <translation>Voz automática encuentra el ruido por sí sola. Aprendizaje manual quita el ruido que le enseñó con Aprender.</translation>
     </message>
     <message>
         <source>Ceiling</source>
@@ -4099,6 +4111,10 @@ Probablemente el sistema cerró el programa porque el equipo se quedó sin memor
     <message>
         <source>Delay</source>
         <translation>Retardo</translation>
+    </message>
+    <message>
+        <source>Dry / Wet</source>
+        <translation>Seco / Mojado</translation>
     </message>
     <message>
         <source>Echoes of the sound</source>
@@ -4133,6 +4149,22 @@ Probablemente el sistema cerró el programa porque el equipo se quedó sin memor
         <translation>Filtro paso alto</translation>
     </message>
     <message>
+        <source>Higher removes more noise but can make speech sound thin or watery.</source>
+        <translation>Más alto quita más ruido, pero la voz puede sonar delgada o aguada.</translation>
+    </message>
+    <message>
+        <source>How fast the reduction lets go when sound returns.</source>
+        <translation>Con qué rapidez se suelta la reducción cuando vuelve el sonido.</translation>
+    </message>
+    <message>
+        <source>How much quieter the sound below the Threshold gets: 1 is not at all, higher is more (never more than the Reduction).</source>
+        <translation>Cuánto más bajo queda el sonido por debajo del Umbral: 1 nada, más alto es más (nunca más que la Reducción).</translation>
+    </message>
+    <message>
+        <source>Level of the result.</source>
+        <translation>Nivel del resultado.</translation>
+    </message>
+    <message>
         <source>Limiter</source>
         <translation>Limitador</translation>
     </message>
@@ -4157,6 +4189,10 @@ Probablemente el sistema cerró el programa porque el equipo se quedó sin memor
         <translation>Ganancia de compensación</translation>
     </message>
     <message>
+        <source>Manual Learn</source>
+        <translation>Aprendizaje manual</translation>
+    </message>
+    <message>
         <source>Mid Frequency</source>
         <translation>Frecuencia de medios</translation>
     </message>
@@ -4173,8 +4209,32 @@ Probablemente el sistema cerró el programa porque el equipo se quedó sin memor
         <translation>Mezcla</translation>
     </message>
     <message>
+        <source>Mode</source>
+        <translation>Modo</translation>
+    </message>
+    <message>
+        <source>Model</source>
+        <translation>Modelo</translation>
+    </message>
+    <message>
         <source>Never let a sample go above the ceiling</source>
         <translation>Impedir que una muestra supere el techo</translation>
+    </message>
+    <message>
+        <source>Noise Profile</source>
+        <translation>Perfil de ruido</translation>
+    </message>
+    <message>
+        <source>Noise Reduction</source>
+        <translation>Reducción de ruido</translation>
+    </message>
+    <message>
+        <source>Output Gain</source>
+        <translation>Ganancia de salida</translation>
+    </message>
+    <message>
+        <source>RNNoise (AI, optional)</source>
+        <translation>RNNoise (IA, opcional)</translation>
     </message>
     <message>
         <source>Raise or lower the level of the clip</source>
@@ -4187,6 +4247,10 @@ Probablemente el sistema cerró el programa porque el equipo se quedó sin memor
     <message>
         <source>Reduce the level of loud parts</source>
         <translation>Reducir el nivel de las partes fuertes</translation>
+    </message>
+    <message>
+        <source>Reduction</source>
+        <translation>Reducción</translation>
     </message>
     <message>
         <source>Release</source>
@@ -4207,6 +4271,30 @@ Probablemente el sistema cerró el programa porque el equipo se quedó sin memor
     <message>
         <source>Room Size</source>
         <translation>Tamaño de sala</translation>
+    </message>
+    <message>
+        <source>Sensitivity</source>
+        <translation>Sensibilidad</translation>
+    </message>
+    <message>
+        <source>Sound quieter than this is treated as noise only and gets the reduction set by Ratio.</source>
+        <translation>El sonido más bajo que esto se trata como puro ruido y se reduce según la Relación.</translation>
+    </message>
+    <message>
+        <source>Spectral Gate</source>
+        <translation>Puerta espectral</translation>
+    </message>
+    <message>
+        <source>Take hiss, hum and room noise out of speech (the RNNoise model is optional AI; a spectral gate always works)</source>
+        <translation>Quita el siseo, el zumbido y el ruido de la sala de la voz (el modelo RNNoise es IA opcional; una puerta espectral siempre funciona)</translation>
+    </message>
+    <message>
+        <source>The engine of Auto Speech. RNNoise is a small open neural network that runs on this computer; the spectral gate needs no model.</source>
+        <translation>El motor de Voz automática. RNNoise es una pequeña red neuronal abierta que funciona en este equipo; la puerta espectral no necesita modelo.</translation>
+    </message>
+    <message>
+        <source>The most the noise is made quieter.</source>
+        <translation>Lo máximo que se baja el ruido.</translation>
     </message>
     <message>
         <source>Threshold</source>
@@ -11873,6 +11961,82 @@ Gracias por ver</translation>
         <translation>Amortiguación</translation>
     </message>
     <message>
+        <source>Take hiss, hum and room noise out of speech (the RNNoise model is optional AI; a spectral gate always works)</source>
+        <translation>Quita el siseo, el zumbido y el ruido de la sala de la voz (el modelo RNNoise es IA opcional; una puerta espectral siempre funciona)</translation>
+    </message>
+    <message>
+        <source>Auto Speech</source>
+        <translation>Voz automática</translation>
+    </message>
+    <message>
+        <source>Manual Learn</source>
+        <translation>Aprendizaje manual</translation>
+    </message>
+    <message>
+        <source>Auto Speech finds the noise by itself. Manual Learn removes the noise you taught it with Learn.</source>
+        <translation>Voz automática encuentra el ruido por sí sola. Aprendizaje manual quita el ruido que le enseñó con Aprender.</translation>
+    </message>
+    <message>
+        <source>RNNoise (AI, optional)</source>
+        <translation>RNNoise (IA, opcional)</translation>
+    </message>
+    <message>
+        <source>Spectral Gate</source>
+        <translation>Puerta espectral</translation>
+    </message>
+    <message>
+        <source>The engine of Auto Speech. RNNoise is a small open neural network that runs on this computer; the spectral gate needs no model.</source>
+        <translation>El motor de Voz automática. RNNoise es una pequeña red neuronal abierta que funciona en este equipo; la puerta espectral no necesita modelo.</translation>
+    </message>
+    <message>
+        <source>Sound quieter than this is treated as noise only and gets the reduction set by Ratio.</source>
+        <translation>El sonido más bajo que esto se trata como puro ruido y se reduce según la Relación.</translation>
+    </message>
+    <message>
+        <source>How fast the reduction lets go when sound returns.</source>
+        <translation>Con qué rapidez se suelta la reducción cuando vuelve el sonido.</translation>
+    </message>
+    <message>
+        <source>Sensitivity</source>
+        <translation>Sensibilidad</translation>
+    </message>
+    <message>
+        <source>Higher removes more noise but can make speech sound thin or watery.</source>
+        <translation>Más alto quita más ruido, pero la voz puede sonar delgada o aguada.</translation>
+    </message>
+    <message>
+        <source>How much quieter the sound below the Threshold gets: 1 is not at all, higher is more (never more than the Reduction).</source>
+        <translation>Cuánto más bajo queda el sonido por debajo del Umbral: 1 nada, más alto es más (nunca más que la Reducción).</translation>
+    </message>
+    <message>
+        <source>Reduction</source>
+        <translation>Reducción</translation>
+    </message>
+    <message>
+        <source>The most the noise is made quieter.</source>
+        <translation>Lo máximo que se baja el ruido.</translation>
+    </message>
+    <message>
+        <source>Dry / Wet</source>
+        <translation>Seco / Mojado</translation>
+    </message>
+    <message>
+        <source>0 is the original sound, 100 is the cleaned sound.</source>
+        <translation>0 es el sonido original, 100 es el sonido limpio.</translation>
+    </message>
+    <message>
+        <source>Output Gain</source>
+        <translation>Ganancia de salida</translation>
+    </message>
+    <message>
+        <source>Level of the result.</source>
+        <translation>Nivel del resultado.</translation>
+    </message>
+    <message>
+        <source>Noise Profile</source>
+        <translation>Perfil de ruido</translation>
+    </message>
+    <message>
         <source>Transform</source>
         <translation>Transformar</translation>
     </message>
@@ -17466,6 +17630,58 @@ Arrastrar una desde la biblioteca de efectos al clip, o añadir una aquí.</tran
     <message>
         <source>Tracked: %1 frames.</source>
         <translation>Seguido: %1 fotogramas.</translation>
+    </message>
+    <message>
+        <source>Optional AI: the RNNoise model is built into Kinoklip and runs on this computer; nothing is downloaded or uploaded. The spectral gate needs no model.</source>
+        <translation>IA opcional: el modelo RNNoise está incluido en Kinoklip y funciona en este equipo; no se descarga ni se sube nada. La puerta espectral no necesita modelo.</translation>
+    </message>
+    <message>
+        <source>Learn</source>
+        <translation>Aprender</translation>
+    </message>
+    <message>
+        <source>Learn the noise from the stretch between the timeline&apos;s In and Out marks that lies on this clip (mark a pause with only the noise in it); without marks the first second of the clip is used. Switches the mode to Manual Learn.</source>
+        <translation>Aprende el ruido del tramo entre las marcas de entrada y salida de la línea de tiempo que cae en este clip (marque una pausa con solo ruido); sin marcas se usa el primer segundo del clip. Cambia el modo a Aprendizaje manual.</translation>
+    </message>
+    <message>
+        <source>Clear Profile</source>
+        <translation>Borrar perfil</translation>
+    </message>
+    <message>
+        <source>Forget the learned noise profile.</source>
+        <translation>Olvidar el perfil de ruido aprendido.</translation>
+    </message>
+    <message>
+        <source>This clip has no sound file to learn from.</source>
+        <translation>Este clip no tiene archivo de sonido del que aprender.</translation>
+    </message>
+    <message>
+        <source>Could not learn a profile: %1. Mark a longer stretch (at least a tenth of a second) that holds only the noise.</source>
+        <translation>No se pudo aprender un perfil: %1. Marque un tramo más largo (al menos una décima de segundo) que solo contenga el ruido.</translation>
+    </message>
+    <message>
+        <source>Learned from %1 s of sound.</source>
+        <translation>Aprendido de %1 s de sonido.</translation>
+    </message>
+    <message>
+        <source>Learn Noise Profile</source>
+        <translation>Aprender perfil de ruido</translation>
+    </message>
+    <message>
+        <source>Clear Noise Profile</source>
+        <translation>Borrar perfil de ruido</translation>
+    </message>
+    <message>
+        <source>A noise profile is learned.</source>
+        <translation>Hay un perfil de ruido aprendido.</translation>
+    </message>
+    <message>
+        <source>No noise profile yet.</source>
+        <translation>Aún no hay perfil de ruido.</translation>
+    </message>
+    <message>
+        <source> Manual Learn works like Auto Speech&apos;s spectral gate until you press Learn.</source>
+        <translation> Aprendizaje manual funciona como la puerta espectral de Voz automática hasta que pulse Aprender.</translation>
     </message>
 </context>
 <context>

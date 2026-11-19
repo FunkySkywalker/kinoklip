@@ -16,6 +16,7 @@ inline constexpr char HighPass[] = "audio_highpass";
 inline constexpr char LowPass[] = "audio_lowpass";
 inline constexpr char Delay[] = "audio_delay";
 inline constexpr char Reverb[] = "audio_reverb";
+inline constexpr char NoiseReduction[] = "audio_noise_reduction";
 } // namespace afxid
 
 /// Parameter keys (stored in EffectInstance::params). All audio effect parameters are plain
@@ -47,7 +48,22 @@ inline constexpr char Mix[] = "mix"; ///< percent wet (delay and reverb)
 // Reverb.
 inline constexpr char RoomSize[] = "room_size"; ///< percent
 inline constexpr char Damping[] = "damping"; ///< percent
+// Noise Reduction (spec 132). ThresholdDb, AttackMs, Ratio and Mix are shared with the other effects.
+inline constexpr char NrMode[] = "nr_mode"; ///< afxchoice::NrAuto / NrLearn
+inline constexpr char NrEngine[] = "nr_engine"; ///< afxchoice::NrRnnoise / NrGate (Auto Speech only)
+inline constexpr char NrSensitivity[] = "sensitivity"; ///< percent
+inline constexpr char NrReductionDb[] = "reduction_db";
+inline constexpr char NrOutputDb[] = "output_db";
+inline constexpr char NrProfile[] = "nr_profile"; ///< hidden: the learned noise profile (core text)
 } // namespace afxkeys
+
+/// Choice values of the Noise Reduction effect.
+namespace afxchoice {
+inline constexpr char NrAuto[] = "auto";
+inline constexpr char NrLearn[] = "learn";
+inline constexpr char NrRnnoise[] = "rnnoise";
+inline constexpr char NrGate[] = "gate";
+} // namespace afxchoice
 
 /// Longest delay time (ms); the processor's buffer is sized for it.
 inline constexpr double kAudioDelayMaxMs = 2000.0;

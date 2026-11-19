@@ -1202,6 +1202,7 @@ void InspectorPanel::buildEffectSection(
         }
         buildTrackingControls(group, fx, clipId);
         buildBackgroundRemovalControls(group, fx, clipId);
+        buildNoiseReductionControls(group, fx, clipId);
     }
 }
 

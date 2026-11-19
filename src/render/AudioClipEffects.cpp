@@ -10,6 +10,7 @@
 #include "render/Biquad.h"
 #include "render/Dynamics.h"
 #include "render/Equalizer.h"
+#include "render/NoiseReduction.h"
 
 #include <algorithm>
 #include <array>
@@ -330,6 +331,43 @@ private:
     float m_feedback = 0.84f, m_damp = 0.2f, m_mix = 0.25f;
 };
 
+// ---- Noise Reduction: RNNoise or the spectral gate (render/NoiseReduction.h) ----
+
+class NoiseReductionEffect final : public ClipEffect
+{
+public:
+    void configure(const ParamSet& p) override
+    {
+        namespace k = afxkeys;
+        const QString profileText = p.staticValue(QLatin1String(k::NrProfile)).toString();
+        if (profileText != m_profileText) {
+            m_profileText = profileText;
+            m_reducer.setProfile(noise::decodeProfile(profileText));
+        }
+        noise::Settings s;
+        s.learnMode = p.staticValue(QLatin1String(k::NrMode), QLatin1String(afxchoice::NrAuto))
+                          .toString()
+            == QLatin1String(afxchoice::NrLearn);
+        s.rnnoise = p.staticValue(QLatin1String(k::NrEngine), QLatin1String(afxchoice::NrRnnoise))
+                        .toString()
+            != QLatin1String(afxchoice::NrGate);
+        s.thresholdDb = param(p, k::ThresholdDb, -70, -80, 0);
+        s.attackMs = param(p, k::AttackMs, 20, 1, 500);
+        s.sensitivity = param(p, k::NrSensitivity, 50, 0, 100);
+        s.ratio = param(p, k::Ratio, 2, 1, 10);
+        s.reductionDb = param(p, k::NrReductionDb, 20, 0, 60);
+        s.mix = param(p, k::Mix, 100, 0, 100);
+        s.outputDb = param(p, k::NrOutputDb, 0, -24, 24);
+        m_reducer.configure(s);
+    }
+    void reset() override { m_reducer.reset(); }
+    void process(float* io, int frames) override { m_reducer.process(io, frames); }
+
+private:
+    noise::Reducer m_reducer;
+    QString m_profileText;
+};
+
 std::unique_ptr<ClipEffect> create(const QString& type)
 {
     using namespace afxid;
@@ -349,6 +387,8 @@ std::unique_ptr<ClipEffect> create(const QString& type)
         return std::make_unique<DelayEffect>();
     if (type == QLatin1String(Reverb))
         return std::make_unique<ReverbEffect>();
+    if (type == QLatin1String(NoiseReduction))
+        return std::make_unique<NoiseReductionEffect>();
     return nullptr;
 }
 

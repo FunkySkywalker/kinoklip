@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <functional>
 #include <numbers>
+#include <random>
 #include <vector>
 
 using namespace kk;
@@ -94,7 +95,7 @@ class TestAudioClipEffects : public QObject
     Q_OBJECT
 
     QTemporaryDir m_dir;
-    QString m_wavSine, m_wavDc, m_wavImpulse, m_wavLow;
+    QString m_wavSine, m_wavDc, m_wavImpulse, m_wavLow, m_wavNoise;
 
     std::shared_ptr<MediaPathMap> paths(const QString& wav)
     {
@@ -137,10 +138,14 @@ private slots:
         m_wavDc = m_dir.filePath("dc.wav");
         m_wavImpulse = m_dir.filePath("impulse.wav");
         m_wavLow = m_dir.filePath("low.wav");
+        m_wavNoise = m_dir.filePath("noise.wav");
         QVERIFY(writeWav(m_wavSine, 2, [](int64_t n) { return sine(n, 440, 0.6); }));
         QVERIFY(writeWav(m_wavDc, 2, [](int64_t) { return 0.5; }));
         QVERIFY(writeWav(m_wavImpulse, 2, [](int64_t n) { return n == 1000 ? 0.8 : 0.0; }));
         QVERIFY(writeWav(m_wavLow, 2, [](int64_t n) { return sine(n, 50, 0.1); }));
+        std::mt19937 rng(11);
+        std::normal_distribution<double> gauss(0.0, 0.03);
+        QVERIFY(writeWav(m_wavNoise, 2, [&](int64_t n) { return gauss(rng) + sine(n, 1000, 0.1); }));
     }
 
     void registryHasTheAudioEffects()
@@ -154,7 +159,8 @@ private slots:
         }
         QCOMPARE(ids,
             QStringList({"audio_gain", "audio_eq", "audio_compressor", "audio_limiter",
-                "audio_highpass", "audio_lowpass", "audio_delay", "audio_reverb"}));
+                "audio_highpass", "audio_lowpass", "audio_delay", "audio_reverb",
+                "audio_noise_reduction"}));
     }
 
     void noEffectsIsUntouched()
@@ -334,6 +340,84 @@ private slots:
         }
         // The same range again from a new mixer (a second export) is identical.
         QVERIFY(render(tl, m_wavSine, 36000) == whole);
+    }
+
+    // Spec 132: the Noise Reduction effect through the mixer.
+    void noiseReductionCleansTheClipAndKeepsTheTone()
+    {
+        TimelineData base = timeline({});
+        const auto noisy = render(base, m_wavNoise, 96000);
+        for (const char* engine : {afxchoice::NrGate, afxchoice::NrRnnoise}) {
+            TimelineData tl = timeline({});
+            EffectInstance e = fx(tl, afxid::NoiseReduction, {{afxkeys::NrReductionDb, 40.0}});
+            e.params.setStatic(QLatin1String(afxkeys::NrEngine), QLatin1String(engine));
+            tl.audioTracks[0].clips[0].effects.append(e);
+            const auto out = render(tl, m_wavNoise, 96000);
+            // The window starts after the 2-hop delay and the first seconds of settling.
+            const int from = 48000, to = 90000;
+            const double tonePart = std::abs(10.0 * std::log10(rms(out, from, to) / rms(noisy, from, to)));
+            qInfo("%s: level change %.2f dB", engine, tonePart);
+            if (QLatin1String(engine) == QLatin1String(afxchoice::NrGate)) {
+                // The 1 kHz tone is kept (level within 1.5 dB of the noisy clip: noise is -30 dB
+                // under it) and the noise around it falls: the sound is cleaner than the input,
+                // so the difference to the pure tone shrinks by at least 10 dB.
+                double errIn = 0, errOut = 0;
+                for (int i = from; i < to; ++i) {
+                    const double t = sine(i, 1000, 0.1);
+                    const double tDelayed = sine(i - 1024, 1000, 0.1);
+                    errIn += std::pow(noisy[size_t(2 * i)] - t, 2);
+                    errOut += std::pow(out[size_t(2 * i)] - tDelayed, 2);
+                }
+                QVERIFY2(10.0 * std::log10(errIn / errOut) > 10.0,
+                    qPrintable(QString::number(10.0 * std::log10(errIn / errOut))));
+            }
+        }
+    }
+
+    void noiseReductionDryWetZeroIsTheClip()
+    {
+        const auto plain = render(timeline({}), m_wavNoise, 48000);
+        TimelineData tl = timeline({});
+        tl.audioTracks[0].clips[0].effects.append(fx(tl, afxid::NoiseReduction, {{afxkeys::Mix, 0.0}}));
+        QVERIFY(render(tl, m_wavNoise, 48000) == plain);
+    }
+
+    void noiseReductionPlaybackBlocksMatchTheExport()
+    {
+        for (const char* engine : {afxchoice::NrGate, afxchoice::NrRnnoise}) {
+            TimelineData tl = timeline({});
+            EffectInstance e = fx(tl, afxid::NoiseReduction, {{afxkeys::Mix, 85.0}});
+            e.params.setStatic(QLatin1String(afxkeys::NrEngine), QLatin1String(engine));
+            tl.audioTracks[0].clips[0].effects.append(e);
+            const auto whole = render(tl, m_wavNoise, 60000);
+            for (const int block : {512, 1024, 997}) {
+                const auto chunks = render(tl, m_wavNoise, 60000, block);
+                float worst = 0.0f;
+                for (size_t i = 0; i < whole.size(); ++i)
+                    worst = std::max(worst, std::abs(whole[i] - chunks[i]));
+                QVERIFY2(worst < 1e-4f, qPrintable(QStringLiteral("%1 block %2: %3")
+                                                       .arg(QLatin1String(engine)).arg(block).arg(worst)));
+            }
+            QVERIFY(render(tl, m_wavNoise, 60000) == whole);
+        }
+    }
+
+    void noiseReductionDescriptorHasTooltipsAndChoices()
+    {
+        const EffectDescriptor* d = EffectRegistry::instance().find(QLatin1String(afxid::NoiseReduction));
+        QVERIFY(d);
+        QCOMPARE(d->category, EffectCategory::AudioEffect);
+        QStringList keys;
+        for (const ParamDescriptor& p : d->params) {
+            keys.append(p.key);
+            if (!p.hidden)
+                QVERIFY2(!p.tooltip.isEmpty(), qPrintable(p.key));
+        }
+        QCOMPARE(keys, QStringList({"nr_mode", "nr_engine", "threshold_db", "attack_ms", "sensitivity",
+                           "ratio", "reduction_db", "mix", "output_db", "nr_profile"}));
+        const ParamDescriptor& mode = d->params[0];
+        QCOMPARE(mode.choices, QStringList({"auto", "learn"}));
+        QCOMPARE(d->params[1].choices, QStringList({"rnnoise", "gate"}));
     }
 
     void aSeekRestartsTheEffectMemory()
