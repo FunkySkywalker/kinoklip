@@ -39,6 +39,7 @@ not a count.
 | 24 | Let an AI assistant edit with Kinoklip | People ask for a server that lets a language model control the editor; the Model Context Protocol is how assistants connect to tools (version 1.2 owner request). | [Control Kinoklip from an AI assistant (MCP)](control-kinoklip-from-an-ai-assistant.md) |
 | 25 | Record a voice-over (narration) | Narration over the picture is part of most explainers and tutorials; people look for a record button on the audio track (version 1.3 roadmap). | [Record a voice-over](record-a-voice-over.md) |
 | 26 | Remove background noise (hiss, hum, room noise) from a voice | Phone and camera recordings carry noise; Resolve users look for Fairlight's Noise Reduction with Learn (version 1.11 roadmap). | [Remove background noise from a clip](remove-noise-from-a-clip.md) |
+| 27 | Put effects on a whole audio track (compressor, equalizer, noise reduction) | Resolve users look for Fairlight's effect slots on a mixer track. | [Add effects to a whole audio track](add-effects-to-an-audio-track.md) |
 
 Topics that come up often but that Kinoklip cannot do yet (no article until it can):
 

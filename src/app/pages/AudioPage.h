@@ -10,6 +10,8 @@ class QSplitter;
 namespace kk {
 
 struct AppContext;
+class EffectsLibraryPanel;
+class InspectorPanel;
 class LoudnessPanel;
 class MeterModel;
 class MixerController;
@@ -23,6 +25,10 @@ class ViewerPanel;
 /// | Viewer (small, can float) | Meters: output, buses, loudness (LUFS), true peak     |
 /// | Timeline: audio tracks tall with waveforms, video collapsed  | Mixer (strips)    |
 /// ```
+/// with the Effects Library (Audio FX, left) and the Inspector (right) as columns on either
+/// side, toggled from the interface toolbar like the Edit page's panels (hidden until shown).
+/// The Inspector shows the selected clip, or the effect slots of the track whose mixer strip was
+/// clicked; a slot double-clicked in a strip opens its controls there (spec 133).
 /// It edits the same Project, active timeline, playhead, selection and undo stack as the
 /// Edit and Cut pages; the timeline is a TimelineWidget driven by the Edit page's
 /// TimelineController (same tool, snapping and targets) with the Audio page view options
@@ -40,7 +46,10 @@ public:
     ~AudioPage() override;
 
     [[nodiscard]] QString pageId() const override { return QStringLiteral("audio"); }
-    [[nodiscard]] bool hasPanel(PanelId id) const override { return id == PanelId::Mixer; }
+    [[nodiscard]] bool hasPanel(PanelId id) const override
+    {
+        return id == PanelId::Mixer || id == PanelId::Effects || id == PanelId::Inspector;
+    }
     void setPanelVisible(PanelId id, bool visible) override;
     [[nodiscard]] bool isPanelVisible(PanelId id) const override;
     void saveLayout(QSettings& settings) const override;
@@ -52,6 +61,8 @@ public:
     [[nodiscard]] ViewerPanel* viewer() const { return m_viewer; }
     [[nodiscard]] MixerController* mixerController() const { return m_mixerController; }
     [[nodiscard]] MeterModel* meterModel() const { return m_meterModel; }
+    [[nodiscard]] EffectsLibraryPanel* effectsLibrary() const { return m_effects; }
+    [[nodiscard]] InspectorPanel* inspector() const { return m_inspector; }
 
     /// Floats the viewer in its own small window (or docks it back).
     void setViewerFloating(bool floating);
@@ -68,6 +79,7 @@ protected:
 
 private:
     void connectActions();
+    [[nodiscard]] QWidget* panelWidget(PanelId id) const;
     void setPageActionsEnabled(bool enabled);
 
     AppContext& m_ctx;
@@ -79,6 +91,9 @@ private:
     LoudnessPanel* m_meters = nullptr;
     TimelineWidget* m_timeline = nullptr;
     MixerPanel* m_mixer = nullptr;
+    EffectsLibraryPanel* m_effects = nullptr;
+    InspectorPanel* m_inspector = nullptr;
+    QSplitter* m_outer = nullptr; ///< horizontal: Effects Library | the rest | Inspector
     QSplitter* m_main = nullptr; ///< vertical: top row | bottom row
     QSplitter* m_topRow = nullptr; ///< viewer | meters
     QSplitter* m_bottomRow = nullptr; ///< timeline | mixer

@@ -2,6 +2,7 @@
 // MixerStrip layout and gestures.
 #include "ui/audio/MixerStrip.h"
 
+#include "core/EffectRegistry.h"
 #include "core/Project.h"
 #include "core/Timeline.h"
 #include "ui/audio/DynamicsWindow.h"
@@ -11,12 +12,16 @@
 #include "ui/audio/MixerController.h"
 #include "ui/audio/VoiceOverController.h"
 #include "ui/audio/VoiceOverMenu.h"
+#include "ui/common/DragMime.h"
 #include "ui/common/Metrics.h"
 #include "ui/common/SchemeColors.h"
 #include "ui/common/TextFit.h"
 
 #include <QComboBox>
 #include <QCoreApplication>
+#include <QDragEnterEvent>
+#include <QDropEvent>
+#include <QMimeData>
 #include <QHBoxLayout>
 #include <QInputDialog>
 #include <QLabel>
@@ -138,6 +143,39 @@ MixerStrip::MixerStrip(
         refresh(m_frame);
         openDynamics();
     });
+
+    if (!bus) {
+        // Effects section: slots of the track's effects, then the "+" button (spec 133).
+        auto* fx = new QWidget;
+        fx->setObjectName(QStringLiteral("StripEffects"));
+        auto* fxLayout = new QVBoxLayout(fx);
+        fxLayout->setContentsMargins(0, 0, 0, 0);
+        fxLayout->setSpacing(1);
+        auto* slotBox = new QWidget;
+        m_slotLayout = new QVBoxLayout(slotBox);
+        m_slotLayout->setContentsMargins(0, 0, 0, 0);
+        m_slotLayout->setSpacing(1);
+        fxLayout->addWidget(slotBox);
+        m_addEffect = new QToolButton;
+        m_addEffect->setObjectName(QStringLiteral("FxAdd"));
+        m_addEffect->setText(tr("+ FX"));
+        m_addEffect->setToolTip(tr("Add an audio effect to this track: it processes the whole "
+                                   "track after its clips and before the track's EQ, dynamics, "
+                                   "pan and fader. You can also drag an effect here from the "
+                                   "Effects Library."));
+        m_addEffect->setPopupMode(QToolButton::InstantPopup);
+        m_addEffect->setFocusPolicy(Qt::NoFocus);
+        m_addEffect->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        auto* menu = new QMenu(m_addEffect);
+        m_addEffect->setMenu(menu);
+        connect(menu, &QMenu::aboutToShow, this, [this] {
+            emit selectRequested(m_target);
+            fillEffectMenu();
+        });
+        fxLayout->addWidget(m_addEffect);
+        layout->addWidget(fx);
+        setAcceptDrops(true);
+    }
 
     m_bus = new QToolButton;
     m_bus->setPopupMode(QToolButton::InstantPopup);
@@ -289,6 +327,8 @@ void MixerStrip::refresh(int64_t frame)
     pal.setColor(QPalette::WindowText, sc.textOn(plate));
     m_name->setPalette(pal);
 
+    if (m_slotLayout)
+        rebuildSlots(d);
     m_eq->setChecked(s->eq.enabled);
     m_dynamics->setChecked(s->dynamics.compressorEnabled || s->dynamics.limiterEnabled);
     if (m_target.isBus()) {
@@ -387,8 +427,189 @@ void MixerStrip::fillBusMenu()
     }
 }
 
+void MixerStrip::setSelected(bool selected)
+{
+    if (m_selected == selected)
+        return;
+    m_selected = selected;
+    update();
+}
+
+void MixerStrip::mousePressEvent(QMouseEvent* event)
+{
+    emit selectRequested(m_target);
+    QWidget::mousePressEvent(event);
+}
+
+void MixerStrip::paintEvent(QPaintEvent* event)
+{
+    QWidget::paintEvent(event);
+    if (!m_selected)
+        return;
+    QPainter p(this);
+    p.setPen(QPen(schemeColors().focus, 2));
+    p.setBrush(Qt::NoBrush);
+    p.drawRect(rect().adjusted(1, 1, -1, -1));
+}
+
+quint64 MixerStrip::addEffect(const QString& type)
+{
+    if (m_target.isBus())
+        return 0;
+    quint64 added = 0;
+    m_controller->edit(tr("Add Audio Effect"), [&](TimelineData& d) {
+        added = mixerops::addTrackEffect(d, m_target.id, type);
+        return added != 0;
+    });
+    if (added)
+        emit selectRequested(m_target);
+    return added;
+}
+
+void MixerStrip::fillEffectMenu()
+{
+    QMenu* menu = m_addEffect->menu();
+    menu->clear();
+    const EffectRegistry& registry = EffectRegistry::instance();
+    const QVector<const EffectDescriptor*> effects
+        = registry.byCategory(EffectCategory::AudioEffect);
+    auto addEntry = [&](QMenu* into, const EffectDescriptor* d) {
+        const QString id = d->id;
+        QAction* a = into->addAction(d->name);
+        a->setToolTip(d->description);
+        connect(a, &QAction::triggered, this, [this, id] { addEffect(id); });
+    };
+    for (const QString& group : registry.groups(EffectCategory::AudioEffect)) {
+        QMenu* sub = menu->addMenu(EffectRegistry::groupName(group));
+        for (const EffectDescriptor* d : effects) {
+            if (d->group == group)
+                addEntry(sub, d);
+        }
+    }
+    for (const EffectDescriptor* d : effects) {
+        if (d->group.isEmpty())
+            addEntry(menu, d);
+    }
+}
+
+void MixerStrip::rebuildSlots(const TimelineData& d)
+{
+    const TrackData* t = mixerops::audioTrack(d, m_target.id);
+    QVector<quint64> ids;
+    QVector<bool> on;
+    if (t) {
+        for (const EffectInstance& fx : t->mix.effects) {
+            ids.append(fx.id);
+            on.append(fx.enabled);
+        }
+    }
+    if (ids == m_slotIds && on == m_slotOn)
+        return;
+    m_slotIds = ids;
+    m_slotOn = on;
+    while (QLayoutItem* item = m_slotLayout->takeAt(0)) {
+        if (QWidget* w = item->widget()) {
+            w->hide();
+            w->setProperty("kkRetired", true); // waits for deleteLater()
+            w->deleteLater();
+        }
+        delete item;
+    }
+    if (!t)
+        return;
+    const EffectRegistry& registry = EffectRegistry::instance();
+    for (const EffectInstance& fx : t->mix.effects) {
+        const EffectDescriptor* desc = registry.find(fx.type);
+        const QString name = desc ? desc->name : fx.type;
+        const quint64 id = fx.id;
+        auto* row = new QWidget;
+        row->setObjectName(QStringLiteral("FxSlot"));
+        auto* h = new QHBoxLayout(row);
+        h->setContentsMargins(0, 0, 0, 0);
+        h->setSpacing(1);
+        auto* bypass = new QToolButton;
+        bypass->setObjectName(QStringLiteral("FxSlotBypass"));
+        bypass->setText(QStringLiteral("●"));
+        bypass->setCheckable(true);
+        bypass->setChecked(fx.enabled);
+        bypass->setAutoRaise(true);
+        bypass->setFocusPolicy(Qt::NoFocus);
+        bypass->setFixedWidth(18);
+        bypass->setToolTip(tr("Lit: the effect is on. Click to bypass %1, click again to switch "
+                              "it on.")
+                .arg(name));
+        auto* label = new QLabel;
+        label->setObjectName(QStringLiteral("FxSlotName"));
+        label->setProperty("kkEffectId", qulonglong(id));
+        textfit::setElidedText(label, name,
+            tr("%1: double-click to open its controls in the Inspector").arg(name));
+        if (!fx.enabled) { // bypassed: italic (a disabled label would take no double-click)
+            QFont f = label->font();
+            f.setItalic(true);
+            label->setFont(f);
+        }
+        label->installEventFilter(this);
+        auto* remove = new QToolButton;
+        remove->setObjectName(QStringLiteral("FxSlotRemove"));
+        remove->setText(QStringLiteral("×"));
+        remove->setAutoRaise(true);
+        remove->setFocusPolicy(Qt::NoFocus);
+        remove->setFixedWidth(18);
+        remove->setToolTip(tr("Remove %1 from this track").arg(name));
+        h->addWidget(bypass);
+        h->addWidget(label, 1);
+        h->addWidget(remove);
+        m_slotLayout->addWidget(row);
+        connect(bypass, &QToolButton::clicked, this, [this, id](bool on) {
+            emit selectRequested(m_target);
+            m_controller->edit(on ? tr("Enable Audio Effect") : tr("Bypass Audio Effect"),
+                [&](TimelineData& data) {
+                    return mixerops::setTrackEffectEnabled(data, m_target.id, id, on);
+                });
+        });
+        connect(remove, &QToolButton::clicked, this, [this, id] {
+            emit selectRequested(m_target);
+            m_controller->edit(tr("Remove Audio Effect"), [&](TimelineData& data) {
+                return mixerops::removeTrackEffect(data, m_target.id, id);
+            });
+        });
+    }
+}
+
+void MixerStrip::dragEnterEvent(QDragEnterEvent* event)
+{
+    if (m_target.isBus() || !event->mimeData()->hasFormat(QLatin1String(mime::Effect)))
+        return;
+    const QString id = QString::fromUtf8(event->mimeData()->data(QLatin1String(mime::Effect)));
+    const EffectDescriptor* d = EffectRegistry::instance().find(id);
+    if (d && d->category == EffectCategory::AudioEffect)
+        event->acceptProposedAction();
+}
+
+void MixerStrip::dragMoveEvent(QDragMoveEvent* event)
+{
+    event->acceptProposedAction();
+}
+
+void MixerStrip::dropEvent(QDropEvent* event)
+{
+    const QString id = QString::fromUtf8(event->mimeData()->data(QLatin1String(mime::Effect)));
+    if (addEffect(id))
+        event->acceptProposedAction();
+}
+
 bool MixerStrip::eventFilter(QObject* watched, QEvent* event)
 {
+    if (event->type() == QEvent::MouseButtonDblClick && watched != m_name) {
+        const QVariant id = watched->property("kkEffectId");
+        if (id.isValid() && static_cast<QMouseEvent*>(event)->button() == Qt::LeftButton) {
+            emit selectRequested(m_target);
+            emit effectOpenRequested(m_target, id.toULongLong());
+            return true;
+        }
+    }
+    if (watched == m_name && event->type() == QEvent::MouseButtonPress)
+        emit selectRequested(m_target);
     if (watched == m_name && event->type() == QEvent::MouseButtonDblClick
         && static_cast<QMouseEvent*>(event)->button() == Qt::LeftButton) {
         askRename();

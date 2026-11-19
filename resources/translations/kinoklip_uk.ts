@@ -17095,6 +17095,12 @@ Standard transition of this project</source>
         <translation>Немає відповідних ефектів</translation>
     </message>
     <message>
+        <source>No effects on this track.
+Drag one from the Effects library or use Add Effect.</source>
+        <translation>На цій доріжці немає ефектів.
+Перетягніть ефект із бібліотеки ефектів або скористайтеся «Додати ефект».</translation>
+    </message>
+    <message>
         <source>No effects on this clip.
 Drag one from the Effects library or use Add Effect.</source>
         <translation>На цьому кліпі немає ефектів.
@@ -17119,6 +17125,10 @@ Drag one from the Effects library or use Add Effect.</source>
     <message>
         <source>Reorder Effects</source>
         <translation>Змінити порядок ефектів</translation>
+    </message>
+    <message>
+        <source>Add Audio Effect</source>
+        <translation>Додати аудіоефект</translation>
     </message>
     <message>
         <source>Remove Effect</source>
@@ -17181,6 +17191,14 @@ Drag one from the Effects library onto the clip, or add one here.</source>
     <message>
         <source>Pitch works on clips at normal speed; this clip has a speed change</source>
         <translation>Висота тону працює на кліпах зі звичайною швидкістю; цей кліп має зміну швидкості</translation>
+    </message>
+    <message numerus="yes">
+        <source>Track effects: %n effect(s)</source>
+        <translation>
+            <numerusform>Ефекти доріжки: %n ефект</numerusform>
+            <numerusform>Ефекти доріжки: %n ефекти</numerusform>
+            <numerusform>Ефекти доріжки: %n ефектів</numerusform>
+        </translation>
     </message>
     <message>
         <source>No clip selected</source>
@@ -21660,6 +21678,14 @@ Import files with %1 or drop them here.</source>
         <translation>Динаміка (компресор, лімітер): світиться, коли ввімкнена; клацніть, щоб редагувати</translation>
     </message>
     <message>
+        <source>+ FX</source>
+        <translation>+ FX</translation>
+    </message>
+    <message>
+        <source>Add an audio effect to this track: it processes the whole track after its clips and before the track&apos;s EQ, dynamics, pan and fader. You can also drag an effect here from the Effects Library.</source>
+        <translation>Додає аудіоефект на цю доріжку: він обробляє всю доріжку після її кліпів і перед еквалайзером, динамікою, панорамою та фейдером доріжки. Ефект також можна перетягнути сюди з бібліотеки ефектів.</translation>
+    </message>
+    <message>
         <source>Bus assignment</source>
         <translation>Призначення шини</translation>
     </message>
@@ -21770,6 +21796,34 @@ Import files with %1 or drop them here.</source>
     <message>
         <source>Remove from Bus</source>
         <translation>Вилучити із шини</translation>
+    </message>
+    <message>
+        <source>Add Audio Effect</source>
+        <translation>Додати аудіоефект</translation>
+    </message>
+    <message>
+        <source>Lit: the effect is on. Click to bypass %1, click again to switch it on.</source>
+        <translation>Світиться: ефект увімкнено. Натисніть, щоб обійти %1, і ще раз, щоб увімкнути його.</translation>
+    </message>
+    <message>
+        <source>%1: double-click to open its controls in the Inspector</source>
+        <translation>%1: подвійне клацання відкриє його керування в інспекторі</translation>
+    </message>
+    <message>
+        <source>Remove %1 from this track</source>
+        <translation>Прибрати %1 з цієї доріжки</translation>
+    </message>
+    <message>
+        <source>Enable Audio Effect</source>
+        <translation>Увімкнути аудіоефект</translation>
+    </message>
+    <message>
+        <source>Bypass Audio Effect</source>
+        <translation>Обійти аудіоефект</translation>
+    </message>
+    <message>
+        <source>Remove Audio Effect</source>
+        <translation>Видалити аудіоефект</translation>
     </message>
     <message>
         <source>Rename Bus</source>

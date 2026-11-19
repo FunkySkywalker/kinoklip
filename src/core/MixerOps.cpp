@@ -2,6 +2,8 @@
 // MixerOps — bus, routing, strip and automation edits.
 #include "core/MixerOps.h"
 
+#include "core/EffectRegistry.h"
+
 #include <algorithm>
 
 namespace kk::mixerops {
@@ -234,6 +236,68 @@ bool clearAutomation(TimelineData& data, quint64 trackId, const QString& key)
         return false;
     t->mix.automationKeys.values.remove(key);
     return true;
+}
+
+EffectInstance* trackEffect(TimelineData& data, quint64 trackId, quint64 effectId)
+{
+    TrackData* t = audioTrack(data, trackId);
+    if (!t)
+        return nullptr;
+    for (EffectInstance& fx : t->mix.effects) {
+        if (fx.id == effectId)
+            return &fx;
+    }
+    return nullptr;
+}
+
+quint64 addTrackEffect(TimelineData& data, quint64 trackId, const QString& type, int index)
+{
+    TrackData* t = audioTrack(data, trackId);
+    const EffectDescriptor* d = EffectRegistry::instance().find(type);
+    if (!t || !d || d->category != EffectCategory::AudioEffect)
+        return 0;
+    EffectInstance fx = EffectRegistry::instance().createEffect(type, data.allocateId());
+    const quint64 id = fx.id;
+    const int at = index < 0 ? int(t->mix.effects.size())
+                             : std::min(index, int(t->mix.effects.size()));
+    t->mix.effects.insert(at, fx);
+    return id;
+}
+
+bool removeTrackEffect(TimelineData& data, quint64 trackId, quint64 effectId)
+{
+    TrackData* t = audioTrack(data, trackId);
+    if (!t)
+        return false;
+    return t->mix.effects.removeIf([effectId](const EffectInstance& fx) { return fx.id == effectId; })
+        > 0;
+}
+
+bool setTrackEffectEnabled(TimelineData& data, quint64 trackId, quint64 effectId, bool enabled)
+{
+    EffectInstance* fx = trackEffect(data, trackId, effectId);
+    if (!fx || fx->enabled == enabled)
+        return false;
+    fx->enabled = enabled;
+    return true;
+}
+
+bool moveTrackEffect(TimelineData& data, quint64 trackId, quint64 effectId, int index)
+{
+    TrackData* t = audioTrack(data, trackId);
+    if (!t)
+        return false;
+    QVector<EffectInstance>& list = t->mix.effects;
+    for (int i = 0; i < list.size(); ++i) {
+        if (list[i].id != effectId)
+            continue;
+        const int to = std::clamp(index, 0, int(list.size()) - 1);
+        if (to == i)
+            return false;
+        list.move(i, to);
+        return true;
+    }
+    return false;
 }
 
 } // namespace kk::mixerops

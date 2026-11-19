@@ -76,7 +76,7 @@ Every missing piece has a line in [roadmap.md](roadmap.md) under "Next version (
 | A7 | De-esser | missing | De-Esser effect (Frequency, Range, Reduction) |
 | A8 | Duck music under a voice (sidechain compressor) | partly | Level lines and fader automation work by hand; Dynamics has no Sidechain input / Key listen, and no Ducking helper |
 | A9 | Voice Isolation | missing | Voice Isolation button on the track and in the Inspector (local open model) |
-| A10 | Noise Reduction (Fairlight FX, Learn noise print) | works | Noise Reduction audio effect on a clip: Auto Speech (RNNoise, optional AI) or Manual Learn (spectral gate with a learned profile), Threshold, Attack, Sensitivity, Ratio, Reduction, Dry / Wet, Output Gain (spec 132); no mixer track slot yet, no DeepFilterNet |
+| A10 | Noise Reduction (Fairlight FX, Learn noise print) | works | Noise Reduction audio effect on a clip: Auto Speech (RNNoise, optional AI) or Manual Learn (spectral gate with a learned profile), Threshold, Attack, Sensitivity, Ratio, Reduction, Dry / Wet, Output Gain (spec 132); also as a mixer track slot (spec 133), no DeepFilterNet |
 | A11 | Dialogue Leveler / Dialogue Processor | missing | Dialogue Leveler and Dialogue Processor effects (spec 37.28) |
 | A12 | Normalize Audio Levels on clips (Sample Peak, True Peak, ITU-R BS.1770) | works | |
 | A13 | Normalize a whole track, bus or the main mix to a loudness target | missing | Normalize action for a track, bus or the main mix |
@@ -84,7 +84,7 @@ Every missing piece has a line in [roadmap.md](roadmap.md) under "Next version (
 | A15 | Loudness normalisation when rendering | missing | Normalize to a loudness target in the Deliver page Audio settings |
 | A16 | Buses: main bus and submix buses | partly | Bus-to-bus feeds, Main / Submix / Aux bus types (spec 37.32) |
 | A17 | Aux sends (reverb or delay send with a level knob) | missing | Send slots with level and Pre / Post fader on every track strip (spec 37.22) |
-| A18 | Effects Library with track effect slots (insert effects in the mixer) | missing | Effects Library and effect slots on the mixer strip (roadmap item exists) |
+| A18 | Effects Library with track effect slots (insert effects in the mixer) | works | Audio page: Effects Library (Audio FX) and Inspector panels, a + FX button, drop target and slots (bypass, remove, controls in the Inspector) on every track strip, saved with the project (spec 133); no slots on buses yet |
 | A19 | Clip audio effects in the Inspector (Gain, Equalizer, Compressor, Limiter, filters, Delay, Reverb) | works | |
 | A20 | Reverb with a room preset | partly | Reverb has Room Size, Damping and Mix only; no Pre-delay, Decay time, Presets, no send |
 | A21 | Echo / Delay | works | |

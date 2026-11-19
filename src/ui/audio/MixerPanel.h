@@ -7,6 +7,8 @@
 
 #include <QVector>
 
+#include <optional>
+
 class QHBoxLayout;
 class QScrollArea;
 
@@ -36,6 +38,18 @@ public:
     /// The strip of @p target, or nullptr.
     [[nodiscard]] MixerStrip* strip(const MixTarget& target) const;
 
+    /// The strip the Inspector shows the effects of (a click on a strip or its effect controls),
+    /// or none.
+    [[nodiscard]] std::optional<MixTarget> selectedTarget() const { return m_selected; }
+    /// Selects @p target (draws its frame; emits stripSelected() when it changed).
+    void selectTarget(const MixTarget& target);
+
+signals:
+    /// A strip was clicked: the Inspector should show that track's effects.
+    void stripSelected(const MixTarget& target);
+    /// An effect slot of a track strip was double-clicked: open its controls.
+    void effectOpenRequested(const MixTarget& target, quint64 effectId);
+
 private:
     void sync();
     void refreshValues();
@@ -48,6 +62,7 @@ private:
     QHBoxLayout* m_rowLayout = nullptr;
     QVector<MixerStrip*> m_strips;
     QVector<MixTarget> m_targets; ///< what m_strips show, in order
+    std::optional<MixTarget> m_selected;
 };
 
 } // namespace kk

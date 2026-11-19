@@ -4,6 +4,7 @@
 #pragma once
 
 #include "core/Animation.h"
+#include "core/EffectInstance.h"
 
 #include <QString>
 #include <QVector>
@@ -120,6 +121,11 @@ struct TrackMix
     bool mono = false; ///< channel format: mono (sources summed) or stereo
     QVector<int> buses {kMainBusId}; ///< bus ids the track feeds (none = not heard)
     AutomationMode automation = AutomationMode::Read;
+    /// The effect slots of the track (spec 133): audio effects of the same registry and
+    /// processors as a clip's, run in list order on the whole track after its clips (and their
+    /// own effects) and before the track's EQ, dynamics, pan and fader. A disabled slot is
+    /// bypassed.
+    QVector<EffectInstance> effects;
     /// Fader ("volumeDb") and pan ("pan") automation, keyed in timeline frames (not clip
     /// local: track automation stays where it was written).
     ParamSet automationKeys;

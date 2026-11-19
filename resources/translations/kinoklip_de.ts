@@ -17084,6 +17084,12 @@ Standardübergang dieses Projekts</translation>
         <translation>Kein Effekt passt</translation>
     </message>
     <message>
+        <source>No effects on this track.
+Drag one from the Effects library or use Add Effect.</source>
+        <translation>Keine Effekte auf dieser Spur.
+Ziehen Sie einen aus der Effektbibliothek oder verwenden Sie Effekt hinzufügen.</translation>
+    </message>
+    <message>
         <source>No effects on this clip.
 Drag one from the Effects library or use Add Effect.</source>
         <translation>Keine Effekte auf diesem Clip.
@@ -17108,6 +17114,10 @@ Einen aus der Effekte-Bibliothek ziehen oder Effekt hinzufügen verwenden.</tran
     <message>
         <source>Reorder Effects</source>
         <translation>Effekte neu anordnen</translation>
+    </message>
+    <message>
+        <source>Add Audio Effect</source>
+        <translation>Audioeffekt hinzufügen</translation>
     </message>
     <message>
         <source>Remove Effect</source>
@@ -17170,6 +17180,13 @@ Einen aus der Effekte-Bibliothek auf den Clip ziehen oder hier einen hinzufügen
     <message>
         <source>Pitch works on clips at normal speed; this clip has a speed change</source>
         <translation>Die Tonhöhe funktioniert bei Clips mit normaler Geschwindigkeit; dieser Clip hat eine Geschwindigkeitsänderung</translation>
+    </message>
+    <message numerus="yes">
+        <source>Track effects: %n effect(s)</source>
+        <translation>
+            <numerusform>Spureffekte: %n Effekt</numerusform>
+            <numerusform>Spureffekte: %n Effekte</numerusform>
+        </translation>
     </message>
     <message>
         <source>No clip selected</source>
@@ -21644,6 +21661,14 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
         <translation>Dynamik (Kompressor, Limiter): leuchtet, wenn an; zum Bearbeiten klicken</translation>
     </message>
     <message>
+        <source>+ FX</source>
+        <translation>+ FX</translation>
+    </message>
+    <message>
+        <source>Add an audio effect to this track: it processes the whole track after its clips and before the track&apos;s EQ, dynamics, pan and fader. You can also drag an effect here from the Effects Library.</source>
+        <translation>Fügt dieser Spur einen Audioeffekt hinzu: Er bearbeitet die ganze Spur nach ihren Clips und vor EQ, Dynamik, Pan und Fader der Spur. Sie können einen Effekt auch aus der Effektbibliothek hierher ziehen.</translation>
+    </message>
+    <message>
         <source>Bus assignment</source>
         <translation>Bus-Zuweisung</translation>
     </message>
@@ -21753,6 +21778,34 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
     <message>
         <source>Remove from Bus</source>
         <translation>Aus Bus entfernen</translation>
+    </message>
+    <message>
+        <source>Add Audio Effect</source>
+        <translation>Audioeffekt hinzufügen</translation>
+    </message>
+    <message>
+        <source>Lit: the effect is on. Click to bypass %1, click again to switch it on.</source>
+        <translation>Leuchtet: Der Effekt ist an. Klicken Sie, um %1 zu umgehen, und noch einmal, um ihn wieder einzuschalten.</translation>
+    </message>
+    <message>
+        <source>%1: double-click to open its controls in the Inspector</source>
+        <translation>%1: Doppelklick öffnet die Regler im Inspektor</translation>
+    </message>
+    <message>
+        <source>Remove %1 from this track</source>
+        <translation>%1 von dieser Spur entfernen</translation>
+    </message>
+    <message>
+        <source>Enable Audio Effect</source>
+        <translation>Audioeffekt einschalten</translation>
+    </message>
+    <message>
+        <source>Bypass Audio Effect</source>
+        <translation>Audioeffekt umgehen</translation>
+    </message>
+    <message>
+        <source>Remove Audio Effect</source>
+        <translation>Audioeffekt entfernen</translation>
     </message>
     <message>
         <source>Rename Bus</source>

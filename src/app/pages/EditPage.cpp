@@ -139,7 +139,18 @@ EditPage::EditPage(AppContext& ctx, QWidget* parent)
     mixerController->setWritePassesEnabled(false);
     auto* meterModel = new MeterModel(this);
     meterModel->setEngine(ctx.playback);
-    m_mixer = new MixerPanel(ctx, mixerController, meterModel);
+    auto* mixerPanel = new MixerPanel(ctx, mixerController, meterModel);
+    m_mixer = mixerPanel;
+    // A clicked strip shows its track's effects in the Inspector (spec 133).
+    connect(mixerPanel, &MixerPanel::stripSelected, this, [this](const MixTarget& target) {
+        if (!target.isBus())
+            m_inspector->showTrack(target.id);
+    });
+    connect(mixerPanel, &MixerPanel::effectOpenRequested, this,
+        [this](const MixTarget& target, quint64 effectId) {
+            setPanelVisible(PanelId::Inspector, true);
+            m_inspector->inspectTrackEffect(target.id, effectId);
+        });
     m_keyframes = new KeyframesPanel(ctx);
 
     m_leftColumn = makeSplitter(Qt::Vertical);

@@ -740,6 +740,18 @@ void EffectsLibraryPanel::setCategoryFilter(int category)
     applyFilters();
 }
 
+bool EffectsLibraryPanel::selectCategory(int category)
+{
+    QTreeWidgetItemIterator it(m_categories);
+    for (; *it; ++it) {
+        if ((*it)->data(0, Qt::UserRole).toInt() == category && (*it)->parent() == nullptr) {
+            m_categories->setCurrentItem(*it);
+            return true;
+        }
+    }
+    return false;
+}
+
 void EffectsLibraryPanel::setFilterText(const QString& text)
 {
     if (m_search->text() != text)

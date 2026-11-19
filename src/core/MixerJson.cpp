@@ -132,6 +132,14 @@ QJsonObject trackMixToJson(const TrackMix& mix)
     }
     if (mix.automation != def.automation)
         o[key("automation")] = automationModeToString(mix.automation);
+    if (!mix.effects.isEmpty()) {
+        QJsonArray effects;
+        for (const EffectInstance& fx : mix.effects) {
+            effects.append(QJsonObject {{key("id"), qint64(fx.id)}, {key("type"), fx.type},
+                {key("enabled"), fx.enabled}, {key("params"), paramSetToJson(fx.params)}});
+        }
+        o[key("effects")] = effects;
+    }
     if (mix.automationKeys != ParamSet {})
         o[key("automationKeys")] = paramSetToJson(mix.automationKeys);
     return o;
@@ -153,6 +161,15 @@ TrackMix trackMixFromJson(const QJsonObject& o)
     }
     mix.automation
         = automationModeFromString(o.value(key("automation")).toString(), mix.automation);
+    for (const QJsonValue& v : o.value(key("effects")).toArray()) {
+        const QJsonObject fo = v.toObject();
+        EffectInstance fx;
+        fx.id = quint64(fo.value(key("id")).toInteger());
+        fx.type = fo.value(key("type")).toString();
+        fx.enabled = fo.value(key("enabled")).toBool(true);
+        fx.params = paramSetFromJson(fo.value(key("params")).toObject());
+        mix.effects.append(fx);
+    }
     mix.automationKeys = paramSetFromJson(o.value(key("automationKeys")).toObject());
     return mix;
 }

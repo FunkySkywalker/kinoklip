@@ -43,6 +43,8 @@ void AudioMixer::resetChannels()
 {
     for (auto& [id, channel] : m_trackChannels) {
         channel->processor.reset();
+        channel->effects.reset();
+        channel->effectsPrimed = false;
         channel->quiet = true;
     }
     for (auto& [id, channel] : m_busChannels) {
@@ -94,11 +96,39 @@ void AudioMixer::mixTimeline(const TimelineData& tl, const NestedTimelines& nest
         const bool audible = !track.muted && !(anySolo && !track.solo);
         // A muted track is not decoded, except while its gain still glides down to 0.
         const bool wanted = audible || proc.currentGain() > 0.0f;
+        // Track effect slots (spec 133): the track's clips are summed, then run through the
+        // slots. A slot that delays the sound (Noise Reduction) is compensated like a clip's:
+        // the clips are mixed that many samples ahead, and after a restart the first stretch
+        // is run through the slots first and dropped (priming), so the sound stays in place.
+        const bool fxOn = wanted && dsp::ClipEffectChain::hasActive(track.mix.effects);
+        const int latency = fxOn ? channel.effects.latencyFrames(track.mix.effects) : 0;
+        const bool needPrime
+            = fxOn && (!channel.effectsPrimed || latency != channel.effectsLatency);
+        bool primeSounds = false;
+        if (needPrime && latency > 0) { // the stretch before the block, in time order
+            if (m_trackPrimeBuffer.size() < size_t(latency) * kChannels)
+                m_trackPrimeBuffer.resize(size_t(latency) * kChannels);
+            std::fill_n(m_trackPrimeBuffer.data(), size_t(latency) * kChannels, 0.0f);
+            primeSounds
+                = mixTrackClips(tl, nested, track, startSample48k, latency, m_trackPrimeBuffer.data());
+        }
         std::fill_n(trackBuffer, count, 0.0f);
-        const bool sounding
-            = wanted && mixTrackClips(tl, nested, track, startSample48k, frames, trackBuffer);
-        if (!sounding && channel.quiet)
+        const bool sounding = wanted
+            && mixTrackClips(tl, nested, track, startSample48k + latency, frames, trackBuffer);
+        if (!sounding && !primeSounds && channel.quiet) {
+            channel.effectsPrimed = false;
             continue;
+        }
+        if (fxOn) {
+            if (needPrime) {
+                channel.effects.reset();
+                if (latency > 0)
+                    channel.effects.process(track.mix.effects, m_trackPrimeBuffer.data(), latency);
+            }
+            channel.effects.process(track.mix.effects, trackBuffer, frames);
+        }
+        channel.effectsPrimed = fxOn;
+        channel.effectsLatency = latency;
 
         proc.setStrip(track.mix.strip);
         proc.processInserts(trackBuffer, frames, track.mix.mono);
@@ -117,6 +147,8 @@ void AudioMixer::mixTimeline(const TimelineData& tl, const NestedTimelines& nest
         channel.quiet = !sounding && proc.peak(0) < kQuietPeak && proc.peak(1) < kQuietPeak;
         if (channel.quiet) {
             proc.resetInserts(); // tails are gone: start clean when a clip plays again
+            channel.effects.reset();
+            channel.effectsPrimed = false;
             continue;
         }
         for (int busId : track.mix.buses) {

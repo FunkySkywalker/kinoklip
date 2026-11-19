@@ -52,6 +52,12 @@ public:
     /// sidebar calls it. A search text looks through every category.
     void setCategoryFilter(int category);
 
+    /// Picks the sidebar entry of EffectCategory @p category (the Audio page shows "Audio FX")
+    /// and filters the list to it. False if the sidebar has no such entry.
+    bool selectCategory(int category);
+    /// The category the list is filtered to (-1 = every one).
+    [[nodiscard]] int category() const { return m_category; }
+
     /// The context menu of entry @p descriptorId ("How to use <name>…" when the user guide has
     /// an article for it), or nullptr when it would be empty. The caller owns it.
     [[nodiscard]] QMenu* createContextMenu(const QString& descriptorId);

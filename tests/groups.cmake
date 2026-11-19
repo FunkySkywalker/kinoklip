@@ -20,7 +20,7 @@ set(KK_TESTS_FULL
   test_stabilizer test_stabilizecommand test_stabilizejob test_stabilizeui test_stabilizerender
   test_livecontrol test_cutpage test_editkeys test_menulayout test_mainwindow test_singlefile
   test_menureference test_container test_polish2shots test_pagespring test_e2eflow
-  test_bughunt12 test_inapphelp test_audiopage test_trackers test_schemecolors
+  test_bughunt12 test_inapphelp test_audiopage test_trackeffectsui test_trackers test_schemecolors
   test_embeddedmedia test_cli test_voiceover test_pagecommands test_openurl test_audiosync
   test_videodecoder test_polish4shots test_pointtracker test_mediamanagement test_commands
   test_adjustment check_menu_reference
@@ -29,7 +29,7 @@ set(KK_TESTS_FULL
 # Fast pure-logic and UI tests.
 set(KK_TESTS_QUICK
   check_issue_forms check_status check_vim_docs check_translations test_actionregistry test_aimodeldialog
-  test_animation test_audioclipeffects test_audioclipeffectsui test_noisereduction test_noisereductionui test_audiodecoder test_audiomixer
+  test_animation test_audioclipeffects test_audioclipeffectsui test_trackeffects test_noisereduction test_noisereductionui test_audiodecoder test_audiomixer
   test_audionormalize test_audiopitch test_audiorouting test_audiotransitions
   test_backgroundremoval test_bins test_birefnet test_boginspector test_bogplayback
   test_bogtimeline test_bughunt test_bughunt10 test_bughunt2 test_bughunt3 test_bughunt4

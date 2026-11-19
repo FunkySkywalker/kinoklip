@@ -171,6 +171,7 @@ private:
     std::unordered_map<quint64, std::unique_ptr<Channel>> m_trackChannels; ///< by track id
     std::unordered_map<int, std::unique_ptr<Channel>> m_busChannels; ///< by bus id
     std::vector<float> m_trackBuffer; ///< one track's signal (scratch)
+    std::vector<float> m_trackPrimeBuffer; ///< a track's slot priming samples (scratch)
     std::vector<std::vector<float>> m_busBuffers; ///< per MixerData::buses index (scratch)
     int64_t m_nextSample = std::numeric_limits<int64_t>::min(); ///< contiguity check
     MixLevels* m_levels = nullptr;

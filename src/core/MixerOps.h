@@ -73,6 +73,24 @@ bool setTrackMono(TimelineData& data, quint64 trackId, bool mono);
 /// Sets the automation mode of track @p trackId. Returns whether anything changed.
 bool setAutomationMode(TimelineData& data, quint64 trackId, AutomationMode mode);
 
+// ---- Track effect slots (spec 133) ----
+
+/// Adds an effect of audio effect descriptor @p type (EffectRegistry, category AudioEffect;
+/// the same ids and processors as a clip's audio effects) to track @p trackId at @p index (-1 =
+/// the end of the list). The new slot has the descriptor's defaults and a fresh id. Returns the
+/// id, or 0 for an unknown track or a type that is not an audio effect.
+quint64 addTrackEffect(TimelineData& data, quint64 trackId, const QString& type, int index = -1);
+/// Removes slot @p effectId of track @p trackId. Returns whether anything changed.
+bool removeTrackEffect(TimelineData& data, quint64 trackId, quint64 effectId);
+/// Switches slot @p effectId of track @p trackId on (@p enabled) or bypasses it. Returns
+/// whether anything changed.
+bool setTrackEffectEnabled(TimelineData& data, quint64 trackId, quint64 effectId, bool enabled);
+/// Moves slot @p effectId of track @p trackId to list position @p index (clamped). Returns
+/// whether anything changed.
+bool moveTrackEffect(TimelineData& data, quint64 trackId, quint64 effectId, int index);
+/// The slot @p effectId of track @p trackId, or nullptr.
+[[nodiscard]] EffectInstance* trackEffect(TimelineData& data, quint64 trackId, quint64 effectId);
+
 /// Clamps every value of @p strip to the documented control ranges (loader, ops).
 void clampStrip(ChannelStrip& strip);
 

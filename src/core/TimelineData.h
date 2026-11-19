@@ -6,6 +6,7 @@
 #include "core/Animation.h"
 #include "core/ClipAttributes.h"
 #include "core/Composition.h"
+#include "core/EffectInstance.h"
 #include "core/Grade.h"
 #include "core/Mask.h"
 #include "core/MixerData.h"
@@ -26,17 +27,6 @@
 namespace kk {
 
 struct TimelineData;
-
-/// An effect applied to a clip. `type` is an EffectRegistry descriptor id (e.g. "gaussian_blur").
-struct EffectInstance
-{
-    quint64 id = 0; ///< unique within the timeline (allocated with TimelineData::allocateId())
-    QString type;
-    bool enabled = true;
-    ParamSet params; ///< keys from the descriptor's ParamDescriptor list
-
-    friend bool operator==(const EffectInstance&, const EffectInstance&) = default;
-};
 
 /// Where a transition between two touching clips sits relative to the cut (spec 13.5).
 enum class TransitionAlignment {

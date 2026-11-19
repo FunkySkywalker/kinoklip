@@ -2,6 +2,7 @@
 // AudioPage layout and wiring.
 #include "app/pages/AudioPage.h"
 
+#include "core/EffectRegistry.h"
 #include "core/MixerOps.h"
 #include "core/Project.h"
 #include "core/Timeline.h"
@@ -14,6 +15,8 @@
 #include "ui/common/AppContext.h"
 #include "ui/common/PanelInfo.h"
 #include "ui/common/PanelSplitter.h"
+#include "ui/effects/EffectsLibraryPanel.h"
+#include "ui/inspector/InspectorPanel.h"
 #include "ui/timeline/TimelineController.h"
 #include "ui/timeline/TimelineLayout.h"
 #include "ui/timeline/TimelineWidget.h"
@@ -37,6 +40,9 @@ constexpr int kBottomRowHeight = 710;
 constexpr int kTimelineWidth = 1080;
 constexpr int kMixerWidth = 840;
 const QSize kFloatingViewerSize(480, 300);
+constexpr int kEffectsWidth = 320;
+constexpr int kInspectorWidth = 380;
+constexpr int kCentreWidth = 2300;
 
 /// Page-only commands (enabled while the Audio page is shown).
 constexpr const char* kPageActions[] = {"audio.float_viewer"};
@@ -110,9 +116,34 @@ AudioPage::AudioPage(AppContext& ctx, TimelineController* controller, QWidget* p
     m_main->setStretchFactor(1, 1);
     m_main->setSizes({kTopRowHeight, kBottomRowHeight});
 
+    // Effects Library (Audio FX) and Inspector: columns left and right, hidden until toggled.
+    m_effects = new EffectsLibraryPanel(ctx);
+    m_effects->selectCategory(int(EffectCategory::AudioEffect));
+    m_inspector = new InspectorPanel(ctx);
+    m_effects->hide();
+    m_inspector->hide();
+    m_outer = new PanelSplitter(Qt::Horizontal);
+    m_outer->addWidget(m_effects);
+    m_outer->addWidget(m_main);
+    m_outer->addWidget(m_inspector);
+    m_outer->setStretchFactor(1, 1);
+    m_outer->setSizes({kEffectsWidth, kCentreWidth, kInspectorWidth});
+
+    // A clicked strip shows its track's effects in the Inspector; a double-clicked slot opens
+    // its controls there.
+    connect(m_mixer, &MixerPanel::stripSelected, this, [this](const MixTarget& target) {
+        if (!target.isBus())
+            m_inspector->showTrack(target.id);
+    });
+    connect(m_mixer, &MixerPanel::effectOpenRequested, this,
+        [this](const MixTarget& target, quint64 effectId) {
+            setPanelVisible(PanelId::Inspector, true);
+            m_inspector->inspectTrackEffect(target.id, effectId);
+        });
+
     auto* layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
-    layout->addWidget(m_main);
+    layout->addWidget(m_outer);
 
     connectActions();
     setPageActionsEnabled(false);
@@ -210,34 +241,57 @@ void AudioPage::hideEvent(QHideEvent* event)
         m_viewerWindow->hide();
 }
 
+QWidget* AudioPage::panelWidget(PanelId id) const
+{
+    switch (id) {
+    case PanelId::Mixer:
+        return m_mixer;
+    case PanelId::Effects:
+        return m_effects;
+    case PanelId::Inspector:
+        return m_inspector;
+    default:
+        return nullptr;
+    }
+}
+
 void AudioPage::setPanelVisible(PanelId id, bool visible)
 {
-    if (id != PanelId::Mixer || m_mixer->isHidden() == !visible)
+    QWidget* panel = panelWidget(id);
+    if (!panel || panel->isHidden() == !visible)
         return;
-    m_mixer->setVisible(visible);
+    panel->setVisible(visible);
     emit panelVisibilityChanged(id, visible);
 }
 
 bool AudioPage::isPanelVisible(PanelId id) const
 {
-    return id == PanelId::Mixer && !m_mixer->isHidden();
+    const QWidget* panel = panelWidget(id);
+    return panel && !panel->isHidden();
 }
 
 void AudioPage::saveLayout(QSettings& settings) const
 {
+    settings.setValue(QStringLiteral("outer"), m_outer->saveState());
     settings.setValue(QStringLiteral("main"), m_main->saveState());
     settings.setValue(QStringLiteral("topRow"), m_topRow->saveState());
     settings.setValue(QStringLiteral("bottomRow"), m_bottomRow->saveState());
-    settings.setValue(QStringLiteral("visible/mixer"), isPanelVisible(PanelId::Mixer));
+    for (PanelId id : {PanelId::Mixer, PanelId::Effects, PanelId::Inspector})
+        settings.setValue(QStringLiteral("visible/") + panelIdToString(id), isPanelVisible(id));
 }
 
 void AudioPage::restoreLayout(const QSettings& settings)
 {
+    m_outer->restoreState(settings.value(QStringLiteral("outer")).toByteArray());
     m_main->restoreState(settings.value(QStringLiteral("main")).toByteArray());
     m_topRow->restoreState(settings.value(QStringLiteral("topRow")).toByteArray());
     m_bottomRow->restoreState(settings.value(QStringLiteral("bottomRow")).toByteArray());
-    if (settings.contains(QStringLiteral("visible/mixer")))
-        setPanelVisible(PanelId::Mixer, settings.value(QStringLiteral("visible/mixer")).toBool());
+    // Splitter states carry visibility too; the explicit flags win.
+    for (PanelId id : {PanelId::Mixer, PanelId::Effects, PanelId::Inspector}) {
+        const QString key = QStringLiteral("visible/") + panelIdToString(id);
+        if (settings.contains(key))
+            setPanelVisible(id, settings.value(key).toBool());
+    }
 }
 
 } // namespace kk

@@ -493,7 +493,7 @@ comment of `DecoderPool`. `Compositor::prepareStats()` has the counters.
 | `YuvMath.*` | YUV → RGB coefficients (unit-tested on the CPU) |
 | `DecoderPool.*` | `VideoDecoder` reuse by path and position |
 | `AudioMixer.*` | audio mixing: clips, fades, transitions (`AudioMixer.cpp`) and the mixer graph of tracks and buses (`AudioMixerGraph.cpp`, state in `MixerChannel.h`) |
-| `AudioClipEffects.*` | the clip audio effect stack (`dsp::ClipEffectChain`): gain, EQ, compressor, limiter, high / low-pass, delay, reverb, noise reduction, run by `AudioMixer::mixClip` on the clip's source before volume / pan / fades; EQ and dynamics reuse `Equalizer` / `Dynamics` |
+| `AudioClipEffects.*` | the clip audio effect stack (`dsp::ClipEffectChain`): gain, EQ, compressor, limiter, high / low-pass, delay, reverb, noise reduction, run by `AudioMixer::mixClip` on the clip's source before volume / pan / fades; EQ and dynamics reuse `Equalizer` / `Dynamics`; also run on a whole track (`TrackMix::effects`, `AudioMixerGraph.cpp`, spec 133); `ClipEffect::latencyFrames()` is cancelled by reading the source ahead and priming after a restart |
 | `NoiseReduction.*` | the Noise Reduction clip effect (spec 132): `noise::Reducer` (RNNoise from `third_party/rnnoise`, or our STFT spectral gate; Threshold / Ratio expander, Reduction, Dry / Wet, Output Gain; 2-block latency, block-size independent), noise `Profile` learn / text form |
 | `ChannelProcessor.*` | one mixer channel: mono fold, EQ, dynamics, smoothed pan / fader gains, peaks |
 | `Biquad.*` | RBJ cookbook biquad design (high / low pass, shelves, bell, notch) and response |

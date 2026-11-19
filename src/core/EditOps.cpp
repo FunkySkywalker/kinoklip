@@ -1104,6 +1104,10 @@ bool checkInvariants(const TimelineData& data, QString* why)
                 return fail(trackName + QStringLiteral(" is in the wrong track list"));
             if (!claim(track.id, QStringLiteral("track ") + trackName))
                 return false;
+            for (const EffectInstance& fx : track.mix.effects) {
+                if (!claim(fx.id, QStringLiteral("track ") + trackName + QStringLiteral(" effect")))
+                    return false;
+            }
             for (size_t i = 0; i < track.clips.size(); ++i) {
                 const ClipData& c = track.clips[i];
                 const QString clipName = QStringLiteral("clip %1 on %2").arg(c.id).arg(trackName);
@@ -1164,6 +1168,8 @@ void normalizeIds(TimelineData& data)
     quint64 maxId = 0;
     forEachTrack(data, [&](TrackRef, const TrackData& track) {
         maxId = std::max(maxId, track.id);
+        for (const EffectInstance& fx : track.mix.effects)
+            maxId = std::max(maxId, fx.id);
         for (const ClipData& c : track.clips) {
             maxId = std::max({maxId, c.id, c.linkGroup});
             for (const EffectInstance& fx : c.effects)
@@ -1183,6 +1189,11 @@ void normalizeIds(TimelineData& data)
             seen.insert(c.id);
     });
     forEachTrack(data, [&](TrackRef, TrackData& track) {
+        for (EffectInstance& fx : track.mix.effects) {
+            if (fx.id == 0 || seen.contains(fx.id))
+                fx.id = data.allocateId();
+            seen.insert(fx.id);
+        }
         for (ClipData& c : track.clips) {
             for (EffectInstance& fx : c.effects) {
                 if (fx.id == 0 || seen.contains(fx.id))

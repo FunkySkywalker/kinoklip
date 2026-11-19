@@ -186,7 +186,7 @@ Beginner and intermediate tutorial workflows for Resolve's Color, Fairlight and 
 - [x] Compositing: viewer Onion Skin, Region of Interest, Rulers, safe area overlay, and Proxy / Auto Proxy / High Quality / Motion Blur toggle buttons with a disk cache
 - [x] Audio: files with several audio tracks (an OBS recording with game, mic and Discord): every stream becomes its own linked audio clip on consecutive tracks on every kind of edit, the Media Pool and the metadata show the track count, Clip Attributes chooses the tracks, the project stores the stream per clip, and the waveforms, meters, Audio page and render play the right one (spec 126)
 - [x] Audio: noise reduction with a local, open model (RNNoise, BSD-3-Clause, built in; spectral gate with Manual Learn; DeepFilterNet left open; spec 132)
-- [ ] Audio: Effects Library and Inspector on the Audio page, effect slots on mixer tracks
+- [x] Audio: Effects Library and Inspector on the Audio page, effect slots on mixer tracks (tracks only; buses left open; spec 133)
 - [ ] Audio: Normalize a whole track or bus / the main mix to a loudness target in one step
 - [ ] Audio: Voice Isolation button on a track and in the Inspector (local open model, optional)
 - [ ] Audio: Gate and Expander in the Dynamics window, a De-Esser effect, and a Dialogue Leveler

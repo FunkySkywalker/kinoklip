@@ -283,6 +283,28 @@
       ]
     },
     {
+      "id": "add-effects-to-an-audio-track",
+      "title": "Add effects to a whole audio track",
+      "file": "add-effects-to-an-audio-track.md",
+      "summary": "Put audio effects in slots on a mixer track with + FX or by dragging from the Effects Library, bypass and reorder them, and open their controls in the Inspector.",
+      "keywords": [
+        "track effects",
+        "effect slots",
+        "inserts",
+        "mixer",
+        "effects library",
+        "audio fx",
+        "bypass",
+        "compressor",
+        "equalizer"
+      ],
+      "contexts": [
+        "page:audio",
+        "panel:mixer",
+        "panel:effects"
+      ]
+    },
+    {
       "id": "remove-noise-from-a-clip",
       "title": "Remove background noise from a clip",
       "file": "remove-noise-from-a-clip.md",

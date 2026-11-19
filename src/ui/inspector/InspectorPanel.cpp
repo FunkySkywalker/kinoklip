@@ -6,6 +6,7 @@
 #include "compositing/tracking/StabilizeJob.h"
 #include "core/AudioTransitions.h"
 #include "core/EditOps.h"
+#include "core/MixerOps.h"
 #include "core/ParamKeys.h"
 #include "core/Project.h"
 #include "core/Retime.h"
@@ -75,6 +76,19 @@ constexpr quint64 kTrackStyleBit = quint64(1) << 63;
 quint64 trackStyleClipId(quint64 trackId)
 {
     return kTrackStyleBit | trackId;
+}
+
+/// Virtual clip ids address the effect slots of an audio track (bit 62 + TrackData::id).
+constexpr quint64 kTrackFxBit = quint64(1) << 62;
+
+quint64 trackFxClipId(quint64 trackId)
+{
+    return kTrackFxBit | trackId;
+}
+
+bool isTrackFxId(quint64 clipId)
+{
+    return (clipId & kTrackFxBit) && !(clipId & kTrackStyleBit);
 }
 
 TrackData* subtitleTrackById(TimelineData& data, quint64 trackId)
@@ -226,7 +240,10 @@ InspectorPanel::InspectorPanel(AppContext& ctx, QWidget* parent)
     Timeline* timeline = ctx.project->timeline();
     connect(timeline, &Timeline::changed, this, &InspectorPanel::onTimelineChanged);
     connect(timeline, &Timeline::playheadChanged, this, &InspectorPanel::refreshValues);
-    connect(ctx.project, &Project::projectReset, this, [this] { showClip(0); });
+    connect(ctx.project, &Project::projectReset, this, [this] {
+        m_trackId = 0;
+        showClip(0);
+    });
     // Ctrl+S right after typing a title: the typing step closes first (else the project is
     // dirty again just after the save).
     connect(ctx.project, &Project::aboutToSave, this, [this] {
@@ -259,8 +276,44 @@ InspectorPanel::~InspectorPanel()
 
 // ---- Public API ----
 
+void InspectorPanel::showTrack(quint64 trackId)
+{
+    if (!mixerops::audioTrack(m_ctx.project->timeline()->data(), trackId))
+        return;
+    const bool enter = m_trackId != trackId || m_clipId != 0;
+    m_trackId = trackId;
+    showClip(0);
+    if (enter)
+        m_tabs->setCurrentIndex(EffectsTab);
+}
+
+void InspectorPanel::inspectTrackEffect(quint64 trackId, quint64 effectId)
+{
+    m_collapsed.insert(QStringLiteral("fx:%1").arg(effectId), false);
+    showTrack(trackId);
+    m_tabs->setCurrentIndex(EffectsTab);
+    // The groups of the track's slots come in the order of the slots.
+    const TrackData* t = mixerops::audioTrack(m_ctx.project->timeline()->data(), trackId);
+    int slot = -1;
+    for (int i = 0; t && i < t->mix.effects.size(); ++i) {
+        if (t->mix.effects[i].id == effectId)
+            slot = i;
+    }
+    int n = 0;
+    for (int i = 0; slot >= 0 && i < m_groups.size(); ++i) {
+        if (m_groupClip[i] != trackFxClipId(trackId))
+            continue;
+        if (n++ == slot) {
+            m_groups[i]->setCollapsed(false);
+            m_tabScroll[EffectsTab]->ensureWidgetVisible(m_groups[i]);
+        }
+    }
+}
+
 void InspectorPanel::showClip(quint64 clipId)
 {
+    if (clipId != 0)
+        m_trackId = 0; // a clip takes the panel back from the track effects
     if (clipId != m_clipId)
         m_titleLayer = 0; // layer ids are per clip
     const Structure structure = computeStructure(clipId);
@@ -373,6 +426,19 @@ void InspectorPanel::goToKeyframe(bool forward)
 
 const ClipData* InspectorPanel::clip(quint64 clipId) const
 {
+    if (isTrackFxId(clipId)) {
+        if (const TrackData* t = mixerops::audioTrack(
+                m_ctx.project->timeline()->data(), clipId & ~kTrackFxBit)) {
+            m_trackFxProxy = ClipData {};
+            m_trackFxProxy.kind = ClipKind::Media;
+            m_trackFxProxy.id = clipId;
+            m_trackFxProxy.name = t->name;
+            m_trackFxProxy.duration = 1;
+            m_trackFxProxy.effects = t->mix.effects;
+            return &m_trackFxProxy;
+        }
+        return nullptr;
+    }
     if (clipId & kTrackStyleBit) {
         const TimelineData& data = m_ctx.project->timeline()->data();
         for (const TrackData& t : data.subtitleTracks) {
@@ -391,7 +457,7 @@ const ClipData* InspectorPanel::clip(quint64 clipId) const
 
 int64_t InspectorPanel::localFrame(quint64 clipId) const
 {
-    if (clipId & kTrackStyleBit)
+    if (clipId & (kTrackStyleBit | kTrackFxBit))
         return 0; // track styles are not animated
     const ClipData* c = clip(clipId);
     if (!c)
@@ -419,6 +485,19 @@ void InspectorPanel::modifyClip(quint64 clipId, const std::function<void(ClipDat
 {
     Timeline* timeline = m_ctx.project->timeline();
     TimelineData& data = timeline->mutableData();
+    if (isTrackFxId(clipId)) {
+        // Track effects: edit a stand-in clip and copy its effect list back to the track.
+        if (TrackData* t = mixerops::audioTrack(data, clipId & ~kTrackFxBit)) {
+            ClipData proxy;
+            proxy.kind = ClipKind::Media;
+            proxy.duration = 1;
+            proxy.effects = t->mix.effects;
+            mutate(proxy);
+            t->mix.effects = proxy.effects;
+            timeline->notifyChanged();
+        }
+        return;
+    }
     if (clipId & kTrackStyleBit) {
         // Track style: edit a stand-in clip and copy its parameter set back to the track.
         if (TrackData* t = subtitleTrackById(data, clipId & ~kTrackStyleBit)) {
@@ -474,7 +553,8 @@ void InspectorPanel::modifyClip(quint64 clipId, const std::function<void(ClipDat
 
 QVector<quint64> InspectorPanel::editPeers(quint64 clipId) const
 {
-    if (!m_ctx.selection || (clipId & kTrackStyleBit) || m_ctx.selection->clips().size() < 2)
+    if (!m_ctx.selection || (clipId & (kTrackStyleBit | kTrackFxBit))
+        || m_ctx.selection->clips().size() < 2)
         return {};
     return multiclip::peers(m_ctx.project->timeline()->data(), m_ctx.selection->clips(), clipId);
 }
@@ -518,7 +598,7 @@ void InspectorPanel::editClip(
 
 void InspectorPanel::seekLocalFrame(quint64 clipId, int64_t local)
 {
-    if (clipId & kTrackStyleBit)
+    if (clipId & (kTrackStyleBit | kTrackFxBit))
         return;
     if (const ClipData* c = clip(clipId))
         m_ctx.project->timeline()->setPlayhead(c->start + local);
@@ -570,8 +650,16 @@ InspectorPanel::Structure InspectorPanel::computeStructure(quint64 clipId) const
     Structure s;
     const TimelineData& data = m_ctx.project->timeline()->data();
     auto location = clipId ? editops::findClip(data, clipId) : std::nullopt;
-    if (!location)
+    if (!location) {
+        if (clipId == 0 && m_trackId != 0) {
+            if (const TrackData* t = mixerops::audioTrack(data, m_trackId)) {
+                s.trackId = m_trackId;
+                for (const EffectInstance& fx : t->mix.effects)
+                    s.trackEffectIds.append(fx.id);
+            }
+        }
         return s;
+    }
     // A linked video + audio pair is one item (spec 24.1): the Video tab edits the video
     // member, the Audio tab the audio member, whichever of the two was clicked.
     if (location->track.type == TrackType::Audio) {
@@ -828,7 +916,16 @@ void InspectorPanel::rebuild()
     }
 
     const ClipData* c = clip(m_clipId);
-    if (!c) {
+    const ClipData* trackFx = !c && m_trackId ? clip(trackFxClipId(m_trackId)) : nullptr;
+    if (trackFx) {
+        // Track mode: the track's effect slots on the Effects tab, the others as for no clip.
+        const QString hint = tr("Select a clip on the timeline to see and animate its properties.");
+        for (int tab = 0; tab < kTabCount; ++tab) {
+            if (tab != EffectsTab)
+                addPlaceholder(Tab(tab), hint);
+        }
+        buildEffectSection(*trackFx, trackFxClipId(m_trackId), EffectCategory::AudioEffect, {});
+    } else if (!c) {
         const QString hint = tr("Select a clip on the timeline to see and animate its properties.");
         for (int tab = 0; tab < kTabCount; ++tab)
             addPlaceholder(Tab(tab), hint);
@@ -1003,6 +1100,10 @@ void InspectorPanel::buildEffectSection(
         const QString id = d->id;
         return into->addAction(d->name, this,
             [this, id, clipId] {
+                if (isTrackFxId(clipId)) {
+                    addTrackEffect(clipId & ~kTrackFxBit, id);
+                    return;
+                }
                 // With several clips selected the effect goes onto all of them (1.8.1).
                 const QVector<quint64> selected
                     = m_ctx.selection ? m_ctx.selection->clips() : QVector<quint64> {};
@@ -1154,7 +1255,11 @@ void InspectorPanel::buildEffectSection(
 
     if (c.effects.isEmpty()) {
         addPlaceholder(EffectsTab,
-            tr("No effects on this clip.\nDrag one from the Effects library or use Add Effect."));
+            isTrackFxId(clipId)
+                ? tr("No effects on this track.\nDrag one from the Effects library or use "
+                     "Add Effect.")
+                : tr("No effects on this clip.\nDrag one from the Effects library or use Add "
+                     "Effect."));
         return;
     }
     for (int i = 0; i < c.effects.size(); ++i) {
@@ -1218,6 +1323,20 @@ void InspectorPanel::moveEffect(quint64 clipId, quint64 effectId, int delta)
             return;
         }
     });
+}
+
+bool InspectorPanel::addTrackEffect(quint64 trackId, const QString& descriptorId)
+{
+    quint64 added = 0;
+    m_ctx.project->beginEdit(tr("Add Audio Effect"));
+    added = mixerops::addTrackEffect(
+        m_ctx.project->timeline()->mutableData(), trackId, descriptorId);
+    if (added) {
+        m_ctx.project->endEdit();
+    } else {
+        m_ctx.project->cancelEdit();
+    }
+    return added != 0;
 }
 
 void InspectorPanel::removeEffect(quint64 clipId, quint64 effectId)
@@ -1431,6 +1550,16 @@ void InspectorPanel::refreshValues()
 void InspectorPanel::updateHeader()
 {
     const ClipData* c = clip(m_clipId);
+    if (!c && m_trackId) {
+        if (const TrackData* t = mixerops::audioTrack(m_ctx.project->timeline()->data(), m_trackId)) {
+            m_clipName->parentWidget()->setVisible(true);
+            m_clipName->setText(mixerops::targetName(
+                m_ctx.project->timeline()->data(), MixTarget::track(m_trackId)));
+            m_clipInfo->setText(tr("Track effects: %n effect(s)", nullptr, int(t->mix.effects.size())));
+            m_clipInfo->show();
+            return;
+        }
+    }
     // Like Resolve, the inspector shows only its tabs while nothing is selected (the tab
     // pages explain what to do); the header appears with a clip.
     m_clipName->parentWidget()->setVisible(c != nullptr);
@@ -1515,7 +1644,7 @@ void InspectorPanel::changeEvent(QEvent* event)
 
 void InspectorPanel::dragEnterEvent(QDragEnterEvent* event)
 {
-    if (m_clipId && event->mimeData()->hasFormat(QLatin1String(mime::Effect)))
+    if ((m_clipId || m_trackId) && event->mimeData()->hasFormat(QLatin1String(mime::Effect)))
         event->acceptProposedAction();
     else
         event->ignore();
@@ -1524,7 +1653,7 @@ void InspectorPanel::dragEnterEvent(QDragEnterEvent* event)
 void InspectorPanel::dragMoveEvent(QDragMoveEvent* event)
 {
     // Answer every move explicitly (Wayland: each one becomes wl_data_offer.accept).
-    if (m_clipId && event->mimeData()->hasFormat(QLatin1String(mime::Effect)))
+    if ((m_clipId || m_trackId) && event->mimeData()->hasFormat(QLatin1String(mime::Effect)))
         event->acceptProposedAction();
     else
         event->ignore();
@@ -1534,8 +1663,17 @@ void InspectorPanel::dropEvent(QDropEvent* event)
 {
     const QString id = QString::fromUtf8(event->mimeData()->data(QLatin1String(mime::Effect)));
     const EffectDescriptor* desc = EffectRegistry::instance().find(id);
-    if (!desc || !m_clipId) {
+    if (!desc || (!m_clipId && !m_trackId)) {
         event->ignore();
+        return;
+    }
+    if (!m_clipId) { // track mode: only audio effects fit
+        if (desc->category == EffectCategory::AudioEffect && addTrackEffect(m_trackId, id)) {
+            m_tabs->setCurrentIndex(EffectsTab);
+            event->acceptProposedAction();
+        } else {
+            event->ignore();
+        }
         return;
     }
     bool done = false;

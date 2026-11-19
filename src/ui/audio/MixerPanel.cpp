@@ -59,6 +59,16 @@ MixerStrip* MixerPanel::strip(const MixTarget& target) const
     return nullptr;
 }
 
+void MixerPanel::selectTarget(const MixTarget& target)
+{
+    if (m_selected && *m_selected == target)
+        return;
+    m_selected = target;
+    for (MixerStrip* s : std::as_const(m_strips))
+        s->setSelected(s->target() == target);
+    emit stripSelected(target);
+}
+
 void MixerPanel::sync()
 {
     const TimelineData& d = m_controller->data();
@@ -87,11 +97,16 @@ void MixerPanel::sync()
                 m_rowLayout->addWidget(line);
             }
             auto* strip = new MixerStrip(m_controller, m_meters, t);
+            strip->setSelected(m_selected && *m_selected == t);
+            connect(strip, &MixerStrip::selectRequested, this, &MixerPanel::selectTarget);
+            connect(strip, &MixerStrip::effectOpenRequested, this, &MixerPanel::effectOpenRequested);
             m_rowLayout->addWidget(strip);
             m_strips.append(strip);
         }
         m_rowLayout->addStretch(1);
         m_targets = targets;
+        if (m_selected && !targets.contains(*m_selected))
+            m_selected.reset();
     }
     refreshValues();
 }

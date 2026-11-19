@@ -17095,6 +17095,12 @@ Standard transition of this project</source>
         <translation>Нет подходящих эффектов</translation>
     </message>
     <message>
+        <source>No effects on this track.
+Drag one from the Effects library or use Add Effect.</source>
+        <translation>На этой дорожке нет эффектов.
+Перетащите эффект из библиотеки эффектов или используйте «Добавить эффект».</translation>
+    </message>
+    <message>
         <source>No effects on this clip.
 Drag one from the Effects library or use Add Effect.</source>
         <translation>В этом клипе нет эффектов.
@@ -17119,6 +17125,10 @@ Drag one from the Effects library or use Add Effect.</source>
     <message>
         <source>Reorder Effects</source>
         <translation>Изменить порядок эффектов</translation>
+    </message>
+    <message>
+        <source>Add Audio Effect</source>
+        <translation>Добавить аудиоэффект</translation>
     </message>
     <message>
         <source>Remove Effect</source>
@@ -17181,6 +17191,14 @@ Drag one from the Effects library onto the clip, or add one here.</source>
     <message>
         <source>Pitch works on clips at normal speed; this clip has a speed change</source>
         <translation>Высота тона работает на клипах с нормальной скоростью; у этого клипа изменена скорость</translation>
+    </message>
+    <message numerus="yes">
+        <source>Track effects: %n effect(s)</source>
+        <translation>
+            <numerusform>Эффекты дорожки: %n эффект</numerusform>
+            <numerusform>Эффекты дорожки: %n эффекта</numerusform>
+            <numerusform>Эффекты дорожки: %n эффектов</numerusform>
+        </translation>
     </message>
     <message>
         <source>No clip selected</source>
@@ -21660,6 +21678,14 @@ Import files with %1 or drop them here.</source>
         <translation>Динамика (компрессор, лимитер): светится, когда включена; нажмите для редактирования</translation>
     </message>
     <message>
+        <source>+ FX</source>
+        <translation>+ FX</translation>
+    </message>
+    <message>
+        <source>Add an audio effect to this track: it processes the whole track after its clips and before the track&apos;s EQ, dynamics, pan and fader. You can also drag an effect here from the Effects Library.</source>
+        <translation>Добавляет аудиоэффект на эту дорожку: он обрабатывает всю дорожку после её клипов и до эквалайзера, динамики, панорамы и фейдера дорожки. Эффект можно также перетащить сюда из библиотеки эффектов.</translation>
+    </message>
+    <message>
         <source>Bus assignment</source>
         <translation>Назначение шин</translation>
     </message>
@@ -21770,6 +21796,34 @@ Import files with %1 or drop them here.</source>
     <message>
         <source>Remove from Bus</source>
         <translation>Удалить из шины</translation>
+    </message>
+    <message>
+        <source>Add Audio Effect</source>
+        <translation>Добавить аудиоэффект</translation>
+    </message>
+    <message>
+        <source>Lit: the effect is on. Click to bypass %1, click again to switch it on.</source>
+        <translation>Горит: эффект включён. Нажмите, чтобы обойти %1, и ещё раз, чтобы включить его.</translation>
+    </message>
+    <message>
+        <source>%1: double-click to open its controls in the Inspector</source>
+        <translation>%1: двойной щелчок откроет его настройки в инспекторе</translation>
+    </message>
+    <message>
+        <source>Remove %1 from this track</source>
+        <translation>Убрать %1 с этой дорожки</translation>
+    </message>
+    <message>
+        <source>Enable Audio Effect</source>
+        <translation>Включить аудиоэффект</translation>
+    </message>
+    <message>
+        <source>Bypass Audio Effect</source>
+        <translation>Обойти аудиоэффект</translation>
+    </message>
+    <message>
+        <source>Remove Audio Effect</source>
+        <translation>Удалить аудиоэффект</translation>
     </message>
     <message>
         <source>Rename Bus</source>

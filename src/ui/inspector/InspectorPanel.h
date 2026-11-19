@@ -78,6 +78,15 @@ public:
     [[nodiscard]] quint64 audioClipId() const { return m_audioClipId; }
     /// Shows the clip with id @p clipId (0 = empty state).
     void showClip(quint64 clipId);
+    /// Shows the effects of audio track @p trackId (the track's effect slots, spec 133) on the
+    /// Effects tab: a selected mixer strip or track. A selected clip (showClip() with an id)
+    /// takes the panel back; 0 = nothing. Same Add Effect, bypass, reorder, remove and
+    /// parameter controls as a clip's audio effects.
+    void showTrack(quint64 trackId);
+    /// Track shown by showTrack() (0 = none).
+    [[nodiscard]] quint64 trackId() const { return m_trackId; }
+    /// showTrack() and open the controls of slot @p effectId (expanded and scrolled into view).
+    void inspectTrackEffect(quint64 trackId, quint64 effectId);
     /// Shows @p clipId on tab @p tab (a selected transition, the fx badge on the timeline).
     void inspect(quint64 clipId, Tab tab);
 
@@ -122,6 +131,8 @@ private:
     {
         quint64 clipId = 0;
         quint64 audioClipId = 0;
+        quint64 trackId = 0; ///< track effects mode (clipId = 0)
+        QVector<quint64> trackEffectIds; ///< that track's effect slots, in order
         ClipKind kind = ClipKind::Media;
         bool onVideoTrack = true;
         QVector<quint64> effectIds; ///< in order
@@ -192,6 +203,8 @@ private:
     void addTransitionGroup(const ClipData& clip, bool atHead);
     void moveEffect(quint64 clipId, quint64 effectId, int delta);
     void removeEffect(quint64 clipId, quint64 effectId);
+    /// Adds audio effect @p descriptorId to the end of track @p trackId's slots (one undo step).
+    bool addTrackEffect(quint64 trackId, const QString& descriptorId);
     // ---- Dynamic Zoom, Speed Change, Retime and Scaling (InspectorSpeed.cpp) ----
     void buildDynamicZoomSection(quint64 clipId);
     void buildSpeedSections(const ClipData& clip);
@@ -247,6 +260,10 @@ private:
     /// trackStyleClipId()): its `title` mirrors TrackData::subtitleStyle, so the generic
     /// parameter rows edit the track style. Refreshed by clip().
     mutable ClipData m_trackStyleProxy;
+    /// Stand-in clip of the track shown by showTrack() (virtual clip id, see trackFxClipId()):
+    /// its `effects` mirror TrackMix::effects, so the generic effect section edits the slots.
+    mutable ClipData m_trackFxProxy;
+    quint64 m_trackId = 0; ///< audio track shown in track mode (0 = none)
     QVector<ParamGroupBox*> m_groups;
     QVector<quint64> m_groupClip; ///< clip id bound to m_groups[i]
     QHash<QString, bool> m_collapsed; ///< group key → collapsed, survives rebuilds
