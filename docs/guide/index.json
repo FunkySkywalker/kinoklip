@@ -329,6 +329,30 @@
       ]
     },
     {
+      "id": "lower-music-under-a-voice-ducking",
+      "title": "Lower music under a voice (ducking)",
+      "file": "lower-music-under-a-voice-ducking.md",
+      "summary": "Let the music turn down by itself while someone speaks: key the music track's compressor from the voice track in the Dynamics window.",
+      "keywords": [
+        "ducking",
+        "duck music",
+        "sidechain",
+        "side chain",
+        "key",
+        "compressor",
+        "voice over music",
+        "gate",
+        "expander",
+        "de-esser",
+        "dialogue leveler",
+        "dynamics"
+      ],
+      "contexts": [
+        "page:audio",
+        "panel:mixer"
+      ]
+    },
+    {
       "id": "remove-noise-from-a-clip",
       "title": "Remove background noise from a clip",
       "file": "remove-noise-from-a-clip.md",

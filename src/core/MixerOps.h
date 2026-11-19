@@ -73,6 +73,22 @@ bool setTrackMono(TimelineData& data, quint64 trackId, bool mono);
 /// Sets the automation mode of track @p trackId. Returns whether anything changed.
 bool setAutomationMode(TimelineData& data, quint64 trackId, AutomationMode mode);
 
+// ---- Key (side chain) of the Dynamics section (spec 136) ----
+
+/// True if the strip of @p strip may take its key (the detector of its Gate and Compressor)
+/// from the track or bus @p source (KeyKind::Self is always allowed). Refused: an unknown track
+/// or bus, the strip itself, and every source that would make a loop: a source that depends on
+/// the strip. A channel depends on its own key source, and a bus on every track routed to it,
+/// so a track cannot key itself through a bus it feeds, and two tracks cannot key each other.
+[[nodiscard]] bool keySourceAllowed(
+    const TimelineData& data, const MixTarget& strip, KeyKind kind, quint64 sourceId);
+/// Sets the key of @p strip. Refused (false) when keySourceAllowed() says no; also false when
+/// nothing changed.
+bool setKeySource(TimelineData& data, const MixTarget& strip, KeyKind kind, quint64 sourceId);
+/// The key source of @p strip that really applies: KeyKind::Self when none is set or the
+/// source no longer exists or would loop (a hand-edited or damaged project).
+[[nodiscard]] DynamicsSettings effectiveKey(const TimelineData& data, const MixTarget& strip);
+
 // ---- Track effect slots (spec 133) ----
 
 /// Adds an effect of audio effect descriptor @p type (EffectRegistry, category AudioEffect;

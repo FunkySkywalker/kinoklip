@@ -48,8 +48,11 @@ Instead (or as well), the render can set the loudness of the file:
 2. Tick **Normalize audio to** and choose the standard. The target and the **True peak limit**
    are shown; with **Custom** you can type your own numbers.
 3. Render. Kinoklip measures the whole mix first, then renders the file about 0.5 LU from the
-   target. If a peak would be above the true peak limit, it is limited, so the sound does not
-   distort.
+   target. If a peak would be above the true peak limit, a look-ahead limiter takes it down,
+   so the sound does not distort, and Kinoklip measures the limited result and corrects the
+   gain so the loudness still lands on the target. If the target cannot be reached under the
+   limit, or needs heavy limiting, the job in the render queue says so ("loudness target not
+   reached" or "heavy limiting"; hover it for the numbers).
 
 ## Tips
 

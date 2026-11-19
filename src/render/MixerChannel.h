@@ -22,6 +22,9 @@ struct AudioMixer::Channel
     /// No sound and no filter / envelope tail: the channel's processing is skipped until a
     /// clip plays on it again.
     bool quiet = true;
+    /// The channel's signal after its fader in this block, kept for the strips that take it as
+    /// their key (spec 136); zeros when it did not sound. Only filled for key sources.
+    std::vector<float> keyOut;
     qint64 lastUsedMs = 0; ///< for collectIdle() (deleted tracks / buses)
 };
 

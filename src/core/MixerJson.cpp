@@ -68,6 +68,23 @@ QJsonObject stripToJson(const ChannelStrip& s)
         const DynamicsSettings& d = s.dynamics;
         const DynamicsSettings dd;
         QJsonObject dyn;
+        putIf(dyn, "gate", d.gateEnabled, dd.gateEnabled);
+        if (d.gateMode != dd.gateMode)
+            dyn[key("gateMode")] = QStringLiteral("expander");
+        putIf(dyn, "gateThreshold", d.gateThresholdDb, dd.gateThresholdDb);
+        putIf(dyn, "gateRange", d.gateRangeDb, dd.gateRangeDb);
+        putIf(dyn, "gateRatio", d.gateRatio, dd.gateRatio);
+        putIf(dyn, "gateAttack", d.gateAttackMs, dd.gateAttackMs);
+        putIf(dyn, "gateHold", d.gateHoldMs, dd.gateHoldMs);
+        putIf(dyn, "gateRelease", d.gateReleaseMs, dd.gateReleaseMs);
+        putIf(dyn, "gateHysteresis", d.gateHysteresisDb, dd.gateHysteresisDb);
+        if (d.keyKind != dd.keyKind) {
+            dyn[key("keyKind")] = d.keyKind == KeyKind::Track ? QStringLiteral("track")
+                                                              : QStringLiteral("bus");
+            dyn[key("keyId")] = QString::number(d.keyId);
+        }
+        putIf(dyn, "keyLowCut", d.keyLowCutHz, dd.keyLowCutHz);
+        putIf(dyn, "keyHighCut", d.keyHighCutHz, dd.keyHighCutHz);
         putIf(dyn, "compressor", d.compressorEnabled, dd.compressorEnabled);
         putIf(dyn, "threshold", d.thresholdDb, dd.thresholdDb);
         putIf(dyn, "ratio", d.ratio, dd.ratio);
@@ -99,6 +116,26 @@ ChannelStrip stripFromJson(const QJsonObject& o)
     if (o.contains(key("dynamics"))) {
         const QJsonObject dyn = o.value(key("dynamics")).toObject();
         DynamicsSettings& d = s.dynamics;
+        d.gateEnabled = dyn.value(key("gate")).toBool(d.gateEnabled);
+        d.gateMode = dyn.value(key("gateMode")).toString() == QLatin1String("expander")
+            ? GateMode::Expander
+            : GateMode::Gate;
+        d.gateThresholdDb = dyn.value(key("gateThreshold")).toDouble(d.gateThresholdDb);
+        d.gateRangeDb = dyn.value(key("gateRange")).toDouble(d.gateRangeDb);
+        d.gateRatio = dyn.value(key("gateRatio")).toDouble(d.gateRatio);
+        d.gateAttackMs = dyn.value(key("gateAttack")).toDouble(d.gateAttackMs);
+        d.gateHoldMs = dyn.value(key("gateHold")).toDouble(d.gateHoldMs);
+        d.gateReleaseMs = dyn.value(key("gateRelease")).toDouble(d.gateReleaseMs);
+        d.gateHysteresisDb = dyn.value(key("gateHysteresis")).toDouble(d.gateHysteresisDb);
+        {
+            const QString kind = dyn.value(key("keyKind")).toString();
+            d.keyKind = kind == QLatin1String("track") ? KeyKind::Track
+                : kind == QLatin1String("bus")         ? KeyKind::Bus
+                                                       : KeyKind::Self;
+            d.keyId = d.keyKind == KeyKind::Self ? 0 : dyn.value(key("keyId")).toString().toULongLong();
+        }
+        d.keyLowCutHz = dyn.value(key("keyLowCut")).toDouble(d.keyLowCutHz);
+        d.keyHighCutHz = dyn.value(key("keyHighCut")).toDouble(d.keyHighCutHz);
         d.compressorEnabled = dyn.value(key("compressor")).toBool(d.compressorEnabled);
         d.thresholdDb = dyn.value(key("threshold")).toDouble(d.thresholdDb);
         d.ratio = dyn.value(key("ratio")).toDouble(d.ratio);

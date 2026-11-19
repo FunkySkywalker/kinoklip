@@ -73,9 +73,6 @@ void AudioMixer::mixTimeline(const TimelineData& tl, const NestedTimelines& nest
             buffer.resize(count);
         std::fill_n(buffer.data(), count, 0.0f);
     }
-    if (m_trackBuffer.size() < count)
-        m_trackBuffer.resize(count);
-    float* trackBuffer = m_trackBuffer.data();
     if (m_tapDest)
         std::fill_n(m_tapDest, count, 0.0f);
 
@@ -84,118 +81,219 @@ void AudioMixer::mixTimeline(const TimelineData& tl, const NestedTimelines& nest
         tl.audioTracks.begin(), tl.audioTracks.end(), [](const TrackData& t) { return t.solo; });
     const double framesPerSample = double(tl.fps.num) / (double(kSampleRate) * tl.fps.den);
 
-    // ---- Tracks ----
-    unsigned fedBuses = 0; // bit per bus index (more than 32 buses: always processed)
-    for (const TrackData& track : tl.audioTracks) {
-        Channel& channel = trackChannel(track.id);
-        channel.lastUsedMs = now;
-        dsp::ChannelProcessor& proc = channel.processor;
-        ChannelLevel* level = m_levels ? m_levels->tracks.add() : nullptr;
-        if (level) {
-            level->id = track.id;
-            level->mono = track.mix.mono;
+    // ---- Key (side chain) sources, spec 136 ----
+    // Strips may take the detector of their gate / compressor from another track or a bus.
+    // Channels are processed on demand: before a strip runs, the channel it keys from is
+    // processed first (a bus first processes the tracks routed to it), so the key is exactly
+    // this block's signal of that channel after its fader. Without keys this is the plain
+    // order: all tracks, then all buses.
+    const int trackCount = int(tl.audioTracks.size());
+    constexpr unsigned char kDone = 1, kBusy = 2, kIsKey = 4;
+    m_trackState.assign(size_t(trackCount), 0);
+    m_busState.assign(size_t(busCount), 0);
+    m_trackKeys.resize(size_t(trackCount));
+    m_busKeys.resize(size_t(busCount));
+    auto trackIndex = [&](quint64 id) {
+        for (int i = 0; i < trackCount; ++i) {
+            if (tl.audioTracks[size_t(i)].id == id)
+                return i;
         }
-        const bool audible = !track.muted && !(anySolo && !track.solo);
-        // A muted track is not decoded, except while its gain still glides down to 0.
-        const bool wanted = audible || proc.currentGain() > 0.0f;
-        // Track effect slots (spec 133): the track's clips are summed, then run through the
-        // slots. A slot that delays the sound (Noise Reduction) is compensated like a clip's:
-        // the clips are mixed that many samples ahead, and after a restart the first stretch
-        // is run through the slots first and dropped (priming), so the sound stays in place.
-        const bool fxOn = wanted && dsp::ClipEffectChain::hasActive(track.mix.effects);
-        const int latency = fxOn ? channel.effects.latencyFrames(track.mix.effects) : 0;
-        const bool needPrime
-            = fxOn && (!channel.effectsPrimed || latency != channel.effectsLatency);
-        bool primeSounds = false;
-        if (needPrime && latency > 0) { // the stretch before the block, in time order
-            if (m_trackPrimeBuffer.size() < size_t(latency) * kChannels)
-                m_trackPrimeBuffer.resize(size_t(latency) * kChannels);
-            std::fill_n(m_trackPrimeBuffer.data(), size_t(latency) * kChannels, 0.0f);
-            primeSounds
-                = mixTrackClips(tl, nested, track, startSample48k, latency, m_trackPrimeBuffer.data());
+        return -1;
+    };
+    auto markKey = [&](const MixTarget& strip, KeyKind& kind, int& index) {
+        const DynamicsSettings k = mixerops::effectiveKey(tl, strip);
+        kind = k.keyKind;
+        index = k.keyKind == KeyKind::Track ? trackIndex(k.keyId)
+            : k.keyKind == KeyKind::Bus     ? mixerops::busIndex(mixer, int(k.keyId))
+                                            : -1;
+        if (index < 0) {
+            kind = KeyKind::Self;
+            return;
         }
-        std::fill_n(trackBuffer, count, 0.0f);
-        const bool sounding = wanted
-            && mixTrackClips(tl, nested, track, startSample48k + latency, frames, trackBuffer);
-        if (!sounding && !primeSounds && channel.quiet) {
-            channel.effectsPrimed = false;
-            continue;
-        }
-        if (fxOn) {
-            if (needPrime) {
-                channel.effects.reset();
-                if (latency > 0)
-                    channel.effects.process(track.mix.effects, m_trackPrimeBuffer.data(), latency);
-            }
-            channel.effects.process(track.mix.effects, trackBuffer, frames);
-        }
-        channel.effectsPrimed = fxOn;
-        channel.effectsLatency = latency;
-
-        proc.setStrip(track.mix.strip);
-        proc.processInserts(trackBuffer, frames, track.mix.mono);
-        proc.applyGains(trackBuffer, frames, [&](int offset) {
-            const double frame = double(startSample48k + offset) * framesPerSample;
-            dsp::ChannelGains g;
-            g.gain = audible ? dbToGain(mixerops::faderDbAt(track, frame)) : 0.0f;
-            panGains(mixerops::panAt(track, frame), g.left, g.right);
-            return g;
-        });
-        if (m_tapDest && !m_tap.isBus() && m_tap.id == track.id)
-            std::copy_n(trackBuffer, count, m_tapDest);
-        if (level) {
-            level->peak[0] = proc.peak(0);
-            level->peak[1] = proc.peak(1);
-            level->gainReductionDb = proc.gainReductionDb();
-        }
-        channel.quiet = !sounding && proc.peak(0) < kQuietPeak && proc.peak(1) < kQuietPeak;
-        if (channel.quiet) {
-            proc.resetInserts(); // tails are gone: start clean when a clip plays again
-            channel.effects.reset();
-            channel.effectsPrimed = false;
-            continue;
-        }
-        for (int busId : track.mix.buses) {
-            const int b = mixerops::busIndex(mixer, busId);
-            if (b < 0)
-                continue;
-            addInto(m_busBuffers[size_t(b)].data(), trackBuffer, count);
-            if (b < 32)
-                fedBuses |= 1u << b;
-        }
+        (kind == KeyKind::Track ? m_trackState : m_busState)[size_t(index)] |= kIsKey;
+    };
+    for (int i = 0; i < trackCount; ++i) {
+        m_trackKeys[size_t(i)] = {KeyKind::Self, -1};
+        if (tl.audioTracks[size_t(i)].mix.strip.dynamics.keyKind != KeyKind::Self)
+            markKey(MixTarget::track(tl.audioTracks[size_t(i)].id), m_trackKeys[size_t(i)].first,
+                m_trackKeys[size_t(i)].second);
     }
-
-    // ---- Buses ----
     for (int b = 0; b < busCount; ++b) {
-        const BusData& bus = mixer.buses[size_t(b)];
-        Channel& channel = busChannel(bus.id);
-        channel.lastUsedMs = now;
-        dsp::ChannelProcessor& proc = channel.processor;
-        ChannelLevel* level = m_levels ? m_levels->buses.add() : nullptr;
-        if (level) {
-            level->id = quint64(bus.id);
-            level->mono = bus.mono;
-        }
-        const bool fed = b >= 32 || (fedBuses & (1u << b)) != 0;
-        if (!fed && channel.quiet)
-            continue;
-        float* buffer = m_busBuffers[size_t(b)].data();
-        proc.setStrip(bus.strip);
-        proc.processInserts(buffer, frames, bus.mono);
-        const float gain = bus.strip.muted ? 0.0f : dbToGain(bus.strip.volumeDb);
-        proc.applyGains(
-            buffer, frames, [gain](int) { return dsp::ChannelGains {gain, 1.0f, 1.0f}; });
-        if (m_tapDest && m_tap.isBus() && m_tap.id == quint64(bus.id))
-            std::copy_n(buffer, count, m_tapDest);
-        if (level) {
-            level->peak[0] = proc.peak(0);
-            level->peak[1] = proc.peak(1);
-            level->gainReductionDb = proc.gainReductionDb();
-        }
-        channel.quiet = !fed && proc.peak(0) < kQuietPeak && proc.peak(1) < kQuietPeak;
-        if (channel.quiet)
-            proc.resetInserts();
+        m_busKeys[size_t(b)] = {KeyKind::Self, -1};
+        if (mixer.buses[size_t(b)].strip.dynamics.keyKind != KeyKind::Self)
+            markKey(MixTarget::bus(mixer.buses[size_t(b)].id), m_busKeys[size_t(b)].first,
+                m_busKeys[size_t(b)].second);
     }
+    unsigned fedBuses = 0; // bit per bus index (more than 32 buses: always processed)
+
+    // Keeps (or zeroes) the signal of a key source for the strips that listen to it.
+    auto storeKey = [&](Channel& channel, const float* signal) {
+        if (channel.keyOut.size() < count)
+            channel.keyOut.resize(count);
+        if (signal)
+            std::copy_n(signal, count, channel.keyOut.data());
+        else
+            std::fill_n(channel.keyOut.data(), count, 0.0f);
+    };
+
+    // Processes track (@p isBus false) or bus @p index once; returns the channel for keys.
+    auto process = [&](auto& self, bool isBus, int index) -> void {
+        unsigned char& state = isBus ? m_busState[size_t(index)] : m_trackState[size_t(index)];
+        if (state & (kDone | kBusy))
+            return;
+        state |= kBusy;
+        const auto [keyKind, keyIndex] = isBus ? m_busKeys[size_t(index)] : m_trackKeys[size_t(index)];
+        const float* key = nullptr;
+        if (keyKind != KeyKind::Self) {
+            self(self, keyKind == KeyKind::Bus, keyIndex);
+            const unsigned char ks = keyKind == KeyKind::Bus ? m_busState[size_t(keyIndex)]
+                                                             : m_trackState[size_t(keyIndex)];
+            if (ks & kDone) { // not Busy: a loop leaves the key unset (own signal)
+                Channel& src = keyKind == KeyKind::Bus
+                    ? busChannel(mixer.buses[size_t(keyIndex)].id)
+                    : trackChannel(tl.audioTracks[size_t(keyIndex)].id);
+                if (src.keyOut.size() >= count)
+                    key = src.keyOut.data();
+            }
+        }
+        const bool isKey = (state & kIsKey) != 0;
+        if (!isBus) {
+            const TrackData& track = tl.audioTracks[size_t(index)];
+            Channel& channel = trackChannel(track.id);
+            channel.lastUsedMs = now;
+            dsp::ChannelProcessor& proc = channel.processor;
+            ChannelLevel* level = m_levels ? m_levels->tracks.add() : nullptr;
+            if (level) {
+                level->id = track.id;
+                level->mono = track.mix.mono;
+            }
+            const bool audible = !track.muted && !(anySolo && !track.solo);
+            // A muted track is not decoded, except while its gain still glides down to 0.
+            const bool wanted = audible || proc.currentGain() > 0.0f;
+            // Track effect slots (spec 133): the track's clips are summed, then run through the
+            // slots. A slot that delays the sound (Noise Reduction) is compensated like a clip's:
+            // the clips are mixed that many samples ahead, and after a restart the first stretch
+            // is run through the slots first and dropped (priming), so the sound stays in place.
+            const bool fxOn = wanted && dsp::ClipEffectChain::hasActive(track.mix.effects);
+            const int latency = fxOn ? channel.effects.latencyFrames(track.mix.effects) : 0;
+            const bool needPrime
+                = fxOn && (!channel.effectsPrimed || latency != channel.effectsLatency);
+            bool primeSounds = false;
+            if (needPrime && latency > 0) { // the stretch before the block, in time order
+                if (m_trackPrimeBuffer.size() < size_t(latency) * kChannels)
+                    m_trackPrimeBuffer.resize(size_t(latency) * kChannels);
+                std::fill_n(m_trackPrimeBuffer.data(), size_t(latency) * kChannels, 0.0f);
+                primeSounds = mixTrackClips(
+                    tl, nested, track, startSample48k, latency, m_trackPrimeBuffer.data());
+            }
+            // The key sources are processed before this point, so one scratch buffer is enough.
+            if (m_trackBuffer.size() < count)
+                m_trackBuffer.resize(count);
+            float* trackBuffer = m_trackBuffer.data();
+            std::fill_n(trackBuffer, count, 0.0f);
+            const bool sounding = wanted
+                && mixTrackClips(tl, nested, track, startSample48k + latency, frames, trackBuffer);
+            if (!sounding && !primeSounds && channel.quiet) {
+                channel.effectsPrimed = false;
+                if (isKey)
+                    storeKey(channel, nullptr);
+                state = kDone | (state & kIsKey);
+                return;
+            }
+            if (fxOn) {
+                if (needPrime) {
+                    channel.effects.reset();
+                    if (latency > 0)
+                        channel.effects.process(
+                            track.mix.effects, m_trackPrimeBuffer.data(), latency);
+                }
+                channel.effects.process(track.mix.effects, trackBuffer, frames);
+            }
+            channel.effectsPrimed = fxOn;
+            channel.effectsLatency = latency;
+
+            proc.setStrip(track.mix.strip);
+            proc.processInserts(trackBuffer, frames, track.mix.mono, key);
+            proc.applyGains(trackBuffer, frames, [&](int offset) {
+                const double frame = double(startSample48k + offset) * framesPerSample;
+                dsp::ChannelGains g;
+                g.gain = audible ? dbToGain(mixerops::faderDbAt(track, frame)) : 0.0f;
+                panGains(mixerops::panAt(track, frame), g.left, g.right);
+                return g;
+            });
+            if (isKey)
+                storeKey(channel, trackBuffer);
+            if (m_tapDest && !m_tap.isBus() && m_tap.id == track.id)
+                std::copy_n(trackBuffer, count, m_tapDest);
+            if (level) {
+                level->peak[0] = proc.peak(0);
+                level->peak[1] = proc.peak(1);
+                level->gainReductionDb = proc.gainReductionDb();
+            }
+            channel.quiet = !sounding && proc.peak(0) < kQuietPeak && proc.peak(1) < kQuietPeak;
+            if (channel.quiet) {
+                proc.resetInserts(); // tails are gone: start clean when a clip plays again
+                channel.effects.reset();
+                channel.effectsPrimed = false;
+            } else {
+                for (int busId : track.mix.buses) {
+                    const int b = mixerops::busIndex(mixer, busId);
+                    if (b < 0)
+                        continue;
+                    addInto(m_busBuffers[size_t(b)].data(), trackBuffer, count);
+                    if (b < 32)
+                        fedBuses |= 1u << b;
+                }
+            }
+        } else {
+            const BusData& bus = mixer.buses[size_t(index)];
+            // Every track routed to the bus first.
+            for (int i = 0; i < trackCount; ++i) {
+                if (tl.audioTracks[size_t(i)].mix.buses.contains(bus.id))
+                    self(self, false, i);
+            }
+            Channel& channel = busChannel(bus.id);
+            channel.lastUsedMs = now;
+            dsp::ChannelProcessor& proc = channel.processor;
+            ChannelLevel* level = m_levels ? m_levels->buses.add() : nullptr;
+            if (level) {
+                level->id = quint64(bus.id);
+                level->mono = bus.mono;
+            }
+            const bool fed = index >= 32 || (fedBuses & (1u << index)) != 0;
+            if (!fed && channel.quiet) {
+                if (isKey)
+                    storeKey(channel, nullptr);
+                state = kDone | (state & kIsKey);
+                return;
+            }
+            float* buffer = m_busBuffers[size_t(index)].data();
+            proc.setStrip(bus.strip);
+            proc.processInserts(buffer, frames, bus.mono, key);
+            const float gain = bus.strip.muted ? 0.0f : dbToGain(bus.strip.volumeDb);
+            proc.applyGains(
+                buffer, frames, [gain](int) { return dsp::ChannelGains {gain, 1.0f, 1.0f}; });
+            if (isKey)
+                storeKey(channel, buffer);
+            if (m_tapDest && m_tap.isBus() && m_tap.id == quint64(bus.id))
+                std::copy_n(buffer, count, m_tapDest);
+            if (level) {
+                level->peak[0] = proc.peak(0);
+                level->peak[1] = proc.peak(1);
+                level->gainReductionDb = proc.gainReductionDb();
+            }
+            channel.quiet = !fed && proc.peak(0) < kQuietPeak && proc.peak(1) < kQuietPeak;
+            if (channel.quiet)
+                proc.resetInserts();
+        }
+        state = kDone | (state & kIsKey);
+    };
+
+    // ---- Tracks, then buses ----
+    for (int i = 0; i < trackCount; ++i)
+        process(process, false, i);
+    for (int b = 0; b < busCount; ++b)
+        process(process, true, b);
 
     // ---- Output ----
     int output = mixerops::busIndex(mixer, mixer.outputBus);

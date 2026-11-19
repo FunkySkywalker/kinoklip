@@ -32,6 +32,9 @@
 
 #include <QAction>
 #include <QApplication>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QDoubleSpinBox>
 #include <QLabel>
 #include <QMenu>
 #include <QMouseEvent>
@@ -324,6 +327,83 @@ private slots:
             }
         }
         QCOMPARE(elided, 2); // the input and the name plate
+    }
+
+    // 135: the Dynamics window's Gate / Expander and Key (side chain).
+    void dynamicsWindowHasGateAndKeyWithTooltips()
+    {
+        Fixture f;
+        f.showAudio();
+        f.project.beginEdit(QStringLiteral("Add track"));
+        TrackData extra;
+        extra.id = f.project.timeline()->mutableData().allocateId();
+        f.project.timeline()->mutableData().audioTracks.push_back(extra);
+        f.project.endEdit();
+        QCoreApplication::processEvents();
+        QVERIFY(f.data().audioTracks.size() >= 2);
+        const quint64 a2 = f.data().audioTracks[1].id;
+        DynamicsWindow* w = f.strip(MixTarget::track(f.a1()))->openDynamics();
+        QVERIFY(w);
+        int controls = 0;
+        for (QWidget* c : w->findChildren<QWidget*>()) {
+            if (qobject_cast<QDoubleSpinBox*>(c) || qobject_cast<QCheckBox*>(c)
+                || qobject_cast<QComboBox*>(c)) {
+                ++controls;
+                QVERIFY2(!c->toolTip().isEmpty(), qPrintable(c->objectName()));
+            }
+        }
+        QVERIFY(controls >= 22);
+        // The gate switch is one undo step.
+        auto* gate = w->findChild<QCheckBox*>(QStringLiteral("DynamicsGate"));
+        QVERIFY(gate);
+        const int steps = f.steps();
+        gate->click();
+        QCOMPARE(f.steps(), steps + 1);
+        QVERIFY(f.data().audioTracks[0].mix.strip.dynamics.gateEnabled);
+        f.project.undo();
+        QVERIFY(!f.data().audioTracks[0].mix.strip.dynamics.gateEnabled);
+        // The mode switch enables the expander ratio.
+        auto* mode = w->findChild<QComboBox*>(QStringLiteral("DynamicsGateMode"));
+        auto* ratio = w->findChild<QDoubleSpinBox*>(QStringLiteral("DynamicsGateRatio"));
+        QVERIFY(mode && ratio);
+        QVERIFY(!ratio->isEnabled());
+        mode->setCurrentIndex(1);
+        emit mode->activated(1);
+        QCOMPARE(f.data().audioTracks[0].mix.strip.dynamics.gateMode, GateMode::Expander);
+        QVERIFY(ratio->isEnabled());
+        // The key list: Self, the other track, the buses. A1 feeds the main bus, so the main
+        // bus (a loop) is greyed out; the other track is not.
+        auto* key = w->findChild<QComboBox*>(QStringLiteral("DynamicsKey"));
+        QVERIFY(key);
+        int trackRow = -1, busRow = -1;
+        for (int i = 0; i < key->count(); ++i) {
+            if (key->itemData(i, Qt::UserRole).toInt() == int(KeyKind::Track)
+                && key->itemData(i, Qt::UserRole + 1).toULongLong() == a2)
+                trackRow = i;
+            if (key->itemData(i, Qt::UserRole).toInt() == int(KeyKind::Bus))
+                busRow = i;
+        }
+        QVERIFY(trackRow >= 0 && busRow >= 0);
+        QVERIFY(key->model()->flags(key->model()->index(trackRow, 0)).testFlag(Qt::ItemIsEnabled));
+        QVERIFY(!key->model()->flags(key->model()->index(busRow, 0)).testFlag(Qt::ItemIsEnabled));
+        const int before = f.steps();
+        key->setCurrentIndex(trackRow);
+        emit key->activated(trackRow);
+        QCOMPARE(f.steps(), before + 1);
+        QCOMPARE(f.data().audioTracks[0].mix.strip.dynamics.keyKind, KeyKind::Track);
+        QCOMPARE(f.data().audioTracks[0].mix.strip.dynamics.keyId, a2);
+        f.project.undo();
+        QCOMPARE(f.data().audioTracks[0].mix.strip.dynamics.keyKind, KeyKind::Self);
+        f.project.redo();
+        QCOMPARE(f.data().audioTracks[0].mix.strip.dynamics.keyId, a2);
+        // A2 cannot now be keyed by A1.
+        DynamicsWindow* w2 = f.strip(MixTarget::track(a2))->openDynamics();
+        auto* key2 = w2->findChild<QComboBox*>(QStringLiteral("DynamicsKey"));
+        for (int i = 0; i < key2->count(); ++i) {
+            if (key2->itemData(i, Qt::UserRole + 1).toULongLong() == f.a1()
+                && key2->itemData(i, Qt::UserRole).toInt() == int(KeyKind::Track))
+                QVERIFY(!key2->model()->flags(key2->model()->index(i, 0)).testFlag(Qt::ItemIsEnabled));
+        }
     }
 
     void eqHandleDragIsOneUndoStep()

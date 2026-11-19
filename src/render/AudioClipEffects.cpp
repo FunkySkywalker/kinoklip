@@ -8,6 +8,7 @@
 #include "core/EffectRegistry.h"
 #include "render/AudioMixer.h"
 #include "render/Biquad.h"
+#include "render/DeEsser.h"
 #include "render/Dynamics.h"
 #include "render/Equalizer.h"
 #include "render/NoiseReduction.h"
@@ -369,6 +370,61 @@ private:
     QString m_profileText;
 };
 
+// ---- De-Esser and Dialogue Leveler (render/DeEsser.h) ----
+
+class DeEsserEffect final : public ClipEffect
+{
+public:
+    DeEsserEffect()
+        : m_deesser(kRate)
+    { }
+    void configure(const ParamSet& p) override
+    {
+        namespace k = afxkeys;
+        DeEsserSettings s;
+        s.frequencyHz = param(p, k::FrequencyHz, 6500, 2000, 12000);
+        s.rangeDb = param(p, k::DeRangeDb, 9, 0, 24);
+        s.amountPercent = param(p, k::DeAmount, 50, 0, 100);
+        s.reactionMs = param(p, k::DeReactionMs, 10, 1, 100);
+        s.listen = p.staticValue(QLatin1String(k::DeListen), false).toBool();
+        m_deesser.configure(s);
+    }
+    void reset() override { m_deesser.reset(); }
+    void process(float* io, int frames) override { m_deesser.process(io, frames); }
+
+private:
+    DeEsser m_deesser;
+};
+
+class DialogueLevelerEffect final : public ClipEffect
+{
+public:
+    DialogueLevelerEffect()
+        : m_leveler(kRate)
+    { }
+    void configure(const ParamSet& p) override
+    {
+        namespace k = afxkeys;
+        LevelerSettings s;
+        s.targetDb = param(p, k::LvTargetDb, -20, -50, -6);
+        s.maxUpDb = param(p, k::LvMaxUpDb, 12, 0, 30);
+        s.maxDownDb = param(p, k::LvMaxDownDb, 12, 0, 30);
+        const QString speed
+            = p.staticValue(QLatin1String(k::LvSpeed), QLatin1String(afxchoice::LvMedium)).toString();
+        s.speed = speed == QLatin1String(afxchoice::LvSlow) ? LevelerSpeed::Slow
+            : speed == QLatin1String(afxchoice::LvFast)     ? LevelerSpeed::Fast
+                                                            : LevelerSpeed::Medium;
+        s.noiseFloorDb = param(p, k::LvNoiseFloorDb, -55, -80, -20);
+        s.backgroundDb = param(p, k::LvBackgroundDb, 0, 0, 24);
+        m_leveler.configure(s);
+    }
+    void reset() override { m_leveler.reset(); }
+    void process(float* io, int frames) override { m_leveler.process(io, frames); }
+
+private:
+    DialogueLeveler m_leveler;
+};
+
 std::unique_ptr<ClipEffect> create(const QString& type)
 {
     using namespace afxid;
@@ -390,6 +446,10 @@ std::unique_ptr<ClipEffect> create(const QString& type)
         return std::make_unique<ReverbEffect>();
     if (type == QLatin1String(NoiseReduction))
         return std::make_unique<NoiseReductionEffect>();
+    if (type == QLatin1String(DeEsserFx))
+        return std::make_unique<DeEsserEffect>();
+    if (type == QLatin1String(LevelerFx))
+        return std::make_unique<DialogueLevelerEffect>();
     return nullptr;
 }
 

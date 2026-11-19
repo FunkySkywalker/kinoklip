@@ -17,6 +17,8 @@ inline constexpr char LowPass[] = "audio_lowpass";
 inline constexpr char Delay[] = "audio_delay";
 inline constexpr char Reverb[] = "audio_reverb";
 inline constexpr char NoiseReduction[] = "audio_noise_reduction";
+inline constexpr char DeEsserFx[] = "audio_deesser";
+inline constexpr char LevelerFx[] = "audio_dialogue_leveler";
 } // namespace afxid
 
 /// Parameter keys (stored in EffectInstance::params). All audio effect parameters are plain
@@ -55,6 +57,18 @@ inline constexpr char NrSensitivity[] = "sensitivity"; ///< percent
 inline constexpr char NrReductionDb[] = "reduction_db";
 inline constexpr char NrOutputDb[] = "output_db";
 inline constexpr char NrProfile[] = "nr_profile"; ///< hidden: the learned noise profile (core text)
+// De-Esser (spec 136). FrequencyHz is shared with the filters.
+inline constexpr char DeRangeDb[] = "range_db";
+inline constexpr char DeAmount[] = "amount"; ///< percent
+inline constexpr char DeReactionMs[] = "reaction_ms";
+inline constexpr char DeListen[] = "listen"; ///< bool
+// Dialogue Leveler (spec 136).
+inline constexpr char LvTargetDb[] = "target_db";
+inline constexpr char LvMaxUpDb[] = "max_up_db";
+inline constexpr char LvMaxDownDb[] = "max_down_db";
+inline constexpr char LvSpeed[] = "speed"; ///< afxchoice::LvSlow / LvMedium / LvFast
+inline constexpr char LvNoiseFloorDb[] = "noise_floor_db";
+inline constexpr char LvBackgroundDb[] = "background_db";
 } // namespace afxkeys
 
 /// Choice values of the Noise Reduction effect.
@@ -63,6 +77,9 @@ inline constexpr char NrAuto[] = "auto";
 inline constexpr char NrLearn[] = "learn";
 inline constexpr char NrRnnoise[] = "rnnoise";
 inline constexpr char NrGate[] = "gate";
+inline constexpr char LvSlow[] = "slow";
+inline constexpr char LvMedium[] = "medium";
+inline constexpr char LvFast[] = "fast";
 } // namespace afxchoice
 
 /// Longest delay time (ms); the processor's buffer is sized for it.

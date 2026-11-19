@@ -46,8 +46,9 @@ public:
     /// quiet: it glides from where it was when it sounds again).
     void resetInserts();
 
-    /// Mono fold, EQ and dynamics over @p frames frames of @p io.
-    void processInserts(float* io, int frames, bool mono);
+    /// Mono fold, EQ and dynamics over @p frames frames of @p io. @p key (may be null): the
+    /// interleaved stereo key signal the dynamics detectors listen to (Dynamics::process()).
+    void processInserts(float* io, int frames, bool mono, const float* key = nullptr);
 
     /// Applies the smoothed gains: @p gainsAt(offset) gives the wanted gains at block edge
     /// @p offset (0 ... frames). Records the post-fader peaks (peak()).

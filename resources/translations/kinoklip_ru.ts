@@ -4312,6 +4312,118 @@ The program was probably closed by the system because the computer ran out of me
         <source>Time</source>
         <translation>Время</translation>
     </message>
+    <message>
+        <source>De-Esser</source>
+        <translation>Де-эссер</translation>
+    </message>
+    <message>
+        <source>Soften harsh s and sh sounds in speech</source>
+        <translation>Смягчает резкие звуки «с» и «ш» в речи</translation>
+    </message>
+    <message>
+        <source>The middle of the sound that is lowered: about 5000 for a deep voice, 7000 for a high one.</source>
+        <translation>Середина звука, который снижается: около 5000 для низкого голоса, 7000 для высокого.</translation>
+    </message>
+    <message>
+        <source>Range</source>
+        <translation>Диапазон</translation>
+    </message>
+    <message>
+        <source>The most the hissing sound is made quieter.</source>
+        <translation>Насколько максимум делается тише шипящий звук.</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Степень</translation>
+    </message>
+    <message>
+        <source>How strongly the hissing sound is held back. 0 does nothing; higher takes more off every s.</source>
+        <translation>Насколько сильно сдерживается шипящий звук. 0 ничего не делает; больше — убирает больше с каждого «с».</translation>
+    </message>
+    <message>
+        <source>Reaction Time</source>
+        <translation>Время реакции</translation>
+    </message>
+    <message>
+        <source>How fast the reduction lets go after an s. Short is more exact, long is smoother.</source>
+        <translation>Как быстро снижение отпускает после «с». Короткое точнее, длинное плавнее.</translation>
+    </message>
+    <message>
+        <source>Listen</source>
+        <translation>Прослушать</translation>
+    </message>
+    <message>
+        <source>Hear only the band that is being watched, to set the Frequency by ear. Switch it off again before you render.</source>
+        <translation>Слышать только контролируемую полосу, чтобы настроить частоту на слух. Выключите перед рендером.</translation>
+    </message>
+    <message>
+        <source>Dialogue Leveler</source>
+        <translation>Выравниватель диалога</translation>
+    </message>
+    <message>
+        <source>Even out how loud the speech is, quiet words up and loud words down</source>
+        <translation>Выравнивает громкость речи: тихие слова громче, громкие тише</translation>
+    </message>
+    <message>
+        <source>Target</source>
+        <translation>Цель</translation>
+    </message>
+    <message>
+        <source>The level the speech is brought to (average level of about a tenth of a second).</source>
+        <translation>Уровень, к которому приводится речь (средний уровень примерно за десятую долю секунды).</translation>
+    </message>
+    <message>
+        <source>Max Gain Up</source>
+        <translation>Макс. усиление вверх</translation>
+    </message>
+    <message>
+        <source>The most quiet speech is raised.</source>
+        <translation>Насколько максимум поднимается тихая речь.</translation>
+    </message>
+    <message>
+        <source>Max Gain Down</source>
+        <translation>Макс. снижение вниз</translation>
+    </message>
+    <message>
+        <source>The most loud speech is lowered.</source>
+        <translation>Насколько максимум снижается громкая речь.</translation>
+    </message>
+    <message>
+        <source>Speed</source>
+        <translation>Скорость</translation>
+    </message>
+    <message>
+        <source>Slow</source>
+        <translation>Медленно</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Средне</translation>
+    </message>
+    <message>
+        <source>Fast</source>
+        <translation>Быстро</translation>
+    </message>
+    <message>
+        <source>How fast the level follows the speech. Slow sounds natural, Fast evens out single words.</source>
+        <translation>Как быстро уровень следует за речью. Медленно звучит естественно, быстро выравнивает отдельные слова.</translation>
+    </message>
+    <message>
+        <source>Noise Floor</source>
+        <translation>Уровень шума</translation>
+    </message>
+    <message>
+        <source>Sound quieter than this is not speech and is never raised: breaths, pauses and room noise stay as they are.</source>
+        <translation>Звук тише этого не считается речью и никогда не поднимается: дыхание, паузы и шум комнаты остаются как есть.</translation>
+    </message>
+    <message>
+        <source>Background Reduction</source>
+        <translation>Подавление фона</translation>
+    </message>
+    <message>
+        <source>Optional: lower everything that is not speech by up to this much. 0 is off.</source>
+        <translation>По желанию: снижает всё, что не является речью, не более чем на это значение. 0 — выключено.</translation>
+    </message>
 </context>
 <context>
     <name>kk::BuiltinEffects</name>
@@ -11443,6 +11555,182 @@ Thank you for watching</source>
         <source>Dynamics - %1</source>
         <translation>Динамика — %1</translation>
     </message>
+    <message>
+        <source>Gate / Expander</source>
+        <translation>Гейт / Экспандер</translation>
+    </message>
+    <message>
+        <source>Switch the gate on. It makes the sound quieter while the key is under the threshold: silence between words, noise between notes.</source>
+        <translation>Включает гейт. Он делает звук тише, пока ключ ниже порога: тишина между словами, шум между нотами.</translation>
+    </message>
+    <message>
+        <source>Gate</source>
+        <translation>Гейт</translation>
+    </message>
+    <message>
+        <source>Expander</source>
+        <translation>Экспандер</translation>
+    </message>
+    <message>
+        <source>Gate drops the sound by the Range at once when the key is under the threshold. Expander lowers it gradually, by the Ratio, the further the key is under the threshold.</source>
+        <translation>Гейт сразу снижает звук на значение Диапазона, когда ключ ниже порога. Экспандер снижает его постепенно, по коэффициенту, чем ниже ключ относительно порога.</translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <translation>Режим</translation>
+    </message>
+    <message>
+        <source>Gate threshold</source>
+        <translation>Порог гейта</translation>
+    </message>
+    <message>
+        <source>The gate opens when the key level goes above this.</source>
+        <translation>Гейт открывается, когда уровень ключа поднимается выше этого значения.</translation>
+    </message>
+    <message>
+        <source>Range</source>
+        <translation>Диапазон</translation>
+    </message>
+    <message>
+        <source>How much quieter the sound gets while the gate is closed.</source>
+        <translation>Насколько тише становится звук, пока гейт закрыт.</translation>
+    </message>
+    <message>
+        <source>Expander ratio</source>
+        <translation>Коэффициент экспандера</translation>
+    </message>
+    <message>
+        <source>Expander only: for every dB the key is under the threshold the sound loses Ratio - 1 more dB, up to the Range.</source>
+        <translation>Только экспандер: на каждый дБ, на который ключ ниже порога, звук теряет ещё Коэффициент - 1 дБ, вплоть до Диапазона.</translation>
+    </message>
+    <message>
+        <source>Gate attack</source>
+        <translation>Атака гейта</translation>
+    </message>
+    <message>
+        <source>How fast the gate opens when the key rises.</source>
+        <translation>Как быстро открывается гейт, когда ключ растёт.</translation>
+    </message>
+    <message>
+        <source>Hold</source>
+        <translation>Удержание</translation>
+    </message>
+    <message>
+        <source>How long the gate stays open after the key fell under the threshold.</source>
+        <translation>Как долго гейт остаётся открытым после того, как ключ упал ниже порога.</translation>
+    </message>
+    <message>
+        <source>Gate release</source>
+        <translation>Спад гейта</translation>
+    </message>
+    <message>
+        <source>How fast the gate closes after the hold.</source>
+        <translation>Как быстро гейт закрывается после удержания.</translation>
+    </message>
+    <message>
+        <source>Hysteresis</source>
+        <translation>Гистерезис</translation>
+    </message>
+    <message>
+        <source>The gate closes only when the key is this far under the threshold, so it does not flutter on a level that hovers around it.</source>
+        <translation>Гейт закрывается, только когда ключ ниже порога на эту величину, чтобы он не дрожал на уровне, который колеблется возле порога.</translation>
+    </message>
+    <message>
+        <source>What the gate and the compressor listen to. Self is this strip. Pick another track or bus to duck by it, for example the music by the voice. Sources that would make a loop are greyed out.</source>
+        <translation>Что слушают гейт и компрессор. Self это эта полоса. Выберите другую дорожку или шину, чтобы приглушать по ней, например музыку по голосу. Источники, которые создали бы петлю, серые.</translation>
+    </message>
+    <message>
+        <source>Key</source>
+        <translation>Ключ (сайдчейн)</translation>
+    </message>
+    <message>
+        <source>Key low cut</source>
+        <translation>Срез низов ключа</translation>
+    </message>
+    <message>
+        <source> Hz</source>
+        <translation> Гц</translation>
+    </message>
+    <message>
+        <source>Sounds under this frequency are not heard by the key (20 Hz is off): a rumble does not open the gate or push the compressor.</source>
+        <translation>Звуки ниже этой частоты ключ не слышит (20 Гц — выключено): гул не открывает гейт и не нагружает компрессор.</translation>
+    </message>
+    <message>
+        <source>Key high cut</source>
+        <translation>Срез верхов ключа</translation>
+    </message>
+    <message>
+        <source>Sounds over this frequency are not heard by the key (20000 Hz is off).</source>
+        <translation>Звуки выше этой частоты ключ не слышит (20000 Гц — выключено).</translation>
+    </message>
+    <message>
+        <source>Switch the compressor on. It lowers loud parts.</source>
+        <translation>Включает компрессор. Он снижает громкие места.</translation>
+    </message>
+    <message>
+        <source>The compressor works on sound louder than this.</source>
+        <translation>Компрессор работает со звуком громче этого значения.</translation>
+    </message>
+    <message>
+        <source>For every Ratio dB over the threshold the output rises 1 dB.</source>
+        <translation>На каждые Коэффициент дБ выше порога выход растёт на 1 дБ.</translation>
+    </message>
+    <message>
+        <source>How fast the compressor lowers the sound.</source>
+        <translation>Как быстро компрессор снижает звук.</translation>
+    </message>
+    <message>
+        <source>How fast the compressor lets go.</source>
+        <translation>Как быстро компрессор отпускает.</translation>
+    </message>
+    <message>
+        <source>0 starts the compression at once at the threshold; more starts it softly before it.</source>
+        <translation>0 включает компрессию сразу на пороге; больше — плавно до него.</translation>
+    </message>
+    <message>
+        <source>Gain added after the compressor to make up for the level it took off.</source>
+        <translation>Усиление после компрессора, чтобы компенсировать снятый уровень.</translation>
+    </message>
+    <message>
+        <source>Switch the limiter on. Nothing goes over the ceiling.</source>
+        <translation>Включает лимитер. Ничто не выходит за потолок.</translation>
+    </message>
+    <message>
+        <source>The highest level the limiter lets through.</source>
+        <translation>Самый высокий уровень, который пропускает лимитер.</translation>
+    </message>
+    <message>
+        <source>How fast the limiter lets go.</source>
+        <translation>Как быстро лимитер отпускает.</translation>
+    </message>
+    <message>
+        <source>Enable Gate</source>
+        <translation>Включить гейт</translation>
+    </message>
+    <message>
+        <source>Bypass Gate</source>
+        <translation>Обход гейта</translation>
+    </message>
+    <message>
+        <source>Gate Mode</source>
+        <translation>Режим гейта</translation>
+    </message>
+    <message>
+        <source>Key Source</source>
+        <translation>Источник ключа</translation>
+    </message>
+    <message>
+        <source>Self</source>
+        <translation>Self</translation>
+    </message>
+    <message>
+        <source>Track %1</source>
+        <translation>Дорожка %1</translation>
+    </message>
+    <message>
+        <source>Bus %1</source>
+        <translation>Шина %1</translation>
+    </message>
 </context>
 <context>
     <name>kk::EditIndex</name>
@@ -16383,6 +16671,14 @@ Standard transition of this project</source>
     <message>
         <source>Audio encoding failed: %1</source>
         <translation>Сбой кодирования аудио: %1</translation>
+    </message>
+    <message>
+        <source>Normalize audio: the target of %1 LUFS cannot be reached under the %2 dBTP ceiling; the mix reaches %3 LUFS.</source>
+        <translation>Нормализация звука: цель %1 LUFS недостижима под потолком %2 dBTP; микс достигает %3 LUFS.</translation>
+    </message>
+    <message>
+        <source>Normalize audio: reaching %1 LUFS needs heavy limiting (up to %2 dB off the peaks).</source>
+        <translation>Нормализация звука: для достижения %1 LUFS нужно сильное лимитирование (до %2 дБ с пиков).</translation>
     </message>
 </context>
 <context>
@@ -27480,6 +27776,14 @@ The timelines that use the project settings are converted: clips, markers and ef
     <message>
         <source>Cancelled</source>
         <translation>Отменено</translation>
+    </message>
+    <message>
+        <source> · loudness target not reached</source>
+        <translation> · цель громкости не достигнута</translation>
+    </message>
+    <message>
+        <source> · heavy limiting</source>
+        <translation> · сильное лимитирование</translation>
     </message>
 </context>
 <context>

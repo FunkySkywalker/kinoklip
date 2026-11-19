@@ -41,6 +41,7 @@ not a count.
 | 26 | Remove background noise (hiss, hum, room noise) from a voice | Phone and camera recordings carry noise; Resolve users look for Fairlight's Noise Reduction with Learn (version 1.11 roadmap). | [Remove background noise from a clip](remove-noise-from-a-clip.md) |
 | 27 | Put effects on a whole audio track (compressor, equalizer, noise reduction) | Resolve users look for Fairlight's effect slots on a mixer track. | [Add effects to a whole audio track](add-effects-to-an-audio-track.md) |
 | 28 | Make a video loud enough for YouTube (loudness target, LUFS) | People ask what loudness YouTube, podcasts and TV want and how to reach it; Resolve users look for the loudness meter and Normalize Audio Levels (version 1.11 roadmap). | [Make your audio loud enough for YouTube](make-your-audio-loud-enough-for-youtube.md) |
+| 29 | Lower the music while someone speaks (ducking, sidechain) | Editors expect the music to dip under the voice; Resolve users look for Fairlight's key input on the compressor (version 1.11 roadmap). | [Lower music under a voice (ducking)](lower-music-under-a-voice-ducking.md) |
 
 Topics that come up often but that Kinoklip cannot do yet (no article until it can):
 

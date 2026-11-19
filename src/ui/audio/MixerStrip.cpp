@@ -331,7 +331,7 @@ void MixerStrip::refresh(int64_t frame)
     if (m_slotLayout)
         rebuildSlots(d);
     m_eq->setChecked(s->eq.enabled);
-    m_dynamics->setChecked(s->dynamics.compressorEnabled || s->dynamics.limiterEnabled);
+    m_dynamics->setChecked(s->dynamics.gateEnabled || s->dynamics.compressorEnabled || s->dynamics.limiterEnabled);
     if (m_target.isBus()) {
         const BusData* b = mixerops::bus(d, int(m_target.id));
         // The strip has a fixed width (as in Resolve): long names are elided, in full as the tip.

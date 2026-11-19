@@ -4304,6 +4304,118 @@ Das Programm wurde wahrscheinlich vom System beendet, weil der Arbeitsspeicher d
         <source>Time</source>
         <translation>Zeit</translation>
     </message>
+    <message>
+        <source>De-Esser</source>
+        <translation>De-Esser</translation>
+    </message>
+    <message>
+        <source>Soften harsh s and sh sounds in speech</source>
+        <translation>Mildert scharfe S- und Sch-Laute in der Sprache</translation>
+    </message>
+    <message>
+        <source>The middle of the sound that is lowered: about 5000 for a deep voice, 7000 for a high one.</source>
+        <translation>Die Mitte des Klangs, der abgesenkt wird: etwa 5000 für eine tiefe Stimme, 7000 für eine hohe.</translation>
+    </message>
+    <message>
+        <source>Range</source>
+        <translation>Range</translation>
+    </message>
+    <message>
+        <source>The most the hissing sound is made quieter.</source>
+        <translation>Um wie viel der zischende Klang höchstens leiser wird.</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Menge</translation>
+    </message>
+    <message>
+        <source>How strongly the hissing sound is held back. 0 does nothing; higher takes more off every s.</source>
+        <translation>Wie stark der zischende Klang zurückgehalten wird. 0 tut nichts; höher nimmt bei jedem S mehr weg.</translation>
+    </message>
+    <message>
+        <source>Reaction Time</source>
+        <translation>Reaktionszeit</translation>
+    </message>
+    <message>
+        <source>How fast the reduction lets go after an s. Short is more exact, long is smoother.</source>
+        <translation>Wie schnell die Absenkung nach einem S loslässt. Kurz ist genauer, lang ist weicher.</translation>
+    </message>
+    <message>
+        <source>Listen</source>
+        <translation>Hören</translation>
+    </message>
+    <message>
+        <source>Hear only the band that is being watched, to set the Frequency by ear. Switch it off again before you render.</source>
+        <translation>Nur das beobachtete Band hören, um die Frequenz nach Gehör einzustellen. Vor dem Rendern wieder ausschalten.</translation>
+    </message>
+    <message>
+        <source>Dialogue Leveler</source>
+        <translation>Dialogue Leveler</translation>
+    </message>
+    <message>
+        <source>Even out how loud the speech is, quiet words up and loud words down</source>
+        <translation>Gleicht die Lautstärke der Sprache an: leise Wörter hoch, laute Wörter runter</translation>
+    </message>
+    <message>
+        <source>Target</source>
+        <translation>Ziel</translation>
+    </message>
+    <message>
+        <source>The level the speech is brought to (average level of about a tenth of a second).</source>
+        <translation>Der Pegel, auf den die Sprache gebracht wird (Mittelwert über etwa eine Zehntelsekunde).</translation>
+    </message>
+    <message>
+        <source>Max Gain Up</source>
+        <translation>Max. Anhebung</translation>
+    </message>
+    <message>
+        <source>The most quiet speech is raised.</source>
+        <translation>Um wie viel leise Sprache höchstens angehoben wird.</translation>
+    </message>
+    <message>
+        <source>Max Gain Down</source>
+        <translation>Max. Absenkung</translation>
+    </message>
+    <message>
+        <source>The most loud speech is lowered.</source>
+        <translation>Um wie viel laute Sprache höchstens abgesenkt wird.</translation>
+    </message>
+    <message>
+        <source>Speed</source>
+        <translation>Geschwindigkeit</translation>
+    </message>
+    <message>
+        <source>Slow</source>
+        <translation>Langsam</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Mittel</translation>
+    </message>
+    <message>
+        <source>Fast</source>
+        <translation>Schnell</translation>
+    </message>
+    <message>
+        <source>How fast the level follows the speech. Slow sounds natural, Fast evens out single words.</source>
+        <translation>Wie schnell der Pegel der Sprache folgt. Langsam klingt natürlich, Schnell gleicht einzelne Wörter an.</translation>
+    </message>
+    <message>
+        <source>Noise Floor</source>
+        <translation>Rauschteppich</translation>
+    </message>
+    <message>
+        <source>Sound quieter than this is not speech and is never raised: breaths, pauses and room noise stay as they are.</source>
+        <translation>Leiserer Klang ist keine Sprache und wird nie angehoben: Atmer, Pausen und Raumrauschen bleiben, wie sie sind.</translation>
+    </message>
+    <message>
+        <source>Background Reduction</source>
+        <translation>Hintergrundreduktion</translation>
+    </message>
+    <message>
+        <source>Optional: lower everything that is not speech by up to this much. 0 is off.</source>
+        <translation>Optional: alles, was keine Sprache ist, um bis zu diesen Wert absenken. 0 ist aus.</translation>
+    </message>
 </context>
 <context>
     <name>kk::BuiltinEffects</name>
@@ -11432,6 +11544,182 @@ Danke fürs Zuschauen</translation>
         <source>Dynamics - %1</source>
         <translation>Dynamik - %1</translation>
     </message>
+    <message>
+        <source>Gate / Expander</source>
+        <translation>Gate / Expander</translation>
+    </message>
+    <message>
+        <source>Switch the gate on. It makes the sound quieter while the key is under the threshold: silence between words, noise between notes.</source>
+        <translation>Schaltet das Gate ein. Es macht den Klang leiser, solange der Key unter dem Schwellwert liegt: Stille zwischen Wörtern, Rauschen zwischen Noten.</translation>
+    </message>
+    <message>
+        <source>Gate</source>
+        <translation>Gate</translation>
+    </message>
+    <message>
+        <source>Expander</source>
+        <translation>Expander</translation>
+    </message>
+    <message>
+        <source>Gate drops the sound by the Range at once when the key is under the threshold. Expander lowers it gradually, by the Ratio, the further the key is under the threshold.</source>
+        <translation>Gate senkt den Klang sofort um den Range-Wert, wenn der Key unter dem Schwellwert liegt. Expander senkt ihn allmählich um das Verhältnis, je weiter der Key unter dem Schwellwert liegt.</translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <translation>Modus</translation>
+    </message>
+    <message>
+        <source>Gate threshold</source>
+        <translation>Gate-Schwellwert</translation>
+    </message>
+    <message>
+        <source>The gate opens when the key level goes above this.</source>
+        <translation>Das Gate öffnet sich, wenn der Key-Pegel darüber steigt.</translation>
+    </message>
+    <message>
+        <source>Range</source>
+        <translation>Range</translation>
+    </message>
+    <message>
+        <source>How much quieter the sound gets while the gate is closed.</source>
+        <translation>Um wie viel leiser der Klang wird, solange das Gate geschlossen ist.</translation>
+    </message>
+    <message>
+        <source>Expander ratio</source>
+        <translation>Expander-Verhältnis</translation>
+    </message>
+    <message>
+        <source>Expander only: for every dB the key is under the threshold the sound loses Ratio - 1 more dB, up to the Range.</source>
+        <translation>Nur Expander: Für jedes dB, das der Key unter dem Schwellwert liegt, verliert der Klang Verhältnis - 1 weitere dB, bis zum Range-Wert.</translation>
+    </message>
+    <message>
+        <source>Gate attack</source>
+        <translation>Gate-Attack</translation>
+    </message>
+    <message>
+        <source>How fast the gate opens when the key rises.</source>
+        <translation>Wie schnell sich das Gate öffnet, wenn der Key steigt.</translation>
+    </message>
+    <message>
+        <source>Hold</source>
+        <translation>Hold</translation>
+    </message>
+    <message>
+        <source>How long the gate stays open after the key fell under the threshold.</source>
+        <translation>Wie lange das Gate offen bleibt, nachdem der Key unter den Schwellwert gefallen ist.</translation>
+    </message>
+    <message>
+        <source>Gate release</source>
+        <translation>Gate-Release</translation>
+    </message>
+    <message>
+        <source>How fast the gate closes after the hold.</source>
+        <translation>Wie schnell das Gate nach dem Hold schließt.</translation>
+    </message>
+    <message>
+        <source>Hysteresis</source>
+        <translation>Hysterese</translation>
+    </message>
+    <message>
+        <source>The gate closes only when the key is this far under the threshold, so it does not flutter on a level that hovers around it.</source>
+        <translation>Das Gate schließt erst, wenn der Key so weit unter dem Schwellwert liegt, damit es bei einem Pegel um den Schwellwert nicht flattert.</translation>
+    </message>
+    <message>
+        <source>What the gate and the compressor listen to. Self is this strip. Pick another track or bus to duck by it, for example the music by the voice. Sources that would make a loop are greyed out.</source>
+        <translation>Worauf Gate und Kompressor hören. Self ist dieser Kanalzug. Wähle eine andere Spur oder einen Bus, um danach abzusenken, zum Beispiel die Musik durch die Stimme. Quellen, die eine Schleife ergeben würden, sind ausgegraut.</translation>
+    </message>
+    <message>
+        <source>Key</source>
+        <translation>Key (Sidechain)</translation>
+    </message>
+    <message>
+        <source>Key low cut</source>
+        <translation>Key-Low-Cut</translation>
+    </message>
+    <message>
+        <source> Hz</source>
+        <translation> Hz</translation>
+    </message>
+    <message>
+        <source>Sounds under this frequency are not heard by the key (20 Hz is off): a rumble does not open the gate or push the compressor.</source>
+        <translation>Klänge unter dieser Frequenz hört der Key nicht (20 Hz ist aus): Ein Dröhnen öffnet das Gate nicht und treibt den Kompressor nicht an.</translation>
+    </message>
+    <message>
+        <source>Key high cut</source>
+        <translation>Key-High-Cut</translation>
+    </message>
+    <message>
+        <source>Sounds over this frequency are not heard by the key (20000 Hz is off).</source>
+        <translation>Klänge über dieser Frequenz hört der Key nicht (20000 Hz ist aus).</translation>
+    </message>
+    <message>
+        <source>Switch the compressor on. It lowers loud parts.</source>
+        <translation>Schaltet den Kompressor ein. Er senkt laute Stellen ab.</translation>
+    </message>
+    <message>
+        <source>The compressor works on sound louder than this.</source>
+        <translation>Der Kompressor wirkt auf Klang, der lauter ist als dieser Wert.</translation>
+    </message>
+    <message>
+        <source>For every Ratio dB over the threshold the output rises 1 dB.</source>
+        <translation>Für jeweils Verhältnis dB über dem Schwellwert steigt der Ausgang um 1 dB.</translation>
+    </message>
+    <message>
+        <source>How fast the compressor lowers the sound.</source>
+        <translation>Wie schnell der Kompressor den Klang absenkt.</translation>
+    </message>
+    <message>
+        <source>How fast the compressor lets go.</source>
+        <translation>Wie schnell der Kompressor loslässt.</translation>
+    </message>
+    <message>
+        <source>0 starts the compression at once at the threshold; more starts it softly before it.</source>
+        <translation>0 startet die Kompression sofort am Schwellwert; mehr startet sie weich davor.</translation>
+    </message>
+    <message>
+        <source>Gain added after the compressor to make up for the level it took off.</source>
+        <translation>Verstärkung nach dem Kompressor, um den abgesenkten Pegel auszugleichen.</translation>
+    </message>
+    <message>
+        <source>Switch the limiter on. Nothing goes over the ceiling.</source>
+        <translation>Schaltet den Limiter ein. Nichts geht über das Ceiling.</translation>
+    </message>
+    <message>
+        <source>The highest level the limiter lets through.</source>
+        <translation>Der höchste Pegel, den der Limiter durchlässt.</translation>
+    </message>
+    <message>
+        <source>How fast the limiter lets go.</source>
+        <translation>Wie schnell der Limiter loslässt.</translation>
+    </message>
+    <message>
+        <source>Enable Gate</source>
+        <translation>Gate aktivieren</translation>
+    </message>
+    <message>
+        <source>Bypass Gate</source>
+        <translation>Gate umgehen</translation>
+    </message>
+    <message>
+        <source>Gate Mode</source>
+        <translation>Gate-Modus</translation>
+    </message>
+    <message>
+        <source>Key Source</source>
+        <translation>Key-Quelle</translation>
+    </message>
+    <message>
+        <source>Self</source>
+        <translation>Self</translation>
+    </message>
+    <message>
+        <source>Track %1</source>
+        <translation>Spur %1</translation>
+    </message>
+    <message>
+        <source>Bus %1</source>
+        <translation>Bus %1</translation>
+    </message>
 </context>
 <context>
     <name>kk::EditIndex</name>
@@ -16372,6 +16660,14 @@ Standardübergang dieses Projekts</translation>
     <message>
         <source>Audio encoding failed: %1</source>
         <translation>Audio-Kodierung fehlgeschlagen: %1</translation>
+    </message>
+    <message>
+        <source>Normalize audio: the target of %1 LUFS cannot be reached under the %2 dBTP ceiling; the mix reaches %3 LUFS.</source>
+        <translation>Audio normalisieren: Das Ziel von %1 LUFS ist unter der Obergrenze von %2 dBTP nicht erreichbar; der Mix erreicht %3 LUFS.</translation>
+    </message>
+    <message>
+        <source>Normalize audio: reaching %1 LUFS needs heavy limiting (up to %2 dB off the peaks).</source>
+        <translation>Audio normalisieren: Für %1 LUFS ist starkes Limiting nötig (bis zu %2 dB weniger an den Spitzen).</translation>
     </message>
 </context>
 <context>
@@ -27461,6 +27757,14 @@ Die Timelines, die die Projekteinstellungen verwenden, werden umgerechnet: Clips
     <message>
         <source>Cancelled</source>
         <translation>Abgebrochen</translation>
+    </message>
+    <message>
+        <source> · loudness target not reached</source>
+        <translation> · Lautheitsziel nicht erreicht</translation>
+    </message>
+    <message>
+        <source> · heavy limiting</source>
+        <translation> · starkes Limiting</translation>
     </message>
 </context>
 <context>

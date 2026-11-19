@@ -202,6 +202,104 @@ bool offsetFader(TimelineData& data, const MixTarget& target, double deltaDb)
     return changed;
 }
 
+namespace {
+
+/// Keys of one node of the key graph.
+struct KeyNode
+{
+    bool bus = false;
+    quint64 id = 0;
+};
+
+/// The key source of node @p n (kind Self when it has none or it is unknown).
+std::pair<KeyKind, quint64> keyOf(const TimelineData& d, KeyNode n)
+{
+    const ChannelStrip* s = strip(d, n.bus ? MixTarget::bus(int(n.id)) : MixTarget::track(n.id));
+    if (!s || s->dynamics.keyKind == KeyKind::Self)
+        return {KeyKind::Self, 0};
+    return {s->dynamics.keyKind, s->dynamics.keyId};
+}
+
+/// True if node @p from depends on node @p target (through keys and bus routes).
+bool dependsOn(const TimelineData& d, KeyNode from, KeyNode target, int depth = 0)
+{
+    if (depth > 64)
+        return true; // a loop that is already there: treat as dependent
+    if (from.bus == target.bus && from.id == target.id)
+        return true;
+    if (from.bus) {
+        for (const TrackData& t : d.audioTracks) {
+            if (t.mix.buses.contains(int(from.id))
+                && dependsOn(d, {false, t.id}, target, depth + 1))
+                return true;
+        }
+    }
+    const auto [kind, id] = keyOf(d, from);
+    if (kind != KeyKind::Self) {
+        const KeyNode src {kind == KeyKind::Bus, id};
+        if (dependsOn(d, src, target, depth + 1))
+            return true;
+    }
+    return false;
+}
+
+} // namespace
+
+bool keySourceAllowed(
+    const TimelineData& data, const MixTarget& strip, KeyKind kind, quint64 sourceId)
+{
+    if (kind == KeyKind::Self)
+        return true;
+    if (!mixerops::strip(data, strip))
+        return false;
+    const bool sourceBus = kind == KeyKind::Bus;
+    if (sourceBus ? !bus(data, int(sourceId)) : !audioTrack(data, sourceId))
+        return false;
+    const KeyNode self {strip.isBus(), strip.id};
+    const KeyNode source {sourceBus, sourceId};
+    if (self.bus == source.bus && self.id == source.id)
+        return false;
+    return !dependsOn(data, source, self);
+}
+
+bool setKeySource(TimelineData& data, const MixTarget& target, KeyKind kind, quint64 sourceId)
+{
+    ChannelStrip* s = strip(data, target);
+    if (!s || !keySourceAllowed(data, target, kind, sourceId))
+        return false;
+    if (kind == KeyKind::Self)
+        sourceId = 0;
+    if (s->dynamics.keyKind == kind && s->dynamics.keyId == sourceId)
+        return false;
+    s->dynamics.keyKind = kind;
+    s->dynamics.keyId = sourceId;
+    return true;
+}
+
+DynamicsSettings effectiveKey(const TimelineData& data, const MixTarget& target)
+{
+    DynamicsSettings out;
+    const ChannelStrip* s = strip(data, target);
+    if (!s)
+        return out;
+    const KeyNode self {target.isBus(), target.id};
+    const auto [kind, id] = keyOf(data, self);
+    if (kind == KeyKind::Self)
+        return out;
+    // Unknown source or a loop: Self. (The check runs with the strip's own key removed.)
+    const bool sourceBus = kind == KeyKind::Bus;
+    if (sourceBus ? !bus(data, int(id)) : !audioTrack(data, id))
+        return out;
+    const KeyNode source {sourceBus, id};
+    if (source.bus == self.bus && source.id == self.id)
+        return out;
+    if (dependsOn(data, source, self))
+        return out;
+    out.keyKind = kind;
+    out.keyId = id;
+    return out;
+}
+
 void clampStrip(ChannelStrip& s)
 {
     for (EqBand& b : s.eq.bands) {
@@ -210,6 +308,17 @@ void clampStrip(ChannelStrip& s)
         b.q = std::clamp(b.q, kEqMinQ, kEqMaxQ);
     }
     DynamicsSettings& d = s.dynamics;
+    d.gateThresholdDb = std::clamp(d.gateThresholdDb, kGateMinThresholdDb, 0.0);
+    d.gateRangeDb = std::clamp(d.gateRangeDb, 0.0, kGateMaxRangeDb);
+    d.gateRatio = std::clamp(d.gateRatio, 1.0, kGateMaxRatio);
+    d.gateAttackMs = std::clamp(d.gateAttackMs, kDynMinTimeMs, kDynMaxAttackMs);
+    d.gateHoldMs = std::clamp(d.gateHoldMs, 0.0, kGateMaxHoldMs);
+    d.gateReleaseMs = std::clamp(d.gateReleaseMs, kDynMinTimeMs, kDynMaxReleaseMs);
+    d.gateHysteresisDb = std::clamp(d.gateHysteresisDb, 0.0, kGateMaxHysteresisDb);
+    d.keyLowCutHz = std::clamp(d.keyLowCutHz, kKeyMinHz, kKeyMaxHz);
+    d.keyHighCutHz = std::clamp(d.keyHighCutHz, kKeyMinHz, kKeyMaxHz);
+    if (d.keyKind == KeyKind::Self)
+        d.keyId = 0;
     d.thresholdDb = std::clamp(d.thresholdDb, kDynMinThresholdDb, 0.0);
     d.ratio = std::clamp(d.ratio, 1.0, kDynMaxRatio);
     d.attackMs = std::clamp(d.attackMs, kDynMinTimeMs, kDynMaxAttackMs);

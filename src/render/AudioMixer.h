@@ -185,6 +185,9 @@ private:
     std::vector<float> m_trackBuffer; ///< one track's signal (scratch)
     std::vector<float> m_trackPrimeBuffer; ///< a track's slot priming samples (scratch)
     std::vector<std::vector<float>> m_busBuffers; ///< per MixerData::buses index (scratch)
+    // Key (side chain) scheduling of one mix call (scratch, spec 136).
+    std::vector<unsigned char> m_trackState, m_busState; ///< done / busy / is-a-key flags
+    std::vector<std::pair<KeyKind, int>> m_trackKeys, m_busKeys; ///< key kind and index
     int64_t m_nextSample = std::numeric_limits<int64_t>::min(); ///< contiguity check
     MixLevels* m_levels = nullptr;
     MixTarget m_tap; ///< setTap()

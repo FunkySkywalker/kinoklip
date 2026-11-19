@@ -6,6 +6,7 @@
 #include "core/Animation.h"
 #include "core/EffectInstance.h"
 
+#include <QtGlobal>
 #include <QString>
 #include <QVector>
 
@@ -59,9 +60,39 @@ struct EqSettings
     friend bool operator==(const EqSettings&, const EqSettings&) = default;
 };
 
-/// Compressor and limiter of a channel strip (render/Dynamics.h implements them).
+/// What the Gate / Expander section does below its threshold (Fairlight's Dynamics window).
+enum class GateMode {
+    Gate, ///< below the threshold the sound drops by the Range (a closed gate)
+    Expander ///< below the threshold the sound drops by (Ratio - 1) dB per dB, up to the Range
+};
+
+/// Where the detector of the Gate and the Compressor listens (the "Key" of the strip).
+enum class KeyKind {
+    Self, ///< the strip's own signal (the default)
+    Track, ///< the signal of another audio track (KeySource::id = TrackData::id) after its fader
+    Bus ///< the signal of a bus (KeySource::id = BusData::id) after its fader; only for buses
+};
+
+/// Gate / Expander, Compressor and Limiter of a channel strip, in signal flow order (render/
+/// Dynamics.h implements them), with the key (side-chain) source and key filters they share.
 struct DynamicsSettings
 {
+    // ---- Expander / Gate (spec 136) ----
+    bool gateEnabled = false;
+    GateMode gateMode = GateMode::Gate;
+    double gateThresholdDb = -45.0; ///< the gate opens above this key level (dBFS)
+    double gateRangeDb = 40.0; ///< most the sound is lowered when closed (dB, positive)
+    double gateRatio = 2.0; ///< Expander: output dB lost per dB the key is under the threshold + 1
+    double gateAttackMs = 1.0; ///< time to open
+    double gateHoldMs = 50.0; ///< the gate stays open this long after the key falls
+    double gateReleaseMs = 150.0; ///< time to close
+    double gateHysteresisDb = 3.0; ///< the gate closes this far under the threshold
+    // ---- Key (side chain), for the Gate and the Compressor ----
+    KeyKind keyKind = KeyKind::Self;
+    quint64 keyId = 0; ///< track or bus id when keyKind is not Self
+    double keyLowCutHz = 20.0; ///< key high-pass (20 = off)
+    double keyHighCutHz = 20000.0; ///< key low-pass (20000 = off)
+    // ---- Compressor and Limiter ----
     bool compressorEnabled = false;
     double thresholdDb = -20.0; ///< level above which the gain is reduced (dBFS)
     double ratio = 4.0; ///< input dB above the threshold per output dB (>= 1)
@@ -85,6 +116,13 @@ inline constexpr double kDynMaxReleaseMs = 4000.0;
 inline constexpr double kDynMaxMakeupDb = 24.0;
 inline constexpr double kDynMaxKneeDb = 24.0;
 inline constexpr double kLimiterMinCeilingDb = -30.0;
+inline constexpr double kGateMinThresholdDb = -80.0;
+inline constexpr double kGateMaxRangeDb = 80.0;
+inline constexpr double kGateMaxRatio = 10.0;
+inline constexpr double kGateMaxHoldMs = 2000.0;
+inline constexpr double kGateMaxHysteresisDb = 20.0;
+inline constexpr double kKeyMinHz = 20.0; ///< the key filters are off at the ends of their range
+inline constexpr double kKeyMaxHz = 20000.0;
 
 /// The processing of one mixer channel (a track or a bus), in signal flow order:
 /// EQ -> dynamics -> pan -> fader -> mute.

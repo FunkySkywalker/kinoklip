@@ -35,7 +35,7 @@ void ChannelProcessor::resetInserts()
     m_dynamics.reset();
 }
 
-void ChannelProcessor::processInserts(float* io, int frames, bool mono)
+void ChannelProcessor::processInserts(float* io, int frames, bool mono, const float* key)
 {
     if (mono) {
         for (int i = 0; i < frames; ++i) {
@@ -45,7 +45,7 @@ void ChannelProcessor::processInserts(float* io, int frames, bool mono)
         }
     }
     m_eq.process(io, frames);
-    m_dynamics.process(io, frames);
+    m_dynamics.process(io, frames, key);
 }
 
 } // namespace kk::dsp

@@ -12,6 +12,7 @@
 #include <utility>
 
 class QCheckBox;
+class QComboBox;
 class QDoubleSpinBox;
 class QFormLayout;
 class QLabel;
@@ -39,9 +40,13 @@ private:
     DynamicsSettings m_settings;
 };
 
-/// Tool window: compressor on, threshold, ratio, attack, release, knee, make-up; limiter on,
-/// ceiling, release; the transfer curve; the current gain reduction (from the meters). Each
-/// committed value or switch is one undo step.
+/// Tool window: Gate / Expander (on, mode, threshold, range, ratio, attack, hold, release,
+/// hysteresis), Key (source: Self or another track / bus, key low cut and high cut), compressor
+/// on, threshold, ratio, attack, release, knee, make-up; limiter on, ceiling, release; the
+/// transfer curve; the current gain reduction (from the meters). Each committed value or
+/// switch is one undo step. Every control has a tooltip. A key source that would make a loop
+/// (a track keying itself through a bus it feeds, two strips keying each other) is greyed out
+/// in the list.
 ///
 /// Thread-safety: GUI thread only.
 class DynamicsWindow : public QWidget
@@ -57,7 +62,9 @@ private:
     void refresh();
     void editDynamics(const QString& label, const std::function<void(DynamicsSettings&)>& change);
     QDoubleSpinBox* addField(QFormLayout* form, const QString& label, double min, double max,
-        int decimals, const QString& suffix, double DynamicsSettings::*field);
+        int decimals, const QString& suffix, double DynamicsSettings::*field,
+        const QString& tooltip, const char* objectName);
+    void fillKeyList(const TimelineData& data);
 
     MixerController* m_controller;
     MeterModel* m_meters;
@@ -65,6 +72,10 @@ private:
     TransferCurveView* m_curve = nullptr;
     QCheckBox* m_compressor = nullptr;
     QCheckBox* m_limiter = nullptr;
+    QCheckBox* m_gate = nullptr;
+    QComboBox* m_gateMode = nullptr;
+    QComboBox* m_key = nullptr;
+    QDoubleSpinBox* m_gateRatio = nullptr;
     QLabel* m_reduction = nullptr;
     QVector<std::pair<QDoubleSpinBox*, double DynamicsSettings::*>> m_fields;
 };

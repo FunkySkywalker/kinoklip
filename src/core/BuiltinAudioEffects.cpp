@@ -131,6 +131,46 @@ void EffectRegistry::registerAudioEffects()
                 return p;
             }(),
         }));
+    add(effect(DeEsserFx, tr("De-Esser"), tr("Soften harsh s and sh sounds in speech"),
+        {
+            tip(value(k::FrequencyHz, tr("Frequency"), 2000, 12000, 6500, 10, kHz),
+                tr("The middle of the sound that is lowered: about 5000 for a deep voice, 7000 "
+                   "for a high one.")),
+            tip(value(k::DeRangeDb, tr("Range"), 0, 24, 9, 0.5, kDb),
+                tr("The most the hissing sound is made quieter.")),
+            tip(value(k::DeAmount, tr("Amount"), 0, 100, 50, 1, kPercent),
+                tr("How strongly the hissing sound is held back. 0 does nothing; higher takes "
+                   "more off every s.")),
+            tip(value(k::DeReactionMs, tr("Reaction Time"), 1, 100, 10, 1, kMs),
+                tr("How fast the reduction lets go after an s. Short is more exact, long is "
+                   "smoother.")),
+            tip(boolean(QLatin1String(k::DeListen), tr("Listen"), false),
+                tr("Hear only the band that is being watched, to set the Frequency by ear. "
+                   "Switch it off again before you render.")),
+        }));
+    add(effect(LevelerFx, tr("Dialogue Leveler"),
+        tr("Even out how loud the speech is, quiet words up and loud words down"),
+        {
+            tip(value(k::LvTargetDb, tr("Target"), -50, -6, -20, 0.5, kDb),
+                tr("The level the speech is brought to (average level of about a tenth of a "
+                   "second).")),
+            tip(value(k::LvMaxUpDb, tr("Max Gain Up"), 0, 30, 12, 0.5, kDb),
+                tr("The most quiet speech is raised.")),
+            tip(value(k::LvMaxDownDb, tr("Max Gain Down"), 0, 30, 12, 0.5, kDb),
+                tr("The most loud speech is lowered.")),
+            tip(choice(QLatin1String(k::LvSpeed), tr("Speed"),
+                    {QLatin1String(afxchoice::LvSlow), QLatin1String(afxchoice::LvMedium),
+                        QLatin1String(afxchoice::LvFast)},
+                    {tr("Slow"), tr("Medium"), tr("Fast")}, QLatin1String(afxchoice::LvMedium)),
+                tr("How fast the level follows the speech. Slow sounds natural, Fast evens out "
+                   "single words.")),
+            tip(value(k::LvNoiseFloorDb, tr("Noise Floor"), -80, -20, -55, 0.5, kDb),
+                tr("Sound quieter than this is not speech and is never raised: breaths, pauses "
+                   "and room noise stay as they are.")),
+            tip(value(k::LvBackgroundDb, tr("Background Reduction"), 0, 24, 0, 0.5, kDb),
+                tr("Optional: lower everything that is not speech by up to this much. 0 is "
+                   "off.")),
+        }));
 }
 
 } // namespace kk
