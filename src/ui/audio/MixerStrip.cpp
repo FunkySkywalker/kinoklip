@@ -40,8 +40,8 @@ namespace kk {
 
 namespace {
 
-constexpr AutomationMode kModes[]
-    = {AutomationMode::Off, AutomationMode::Read, AutomationMode::Touch, AutomationMode::Write};
+constexpr AutomationMode kModes[] = {AutomationMode::Off, AutomationMode::Read,
+    AutomationMode::Touch, AutomationMode::Latch, AutomationMode::Write, AutomationMode::Trim};
 
 QString modeLabel(AutomationMode m)
 {
@@ -54,6 +54,10 @@ QString modeLabel(AutomationMode m)
         return QCoreApplication::translate("kk::MixerStrip", "Touch");
     case AutomationMode::Write:
         return QCoreApplication::translate("kk::MixerStrip", "Write");
+    case AutomationMode::Latch:
+        return QCoreApplication::translate("kk::MixerStrip", "Latch");
+    case AutomationMode::Trim:
+        return QCoreApplication::translate("kk::MixerStrip", "Trim");
     }
     return {};
 }
@@ -262,7 +266,10 @@ MixerStrip::MixerStrip(
     }
     if (!bus) {
         m_automation = new QComboBox;
-        m_automation->setToolTip(tr("Automation mode of the fader and pan"));
+        m_automation->setToolTip(tr("Automation mode of this track: Off ignores the curves, Read plays them, "
+                                    "Touch records while a control is held, Latch keeps the last value after "
+                                    "the release, Write records all the time, Trim adds your change to the "
+                                    "existing curve"));
         m_automation->setFocusPolicy(Qt::NoFocus);
         for (AutomationMode m : kModes)
             m_automation->addItem(modeLabel(m), int(m));

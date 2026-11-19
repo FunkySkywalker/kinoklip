@@ -14,10 +14,78 @@ namespace {
 constexpr double kPanMin = -1.0;
 constexpr double kPanMax = 1.0;
 
-double clampAutomation(const QString& key, double value)
+/// "send.N" -> N, or -1.
+int sendBusOfKey(const QString& key)
 {
-    return key == mixkeys::kPan ? std::clamp(value, kPanMin, kPanMax)
-                                : std::clamp(value, kFaderMinDb, kFaderMaxDb);
+    if (!key.startsWith(mixkeys::kSendPrefix))
+        return -1;
+    bool ok = false;
+    const int id = key.mid(mixkeys::kSendPrefix.size()).toInt(&ok);
+    return ok && id > 0 ? id : -1;
+}
+
+/// "fx.<id>.<param>" -> true with the pieces.
+bool splitEffectKey(const QString& key, quint64& effectId, QString& param)
+{
+    if (!key.startsWith(mixkeys::kEffectPrefix))
+        return false;
+    const qsizetype dot = key.indexOf(QLatin1Char('.'), mixkeys::kEffectPrefix.size());
+    if (dot < 0)
+        return false;
+    bool ok = false;
+    effectId = key.mid(mixkeys::kEffectPrefix.size(), dot - mixkeys::kEffectPrefix.size())
+                   .toULongLong(&ok);
+    param = key.mid(dot + 1);
+    return ok && effectId != 0 && !param.isEmpty();
+}
+
+/// Range of automation @p key of @p track; false for a key that is none of the known kinds.
+bool rangeOfKey(const TrackData& track, const QString& key, double& lo, double& hi)
+{
+    if (key == mixkeys::kVolumeDb) {
+        lo = kFaderMinDb;
+        hi = kFaderMaxDb;
+        return true;
+    }
+    if (key == mixkeys::kPan) {
+        lo = kPanMin;
+        hi = kPanMax;
+        return true;
+    }
+    if (key == mixkeys::kMute) {
+        lo = 0.0;
+        hi = 1.0;
+        return true;
+    }
+    if (sendBusOfKey(key) > 0) {
+        lo = kSendMinDb;
+        hi = kSendMaxDb;
+        return true;
+    }
+    quint64 id = 0;
+    QString param;
+    if (splitEffectKey(key, id, param)) {
+        for (const EffectInstance& fx : track.mix.effects) {
+            if (fx.id != id)
+                continue;
+            const EffectDescriptor* d = EffectRegistry::instance().find(fx.type);
+            const ParamDescriptor* pd = d ? d->param(param) : nullptr;
+            if (!pd || !pd->isScalar())
+                return false;
+            lo = pd->min;
+            hi = pd->max;
+            return true;
+        }
+    }
+    return false;
+}
+
+double clampAutomation(const TrackData& track, const QString& key, double value)
+{
+    double lo = 0.0, hi = 0.0;
+    if (!rangeOfKey(track, key, lo, hi))
+        return value;
+    return std::clamp(value, lo, hi);
 }
 
 } // namespace
@@ -469,22 +537,160 @@ double panAt(const TrackData& track, double frame)
     return track.mix.strip.pan;
 }
 
+bool mutedAt(const TrackData& track, double frame)
+{
+    if (readsAutomation(track.mix, mixkeys::kMute))
+        return track.mix.automationKeys.values.value(mixkeys::kMute).valueAtTime(frame) >= 0.5;
+    return track.muted;
+}
+
+QString sendKey(int busId)
+{
+    return mixkeys::kSendPrefix + QString::number(busId);
+}
+
+QString effectKey(quint64 effectId, const QString& paramKey)
+{
+    return mixkeys::kEffectPrefix + QString::number(effectId) + QLatin1Char('.') + paramKey;
+}
+
+bool parseSendKey(const QString& key, int& busId)
+{
+    busId = sendBusOfKey(key);
+    return busId > 0;
+}
+
+bool parseEffectKey(const QString& key, quint64& effectId, QString& paramKey)
+{
+    return splitEffectKey(key, effectId, paramKey);
+}
+
+double staticAutomationValue(const TrackData& track, const QString& key)
+{
+    if (key == mixkeys::kVolumeDb)
+        return track.mix.strip.volumeDb;
+    if (key == mixkeys::kPan)
+        return track.mix.strip.pan;
+    if (key == mixkeys::kMute)
+        return track.muted ? 1.0 : 0.0;
+    if (const int bus = sendBusOfKey(key); bus > 0) {
+        for (const SendData& s : track.mix.strip.sends) {
+            if (s.busId == bus)
+                return s.levelDb;
+        }
+        return 0.0;
+    }
+    quint64 id = 0;
+    QString param;
+    if (splitEffectKey(key, id, param)) {
+        for (const EffectInstance& fx : track.mix.effects) {
+            if (fx.id != id)
+                continue;
+            const EffectDescriptor* d = EffectRegistry::instance().find(fx.type);
+            const ParamDescriptor* pd = d ? d->param(param) : nullptr;
+            return fx.params.value(param, 0, pd ? pd->def : 0.0);
+        }
+    }
+    return 0.0;
+}
+
+double automationValueAt(const TrackData& track, const QString& key, double frame)
+{
+    if (readsAutomation(track.mix, key))
+        return track.mix.automationKeys.values.value(key).valueAtTime(frame);
+    return staticAutomationValue(track, key);
+}
+
+QVector<AutomationParam> automationParams(const TimelineData& data, const TrackData& track)
+{
+    QVector<AutomationParam> out;
+    out.append({mixkeys::kVolumeDb, QObject::tr("Volume"), kFaderMinDb, kFaderMaxDb, 0.0,
+        QObject::tr(" dB"), false});
+    out.append({mixkeys::kPan, QObject::tr("Pan"), kPanMin, kPanMax, 0.0, QString(), false});
+    out.append({mixkeys::kMute, QObject::tr("Mute"), 0.0, 1.0, 0.0, QString(), true});
+    for (const SendData& s : track.mix.strip.sends) {
+        const BusData* b = bus(data, s.busId);
+        out.append({sendKey(s.busId),
+            QObject::tr("Send to %1").arg(b ? busDisplayName(*b) : QString::number(s.busId)),
+            kSendMinDb, kSendMaxDb, 0.0, QObject::tr(" dB"), false});
+    }
+    for (const EffectInstance& fx : track.mix.effects) {
+        const EffectDescriptor* d = EffectRegistry::instance().find(fx.type);
+        if (!d)
+            continue;
+        for (const ParamDescriptor& pd : d->params) {
+            if (!pd.isScalar() || pd.hidden)
+                continue;
+            out.append({effectKey(fx.id, pd.key), d->name + QStringLiteral(": ") + pd.label,
+                pd.min, pd.max, pd.def, pd.unit, false});
+        }
+    }
+    return out;
+}
+
+std::optional<AutomationParam> automationParam(
+    const TimelineData& data, const TrackData& track, const QString& key)
+{
+    for (const AutomationParam& p : automationParams(data, track)) {
+        if (p.key == key)
+            return p;
+    }
+    return std::nullopt;
+}
+
+namespace {
+
+/// The curve of @p key on @p t, created from the static value when missing.
+AnimatedValue& curveOf(TrackData& t, const QString& key)
+{
+    return t.mix.automationKeys.animated(key, staticAutomationValue(t, key));
+}
+
+/// Drops the curve entry of @p key when its last key is gone (the static value plays again).
+void dropIfEmpty(TrackData& t, const QString& key)
+{
+    const auto it = t.mix.automationKeys.values.find(key);
+    if (it != t.mix.automationKeys.values.end() && !it->isAnimated())
+        t.mix.automationKeys.values.erase(it);
+}
+
+void markStepped(Keyframe& k, const QString& key)
+{
+    if (key == mixkeys::kMute)
+        applyInterp(k, Interp::Hold);
+}
+
+} // namespace
+
 bool writeAutomation(TimelineData& data, quint64 trackId, const QString& key, int64_t frame,
     double value, int64_t eraseFrom)
 {
     TrackData* t = audioTrack(data, trackId);
-    if (!t || frame < 0)
+    double lo = 0.0, hi = 0.0;
+    if (!t || frame < 0 || !rangeOfKey(*t, key, lo, hi))
         return false;
-    const double base = key == mixkeys::kPan ? t->mix.strip.pan : t->mix.strip.volumeDb;
-    AnimatedValue& curve = t->mix.automationKeys.animated(key, base);
+    AnimatedValue& curve = curveOf(*t, key);
     const AnimatedValue before = curve;
-    // Overwrite what the fader passed over since the last write (either direction).
-    const int64_t lo = std::min(eraseFrom, frame);
-    const int64_t hi = std::max(eraseFrom, frame);
+    // Overwrite what the control passed over since the last write (either direction).
+    const int64_t from = std::min(eraseFrom, frame);
+    const int64_t to = std::max(eraseFrom, frame);
     curve.keys.erase(std::remove_if(curve.keys.begin(), curve.keys.end(),
-                         [lo, hi](const Keyframe& k) { return k.frame > lo && k.frame < hi; }),
+                         [from, to](const Keyframe& k) { return k.frame > from && k.frame < to; }),
         curve.keys.end());
-    curve.setKey(frame, clampAutomation(key, value));
+    const double v = std::clamp(value, lo, hi);
+    // A stepped parameter (Mute) needs a key only where its value changes.
+    const bool stepped = key == mixkeys::kMute;
+    const qsizetype at = curve.indexOf(frame);
+    qsizetype prev = -1;
+    for (qsizetype i = 0; i < curve.keys.size() && curve.keys[i].frame < frame; ++i)
+        prev = i;
+    if (stepped && at < 0 && prev >= 0 && curve.keys[prev].value == v) {
+        // same step as before: nothing to add
+    } else {
+        curve.setKey(frame, v);
+        if (stepped)
+            markStepped(curve.keys[curve.indexOf(frame)], key);
+    }
     return !(curve == before);
 }
 
@@ -495,6 +701,130 @@ bool clearAutomation(TimelineData& data, quint64 trackId, const QString& key)
         return false;
     t->mix.automationKeys.values.remove(key);
     return true;
+}
+
+bool addAutomationPoint(
+    TimelineData& data, quint64 trackId, const QString& key, int64_t frame, double value)
+{
+    TrackData* t = audioTrack(data, trackId);
+    double lo = 0.0, hi = 0.0;
+    if (!t || frame < 0 || !rangeOfKey(*t, key, lo, hi))
+        return false;
+    AnimatedValue& curve = curveOf(*t, key);
+    const AnimatedValue before = curve;
+    curve.setKey(frame, std::clamp(value, lo, hi));
+    markStepped(curve.keys[curve.indexOf(frame)], key);
+    return !(curve == before);
+}
+
+bool moveAutomationPoint(TimelineData& data, quint64 trackId, const QString& key,
+    int64_t fromFrame, int64_t toFrame, double value)
+{
+    TrackData* t = audioTrack(data, trackId);
+    double lo = 0.0, hi = 0.0;
+    if (!t || toFrame < 0 || !rangeOfKey(*t, key, lo, hi))
+        return false;
+    const auto it = t->mix.automationKeys.values.find(key);
+    if (it == t->mix.automationKeys.values.end() || !it->hasKeyAt(fromFrame))
+        return false;
+    const AnimatedValue before = *it;
+    Keyframe k = it->keys[it->indexOf(fromFrame)];
+    it->removeKey(fromFrame); // the last key moves its value into base: putKey brings it back
+    k.frame = toFrame;
+    k.value = std::clamp(value, lo, hi);
+    it->putKey(k);
+    return !(*it == before);
+}
+
+bool removeAutomationPoint(TimelineData& data, quint64 trackId, const QString& key, int64_t frame)
+{
+    TrackData* t = audioTrack(data, trackId);
+    if (!t)
+        return false;
+    const auto it = t->mix.automationKeys.values.find(key);
+    if (it == t->mix.automationKeys.values.end() || !it->hasKeyAt(frame))
+        return false;
+    it->removeKey(frame);
+    dropIfEmpty(*t, key);
+    return true;
+}
+
+bool setAutomationPointInterp(
+    TimelineData& data, quint64 trackId, const QString& key, int64_t frame, Interp interp)
+{
+    TrackData* t = audioTrack(data, trackId);
+    if (!t)
+        return false;
+    const auto it = t->mix.automationKeys.values.find(key);
+    if (it == t->mix.automationKeys.values.end() || !it->hasKeyAt(frame))
+        return false;
+    Keyframe& k = it->keys[it->indexOf(frame)];
+    const Keyframe before = k;
+    applyInterp(k, interp);
+    return !(k == before);
+}
+
+bool moveAutomationSegment(TimelineData& data, quint64 trackId, const QString& key,
+    int64_t frameA, int64_t frameB, double deltaValue)
+{
+    TrackData* t = audioTrack(data, trackId);
+    double lo = 0.0, hi = 0.0;
+    if (!t || !rangeOfKey(*t, key, lo, hi) || !std::isfinite(deltaValue))
+        return false;
+    const auto it = t->mix.automationKeys.values.find(key);
+    if (it == t->mix.automationKeys.values.end() || !it->hasKeyAt(frameA)
+        || !it->hasKeyAt(frameB))
+        return false;
+    bool changed = false;
+    for (int64_t f : {frameA, frameB}) {
+        Keyframe& k = it->keys[it->indexOf(f)];
+        const double v = std::clamp(k.value + deltaValue, lo, hi);
+        changed |= v != k.value;
+        k.value = v;
+    }
+    return changed;
+}
+
+bool trimAutomation(TimelineData& data, quint64 trackId, const QString& key,
+    const AnimatedValue& original, int64_t fromFrame, int64_t toFrame, double offset)
+{
+    TrackData* t = audioTrack(data, trackId);
+    double lo = 0.0, hi = 0.0;
+    if (!t || toFrame < 0 || !rangeOfKey(*t, key, lo, hi) || !std::isfinite(offset))
+        return false;
+    AnimatedValue& curve = curveOf(*t, key);
+    const AnimatedValue before = curve;
+    const int64_t a = std::min(fromFrame, toFrame);
+    const int64_t b = std::max(fromFrame, toFrame);
+    // The stretch (a, b] is rebuilt from the original curve: its keys inside, plus a key at b.
+    // The key at a was written by the previous step (it keeps the offset it had then).
+    curve.keys.erase(std::remove_if(curve.keys.begin(), curve.keys.end(),
+                         [a, b](const Keyframe& k) {
+                             return (k.frame > a && k.frame <= b) || (a == b && k.frame == a);
+                         }),
+        curve.keys.end());
+    for (const Keyframe& k : original.keys) {
+        if (k.frame > a && k.frame < b) {
+            Keyframe copy = k;
+            copy.value = std::clamp(k.value + offset, lo, hi);
+            curve.putKey(copy);
+        }
+    }
+    auto putOffset = [&](int64_t f) {
+        Keyframe k;
+        double v = original.valueAtTime(double(f));
+        if (original.hasKeyAt(f)) {
+            k = original.keys[original.indexOf(f)];
+            v = k.value;
+        }
+        k.frame = f;
+        k.value = std::clamp(v + offset, lo, hi);
+        curve.putKey(k);
+    };
+    putOffset(b);
+    if (a < b && !curve.hasKeyAt(a))
+        putOffset(a);
+    return !(curve == before);
 }
 
 EffectInstance* trackEffect(TimelineData& data, quint64 trackId, quint64 effectId)

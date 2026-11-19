@@ -19,6 +19,7 @@
 #include "ui/common/AppContext.h"
 #include "ui/common/UiAnimation.h"
 #include "ui/keyframes/KeyframeItemModel.h"
+#include "ui/timeline/AutomationLanes.h"
 #include "ui/timeline/KeyframeLanes.h"
 #include "ui/timeline/TimelineController.h"
 #include "ui/timeline/TimelineWidget.h"
@@ -1232,6 +1233,12 @@ void TimelineWidget::headerClick(const TimelineHit& hit)
                 m_ctx.voiceOver->toggleArm(t->id);
         }
         break;
+    case HeaderButton::Automation:
+        // Automation lane below the track (spec 139).
+        if (const TrackData* t = m_ctx.project->timeline()->data().track(hit.track);
+            t && hit.track.type == TrackType::Audio)
+            m_automationLanes->toggle(t->id);
+        break;
     case HeaderButton::None:
         break;
     }
@@ -1249,6 +1256,11 @@ void TimelineWidget::updateHover(QPointF pos)
         QToolTip::showText(viewport()->mapToGlobal(pos.toPoint()) + QPoint(14, 14),
             voiceOverArmTooltip(m_ctx.voiceOver, t ? t->id : 0), viewport());
     }
+    if (hit.area == TimelineHit::Area::Header && hit.button == HeaderButton::Automation)
+        QToolTip::showText(viewport()->mapToGlobal(pos.toPoint()) + QPoint(14, 14),
+            tr("Automation lane: show the volume, pan, mute, send and effect curves of this "
+               "track below it"),
+            viewport());
     std::optional<int64_t> blade;
     int bladeRow = -1;
     quint64 retimeClip = 0;

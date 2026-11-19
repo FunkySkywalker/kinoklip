@@ -41,9 +41,10 @@ void TimelineLayout::rebuild(const TimelineData& data)
     y += kSectionGap;
     for (int i = 0; i < int(data.audioTracks.size()); ++i) {
         const TrackData& t = data.audioTracks[size_t(i)];
-        const int lane = m_laneHeights.value(t.id, 0);
+        const int automation = m_automationHeights.value(t.id, 0);
+        const int lane = m_laneHeights.value(t.id, 0) + automation;
         const int h = scaled(int(std::lround(trackHeight(t) * m_audioHeightScale))) + lane;
-        m_rows.push_back({TrackRef {TrackType::Audio, i}, y, h, lane, t.id});
+        m_rows.push_back({TrackRef {TrackType::Audio, i}, y, h, lane, t.id, automation});
         y += h;
     }
     m_contentHeight = y;
@@ -197,7 +198,8 @@ const std::vector<HeaderButton>& TimelineLayout::headerButtons(TrackType type)
 const std::vector<HeaderButton>& TimelineLayout::buttonsFor(TrackType type) const
 {
     static const std::vector<HeaderButton> audioPage {HeaderButton::Mute, HeaderButton::Solo,
-        HeaderButton::Arm, HeaderButton::SyncLock, HeaderButton::Lock, HeaderButton::AutoSelect};
+        HeaderButton::Arm, HeaderButton::SyncLock, HeaderButton::Lock, HeaderButton::AutoSelect,
+        HeaderButton::Automation};
     return m_audioPageHeaders && type == TrackType::Audio ? audioPage : headerButtons(type);
 }
 
@@ -291,7 +293,20 @@ QRect TimelineLayout::laneRect(int index) const
     const QRect r = rowRect(index);
     if (r.isEmpty() || m_rows[size_t(index)].laneHeight <= 0)
         return {};
-    const int lane = m_rows[size_t(index)].laneHeight;
+    // The keyframe lane: the whole lane without the automation lane at the bottom.
+    const int total = m_rows[size_t(index)].laneHeight;
+    const int lane = total - m_rows[size_t(index)].automationHeight;
+    if (lane <= 0)
+        return {};
+    return QRect(r.left(), r.bottom() + 1 - total, r.width(), lane);
+}
+
+QRect TimelineLayout::automationLaneRect(int index) const
+{
+    const QRect r = rowRect(index);
+    if (r.isEmpty() || m_rows[size_t(index)].automationHeight <= 0)
+        return {};
+    const int lane = m_rows[size_t(index)].automationHeight;
     return QRect(r.left(), r.bottom() + 1 - lane, r.width(), lane);
 }
 

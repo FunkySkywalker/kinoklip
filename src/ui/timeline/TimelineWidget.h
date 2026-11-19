@@ -31,6 +31,7 @@ class QMimeData;
 namespace kk {
 
 struct AppContext;
+class AutomationLanes;
 class KeyframeLanes;
 class DroppedFileProbe;
 class NestedPreview;
@@ -97,6 +98,8 @@ public:
     [[nodiscard]] TimelineAnimator& animator() { return m_anim; }
     /// The per-clip keyframe and curve editors (KeyframeLanes.h).
     [[nodiscard]] KeyframeLanes* keyframeLanes() const { return m_keyframeLanes; }
+    /// The automation lanes below audio tracks (AutomationLanes.h, spec 139).
+    [[nodiscard]] AutomationLanes* automationLanes() const { return m_automationLanes; }
 
     /// Replaces the thumbnail source (default: media::MediaCache). Null = placeholders.
     void setThumbnailProvider(ThumbnailProvider provider);
@@ -505,6 +508,7 @@ private:
     TimelinePainter m_painter;
     /// Project timelines by uid for the painter (multicam angle names); set once.
     std::function<const TimelineData*(quint64)> m_timelineLookup;
+    AutomationLanes* m_automationLanes = nullptr; ///< child QObject: automation lanes
     KeyframeLanes* m_keyframeLanes = nullptr; ///< child QObject: keyframe / curve editor lanes
     QPointer<QLineEdit> m_trackNameEditor; ///< beginTrackRename()
     QPointer<QMenu> m_retimeMenu; ///< open speed / speed point menu

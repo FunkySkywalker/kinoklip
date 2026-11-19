@@ -137,6 +137,8 @@ struct TimelinePaintInput
     const std::function<std::pair<float, float>(quint64)>* headerMeter = nullptr;
     /// Voice-over arm buttons and the input level of the armed track's header.
     VoiceOverPaint voiceOver;
+    /// Audio tracks whose automation lane is open (spec 139; the header button is lit).
+    const QSet<quint64>* automationOpen = nullptr;
     /// Running display animations (TimelineAnimator.h): clips are drawn at their tweened
     /// rects, plus ghosts, flashes, the playhead glide and the snap fade. nullptr (animations
     /// off or idle) = everything is drawn exactly at the model.

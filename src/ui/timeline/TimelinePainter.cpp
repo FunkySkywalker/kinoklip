@@ -1286,6 +1286,10 @@ void TimelinePainter::paintHeaders(QPainter& p, const TimelinePaintInput& in)
                 on = track.syncLock;
                 onColor = strip.darker(140);
                 break;
+            case HeaderButton::Automation:
+                on = in.automationOpen && in.automationOpen->contains(track.id);
+                onColor = strip.darker(140);
+                break;
             case HeaderButton::Arm:
                 on = in.voiceOver.armedTrack == track.id && track.id != 0;
                 onColor
@@ -1334,6 +1338,21 @@ void TimelinePainter::paintHeaders(QPainter& p, const TimelinePaintInput& in)
                 p.drawRect(QRect(br.left() + 4, br.bottom() - 6, br.width() - 8, 3));
                 if (on)
                     p.drawRect(QRect(br.center().x() - 1, br.top() + 4, 2, br.height() - 8));
+                p.setBrush(Qt::NoBrush);
+            }
+            if (b == HeaderButton::Automation) {
+                // Painted glyph: a curve with a point on it.
+                p.setRenderHint(QPainter::Antialiasing, true);
+                p.setPen(QPen(on ? sc().textOn(onColor) : m_text.darker(160), 1.5));
+                p.setBrush(Qt::NoBrush);
+                QPainterPath path;
+                path.moveTo(br.left() + 3, br.bottom() - 5);
+                path.cubicTo(br.left() + 7, br.bottom() - 5, br.left() + 8, br.top() + 5,
+                    br.right() - 3, br.top() + 5);
+                p.drawPath(path);
+                p.setBrush(p.pen().color());
+                p.drawEllipse(QPointF(br.center().x(), br.center().y()), 1.8, 1.8);
+                p.setRenderHint(QPainter::Antialiasing, false);
                 p.setBrush(Qt::NoBrush);
             }
             if (b == HeaderButton::AutoSelect) {

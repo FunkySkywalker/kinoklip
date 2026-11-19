@@ -708,6 +708,26 @@ The program was probably closed by the system because the computer ran out of me
         <source>The file is not a project settings preset.</source>
         <translation>Файл не є пресетом налаштувань проєкту.</translation>
     </message>
+    <message>
+        <source>Volume</source>
+        <translation>Гучність</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Панорама</translation>
+    </message>
+    <message>
+        <source>Mute</source>
+        <translation>Без звуку</translation>
+    </message>
+    <message>
+        <source> dB</source>
+        <translation> дБ</translation>
+    </message>
+    <message>
+        <source>Send to %1</source>
+        <translation>Посилання до %1</translation>
+    </message>
 </context>
 <context>
     <name>TimelineRepair</name>
@@ -22881,6 +22901,18 @@ Import files with %1 or drop them here.</source>
         <source>Input: the tracks routed to this bus, and sends to it</source>
         <translation>Вхід: доріжки, спрямовані на цю шину, та посили на неї</translation>
     </message>
+    <message>
+        <source>Latch</source>
+        <translation>Фіксація</translation>
+    </message>
+    <message>
+        <source>Trim</source>
+        <translation>Підстроювання</translation>
+    </message>
+    <message>
+        <source>Automation mode of this track: Off ignores the curves, Read plays them, Touch records while a control is held, Latch keeps the last value after the release, Write records all the time, Trim adds your change to the existing curve</source>
+        <translation>Режим автоматизації цієї доріжки: «Вимк.» ігнорує криві, «Читання» відтворює їх, «Дотик» записує, поки регулятор утримується, «Фіксація» зберігає останнє значення після відпускання, «Запис» пише постійно, «Підстроювання» додає вашу зміну до наявної кривої</translation>
+    </message>
 </context>
 <context>
     <name>kk::ModelDownloadDialog</name>
@@ -32446,6 +32478,18 @@ Trim the clips so the media covers the transition?</source>
         <source>Normalize Audio Levels…</source>
         <translation>Нормалізувати рівні звуку…</translation>
     </message>
+    <message>
+        <source>Hide Automation Lane</source>
+        <translation>Приховати доріжку автоматизації</translation>
+    </message>
+    <message>
+        <source>Show Automation Lane</source>
+        <translation>Показати доріжку автоматизації</translation>
+    </message>
+    <message>
+        <source>Automation lane: show the volume, pan, mute, send and effect curves of this track below it</source>
+        <translation>Доріжка автоматизації: показати під доріжкою криві гучності, панорами, вимкнення звуку, посилань та ефектів</translation>
+    </message>
 </context>
 <context>
     <name>kk::TitleLayers</name>
@@ -35656,6 +35700,140 @@ Clips, markers and effects stay at the same time and the keyframes are re-timed.
     <message>
         <source>Sends - %1</source>
         <translation>Посили - %1</translation>
+    </message>
+</context>
+<context>
+    <name>kk::AutomationBar</name>
+    <message>
+        <source>Automation</source>
+        <translation>Автоматизація</translation>
+    </message>
+    <message>
+        <source>What the audio tracks do with their automation curves (volume, pan, mute, sends and effect parameters)</source>
+        <translation>Що аудіодоріжки роблять зі своїми кривими автоматизації (гучність, панорама, вимкнення звуку, посилання та параметри ефектів)</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation>Вимк.</translation>
+    </message>
+    <message>
+        <source>Read</source>
+        <translation>Читання</translation>
+    </message>
+    <message>
+        <source>Touch</source>
+        <translation>Дотик</translation>
+    </message>
+    <message>
+        <source>Latch</source>
+        <translation>Фіксація</translation>
+    </message>
+    <message>
+        <source>Write</source>
+        <translation>Запис</translation>
+    </message>
+    <message>
+        <source>Trim</source>
+        <translation>Підстроювання</translation>
+    </message>
+    <message>
+        <source>Off: the curves are ignored and the fader and knobs keep their own values</source>
+        <translation>Вимк.: криві ігноруються, а фейдер і ручки зберігають свої значення</translation>
+    </message>
+    <message>
+        <source>Read: the curves play; the faders and knobs follow them</source>
+        <translation>Читання: криві відтворюються, фейдери та ручки йдуть за ними</translation>
+    </message>
+    <message>
+        <source>Touch: while playing, moving a control records it; on release it returns to the existing curve</source>
+        <translation>Дотик: під час відтворення рух регулятора записується; після відпускання він повертається до наявної кривої</translation>
+    </message>
+    <message>
+        <source>Latch: like Touch, but after the release the last value keeps being recorded until playback stops</source>
+        <translation>Фіксація: як «Дотик», але після відпускання останнє значення продовжує записуватися до зупинки відтворення</translation>
+    </message>
+    <message>
+        <source>Write: while playing, the values of the controls are recorded all the time and replace the curve</source>
+        <translation>Запис: під час відтворення значення регуляторів записуються постійно та замінюють криву</translation>
+    </message>
+    <message>
+        <source>Trim: while playing, moving a control adds the change as an offset on top of the existing curve</source>
+        <translation>Підстроювання: під час відтворення зміна регулятора додається як зсув поверх наявної кривої</translation>
+    </message>
+    <message>
+        <source>Automation Mode</source>
+        <translation>Режим автоматизації</translation>
+    </message>
+</context>
+<context>
+    <name>kk::AutomationLaneWidget</name>
+    <message>
+        <source>Automation lane: click to add a point, drag a point to move it, drag a line up or down to move both its points, Delete removes the selected point, right-click a point to shape the line after it</source>
+        <translation>Доріжка автоматизації: клацання додає точку, перетягування точки переміщує її, перетягування лінії вгору або вниз зсуває обидві її точки, Delete видаляє вибрану точку, правий клік по точці задає форму лінії після неї</translation>
+    </message>
+    <message>
+        <source>What this lane shows: Volume, Pan, Mute, the level of a send or a parameter of an effect slot of the track. A dot marks parameters that already have a curve</source>
+        <translation>Що показує ця доріжка: гучність, панораму, вимкнення звуку, рівень посилання або параметр слота ефекту доріжки. Крапка позначає параметри, які вже мають криву</translation>
+    </message>
+    <message>
+        <source>Delete Automation Point</source>
+        <translation>Видалити точку автоматизації</translation>
+    </message>
+    <message>
+        <source>Automation Curve</source>
+        <translation>Крива автоматизації</translation>
+    </message>
+    <message>
+        <source>Clear Automation</source>
+        <translation>Очистити автоматизацію</translation>
+    </message>
+    <message>
+        <source>Add Automation Point</source>
+        <translation>Додати точку автоматизації</translation>
+    </message>
+    <message>
+        <source>Move Automation Point</source>
+        <translation>Перемістити точку автоматизації</translation>
+    </message>
+    <message>
+        <source>Move Automation Segment</source>
+        <translation>Перемістити відрізок автоматизації</translation>
+    </message>
+    <message>
+        <source>Linear</source>
+        <translation>Лінійна</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Плавна</translation>
+    </message>
+    <message>
+        <source>Ease In</source>
+        <translation>Плавний початок</translation>
+    </message>
+    <message>
+        <source>Ease Out</source>
+        <translation>Плавний кінець</translation>
+    </message>
+    <message>
+        <source>Ease In and Out</source>
+        <translation>Плавний початок і кінець</translation>
+    </message>
+    <message>
+        <source>Hold (step)</source>
+        <translation>Утримання (сходинка)</translation>
+    </message>
+    <message>
+        <source>Delete Point</source>
+        <translation>Видалити точку</translation>
+    </message>
+    <message>
+        <source>Clear Curve</source>
+        <translation>Очистити криву</translation>
+    </message>
+    <message>
+        <source>Automation is off: the curves are ignored</source>
+        <translation>Автоматизацію вимкнено: криві ігноруються</translation>
     </message>
 </context>
 </TS>

@@ -20,6 +20,7 @@
 #include "ui/common/UiAnimation.h"
 #include "ui/dialogs/NormalizeMixDialog.h"
 #include "ui/timeline/ClipColorMenu.h"
+#include "ui/timeline/AutomationLanes.h"
 #include "ui/timeline/KeyframeLanes.h"
 #include "ui/timeline/NestedPreview.h"
 #include "ui/timeline/TimelineController.h"
@@ -127,6 +128,7 @@ TimelineWidget::TimelineWidget(AppContext& ctx, TimelineController* controller, 
                     m_layout.scrollY()});
         m_ctx.selection->clear();
         m_keyframeLanes->reset();
+        m_automationLanes->reset();
         m_controller->clearRetimeControls();
     });
     connect(ctx.project, &Project::activeTimelineChanged, this, [this](quint64 uid) {
@@ -152,6 +154,9 @@ TimelineWidget::TimelineWidget(AppContext& ctx, TimelineController* controller, 
     });
 
     // Keyframe / curve editors below clips (additive layer: own widgets, own input).
+    m_automationLanes = new AutomationLanes(ctx, m_layout, viewport(), this);
+    connect(m_automationLanes, &AutomationLanes::layoutChanged, this,
+        &TimelineWidget::onTimelineChanged);
     m_keyframeLanes = new KeyframeLanes(ctx, m_layout, m_controller, viewport(), this);
     connect(
         m_keyframeLanes, &KeyframeLanes::layoutChanged, this, &TimelineWidget::onTimelineChanged);
@@ -260,6 +265,8 @@ void TimelineWidget::onTimelineChanged()
         = uid == m_rowsTimelineUid ? m_layout.scrollAnchor() : std::nullopt;
     m_rowsTimelineUid = uid;
     m_layout.setLaneHeights(m_keyframeLanes->laneHeights(m_ctx.project->timeline()->data()));
+    m_layout.setAutomationLaneHeights(
+        m_automationLanes->laneHeights(m_ctx.project->timeline()->data()));
     m_layout.rebuild(m_ctx.project->timeline()->data());
     if (anchor)
         m_layout.restoreScrollAnchor(*anchor);
@@ -378,6 +385,7 @@ void TimelineWidget::paintEvent(QPaintEvent*)
     in.cache = &m_cacheBar;
     in.retimeShown = &m_controller->retimeControls();
     in.hoverClip = m_hoverClip;
+    in.automationOpen = &m_automationLanes->openTracks();
     in.selectedKeys = &m_ctx.selection->keyframes();
     if (m_options.headerMeter)
         in.headerMeter = &m_options.headerMeter;
@@ -477,6 +485,7 @@ void TimelineWidget::updateScrollBars()
     m_layout.setScrollY(v->value());
     m_syncingScrollBars = false;
     m_keyframeLanes->syncGeometry();
+    m_automationLanes->syncGeometry();
     emit viewChanged();
 }
 
@@ -502,6 +511,7 @@ void TimelineWidget::scrollContentsBy(int, int)
         && m_drag.mode != DragMode::Pan)
         updateDrag(m_drag.lastPos);
     m_keyframeLanes->syncGeometry();
+    m_automationLanes->syncGeometry();
     viewport()->update();
     emit viewChanged();
 }
@@ -1095,6 +1105,10 @@ void TimelineWidget::contextMenuEvent(QContextMenuEvent* event)
                     m_controller->toggleTrackFlag(ref, TimelineController::FlagEnabled);
                 });
         if (ref.type == TrackType::Audio) {
+            const quint64 trackId = track->id;
+            menu.addAction(m_automationLanes->isOpen(trackId) ? tr("Hide Automation Lane")
+                                                              : tr("Show Automation Lane"),
+                this, [this, trackId] { m_automationLanes->toggle(trackId); });
             menu.addAction(track->muted ? tr("Unmute Track") : tr("Mute Track"), this,
                 [this, ref] { m_controller->toggleTrackFlag(ref, TimelineController::FlagMuted); });
             menu.addAction(track->solo ? tr("Unsolo Track") : tr("Solo Track"), this,

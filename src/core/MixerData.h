@@ -163,12 +163,15 @@ struct ChannelStrip
 inline constexpr double kFaderMinDb = -96.0;
 inline constexpr double kFaderMaxDb = 12.0;
 
-/// What a track does with its fader / pan automation (Resolve's automation modes).
+/// What a track does with its automation curves (Resolve's automation modes; spec 139).
 enum class AutomationMode {
-    Off, ///< automation is ignored; the fader's static value plays
-    Read, ///< the recorded curve plays (default)
-    Touch, ///< reads; while the fader is held during playback its moves are recorded
-    Write ///< during playback the fader's value is recorded continuously
+    Off, ///< automation is ignored; the static values play
+    Read, ///< the recorded curves play (default)
+    Touch, ///< reads; while a control is held during playback its moves are recorded, on release
+           ///< the control returns to the curve
+    Write, ///< during playback the controls' values are recorded continuously
+    Latch, ///< like Touch, but after the release the last value keeps being written until stop
+    Trim ///< reads; a moved control adds its change as an offset on top of the existing curve
 };
 
 /// Bus id of the main bus (Bus 1, always present, stereo by default).
@@ -186,8 +189,9 @@ struct TrackMix
     /// own effects) and before the track's EQ, dynamics, pan and fader. A disabled slot is
     /// bypassed.
     QVector<EffectInstance> effects;
-    /// Fader ("volumeDb") and pan ("pan") automation, keyed in timeline frames (not clip
-    /// local: track automation stays where it was written).
+    /// Automation curves keyed by parameter ("volumeDb", "pan", "mute", "send.N",
+    /// "fx.<id>.<param>", see mixkeys), keyed in timeline frames (not clip local: track
+    /// automation stays where it was written).
     ParamSet automationKeys;
 
     friend bool operator==(const TrackMix&, const TrackMix&) = default;
@@ -220,11 +224,17 @@ struct MixerData
 namespace mixkeys {
 inline const QString kVolumeDb = QStringLiteral("volumeDb");
 inline const QString kPan = QStringLiteral("pan");
+/// Mute (spec 139): 0 = sounding, 1 = muted; stepped keys. Replaces TrackData::muted while read.
+inline const QString kMute = QStringLiteral("mute");
+/// Prefix of the level (dB) of the send to bus N: "send.N".
+inline const QString kSendPrefix = QStringLiteral("send.");
+/// Prefix of a parameter of a track effect slot: "fx.<effect id>.<parameter key>".
+inline const QString kEffectPrefix = QStringLiteral("fx.");
 } // namespace mixkeys
 
 /// Display name of @p bus ("Bus 2" when unnamed).
 [[nodiscard]] QString busDisplayName(const BusData& bus);
-/// Stable string of an automation mode ("off", "read", "touch", "write").
+/// Stable string of an automation mode ("off", "read", "touch", "write", "latch", "trim").
 [[nodiscard]] QString automationModeToString(AutomationMode mode);
 /// Parses automationModeToString(); unknown text gives @p fallback.
 [[nodiscard]] AutomationMode automationModeFromString(const QString& text, AutomationMode fallback);

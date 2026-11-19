@@ -384,6 +384,33 @@
       ]
     },
     {
+      "id": "automate-volume-over-time",
+      "title": "Automate volume over time",
+      "file": "automate-volume-over-time.md",
+      "summary": "Draw a volume, pan, mute, send or effect curve in an automation lane under a track, or record a fader move while playing in Touch, Latch, Write or Trim mode.",
+      "keywords": [
+        "automation",
+        "automation lane",
+        "volume automation",
+        "fader automation",
+        "keyframes audio",
+        "volume curve",
+        "pan automation",
+        "touch",
+        "latch",
+        "write",
+        "trim",
+        "record fader",
+        "ride the fader",
+        "volume over time",
+        "fade music"
+      ],
+      "contexts": [
+        "page:audio",
+        "panel:mixer"
+      ]
+    },
+    {
       "id": "remove-noise-from-a-clip",
       "title": "Remove background noise from a clip",
       "file": "remove-noise-from-a-clip.md",

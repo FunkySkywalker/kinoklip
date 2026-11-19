@@ -59,6 +59,9 @@ struct TimelineRow
     /// clips use the remaining height - laneHeight at the top.
     int laneHeight = 0;
     quint64 trackId = 0; ///< TrackData::id of the row's track
+    /// Height of the audio automation lane (spec 139), the lowest part of the row; it is
+    /// included in laneHeight, so the clips and the keyframe lane sit above it.
+    int automationHeight = 0;
 };
 
 /// The track shown at the top of the view and how far it is scrolled into (scrollAnchor()).
@@ -78,7 +81,8 @@ enum class HeaderButton {
     Solo, ///< audio
     AutoSelect, ///< auto track selector (TrackData::autoSelect, spec 12.5)
     SyncLock, ///< sync lock (TrackData::syncLock, spec 97), right of the track lock
-    Arm ///< audio: voice-over record arm (spec 75); right-click opens the input menu
+    Arm, ///< audio: voice-over record arm (spec 75); right-click opens the input menu
+    Automation ///< Audio page: opens the automation lane below the track (spec 139)
 };
 
 /// Which part of a clip a point is on.
@@ -130,6 +134,12 @@ public:
     /// Extra lane heights below tracks (TrackData::id -> px) for the keyframe and curve
     /// editors (KeyframeLanes); applied by the next rebuild().
     void setLaneHeights(QHash<quint64, int> heights) { m_laneHeights = std::move(heights); }
+    /// Heights of the automation lanes (TrackData::id -> px, audio tracks; AutomationLanes);
+    /// applied by the next rebuild(), below the keyframe lane.
+    void setAutomationLaneHeights(QHash<quint64, int> heights)
+    {
+        m_automationHeights = std::move(heights);
+    }
     /// Sets the widget size (view coordinates).
     void setViewSize(QSize size) { m_viewSize = size; }
     [[nodiscard]] QSize viewSize() const { return m_viewSize; }
@@ -256,6 +266,8 @@ public:
     [[nodiscard]] QRectF clipRect(int row, const ClipData& clip) const;
     /// View rect of the keyframe / curve lane of row @p index (empty if it has none).
     [[nodiscard]] QRect laneRect(int index) const;
+    /// The automation lane of row @p index (the bottom of the row), or an empty rect.
+    [[nodiscard]] QRect automationLaneRect(int index) const;
 
     /// What is at view position @p pos.
     [[nodiscard]] TimelineHit hitTest(const TimelineData& data, QPointF pos) const;
@@ -272,6 +284,7 @@ private:
     int m_scrollY = 0;
     std::vector<TimelineRow> m_rows;
     QHash<quint64, int> m_laneHeights;
+    QHash<quint64, int> m_automationHeights;
     int m_videoHeight = 0; ///< height of all video rows (above the divider)
     int m_contentHeight = 0;
 };

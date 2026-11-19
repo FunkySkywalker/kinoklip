@@ -192,7 +192,7 @@ Beginner and intermediate tutorial workflows for Resolve's Color, Fairlight and 
 - [x] Audio: Gate and Expander (with hold, hysteresis and key filters) in the Dynamics window, a De-Esser effect, and a Dialogue Leveler (spec 136)
 - [x] Audio: sidechain input on the compressor and gate (key from another track or bus, loops refused) for ducking music under a voice (spec 136)
 - [x] Audio: Sends (level, Pre / Post fader, pan) to buses and aux buses, bus-to-bus feeds with loops refused, and a bus Pan (spec 137)
-- [ ] Audio: automation lane under a track with Volume, Pan and effect parameter curves, plus Latch and Trim modes
+- [x] Audio: automation lane under a track with Volume, Pan, Mute, send and effect parameter curves, plus Latch and Trim modes (spec 139)
 - [x] Audio: loudness meter standards and targets (-14 YouTube, -16, -23 EBU R128, ATSC), Loudness Range (LRA) and a history graph, and normalize to a loudness target when rendering (spec 134)
 - [x] Audio: Chorus, Flanger, Distortion and Stereo Width effects, and Reverb with Pre-delay, Decay and room presets
 - [x] Audio: EQ presets (voice, music, telephone, your own) and a Phase Invert button on the strip (spec 137)

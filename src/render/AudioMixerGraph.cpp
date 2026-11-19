@@ -149,8 +149,8 @@ void AudioMixer::mixTimeline(const TimelineData& tl, const NestedTimelines& nest
 
     // Sends of a strip (spec 137): copies of its signal into the buses it sends to. @p pre is the
     // signal before the pan and fader (null without Pre sends), @p post the one after them.
-    auto runSends = [&](Channel& channel, const ChannelStrip& strip, const float* pre,
-                        const float* post) {
+    auto runSends = [&](Channel& channel, const ChannelStrip& strip, const TrackData* track,
+                        const float* pre, const float* post) {
         for (const SendData& send : strip.sends) {
             const int b = mixerops::busIndex(mixer, send.busId);
             if (b < 0 || (m_busState[size_t(b)] & kDone))
@@ -165,14 +165,36 @@ void AudioMixer::mixTimeline(const TimelineData& tl, const NestedTimelines& nest
                 channel.sends.back().busId = send.busId;
                 it = channel.sends.end() - 1;
             }
-            float left = 0.0f, right = 0.0f;
-            if (send.enabled) {
-                panGains(send.pan, left, right);
-                const float gain = dbToGain(send.levelDb);
-                left *= gain;
-                right *= gain;
+            auto gainsFor = [&](double levelDb, float& left, float& right) {
+                left = right = 0.0f;
+                if (send.enabled) {
+                    panGains(send.pan, left, right);
+                    const float gain = dbToGain(levelDb);
+                    left *= gain;
+                    right *= gain;
+                }
+            };
+            float* dst = m_busBuffers[size_t(b)].data();
+            const bool maybeAutomated = track && track->mix.automation != AutomationMode::Off
+                && !track->mix.automationKeys.values.isEmpty();
+            const QString autoKey = maybeAutomated ? mixerops::sendKey(send.busId) : QString();
+            if (maybeAutomated && mixerops::readsAutomation(track->mix, autoKey)) {
+                // An automated send level is evaluated at the end of each gain block and glides
+                // like the fader, so the result does not depend on the block size (spec 139).
+                constexpr int kStep = dsp::ChannelProcessor::kGainBlock;
+                for (int b0 = 0; b0 < frames; b0 += kStep) {
+                    const int b1 = std::min(frames, b0 + kStep);
+                    const double frame = double(startSample48k + b1) * framesPerSample;
+                    float left = 0.0f, right = 0.0f;
+                    gainsFor(mixerops::automationValueAt(*track, autoKey, frame), left, right);
+                    dsp::addSend(dst + size_t(b0) * 2, src + size_t(b0) * 2, b1 - b0, left, right,
+                        *it);
+                }
+            } else {
+                float left = 0.0f, right = 0.0f;
+                gainsFor(send.levelDb, left, right);
+                dsp::addSend(dst, src, frames, left, right, *it);
             }
-            dsp::addSend(m_busBuffers[size_t(b)].data(), src, frames, left, right, *it);
             if (b < 32)
                 fedBuses |= 1u << b;
         }
@@ -195,6 +217,40 @@ void AudioMixer::mixTimeline(const TimelineData& tl, const NestedTimelines& nest
         for (size_t i = 0; i < count; ++i)
             peak = std::max(peak, std::abs(signal[i]));
         return peak;
+    };
+
+    // The track's effect slots over this block. An effect parameter with an automation curve
+    // (spec 139) takes its value at the start of the 256-sample chunk of the absolute sample grid
+    // the sample lies in, so the same range sounds the same in any block size.
+    auto runTrackEffects = [&](Channel& channel, const TrackData& track, float* buffer) {
+        const auto& curves = track.mix.automationKeys.values;
+        bool automated = false;
+        if (track.mix.automation != AutomationMode::Off) {
+            for (auto it = curves.cbegin(); it != curves.cend() && !automated; ++it)
+                automated = it.key().startsWith(mixkeys::kEffectPrefix) && it->isAnimated();
+        }
+        if (!automated) {
+            channel.effects.process(track.mix.effects, buffer, frames);
+            return;
+        }
+        constexpr int kChunk = 256;
+        for (int off = 0; off < frames;) {
+            const int64_t at = startSample48k + off;
+            const int len = std::min(frames - off, kChunk - int(at % kChunk));
+            const double frame = double(at - at % kChunk) * framesPerSample;
+            channel.effectsAuto = track.mix.effects;
+            for (EffectInstance& fx : channel.effectsAuto) {
+                for (auto it = curves.cbegin(); it != curves.cend(); ++it) {
+                    quint64 id = 0;
+                    QString param;
+                    if (it->isAnimated() && mixerops::parseEffectKey(it.key(), id, param)
+                        && id == fx.id)
+                        fx.params.values[param] = AnimatedValue(it->valueAtTime(frame));
+                }
+            }
+            channel.effects.process(channel.effectsAuto, buffer + size_t(off) * 2, len);
+            off += len;
+        }
     };
 
     // Processes track (@p isBus false) or bus @p index once; returns the channel for keys.
@@ -228,9 +284,12 @@ void AudioMixer::mixTimeline(const TimelineData& tl, const NestedTimelines& nest
                 level->id = track.id;
                 level->mono = track.mix.mono;
             }
-            const bool audible = !track.muted && !(anySolo && !track.solo);
+            // Solo silences the other tracks; a Mute curve (spec 139) replaces the mute button.
+            const bool soloSilenced = anySolo && !track.solo;
+            const bool muteCurve = mixerops::readsAutomation(track.mix, mixkeys::kMute);
             // A muted track is not decoded, except while its gain still glides down to 0.
-            const bool wanted = audible || proc.currentGain() > 0.0f;
+            const bool wanted = (!soloSilenced && (muteCurve || !track.muted))
+                || proc.currentGain() > 0.0f;
             // Track effect slots (spec 133): the track's clips are summed, then run through the
             // slots. A slot that delays the sound (Noise Reduction) is compensated like a clip's:
             // the clips are mixed that many samples ahead, and after a restart the first stretch
@@ -273,7 +332,7 @@ void AudioMixer::mixTimeline(const TimelineData& tl, const NestedTimelines& nest
                         channel.effects.process(
                             track.mix.effects, m_trackPrimeBuffer.data(), latency);
                 }
-                channel.effects.process(track.mix.effects, trackBuffer, frames);
+                runTrackEffects(channel, track, trackBuffer);
             }
             channel.effectsPrimed = fxOn;
             channel.effectsLatency = latency;
@@ -285,7 +344,9 @@ void AudioMixer::mixTimeline(const TimelineData& tl, const NestedTimelines& nest
             proc.applyGains(trackBuffer, frames, [&](int offset) {
                 const double frame = double(startSample48k + offset) * framesPerSample;
                 dsp::ChannelGains g;
-                g.gain = audible ? dbToGain(mixerops::faderDbAt(track, frame)) : 0.0f;
+                g.gain = !soloSilenced && !mixerops::mutedAt(track, frame)
+                    ? dbToGain(mixerops::faderDbAt(track, frame))
+                    : 0.0f;
                 panGains(mixerops::panAt(track, frame), g.left, g.right);
                 return g;
             });
@@ -298,7 +359,7 @@ void AudioMixer::mixTimeline(const TimelineData& tl, const NestedTimelines& nest
                 level->peak[1] = proc.peak(1);
                 level->gainReductionDb = proc.gainReductionDb();
             }
-            runSends(channel, track.mix.strip, pre, trackBuffer);
+            runSends(channel, track.mix.strip, &track, pre, trackBuffer);
             channel.quiet = !sounding && proc.peak(0) < kQuietPeak && proc.peak(1) < kQuietPeak
                 && preLevel < kQuietPeak;
             if (channel.quiet) {
@@ -363,7 +424,7 @@ void AudioMixer::mixTimeline(const TimelineData& tl, const NestedTimelines& nest
                 level->peak[1] = proc.peak(1);
                 level->gainReductionDb = proc.gainReductionDb();
             }
-            runSends(channel, bus.strip, pre, buffer);
+            runSends(channel, bus.strip, nullptr, pre, buffer);
             channel.quiet = !fed && proc.peak(0) < kQuietPeak && proc.peak(1) < kQuietPeak
                 && preLevel < kQuietPeak;
             if (channel.quiet)

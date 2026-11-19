@@ -13,6 +13,7 @@
 #include "core/SelectionModel.h"
 #include "core/Timeline.h"
 #include "ui/audio/AudioScales.h"
+#include "ui/audio/AutomationBar.h"
 #include "ui/audio/DynamicsWindow.h"
 #include "ui/audio/EqCurveView.h"
 #include "ui/audio/EqWindow.h"
@@ -27,6 +28,7 @@
 #include "ui/common/AppContext.h"
 #include "ui/common/Resources.h"
 #include "ui/common/StandardActions.h"
+#include "ui/timeline/AutomationLanes.h"
 #include "ui/timeline/TimelineController.h"
 #include "ui/timeline/TimelineLayout.h"
 #include "ui/timeline/TimelinePanel.h"
@@ -46,8 +48,10 @@
 #include <QTemporaryDir>
 #include <QTest>
 #include <QToolButton>
+#include <QToolTip>
 #include <QUndoStack>
 
+#include <functional>
 #include <memory>
 #include <optional>
 
@@ -104,6 +108,29 @@ void drag(QWidget* w, QPoint from, QPoint to)
     for (int i = 1; i <= 5; ++i)
         send(QEvent::MouseMove, from + (to - from) * i / 5, Qt::NoButton, Qt::LeftButton);
     send(QEvent::MouseButtonRelease, to, Qt::LeftButton, Qt::NoButton);
+}
+
+/// Plays frames @p from .. @p to (the playhead advances one frame at a time).
+void playFrames(Fixture& f, MixerController* mc, bool& playing, int64_t from, int64_t to,
+    const std::function<void(int64_t)>& each = {})
+{
+    f.project.timeline()->setPlayhead(from);
+    playing = true;
+    mc->transportStateChanged();
+    for (int64_t frame = from + 1; frame <= to; ++frame) {
+        f.project.timeline()->setPlayhead(frame);
+        if (each)
+            each(frame);
+    }
+}
+
+void setUpCurve(Fixture& f, MixerController* mc, AutomationMode mode, double a, double b)
+{
+    mc->edit(QStringLiteral("Setup"), [&](TimelineData& d) {
+        mixerops::addAutomationPoint(d, f.a1(), mixkeys::kVolumeDb, 0, a);
+        mixerops::addAutomationPoint(d, f.a1(), mixkeys::kVolumeDb, 100, b);
+        return mixerops::setAutomationMode(d, f.a1(), mode);
+    });
 }
 
 } // namespace
@@ -516,6 +543,276 @@ private slots:
         const TrackData& track = f.data().audioTracks[0];
         QCOMPARE(mixerops::faderDbAt(track, 25.0), -2.0); // a key at the playhead
         QCOMPARE(track.mix.strip.volumeDb, 0.0); // the static value is untouched
+    }
+
+    // ---- 138 automation modes ----
+    void touchReturnsToTheCurveOnRelease()
+    {
+        Fixture f;
+        f.showAudio();
+        MixerController* mc = f.audio()->mixerController();
+        bool playing = false;
+        mc->setPlayingProbe([&playing] { return playing; });
+        setUpCurve(f, mc, AutomationMode::Touch, 0.0, 0.0);
+        const MixTarget t = MixTarget::track(f.a1());
+        using C = MixerController::Control;
+        playFrames(f, mc, playing, 20, 20);
+        mc->pressControl(t, C::Fader);
+        mc->moveControl(t, C::Fader, -12.0);
+        for (int64_t frame = 21; frame <= 40; ++frame)
+            f.project.timeline()->setPlayhead(frame);
+        mc->releaseControl(t, C::Fader);
+        for (int64_t frame = 41; frame <= 70; ++frame)
+            f.project.timeline()->setPlayhead(frame);
+        playing = false;
+        mc->transportStateChanged();
+        const TrackData& track = f.data().audioTracks[0];
+        QCOMPARE(mixerops::faderDbAt(track, 30.0), -12.0);
+        const AnimatedValue c = track.mix.automationKeys.values.value(mixkeys::kVolumeDb);
+        QVERIFY(!c.hasKeyAt(41) && !c.hasKeyAt(60)); // nothing written after the release
+        QVERIFY(c.hasKeyAt(100));
+        QCOMPARE(mixerops::faderDbAt(track, 100.0), 0.0); // back on the existing curve
+    }
+
+    void latchKeepsTheLastValueUntilStop()
+    {
+        Fixture f;
+        f.showAudio();
+        MixerController* mc = f.audio()->mixerController();
+        bool playing = false;
+        mc->setPlayingProbe([&playing] { return playing; });
+        setUpCurve(f, mc, AutomationMode::Latch, 0.0, 0.0);
+        const MixTarget t = MixTarget::track(f.a1());
+        using C = MixerController::Control;
+        const int steps = f.steps();
+        playFrames(f, mc, playing, 20, 20);
+        mc->pressControl(t, C::Fader);
+        mc->moveControl(t, C::Fader, -9.0);
+        for (int64_t frame = 21; frame <= 40; ++frame)
+            f.project.timeline()->setPlayhead(frame);
+        mc->releaseControl(t, C::Fader);
+        for (int64_t frame = 41; frame <= 70; ++frame)
+            f.project.timeline()->setPlayhead(frame);
+        playing = false;
+        mc->transportStateChanged();
+        QCOMPARE(f.steps(), steps + 1);
+        const TrackData& track = f.data().audioTracks[0];
+        QCOMPARE(mixerops::faderDbAt(track, 30.0), -9.0);
+        QCOMPARE(mixerops::faderDbAt(track, 55.0), -9.0); // held after the release
+        QCOMPARE(mixerops::faderDbAt(track, 70.0), -9.0); // until the stop
+        QVERIFY(track.mix.automationKeys.values.value(mixkeys::kVolumeDb).hasKeyAt(70));
+        QCOMPARE(mixerops::faderDbAt(track, 100.0), 0.0);
+    }
+
+    void writeOverwritesTheExistingCurve()
+    {
+        Fixture f;
+        f.showAudio();
+        MixerController* mc = f.audio()->mixerController();
+        bool playing = false;
+        mc->setPlayingProbe([&playing] { return playing; });
+        setUpCurve(f, mc, AutomationMode::Write, -20.0, -20.0);
+        mc->edit(QStringLiteral("Static"), [&](TimelineData& d) {
+            mixerops::addAutomationPoint(d, f.a1(), mixkeys::kVolumeDb, 25, -40.0);
+            d.audioTracks[0].mix.strip.volumeDb = -3.0;
+            return true;
+        });
+        playFrames(f, mc, playing, 20, 30);
+        playing = false;
+        mc->transportStateChanged();
+        const TrackData& track = f.data().audioTracks[0];
+        // The pass holds the value the fader showed when it began: the -40 point is gone.
+        QCOMPARE(mixerops::faderDbAt(track, 25.0), mixerops::faderDbAt(track, 22.0));
+        QVERIFY(mixerops::faderDbAt(track, 25.0) != -40.0);
+        QVERIFY(track.mix.automationKeys.values.value(mixkeys::kVolumeDb).hasKeyAt(30));
+    }
+
+    void trimAddsTheChangeToTheCurve()
+    {
+        Fixture f;
+        f.showAudio();
+        MixerController* mc = f.audio()->mixerController();
+        bool playing = false;
+        mc->setPlayingProbe([&playing] { return playing; });
+        setUpCurve(f, mc, AutomationMode::Trim, -10.0, -30.0);
+        const MixTarget t = MixTarget::track(f.a1());
+        using C = MixerController::Control;
+        const int steps = f.steps();
+        // The curve falls from -10 (frame 0) to -30 (frame 100): -20 at 50, -22 at 60.
+        playFrames(f, mc, playing, 50, 50);
+        mc->pressControl(t, C::Fader);
+        mc->moveControl(t, C::Fader, -20.0 + 5.0); // +5 dB over the curve's -20
+        for (int64_t frame = 51; frame <= 60; ++frame)
+            f.project.timeline()->setPlayhead(frame);
+        mc->releaseControl(t, C::Fader);
+        playing = false;
+        mc->transportStateChanged();
+        QCOMPARE(f.steps(), steps + 1);
+        const TrackData& track = f.data().audioTracks[0];
+        QCOMPARE(mixerops::faderDbAt(track, 10.0), -12.0); // before: untouched
+        QCOMPARE(mixerops::faderDbAt(track, 49.0), -19.8); // the curve as it was up to the press
+        QCOMPARE(mixerops::faderDbAt(track, 50.0), -15.0); // from the press on: the offset
+        QVERIFY(std::abs(mixerops::faderDbAt(track, 55.0) - (-21.0 + 5.0)) < 1e-9);
+        QVERIFY(std::abs(mixerops::faderDbAt(track, 60.0) - (-22.0 + 5.0)) < 1e-9);
+        QCOMPARE(mixerops::faderDbAt(track, 100.0), -30.0); // the end of the curve is as it was
+    }
+
+    void automationToolbarSetsEveryTrackAndShowsTheMode()
+    {
+        Fixture f;
+        f.showAudio();
+        AutomationBar* bar = f.audio()->automationBar();
+        QVERIFY(bar);
+        QVERIFY(bar->isVisible());
+        QVERIFY(bar->button(AutomationMode::Read)->isChecked()); // the default
+        QVERIFY(!bar->button(AutomationMode::Latch)->isChecked());
+        for (AutomationMode m : AutomationBar::modes())
+            QVERIFY(!bar->button(m)->toolTip().isEmpty());
+        const int steps = f.steps();
+        bar->button(AutomationMode::Latch)->click();
+        for (const TrackData& t : f.data().audioTracks)
+            QCOMPARE(t.mix.automation, AutomationMode::Latch);
+        QCOMPARE(f.steps(), steps + 1);
+        QVERIFY(bar->button(AutomationMode::Latch)->isChecked());
+        QVERIFY(!bar->button(AutomationMode::Read)->isChecked());
+        bar->button(AutomationMode::Latch)->click(); // stays on
+        QVERIFY(bar->button(AutomationMode::Latch)->isChecked());
+        // The strip's own mode list has Latch and Trim.
+        QComboBox* combo = f.strip(MixTarget::track(f.a1()))->automationCombo();
+        QVERIFY(combo->findData(int(AutomationMode::Trim)) >= 0);
+        QCOMPARE(combo->currentData().toInt(), int(AutomationMode::Latch));
+        f.project.undo();
+        QVERIFY(bar->button(AutomationMode::Read)->isChecked());
+        // One track on its own: no button is lit.
+        f.project.beginEdit(QStringLiteral("Add track"));
+        TrackData extra;
+        extra.id = f.project.timeline()->mutableData().allocateId();
+        f.project.timeline()->mutableData().audioTracks.push_back(extra);
+        f.project.endEdit();
+        QCoreApplication::processEvents();
+        f.audio()->mixerController()->edit(QStringLiteral("One"), [&](TimelineData& d) {
+            return mixerops::setAutomationMode(d, f.a1(), AutomationMode::Trim);
+        });
+        for (AutomationMode m : AutomationBar::modes())
+            QVERIFY(!bar->button(m)->isChecked());
+    }
+
+    // ---- 138 the lane ----
+    void automationLaneOpensFromTheHeaderAndEditsPoints()
+    {
+        Fixture f;
+        f.showAudio();
+        TimelineWidget* tw = f.audio()->timeline();
+        const TimelineLayout& L = tw->layout();
+        const int row = L.rowOf(TrackRef {TrackType::Audio, 0});
+        const int heightBefore = L.rowRect(row).height();
+        const QRect button = L.headerButtonRect(row, HeaderButton::Automation);
+        QVERIFY(!button.isEmpty());
+        QVERIFY(L.automationLaneRect(row).isEmpty());
+        QTest::mouseClick(tw->viewport(), Qt::LeftButton, {}, button.center());
+        QVERIFY(tw->automationLanes()->isOpen(f.a1()));
+        QCOMPARE(f.steps(), 0); // opening a lane is view state
+        QVERIFY(L.rowRect(row).height() > heightBefore);
+        QVERIFY(!L.automationLaneRect(row).isEmpty());
+        QCoreApplication::processEvents();
+        AutomationLaneWidget* lane = tw->automationLanes()->widget(f.a1());
+        QVERIFY(lane);
+        QVERIFY(lane->isVisible());
+        QVERIFY(!lane->toolTip().isEmpty());
+        // The parameter picker: Volume, Pan, Mute first; every item can be chosen.
+        QComboBox* picker = lane->picker();
+        QVERIFY(!picker->toolTip().isEmpty());
+        QVERIFY(picker->count() >= 3);
+        QVERIFY(picker->itemData(0).toString() == mixkeys::kVolumeDb);
+        QVERIFY(picker->itemData(1).toString() == mixkeys::kPan);
+        QVERIFY(picker->itemData(2).toString() == mixkeys::kMute);
+        QCOMPARE(lane->parameterKey(), mixkeys::kVolumeDb);
+
+        // Click adds a point.
+        const int steps = f.steps();
+        const QPoint at = lane->pointPos(20.0, -12.0).toPoint();
+        QTest::mouseClick(lane, Qt::LeftButton, {}, at);
+        const TrackData& track = f.data().audioTracks[0];
+        const AnimatedValue& curve = track.mix.automationKeys.values[mixkeys::kVolumeDb];
+        QCOMPARE(curve.keys.size(), qsizetype(1));
+        QCOMPARE(curve.keys[0].frame, int64_t(20));
+        QVERIFY(std::abs(curve.keys[0].value - (-12.0)) < 1.5);
+        QCOMPARE(f.steps(), steps + 1);
+        // A second point, then a drag of the first (one undo step; it follows the pointer).
+        QTest::mouseClick(lane, Qt::LeftButton, {}, lane->pointPos(60.0, 0.0).toPoint());
+        QCOMPARE(f.data().audioTracks[0].mix.automationKeys.values[mixkeys::kVolumeDb].keys.size(),
+            qsizetype(2));
+        const int beforeDrag = f.steps();
+        drag(lane, lane->pointPos(20.0, -12.0).toPoint(), lane->pointPos(30.0, -30.0).toPoint());
+        QCOMPARE(f.steps(), beforeDrag + 1);
+        {
+            const AnimatedValue& c2
+                = f.data().audioTracks[0].mix.automationKeys.values[mixkeys::kVolumeDb];
+            QVERIFY(c2.hasKeyAt(30) && !c2.hasKeyAt(20));
+            QVERIFY(std::abs(c2.keys[c2.indexOf(30)].value - (-30.0)) < 2.0);
+        }
+        f.project.undo();
+        QVERIFY(f.data().audioTracks[0].mix.automationKeys.values[mixkeys::kVolumeDb].hasKeyAt(20));
+        // Dragging a segment up moves both its points.
+        const double vA
+            = f.data().audioTracks[0].mix.automationKeys.values[mixkeys::kVolumeDb].keys[0].value;
+        const QPoint mid = lane->pointPos(40.0, mixerops::faderDbAt(f.data().audioTracks[0], 40.0))
+                               .toPoint();
+        drag(lane, mid, mid - QPoint(0, 15));
+        const double vA2
+            = f.data().audioTracks[0].mix.automationKeys.values[mixkeys::kVolumeDb].keys[0].value;
+        QVERIFY(vA2 > vA + 1.0);
+        // Select and Delete removes the point (one undo step each).
+        lane->selectPoint(20);
+        const int beforeDelete = f.project.undoStack()->index();
+        QTest::keyClick(lane, Qt::Key_Delete);
+        QCOMPARE(f.project.undoStack()->index(), beforeDelete + 1);
+        QVERIFY(!f.data().audioTracks[0].mix.automationKeys.values[mixkeys::kVolumeDb].hasKeyAt(20));
+        f.project.undo();
+        QVERIFY(f.data().audioTracks[0].mix.automationKeys.values[mixkeys::kVolumeDb].hasKeyAt(20));
+        // Another parameter: Pan has its own (empty) curve; the lane keeps the choice.
+        picker->setCurrentIndex(1);
+        emit picker->activated(1);
+        QCOMPARE(lane->parameterKey(), mixkeys::kPan);
+        QCOMPARE(tw->automationLanes()->parameter(f.a1()), mixkeys::kPan);
+        QTest::mouseClick(lane, Qt::LeftButton, {}, lane->pointPos(10.0, 0.5).toPoint());
+        QVERIFY(f.data().audioTracks[0].mix.automationKeys.values.contains(mixkeys::kPan));
+        // Closing the lane gives the row its height back.
+        QTest::mouseClick(tw->viewport(), Qt::LeftButton, {}, button.center());
+        QVERIFY(!tw->automationLanes()->isOpen(f.a1()));
+        QCOMPARE(L.rowRect(row).height(), heightBefore);
+    }
+
+    void automationHeaderButtonHasATooltipAndTheLaneMenuEntryExists()
+    {
+        Fixture f;
+        f.showAudio();
+        TimelineWidget* tw = f.audio()->timeline();
+        const TimelineLayout& L = tw->layout();
+        const int row = L.rowOf(TrackRef {TrackType::Audio, 0});
+        const QPoint p = L.headerButtonRect(row, HeaderButton::Automation).center();
+        QTest::mouseMove(tw->viewport(), p);
+        QTest::mouseMove(tw->viewport(), p + QPoint(1, 0));
+        QTRY_VERIFY(QToolTip::isVisible());
+        QVERIFY(QToolTip::text().contains(QStringLiteral("Automation")));
+        QToolTip::hideText();
+        // The Edit page has no header button but the lane works there too.
+        TimelineWidget* edit = f.window->editPage()->timeline()->timelineWidget();
+        edit->automationLanes()->setOpen(f.a1(), true);
+        QVERIFY(edit->layout().rowRect(edit->layout().rowOf(TrackRef {TrackType::Audio, 0})).height()
+            > L.rowRect(row).height() / 2);
+        QVERIFY(!edit->layout().automationLaneRect(edit->layout().rowOf(TrackRef {TrackType::Audio, 0})).isEmpty());
+    }
+
+    void stoppedFaderMoveStaysOnTheStaticValueWithoutACurve()
+    {
+        Fixture f;
+        f.showAudio();
+        MixerController* mc = f.audio()->mixerController();
+        const MixTarget t = MixTarget::track(f.a1());
+        mc->setControl(t, MixerController::Control::Fader, -5.0);
+        QVERIFY(f.data().audioTracks[0].mix.automationKeys.values.isEmpty());
+        QCOMPARE(f.data().audioTracks[0].mix.strip.volumeDb, -5.0);
     }
 
     // ---- 37.x meters ----

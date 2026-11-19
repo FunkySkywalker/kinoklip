@@ -7,6 +7,7 @@
 #include "core/Project.h"
 #include "core/Timeline.h"
 #include "playback/PlaybackEngine.h"
+#include "ui/audio/AutomationBar.h"
 #include "ui/audio/LoudnessPanel.h"
 #include "ui/audio/MeterModel.h"
 #include "ui/audio/MixerController.h"
@@ -112,7 +113,15 @@ AudioPage::AudioPage(AppContext& ctx, TimelineController* controller, QWidget* p
 
     m_main = new PanelSplitter(Qt::Vertical);
     m_main->addWidget(m_topRow);
-    m_main->addWidget(m_bottomRow);
+    // The Automation toolbar sits above the timeline and the mixer.
+    auto* bottom = new QWidget;
+    auto* bottomLayout = new QVBoxLayout(bottom);
+    bottomLayout->setContentsMargins(0, 0, 0, 0);
+    bottomLayout->setSpacing(0);
+    m_automationBar = new AutomationBar(m_mixerController);
+    bottomLayout->addWidget(m_automationBar);
+    bottomLayout->addWidget(m_bottomRow, 1);
+    m_main->addWidget(bottom);
     m_main->setStretchFactor(1, 1);
     m_main->setSizes({kTopRowHeight, kBottomRowHeight});
 

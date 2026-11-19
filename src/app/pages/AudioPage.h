@@ -10,6 +10,7 @@ class QSplitter;
 namespace kk {
 
 struct AppContext;
+class AutomationBar;
 class EffectsLibraryPanel;
 class InspectorPanel;
 class LoudnessPanel;
@@ -60,6 +61,7 @@ public:
     [[nodiscard]] LoudnessPanel* meters() const { return m_meters; }
     [[nodiscard]] ViewerPanel* viewer() const { return m_viewer; }
     [[nodiscard]] MixerController* mixerController() const { return m_mixerController; }
+    [[nodiscard]] AutomationBar* automationBar() const { return m_automationBar; }
     [[nodiscard]] MeterModel* meterModel() const { return m_meterModel; }
     [[nodiscard]] EffectsLibraryPanel* effectsLibrary() const { return m_effects; }
     [[nodiscard]] InspectorPanel* inspector() const { return m_inspector; }
@@ -91,6 +93,7 @@ private:
     LoudnessPanel* m_meters = nullptr;
     TimelineWidget* m_timeline = nullptr;
     MixerPanel* m_mixer = nullptr;
+    AutomationBar* m_automationBar = nullptr; ///< Off / Read / Touch / Latch / Write / Trim
     EffectsLibraryPanel* m_effects = nullptr;
     InspectorPanel* m_inspector = nullptr;
     QSplitter* m_outer = nullptr; ///< horizontal: Effects Library | the rest | Inspector

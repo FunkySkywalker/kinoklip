@@ -63,6 +63,7 @@ Also early: [Add a title](add-a-title.md) and [Transitions between clips](transi
 - [Make your audio loud enough for YouTube](make-your-audio-loud-enough-for-youtube.md)
 - [Lower music under a voice (ducking)](lower-music-under-a-voice-ducking.md)
 - [Send tracks to a bus, flip the phase and use EQ presets](send-tracks-to-a-bus-flip-phase-and-eq-presets.md)
+- [Automate volume over time](automate-volume-over-time.md)
 - [Record a voice-over](record-a-voice-over.md)
 - [Put text over a clip on the Compositing page](compositing-page.md)
 - [Change the colour of one object](change-the-colour-of-one-object.md)

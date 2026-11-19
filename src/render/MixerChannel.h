@@ -19,6 +19,8 @@ struct AudioMixer::Channel
     dsp::ClipEffectChain effects;
     int effectsLatency = 0;
     bool effectsPrimed = false;
+    /// Scratch copy of the effect slots with automated parameters filled in (spec 139).
+    QVector<EffectInstance> effectsAuto;
     /// No sound and no filter / envelope tail: the channel's processing is skipped until a
     /// clip plays on it again.
     bool quiet = true;

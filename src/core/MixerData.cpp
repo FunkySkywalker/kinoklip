@@ -37,6 +37,10 @@ QString automationModeToString(AutomationMode mode)
         return QStringLiteral("touch");
     case AutomationMode::Write:
         return QStringLiteral("write");
+    case AutomationMode::Latch:
+        return QStringLiteral("latch");
+    case AutomationMode::Trim:
+        return QStringLiteral("trim");
     }
     return QStringLiteral("read");
 }
@@ -44,7 +48,8 @@ QString automationModeToString(AutomationMode mode)
 AutomationMode automationModeFromString(const QString& text, AutomationMode fallback)
 {
     for (AutomationMode m :
-        {AutomationMode::Off, AutomationMode::Read, AutomationMode::Touch, AutomationMode::Write}) {
+        {AutomationMode::Off, AutomationMode::Read, AutomationMode::Touch, AutomationMode::Write,
+            AutomationMode::Latch, AutomationMode::Trim}) {
         if (text == automationModeToString(m))
             return m;
     }

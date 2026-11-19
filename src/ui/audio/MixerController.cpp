@@ -136,38 +136,45 @@ bool MixerController::applyStatic(
     return true;
 }
 
-MixerController::Recording* MixerController::recording(quint64 trackId, Control control)
+MixerController::Recording* MixerController::recording(quint64 trackId, const QString& key)
 {
     for (Recording& r : m_recordings) {
-        if (r.trackId == trackId && r.control == control)
+        if (r.trackId == trackId && r.key == key)
             return &r;
     }
     return nullptr;
+}
+
+bool MixerController::isRecording(quint64 trackId, const QString& key) const
+{
+    return const_cast<MixerController*>(this)->recording(trackId, key) != nullptr;
 }
 
 void MixerController::writeRecording(Recording& r, int64_t frame)
 {
     const bool jump = frame < r.lastFrame || frame - r.lastFrame > kMaxRecordStepFrames;
     const int64_t eraseFrom = jump ? frame : r.lastFrame;
-    if (mixerops::writeAutomation(m_ctx.project->timeline()->mutableData(), r.trackId,
-            automationKey(r.control), frame, r.value, eraseFrom))
+    TimelineData& d = m_ctx.project->timeline()->mutableData();
+    const bool changed = r.mode == AutomationMode::Trim
+        ? mixerops::trimAutomation(
+              d, r.trackId, r.key, r.original, eraseFrom, frame, r.value - r.startValue)
+        : mixerops::writeAutomation(d, r.trackId, r.key, frame, r.value, eraseFrom);
+    if (changed)
         m_ctx.project->timeline()->notifyChanged();
     r.lastFrame = frame;
 }
 
-void MixerController::pressControl(const MixTarget& target, Control control)
+bool MixerController::pressParam(quint64 trackId, const QString& key)
 {
-    const TrackData* t = target.isBus() ? nullptr : mixerops::audioTrack(data(), target.id);
-    const bool records = t && playing()
-        && (t->mix.automation == AutomationMode::Touch
-            || t->mix.automation == AutomationMode::Write);
-    if (!records) {
-        beginGesture(control == Control::Pan ? tr("Pan") : tr("Fader"));
-        return;
-    }
-    if (Recording* r = recording(target.id, control)) {
-        r->touched = true; // Write pass already running for this control
-        return;
+    const TrackData* t = mixerops::audioTrack(data(), trackId);
+    const AutomationMode mode = t ? t->mix.automation : AutomationMode::Off;
+    const bool records = t && playing() && mode != AutomationMode::Off
+        && mode != AutomationMode::Read;
+    if (!records)
+        return false;
+    if (Recording* r = recording(trackId, key)) {
+        r->touched = true; // a pass already running for this control (Write, Latch)
+        return true;
     }
     if (!m_recordEditOpen) {
         m_ctx.project->beginEdit(tr("Write Automation"));
@@ -175,19 +182,64 @@ void MixerController::pressControl(const MixTarget& target, Control control)
     }
     const int64_t frame = m_ctx.project->timeline()->playhead();
     Recording r;
-    r.trackId = target.id;
-    r.control = control;
-    r.value = controlValue(target, control, double(frame));
+    r.trackId = trackId;
+    r.key = key;
+    r.mode = mode;
+    r.value = mixerops::automationValueAt(*t, key, double(frame));
     r.lastFrame = frame;
     r.touched = true;
+    if (mode == AutomationMode::Trim) {
+        const auto it = t->mix.automationKeys.values.constFind(key);
+        r.original = it != t->mix.automationKeys.values.cend()
+            ? *it
+            : AnimatedValue(mixerops::staticAutomationValue(*t, key));
+        r.startValue = r.value;
+        // The trim starts here: a key one frame before the press keeps the curve as it was
+        // before it (the first moved value is written at the press frame itself).
+        const int64_t before = std::max<int64_t>(0, frame - 1);
+        if (mixerops::trimAutomation(m_ctx.project->timeline()->mutableData(), trackId, key,
+                r.original, before, before, 0.0))
+            m_ctx.project->timeline()->notifyChanged();
+    }
     m_recordings.append(r);
+    return true;
+}
+
+void MixerController::moveParam(quint64 trackId, const QString& key, double value)
+{
+    if (Recording* r = recording(trackId, key)) {
+        r->value = value;
+        writeRecording(*r, m_ctx.project->timeline()->playhead());
+    }
+}
+
+void MixerController::releaseParam(quint64 trackId, const QString& key)
+{
+    Recording* r = recording(trackId, key);
+    if (!r)
+        return;
+    if (r->mode == AutomationMode::Write || r->mode == AutomationMode::Latch) {
+        r->touched = false; // the last value keeps being written until stop
+        return;
+    }
+    m_recordings.erase(m_recordings.begin() + (r - m_recordings.data()));
+    if (m_recordings.isEmpty() && m_recordEditOpen) {
+        m_recordEditOpen = false;
+        m_ctx.project->endEdit();
+    }
+}
+
+void MixerController::pressControl(const MixTarget& target, Control control)
+{
+    if (!target.isBus() && pressParam(target.id, automationKey(control)))
+        return;
+    beginGesture(control == Control::Pan ? tr("Pan") : tr("Fader"));
 }
 
 void MixerController::moveControl(const MixTarget& target, Control control, double value)
 {
-    if (Recording* r = target.isBus() ? nullptr : recording(target.id, control)) {
-        r->value = value;
-        writeRecording(*r, m_ctx.project->timeline()->playhead());
+    if (!target.isBus() && isRecording(target.id, automationKey(control))) {
+        moveParam(target.id, automationKey(control), value);
         return;
     }
     updateGesture([&](TimelineData& d) { return applyStatic(d, target, control, value); });
@@ -195,17 +247,8 @@ void MixerController::moveControl(const MixTarget& target, Control control, doub
 
 void MixerController::releaseControl(const MixTarget& target, Control control)
 {
-    if (Recording* r = target.isBus() ? nullptr : recording(target.id, control)) {
-        const TrackData* t = mixerops::audioTrack(data(), target.id);
-        if (t && t->mix.automation == AutomationMode::Write) {
-            r->touched = false; // a Write pass keeps writing the last value until stop
-            return;
-        }
-        m_recordings.erase(m_recordings.begin() + (r - m_recordings.data()));
-        if (m_recordings.isEmpty() && m_recordEditOpen) {
-            m_recordEditOpen = false;
-            m_ctx.project->endEdit();
-        }
+    if (!target.isBus() && isRecording(target.id, automationKey(control))) {
+        releaseParam(target.id, automationKey(control));
         return;
     }
     endGesture();
@@ -219,6 +262,20 @@ void MixerController::setControl(const MixTarget& target, Control control, doubl
 
 void MixerController::setTrackMuted(quint64 trackId, bool muted)
 {
+    // Playing in Touch / Latch / Write / Trim: the click writes a Mute step at the playhead.
+    if (const TrackData* t = mixerops::audioTrack(data(), trackId);
+        t && playing() && t->mix.automation != AutomationMode::Off
+        && t->mix.automation != AutomationMode::Read) {
+        if (!m_recordEditOpen) {
+            m_ctx.project->beginEdit(tr("Write Automation"));
+            m_recordEditOpen = true;
+        }
+        const int64_t frame = m_ctx.project->timeline()->playhead();
+        if (mixerops::writeAutomation(m_ctx.project->timeline()->mutableData(), trackId,
+                mixkeys::kMute, frame, muted ? 1.0 : 0.0, frame))
+            m_ctx.project->timeline()->notifyChanged();
+        return;
+    }
     edit(muted ? tr("Mute Track") : tr("Unmute Track"), [&](TimelineData& d) {
         TrackData* t = mixerops::audioTrack(d, trackId);
         if (!t || t->muted == muted)
@@ -268,7 +325,7 @@ void MixerController::startWritePasses()
         if (t.mix.automation != AutomationMode::Write)
             continue;
         for (Control c : {Control::Fader, Control::Pan}) {
-            if (recording(t.id, c))
+            if (recording(t.id, automationKey(c)))
                 continue;
             if (!m_recordEditOpen) {
                 m_ctx.project->beginEdit(tr("Write Automation"));
@@ -276,7 +333,8 @@ void MixerController::startWritePasses()
             }
             Recording r;
             r.trackId = t.id;
-            r.control = c;
+            r.key = automationKey(c);
+            r.mode = AutomationMode::Write;
             r.value = controlValue(MixTarget::track(t.id), c, double(frame));
             r.lastFrame = frame;
             m_recordings.append(r);

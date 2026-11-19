@@ -708,6 +708,26 @@ The program was probably closed by the system because the computer ran out of me
         <source>The file is not a project settings preset.</source>
         <translation>Файл не является пресетом настроек проекта.</translation>
     </message>
+    <message>
+        <source>Volume</source>
+        <translation>Громкость</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Панорама</translation>
+    </message>
+    <message>
+        <source>Mute</source>
+        <translation>Без звука</translation>
+    </message>
+    <message>
+        <source> dB</source>
+        <translation> дБ</translation>
+    </message>
+    <message>
+        <source>Send to %1</source>
+        <translation>Посыл в %1</translation>
+    </message>
 </context>
 <context>
     <name>TimelineRepair</name>
@@ -22881,6 +22901,18 @@ Import files with %1 or drop them here.</source>
         <source>Input: the tracks routed to this bus, and sends to it</source>
         <translation>Вход: дорожки, направленные на эту шину, и посылы на неё</translation>
     </message>
+    <message>
+        <source>Latch</source>
+        <translation>Фиксация</translation>
+    </message>
+    <message>
+        <source>Trim</source>
+        <translation>Подстройка</translation>
+    </message>
+    <message>
+        <source>Automation mode of this track: Off ignores the curves, Read plays them, Touch records while a control is held, Latch keeps the last value after the release, Write records all the time, Trim adds your change to the existing curve</source>
+        <translation>Режим автоматизации дорожки: «Выкл.» игнорирует кривые, «Чтение» воспроизводит их, «Касание» записывает, пока регулятор удерживается, «Фиксация» сохраняет последнее значение после отпускания, «Запись» пишет постоянно, «Подстройка» добавляет ваше изменение к существующей кривой</translation>
+    </message>
 </context>
 <context>
     <name>kk::ModelDownloadDialog</name>
@@ -32446,6 +32478,18 @@ Trim the clips so the media covers the transition?</source>
         <source>Normalize Audio Levels…</source>
         <translation>Нормализовать уровни звука…</translation>
     </message>
+    <message>
+        <source>Hide Automation Lane</source>
+        <translation>Скрыть дорожку автоматизации</translation>
+    </message>
+    <message>
+        <source>Show Automation Lane</source>
+        <translation>Показать дорожку автоматизации</translation>
+    </message>
+    <message>
+        <source>Automation lane: show the volume, pan, mute, send and effect curves of this track below it</source>
+        <translation>Дорожка автоматизации: показать под дорожкой кривые громкости, панорамы, отключения звука, посылов и эффектов</translation>
+    </message>
 </context>
 <context>
     <name>kk::TitleLayers</name>
@@ -35656,6 +35700,140 @@ Clips, markers and effects stay at the same time and the keyframes are re-timed.
     <message>
         <source>Sends - %1</source>
         <translation>Посылы - %1</translation>
+    </message>
+</context>
+<context>
+    <name>kk::AutomationBar</name>
+    <message>
+        <source>Automation</source>
+        <translation>Автоматизация</translation>
+    </message>
+    <message>
+        <source>What the audio tracks do with their automation curves (volume, pan, mute, sends and effect parameters)</source>
+        <translation>Что аудиодорожки делают со своими кривыми автоматизации (громкость, панорама, отключение звука, посылы и параметры эффектов)</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation>Выкл.</translation>
+    </message>
+    <message>
+        <source>Read</source>
+        <translation>Чтение</translation>
+    </message>
+    <message>
+        <source>Touch</source>
+        <translation>Касание</translation>
+    </message>
+    <message>
+        <source>Latch</source>
+        <translation>Фиксация</translation>
+    </message>
+    <message>
+        <source>Write</source>
+        <translation>Запись</translation>
+    </message>
+    <message>
+        <source>Trim</source>
+        <translation>Подстройка</translation>
+    </message>
+    <message>
+        <source>Off: the curves are ignored and the fader and knobs keep their own values</source>
+        <translation>Выкл.: кривые игнорируются, а фейдер и ручки сохраняют свои значения</translation>
+    </message>
+    <message>
+        <source>Read: the curves play; the faders and knobs follow them</source>
+        <translation>Чтение: кривые воспроизводятся, фейдеры и ручки следуют за ними</translation>
+    </message>
+    <message>
+        <source>Touch: while playing, moving a control records it; on release it returns to the existing curve</source>
+        <translation>Касание: при воспроизведении движение регулятора записывается; после отпускания он возвращается к существующей кривой</translation>
+    </message>
+    <message>
+        <source>Latch: like Touch, but after the release the last value keeps being recorded until playback stops</source>
+        <translation>Фиксация: как «Касание», но после отпускания последнее значение продолжает записываться до остановки воспроизведения</translation>
+    </message>
+    <message>
+        <source>Write: while playing, the values of the controls are recorded all the time and replace the curve</source>
+        <translation>Запись: при воспроизведении значения регуляторов записываются постоянно и заменяют кривую</translation>
+    </message>
+    <message>
+        <source>Trim: while playing, moving a control adds the change as an offset on top of the existing curve</source>
+        <translation>Подстройка: при воспроизведении изменение регулятора добавляется как смещение поверх существующей кривой</translation>
+    </message>
+    <message>
+        <source>Automation Mode</source>
+        <translation>Режим автоматизации</translation>
+    </message>
+</context>
+<context>
+    <name>kk::AutomationLaneWidget</name>
+    <message>
+        <source>Automation lane: click to add a point, drag a point to move it, drag a line up or down to move both its points, Delete removes the selected point, right-click a point to shape the line after it</source>
+        <translation>Дорожка автоматизации: щёлчок добавляет точку, перетаскивание точки перемещает её, перетаскивание линии вверх или вниз сдвигает обе её точки, Delete удаляет выбранную точку, правый щелчок по точке задаёт форму линии после неё</translation>
+    </message>
+    <message>
+        <source>What this lane shows: Volume, Pan, Mute, the level of a send or a parameter of an effect slot of the track. A dot marks parameters that already have a curve</source>
+        <translation>Что показывает эта дорожка: громкость, панораму, отключение звука, уровень посыла или параметр слота эффекта дорожки. Точка отмечает параметры, у которых уже есть кривая</translation>
+    </message>
+    <message>
+        <source>Delete Automation Point</source>
+        <translation>Удалить точку автоматизации</translation>
+    </message>
+    <message>
+        <source>Automation Curve</source>
+        <translation>Кривая автоматизации</translation>
+    </message>
+    <message>
+        <source>Clear Automation</source>
+        <translation>Очистить автоматизацию</translation>
+    </message>
+    <message>
+        <source>Add Automation Point</source>
+        <translation>Добавить точку автоматизации</translation>
+    </message>
+    <message>
+        <source>Move Automation Point</source>
+        <translation>Переместить точку автоматизации</translation>
+    </message>
+    <message>
+        <source>Move Automation Segment</source>
+        <translation>Переместить отрезок автоматизации</translation>
+    </message>
+    <message>
+        <source>Linear</source>
+        <translation>Линейная</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Плавная</translation>
+    </message>
+    <message>
+        <source>Ease In</source>
+        <translation>Плавное начало</translation>
+    </message>
+    <message>
+        <source>Ease Out</source>
+        <translation>Плавный конец</translation>
+    </message>
+    <message>
+        <source>Ease In and Out</source>
+        <translation>Плавное начало и конец</translation>
+    </message>
+    <message>
+        <source>Hold (step)</source>
+        <translation>Удержание (ступенька)</translation>
+    </message>
+    <message>
+        <source>Delete Point</source>
+        <translation>Удалить точку</translation>
+    </message>
+    <message>
+        <source>Clear Curve</source>
+        <translation>Очистить кривую</translation>
+    </message>
+    <message>
+        <source>Automation is off: the curves are ignored</source>
+        <translation>Автоматизация выключена: кривые игнорируются</translation>
     </message>
 </context>
 </TS>

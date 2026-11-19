@@ -705,6 +705,26 @@ Das Programm wurde wahrscheinlich vom System beendet, weil der Arbeitsspeicher d
         <source>The file is not a project settings preset.</source>
         <translation>Die Datei ist keine Voreinstellung für Projekteinstellungen.</translation>
     </message>
+    <message>
+        <source>Volume</source>
+        <translation>Lautstärke</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Panorama</translation>
+    </message>
+    <message>
+        <source>Mute</source>
+        <translation>Stumm</translation>
+    </message>
+    <message>
+        <source> dB</source>
+        <translation> dB</translation>
+    </message>
+    <message>
+        <source>Send to %1</source>
+        <translation>Send an %1</translation>
+    </message>
 </context>
 <context>
     <name>TimelineRepair</name>
@@ -22863,6 +22883,18 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
         <source>Input: the tracks routed to this bus, and sends to it</source>
         <translation>Eingang: die auf diesen Bus gerouteten Spuren und Sends darauf</translation>
     </message>
+    <message>
+        <source>Latch</source>
+        <translation>Latch</translation>
+    </message>
+    <message>
+        <source>Trim</source>
+        <translation>Trim</translation>
+    </message>
+    <message>
+        <source>Automation mode of this track: Off ignores the curves, Read plays them, Touch records while a control is held, Latch keeps the last value after the release, Write records all the time, Trim adds your change to the existing curve</source>
+        <translation>Automationsmodus dieser Spur: Aus ignoriert die Kurven, Lesen spielt sie ab, Touch zeichnet auf, solange ein Regler gehalten wird, Latch behält den letzten Wert nach dem Loslassen, Schreiben zeichnet ständig auf, Trim addiert Ihre Änderung zur vorhandenen Kurve</translation>
+    </message>
 </context>
 <context>
     <name>kk::ModelDownloadDialog</name>
@@ -32426,6 +32458,18 @@ Die Clips trimmen, damit die Medien den Übergang abdecken?</translation>
         <source>Normalize Audio Levels…</source>
         <translation>Audiopegel normalisieren…</translation>
     </message>
+    <message>
+        <source>Hide Automation Lane</source>
+        <translation>Automationsspur ausblenden</translation>
+    </message>
+    <message>
+        <source>Show Automation Lane</source>
+        <translation>Automationsspur einblenden</translation>
+    </message>
+    <message>
+        <source>Automation lane: show the volume, pan, mute, send and effect curves of this track below it</source>
+        <translation>Automationsspur: zeigt darunter die Kurven für Lautstärke, Panorama, Stummschaltung, Sends und Effekte dieser Spur</translation>
+    </message>
 </context>
 <context>
     <name>kk::TitleLayers</name>
@@ -35635,6 +35679,140 @@ Clips, Marker und Effekte bleiben zeitgleich und die Keyframes werden neu getakt
     <message>
         <source>Sends - %1</source>
         <translation>Sends - %1</translation>
+    </message>
+</context>
+<context>
+    <name>kk::AutomationBar</name>
+    <message>
+        <source>Automation</source>
+        <translation>Automation</translation>
+    </message>
+    <message>
+        <source>What the audio tracks do with their automation curves (volume, pan, mute, sends and effect parameters)</source>
+        <translation>Was die Audiospuren mit ihren Automationskurven tun (Lautstärke, Panorama, Stummschaltung, Sends und Effektparameter)</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation>Aus</translation>
+    </message>
+    <message>
+        <source>Read</source>
+        <translation>Lesen</translation>
+    </message>
+    <message>
+        <source>Touch</source>
+        <translation>Touch</translation>
+    </message>
+    <message>
+        <source>Latch</source>
+        <translation>Latch</translation>
+    </message>
+    <message>
+        <source>Write</source>
+        <translation>Schreiben</translation>
+    </message>
+    <message>
+        <source>Trim</source>
+        <translation>Trim</translation>
+    </message>
+    <message>
+        <source>Off: the curves are ignored and the fader and knobs keep their own values</source>
+        <translation>Aus: Die Kurven werden ignoriert, Fader und Regler behalten ihre eigenen Werte</translation>
+    </message>
+    <message>
+        <source>Read: the curves play; the faders and knobs follow them</source>
+        <translation>Lesen: Die Kurven werden abgespielt; Fader und Regler folgen ihnen</translation>
+    </message>
+    <message>
+        <source>Touch: while playing, moving a control records it; on release it returns to the existing curve</source>
+        <translation>Touch: Beim Abspielen wird die Bewegung eines Reglers aufgezeichnet; nach dem Loslassen kehrt er zur vorhandenen Kurve zurück</translation>
+    </message>
+    <message>
+        <source>Latch: like Touch, but after the release the last value keeps being recorded until playback stops</source>
+        <translation>Latch: wie Touch, aber nach dem Loslassen wird der letzte Wert weiter aufgezeichnet, bis die Wiedergabe stoppt</translation>
+    </message>
+    <message>
+        <source>Write: while playing, the values of the controls are recorded all the time and replace the curve</source>
+        <translation>Schreiben: Beim Abspielen werden die Werte der Regler ständig aufgezeichnet und ersetzen die Kurve</translation>
+    </message>
+    <message>
+        <source>Trim: while playing, moving a control adds the change as an offset on top of the existing curve</source>
+        <translation>Trim: Beim Abspielen wird die Änderung eines Reglers als Versatz auf die vorhandene Kurve addiert</translation>
+    </message>
+    <message>
+        <source>Automation Mode</source>
+        <translation>Automationsmodus</translation>
+    </message>
+</context>
+<context>
+    <name>kk::AutomationLaneWidget</name>
+    <message>
+        <source>Automation lane: click to add a point, drag a point to move it, drag a line up or down to move both its points, Delete removes the selected point, right-click a point to shape the line after it</source>
+        <translation>Automationsspur: Klick fügt einen Punkt hinzu, Ziehen verschiebt einen Punkt, Ziehen einer Linie nach oben oder unten verschiebt beide Punkte, Entf löscht den gewählten Punkt, Rechtsklick auf einen Punkt formt die Linie danach</translation>
+    </message>
+    <message>
+        <source>What this lane shows: Volume, Pan, Mute, the level of a send or a parameter of an effect slot of the track. A dot marks parameters that already have a curve</source>
+        <translation>Was diese Spur zeigt: Lautstärke, Panorama, Stummschaltung, den Pegel eines Sends oder einen Parameter eines Effekt-Slots der Spur. Ein Punkt markiert Parameter, die schon eine Kurve haben</translation>
+    </message>
+    <message>
+        <source>Delete Automation Point</source>
+        <translation>Automationspunkt löschen</translation>
+    </message>
+    <message>
+        <source>Automation Curve</source>
+        <translation>Automationskurve</translation>
+    </message>
+    <message>
+        <source>Clear Automation</source>
+        <translation>Automation löschen</translation>
+    </message>
+    <message>
+        <source>Add Automation Point</source>
+        <translation>Automationspunkt hinzufügen</translation>
+    </message>
+    <message>
+        <source>Move Automation Point</source>
+        <translation>Automationspunkt verschieben</translation>
+    </message>
+    <message>
+        <source>Move Automation Segment</source>
+        <translation>Automationssegment verschieben</translation>
+    </message>
+    <message>
+        <source>Linear</source>
+        <translation>Linear</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Weich</translation>
+    </message>
+    <message>
+        <source>Ease In</source>
+        <translation>Ease In</translation>
+    </message>
+    <message>
+        <source>Ease Out</source>
+        <translation>Ease Out</translation>
+    </message>
+    <message>
+        <source>Ease In and Out</source>
+        <translation>Ease In und Out</translation>
+    </message>
+    <message>
+        <source>Hold (step)</source>
+        <translation>Halten (Stufe)</translation>
+    </message>
+    <message>
+        <source>Delete Point</source>
+        <translation>Punkt löschen</translation>
+    </message>
+    <message>
+        <source>Clear Curve</source>
+        <translation>Kurve löschen</translation>
+    </message>
+    <message>
+        <source>Automation is off: the curves are ignored</source>
+        <translation>Automation ist aus: Die Kurven werden ignoriert</translation>
     </message>
 </context>
 </TS>

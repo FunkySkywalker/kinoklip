@@ -150,7 +150,7 @@ bool offsetFader(TimelineData& data, const MixTarget& target, double deltaDb);
 /// Clamps every value of @p strip to the documented control ranges (loader, ops).
 void clampStrip(ChannelStrip& strip);
 
-/// True if @p mix plays its automation curve for @p key ("volumeDb" / "pan"): not Off and
+/// True if @p mix plays its automation curve for @p key (any key of mixkeys): not Off and
 /// the curve has keys.
 [[nodiscard]] bool readsAutomation(const TrackMix& mix, const QString& key);
 /// Fader value (dB) of @p track at fractional timeline frame @p frame: the automation curve
@@ -159,8 +159,73 @@ void clampStrip(ChannelStrip& strip);
 /// Pan of @p track at fractional timeline frame @p frame (automation or the static value).
 [[nodiscard]] double panAt(const TrackData& track, double frame);
 
+/// True if track @p track is muted at fractional timeline frame @p frame: the Mute curve while
+/// it is read (value >= 0.5), else TrackData::muted.
+[[nodiscard]] bool mutedAt(const TrackData& track, double frame);
+
+// ---- Automation lanes (spec 139) ----
+
+/// Key of the level of the send to bus @p busId ("send.N") / of parameter @p paramKey of effect
+/// slot @p effectId ("fx.<id>.<param>") in TrackMix::automationKeys.
+[[nodiscard]] QString sendKey(int busId);
+[[nodiscard]] QString effectKey(quint64 effectId, const QString& paramKey);
+/// Splits keys made by sendKey() / effectKey(); false for any other key.
+[[nodiscard]] bool parseSendKey(const QString& key, int& busId);
+[[nodiscard]] bool parseEffectKey(const QString& key, quint64& effectId, QString& paramKey);
+
+/// One parameter a lane can show.
+struct AutomationParam
+{
+    QString key; ///< TrackMix::automationKeys key
+    QString label; ///< translated name for the picker
+    double min = 0.0;
+    double max = 1.0;
+    double def = 0.0;
+    QString unit; ///< display suffix
+    bool stepped = false; ///< on / off (Mute): points are held, not interpolated
+};
+/// The parameters of @p track that can be automated: Volume, Pan, Mute, the level of each send
+/// and every numeric parameter of each effect slot.
+[[nodiscard]] QVector<AutomationParam> automationParams(
+    const TimelineData& data, const TrackData& track);
+/// The entry of automationParams() for @p key, if there is one.
+[[nodiscard]] std::optional<AutomationParam> automationParam(
+    const TimelineData& data, const TrackData& track, const QString& key);
+/// The value @p key has without a curve (the strip's fader, pan, mute, a send's level, an effect
+/// parameter's base value); 0 for an unknown key.
+[[nodiscard]] double staticAutomationValue(const TrackData& track, const QString& key);
+/// Value of @p key at fractional timeline frame @p frame: the curve while it is read, else
+/// staticAutomationValue().
+[[nodiscard]] double automationValueAt(const TrackData& track, const QString& key, double frame);
+
+/// Adds a point (@p frame, @p value) to the curve of @p key of track @p trackId (creating the
+/// curve), or sets the value of the point already at @p frame. Values are clamped to the
+/// parameter's range; Mute points are held. Returns whether anything changed.
+bool addAutomationPoint(
+    TimelineData& data, quint64 trackId, const QString& key, int64_t frame, double value);
+/// Moves the point at @p fromFrame to (@p toFrame, @p value); a point at @p toFrame is
+/// replaced. Returns whether anything changed.
+bool moveAutomationPoint(TimelineData& data, quint64 trackId, const QString& key,
+    int64_t fromFrame, int64_t toFrame, double value);
+/// Deletes the point at @p frame; the last point takes the curve with it (the static value
+/// plays again). Returns whether anything changed.
+bool removeAutomationPoint(TimelineData& data, quint64 trackId, const QString& key, int64_t frame);
+/// Sets the curve of the segment that leaves the point at @p frame (Linear, Smooth, ease,
+/// Hold, see Interp). Returns whether anything changed.
+bool setAutomationPointInterp(
+    TimelineData& data, quint64 trackId, const QString& key, int64_t frame, Interp interp);
+/// Moves the two points at @p frameA and @p frameB up or down by @p deltaValue (dragging the
+/// segment between them). Returns whether anything changed.
+bool moveAutomationSegment(TimelineData& data, quint64 trackId, const QString& key,
+    int64_t frameA, int64_t frameB, double deltaValue);
+/// Trim recording step: rewrites the curve of @p key between @p fromFrame and @p toFrame as the
+/// @p original curve (as it was when the trim started) plus @p offset. Returns whether anything
+/// changed.
+bool trimAutomation(TimelineData& data, quint64 trackId, const QString& key,
+    const AnimatedValue& original, int64_t fromFrame, int64_t toFrame, double offset);
+
 /// Records automation of track @p trackId: a key with @p value at timeline frame @p frame
-/// for @p key, after removing the keys in (@p eraseFrom, @p frame) (the stretch the moving
+/// for @p key (any key of mixkeys), after removing the keys in (@p eraseFrom, @p frame) (the stretch the moving
 /// fader passed over since the previous write; pass @p frame for none). Values are clamped
 /// to the fader / pan range. Returns whether anything changed.
 bool writeAutomation(TimelineData& data, quint64 trackId, const QString& key, int64_t frame,

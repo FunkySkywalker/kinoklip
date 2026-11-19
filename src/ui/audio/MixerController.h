@@ -29,7 +29,9 @@ class VoiceOverController;
 ///   the control's value at the playhead from press to release (keys passed over are
 ///   replaced; holding the control still keeps writing its value as the playhead moves); in
 ///   Write mode recording runs from play to stop whether the control is touched or not (one
-///   undo step per pass). Stopped, or in Off / Read mode, the control edits the static value
+///   undo step per pass); Latch records like Touch but after the release keeps writing the
+///   last value until stop; Trim writes the control's change since the press as an offset on
+///   top of the existing curve (spec 139). Stopped, or in Off / Read mode, the control edits the static value
 ///   - except in Read / Touch / Write with an existing curve, where it sets the curve's key
 ///   at the playhead (so what plays is what the control shows).
 ///
@@ -76,6 +78,16 @@ public:
     /// One-shot value change (double-click reset, typed value): one undo step.
     void setControl(const MixTarget& target, Control control, double value);
 
+    /// Press / move / release of any automatable parameter @p key (mixkeys: Mute, a send level,
+    /// an effect parameter, or the fader / pan keys) of track @p trackId: the recording half of
+    /// the control functions. Returns false from pressParam() when nothing records (stopped, or
+    /// the track's mode is Off / Read): the caller then edits the static value itself.
+    bool pressParam(quint64 trackId, const QString& key);
+    void moveParam(quint64 trackId, const QString& key, double value);
+    void releaseParam(quint64 trackId, const QString& key);
+    /// True while a recording of @p key of track @p trackId runs.
+    [[nodiscard]] bool isRecording(quint64 trackId, const QString& key) const;
+
     /// Track header state shared with the timeline headers (one undo step each).
     void setTrackMuted(quint64 trackId, bool muted);
     void setTrackSolo(quint64 trackId, bool solo);
@@ -101,10 +113,13 @@ private:
     struct Recording
     {
         quint64 trackId = 0;
-        Control control = Control::Fader;
+        QString key;
+        AutomationMode mode = AutomationMode::Touch;
         double value = 0.0;
         int64_t lastFrame = 0;
-        bool touched = false; ///< Write mode: the user holds the control
+        bool touched = false; ///< Write / Latch: the user holds the control
+        AnimatedValue original; ///< Trim: the curve when the trim started
+        double startValue = 0.0; ///< Trim: the control's value when it was pressed
     };
     void onPlayheadChanged(int64_t frame);
     void onPlaybackState();
@@ -112,7 +127,7 @@ private:
     void stopRecordings();
     void writeRecording(Recording& r, int64_t frame);
     [[nodiscard]] bool playing() const;
-    [[nodiscard]] Recording* recording(quint64 trackId, Control control);
+    [[nodiscard]] Recording* recording(quint64 trackId, const QString& key);
     /// Applies a stopped / static control change to @p d (no edit handling).
     bool applyStatic(TimelineData& d, const MixTarget& target, Control control, double value);
 
