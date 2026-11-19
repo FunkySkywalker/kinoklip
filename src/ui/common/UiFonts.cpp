@@ -13,15 +13,15 @@ namespace kk::uifonts {
 
 namespace {
 
-// Sizes in points, measured from Resolve 21 on a 1920x1080 screen (readme.md): body text has a
-// cap height of about 7 px (9 px font), the timeline timecode 13 px cap height.
-constexpr double kBodyPt = 7.0;
-constexpr double kHeadingPt = 8.0;
-constexpr double kTitlePt = 12.0;
-constexpr double kSmallPt = 6.5;
-constexpr double kTinyPt = 6.0;
-constexpr double kTimecodePt = 12.0;
-constexpr double kViewerTimecodePt = 9.0;
+// Sizes in points at 96 DPI (1 pt = 4/3 px), fitted to the native 1920x1017 screenshot of Resolve 17
+// (100 % scaling) by ink width and height; all of Resolve's text is regular weight (readme.md).
+constexpr double kBodyPt = 9.0; ///< 12 px: menus, toolbar labels, inspector
+constexpr double kPanelPt = 9.75; ///< 13 px: panel titles, tree items, section headers, viewer numbers
+constexpr double kHeadingPt = 10.5; ///< 14 px
+constexpr double kTitlePt = 12.0; ///< 16 px: the project name
+constexpr double kSmallPt = 8.25; ///< 11 px: item labels, mixer labels, captions, ruler (10 px in Resolve)
+constexpr double kTinyPt = 7.5; ///< 10 px: ruler numbers, scales
+constexpr double kTimecodePt = 15.75; ///< 21 px: the big timeline timecode
 
 QString& sessionOverride()
 {
@@ -92,17 +92,17 @@ QFont fontScaled(Role role, Choice which, const QFont& base, double scale)
     } else {
         QFont::Weight w = QFont::Normal;
         switch (role) {
-        case Role::Body:
-        case Role::SectionHeader: pt = kBodyPt; break;
+        case Role::Body: pt = kBodyPt; break;
+        case Role::SectionHeader: pt = kPanelPt; break;
         case Role::Emphasis: pt = kBodyPt; w = QFont::Bold; break;
-        case Role::PanelTitle: pt = kBodyPt; w = QFont::DemiBold; break;
+        case Role::PanelTitle: pt = kPanelPt; break;
         case Role::Heading: pt = kHeadingPt; w = QFont::DemiBold; break;
-        case Role::Title: pt = kTitlePt; w = QFont::DemiBold; break;
+        case Role::Title: pt = kTitlePt; break;
         case Role::Small: pt = kSmallPt; break;
         case Role::SmallEmphasis: pt = kSmallPt; w = QFont::Bold; break;
         case Role::Tiny: pt = kTinyPt; break;
-        case Role::Timecode: pt = kTimecodePt; w = QFont::Bold; break;
-        case Role::ViewerTimecode: pt = kViewerTimecodePt; w = QFont::DemiBold; break;
+        case Role::Timecode: pt = kTimecodePt; break;
+        case Role::ViewerTimecode: pt = kPanelPt; break;
         case Role::Mono: return QFontDatabase::systemFont(QFontDatabase::FixedFont);
         }
         f = resolveFont(pt, w);
@@ -229,9 +229,9 @@ QString css(Role role)
             return QStringLiteral("font-weight: 600;");
         }
     }
-    QString out = QStringLiteral("font-weight: %1;").arg(f.weight() >= QFont::Bold ? 700 : f.weight() >= QFont::DemiBold ? 600 : 400);
-    if (role == Role::ViewerTimecode || role == Role::Timecode)
-        out += QStringLiteral(" font-size: %1pt;").arg(f.pointSizeF());
+    QString out = QStringLiteral("font-weight: %1; font-size: %2pt;")
+                      .arg(f.weight() >= QFont::Bold ? 700 : f.weight() >= QFont::DemiBold ? 600 : 400)
+                      .arg(f.pointSizeF());
     return out;
 }
 
@@ -244,8 +244,10 @@ void apply(QApplication& app)
 
 QString styleSheetRules()
 {
-    return QStringLiteral("QLabel#PanelTitle { %1 }\nQLabel#TimecodeLabel { %2 }\n")
-        .arg(css(Role::PanelTitle), css(Role::ViewerTimecode));
+    // The project name in the top bar is the one place Resolve uses its Title size.
+    return QStringLiteral("QLabel#PanelTitle { %1 }\nQLabel#TimecodeLabel { %2 }\n"
+                          "QLabel#ProjectTitle { %3 }\n")
+               .arg(css(Role::PanelTitle), css(Role::ViewerTimecode), css(Role::Title));
 }
 
 } // namespace kk::uifonts

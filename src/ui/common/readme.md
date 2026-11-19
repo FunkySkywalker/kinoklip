@@ -172,25 +172,31 @@ a `PanelId` + toggle action.
 
 Every text takes its font from a role of `kk::uifonts`; nothing else sets a family, size or weight
 (`test_uifonts` scans the sources). Preference `ui/interfaceFont` (Preferences > UI Settings >
-Interface font; `--interface-font resolve|system` for one run). Sizes measured on Resolve 21
-(1920x1080: "Media Pool" 47 px wide, "Fairlight" 33 px, timecode "01:01:43:23" 84 px; Open Sans
-advance widths give 9 px body text, 8 px captions, 15.5 px timecode). Digits of Open Sans are
-tabular, so timecodes do not jump while playing.
+Interface font; `--interface-font resolve|system` for one run).
 
-| Role | Resolve (Open Sans) | System font (as before) |
-|---|---|---|
-| Body | 7 pt (9.3 px) regular | application font |
-| Emphasis | 7 pt Bold | application font, bold |
-| PanelTitle | 7 pt SemiBold | semi-bold |
-| SectionHeader | 7 pt regular | application font |
-| Heading | 8 pt SemiBold | +2 pt, semi-bold |
-| Title | 12 pt SemiBold | 1.8 x, semi-bold |
-| Small | 6.5 pt | font - 1.5 pt (min 6) |
-| SmallEmphasis | 6.5 pt Bold | same, bold |
-| Tiny | 6 pt | 0.8 x (min 6) |
-| Timecode (timeline corner) | 12 pt Bold | +2 pt, bold |
-| ViewerTimecode | 9 pt SemiBold | monospace, semi-bold |
-| Mono | the system fixed font | the system fixed font |
+Sizes are fitted to the native 1920x1017 screenshot of Resolve 17 at 100 % (Resolve 21 has the same
+text sizes) by ink width and cap height, with Open Sans rendered by Qt at integer pixel sizes. All
+Resolve text is regular weight; only names (track names, selected items) are bold. Points map to
+pixels at 96 DPI as px = pt x 4 / 3 (9 pt = 12 px); the screenshot run (Xvfb) is 96 DPI. Qt rounds a
+font to whole pixels, so every size below is a whole pixel size. Open Sans digits are tabular, so
+timecodes do not jump while playing.
+
+| Role | Resolve (Open Sans) | Resolve text it matches (ink W x H, px) | System font (as before) |
+|---|---|---|---|
+| Body | 9 pt = 12 px regular | "Media Pool" toolbar label 60 x 9, "Inspector" 51 x 12, menu items | application font |
+| Emphasis | 9 pt Bold | names in lists, selected items | application font, bold |
+| PanelTitle, SectionHeader | 9.75 pt = 13 px regular | "Toolbox" 49 x 10, "Smart Bins" 63 x 9, "Cross Fade" header 65 x 10, "Video Transitions" 102 x 10, "34%" 24 x 9 | semi-bold / application font |
+| Heading | 10.5 pt = 14 px SemiBold | (dialog headings; no Resolve sample) | +2 pt, semi-bold |
+| Title | 12 pt = 16 px regular | "Untitled Project" 112 x 16 | 1.8 x, semi-bold |
+| Small | 8.25 pt = 11 px regular | "Cross Fade +3 dB" 86 x 8, "Bus1" 22 x 8; the ruler is 10 px in Resolve (ours 11) | font - 1.5 pt |
+| SmallEmphasis | 8.25 pt Bold | track names | same, bold |
+| Tiny | 7.5 pt = 10 px | ruler / scale numbers, meters | 0.8 x |
+| Timecode (timeline corner) | 15.75 pt = 21 px regular | "01:00:00:00" 112 x 15 | +2 pt, bold |
+| ViewerTimecode | 9.75 pt = 13 px regular | "00:00:00:01" 65 x 9 | monospace, semi-bold |
+| Mono | the system fixed font | | the system fixed font |
+
+Pixel or point sizes: Resolve's sizes are fixed pixels at 100 % scaling; points give the same pixels at
+96 DPI and follow a desktop with another DPI or scale factor, so points stay.
 
 Left outside the roles on purpose: text drawn into pictures (titles, Text+, Look HUD in `src/render`,
 user-chosen families), the font picker's `QFont(family)`, italic flags (`uifonts::italic`), and the

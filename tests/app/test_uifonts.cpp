@@ -56,12 +56,13 @@ private slots:
             QCOMPARE(f.family(), QString::fromLatin1(kFamily));
             QCOMPARE(QFontInfo(f).family(), QString::fromLatin1(kFamily)); // really found
         }
-        QCOMPARE(font(Role::Body, Choice::Resolve, base).pointSizeF(), 7.0);
+        QCOMPARE(font(Role::Body, Choice::Resolve, base).pointSizeF(), 9.0);
         QCOMPARE(font(Role::Body, Choice::Resolve, base).weight(), QFont::Normal);
-        QCOMPARE(font(Role::PanelTitle, Choice::Resolve, base).weight(), QFont::DemiBold);
-        QCOMPARE(font(Role::Small, Choice::Resolve, base).pointSizeF(), 6.5);
-        QCOMPARE(font(Role::Timecode, Choice::Resolve, base).weight(), QFont::Bold);
-        QCOMPARE(font(Role::Timecode, Choice::Resolve, base).pointSizeF(), 12.0);
+        QCOMPARE(font(Role::PanelTitle, Choice::Resolve, base).weight(), QFont::Normal);
+        QCOMPARE(font(Role::PanelTitle, Choice::Resolve, base).pointSizeF(), 9.75);
+        QCOMPARE(font(Role::Small, Choice::Resolve, base).pointSizeF(), 8.25);
+        QCOMPARE(font(Role::Timecode, Choice::Resolve, base).weight(), QFont::Normal);
+        QCOMPARE(font(Role::Timecode, Choice::Resolve, base).pointSizeF(), 15.75);
         // Mono is a real monospace in both choices.
         QCOMPARE(font(Role::Mono, Choice::Resolve, base), font(Role::Mono, Choice::System, base));
     }
@@ -122,7 +123,7 @@ private slots:
         setChoice(Choice::Resolve);
         apply(*qApp);
         QCOMPARE(QApplication::font().family(), QString::fromLatin1(kFamily));
-        QCOMPARE(QApplication::font().pointSizeF(), 7.0);
+        QCOMPARE(QApplication::font().pointSizeF(), 9.0);
         setChoice(Choice::System);
         apply(*qApp);
         QCOMPARE(QApplication::font(), m_original);
