@@ -10,6 +10,7 @@
 #include "render/CompMatteMath.h"
 #include "render/CompLoader.h"
 #include "render/CompMath.h"
+#include "render/CompPaint.h"
 #include "render/CompParticles.h"
 #include "render/CompScene3D.h"
 #include "render/CompTimeMath.h"
@@ -331,6 +332,10 @@ private:
                 const CompNode* e = m_ev.comp->node(emitter);
                 return e ? input(*e, nodeports::Sprite, depth) : QImage();
             });
+        } else if (n.type == nodetypes::Paint) {
+            out = render::paint::renderNode(n, f, size, in);
+            if (out.isNull())
+                out = in; // no stroke on this frame: the input as it is
         } else if (n.type == nodetypes::Renderer3D) {
             out = scene3d::renderNode(*m_ev.comp, n, f, size, m_ev.frame, m_ev.scale,
                 sceneTextures(depth));

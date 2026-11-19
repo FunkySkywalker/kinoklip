@@ -10812,6 +10812,10 @@ Danke fürs Zuschauen</translation>
         <source>Point Weight %1</source>
         <translation>Punktgewicht %1</translation>
     </message>
+    <message>
+        <source>Paint Stroke %1</source>
+        <translation>Strich malen %1</translation>
+    </message>
 </context>
 <context>
     <name>kk::CompositingPage</name>
@@ -24497,6 +24501,114 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
     <message>
         <source>Yellow / Blue</source>
         <translation>Gelb / Blau</translation>
+    </message>
+    <message>
+        <source>Brush Opacity</source>
+        <translation>Pinseldeckkraft</translation>
+    </message>
+    <message>
+        <source>Brush Size</source>
+        <translation>Pinselgröße</translation>
+    </message>
+    <message>
+        <source>Brush Softness</source>
+        <translation>Pinselweichheit</translation>
+    </message>
+    <message>
+        <source>Clone</source>
+        <translation>Klonen</translation>
+    </message>
+    <message>
+        <source>Clone Offset X</source>
+        <translation>Klon-Versatz X</translation>
+    </message>
+    <message>
+        <source>Clone Offset Y</source>
+        <translation>Klon-Versatz Y</translation>
+    </message>
+    <message>
+        <source>Clone: how far above the brush the picture is copied from, as a fraction of the frame height (negative: below)</source>
+        <translation>Klonen: wie weit oberhalb des Pinsels das Bild kopiert wird, als Bruchteil der Bildhöhe (negativ: darunter)</translation>
+    </message>
+    <message>
+        <source>Clone: how far to the right of the brush the picture is copied from, as a fraction of the frame width (negative: left)</source>
+        <translation>Klonen: wie weit rechts vom Pinsel das Bild kopiert wird, als Bruchteil der Bildbreite (negativ: links)</translation>
+    </message>
+    <message>
+        <source>Duration Frames</source>
+        <translation>Dauer in Bildern</translation>
+    </message>
+    <message>
+        <source>Eraser</source>
+        <translation>Radierer</translation>
+    </message>
+    <message>
+        <source>Frames</source>
+        <translation>Bilder</translation>
+    </message>
+    <message>
+        <source>How long the next stroke is seen: only on the frame you draw it on, on every frame, or for a number of frames from the current one</source>
+        <translation>Wie lange der nächste Strich zu sehen ist: nur auf dem Bild, auf dem Sie ihn zeichnen, auf jedem Bild oder für eine Anzahl Bilder ab dem aktuellen</translation>
+    </message>
+    <message>
+        <source>How soft the edge of the brush is; 0 is a hard edge, 1 fades from the centre</source>
+        <translation>Wie weich der Rand des Pinsels ist; 0 ist ein harter Rand, 1 blendet von der Mitte aus</translation>
+    </message>
+    <message>
+        <source>How strongly the next stroke acts; a stroke is one even layer, it does not build up where it crosses itself</source>
+        <translation>Wie stark der nächste Strich wirkt; ein Strich ist eine gleichmäßige Ebene und addiert sich nicht, wo er sich selbst kreuzt</translation>
+    </message>
+    <message>
+        <source>One Frame</source>
+        <translation>Ein Bild</translation>
+    </message>
+    <message>
+        <source>Paint</source>
+        <translation>Malen</translation>
+    </message>
+    <message>
+        <source>Paints strokes on the picture with a brush: colour, clone, erase or smear</source>
+        <translation>Malt Striche mit einem Pinsel auf das Bild: Farbe, Klonen, Radieren oder Verwischen</translation>
+    </message>
+    <message>
+        <source>Smear</source>
+        <translation>Verwischen</translation>
+    </message>
+    <message>
+        <source>Stroke</source>
+        <translation>Strich</translation>
+    </message>
+    <message>
+        <source>Stroke Duration</source>
+        <translation>Strichdauer</translation>
+    </message>
+    <message>
+        <source>Strokes</source>
+        <translation>Striche</translation>
+    </message>
+    <message>
+        <source>The colour of the Stroke tool</source>
+        <translation>Die Farbe des Strich-Werkzeugs</translation>
+    </message>
+    <message>
+        <source>The width of the brush as a fraction of the frame width</source>
+        <translation>Die Breite des Pinsels als Bruchteil der Bildbreite</translation>
+    </message>
+    <message>
+        <source>Tool</source>
+        <translation>Werkzeug</translation>
+    </message>
+    <message>
+        <source>What the next stroke you draw in the viewer does: Stroke paints the colour, Clone copies the picture from the Clone Offset (Alt-click in the viewer sets the source), Eraser brings the original picture back, Smear drags the picture along the stroke</source>
+        <translation>Was der nächste Strich im Viewer bewirkt: Strich malt die Farbe, Klonen kopiert das Bild vom Klon-Versatz (Alt-Klick im Viewer legt die Quelle fest), Radierer bringt das Originalbild zurück, Verwischen zieht das Bild entlang des Strichs</translation>
+    </message>
+    <message>
+        <source>Whole Composition</source>
+        <translation>Ganze Komposition</translation>
+    </message>
+    <message>
+        <source>With the Frames duration: how many frames a new stroke lasts, starting at the current frame</source>
+        <translation>Bei der Dauer in Bildern: wie viele Bilder ein neuer Strich dauert, ab dem aktuellen Bild</translation>
     </message>
 </context>
 <context>

@@ -102,7 +102,12 @@ general knowledge of node compositors, our own drawing, names and icons; never R
   matrices and a small software rasterizer are in `src/render/CompScene3D.*`; both renderers call `scene3d::renderNode()` (the GPU
   reads the texture pictures back and uploads the result). A 3D node in a viewer shows an orbit view with a grid (`CompViewer`
   event filter; the orbit is `scene3d::viewerOrbit()`).
-- Later: paint (the older lines of the roadmap, from the Spline panel to the node editor extras, are all made: spec 123).
+- **Paint** (spec 131): the **Paint** node; strokes are `paint::Stroke` values (`src/core/PaintStrokes.*`: tool, brush, frame
+  range, points with pressure) stored as JSON text in the hidden string parameter `paintStrokes`, so they are saved, copied,
+  instanced and undone like any parameter. `src/render/CompPaint.*` draws them (one even coverage layer per stroke; Clone,
+  Eraser, Smear); both renderers call `paint::drawStrokes()` (the GPU reads the input back and uploads the result, and passes
+  the input through on frames with no stroke). `CompViewerOverlay` turns drags into strokes (`paintBegin/Move/End`, one undo step each).
+- Later: (the older lines of the roadmap, from the Spline panel to the node editor extras, are all made: spec 123).
 
 ## Data model and evaluation
 - `src/core/Composition.h`: value types (Composition, CompNode, NodeLink, CompNote). A clip

@@ -8,6 +8,7 @@
 
 #include <QImage>
 #include <QPointer>
+#include <QVariant>
 #include <QWidget>
 
 #include <functional>
@@ -69,6 +70,19 @@ public:
     /// Re-evaluates visibility and repaints.
     void refresh();
 
+    // ---- Paint node (spec 131) ----
+    /// True while a brush stroke is being drawn.
+    [[nodiscard]] bool painting() const { return m_painting; }
+    /// Where the Clone tool copies from (normalised, y up), set by Alt-click; none until then.
+    [[nodiscard]] std::optional<QPointF> cloneSource() const { return m_cloneSource; }
+    /// Starts a stroke of the current Paint node at widget position @p pos (pressure 1 = a mouse):
+    /// one undo step until paintEnd(). With @p alt the position is only the Clone source.
+    bool paintBegin(QPointF pos, double pressure = 1.0, bool alt = false);
+    /// Adds a point to the running stroke.
+    void paintMove(QPointF pos, double pressure = 1.0);
+    /// Adds the last point and ends the stroke.
+    void paintEnd(QPointF pos, double pressure = 1.0);
+
 protected:
     void paintEvent(QPaintEvent* event) override;
     void mousePressEvent(QMouseEvent* event) override;
@@ -76,6 +90,8 @@ protected:
     void mouseReleaseEvent(QMouseEvent* event) override;
     void wheelEvent(QWheelEvent* event) override;
     void mouseDoubleClickEvent(QMouseEvent* event) override;
+    void tabletEvent(QTabletEvent* event) override;
+    void leaveEvent(QEvent* event) override;
     void contextMenuEvent(QContextMenuEvent* event) override;
     void keyPressEvent(QKeyEvent* event) override;
     bool eventFilter(QObject* watched, QEvent* event) override;
@@ -127,6 +143,13 @@ private:
     std::optional<State> m_pressState;
     int m_selPoint = -1;
     bool m_altDown = false; ///< Alt was held at the latest mouse event of a drag
+    void paintAppend(QPointF pos, double pressure);
+    bool m_painting = false;
+    QVariant m_strokesBefore; ///< the node's stored strokes when the running stroke began (Esc puts it back)
+    std::optional<QPointF> m_cloneSource; ///< Alt-click: where Clone copies from
+    bool m_cloneArmed = false; ///< the next stroke's first point decides the Clone offset
+    QPointF m_hover; ///< the pointer, for the brush circle
+    bool m_hovering = false;
     SnapSource m_snapSource;
     QImage m_snapImage; ///< the picture for Roto Assist while a point is dragged
 };

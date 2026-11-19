@@ -175,7 +175,8 @@ Beginner and intermediate tutorial workflows for Resolve's Color, Fairlight and 
 - [x] Compositing: Light Wrap and Soft Glow nodes
 - [x] Compositing: particles: pEmitter, pRender, pMerge, pGravity, pTurbulence (2D output; more forces, mask regions and 3D output are open, spec 129.10)
 - [x] Compositing: 3D: Image Plane 3D, Text3D (flat), Shape3D, Merge3D, Camera3D, lights, Renderer3D and a 3D viewer (software rasterizer on both renderers; extruded text, shadows, 3D particles, importing models are open, spec 130.11)
-- [ ] Compositing: Paint node (Stroke, Clone, Eraser, Smear, stroke duration) and Magic Mask / Object Removal in the node graph (optional local open model)
+- [x] Compositing: Paint node (Stroke, Clone, Eraser, Smear tools, brush size / softness / opacity / colour, stroke duration, strokes saved as vector points with pressure, drawn in the viewer; Fill, Stroke mode and Emboss are open, spec 131.10)
+- [ ] Compositing: Magic Mask / Object Removal in the node graph (optional local open model); not started: Background Removal's matting code (`src/matting`) only makes a whole-picture foreground matte of a media file and has no point or stroke prompts and no inpainting, so it cannot be reused with modest effort
 - [x] Compositing: modifiers (Perturb, Wiggle, Offset, Expression, Cycle, XY Path), parameter links with Connect To and Publish, and expressions in value fields
 - [x] Compositing: Group, Macro (Make Macro, published controls, save as a title in the Effects Library), Underlay and Instance nodes
 - [x] Compositing: Grid Warp, Displace and Vector Distort nodes

@@ -3,6 +3,8 @@
 // CompSession gestures (one undo step each).
 #include "ui/comp/CompViewerOverlay.h"
 
+#include "core/PaintStrokes.h"
+
 #include "compositing/RotoAssist.h"
 #include "compositing/tracking/TrackFollow.h"
 #include "compositing/tracking/TrackLink.h"
@@ -18,6 +20,7 @@
 #include <QKeyEvent>
 #include <QMenu>
 #include <QMouseEvent>
+#include <QTabletEvent>
 #include <QPainter>
 #include <QPainterPath>
 #include <QPolygonF>
@@ -204,6 +207,8 @@ void CompViewerOverlay::refresh()
 {
     const bool on = hasControls();
     setAttribute(Qt::WA_TransparentForMouseEvents, !on);
+    const std::optional<State> st = state();
+    setMouseTracking(st && st->keys.kind == compadapter::ViewerControl::Paint);
     update();
 }
 
@@ -276,7 +281,7 @@ QSizeF CompViewerOverlay::halfExtents(const State& s) const
 std::optional<QPointF> CompViewerOverlay::handlePos(Handle handle, int pointIndex) const
 {
     const std::optional<State> s = state();
-    if (!s)
+    if (!s || s->keys.kind == compadapter::ViewerControl::Paint)
         return std::nullopt;
     if (s->showBez && pointIndex >= 0 && pointIndex < s->bez.size()
         && (handle == Handle::Point || handle == Handle::TanIn || handle == Handle::TanOut)) {
@@ -347,7 +352,7 @@ std::optional<QPointF> CompViewerOverlay::handlePos(Handle handle, int pointInde
 CompViewerOverlay::Handle CompViewerOverlay::handleAt(QPointF pos, int* pointIndex) const
 {
     const std::optional<State> s = state();
-    if (!s || s->locked)
+    if (!s || s->locked || s->keys.kind == compadapter::ViewerControl::Paint)
         return Handle::None;
     if (s->showBez) {
         const auto hit = [&](Handle h, int i) {
@@ -462,6 +467,27 @@ void CompViewerOverlay::paintEvent(QPaintEvent*)
         p.setPen(QPen(QColor(255, 255, 255), 1.2));
         p.drawPath(path);
     };
+    if (s->keys.kind == compadapter::ViewerControl::Paint) {
+        // The brush as a circle at the pointer, and the Clone source as a cross.
+        const CompNode* n = m_session->composition().node(m_session->currentNode());
+        const double size = n ? n->params.value(nodekeys::BrushSize, m_session->compFrame(), 0.03) : 0.03;
+        const double radius = size * m_surface->pictureRect().width() / 2;
+        if (m_hovering && !s->locked) {
+            QPainterPath ring;
+            ring.addEllipse(m_hover, radius, radius);
+            stroke(ring);
+        }
+        if (m_cloneSource) {
+            const QPointF c = toWidget(*m_cloneSource);
+            QPainterPath cross;
+            cross.moveTo(c + QPointF(-7, 0));
+            cross.lineTo(c + QPointF(7, 0));
+            cross.moveTo(c + QPointF(0, -7));
+            cross.lineTo(c + QPointF(0, 7));
+            stroke(cross);
+        }
+        return;
+    }
     auto handle = [&](QPointF c) {
         if (s->locked)
             return;
@@ -695,6 +721,17 @@ void CompViewerOverlay::paintEvent(QPaintEvent*)
 
 void CompViewerOverlay::mousePressEvent(QMouseEvent* event)
 {
+    if (const std::optional<State> st = state();
+        st && st->keys.kind == compadapter::ViewerControl::Paint) {
+        if (event->button() == Qt::LeftButton
+            && paintBegin(event->position(), 1.0, event->modifiers().testFlag(Qt::AltModifier))) {
+            setFocus(Qt::MouseFocusReason);
+            event->accept();
+        } else {
+            event->ignore();
+        }
+        return;
+    }
     int point = -1;
     const Handle h
         = event->button() == Qt::LeftButton ? handleAt(event->position(), &point) : Handle::None;
@@ -723,6 +760,16 @@ void CompViewerOverlay::mousePressEvent(QMouseEvent* event)
 
 void CompViewerOverlay::mouseMoveEvent(QMouseEvent* event)
 {
+    if (hasMouseTracking()) {
+        m_hover = event->position();
+        m_hovering = true;
+        if (m_painting)
+            paintMove(event->position());
+        else
+            update();
+        event->accept();
+        return;
+    }
     m_altDown = event->modifiers().testFlag(Qt::AltModifier);
     if (m_drag != Handle::None)
         applyDrag(event->position());
@@ -1083,6 +1130,11 @@ void CompViewerOverlay::wheelEvent(QWheelEvent* event)
 
 void CompViewerOverlay::mouseReleaseEvent(QMouseEvent* event)
 {
+    if (m_painting) {
+        paintEnd(event->position());
+        event->accept();
+        return;
+    }
     if (m_drag == Handle::None) {
         event->ignore();
         return;
@@ -1115,6 +1167,20 @@ void CompViewerOverlay::keyPressEvent(QKeyEvent* event)
             return;
         }
     }
+    if (event->key() == Qt::Key_Escape && m_painting && m_session) {
+        // Cancel the stroke: take it back out of the node, then close the gesture.
+        const quint64 id = m_session->currentNode();
+        m_session->modifyLive([&](Composition& comp) {
+            CompNode* n = comp.node(id);
+            if (!n)
+                return;
+            n->params.setStatic(nodekeys::PaintStrokes, m_strokesBefore);
+        });
+        m_painting = false;
+        m_session->endGesture();
+        event->accept();
+        return;
+    }
     if (event->key() == Qt::Key_Escape && m_drag != Handle::None && m_pressState) {
         // Cancel: put the values from the press back, then close the (now empty) gesture.
         const QPointF press = m_pressPos;
@@ -1126,6 +1192,109 @@ void CompViewerOverlay::keyPressEvent(QKeyEvent* event)
         return;
     }
     QWidget::keyPressEvent(event);
+}
+
+void CompViewerOverlay::tabletEvent(QTabletEvent* event)
+{
+    if (!hasMouseTracking() || !m_session) {
+        event->ignore();
+        return;
+    }
+    const QPointF pos = event->position();
+    m_hover = pos;
+    m_hovering = true;
+    const double pressure = std::clamp(event->pressure(), 0.0, 1.0);
+    if (event->type() == QEvent::TabletPress && event->button() == Qt::LeftButton) {
+        paintBegin(pos, std::max(0.05, pressure), event->modifiers().testFlag(Qt::AltModifier));
+    } else if (event->type() == QEvent::TabletMove && m_painting) {
+        paintMove(pos, pressure);
+    } else if (event->type() == QEvent::TabletRelease && m_painting) {
+        paintEnd(pos, pressure);
+    }
+    event->accept();
+}
+
+void CompViewerOverlay::leaveEvent(QEvent* event)
+{
+    m_hovering = false;
+    update();
+    QWidget::leaveEvent(event);
+}
+
+bool CompViewerOverlay::paintBegin(QPointF pos, double pressure, bool alt)
+{
+    const std::optional<State> s = state();
+    if (!s || s->keys.kind != compadapter::ViewerControl::Paint || s->locked || !m_session
+        || m_painting)
+        return false;
+    const QRectF pic = m_surface->pictureRect();
+    if (pic.isEmpty())
+        return false;
+    const quint64 id = m_session->currentNode();
+    const CompNode* node = m_session->composition().node(id);
+    if (!node)
+        return false;
+    if (alt) {
+        // Alt-click: the Clone source. The next stroke's first point makes the offset from it.
+        m_cloneSource = toNormalised(pos);
+        m_cloneArmed = true;
+        update();
+        return true;
+    }
+    const int64_t frame = m_session->compFrame();
+    const QPointF start = toNormalised(pos);
+    m_strokesBefore = node->params.staticValue(nodekeys::PaintStrokes, QString());
+    m_session->beginGesture(tr("Paint Stroke %1").arg(node->name));
+    const std::optional<QPointF> source = m_cloneArmed ? m_cloneSource : std::nullopt;
+    m_session->modifyLive([&](Composition& comp) {
+        CompNode* n = comp.node(id);
+        if (!n)
+            return;
+        if (source) {
+            n->params.setBase(nodekeys::CloneOffsetX, source->x() - start.x());
+            n->params.setBase(nodekeys::CloneOffsetY, source->y() - start.y());
+        }
+        kk::paint::Stroke stroke = kk::paint::newStroke(n->params, frame);
+        stroke.points.append({float(start.x()), float(start.y()), float(pressure)});
+        QVector<kk::paint::Stroke> strokes = kk::paint::strokesOf(n->params);
+        strokes.append(stroke);
+        kk::paint::setStrokes(n->params, strokes);
+    });
+    m_cloneArmed = false;
+    m_painting = true;
+    return true;
+}
+
+void CompViewerOverlay::paintAppend(QPointF pos, double pressure)
+{
+    const quint64 id = m_session->currentNode();
+    const QPointF p = toNormalised(pos);
+    m_session->modifyLive([&](Composition& comp) {
+        CompNode* n = comp.node(id);
+        if (!n)
+            return;
+        QVector<kk::paint::Stroke> strokes = kk::paint::strokesOf(n->params);
+        if (strokes.isEmpty())
+            return;
+        strokes.last().points.append({float(p.x()), float(p.y()), float(pressure)});
+        kk::paint::setStrokes(n->params, strokes);
+    });
+}
+
+void CompViewerOverlay::paintMove(QPointF pos, double pressure)
+{
+    if (!m_painting || !m_session)
+        return;
+    paintAppend(pos, pressure);
+}
+
+void CompViewerOverlay::paintEnd(QPointF pos, double pressure)
+{
+    if (!m_painting || !m_session)
+        return;
+    paintAppend(pos, pressure);
+    m_painting = false;
+    m_session->endGesture();
 }
 
 } // namespace kk

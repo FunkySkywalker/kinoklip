@@ -10822,6 +10822,10 @@ Thank you for watching</source>
         <source>Point Weight %1</source>
         <translation>Вес точки %1</translation>
     </message>
+    <message>
+        <source>Paint Stroke %1</source>
+        <translation>Мазок кисти %1</translation>
+    </message>
 </context>
 <context>
     <name>kk::CompositingPage</name>
@@ -24514,6 +24518,114 @@ Import files with %1 or drop them here.</source>
     <message>
         <source>Yellow / Blue</source>
         <translation>Жёлтый / Синий</translation>
+    </message>
+    <message>
+        <source>Brush Opacity</source>
+        <translation>Непрозрачность кисти</translation>
+    </message>
+    <message>
+        <source>Brush Size</source>
+        <translation>Размер кисти</translation>
+    </message>
+    <message>
+        <source>Brush Softness</source>
+        <translation>Мягкость кисти</translation>
+    </message>
+    <message>
+        <source>Clone</source>
+        <translation>Клон</translation>
+    </message>
+    <message>
+        <source>Clone Offset X</source>
+        <translation>Смещение клона X</translation>
+    </message>
+    <message>
+        <source>Clone Offset Y</source>
+        <translation>Смещение клона Y</translation>
+    </message>
+    <message>
+        <source>Clone: how far above the brush the picture is copied from, as a fraction of the frame height (negative: below)</source>
+        <translation>Клон: на каком расстоянии выше кисти берётся изображение, в долях высоты кадра (отрицательное: ниже)</translation>
+    </message>
+    <message>
+        <source>Clone: how far to the right of the brush the picture is copied from, as a fraction of the frame width (negative: left)</source>
+        <translation>Клон: на каком расстоянии правее кисти берётся изображение, в долях ширины кадра (отрицательное: левее)</translation>
+    </message>
+    <message>
+        <source>Duration Frames</source>
+        <translation>Длительность в кадрах</translation>
+    </message>
+    <message>
+        <source>Eraser</source>
+        <translation>Ластик</translation>
+    </message>
+    <message>
+        <source>Frames</source>
+        <translation>Кадры</translation>
+    </message>
+    <message>
+        <source>How long the next stroke is seen: only on the frame you draw it on, on every frame, or for a number of frames from the current one</source>
+        <translation>Как долго виден следующий мазок: только на кадре, где он нарисован, на каждом кадре или заданное число кадров начиная с текущего</translation>
+    </message>
+    <message>
+        <source>How soft the edge of the brush is; 0 is a hard edge, 1 fades from the centre</source>
+        <translation>Насколько мягок край кисти; 0 — резкий край, 1 — плавный спад от центра</translation>
+    </message>
+    <message>
+        <source>How strongly the next stroke acts; a stroke is one even layer, it does not build up where it crosses itself</source>
+        <translation>Насколько сильно действует следующий мазок; мазок — один ровный слой и не накапливается там, где пересекает сам себя</translation>
+    </message>
+    <message>
+        <source>One Frame</source>
+        <translation>Один кадр</translation>
+    </message>
+    <message>
+        <source>Paint</source>
+        <translation>Рисование</translation>
+    </message>
+    <message>
+        <source>Paints strokes on the picture with a brush: colour, clone, erase or smear</source>
+        <translation>Рисует мазки кистью по изображению: цвет, клонирование, стирание или размазывание</translation>
+    </message>
+    <message>
+        <source>Smear</source>
+        <translation>Размазывание</translation>
+    </message>
+    <message>
+        <source>Stroke</source>
+        <translation>Мазок</translation>
+    </message>
+    <message>
+        <source>Stroke Duration</source>
+        <translation>Длительность мазка</translation>
+    </message>
+    <message>
+        <source>Strokes</source>
+        <translation>Мазки</translation>
+    </message>
+    <message>
+        <source>The colour of the Stroke tool</source>
+        <translation>Цвет инструмента «Мазок»</translation>
+    </message>
+    <message>
+        <source>The width of the brush as a fraction of the frame width</source>
+        <translation>Ширина кисти в долях ширины кадра</translation>
+    </message>
+    <message>
+        <source>Tool</source>
+        <translation>Инструмент</translation>
+    </message>
+    <message>
+        <source>What the next stroke you draw in the viewer does: Stroke paints the colour, Clone copies the picture from the Clone Offset (Alt-click in the viewer sets the source), Eraser brings the original picture back, Smear drags the picture along the stroke</source>
+        <translation>Что делает следующий мазок в окне просмотра: «Мазок» рисует цветом, «Клон» копирует изображение со смещения клона (Alt+щелчок в окне просмотра задаёт источник), «Ластик» возвращает исходное изображение, «Размазывание» тянет изображение вдоль мазка</translation>
+    </message>
+    <message>
+        <source>Whole Composition</source>
+        <translation>Вся композиция</translation>
+    </message>
+    <message>
+        <source>With the Frames duration: how many frames a new stroke lasts, starting at the current frame</source>
+        <translation>При длительности в кадрах: сколько кадров длится новый мазок, начиная с текущего</translation>
     </message>
 </context>
 <context>

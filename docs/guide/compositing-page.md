@@ -326,6 +326,17 @@ The **3D** folder of the Nodes library builds a small 3D scene and turns it into
 
 Show a scene node (anything but the Renderer3D) in a viewer to see it from outside: drag to orbit, middle-drag to pan, turn the wheel to zoom. The grid is the ground. This view does not change the Renderer3D picture. 3D lines only connect to 3D inputs; Renderer3D is the way back to pictures. Text is flat for now.
 
+## Paint
+
+The **Paint** node (Paint folder of the Nodes library) draws brush strokes on the picture on its **Input**:
+
+1. Select the Paint node and show it in a viewer. Drag in the viewer to paint. Every drag is one stroke and one undo step (Ctrl+Z removes the last stroke; Esc during a drag cancels it).
+2. Choose the **Tool** in the Inspector: **Stroke** paints the **Color**, **Clone** copies the picture from the **Clone Offset**, **Eraser** brings the original picture back, **Smear** drags the picture along the stroke. For Clone, Alt-click the place to copy from, then start painting: the offset is set from the two points.
+3. **Brush Size** (a fraction of the frame width), **Brush Softness** and **Brush Opacity** are taken by each new stroke. A stroke is one even layer, so it does not get darker where it crosses itself. A pen's pressure changes the brush width (a mouse is full pressure).
+4. **Stroke Duration** decides how long a new stroke is seen: **One Frame**, **Whole Composition**, or **Frames** (the **Duration Frames** number, from the current frame).
+
+Strokes are saved as lines in the project and drawn again at the size of every render, so they stay sharp at any resolution. Only the multistroke way of painting is there for now (every drag is its own stroke); Fill and an editable single stroke are not made yet.
+
 ## Sound
 
 The Compositing page plays the same sound as the Edit page: the timeline's mix, so a clip on a

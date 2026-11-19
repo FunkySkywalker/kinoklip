@@ -10822,6 +10822,10 @@ Thank you for watching</source>
         <source>Point Weight %1</source>
         <translation>Вага точки %1</translation>
     </message>
+    <message>
+        <source>Paint Stroke %1</source>
+        <translation>Мазок пензля %1</translation>
+    </message>
 </context>
 <context>
     <name>kk::CompositingPage</name>
@@ -24514,6 +24518,114 @@ Import files with %1 or drop them here.</source>
     <message>
         <source>Yellow / Blue</source>
         <translation>Жовтий / Синій</translation>
+    </message>
+    <message>
+        <source>Brush Opacity</source>
+        <translation>Непрозорість пензля</translation>
+    </message>
+    <message>
+        <source>Brush Size</source>
+        <translation>Розмір пензля</translation>
+    </message>
+    <message>
+        <source>Brush Softness</source>
+        <translation>М'якість пензля</translation>
+    </message>
+    <message>
+        <source>Clone</source>
+        <translation>Клон</translation>
+    </message>
+    <message>
+        <source>Clone Offset X</source>
+        <translation>Зсув клона X</translation>
+    </message>
+    <message>
+        <source>Clone Offset Y</source>
+        <translation>Зсув клона Y</translation>
+    </message>
+    <message>
+        <source>Clone: how far above the brush the picture is copied from, as a fraction of the frame height (negative: below)</source>
+        <translation>Клон: на якій відстані вище пензля береться зображення, в частках висоти кадру (від'ємне: нижче)</translation>
+    </message>
+    <message>
+        <source>Clone: how far to the right of the brush the picture is copied from, as a fraction of the frame width (negative: left)</source>
+        <translation>Клон: на якій відстані правіше пензля береться зображення, в частках ширини кадру (від'ємне: лівіше)</translation>
+    </message>
+    <message>
+        <source>Duration Frames</source>
+        <translation>Тривалість у кадрах</translation>
+    </message>
+    <message>
+        <source>Eraser</source>
+        <translation>Гумка</translation>
+    </message>
+    <message>
+        <source>Frames</source>
+        <translation>Кадри</translation>
+    </message>
+    <message>
+        <source>How long the next stroke is seen: only on the frame you draw it on, on every frame, or for a number of frames from the current one</source>
+        <translation>Як довго видно наступний мазок: лише на кадрі, де його намальовано, на кожному кадрі або задану кількість кадрів починаючи з поточного</translation>
+    </message>
+    <message>
+        <source>How soft the edge of the brush is; 0 is a hard edge, 1 fades from the centre</source>
+        <translation>Наскільки м'який край пензля; 0 — різкий край, 1 — плавний спад від центру</translation>
+    </message>
+    <message>
+        <source>How strongly the next stroke acts; a stroke is one even layer, it does not build up where it crosses itself</source>
+        <translation>Наскільки сильно діє наступний мазок; мазок — один рівний шар і не накопичується там, де перетинає сам себе</translation>
+    </message>
+    <message>
+        <source>One Frame</source>
+        <translation>Один кадр</translation>
+    </message>
+    <message>
+        <source>Paint</source>
+        <translation>Малювання</translation>
+    </message>
+    <message>
+        <source>Paints strokes on the picture with a brush: colour, clone, erase or smear</source>
+        <translation>Малює мазки пензлем по зображенню: колір, клонування, стирання або розмазування</translation>
+    </message>
+    <message>
+        <source>Smear</source>
+        <translation>Розмазування</translation>
+    </message>
+    <message>
+        <source>Stroke</source>
+        <translation>Мазок</translation>
+    </message>
+    <message>
+        <source>Stroke Duration</source>
+        <translation>Тривалість мазка</translation>
+    </message>
+    <message>
+        <source>Strokes</source>
+        <translation>Мазки</translation>
+    </message>
+    <message>
+        <source>The colour of the Stroke tool</source>
+        <translation>Колір інструмента «Мазок»</translation>
+    </message>
+    <message>
+        <source>The width of the brush as a fraction of the frame width</source>
+        <translation>Ширина пензля в частках ширини кадру</translation>
+    </message>
+    <message>
+        <source>Tool</source>
+        <translation>Інструмент</translation>
+    </message>
+    <message>
+        <source>What the next stroke you draw in the viewer does: Stroke paints the colour, Clone copies the picture from the Clone Offset (Alt-click in the viewer sets the source), Eraser brings the original picture back, Smear drags the picture along the stroke</source>
+        <translation>Що робить наступний мазок у вікні перегляду: «Мазок» малює кольором, «Клон» копіює зображення зі зсуву клона (Alt+клац у вікні перегляду задає джерело), «Гумка» повертає вихідне зображення, «Розмазування» тягне зображення вздовж мазка</translation>
+    </message>
+    <message>
+        <source>Whole Composition</source>
+        <translation>Вся композиція</translation>
+    </message>
+    <message>
+        <source>With the Frames duration: how many frames a new stroke lasts, starting at the current frame</source>
+        <translation>За тривалості в кадрах: скільки кадрів триває новий мазок, починаючи з поточного</translation>
     </message>
 </context>
 <context>

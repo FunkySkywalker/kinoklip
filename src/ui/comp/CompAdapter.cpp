@@ -23,7 +23,7 @@ constexpr NodeCategory kCategoryOrder[]
     = {NodeCategory::InputOutput, NodeCategory::Composite, NodeCategory::Transform,
         NodeCategory::Generator, NodeCategory::Mask, NodeCategory::Color, NodeCategory::Matte,
         NodeCategory::Filter, NodeCategory::Warp, NodeCategory::Time, NodeCategory::Particles,
-        NodeCategory::ThreeD, NodeCategory::Effect};
+        NodeCategory::ThreeD, NodeCategory::Paint, NodeCategory::Effect};
 
 LinkRole roleOf(const NodePort& port)
 {
@@ -165,6 +165,9 @@ ViewerControlKeys viewerControls(const QString& type)
         break;
     case ViewerControls::TextPath:
         k.kind = ViewerControl::TextPath;
+        break;
+    case ViewerControls::Paint:
+        k.kind = ViewerControl::Paint;
         break;
     case ViewerControls::None:
         break;

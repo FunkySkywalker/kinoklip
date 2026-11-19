@@ -50,6 +50,7 @@ enum class NodeCategory : quint8 {
     Time, ///< Time Speed, Time Stretcher
     Particles, ///< pEmitter, pGravity, pTurbulence, pMerge, pRender
     ThreeD, ///< Image Plane 3D, Shape3D, Text3D, Merge3D, Camera3D, lights, Renderer3D
+    Paint, ///< Paint
     Effect ///< every EffectRegistry video effect ("fx:<id>")
 };
 
@@ -76,7 +77,9 @@ enum class ViewerControls : quint8 {
     Bezier,
     /// Text: the centre and angle of the block, and, with the Path layout, the path's points
     /// with tangent handles (CompNode::path).
-    TextPath
+    TextPath,
+    /// Paint (spec 131): the viewer takes drags as brush strokes (Alt-click sets the Clone source).
+    Paint
 };
 
 /// Describes one node type.
@@ -185,6 +188,8 @@ inline const QString DirectionalLight = QStringLiteral("directional_light");
 inline const QString PointLight = QStringLiteral("point_light");
 inline const QString SpotLight = QStringLiteral("spot_light");
 inline const QString Renderer3D = QStringLiteral("renderer_3d");
+// Spec 131.
+inline const QString Paint = QStringLiteral("paint");
 /// Prefix of the effect nodes: "fx:" + EffectRegistry id.
 inline const QString EffectPrefix = QStringLiteral("fx:");
 } // namespace nodetypes
@@ -194,6 +199,19 @@ namespace timeinterps {
 inline const QString Nearest = QStringLiteral("nearest");
 inline const QString Blend = QStringLiteral("blend");
 } // namespace timeinterps
+
+/// Paint node (spec 131): the brush tool and how long a new stroke lasts.
+namespace painttools {
+inline const QString Stroke = QStringLiteral("stroke");
+inline const QString Clone = QStringLiteral("clone");
+inline const QString Eraser = QStringLiteral("eraser");
+inline const QString Smear = QStringLiteral("smear");
+} // namespace painttools
+namespace paintdurations {
+inline const QString OneFrame = QStringLiteral("one");
+inline const QString Whole = QStringLiteral("whole");
+inline const QString Frames = QStringLiteral("frames");
+} // namespace paintdurations
 
 /// pEmitter sprite style and region (spec 129).
 namespace particlestyles {
@@ -400,6 +418,16 @@ inline const QString Penumbra = QStringLiteral("penumbra"); ///< Spot: soft part
 inline const QString Lighting = QStringLiteral("lighting"); ///< Renderer3D: bool
 inline const QString Shading = QStringLiteral("shading"); ///< Renderer3D: choice (shadings3d::)
 inline const QString AntiAlias = QStringLiteral("antiAlias"); ///< Renderer3D: samples per pixel side, 1..4
+// Paint (spec 131). Sizes are fractions of the frame width; positions are normalised, y from the bottom.
+inline const QString PaintTool = QStringLiteral("paintTool"); ///< choice (painttools::)
+inline const QString BrushSize = QStringLiteral("brushSize");
+inline const QString BrushSoftness = QStringLiteral("brushSoftness");
+inline const QString BrushOpacity = QStringLiteral("brushOpacity");
+inline const QString CloneOffsetX = QStringLiteral("cloneOffsetX"); ///< where Clone copies from, relative to the brush
+inline const QString CloneOffsetY = QStringLiteral("cloneOffsetY");
+inline const QString StrokeDuration = QStringLiteral("strokeDuration"); ///< choice (paintdurations::)
+inline const QString StrokeFrames = QStringLiteral("strokeFrames"); ///< frames, with the Frames duration
+inline const QString PaintStrokes = QStringLiteral("paintStrokes"); ///< hidden: the strokes (core/PaintStrokes.h)
 // Letterbox.
 inline const QString TargetAspect = QStringLiteral("targetAspect"); ///< width / height, e.g. 2.39
 inline const QString Color = QStringLiteral("color"); ///< colour static

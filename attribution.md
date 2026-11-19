@@ -144,6 +144,9 @@ was taken from them.
 ### Compositing: 3D (spec 130)
 `src/render/CompScene3D.*`, the 3D nodes of `src/core/NodeRegistry.cpp`. The control sets follow the public Fusion reference manual in outline (Image Plane 3D, Shape3D, Text3D, Merge3D, Camera3D, the four lights, Renderer3D). The transform maths was checked against Natron's Card3D (openfx-misc, GPL-2.0-or-later, `Card3D/Card3D.cpp`): a node's matrix is translate x rotate x scale (the rightmost acts first), the XYZ rotation order is Rz x Ry x Rx, and the camera's field of view comes from the ratio of the film back width to the focal length (`a = hAperture / focalLength`), which Kinoklip uses for Camera3D's Focal Length (36 mm film back). Only the transform and camera parts of that file were read; the rasterizer (clipping against the near plane, edge functions with a top-left rule, perspective-correct interpolation, Lambert and Blinn-Phong shading) is textbook graphics written for Kinoklip and nothing was copied.
 
+### Compositing: Paint (spec 131)
+`src/core/PaintStrokes.*`, `src/render/CompPaint.*`, the Paint node of `src/core/NodeRegistry.cpp`, the paint part of `src/ui/comp/CompViewerOverlay.cpp`. The control set follows the public Fusion reference manual in outline (Stroke, Clone, Eraser, Smear, Stroke Duration). The stroke model was checked against Natron's RotoPaint (GPL-2.0-or-later, `Engine/RotoStrokeItem.h`, read from the public repository): a stroke is a list of points with a pressure value and a brush type, redrawn at render time. Only that idea was taken; the brush stamping, coverage and smear code were written for Kinoklip.
+
 ### Keyframe loops
 The extrapolation modes of animated values (`src/core/Animation.cpp`, `AnimatedValue::extrapolatedValue()`)
 follow the documented behaviour of Blender's F-Curve Cycles modifier (GPL-2.0-or-later: Repeat Motion, Repeat

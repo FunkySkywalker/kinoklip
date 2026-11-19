@@ -467,6 +467,8 @@ QString NodeRegistry::categoryName(NodeCategory category)
         return tr("Particles");
     case NodeCategory::ThreeD:
         return tr("3D");
+    case NodeCategory::Paint:
+        return tr("Paint");
     case NodeCategory::Effect:
         return tr("Effects");
     }
@@ -867,6 +869,42 @@ NodeRegistry::NodeRegistry()
             tip(choice(k::AntiAlias, tr("Anti-Aliasing"), {QStringLiteral("1"), QStringLiteral("2"), QStringLiteral("4")},
                     {tr("Off"), tr("2 x 2"), tr("4 x 4")}, QStringLiteral("2")),
                 tr("Smooths the edges of the objects by drawing several samples for each pixel; slower with more samples"))};
+        add(d);
+    }
+
+    // ---- Paint (spec 131) ----
+    {
+        NodeDescriptor d = node(nodetypes::Paint, tr("Paint"), QStringLiteral("Pnt"),
+            QStringLiteral("Paint"), C::Paint,
+            tr("Paints strokes on the picture with a brush: colour, clone, erase or smear"));
+        d.inputs = {inputPort(), maskPort()};
+        d.mainInput = nodeports::Input;
+        d.controls = ViewerControls::Paint;
+        d.params = {tip(choice(k::PaintTool, tr("Tool"),
+                            {painttools::Stroke, painttools::Clone, painttools::Eraser,
+                                painttools::Smear},
+                            {tr("Stroke"), tr("Clone"), tr("Eraser"), tr("Smear")}, painttools::Stroke),
+                        tr("What the next stroke you draw in the viewer does: Stroke paints the colour, Clone copies the picture from the Clone Offset (Alt-click in the viewer sets the source), Eraser brings the original picture back, Smear drags the picture along the stroke")),
+            tip(number(k::BrushSize, tr("Brush Size"), 0.001, 1, 0.03, 0.001),
+                tr("The width of the brush as a fraction of the frame width")),
+            tip(number(k::BrushSoftness, tr("Brush Softness"), 0, 1, 0.3, 0.01),
+                tr("How soft the edge of the brush is; 0 is a hard edge, 1 fades from the centre")),
+            tip(number(k::BrushOpacity, tr("Brush Opacity"), 0, 1, 1, 0.01),
+                tr("How strongly the next stroke acts; a stroke is one even layer, it does not build up where it crosses itself")),
+            tip(color(k::Color, tr("Color"), QColor(255, 0, 0)),
+                tr("The colour of the Stroke tool")),
+            tip(number(k::CloneOffsetX, tr("Clone Offset X"), -1, 1, 0.1, 0.001),
+                tr("Clone: how far to the right of the brush the picture is copied from, as a fraction of the frame width (negative: left)")),
+            tip(number(k::CloneOffsetY, tr("Clone Offset Y"), -1, 1, 0, 0.001),
+                tr("Clone: how far above the brush the picture is copied from, as a fraction of the frame height (negative: below)")),
+            tip(choice(k::StrokeDuration, tr("Stroke Duration"),
+                    {paintdurations::OneFrame, paintdurations::Whole, paintdurations::Frames},
+                    {tr("One Frame"), tr("Whole Composition"), tr("Frames")}, paintdurations::OneFrame),
+                tr("How long the next stroke is seen: only on the frame you draw it on, on every frame, or for a number of frames from the current one")),
+            tip(integer(k::StrokeFrames, tr("Duration Frames"), 1, 100000, 10),
+                tr("With the Frames duration: how many frames a new stroke lasts, starting at the current frame")),
+            text(k::PaintStrokes, tr("Strokes"), QString())};
+        d.params.last().hidden = true;
         add(d);
     }
 

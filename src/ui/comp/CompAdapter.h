@@ -80,7 +80,8 @@ enum class ViewerControl {
     Planar, ///< four draggable corners (Planar Tracker)
     Grid, ///< a grid of draggable points (Grid Warp)
     Bezier, ///< closed Bezier path with tangent handles plus the Transform keys of the shape
-    TextPath ///< Transform controls of the Text node, plus its path when the layout is Path
+    TextPath, ///< Transform controls of the Text node, plus its path when the layout is Path
+    Paint ///< brush strokes drawn by dragging in the viewer (Paint, spec 131)
 };
 
 /// Parameter keys behind the on-viewer controls of a node type (empty = no such handle).

@@ -3,6 +3,7 @@
 #include "render/GlComposition.h"
 
 #include "render/CompLoader.h"
+#include "render/CompPaint.h"
 #include "render/CompParticles.h"
 #include "render/CompScene3D.h"
 #include "render/CompTimeMath.h"
@@ -554,6 +555,8 @@ void GlComposition::evalNode(GlKit& kit, const CompEval& ev, int index)
         out = particleRender(kit, ev, n);
     } else if (n.type == nodetypes::Renderer3D) {
         out = sceneRender(kit, ev, n);
+    } else if (n.type == nodetypes::Paint) {
+        out = paintNode(kit, ev, n, mainOwner);
     } else if (n.type == nodetypes::Saver) {
         // Passes its input through; the files are written only by a render of the composition
         // (CompSaverRun), never while a frame is drawn for playback.
@@ -943,6 +946,19 @@ QImage GlComposition::readBack(GlKit& kit, int owner)
     gl->glReadPixels(0, 0, t->size.width(), t->size.height(), GL_BGRA, GL_UNSIGNED_BYTE, image.bits());
     gl->glPixelStorei(GL_PACK_ROW_LENGTH, 0);
     return image;
+}
+
+PooledTarget GlComposition::paintNode(GlKit& kit, const CompEval& ev, const CompNode& n, int mainOwner)
+{
+    const QVector<kk::paint::Stroke> strokes = kk::paint::strokesOf(n.params);
+    const bool any = std::any_of(strokes.cbegin(), strokes.cend(), [&](const kk::paint::Stroke& s) {
+        return s.visibleAt(ev.compFrame) && !s.points.isEmpty() && s.opacity > 0.0;
+    });
+    if (!any)
+        return {}; // nothing to draw on this frame: the input passes through
+    // The strokes are drawn by the same code as the CPU renderer, over the input read back.
+    const QImage input = mainOwner >= 0 ? readBack(kit, mainOwner) : QImage();
+    return uploadedImage(kit, ev, render::paint::drawStrokes(strokes, ev.compFrame, ev.size, input));
 }
 
 PooledTarget GlComposition::sceneRender(GlKit& kit, const CompEval& ev, const CompNode& n)

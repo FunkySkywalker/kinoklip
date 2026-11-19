@@ -146,6 +146,9 @@ private:
     void particleNode(GlKit& kit, const CompEval& ev, int index);
     /// @p owner's target read back as a premultiplied picture (null for no target).
     QImage readBack(GlKit& kit, int owner);
+    /// Paint (spec 131): the strokes drawn by render/CompPaint over the input read back; empty
+    /// (the input passes through) when no stroke is visible at the frame.
+    PooledTarget paintNode(GlKit& kit, const CompEval& ev, const CompNode& n, int mainOwner);
     /// Renderer3D: the scene drawn by the software rasterizer (spec 130), uploaded into a new target.
     PooledTarget sceneRender(GlKit& kit, const CompEval& ev, const CompNode& n);
     /// Time Speed / Time Stretcher: the input pulled again at the mapped frame (and the next
