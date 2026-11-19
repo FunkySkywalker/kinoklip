@@ -292,6 +292,7 @@ TitleImage renderTextPlus(const TitleStyle& s)
             continue;
         }
         QPainterPath p;
+        p.setFillRule(Qt::WindingFill); // joined scripts overlap their own contours
         p.addText(0, 0, layout.font, g.text);
         p = g.xf.map(p);
         bounds = bounds.united(p.boundingRect());

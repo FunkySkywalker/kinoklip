@@ -13,6 +13,7 @@
 #include <QHashFunctions>
 #include <QPainter>
 #include <QPainterPath>
+#include <QTextLayout>
 #include <QPolygonF>
 #include <QTextBoundaryFinder>
 #include <QTransform>
@@ -276,6 +277,31 @@ QTransform rotationAround(const QPointF& centre, double degrees)
     return t;
 }
 
+/// The area of the visible clusters of one line (x from the shaped layout, so right-to-left and
+/// joined text clip at the right places): a path of full-height rectangles.
+QPainterPath visibleClip(const QString& line, const QFont& font, const QBitArray& shown,
+    int lineOffset, double originX, double top, double height)
+{
+    QTextLayout layout(line, font);
+    layout.beginLayout();
+    QTextLine tl = layout.createLine();
+    layout.endLayout();
+    QPainterPath clip;
+    QTextBoundaryFinder finder(QTextBoundaryFinder::Grapheme, line);
+    int from = 0;
+    for (int to = finder.toNextBoundary(); to > 0; from = to, to = finder.toNextBoundary()) {
+        if (!shown.testBit(lineOffset + from))
+            continue;
+        const double a = tl.cursorToX(from);
+        const double b = tl.cursorToX(to);
+        // cursorToX of the end of a cluster at a bidi edge can fall on the other side; a
+        // cluster's extent is the span between its two cursor positions.
+        clip.addRect(QRectF(originX + std::min(a, b), top, std::abs(b - a), height));
+    }
+    clip.setFillRule(Qt::WindingFill);
+    return clip.simplified();
+}
+
 TitleImage renderText(const TitleStyle& s)
 {
     TitleImage result;
@@ -329,6 +355,9 @@ TitleImage renderText(const TitleStyle& s)
     };
     QVector<EmojiRun> emojiRuns;
     QPainterPath path;
+    // Glyph outlines of joined scripts overlap (the strokes of Arabic letters run into each
+    // other): with the default odd-even rule the overlaps are cut out as notches.
+    path.setFillRule(Qt::WindingFill);
     // Write On: hidden characters are left out but the line keeps its width and alignment, so
     // the visible ones stay where they will be once the whole text is shown.
     const QBitArray shown = writeOnVisible(s.text, s.writeOnStart, s.writeOnEnd);
@@ -357,6 +386,15 @@ TitleImage renderText(const TitleStyle& s)
         const double baseline = block.top() + fm.ascent() + i * lineStep;
         if (!partial) {
             addRun(lines[i], block.left() + x, baseline);
+        } else if (!emoji::containsEmoji(lines[i])) {
+            // The whole line is shaped once (letters keep their joined forms and their
+            // right-to-left order); the hidden clusters are cut away by position.
+            QPainterPath linePath;
+            linePath.setFillRule(Qt::WindingFill);
+            linePath.addText(block.left() + x, baseline, font, lines[i]);
+            const QPainterPath cut = visibleClip(lines[i], font, shown, lineOffset,
+                block.left() + x, baseline - fm.ascent() - fm.height(), fm.height() * 3);
+            path.addPath(linePath.intersected(cut));
         } else {
             const int len = int(lines[i].size());
             int a = 0;
@@ -383,6 +421,13 @@ TitleImage renderText(const TitleStyle& s)
     const QRectF bgRect = block.adjusted(-bgPad, -bgPad, bgPad, bgPad);
     // A rotated layer turns the glyphs and the box around the middle of the block.
     const bool rotated = s.rotation != 0.0;
+    // Overlapping contours of joined scripts are merged, so an outline does not draw lines
+    // through the joins.
+    for (const QChar c : s.text)
+        if (c.unicode() >= 0x0590) {
+            path = path.simplified();
+            break;
+        }
     QPolygonF bgPolygon(bgRect);
     QTransform turn;
     if (rotated) {

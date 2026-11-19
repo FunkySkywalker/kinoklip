@@ -481,7 +481,7 @@ comment of `DecoderPool`. `Compositor::prepareStats()` has the counters.
 | `GlOutput.*` | output slots (shared textures + fences; at most 32 held frames and 640 MiB, the oldest is taken back beyond that, slots of a size nobody asks for any more are freed), PBO readback |
 | `CpuRenderer.cpp` | QPainter fallback |
 | `TimelineEval.*` | pure: transition spans, track evaluation, source time clamping, clip transform |
-| `TitleRenderer.*` | `TitleStyle` (cache key) + QPainter title rasteriser: text and shape layers (`TitleStyle::stack`), emoji drawn as glyphs |
+| `TitleRenderer.*` | `TitleStyle` (cache key) + QPainter title rasteriser: text and shape layers (`TitleStyle::stack`), emoji drawn as glyphs; lines shaped whole (cursive scripts join), Write On clips by cluster position (spec 14.10) |
 | `EmojiText.*` | colour emoji in titles and captions (spec 69): splits a line into emoji and plain runs, the emoji font families, the bundled Noto Color Emoji |
 | `CaptionRenderer.*` | caption style resolution and placement (subtitle tracks) |
 | `Generators.*` | generator parameter resolution, CPU raster, shared bar table / noise hash |
