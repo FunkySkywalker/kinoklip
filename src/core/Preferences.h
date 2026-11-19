@@ -9,7 +9,7 @@
 namespace kk::prefs {
 
 // ---- QSettings keys (the single place where preference key strings are spelled) ----
-inline constexpr char kWidgetStyle[] = "ui/widgetStyle"; ///< QStyle key, default "Breeze"
+inline constexpr char kWidgetStyle[] = "ui/widgetStyle"; ///< style key ("Kinoklip", "Breeze", "Fusion", ...), default "Kinoklip"
 inline constexpr char kColorScheme[]
     = "ui/colorScheme"; ///< KDE colour scheme id, default "BreezeDark"
 /// Legacy bool (before the KDE colour schemes): true is migrated to the system scheme.

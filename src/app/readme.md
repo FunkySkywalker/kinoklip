@@ -34,7 +34,8 @@ Nothing in `src/ui/**` or below may include from here (dependency direction PLAN
 | `CommandLine.h` | `QCommandLineParser` → `CommandLineOptions` (`--menu-reference <file>` among them) |
 | `MenuReference.h` | `kinoklip --menu-reference <file>` (spec 63): walks the built window (menu bar, submenus, panels of every page) and writes `docs/menu-reference.md`; `main.cpp` runs it with an empty private settings folder; ctest `check_menu_reference` compares the file with the committed one |
 | `Screenshot.h` | `--screenshot <target> <out.png> [project]`: pages, `preferences[:section]`, `project-settings[:section]`, `keyboard`, `inspector`, `mediapool`, `menu-color-theme`, `menu-style`, `bug-report` (Help > Report a Bug with this machine's info), `cut[:tape|clip|strip]` (an empty timeline first gets the media pool's files appended), `audio[:eq|dynamics]` (Audio page with a demo mix and meter readings; the editor window composited in), `new-project` (the New Project dialog), `project-manager` (the Project Manager over the preferences' library or `KK_PROJECT_LIBRARY`; a project argument is marked open) (works with `QT_QPA_PLATFORM=offscreen`; `KK_SCREENSHOT_SIZE=1366x768` for small screens; `KK_SCREENSHOT_PLAY_MS=2000` plays the first viewer with content that long before the grab, a headless playback check) |
-| `MenuMetricsStyle.h` | proxy over the widget style that reserves the submenu arrow column in menus |
+| `MenuMetricsStyle.h` | proxy over the widget style that reserves the submenu arrow column in menus (Breeze, Fusion; KinoklipStyle does this itself) |
+| `KinoklipStyle.h` | the "Kinoklip" widget style (spec 144): a QProxyStyle on Fusion that draws buttons, wells, sliders, switches (`style::setToggle`), tabs, scroll bars, menus, headers flat and dark like Resolve; sizes and colours from `ui/common/StyleTokens.h`; the default style, listed first in Preferences > UI Settings > Widget style; `Theme.cpp` creates it (it is not a factory key) |
 
 ## Start-up sequence (`src/main.cpp`)
 1. `configureOpenGL()` — default `QSurfaceFormat` = OpenGL 3.3 core, `Qt::AA_ShareOpenGLContexts`
@@ -69,7 +70,7 @@ user can change all of it.
 | Icons | `KIconTheme::initTheme()` before `QApplication`: Breeze compiled into libKF6BreezeIcons, drawn by KIconEngine which recolours them from the palette | `QIcon::setThemeName("breeze"/"breeze-dark")` by palette lightness if installed, else our SVGs |
 | Chrome | style sheet generated from the palette (`Theme.cpp: styleSheet()`): only backgrounds/borders of our own panels and bars; buttons, tabs, menus, focus and selection are left to Breeze | same |
 
-Defaults: style `Breeze`, scheme `Kinoklip` (`kDefaultColorScheme`, compiled into the app, so it
+Defaults: style `Kinoklip` (our own `KinoklipStyle`; Breeze and Fusion stay selectable and are created as before), scheme `Kinoklip` (`kDefaultColorScheme`, compiled into the app, so it
 exists in every build mode); if it cannot be found, `BreezeDark`, then the style's palette. A
 scheme the user chose explicitly (stored `ui/colorScheme`) is kept. "Default (System)" means the scheme in the
 user's `kdeglobals` (Plasma's choice; KDE's default Breeze without one): palette and Header

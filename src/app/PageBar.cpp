@@ -63,6 +63,7 @@ void PageBar::addPageAction(QAction* pageAction)
     button->setMinimumWidth(kButtonMinWidth);
     button->setAutoRaise(true); // flat until hovered/checked: the Breeze toolbar look
     button->setFocusPolicy(Qt::NoFocus);
+    button->setProperty("kkFrameless", true); // Kinoklip style: white text when current, no frame
     new SpringLoad(button); // hovering a drag over the page switches to it (spec 71)
     m_buttons->addWidget(button);
 }

@@ -11,6 +11,7 @@
 #include "ui/common/Resources.h"
 #include "ui/common/SettingsPages.h"
 #include "ui/common/StandardActions.h"
+#include "ui/common/StyleTokens.h"
 #include "ui/dialogs/PreferencesDialog.h"
 
 #include <QAbstractItemView>
@@ -18,6 +19,9 @@
 #include <QApplication>
 #include <QComboBox>
 #include <QMenu>
+#include <QPushButton>
+#include <QSlider>
+#include <QVBoxLayout>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QStyle>
@@ -51,7 +55,8 @@ private slots:
             // The container build ships the real Breeze style: it must be found and used.
             QVERIFY2(QStyleFactory::keys().contains(QStringLiteral("Breeze")),
                 qPrintable(QStyleFactory::keys().join(QLatin1Char(','))));
-            QCOMPARE(theme::currentStyle(), QStringLiteral("Breeze"));
+            // The default style is our own Kinoklip style (spec 144); Breeze stays selectable.
+            QCOMPARE(theme::currentStyle(), QStringLiteral("Kinoklip"));
             // (QApplication::style() is the style-sheet proxy around it, so check the plugin.)
             std::unique_ptr<QStyle> breeze(QStyleFactory::create(QStringLiteral("Breeze")));
             QVERIFY(breeze);
@@ -147,6 +152,48 @@ private slots:
         QVERIFY(dark->isChecked());
         QVERIFY(theme::isDark());
         QCOMPARE(theme::styleActionId(theme::currentStyle()), wantedStyle);
+    }
+
+    void spec144_4_defaultStyleIsKinoklipAndBreezeComesBackExactly()
+    {
+        QCOMPARE(QString::fromLatin1(theme::kDefaultStyle), QStringLiteral("Kinoklip"));
+        QCOMPARE(theme::availableStyles().first(), QStringLiteral("Kinoklip"));
+        ActionRegistry registry;
+        theme::registerActions(registry);
+        const bool haveBreeze = QStyleFactory::keys().contains(QStringLiteral("Breeze"));
+        const QString other = haveBreeze ? QStringLiteral("Breeze") : QStringLiteral("Fusion");
+        registry.action(theme::styleActionId(other))->trigger();
+        const auto picture = [] {
+            QWidget w;
+            auto* lay = new QVBoxLayout(&w);
+            lay->addWidget(new QPushButton(QStringLiteral("Button")));
+            lay->addWidget(new QSlider(Qt::Horizontal));
+            lay->addWidget(new QComboBox);
+            w.resize(200, 120);
+            return w.grab().toImage();
+        };
+        const QImage before = picture();
+        const int extentBefore = QApplication::style()->pixelMetric(QStyle::PM_ScrollBarExtent);
+        QCOMPARE(theme::currentStyle(), other);
+        registry.action(theme::styleActionId(QStringLiteral("Kinoklip")))->trigger();
+        QCOMPARE(theme::currentStyle(), QStringLiteral("Kinoklip"));
+        QCOMPARE(QApplication::style()->pixelMetric(QStyle::PM_ScrollBarExtent), kk::style::kScrollBar);
+        QVERIFY(picture() != before);
+        QCOMPARE(QSettings().value(QLatin1String(prefs::kWidgetStyle)).toString(), QStringLiteral("Kinoklip"));
+        registry.action(theme::styleActionId(other))->trigger();
+        QCOMPARE(theme::currentStyle(), other);
+        QCOMPARE(QApplication::style()->pixelMetric(QStyle::PM_ScrollBarExtent), extentBefore);
+        QVERIFY(picture() == before); // the same pixels as before the detour through Kinoklip
+        // The Preferences list shows the Kinoklip entry first, with its label.
+        SettingsPageRegistry pages;
+        registerStandardSettingsPages(pages);
+        theme::registerSettingsPage(pages, registry);
+        PreferencesDialog dialog(&pages);
+        auto* styleCombo = dialog.findChild<QComboBox*>(QStringLiteral("WidgetStyleCombo"));
+        QVERIFY(styleCombo);
+        QCOMPARE(styleCombo->itemData(0).toString(), theme::styleActionId(QStringLiteral("Kinoklip")));
+        QVERIFY(styleCombo->itemText(0).contains(QStringLiteral("Kinoklip")));
+        QVERIFY(!styleCombo->toolTip().isEmpty());
     }
 
     void breezeIconsMapped()

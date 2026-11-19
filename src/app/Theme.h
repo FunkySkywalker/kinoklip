@@ -20,8 +20,9 @@ namespace kk::theme {
 inline constexpr char kDefaultColorScheme[] = "BreezeDark";
 /// Used when the default scheme cannot be found (then the style's own palette).
 inline constexpr char kFallbackColorScheme[] = "Kinoklip";
-/// Default widget style (QStyleFactory key); Fusion is used if the Breeze plugin is missing.
-inline constexpr char kDefaultStyle[] = "Breeze";
+/// Default widget style: our own "Kinoklip" (KinoklipStyle, not a QStyleFactory key). A stored
+/// Breeze falls back to Fusion if the Breeze plugin is missing.
+inline constexpr char kDefaultStyle[] = "Kinoklip";
 
 /// One selectable colour scheme. The empty id is the "system" scheme (KDE: the scheme of the
 /// desktop session / kdeglobals; fallback build: the platform palette).

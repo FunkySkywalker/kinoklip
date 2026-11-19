@@ -61,6 +61,7 @@ void InterfaceBar::addButton(QHBoxLayout* layout, QAction* action)
     button->setIconSize(QSize(kIconSize, kIconSize));
     button->setAutoRaise(true); // flat until hovered/checked: the Breeze toolbar look
     button->setFocusPolicy(Qt::NoFocus);
+    button->setProperty("kkFrameless", true); // Kinoklip style: brighter text instead of a frame when on
     layout->addWidget(button);
     m_buttons.insert(action, button);
 }

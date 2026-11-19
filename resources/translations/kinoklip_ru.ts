@@ -35886,8 +35886,12 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
         <translation>Цветовая тема</translation>
     </message>
     <message>
-        <source>How buttons, menus and other controls are drawn. Breeze is the KDE look, Fusion a neutral look that is the same on every desktop.</source>
-        <translation>Как рисуются кнопки, меню и другие элементы управления. Breeze — внешний вид KDE, Fusion — нейтральный вид, одинаковый на любом рабочем столе.</translation>
+        <source>Kinoklip (Resolve look)</source>
+        <translation>Kinoklip (вид Resolve)</translation>
+    </message>
+    <message>
+        <source>How buttons, menus and other controls are drawn. Kinoklip is the flat, dark look of DaVinci Resolve, the same on every desktop; Breeze is the KDE look, Fusion a neutral look.</source>
+        <translation>Как рисуются кнопки, меню и другие элементы управления. Kinoklip — плоский тёмный вид DaVinci Resolve, одинаковый на любом рабочем столе; Breeze — вид KDE, Fusion — нейтральный вид.</translation>
     </message>
     <message>
         <source>Widget style</source>

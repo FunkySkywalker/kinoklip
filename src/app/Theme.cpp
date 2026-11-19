@@ -5,6 +5,7 @@
 
 #include "app/ColorSchemeFile.h"
 #include "app/InstantPopups.h"
+#include "app/KinoklipStyle.h"
 #include "app/MenuMetricsStyle.h"
 #include "core/Preferences.h"
 #include "ui/common/ActionRegistry.h"
@@ -141,6 +142,13 @@ QString styleKey(const QString& name)
     return {};
 }
 
+QString styleLabel(const QString& style)
+{
+    if (style.compare(KinoklipStyle::key(), Qt::CaseInsensitive) == 0)
+        return QCoreApplication::translate("kk::theme", "Kinoklip (Resolve look)");
+    return style;
+}
+
 QString storedStyle()
 {
     if (!state().styleOverride.isEmpty())
@@ -150,9 +158,15 @@ QString storedStyle()
         .toString();
 }
 
-/// Sets the style; falls back to Breeze, then Fusion. Returns the key in use.
+/// Sets the style; falls back to Breeze, then Fusion. Returns the key in use. "Kinoklip" is our
+/// own style (KinoklipStyle, not a factory key); it carries the menu behaviour of
+/// MenuMetricsStyle itself.
 QString applyStyle(const QString& wanted)
 {
+    if (wanted.compare(KinoklipStyle::key(), Qt::CaseInsensitive) == 0) {
+        QApplication::setStyle(new KinoklipStyle);
+        return KinoklipStyle::key();
+    }
     for (const QString& candidate :
         {wanted, QStringLiteral("Breeze"), QString::fromLatin1(kFallbackStyle)}) {
         const QString key = styleKey(candidate);
@@ -522,11 +536,12 @@ public:
         m_style = new QComboBox;
         m_style->setObjectName(QStringLiteral("WidgetStyleCombo"));
         for (const QString& style : availableStyles())
-            m_style->addItem(style, styleActionId(style));
+            m_style->addItem(styleLabel(style), styleActionId(style));
         m_style->setCurrentIndex(std::max(0, m_style->findData(styleActionId(currentStyle()))));
         m_style->setToolTip(QCoreApplication::translate("kk::theme",
-            "How buttons, menus and other controls are drawn. Breeze is the KDE look, Fusion "
-            "a neutral look that is the same on every desktop."));
+            "How buttons, menus and other controls are drawn. Kinoklip is the flat, dark look "
+            "of DaVinci Resolve, the same on every desktop; Breeze is the KDE look, Fusion a "
+            "neutral look."));
         form->addRow(QCoreApplication::translate("kk::theme", "Widget style"), m_style);
     }
 
@@ -604,12 +619,15 @@ void apply(QApplication& app)
 QStringList availableStyles()
 {
     QStringList keys = QStyleFactory::keys();
-    // Breeze first, then Fusion, then the rest alphabetically.
+    keys.removeAll(KinoklipStyle::key());
+    keys.prepend(KinoklipStyle::key());
+    // Kinoklip first, then Breeze, then Fusion, then the rest alphabetically.
     std::sort(keys.begin(), keys.end(), [](const QString& a, const QString& b) {
         const auto rank = [](const QString& k) {
-            return k.compare(QLatin1String("Breeze"), Qt::CaseInsensitive) == 0 ? 0
-                : k.compare(QLatin1String("Fusion"), Qt::CaseInsensitive) == 0  ? 1
-                                                                                : 2;
+            return k.compare(KinoklipStyle::key(), Qt::CaseInsensitive) == 0 ? 0
+                : k.compare(QLatin1String("Breeze"), Qt::CaseInsensitive) == 0 ? 1
+                : k.compare(QLatin1String("Fusion"), Qt::CaseInsensitive) == 0  ? 2
+                                                                                : 3;
         };
         return rank(a) != rank(b) ? rank(a) < rank(b) : a.compare(b, Qt::CaseInsensitive) < 0;
     });
@@ -737,7 +755,7 @@ void registerActions(ActionRegistry& registry)
     styles->setExclusive(true);
     for (const QString& style : availableStyles()) {
         QAction* action
-            = registry.add(styleActionId(style), style, QLatin1String(kStyleCategory), {}, true);
+            = registry.add(styleActionId(style), styleLabel(style), QLatin1String(kStyleCategory), {}, true);
         styles->addAction(action);
         QObject::connect(action, &QAction::triggered, action, [style] { setStyle(style); });
     }

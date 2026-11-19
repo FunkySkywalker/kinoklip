@@ -35865,8 +35865,12 @@ Abrir un clip multicámara del panel de medios o mover el cabezal de reproducci�
         <translation>Tema de color</translation>
     </message>
     <message>
-        <source>How buttons, menus and other controls are drawn. Breeze is the KDE look, Fusion a neutral look that is the same on every desktop.</source>
-        <translation>Cómo se dibujan los botones, los menús y otros controles. Breeze es el aspecto de KDE, Fusion un aspecto neutro que es igual en todos los escritorios.</translation>
+        <source>Kinoklip (Resolve look)</source>
+        <translation>Kinoklip (aspecto de Resolve)</translation>
+    </message>
+    <message>
+        <source>How buttons, menus and other controls are drawn. Kinoklip is the flat, dark look of DaVinci Resolve, the same on every desktop; Breeze is the KDE look, Fusion a neutral look.</source>
+        <translation>Cómo se dibujan los botones, los menús y otros controles. Kinoklip es el aspecto plano y oscuro de DaVinci Resolve, igual en todos los escritorios; Breeze es el aspecto de KDE y Fusion un aspecto neutro.</translation>
     </message>
     <message>
         <source>Widget style</source>
