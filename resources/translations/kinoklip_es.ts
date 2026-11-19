@@ -17656,6 +17656,10 @@ Arrastrar una desde la biblioteca de efectos al clip, o añadir una aquí.</tran
         <translation>Este clip no tiene archivo de sonido del que aprender.</translation>
     </message>
     <message>
+        <source>Learning the noise ...</source>
+        <translation>Aprendiendo el ruido ...</translation>
+    </message>
+    <message>
         <source>Could not learn a profile: %1. Mark a longer stretch (at least a tenth of a second) that holds only the noise.</source>
         <translation>No se pudo aprender un perfil: %1. Marque un tramo más largo (al menos una décima de segundo) que solo contenga el ruido.</translation>
     </message>

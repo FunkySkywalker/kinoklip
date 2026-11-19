@@ -17667,6 +17667,10 @@ Drag one from the Effects library onto the clip, or add one here.</source>
         <translation>У цього кліпу немає звукового файлу, з якого можна навчатися.</translation>
     </message>
     <message>
+        <source>Learning the noise ...</source>
+        <translation>Вивчення шуму ...</translation>
+    </message>
+    <message>
         <source>Could not learn a profile: %1. Mark a longer stretch (at least a tenth of a second) that holds only the noise.</source>
         <translation>Не вдалося вивчити профіль: %1. Позначте довшу ділянку (не коротшу за десяту частку секунди), де лише шум.</translation>
     </message>

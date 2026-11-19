@@ -179,8 +179,18 @@ private slots:
         QVERIFY(learn && clear);
         const int commands = f.project.undoStack()->count();
         learn->click();
-        QCoreApplication::processEvents();
-        QCOMPARE(f.project.undoStack()->count(), commands + 1);
+        // The sound is read on a worker thread: right away the button is off, the status says
+        // so and nothing is stored yet; a second click does nothing.
+        QVERIFY(!learn->isEnabled());
+        QVERIFY(group->findChild<QLabel*>(QStringLiteral("NrStatus"))->text().contains(QStringLiteral("Learning")));
+        QCOMPARE(f.project.undoStack()->count(), commands);
+        learn->click();
+        QTRY_COMPARE_WITH_TIMEOUT(f.project.undoStack()->count(), commands + 1, 20000);
+        group = groupTitled(panel, QStringLiteral("Noise Reduction"));
+        QVERIFY(group);
+        learn = group->findChild<QPushButton*>(QStringLiteral("NrLearn"));
+        clear = group->findChild<QPushButton*>(QStringLiteral("NrClear"));
+        QVERIFY(learn->isEnabled());
         const EffectInstance& e = f.clip(a)->effects[0];
         const auto profile = dsp::noise::decodeProfile(
             e.params.staticValue(QLatin1String(afxkeys::NrProfile)).toString());

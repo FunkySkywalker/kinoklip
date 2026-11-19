@@ -349,6 +349,11 @@ void endCompEdit(Project& project)
     project.endEdit();
 }
 
+void cancelCompEdit(Project& project)
+{
+    project.cancelEdit();
+}
+
 bool modifyClipComposition(Project& project, quint64 clipId, const Composition& comp)
 {
     // Inside the open edit Project::setClipComposition() joins it (one step at endEdit()).

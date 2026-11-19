@@ -1168,16 +1168,10 @@ void CompViewerOverlay::keyPressEvent(QKeyEvent* event)
         }
     }
     if (event->key() == Qt::Key_Escape && m_painting && m_session) {
-        // Cancel the stroke: take it back out of the node, then close the gesture.
-        const quint64 id = m_session->currentNode();
-        m_session->modifyLive([&](Composition& comp) {
-            CompNode* n = comp.node(id);
-            if (!n)
-                return;
-            n->params.setStatic(nodekeys::PaintStrokes, m_strokesBefore);
-        });
+        // Cancel the stroke: abandon the open edit, so the node is back as it was and no
+        // undo step is left.
         m_painting = false;
-        m_session->endGesture();
+        m_session->cancelGesture();
         event->accept();
         return;
     }
@@ -1243,7 +1237,6 @@ bool CompViewerOverlay::paintBegin(QPointF pos, double pressure, bool alt)
     }
     const int64_t frame = m_session->compFrame();
     const QPointF start = toNormalised(pos);
-    m_strokesBefore = node->params.staticValue(nodekeys::PaintStrokes, QString());
     m_session->beginGesture(tr("Paint Stroke %1").arg(node->name));
     const std::optional<QPointF> source = m_cloneArmed ? m_cloneSource : std::nullopt;
     m_session->modifyLive([&](Composition& comp) {

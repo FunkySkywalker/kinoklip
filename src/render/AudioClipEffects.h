@@ -22,6 +22,9 @@ public:
     virtual void reset() = 0;
     /// Processes @p frames interleaved stereo frames in place.
     virtual void process(float* io, int frames) = 0;
+    /// The delay of the processed sound for the current parameters, in frames (after
+    /// configure()). The chain's owner reads this many frames ahead to cancel it.
+    [[nodiscard]] virtual int latencyFrames() const { return 0; }
 };
 
 /// The effect stack of one clip: keeps one processor (and its memory) per EffectInstance and
@@ -45,6 +48,9 @@ public:
     /// Processes @p frames frames of @p io through the enabled effects of @p effects.
     /// Returns false (and leaves @p io alone) if none is enabled and known.
     bool process(const QVector<EffectInstance>& effects, float* io, int frames);
+    /// The total delay (frames) of the enabled effects of @p effects; configures them first, so
+    /// it is valid for the next process() call with the same list.
+    [[nodiscard]] int latencyFrames(const QVector<EffectInstance>& effects);
     /// Clears the memory of every effect.
     void reset();
 
@@ -59,6 +65,8 @@ private:
         std::unique_ptr<ClipEffect> effect;
         bool wasOn = false; ///< ran in the last block
     };
+    void prepare(const QVector<EffectInstance>& effects); ///< drops removed processors
+    Slot* slotFor(const EffectInstance& fx); ///< the processor of @p fx (created if needed)
     std::vector<Slot> m_slots;
 };
 

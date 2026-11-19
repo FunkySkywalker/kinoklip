@@ -164,6 +164,9 @@ bool modifyTransitionComposition(
 void beginCompEdit(Project& project, const QString& label);
 /// Closes the gesture opened by beginCompEdit() (pushes the step if anything changed).
 void endCompEdit(Project& project);
+/// Abandons the gesture opened by beginCompEdit(): the composition is back as it was, no undo
+/// step is pushed.
+void cancelCompEdit(Project& project);
 /// Live change inside an open gesture, notifying the views. Same return as
 /// setClipComposition().
 bool modifyClipComposition(Project& project, quint64 clipId, const Composition& comp);

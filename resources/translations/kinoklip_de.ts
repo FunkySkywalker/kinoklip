@@ -17656,6 +17656,10 @@ Einen aus der Effekte-Bibliothek auf den Clip ziehen oder hier einen hinzufügen
         <translation>Dieser Clip hat keine Tondatei, aus der gelernt werden kann.</translation>
     </message>
     <message>
+        <source>Learning the noise ...</source>
+        <translation>Das Rauschen wird gelernt ...</translation>
+    </message>
+    <message>
         <source>Could not learn a profile: %1. Mark a longer stretch (at least a tenth of a second) that holds only the noise.</source>
         <translation>Das Profil konnte nicht gelernt werden: %1. Markieren Sie einen längeren Bereich (mindestens eine Zehntelsekunde), der nur das Rauschen enthält.</translation>
     </message>

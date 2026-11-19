@@ -93,6 +93,9 @@ public:
     bool modifyLive(const std::function<void(Composition&)>& mutate);
     /// Ends the gesture opened by beginGesture().
     void endGesture();
+    /// Abandons the gesture opened by beginGesture(): everything it changed is taken back and
+    /// no undo step is left.
+    void cancelGesture();
     /// Removes the clip's composition ("Reset Composition", one undo step).
     bool resetComposition();
 

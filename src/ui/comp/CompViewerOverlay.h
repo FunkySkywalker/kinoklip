@@ -145,7 +145,6 @@ private:
     bool m_altDown = false; ///< Alt was held at the latest mouse event of a drag
     void paintAppend(QPointF pos, double pressure);
     bool m_painting = false;
-    QVariant m_strokesBefore; ///< the node's stored strokes when the running stroke began (Esc puts it back)
     std::optional<QPointF> m_cloneSource; ///< Alt-click: where Clone copies from
     bool m_cloneArmed = false; ///< the next stroke's first point decides the Clone offset
     QPointF m_hover; ///< the pointer, for the brush circle

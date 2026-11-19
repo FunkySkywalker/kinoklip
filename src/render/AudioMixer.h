@@ -162,6 +162,7 @@ private:
     std::vector<float> m_resampled; ///< speed-adjusted samples (scratch)
     std::vector<float> m_pitchF; ///< m_pitchZ low-passed (pitch up above an octave)
     std::vector<float> m_pitchZ; ///< a pitched clip's time-stretched source (scratch)
+    std::vector<float> m_primeBuffer; ///< latency priming samples of a clip's effects (scratch)
     std::vector<float> m_effectBuffer; ///< a clip's samples after its audio effects (scratch)
     std::vector<double> m_positions; ///< retime curve source positions per block (scratch)
     QElapsedTimer m_clock;

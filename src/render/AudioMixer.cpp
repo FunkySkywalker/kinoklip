@@ -90,6 +90,7 @@ struct AudioMixer::Decoder
     /// the timeline sample the next block must start at for that memory to be valid.
     dsp::ClipEffectChain effects;
     int64_t effectsNext = std::numeric_limits<int64_t>::min();
+    int effectsLatency = 0; ///< the delay the effects were last run with (frames)
     /// The clip's own equalizer (Inspector > Audio) and its continuation sample.
     dsp::Equalizer eq;
     int64_t eqNext = std::numeric_limits<int64_t>::min();
@@ -500,76 +501,100 @@ bool AudioMixer::mixClip(const TimelineData& tl, const NestedTimelines& nested,
     const double framesPerSample = double(tl.fps.num) / (double(kSampleRate) * tl.fps.den);
     const bool retimed = retime::isRetimed(clip);
 
-    // ---- Source samples for timeline samples [from, to) ----
-    const float* src = nullptr;
-    if (!retimed) {
-        if (m_source.size() < size_t(n) * kChannels)
-            m_source.resize(size_t(n) * kChannels);
-        readSource(*d, nested, sourceIn + (from - clipStart), m_source.data(), n);
-        src = m_source.data();
-    } else {
-        src = retimedSource(*d, nested, clip, tl.fps, clipStart, sourceIn, from, n);
-        d->pitchRatio = 0.0;
-    }
-
-    // ---- Pitch (Inspector > Audio): same length, other pitch; not on retimed clips ----
-    if (!retimed) {
-        const double semitones = clip.audio.value(keys::PitchSemitones, 0)
-            + clip.audio.value(keys::PitchCents, 0) / 100.0;
-        if (std::abs(semitones) > 1e-6) {
-            src = pitchedSource(
-                *d, nested, std::exp2(semitones / 12.0), clipStart, sourceIn, from, n);
+    // ---- Source stage: source samples, pitch and the clip equalizer for timeline samples
+    // [f, f + cnt). Called for [from, to) normally; with latency-adding clip effects it is
+    // called for the range shifted ahead by the latency (and once more for the priming).
+    auto upstream = [&](int64_t f, int cnt) -> const float* {
+        const float* src = nullptr;
+        if (!retimed) {
+            if (m_source.size() < size_t(cnt) * kChannels)
+                m_source.resize(size_t(cnt) * kChannels);
+            readSource(*d, nested, sourceIn + (f - clipStart), m_source.data(), cnt);
+            src = m_source.data();
         } else {
+            src = retimedSource(*d, nested, clip, tl.fps, clipStart, sourceIn, f, cnt);
             d->pitchRatio = 0.0;
         }
-    }
 
-    // ---- Clip equalizer ----
-    if (clip.audio.staticValue(keys::EqEnabled, false).toBool()) {
-        EqSettings s;
-        s.enabled = true;
-        for (EqBand& b : s.bands)
-            b.enabled = false;
-        static const double defaultHz[4] = {100, 500, 2000, 8000};
-        static const double defaultQ[4] = {0.7071, 1, 1, 0.7071};
-        static const EqBandType types[4]
-            = {EqBandType::LowShelf, EqBandType::Bell, EqBandType::Bell, EqBandType::HighShelf};
-        for (int b = 0; b < 4; ++b) {
-            s.bands[size_t(b + 1)] = {types[b], true,
-                std::clamp(clip.audio.value(keys::EqBandFreq[b], 0, defaultHz[b]),
-                    kEqMinFrequencyHz, kEqMaxFrequencyHz),
-                std::clamp(
-                    clip.audio.value(keys::EqBandGain[b], 0, 0.0), -kEqMaxGainDb, kEqMaxGainDb),
-                std::clamp(clip.audio.value(keys::EqBandQ[b], 0, defaultQ[b]), kEqMinQ, kEqMaxQ)};
+        // ---- Pitch (Inspector > Audio): same length, other pitch; not on retimed clips ----
+        if (!retimed) {
+            const double semitones = clip.audio.value(keys::PitchSemitones, 0)
+                + clip.audio.value(keys::PitchCents, 0) / 100.0;
+            if (std::abs(semitones) > 1e-6) {
+                src = pitchedSource(
+                    *d, nested, std::exp2(semitones / 12.0), clipStart, sourceIn, f, cnt);
+            } else {
+                d->pitchRatio = 0.0;
+            }
         }
-        d->eq.setTarget(s);
-        if (from != d->eqNext)
-            d->eq.reset(); // after the target: a new start jumps to the settings
-        d->eqNext = to;
-        if (m_effectBuffer.size() < size_t(n) * kChannels)
-            m_effectBuffer.resize(size_t(n) * kChannels);
-        std::copy(src, src + size_t(n) * kChannels, m_effectBuffer.begin());
-        d->eq.process(m_effectBuffer.data(), n);
-        src = m_effectBuffer.data();
-    } else {
-        d->eqNext = std::numeric_limits<int64_t>::min();
-    }
+
+        // ---- Clip equalizer ----
+        if (clip.audio.staticValue(keys::EqEnabled, false).toBool()) {
+            EqSettings s;
+            s.enabled = true;
+            for (EqBand& b : s.bands)
+                b.enabled = false;
+            static const double defaultHz[4] = {100, 500, 2000, 8000};
+            static const double defaultQ[4] = {0.7071, 1, 1, 0.7071};
+            static const EqBandType types[4] = {
+                EqBandType::LowShelf, EqBandType::Bell, EqBandType::Bell, EqBandType::HighShelf};
+            for (int b = 0; b < 4; ++b) {
+                s.bands[size_t(b + 1)] = {types[b], true,
+                    std::clamp(clip.audio.value(keys::EqBandFreq[b], 0, defaultHz[b]),
+                        kEqMinFrequencyHz, kEqMaxFrequencyHz),
+                    std::clamp(clip.audio.value(keys::EqBandGain[b], 0, 0.0), -kEqMaxGainDb,
+                        kEqMaxGainDb),
+                    std::clamp(
+                        clip.audio.value(keys::EqBandQ[b], 0, defaultQ[b]), kEqMinQ, kEqMaxQ)};
+            }
+            d->eq.setTarget(s);
+            if (f != d->eqNext)
+                d->eq.reset(); // after the target: a new start jumps to the settings
+            d->eqNext = f + cnt;
+            if (m_effectBuffer.size() < size_t(cnt) * kChannels)
+                m_effectBuffer.resize(size_t(cnt) * kChannels);
+            std::copy(src, src + size_t(cnt) * kChannels, m_effectBuffer.begin());
+            d->eq.process(m_effectBuffer.data(), cnt);
+            src = m_effectBuffer.data();
+        } else {
+            d->eqNext = std::numeric_limits<int64_t>::min();
+        }
+        return src;
+    };
 
     // ---- Clip audio effects: on the clip's own source, before volume / pan / fades ----
     // (the clip stage; the track's EQ, dynamics, pan and fader come after, in the track
     // channel strip). The effects keep memory between blocks, so a block that does not
     // continue the previous one (seek, loop, a new export) starts them clean.
+    // An effect that delays the sound (Noise Reduction) is compensated: the source stage runs
+    // `latency` samples ahead, so the output lines up with the input sample for sample and the
+    // clip's tail is complete; after a restart the first `latency` samples are fed through
+    // first (priming) and their output dropped.
+    const float* src = nullptr;
     if (dsp::ClipEffectChain::hasActive(clip.effects)) {
-        if (from != d->effectsNext)
+        const int latency = d->effects.latencyFrames(clip.effects);
+        if (from != d->effectsNext || latency != d->effectsLatency) {
             d->effects.reset();
+            if (latency > 0) {
+                const float* lead = upstream(from, latency);
+                if (m_primeBuffer.size() < size_t(latency) * kChannels)
+                    m_primeBuffer.resize(size_t(latency) * kChannels);
+                std::copy(lead, lead + size_t(latency) * kChannels, m_primeBuffer.begin());
+                d->effects.process(clip.effects, m_primeBuffer.data(), latency);
+            }
+        }
         d->effectsNext = to;
+        d->effectsLatency = latency;
+        const float* in = upstream(from + latency, n);
         if (m_effectBuffer.size() < size_t(n) * kChannels)
             m_effectBuffer.resize(size_t(n) * kChannels);
-        std::copy(src, src + size_t(n) * kChannels, m_effectBuffer.begin());
+        if (in != m_effectBuffer.data())
+            std::copy(in, in + size_t(n) * kChannels, m_effectBuffer.begin());
         d->effects.process(clip.effects, m_effectBuffer.data(), n);
         src = m_effectBuffer.data();
     } else {
         d->effectsNext = std::numeric_limits<int64_t>::min();
+        src = upstream(from, n);
     }
 
     // ---- Gain envelope: volume automation × transition fades, evaluated at block edges ----

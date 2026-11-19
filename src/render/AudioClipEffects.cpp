@@ -362,6 +362,7 @@ public:
     }
     void reset() override { m_reducer.reset(); }
     void process(float* io, int frames) override { m_reducer.process(io, frames); }
+    int latencyFrames() const override { return m_reducer.latencyFrames(); }
 
 private:
     noise::Reducer m_reducer;
@@ -412,34 +413,63 @@ void ClipEffectChain::reset()
     }
 }
 
-bool ClipEffectChain::process(const QVector<EffectInstance>& effects, float* io, int frames)
+void ClipEffectChain::prepare(const QVector<EffectInstance>& effects)
 {
     // Drop the processors of removed effects (or whose type changed).
     std::erase_if(m_slots, [&](const Slot& s) {
         return std::none_of(effects.begin(), effects.end(),
             [&](const EffectInstance& fx) { return fx.id == s.id && fx.type == s.type; });
     });
+}
+
+ClipEffectChain::Slot* ClipEffectChain::slotFor(const EffectInstance& fx)
+{
+    auto it = std::find_if(m_slots.begin(), m_slots.end(),
+        [&](const Slot& s) { return s.id == fx.id && s.type == fx.type; });
+    if (it != m_slots.end())
+        return &*it;
+    if (!fx.enabled)
+        return nullptr;
+    std::unique_ptr<ClipEffect> effect = create(fx.type);
+    if (!effect)
+        return nullptr; // unknown type: skipped, kept in the project
+    m_slots.push_back({fx.id, fx.type, std::move(effect), false});
+    return &m_slots.back();
+}
+
+int ClipEffectChain::latencyFrames(const QVector<EffectInstance>& effects)
+{
+    prepare(effects);
+    int total = 0;
+    for (const EffectInstance& fx : effects) {
+        if (!fx.enabled)
+            continue;
+        if (Slot* slot = slotFor(fx)) {
+            slot->effect->configure(fx.params);
+            total += slot->effect->latencyFrames();
+        }
+    }
+    return total;
+}
+
+bool ClipEffectChain::process(const QVector<EffectInstance>& effects, float* io, int frames)
+{
+    prepare(effects);
     bool any = false;
     for (const EffectInstance& fx : effects) {
-        auto it = std::find_if(m_slots.begin(), m_slots.end(),
-            [&](const Slot& s) { return s.id == fx.id && s.type == fx.type; });
+        Slot* slot = slotFor(fx);
         if (!fx.enabled) {
-            if (it != m_slots.end() && it->wasOn) { // bypassed: start clean when switched on
-                it->effect->reset();
-                it->wasOn = false;
+            if (slot && slot->wasOn) { // bypassed: start clean when switched on
+                slot->effect->reset();
+                slot->wasOn = false;
             }
             continue;
         }
-        if (it == m_slots.end()) {
-            std::unique_ptr<ClipEffect> effect = create(fx.type);
-            if (!effect)
-                continue; // unknown type: skipped, kept in the project
-            m_slots.push_back({fx.id, fx.type, std::move(effect), false});
-            it = m_slots.end() - 1;
-        }
-        it->effect->configure(fx.params);
-        it->effect->process(io, frames);
-        it->wasOn = true;
+        if (!slot)
+            continue;
+        slot->effect->configure(fx.params);
+        slot->effect->process(io, frames);
+        slot->wasOn = true;
         any = true;
     }
     return any;

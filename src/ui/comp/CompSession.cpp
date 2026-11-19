@@ -287,6 +287,14 @@ void CompSession::endGesture()
     compadapter::endCompEdit(*m_ctx.project);
 }
 
+void CompSession::cancelGesture()
+{
+    if (m_gestureDepth <= 0)
+        return;
+    --m_gestureDepth;
+    compadapter::cancelCompEdit(*m_ctx.project);
+}
+
 bool CompSession::resetComposition()
 {
     if (!m_clipId || !m_stored)

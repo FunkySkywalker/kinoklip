@@ -364,7 +364,7 @@ private slots:
                 double errIn = 0, errOut = 0;
                 for (int i = from; i < to; ++i) {
                     const double t = sine(i, 1000, 0.1);
-                    const double tDelayed = sine(i - 1024, 1000, 0.1);
+                    const double tDelayed = sine(i, 1000, 0.1); // aligned: no delay left
                     errIn += std::pow(noisy[size_t(2 * i)] - t, 2);
                     errOut += std::pow(out[size_t(2 * i)] - tDelayed, 2);
                 }
@@ -399,6 +399,38 @@ private slots:
                                                        .arg(QLatin1String(engine)).arg(block).arg(worst)));
             }
             QVERIFY(render(tl, m_wavNoise, 60000) == whole);
+        }
+    }
+
+    // The effect's own delay is cancelled: the output lines up with the input sample for sample,
+    // the first block is not silent and the clip's tail is complete, at any block size.
+    void noiseReductionHasNoLatency()
+    {
+        for (const char* engine : {afxchoice::NrGate, afxchoice::NrRnnoise}) {
+            TimelineData tl = timeline({});
+            EffectInstance e = fx(tl, afxid::NoiseReduction, {{afxkeys::Mix, 1.0}});
+            e.params.setStatic(QLatin1String(afxkeys::NrEngine), QLatin1String(engine));
+            tl.audioTracks[0].clips[0].effects.append(e);
+            const auto plain = render(timeline({}), m_wavSine, 96000);
+            for (const int block : {0, 1024, 997}) {
+                const auto out = render(tl, m_wavSine, 96000, block);
+                // With 1 % wet the output is the (aligned) input; a delay of 960 or 1024
+                // samples would give errors of more than 0.5 for the 440 Hz tone.
+                float worst = 0.0f;
+                for (int i = 0; i < 96000; ++i)
+                    worst = std::max(worst, std::abs(out[size_t(2 * i)] - plain[size_t(2 * i)]));
+                QVERIFY2(worst < 0.02f, qPrintable(QStringLiteral("%1 block %2: %3")
+                                                       .arg(QLatin1String(engine)).arg(block).arg(worst)));
+                QVERIFY(rms(out, 0, 1024) > 0.3); // the first block is not silent
+                QVERIFY(rms(out, 96000 - 2048, 96000) > 0.3); // the tail is there
+            }
+            // An impulse stays at its sample.
+            const auto pulse = render(tl, m_wavImpulse, 4000);
+            int at = 0;
+            for (int i = 0; i < 4000; ++i)
+                if (std::abs(pulse[size_t(2 * i)]) > std::abs(pulse[size_t(2 * at)]))
+                    at = i;
+            QCOMPARE(at, 1000);
         }
     }
 

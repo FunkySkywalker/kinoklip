@@ -227,10 +227,12 @@ private slots:
         send(o, QEvent::MouseMove, p + QPointF(10, 0), Qt::NoButton, Qt::LeftButton);
         QVERIFY(o->painting());
         QCOMPARE(f.strokes().size(), 1);
+        const int stepsBefore = f.steps();
         QKeyEvent esc(QEvent::KeyPress, Qt::Key_Escape, Qt::NoModifier);
         QApplication::sendEvent(o, &esc);
         QVERIFY(!o->painting());
         QCOMPARE(f.strokes().size(), 0);
+        QCOMPARE(f.steps(), stepsBefore); // no undo step is left
     }
 };
 

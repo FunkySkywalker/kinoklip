@@ -453,7 +453,10 @@ void Reducer::reset()
 
 int Reducer::latencyFrames() const
 {
-    return 2 * m_impl->hop();
+    const Impl& d = *m_impl;
+    if (d.s.mix <= 0.0 && std::abs(d.s.outputDb) < 1e-9)
+        return 0; // passes the input through untouched, without delay
+    return 2 * d.hop();
 }
 
 void Reducer::process(float* io, int frames)
