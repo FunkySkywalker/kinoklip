@@ -140,7 +140,11 @@ SchemeColors compute(const SchemeRoles& r, const QPalette& p, quint64 generation
     c.keyRowStripe = withAlpha(c.text, c.dark ? 9 : 10); // between the rows and the window
     c.keyRowsOutside
         = c.dark ? mixColors(c.keyRows, c.shadow, 0.45) : mixColors(c.window, c.text, 0.06);
-    c.keyRuler = c.header;
+    // A header darker than the window (near-black top and page bars) would merge with the
+    // dark key rows: take a shade between window and header, nearer the window.
+    c.keyRuler = c.dark && c.header.lightness() < c.window.lightness()
+        ? mixColors(c.window, c.header, 0.3)
+        : c.header;
 
     c.cached = c.link;
     c.uncached = c.negative;
