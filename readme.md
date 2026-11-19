@@ -13,6 +13,8 @@
 
 <a href="docs/images/readme/themes.png"><img src="docs/images/readme/themes.png" width="100%" alt="The Edit page of Kinoklip in the default Kinoklip look, which follows DaVinci Resolve, on the left and Breeze Dark on the right, divided by a diagonal line"></a>
 
+<p align="center"><a href="docs/images/readme/themes-closeup.png"><img src="docs/images/readme/themes-closeup.png" width="100%" alt="Close-up of the Inspector and the page bar in the Kinoklip look and in Breeze Dark. Kinoklip has flat tabs with a red underline, frameless buttons and a near-black current page with a red underline; Breeze has boxed tabs and buttons"></a></p>
+
 Kinoklip is a non-linear video editor written from scratch in C++20 with Qt 6 and FFmpeg. Its
 pages, layout, behaviour and default shortcuts follow DaVinci Resolve, and so does the default look (Kinoklip widget style and colour scheme). KDE Breeze (Breeze widget style with Breeze Dark or Breeze Light) is available too.
 

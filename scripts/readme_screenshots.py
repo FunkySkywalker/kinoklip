@@ -3,8 +3,9 @@
 """Makes the screenshots of the readme's Screenshots section (docs/images/readme/).
 
 One picture per page (Media, Cut, Edit, Compositing, Color, Audio, Deliver), a few feature
-shots and themes.png (the Kinoklip look and Breeze Dark split by a
-diagonal), taken from the real app in the Kinoklip look (Kinoklip widget style and colour
+shots, themes.png (the Kinoklip look and Breeze Dark split by a
+diagonal) and themes-closeup.png (close-ups of the Inspector and the page bar in both looks,
+from shots at 2x device pixels), taken from the real app in the Kinoklip look (Kinoklip widget style and colour
 scheme, the default) at 1920x1080, then scaled to 1600 px wide and stored as palette PNGs.
 
 The footage is made from five CC0 photos of people doing creative work (scripts/readme-media,
@@ -71,6 +72,27 @@ THEMES = {"kinoklip": ("Kinoklip", "Kinoklip"), "breeze-dark": ("Breeze", "Breez
 SPLIT = (0.5,)  # where the dividing line crosses the middle of the picture (of the width)
 SLOPE = 0.12          # how far each line runs right at the top and left at the bottom (of the width)
 
+
+# The close-up picture (themes-closeup.png) under the theme picture: the Inspector's top part and
+# the page bar of both looks, cut from shots at 2x device pixels. Crop rectangles (x, y, w, h)
+# are in 1x coordinates of the 1920x1080 layout (the Breeze layout is a little taller, so its
+# rectangles differ); the sizes below are in pixels of the stored picture.
+CLOSEUP_SCALE = 2
+CLOSEUP_CROPS = {
+    "kinoklip": ((1483, 62, 437, 396), (560, 1039, 800, 41)),
+    "breeze-dark": ((1483, 66, 437, 396), (560, 1039, 800, 41)),
+}
+CLOSEUP_LABELS = {"kinoklip": ("Kinoklip", "Default, follows DaVinci Resolve"),
+                  "breeze-dark": ("Breeze Dark", "KDE Breeze style")}
+CLOSEUP_INNER = 874      # width of both crops in a card
+CLOSEUP_PAD = 20         # between a card's edge and its crops
+CLOSEUP_GAP_IN = 18      # between the two crops of a card
+CLOSEUP_MARGIN = 48      # between the backdrop's edge and the cards
+CLOSEUP_GAP = 40         # between the cards
+CLOSEUP_HEAD = 100       # height of the label row
+CLOSEUP_OUTER = 24       # transparent border that holds the shadow
+CLOSEUP_RADIUS, CLOSEUP_RADIUS_CARD, CLOSEUP_RADIUS_IN = 28, 24, 12
+CLOSEUP_BACKDROP, CLOSEUP_CARD = (24, 25, 29, 255), (34, 35, 41, 255)
 
 PHOTOS = ROOT / "scripts" / "readme-media"
 
@@ -162,6 +184,77 @@ def breeze_available(app: Path) -> bool:
     return any(folder.glob("breeze*.so") for folder in folders if folder.is_dir())
 
 
+def _rounded(image, radius: int):
+    """@p image with transparent rounded corners."""
+    from PIL import ImageDraw
+    mask = Image.new("L", image.size, 0)
+    ImageDraw.Draw(mask).rounded_rectangle((0, 0, image.width - 1, image.height - 1), radius, fill=255)
+    image = image.convert("RGBA")
+    image.putalpha(mask)
+    return image
+
+
+def store_closeup(shots: dict, out: Path) -> None:
+    """Two cards side by side (Kinoklip, Breeze Dark), each the Inspector's top part above the
+    page bar, cut from the 2x shots (CLOSEUP_CROPS, in 1x coordinates), on a dark rounded
+    backdrop with a label above each card. The Inspector crops keep their native 2x pixels; the
+    wider page bar crops are scaled down to the same width. Stored as full-colour RGBA."""
+    from PIL import ImageDraw, ImageFilter, ImageFont
+    s = CLOSEUP_SCALE
+    font = lambda weight, size: ImageFont.truetype(  # noqa: E731
+        str(ROOT / "resources" / "fonts" / f"OpenSans-{weight}.ttf"), size)
+    inner_w = CLOSEUP_INNER
+    cards = []
+    for name, (title, subtitle) in CLOSEUP_LABELS.items():
+        raw = Image.open(shots[name]).convert("RGB")
+        parts = []
+        for box in CLOSEUP_CROPS[name]:
+            x, y, w, h = (v * s for v in box)
+            crop = raw.crop((x, y, x + w, y + h))
+            height = round(crop.height * inner_w / crop.width)
+            crop = crop.resize((inner_w, height), Image.LANCZOS) if crop.width != inner_w else crop
+            parts.append(_rounded(crop, CLOSEUP_RADIUS_IN))
+        cards.append((title, subtitle, parts))
+    pad, gap_in = CLOSEUP_PAD, CLOSEUP_GAP_IN
+    card_w = inner_w + 2 * pad
+    card_h = 2 * pad + sum(p.height for p in cards[0][2]) + gap_in * (len(cards[0][2]) - 1)
+    margin, gap, head = CLOSEUP_MARGIN, CLOSEUP_GAP, CLOSEUP_HEAD
+    width = 2 * margin + 2 * card_w + gap
+    height = 2 * margin + head + card_h
+    outer = CLOSEUP_OUTER
+    canvas = Image.new("RGBA", (width + 2 * outer, height + 2 * outer), (0, 0, 0, 0))
+    # backdrop with a soft shadow
+    shadow = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
+    ImageDraw.Draw(shadow).rounded_rectangle(
+        (outer, outer + 10, outer + width, outer + height + 10), CLOSEUP_RADIUS, fill=(0, 0, 0, 110))
+    canvas = Image.alpha_composite(canvas, shadow.filter(ImageFilter.GaussianBlur(14)))
+    ImageDraw.Draw(canvas).rounded_rectangle((outer, outer, outer + width - 1, outer + height - 1),
+                                             CLOSEUP_RADIUS, fill=CLOSEUP_BACKDROP)
+    for i, (title, subtitle, parts) in enumerate(cards):
+        x0 = outer + margin + i * (card_w + gap)
+        y0 = outer + margin + head
+        # label: title and subtitle on one baseline-aligned block above the card
+        draw = ImageDraw.Draw(canvas)
+        draw.text((x0 + 4, outer + margin - 6), title, font=font("SemiBold", 34), fill=(238, 238, 242))
+        draw.text((x0 + 4, outer + margin + 40), subtitle, font=font("Regular", 22), fill=(150, 152, 162))
+        # card with its own soft shadow
+        sh = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
+        ImageDraw.Draw(sh).rounded_rectangle((x0, y0 + 6, x0 + card_w, y0 + card_h + 6),
+                                             CLOSEUP_RADIUS_CARD, fill=(0, 0, 0, 120))
+        canvas = Image.alpha_composite(canvas, sh.filter(ImageFilter.GaussianBlur(9)))
+        ImageDraw.Draw(canvas).rounded_rectangle((x0, y0, x0 + card_w - 1, y0 + card_h - 1),
+                                                 CLOSEUP_RADIUS_CARD, fill=CLOSEUP_CARD,
+                                                 outline=(64, 66, 74), width=2)
+        y = y0 + pad
+        for part in parts:
+            canvas.alpha_composite(part, (x0 + pad, y))
+            y += part.height + gap_in
+    out.parent.mkdir(parents=True, exist_ok=True)
+    canvas.save(out, optimize=True)
+    print(f"  {out.relative_to(ROOT)}: {canvas.width}x{canvas.height}, "
+          f"{out.stat().st_size // 1024} KB")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--app", default=str(ROOT / "build" / "kinoklip"))
@@ -240,6 +333,13 @@ def main() -> None:
                 guide.run_shot(app, target, projects / project, png, geo, env,
                                args=("--widget-style", style, "--color-scheme", scheme))
         store_split([raw / f"{name}.png" for name in THEMES], OUT / "themes.png")
+        # The close-up: the same shot at 2x device pixels, cropped.
+        for name, (style, scheme) in THEMES.items():
+            png, geo = raw / f"{name}@2x.png", raw / f"{name}@2x.json"
+            if not (args.keep and png.exists()):
+                guide.run_shot(app, target, projects / project, png, geo, env, scale=2,
+                               args=("--widget-style", style, "--color-scheme", scheme))
+        store_closeup({name: raw / f"{name}@2x.png" for name in THEMES}, OUT / "themes-closeup.png")
 
 
 if __name__ == "__main__":

@@ -168,7 +168,9 @@ def build_projects(tests: Path, media: Path, projects: Path) -> None:
 
 
 def run_shot(app: Path, target: str, project: Path, png: Path, geometry: Path,
-             extra_env: dict, luts=(), args=()) -> None:
+             extra_env: dict, luts=(), args=(), scale: int = 1) -> None:
+    """Takes one shot. @p scale 2 runs the app in its own 2x-sized X screen with
+    QT_SCALE_FACTOR=2: the layout of the 1x shot, twice the pixels."""
     with tempfile.TemporaryDirectory(prefix="kk-guide-home-") as home:
         env = clean_env(Path(home))
         env["KK_SCREENSHOT_GEOMETRY"] = str(geometry)
@@ -180,6 +182,9 @@ def run_shot(app: Path, target: str, project: Path, png: Path, geometry: Path,
             folder.mkdir(parents=True, exist_ok=True)
             shutil.copy(lut, folder / lut.name)
         cmd = [str(app), "--screenshot", target, str(png)]
+        if scale > 1:
+            env["QT_SCALE_FACTOR"] = str(scale)
+            cmd = ["xvfb-run", "-a", "-s", f"-screen 0 {1920 * scale}x{1080 * scale}x24"] + cmd
         if project:
             cmd.append(str(project))
         cmd += list(args)  # e.g. --color-scheme BreezeDark
