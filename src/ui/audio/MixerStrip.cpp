@@ -7,6 +7,7 @@
 #include "core/Timeline.h"
 #include "ui/audio/DynamicsWindow.h"
 #include "ui/audio/EqWindow.h"
+#include "ui/audio/SendsWindow.h"
 #include "ui/audio/FaderWidget.h"
 #include "ui/audio/LevelMeter.h"
 #include "ui/audio/MixerController.h"
@@ -145,6 +146,50 @@ MixerStrip::MixerStrip(
         openDynamics();
     });
 
+    // Sends (spec 137) and Phase Invert: lit when on; Sends opens its window, Ø inverts.
+    {
+        auto* row = new QHBoxLayout;
+        row->setSpacing(metrics::kSpaceXs);
+        m_sends = toggleButton(tr("Sends"),
+            tr("Sends: copies of this channel's signal into buses, with a level, a pan and Pre / "
+               "Post fader; lit when it has an enabled send. Click to edit"));
+        m_invert = toggleButton(QStringLiteral("\u00D8"),
+            tr("Phase Invert: flips the polarity of the signal before the effects (both "
+               "channels; right-click to choose Left or Right)"));
+        m_invert->setContextMenuPolicy(Qt::CustomContextMenu);
+        m_invert->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        row->addWidget(m_sends, 1);
+        row->addWidget(m_invert);
+        layout->addLayout(row);
+        connect(m_sends, &QToolButton::clicked, this, [this] {
+            refresh(m_frame);
+            openSends();
+        });
+        connect(m_invert, &QToolButton::clicked, this, [this] {
+            const ChannelStrip* s = mixerops::strip(m_controller->data(), m_target);
+            const bool both = s && s->invertLeft && s->invertRight;
+            setInvert(!both, !both);
+        });
+        connect(m_invert, &QToolButton::customContextMenuRequested, this, [this](QPoint pos) {
+            const ChannelStrip* s = mixerops::strip(m_controller->data(), m_target);
+            if (!s)
+                return;
+            QMenu menu(this);
+            QAction* l = menu.addAction(tr("Invert Left"));
+            l->setCheckable(true);
+            l->setChecked(s->invertLeft);
+            QAction* r = menu.addAction(tr("Invert Right"));
+            r->setCheckable(true);
+            r->setChecked(s->invertRight);
+            const ChannelStrip before = *s;
+            QAction* chosen = menu.exec(m_invert->mapToGlobal(pos));
+            if (chosen == l)
+                setInvert(!before.invertLeft, before.invertRight);
+            else if (chosen == r)
+                setInvert(before.invertLeft, !before.invertRight);
+        });
+    }
+
     if (!bus) {
         // Effects section: slots of the track's effects, then the "+" button (spec 133).
         auto* fx = new QWidget;
@@ -200,7 +245,7 @@ MixerStrip::MixerStrip(
     }
     layout->addWidget(m_bus);
 
-    if (!bus) {
+    {
         m_pan = new PanKnob;
         m_pan->setFixedHeight(40);
         layout->addWidget(m_pan, 0, Qt::AlignHCenter);
@@ -214,7 +259,8 @@ MixerStrip::MixerStrip(
         connect(m_pan, &PanKnob::valueRequested, this, [this](double v) {
             m_controller->setControl(m_target, MixerController::Control::Pan, v);
         });
-
+    }
+    if (!bus) {
         m_automation = new QComboBox;
         m_automation->setToolTip(tr("Automation mode of the fader and pan"));
         m_automation->setFocusPolicy(Qt::NoFocus);
@@ -331,11 +377,20 @@ void MixerStrip::refresh(int64_t frame)
     if (m_slotLayout)
         rebuildSlots(d);
     m_eq->setChecked(s->eq.enabled);
+    m_invert->setChecked(s->invertLeft || s->invertRight);
+    m_sends->setChecked(std::any_of(s->sends.begin(), s->sends.end(),
+        [](const SendData& d) { return d.enabled; }));
     m_dynamics->setChecked(s->dynamics.gateEnabled || s->dynamics.compressorEnabled || s->dynamics.limiterEnabled);
     if (m_target.isBus()) {
         const BusData* b = mixerops::bus(d, int(m_target.id));
         // The strip has a fixed width (as in Resolve): long names are elided, in full as the tip.
-        textfit::setElidedText(m_input, tr("Sum"), tr("Input: the tracks routed to this bus"));
+        if (b->aux) {
+            textfit::setElidedText(m_input, tr("Aux"),
+                tr("Aux bus: its input comes from sends only (tracks cannot be routed to it)"));
+        } else {
+            textfit::setElidedText(
+                m_input, tr("Sum"), tr("Input: the tracks routed to this bus, and sends to it"));
+        }
         textfit::setElidedText(m_name,
             QStringLiteral("%1\n%2").arg(busDisplayName(*b), b->mono ? tr("Mono") : tr("Stereo")),
             tr("Double-click to rename; right-click for the channel format and delete"));
@@ -406,6 +461,25 @@ DynamicsWindow* MixerStrip::openDynamics()
     return m_dynamicsWindow;
 }
 
+SendsWindow* MixerStrip::openSends()
+{
+    if (!m_sendsWindow) {
+        m_sendsWindow = new SendsWindow(m_controller, m_target, window());
+        m_sendsWindow->addActions(window()->actions());
+    }
+    m_sendsWindow->show();
+    m_sendsWindow->raise();
+    m_sendsWindow->activateWindow();
+    return m_sendsWindow;
+}
+
+void MixerStrip::setInvert(bool left, bool right)
+{
+    m_controller->edit(tr("Phase Invert"), [&](TimelineData& d) {
+        return mixerops::setStripInvert(d, m_target, left, right);
+    });
+}
+
 void MixerStrip::fillBusMenu()
 {
     QMenu* menu = m_bus->menu();
@@ -417,6 +491,10 @@ void MixerStrip::fillBusMenu()
     for (const BusData& b : d.mixer.buses) {
         QAction* a = menu->addAction(busDisplayName(b));
         a->setCheckable(true);
+        if (b.aux) { // send-only input: use the Sends window
+            a->setEnabled(false);
+            a->setToolTip(tr("Aux bus: tracks reach it with a send, not a route"));
+        }
         a->setChecked(t->mix.buses.contains(b.id));
         const int id = b.id;
         connect(a, &QAction::triggered, this, [this, id](bool on) {
@@ -667,6 +745,7 @@ void MixerStrip::showNameMenu(const QPoint& globalPos)
     stereoAction->setChecked(!mono);
     QAction* rename = nullptr;
     QAction* remove = nullptr;
+    QAction* aux = nullptr;
     if (!bus) {
         menu.addSeparator();
         rename = menu.addAction(tr("Rename Track…"));
@@ -675,6 +754,14 @@ void MixerStrip::showNameMenu(const QPoint& globalPos)
         rename = menu.addAction(tr("Rename Bus…"));
         remove = menu.addAction(tr("Delete Bus"));
         remove->setEnabled(m_target.id != quint64(kMainBusId));
+        const BusData* thisBus = mixerops::bus(d, int(m_target.id));
+        aux = menu.addAction(tr("Aux Bus (send only)"));
+        aux->setCheckable(true);
+        aux->setChecked(thisBus && thisBus->aux);
+        aux->setEnabled(m_target.id != quint64(kMainBusId)
+            && int(m_target.id) != d.mixer.outputBus);
+        aux->setToolTip(tr("An aux bus takes its input from sends only: tracks cannot be "
+                           "routed to it. The main bus and the output bus cannot be aux buses"));
     }
     menu.addSeparator();
     QAction* normalize = menu.addAction(tr("Normalize Audio Levels…"));
@@ -698,6 +785,10 @@ void MixerStrip::showNameMenu(const QPoint& globalPos)
         });
     } else if (chosen == rename) {
         askRename();
+    } else if (aux && chosen == aux) {
+        const bool on = aux->isChecked();
+        m_controller->edit(on ? tr("Make Aux Bus") : tr("Make Normal Bus"),
+            [&](TimelineData& data) { return mixerops::setBusAux(data, int(m_target.id), on); });
     } else if (chosen == remove) {
         m_controller->edit(tr("Delete Bus"),
             [&](TimelineData& data) { return mixerops::removeBus(data, int(m_target.id)); });

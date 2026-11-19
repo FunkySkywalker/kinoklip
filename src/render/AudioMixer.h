@@ -60,7 +60,12 @@ namespace kk {
 ///   channel strip in this order: channel format (mono = (L + R) / 2) -> 6-band EQ ->
 ///   compressor -> limiter -> pan (the constant-power law below, from the track's pan
 ///   automation or static pan) -> fader (automation or static) -> mute / solo; then it is
-///   added to every bus the track is routed to. Each bus: sum -> channel format -> EQ ->
+///   added to every bus the track is routed to. Phase Invert (per side) is applied first,
+///   before the track's effect slots. Sends (spec 137): after the inserts every strip copies
+///   its signal into the buses it sends to, scaled by the send's level and pan - before its
+///   pan and fader (Pre) or after them (Post); buses with sends run after every strip that
+///   feeds them (tracks, routes, other buses' sends, keys), so the order never depends on the
+///   block size. A bus applies its pan after its inserts too. Each bus: sum -> channel format -> EQ ->
 ///   compressor -> limiter -> fader -> mute. The output bus (MixerData::outputBus, default
 ///   Bus 1) is what mix() returns, so playback and export hear the same thing. Gains glide
 ///   (~5 ms) and EQ parameters glide (~10 ms), so nothing clicks or zippers. A mix call that
@@ -184,6 +189,7 @@ private:
     std::unordered_map<int, std::unique_ptr<Channel>> m_busChannels; ///< by bus id
     std::vector<float> m_trackBuffer; ///< one track's signal (scratch)
     std::vector<float> m_trackPrimeBuffer; ///< a track's slot priming samples (scratch)
+    std::vector<float> m_sendPre; ///< a strip's signal before its pan and fader (scratch, spec 137)
     std::vector<std::vector<float>> m_busBuffers; ///< per MixerData::buses index (scratch)
     // Key (side chain) scheduling of one mix call (scratch, spec 136).
     std::vector<unsigned char> m_trackState, m_busState; ///< done / busy / is-a-key flags

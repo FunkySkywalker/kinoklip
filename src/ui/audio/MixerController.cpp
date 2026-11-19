@@ -104,7 +104,7 @@ double MixerController::controlValue(const MixTarget& target, Control control, d
     const TimelineData& d = data();
     if (target.isBus()) {
         const BusData* b = mixerops::bus(d, int(target.id));
-        return !b ? 0.0 : control == Control::Fader ? b->strip.volumeDb : 0.0;
+        return !b ? 0.0 : control == Control::Fader ? b->strip.volumeDb : b->strip.pan;
     }
     const TrackData* t = mixerops::audioTrack(d, target.id);
     if (!t)

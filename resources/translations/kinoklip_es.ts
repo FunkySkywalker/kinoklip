@@ -16224,6 +16224,106 @@ Gracias por ver</translation>
         <source>Resolve FX Transitions</source>
         <translation>Transiciones de Resolve FX</translation>
     </message>
+    <message>
+        <source>De-Esser</source>
+        <translation>De-Esser</translation>
+    </message>
+    <message>
+        <source>Soften harsh s and sh sounds in speech</source>
+        <translation>Suaviza los sonidos s y sh ásperos en el habla</translation>
+    </message>
+    <message>
+        <source>The middle of the sound that is lowered: about 5000 for a deep voice, 7000 for a high one.</source>
+        <translation>El centro del sonido que se baja: unos 5000 para una voz grave, 7000 para una aguda.</translation>
+    </message>
+    <message>
+        <source>The most the hissing sound is made quieter.</source>
+        <translation>Lo máximo que se baja el sonido silbante.</translation>
+    </message>
+    <message>
+        <source>How strongly the hissing sound is held back. 0 does nothing; higher takes more off every s.</source>
+        <translation>Con qué fuerza se frena el sonido silbante. 0 no hace nada; más quita más de cada s.</translation>
+    </message>
+    <message>
+        <source>Reaction Time</source>
+        <translation>Tiempo de reacción</translation>
+    </message>
+    <message>
+        <source>How fast the reduction lets go after an s. Short is more exact, long is smoother.</source>
+        <translation>Con qué rapidez suelta la reducción tras una s. Corto es más exacto, largo es más suave.</translation>
+    </message>
+    <message>
+        <source>Listen</source>
+        <translation>Escuchar</translation>
+    </message>
+    <message>
+        <source>Hear only the band that is being watched, to set the Frequency by ear. Switch it off again before you render.</source>
+        <translation>Oír solo la banda vigilada, para ajustar la frecuencia de oído. Desactívalo de nuevo antes de renderizar.</translation>
+    </message>
+    <message>
+        <source>Dialogue Leveler</source>
+        <translation>Nivelador de diálogo</translation>
+    </message>
+    <message>
+        <source>Even out how loud the speech is, quiet words up and loud words down</source>
+        <translation>Iguala lo fuerte que suena el habla: sube las palabras bajas y baja las fuertes</translation>
+    </message>
+    <message>
+        <source>Target</source>
+        <translation>Objetivo</translation>
+    </message>
+    <message>
+        <source>The level the speech is brought to (average level of about a tenth of a second).</source>
+        <translation>El nivel al que se lleva el habla (nivel medio de aproximadamente una décima de segundo).</translation>
+    </message>
+    <message>
+        <source>Max Gain Up</source>
+        <translation>Ganancia máx. hacia arriba</translation>
+    </message>
+    <message>
+        <source>The most quiet speech is raised.</source>
+        <translation>Lo máximo que se sube el habla baja.</translation>
+    </message>
+    <message>
+        <source>Max Gain Down</source>
+        <translation>Ganancia máx. hacia abajo</translation>
+    </message>
+    <message>
+        <source>The most loud speech is lowered.</source>
+        <translation>Lo máximo que se baja el habla fuerte.</translation>
+    </message>
+    <message>
+        <source>Slow</source>
+        <translation>Lenta</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Media</translation>
+    </message>
+    <message>
+        <source>Fast</source>
+        <translation>Rápida</translation>
+    </message>
+    <message>
+        <source>How fast the level follows the speech. Slow sounds natural, Fast evens out single words.</source>
+        <translation>Con qué rapidez el nivel sigue al habla. Lenta suena natural, rápida iguala palabras sueltas.</translation>
+    </message>
+    <message>
+        <source>Noise Floor</source>
+        <translation>Nivel de ruido</translation>
+    </message>
+    <message>
+        <source>Sound quieter than this is not speech and is never raised: breaths, pauses and room noise stay as they are.</source>
+        <translation>El sonido más bajo que esto no es habla y nunca se sube: respiraciones, pausas y ruido de sala se quedan como están.</translation>
+    </message>
+    <message>
+        <source>Background Reduction</source>
+        <translation>Reducción de fondo</translation>
+    </message>
+    <message>
+        <source>Optional: lower everything that is not speech by up to this much. 0 is off.</source>
+        <translation>Opcional: baja todo lo que no es habla hasta este valor. 0 es desactivado.</translation>
+    </message>
 </context>
 <context>
     <name>kk::EffectsLibraryPanel</name>
@@ -16430,6 +16530,54 @@ Transición estándar de este proyecto</translation>
     <message>
         <source>EQ - %1</source>
         <translation>EQ - %1</translation>
+    </message>
+    <message>
+        <source>Presets</source>
+        <translation>Preajustes</translation>
+    </message>
+    <message>
+        <source>Equalizer presets: Voice, Music, Telephone and more, or your own. Choosing one replaces all bands (one undo step)</source>
+        <translation>Preajustes del ecualizador: voz, música, teléfono y más, o los tuyos. Elegir uno reemplaza todas las bandas (un paso de deshacer)</translation>
+    </message>
+    <message>
+        <source>EQ Preset</source>
+        <translation>Preajuste de ecualizador</translation>
+    </message>
+    <message>
+        <source>Replace the equalizer with this preset</source>
+        <translation>Reemplazar el ecualizador con este preajuste</translation>
+    </message>
+    <message>
+        <source>Your preset: replace the equalizer with it</source>
+        <translation>Tu preajuste: reemplazar el ecualizador con él</translation>
+    </message>
+    <message>
+        <source>Save as Preset…</source>
+        <translation>Guardar como preajuste…</translation>
+    </message>
+    <message>
+        <source>Keep the current equalizer settings as a preset of your own</source>
+        <translation>Guardar los ajustes actuales del ecualizador como preajuste propio</translation>
+    </message>
+    <message>
+        <source>Save EQ Preset</source>
+        <translation>Guardar preajuste de ecualizador</translation>
+    </message>
+    <message>
+        <source>Preset name</source>
+        <translation>Nombre del preajuste</translation>
+    </message>
+    <message>
+        <source>The preset was not saved: it needs a name that is not a factory preset</source>
+        <translation>El preajuste no se guardó: necesita un nombre que no sea el de uno incluido</translation>
+    </message>
+    <message>
+        <source>Delete Preset</source>
+        <translation>Eliminar preajuste</translation>
+    </message>
+    <message>
+        <source>Delete one of your own presets</source>
+        <translation>Eliminar uno de tus preajustes</translation>
     </message>
 </context>
 <context>
@@ -22198,6 +22346,62 @@ Importar archivos con %1 o soltarlos aquí.</translation>
     <message>
         <source>Measure the whole mix of this channel and move its fader by one gain so it reaches a loudness or peak target</source>
         <translation>Mide toda la mezcla de este canal y mueve su fader una sola ganancia hasta alcanzar un objetivo de sonoridad o de pico</translation>
+    </message>
+    <message>
+        <source>Sends</source>
+        <translation>Envíos</translation>
+    </message>
+    <message>
+        <source>Sends: copies of this channel&apos;s signal into buses, with a level, a pan and Pre / Post fader; lit when it has an enabled send. Click to edit</source>
+        <translation>Envíos: copias de la señal de este canal a buses, con nivel, panorama y Pre/Post fader; se ilumina si hay un envío activo. Haz clic para editar</translation>
+    </message>
+    <message>
+        <source>Phase Invert: flips the polarity of the signal before the effects (both channels; right-click to choose Left or Right)</source>
+        <translation>Invertir fase: invierte la polaridad de la señal antes de los efectos (ambos canales; clic derecho para elegir izquierdo o derecho)</translation>
+    </message>
+    <message>
+        <source>Invert Left</source>
+        <translation>Invertir izquierdo</translation>
+    </message>
+    <message>
+        <source>Invert Right</source>
+        <translation>Invertir derecho</translation>
+    </message>
+    <message>
+        <source>Aux</source>
+        <translation>Aux</translation>
+    </message>
+    <message>
+        <source>Aux bus: its input comes from sends only (tracks cannot be routed to it)</source>
+        <translation>Bus aux: su entrada viene solo de envíos (no se pueden enrutar pistas a él)</translation>
+    </message>
+    <message>
+        <source>Make Aux Bus</source>
+        <translation>Convertir en bus aux</translation>
+    </message>
+    <message>
+        <source>Make Normal Bus</source>
+        <translation>Convertir en bus normal</translation>
+    </message>
+    <message>
+        <source>Phase Invert</source>
+        <translation>Invertir fase</translation>
+    </message>
+    <message>
+        <source>Aux bus: tracks reach it with a send, not a route</source>
+        <translation>Bus aux: las pistas llegan a él con un envío, no con una ruta</translation>
+    </message>
+    <message>
+        <source>Aux Bus (send only)</source>
+        <translation>Bus aux (solo envíos)</translation>
+    </message>
+    <message>
+        <source>An aux bus takes its input from sends only: tracks cannot be routed to it. The main bus and the output bus cannot be aux buses</source>
+        <translation>Un bus aux recibe su entrada solo de envíos: no se pueden enrutar pistas a él. El bus principal y el de salida no pueden ser buses aux</translation>
+    </message>
+    <message>
+        <source>Input: the tracks routed to this bus, and sends to it</source>
+        <translation>Entrada: las pistas enrutadas a este bus y los envíos a él</translation>
     </message>
 </context>
 <context>
@@ -34845,6 +35049,132 @@ Los clips, marcadores y efectos se mantienen en el mismo momento y los fotograma
     <message>
         <source> LUFS</source>
         <translation> LUFS</translation>
+    </message>
+</context>
+<context>
+    <name>kk::EqPresets</name>
+    <message>
+        <source>Flat</source>
+        <translation>Plano</translation>
+    </message>
+    <message>
+        <source>Voice</source>
+        <translation>Voz</translation>
+    </message>
+    <message>
+        <source>Music</source>
+        <translation>Música</translation>
+    </message>
+    <message>
+        <source>Telephone</source>
+        <translation>Teléfono</translation>
+    </message>
+    <message>
+        <source>Rumble Cut</source>
+        <translation>Corte de retumbo</translation>
+    </message>
+    <message>
+        <source>De-Mud</source>
+        <translation>Quitar turbidez</translation>
+    </message>
+    <message>
+        <source>Podcast Voice</source>
+        <translation>Voz de pódcast</translation>
+    </message>
+</context>
+<context>
+    <name>kk::SendsWindow</name>
+    <message>
+        <source>No sends yet. Choose a bus below and press Add.</source>
+        <translation>Aún no hay envíos. Elige un bus abajo y pulsa Añadir.</translation>
+    </message>
+    <message>
+        <source>A send copies this channel&apos;s signal into another bus</source>
+        <translation>Un envío copia la señal de este canal a otro bus</translation>
+    </message>
+    <message>
+        <source>Buses this channel can send to; a bus that would make a loop is not listed</source>
+        <translation>Buses a los que este canal puede enviar; no se muestra un bus que haría un bucle</translation>
+    </message>
+    <message>
+        <source>Add Send</source>
+        <translation>Añadir envío</translation>
+    </message>
+    <message>
+        <source>Add a send to the chosen bus</source>
+        <translation>Añadir un envío al bus elegido</translation>
+    </message>
+    <message>
+        <source>Switch this send on or off</source>
+        <translation>Activar o desactivar este envío</translation>
+    </message>
+    <message>
+        <source> dB</source>
+        <translation> dB</translation>
+    </message>
+    <message>
+        <source>Send level in dB</source>
+        <translation>Nivel del envío en dB</translation>
+    </message>
+    <message>
+        <source>Post</source>
+        <translation>Post</translation>
+    </message>
+    <message>
+        <source>Pre</source>
+        <translation>Pre</translation>
+    </message>
+    <message>
+        <source>Post: the signal after the fader and pan. Pre: the signal before them, so the fader does not change the send</source>
+        <translation>Post: la señal después del fader y el panorama. Pre: la señal antes de ellos, así que el fader no cambia el envío</translation>
+    </message>
+    <message>
+        <source> %</source>
+        <translation> %</translation>
+    </message>
+    <message>
+        <source>Send pan: -100 % left, 0 centre, +100 % right</source>
+        <translation>Panorama del envío: -100 % izquierda, 0 centro, +100 % derecha</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>Quitar</translation>
+    </message>
+    <message>
+        <source>Remove this send</source>
+        <translation>Quitar este envío</translation>
+    </message>
+    <message>
+        <source>Enable Send</source>
+        <translation>Activar envío</translation>
+    </message>
+    <message>
+        <source>Disable Send</source>
+        <translation>Desactivar envío</translation>
+    </message>
+    <message>
+        <source>Send Level</source>
+        <translation>Nivel de envío</translation>
+    </message>
+    <message>
+        <source>Send Pre Fader</source>
+        <translation>Envío pre fader</translation>
+    </message>
+    <message>
+        <source>Send Post Fader</source>
+        <translation>Envío post fader</translation>
+    </message>
+    <message>
+        <source>Send Pan</source>
+        <translation>Panorama de envío</translation>
+    </message>
+    <message>
+        <source>Remove Send</source>
+        <translation>Quitar envío</translation>
+    </message>
+    <message>
+        <source>Sends - %1</source>
+        <translation>Envíos - %1</translation>
     </message>
 </context>
 </TS>

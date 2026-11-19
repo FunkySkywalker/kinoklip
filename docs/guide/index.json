@@ -353,6 +353,32 @@
       ]
     },
     {
+      "id": "send-tracks-to-a-bus-flip-phase-and-eq-presets",
+      "title": "Send tracks to a bus, flip the phase and use EQ presets",
+      "file": "send-tracks-to-a-bus-flip-phase-and-eq-presets.md",
+      "summary": "Send a track to a reverb or group bus with a level and Pre / Post fader, flip a strip's phase, and set the equalizer from a preset such as Voice or Telephone.",
+      "keywords": [
+        "sends",
+        "aux bus",
+        "aux send",
+        "bus",
+        "reverb send",
+        "submix",
+        "group bus",
+        "pan",
+        "phase invert",
+        "polarity",
+        "eq presets",
+        "equalizer preset",
+        "telephone voice",
+        "rumble"
+      ],
+      "contexts": [
+        "page:audio",
+        "panel:mixer"
+      ]
+    },
+    {
       "id": "remove-noise-from-a-clip",
       "title": "Remove background noise from a clip",
       "file": "remove-noise-from-a-clip.md",

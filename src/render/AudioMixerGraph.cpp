@@ -15,6 +15,15 @@ namespace {
 /// its filter tails have died away and its processing can be skipped.
 constexpr float kQuietPeak = 1e-6f;
 
+bool sendsTo(const ChannelStrip& strip, int busId)
+{
+    for (const SendData& d : strip.sends) {
+        if (d.busId == busId)
+            return true;
+    }
+    return false;
+}
+
 void addInto(float* dst, const float* src, size_t count)
 {
     for (size_t i = 0; i < count; ++i)
@@ -45,10 +54,12 @@ void AudioMixer::resetChannels()
         channel->processor.reset();
         channel->effects.reset();
         channel->effectsPrimed = false;
+        channel->sends.clear();
         channel->quiet = true;
     }
     for (auto& [id, channel] : m_busChannels) {
         channel->processor.reset();
+        channel->sends.clear();
         channel->quiet = true;
     }
 }
@@ -136,6 +147,56 @@ void AudioMixer::mixTimeline(const TimelineData& tl, const NestedTimelines& nest
             std::fill_n(channel.keyOut.data(), count, 0.0f);
     };
 
+    // Sends of a strip (spec 137): copies of its signal into the buses it sends to. @p pre is the
+    // signal before the pan and fader (null without Pre sends), @p post the one after them.
+    auto runSends = [&](Channel& channel, const ChannelStrip& strip, const float* pre,
+                        const float* post) {
+        for (const SendData& send : strip.sends) {
+            const int b = mixerops::busIndex(mixer, send.busId);
+            if (b < 0 || (m_busState[size_t(b)] & kDone))
+                continue; // unknown, or already mixed down (a loop in a damaged file)
+            const float* src = send.preFader ? pre : post;
+            if (!src)
+                continue;
+            auto it = std::find_if(channel.sends.begin(), channel.sends.end(),
+                [&](const dsp::SendGainState& g) { return g.busId == send.busId; });
+            if (it == channel.sends.end()) {
+                channel.sends.push_back({});
+                channel.sends.back().busId = send.busId;
+                it = channel.sends.end() - 1;
+            }
+            float left = 0.0f, right = 0.0f;
+            if (send.enabled) {
+                panGains(send.pan, left, right);
+                const float gain = dbToGain(send.levelDb);
+                left *= gain;
+                right *= gain;
+            }
+            dsp::addSend(m_busBuffers[size_t(b)].data(), src, frames, left, right, *it);
+            if (b < 32)
+                fedBuses |= 1u << b;
+        }
+    };
+    auto hasPreSend = [](const ChannelStrip& strip) {
+        return std::any_of(strip.sends.begin(), strip.sends.end(),
+            [](const SendData& d) { return d.preFader; });
+    };
+    // Copies the strip's signal to the send scratch buffer when it has Pre sends.
+    auto keepPre = [&](const ChannelStrip& strip, const float* signal) -> const float* {
+        if (!hasPreSend(strip))
+            return nullptr;
+        if (m_sendPre.size() < count)
+            m_sendPre.resize(count);
+        std::copy_n(signal, count, m_sendPre.data());
+        return m_sendPre.data();
+    };
+    auto peakOf = [&](const float* signal) {
+        float peak = 0.0f;
+        for (size_t i = 0; i < count; ++i)
+            peak = std::max(peak, std::abs(signal[i]));
+        return peak;
+    };
+
     // Processes track (@p isBus false) or bus @p index once; returns the channel for keys.
     auto process = [&](auto& self, bool isBus, int index) -> void {
         unsigned char& state = isBus ? m_busState[size_t(index)] : m_trackState[size_t(index)];
@@ -185,6 +246,8 @@ void AudioMixer::mixTimeline(const TimelineData& tl, const NestedTimelines& nest
                 std::fill_n(m_trackPrimeBuffer.data(), size_t(latency) * kChannels, 0.0f);
                 primeSounds = mixTrackClips(
                     tl, nested, track, startSample48k, latency, m_trackPrimeBuffer.data());
+                dsp::invertPhase(m_trackPrimeBuffer.data(), latency, track.mix.strip.invertLeft,
+                    track.mix.strip.invertRight);
             }
             // The key sources are processed before this point, so one scratch buffer is enough.
             if (m_trackBuffer.size() < count)
@@ -193,6 +256,9 @@ void AudioMixer::mixTimeline(const TimelineData& tl, const NestedTimelines& nest
             std::fill_n(trackBuffer, count, 0.0f);
             const bool sounding = wanted
                 && mixTrackClips(tl, nested, track, startSample48k + latency, frames, trackBuffer);
+            // Phase Invert comes first, before the effect slots (spec 137).
+            dsp::invertPhase(
+                trackBuffer, frames, track.mix.strip.invertLeft, track.mix.strip.invertRight);
             if (!sounding && !primeSounds && channel.quiet) {
                 channel.effectsPrimed = false;
                 if (isKey)
@@ -214,6 +280,8 @@ void AudioMixer::mixTimeline(const TimelineData& tl, const NestedTimelines& nest
 
             proc.setStrip(track.mix.strip);
             proc.processInserts(trackBuffer, frames, track.mix.mono, key);
+            const float* pre = keepPre(track.mix.strip, trackBuffer);
+            const float preLevel = pre ? peakOf(pre) : 0.0f;
             proc.applyGains(trackBuffer, frames, [&](int offset) {
                 const double frame = double(startSample48k + offset) * framesPerSample;
                 dsp::ChannelGains g;
@@ -230,7 +298,9 @@ void AudioMixer::mixTimeline(const TimelineData& tl, const NestedTimelines& nest
                 level->peak[1] = proc.peak(1);
                 level->gainReductionDb = proc.gainReductionDb();
             }
-            channel.quiet = !sounding && proc.peak(0) < kQuietPeak && proc.peak(1) < kQuietPeak;
+            runSends(channel, track.mix.strip, pre, trackBuffer);
+            channel.quiet = !sounding && proc.peak(0) < kQuietPeak && proc.peak(1) < kQuietPeak
+                && preLevel < kQuietPeak;
             if (channel.quiet) {
                 proc.resetInserts(); // tails are gone: start clean when a clip plays again
                 channel.effects.reset();
@@ -249,8 +319,14 @@ void AudioMixer::mixTimeline(const TimelineData& tl, const NestedTimelines& nest
             const BusData& bus = mixer.buses[size_t(index)];
             // Every track routed to the bus first.
             for (int i = 0; i < trackCount; ++i) {
-                if (tl.audioTracks[size_t(i)].mix.buses.contains(bus.id))
+                const TrackData& source = tl.audioTracks[size_t(i)];
+                if (source.mix.buses.contains(bus.id) || sendsTo(source.mix.strip, bus.id))
                     self(self, false, i);
+            }
+            // ... and every bus that sends to it (a bus feed, spec 137).
+            for (int j = 0; j < busCount; ++j) {
+                if (j != index && sendsTo(mixer.buses[size_t(j)].strip, bus.id))
+                    self(self, true, j);
             }
             Channel& channel = busChannel(bus.id);
             channel.lastUsedMs = now;
@@ -268,11 +344,16 @@ void AudioMixer::mixTimeline(const TimelineData& tl, const NestedTimelines& nest
                 return;
             }
             float* buffer = m_busBuffers[size_t(index)].data();
+            dsp::invertPhase(buffer, frames, bus.strip.invertLeft, bus.strip.invertRight);
             proc.setStrip(bus.strip);
             proc.processInserts(buffer, frames, bus.mono, key);
+            const float* pre = keepPre(bus.strip, buffer);
+            const float preLevel = pre ? peakOf(pre) : 0.0f;
             const float gain = bus.strip.muted ? 0.0f : dbToGain(bus.strip.volumeDb);
-            proc.applyGains(
-                buffer, frames, [gain](int) { return dsp::ChannelGains {gain, 1.0f, 1.0f}; });
+            float panLeft = 1.0f, panRight = 1.0f;
+            panGains(bus.strip.pan, panLeft, panRight);
+            proc.applyGains(buffer, frames,
+                [&](int) { return dsp::ChannelGains {gain, panLeft, panRight}; });
             if (isKey)
                 storeKey(channel, buffer);
             if (m_tapDest && m_tap.isBus() && m_tap.id == quint64(bus.id))
@@ -282,7 +363,9 @@ void AudioMixer::mixTimeline(const TimelineData& tl, const NestedTimelines& nest
                 level->peak[1] = proc.peak(1);
                 level->gainReductionDb = proc.gainReductionDb();
             }
-            channel.quiet = !fed && proc.peak(0) < kQuietPeak && proc.peak(1) < kQuietPeak;
+            runSends(channel, bus.strip, pre, buffer);
+            channel.quiet = !fed && proc.peak(0) < kQuietPeak && proc.peak(1) < kQuietPeak
+                && preLevel < kQuietPeak;
             if (channel.quiet)
                 proc.resetInserts();
         }

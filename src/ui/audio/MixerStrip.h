@@ -26,6 +26,7 @@ class LevelMeter;
 class MeterModel;
 class MixerController;
 class PanKnob;
+class SendsWindow;
 
 /// A vertical channel strip for a track or a bus (top to bottom, Resolve's order): input,
 /// EQ and Dynamics buttons (lit when on; a click opens the small editor window), bus
@@ -60,6 +61,10 @@ public:
     [[nodiscard]] QToolButton* soloButton() const { return m_solo; }
     [[nodiscard]] QToolButton* armButton() const { return m_arm; }
     [[nodiscard]] QToolButton* busButton() const { return m_bus; }
+    /// The "Sends" button (lit when the strip has an enabled send; opens the sends window) and
+    /// the Phase Invert button (Ø, spec 137).
+    [[nodiscard]] QToolButton* sendsButton() const { return m_sends; }
+    [[nodiscard]] QToolButton* invertButton() const { return m_invert; }
     [[nodiscard]] QComboBox* automationCombo() const { return m_automation; }
     /// The "+" button of the Effects section (tracks only; nullptr on buses).
     [[nodiscard]] QToolButton* addEffectButton() const { return m_addEffect; }
@@ -75,6 +80,9 @@ public:
     /// Opens (or raises) the EQ / dynamics window of this strip.
     EqWindow* openEq();
     DynamicsWindow* openDynamics();
+    SendsWindow* openSends();
+    /// Phase Invert: sets the left / right channel (one undo step).
+    void setInvert(bool left, bool right);
 
     /// Re-reads the strip's values at timeline frame @p frame.
     void refresh(int64_t frame);
@@ -119,6 +127,8 @@ private:
     QToolButton* m_eq = nullptr;
     QToolButton* m_dynamics = nullptr;
     QToolButton* m_bus = nullptr;
+    QToolButton* m_sends = nullptr;
+    QToolButton* m_invert = nullptr;
     PanKnob* m_pan = nullptr;
     QComboBox* m_automation = nullptr;
     QToolButton* m_addEffect = nullptr;
@@ -138,6 +148,7 @@ private:
     int64_t m_frame = 0; ///< frame of the last refresh()
     QPointer<EqWindow> m_eqWindow;
     QPointer<DynamicsWindow> m_dynamicsWindow;
+    QPointer<SendsWindow> m_sendsWindow;
 };
 
 } // namespace kk

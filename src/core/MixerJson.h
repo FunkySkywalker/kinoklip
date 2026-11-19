@@ -15,6 +15,11 @@ struct TrackData;
 
 namespace kk::serialization {
 
+/// Encodes the equalizer settings (all bands).
+[[nodiscard]] QJsonObject eqToJson(const EqSettings& settings);
+/// Decodes eqToJson(); missing fields keep their defaults (values are not clamped here).
+[[nodiscard]] EqSettings eqFromJson(const QJsonObject& json);
+
 /// Encodes a channel strip (only the non-default fields; {} for a default strip).
 [[nodiscard]] QJsonObject stripToJson(const ChannelStrip& strip);
 /// Decodes stripToJson(); missing fields keep their defaults, values are clamped.

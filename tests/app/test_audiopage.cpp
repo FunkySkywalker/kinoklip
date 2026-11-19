@@ -7,6 +7,7 @@
 #include "app/Theme.h"
 #include "app/pages/AudioPage.h"
 #include "app/pages/EditPage.h"
+#include "core/EqPresets.h"
 #include "core/MixerOps.h"
 #include "core/Project.h"
 #include "core/SelectionModel.h"
@@ -21,6 +22,7 @@
 #include "ui/audio/MixerController.h"
 #include "ui/audio/MixerPanel.h"
 #include "ui/audio/MixerStrip.h"
+#include "ui/audio/SendsWindow.h"
 #include "ui/common/ActionRegistry.h"
 #include "ui/common/AppContext.h"
 #include "ui/common/Resources.h"
@@ -38,13 +40,16 @@
 #include <QLabel>
 #include <QMenu>
 #include <QMouseEvent>
+#include <QPushButton>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QTemporaryDir>
 #include <QTest>
 #include <QToolButton>
 #include <QUndoStack>
 
 #include <memory>
+#include <optional>
 
 using namespace kk;
 
@@ -549,6 +554,140 @@ private slots:
         const MeterReading later = model->track(f.a1());
         QVERIFY(later.levelDb[0] < r.levelDb[0]);
         QCOMPARE(later.holdDb[0], r.holdDb[0]);
+    }
+
+    // 137: sends, aux buses, bus pan, Phase Invert and EQ presets on the strip.
+    void sendsInvertBusPanAndEqPresets()
+    {
+        QTemporaryDir config;
+        QVERIFY(config.isValid());
+        eqpresets::setConfigDirectoryForTests(config.path());
+        Fixture f;
+        f.showAudio();
+        f.project.beginEdit(QStringLiteral("Add buses"));
+        const int aux = mixerops::addBus(f.project.timeline()->mutableData(), false, {}, true);
+        const int sub = mixerops::addBus(f.project.timeline()->mutableData(), false, {}, false);
+        f.project.endEdit();
+        QCoreApplication::processEvents();
+        MixerStrip* a1 = f.strip(MixTarget::track(f.a1()));
+        QVERIFY(a1->sendsButton() && a1->invertButton());
+        QVERIFY(!a1->sendsButton()->toolTip().isEmpty());
+        QVERIFY(!a1->invertButton()->toolTip().isEmpty());
+
+        // Phase Invert: one undo step, lit, undone.
+        int steps = f.project.undoStack()->index();
+        a1->invertButton()->click();
+        QCOMPARE(f.project.undoStack()->index(), steps + 1);
+        QVERIFY(f.data().audioTracks[0].mix.strip.invertLeft
+            && f.data().audioTracks[0].mix.strip.invertRight);
+        QVERIFY(a1->invertButton()->isChecked());
+        f.project.undo();
+        QVERIFY(!f.data().audioTracks[0].mix.strip.invertLeft);
+        QVERIFY(!a1->invertButton()->isChecked());
+
+        // Sends window: every control has a tooltip; add / edit / remove are undo steps.
+        SendsWindow* w = a1->openSends();
+        QVERIFY(w);
+        QVERIFY(!w->addCombo()->toolTip().isEmpty() && !w->addButton()->toolTip().isEmpty());
+        QVERIFY(w->addCombo()->findData(aux) >= 0 && w->addCombo()->findData(sub) >= 0);
+        w->addCombo()->setCurrentIndex(w->addCombo()->findData(aux));
+        steps = f.project.undoStack()->index();
+        w->addButton()->click();
+        QCOMPARE(f.project.undoStack()->index(), steps + 1);
+        QCOMPARE(w->rowCount(), 1);
+        QVERIFY(a1->sendsButton()->isChecked());
+        QVERIFY(w->addCombo()->findData(aux) < 0); // one send per bus
+        int controls = 0;
+        for (QWidget* c : w->findChildren<QWidget*>()) {
+            if (qobject_cast<QDoubleSpinBox*>(c) || qobject_cast<QCheckBox*>(c)
+                || qobject_cast<QComboBox*>(c) || qobject_cast<QPushButton*>(c)) {
+                ++controls;
+                QVERIFY2(!c->toolTip().isEmpty(), qPrintable(c->objectName()));
+            }
+        }
+        QVERIFY(controls >= 7);
+        auto* level = w->findChild<QDoubleSpinBox*>(QStringLiteral("SendLevel"));
+        auto* mode = w->findChild<QComboBox*>(QStringLiteral("SendMode"));
+        auto* pan = w->findChild<QDoubleSpinBox*>(QStringLiteral("SendPan"));
+        auto* on = w->findChild<QCheckBox*>(QStringLiteral("SendOn"));
+        QVERIFY(level && mode && pan && on);
+        steps = f.project.undoStack()->index();
+        level->setValue(-6.0);
+        QCOMPARE(f.project.undoStack()->index(), steps + 1);
+        QCOMPARE(f.data().audioTracks[0].mix.strip.sends[0].levelDb, -6.0);
+        mode->setCurrentIndex(1);
+        emit mode->activated(1);
+        QVERIFY(f.data().audioTracks[0].mix.strip.sends[0].preFader);
+        pan->setValue(50.0);
+        QCOMPARE(f.data().audioTracks[0].mix.strip.sends[0].pan, 0.5);
+        on->setChecked(false);
+        QVERIFY(!f.data().audioTracks[0].mix.strip.sends[0].enabled);
+        QVERIFY(!a1->sendsButton()->isChecked());
+        QCOMPARE(f.project.undoStack()->index(), steps + 4);
+        f.project.undo();
+        QVERIFY(f.data().audioTracks[0].mix.strip.sends[0].enabled);
+        w->findChild<QPushButton*>(QStringLiteral("SendRemove"))->click();
+        QVERIFY(f.data().audioTracks[0].mix.strip.sends.isEmpty());
+        QCOMPARE(w->rowCount(), 0);
+
+        // Loops are not offered: bus "sub" sends to the aux bus, so the aux bus cannot send to sub.
+        steps = f.project.undoStack()->index();
+        QVERIFY(f.strip(MixTarget::bus(sub))->openSends()->addSendTo(aux));
+        QCOMPARE(f.project.undoStack()->index(), steps + 1);
+        SendsWindow* auxWindow = f.strip(MixTarget::bus(aux))->openSends();
+        QVERIFY(auxWindow->addCombo()->findData(sub) < 0);
+        QVERIFY(auxWindow->addCombo()->findData(kMainBusId) >= 0);
+        QVERIFY(!auxWindow->addSendTo(sub));
+        QCOMPARE(f.project.undoStack()->index(), steps + 1);
+
+        // Bus pan: the knob exists on a bus strip and is one undo step.
+        MixerStrip* busStrip = f.strip(MixTarget::bus(kMainBusId));
+        QVERIFY(busStrip->panKnob());
+        steps = f.project.undoStack()->index();
+        emit busStrip->panKnob()->valueRequested(0.5);
+        QCOMPARE(f.project.undoStack()->index(), steps + 1);
+        QCOMPARE(f.data().mixer.buses[0].strip.pan, 0.5);
+        f.project.undo();
+        QCOMPARE(f.data().mixer.buses[0].strip.pan, 0.0);
+
+        // EQ presets: one undo step; user presets can be saved and deleted.
+        EqWindow* eq = a1->openEq();
+        QVERIFY(eq->presetButton() && !eq->presetButton()->toolTip().isEmpty());
+        const EqSettings before = f.data().audioTracks[0].mix.strip.eq;
+        steps = f.project.undoStack()->index();
+        QVERIFY(eq->applyPreset(QStringLiteral("Telephone")));
+        QCOMPARE(f.project.undoStack()->index(), steps + 1);
+        QCOMPARE(f.data().audioTracks[0].mix.strip.eq,
+            eqpresets::find(QStringLiteral("Telephone")).eq);
+        f.project.undo();
+        QCOMPARE(f.data().audioTracks[0].mix.strip.eq, before);
+        QVERIFY(!eq->applyPreset(QStringLiteral("No such preset")));
+        QVERIFY(eq->applyPreset(QStringLiteral("Voice")));
+        eq->setNamePrompt([] { return std::optional<QString>(QStringLiteral("Mine")); });
+        QMenu* menu = eq->presetButton()->menu();
+        emit menu->aboutToShow();
+        QStringList texts;
+        QAction* save = nullptr;
+        QAction* voice = nullptr;
+        for (QAction* a : menu->actions()) {
+            texts << a->text();
+            if (a->text().startsWith(QStringLiteral("Save as Preset")))
+                save = a;
+            if (a->text() == QStringLiteral("Voice"))
+                voice = a;
+            if (!a->isSeparator())
+                QVERIFY2(!a->toolTip().isEmpty() || a->menu(), qPrintable(a->text()));
+        }
+        QVERIFY(save && voice);
+        QVERIFY(texts.contains(QStringLiteral("Podcast Voice")));
+        save->trigger();
+        QCOMPARE(eqpresets::userPresets().size(), 1);
+        QVERIFY(eq->applyPreset(QStringLiteral("Music")));
+        QVERIFY(eq->applyPreset(QStringLiteral("Mine")));
+        QCOMPARE(f.data().audioTracks[0].mix.strip.eq, eqpresets::find(QStringLiteral("Voice")).eq);
+        QVERIFY(eq->deletePreset(QStringLiteral("Mine")));
+        QVERIFY(eqpresets::userPresets().isEmpty());
+        eqpresets::setConfigDirectoryForTests({});
     }
 
     void scalesAreMonotonicAndInvertible()

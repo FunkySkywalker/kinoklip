@@ -191,11 +191,11 @@ Beginner and intermediate tutorial workflows for Resolve's Color, Fairlight and 
 - [ ] Audio: Voice Isolation button on a track and in the Inspector (local open model, optional)
 - [x] Audio: Gate and Expander (with hold, hysteresis and key filters) in the Dynamics window, a De-Esser effect, and a Dialogue Leveler (spec 136)
 - [x] Audio: sidechain input on the compressor and gate (key from another track or bus, loops refused) for ducking music under a voice (spec 136)
-- [ ] Audio: Sends (level, Pre / Post fader) to buses and aux buses, bus-to-bus feeds, and a bus Pan
+- [x] Audio: Sends (level, Pre / Post fader, pan) to buses and aux buses, bus-to-bus feeds with loops refused, and a bus Pan (spec 137)
 - [ ] Audio: automation lane under a track with Volume, Pan and effect parameter curves, plus Latch and Trim modes
 - [x] Audio: loudness meter standards and targets (-14 YouTube, -16, -23 EBU R128, ATSC), Loudness Range (LRA) and a history graph, and normalize to a loudness target when rendering (spec 134)
 - [ ] Audio: Chorus, Flanger, Distortion and Stereo Width effects, and Reverb with Pre-delay, Decay and room presets
-- [ ] Audio: EQ presets (voice, music, telephone) and a Phase Invert button on the strip
+- [x] Audio: EQ presets (voice, music, telephone, your own) and a Phase Invert button on the strip (spec 137)
 - [ ] Audio: Spectrum analyzer and Phase / correlation meters, and monitor controls (Dim, Mono, Mute) on the Audio page
 - [ ] Color: Primaries Shad, Hi, Color Boost, Midtone Detail and Auto Color buttons, and a Log palette (Shadow, Midtone, Highlight, Offset wheels with Low / High range)
 - [ ] Color: Curves: Sat vs Lum curve, Soft Clip, and picking a colour or luma from the viewer to add curve points

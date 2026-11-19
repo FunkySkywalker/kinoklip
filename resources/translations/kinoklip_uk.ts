@@ -16235,6 +16235,106 @@ Thank you for watching</source>
         <source>Resolve FX Transitions</source>
         <translation>Переходи Resolve FX</translation>
     </message>
+    <message>
+        <source>De-Esser</source>
+        <translation>Де-ессер</translation>
+    </message>
+    <message>
+        <source>Soften harsh s and sh sounds in speech</source>
+        <translation>Пом'якшує різкі звуки «с» і «ш» у мовленні</translation>
+    </message>
+    <message>
+        <source>The middle of the sound that is lowered: about 5000 for a deep voice, 7000 for a high one.</source>
+        <translation>Середина звуку, який знижується: близько 5000 для низького голосу, 7000 для високого.</translation>
+    </message>
+    <message>
+        <source>The most the hissing sound is made quieter.</source>
+        <translation>Наскільки максимум стає тихішим шиплячий звук.</translation>
+    </message>
+    <message>
+        <source>How strongly the hissing sound is held back. 0 does nothing; higher takes more off every s.</source>
+        <translation>Наскільки сильно стримується шиплячий звук. 0 нічого не робить; більше — прибирає більше з кожного «с».</translation>
+    </message>
+    <message>
+        <source>Reaction Time</source>
+        <translation>Час реакції</translation>
+    </message>
+    <message>
+        <source>How fast the reduction lets go after an s. Short is more exact, long is smoother.</source>
+        <translation>Як швидко зниження відпускає після «с». Коротке точніше, довге плавніше.</translation>
+    </message>
+    <message>
+        <source>Listen</source>
+        <translation>Прослухати</translation>
+    </message>
+    <message>
+        <source>Hear only the band that is being watched, to set the Frequency by ear. Switch it off again before you render.</source>
+        <translation>Чути лише контрольовану смугу, щоб налаштувати частоту на слух. Вимкніть перед рендером.</translation>
+    </message>
+    <message>
+        <source>Dialogue Leveler</source>
+        <translation>Вирівнювач діалогу</translation>
+    </message>
+    <message>
+        <source>Even out how loud the speech is, quiet words up and loud words down</source>
+        <translation>Вирівнює гучність мовлення: тихі слова гучніше, гучні тихіше</translation>
+    </message>
+    <message>
+        <source>Target</source>
+        <translation>Ціль</translation>
+    </message>
+    <message>
+        <source>The level the speech is brought to (average level of about a tenth of a second).</source>
+        <translation>Рівень, до якого наближується мовлення (середній рівень приблизно за соту частку секунди).</translation>
+    </message>
+    <message>
+        <source>Max Gain Up</source>
+        <translation>Макс. підсилення вгору</translation>
+    </message>
+    <message>
+        <source>The most quiet speech is raised.</source>
+        <translation>Наскільки максимум піднімається тихе мовлення.</translation>
+    </message>
+    <message>
+        <source>Max Gain Down</source>
+        <translation>Макс. зниження вниз</translation>
+    </message>
+    <message>
+        <source>The most loud speech is lowered.</source>
+        <translation>Наскільки максимум знижується гучне мовлення.</translation>
+    </message>
+    <message>
+        <source>Slow</source>
+        <translation>Повільно</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Середня</translation>
+    </message>
+    <message>
+        <source>Fast</source>
+        <translation>Швидко</translation>
+    </message>
+    <message>
+        <source>How fast the level follows the speech. Slow sounds natural, Fast evens out single words.</source>
+        <translation>Як швидко рівень слідує за мовленням. Повільно звучить природно, швидко вирівнює окремі слова.</translation>
+    </message>
+    <message>
+        <source>Noise Floor</source>
+        <translation>Рівень шуму</translation>
+    </message>
+    <message>
+        <source>Sound quieter than this is not speech and is never raised: breaths, pauses and room noise stay as they are.</source>
+        <translation>Звук тихіший за це не вважається мовленням і ніколи не піднімається: дихання, паузи й шум кімнати лишаються як є.</translation>
+    </message>
+    <message>
+        <source>Background Reduction</source>
+        <translation>Зниження фону</translation>
+    </message>
+    <message>
+        <source>Optional: lower everything that is not speech by up to this much. 0 is off.</source>
+        <translation>За бажанням: знижує все, що не є мовленням, щонайбільше на це значення. 0 — вимкнено.</translation>
+    </message>
 </context>
 <context>
     <name>kk::EffectsLibraryPanel</name>
@@ -16441,6 +16541,54 @@ Standard transition of this project</source>
     <message>
         <source>EQ - %1</source>
         <translation>EQ - %1</translation>
+    </message>
+    <message>
+        <source>Presets</source>
+        <translation>Пресети</translation>
+    </message>
+    <message>
+        <source>Equalizer presets: Voice, Music, Telephone and more, or your own. Choosing one replaces all bands (one undo step)</source>
+        <translation>Пресети еквалайзера: голос, музика, телефон та інші або власні. Вибір замінює всі смуги (один крок скасування)</translation>
+    </message>
+    <message>
+        <source>EQ Preset</source>
+        <translation>Пресет еквалайзера</translation>
+    </message>
+    <message>
+        <source>Replace the equalizer with this preset</source>
+        <translation>Замінити еквалайзер цим пресетом</translation>
+    </message>
+    <message>
+        <source>Your preset: replace the equalizer with it</source>
+        <translation>Ваш пресет: замінити ним еквалайзер</translation>
+    </message>
+    <message>
+        <source>Save as Preset…</source>
+        <translation>Зберегти як пресет…</translation>
+    </message>
+    <message>
+        <source>Keep the current equalizer settings as a preset of your own</source>
+        <translation>Зберегти поточні налаштування еквалайзера як власний пресет</translation>
+    </message>
+    <message>
+        <source>Save EQ Preset</source>
+        <translation>Зберегти пресет еквалайзера</translation>
+    </message>
+    <message>
+        <source>Preset name</source>
+        <translation>Назва пресета</translation>
+    </message>
+    <message>
+        <source>The preset was not saved: it needs a name that is not a factory preset</source>
+        <translation>Пресет не збережено: потрібна назва, якої немає серед вбудованих пресетів</translation>
+    </message>
+    <message>
+        <source>Delete Preset</source>
+        <translation>Видалити пресет</translation>
+    </message>
+    <message>
+        <source>Delete one of your own presets</source>
+        <translation>Видалити один зі своїх пресетів</translation>
     </message>
 </context>
 <context>
@@ -22216,6 +22364,62 @@ Import files with %1 or drop them here.</source>
     <message>
         <source>Measure the whole mix of this channel and move its fader by one gain so it reaches a loudness or peak target</source>
         <translation>Виміряти весь мікс цього каналу й зсунути його фейдер на одне значення, щоб досягти цілі за гучністю чи піком</translation>
+    </message>
+    <message>
+        <source>Sends</source>
+        <translation>Посили</translation>
+    </message>
+    <message>
+        <source>Sends: copies of this channel&apos;s signal into buses, with a level, a pan and Pre / Post fader; lit when it has an enabled send. Click to edit</source>
+        <translation>Посили: копії сигналу цього каналу в шини з рівнем, панорамою та Pre/Post-фейдером; світиться, якщо є увімкнений посил. Натисніть, щоб налаштувати</translation>
+    </message>
+    <message>
+        <source>Phase Invert: flips the polarity of the signal before the effects (both channels; right-click to choose Left or Right)</source>
+        <translation>Інверсія фази: перевертає полярність сигналу перед ефектами (обидва канали; правий клік — лише лівий або правий)</translation>
+    </message>
+    <message>
+        <source>Invert Left</source>
+        <translation>Інвертувати лівий</translation>
+    </message>
+    <message>
+        <source>Invert Right</source>
+        <translation>Інвертувати правий</translation>
+    </message>
+    <message>
+        <source>Aux</source>
+        <translation>Aux</translation>
+    </message>
+    <message>
+        <source>Aux bus: its input comes from sends only (tracks cannot be routed to it)</source>
+        <translation>Aux-шина: вхід лише від посилів (доріжки не можна спрямувати на неї)</translation>
+    </message>
+    <message>
+        <source>Make Aux Bus</source>
+        <translation>Зробити Aux-шиною</translation>
+    </message>
+    <message>
+        <source>Make Normal Bus</source>
+        <translation>Зробити звичайною шиною</translation>
+    </message>
+    <message>
+        <source>Phase Invert</source>
+        <translation>Інверсія фази</translation>
+    </message>
+    <message>
+        <source>Aux bus: tracks reach it with a send, not a route</source>
+        <translation>Aux-шина: доріжки потрапляють на неї через посил, а не через маршрут</translation>
+    </message>
+    <message>
+        <source>Aux Bus (send only)</source>
+        <translation>Aux-шина (лише посили)</translation>
+    </message>
+    <message>
+        <source>An aux bus takes its input from sends only: tracks cannot be routed to it. The main bus and the output bus cannot be aux buses</source>
+        <translation>Aux-шина отримує вхід лише від посилів: доріжки не можна спрямувати на неї. Головна та вихідна шини не можуть бути Aux-шинами</translation>
+    </message>
+    <message>
+        <source>Input: the tracks routed to this bus, and sends to it</source>
+        <translation>Вхід: доріжки, спрямовані на цю шину, та посили на неї</translation>
     </message>
 </context>
 <context>
@@ -34866,6 +35070,132 @@ Clips, markers and effects stay at the same time and the keyframes are re-timed.
     <message>
         <source> LUFS</source>
         <translation> LUFS</translation>
+    </message>
+</context>
+<context>
+    <name>kk::EqPresets</name>
+    <message>
+        <source>Flat</source>
+        <translation>Плаский</translation>
+    </message>
+    <message>
+        <source>Voice</source>
+        <translation>Голос</translation>
+    </message>
+    <message>
+        <source>Music</source>
+        <translation>Музика</translation>
+    </message>
+    <message>
+        <source>Telephone</source>
+        <translation>Телефон</translation>
+    </message>
+    <message>
+        <source>Rumble Cut</source>
+        <translation>Зріз гулу</translation>
+    </message>
+    <message>
+        <source>De-Mud</source>
+        <translation>Прибрати каламуть</translation>
+    </message>
+    <message>
+        <source>Podcast Voice</source>
+        <translation>Голос для подкасту</translation>
+    </message>
+</context>
+<context>
+    <name>kk::SendsWindow</name>
+    <message>
+        <source>No sends yet. Choose a bus below and press Add.</source>
+        <translation>Посилів ще немає. Виберіть шину нижче й натисніть «Додати».</translation>
+    </message>
+    <message>
+        <source>A send copies this channel&apos;s signal into another bus</source>
+        <translation>Посил копіює сигнал цього каналу в іншу шину</translation>
+    </message>
+    <message>
+        <source>Buses this channel can send to; a bus that would make a loop is not listed</source>
+        <translation>Шини, на які можна надіслати цей канал; шина, що створила б петлю, не показується</translation>
+    </message>
+    <message>
+        <source>Add Send</source>
+        <translation>Додати посил</translation>
+    </message>
+    <message>
+        <source>Add a send to the chosen bus</source>
+        <translation>Додати посил на вибрану шину</translation>
+    </message>
+    <message>
+        <source>Switch this send on or off</source>
+        <translation>Увімкнути або вимкнути цей посил</translation>
+    </message>
+    <message>
+        <source> dB</source>
+        <translation> дБ</translation>
+    </message>
+    <message>
+        <source>Send level in dB</source>
+        <translation>Рівень посилу в дБ</translation>
+    </message>
+    <message>
+        <source>Post</source>
+        <translation>Post</translation>
+    </message>
+    <message>
+        <source>Pre</source>
+        <translation>Pre</translation>
+    </message>
+    <message>
+        <source>Post: the signal after the fader and pan. Pre: the signal before them, so the fader does not change the send</source>
+        <translation>Post: сигнал після фейдера й панорами. Pre: сигнал до них, тому фейдер не змінює посил</translation>
+    </message>
+    <message>
+        <source> %</source>
+        <translation> %</translation>
+    </message>
+    <message>
+        <source>Send pan: -100 % left, 0 centre, +100 % right</source>
+        <translation>Панорама посилу: -100 % ліворуч, 0 центр, +100 % праворуч</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>Видалити</translation>
+    </message>
+    <message>
+        <source>Remove this send</source>
+        <translation>Видалити цей посил</translation>
+    </message>
+    <message>
+        <source>Enable Send</source>
+        <translation>Увімкнути посил</translation>
+    </message>
+    <message>
+        <source>Disable Send</source>
+        <translation>Вимкнути посил</translation>
+    </message>
+    <message>
+        <source>Send Level</source>
+        <translation>Рівень посилу</translation>
+    </message>
+    <message>
+        <source>Send Pre Fader</source>
+        <translation>Посил до фейдера</translation>
+    </message>
+    <message>
+        <source>Send Post Fader</source>
+        <translation>Посил після фейдера</translation>
+    </message>
+    <message>
+        <source>Send Pan</source>
+        <translation>Панорама посилу</translation>
+    </message>
+    <message>
+        <source>Remove Send</source>
+        <translation>Видалити посил</translation>
+    </message>
+    <message>
+        <source>Sends - %1</source>
+        <translation>Посили - %1</translation>
     </message>
 </context>
 </TS>

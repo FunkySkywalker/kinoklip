@@ -84,7 +84,7 @@ QString targetName(const TimelineData& data, const MixTarget& target)
     return {};
 }
 
-int addBus(TimelineData& data, bool mono, const QString& name)
+int addBus(TimelineData& data, bool mono, const QString& name, bool aux)
 {
     BusData b;
     b.id = std::max(data.mixer.nextBusId, kMainBusId + 1);
@@ -93,6 +93,7 @@ int addBus(TimelineData& data, bool mono, const QString& name)
         b.id = std::max(b.id, existing.id + 1);
     b.name = name;
     b.mono = mono;
+    b.aux = aux;
     data.mixer.buses.push_back(b);
     data.mixer.nextBusId = b.id + 1;
     return b.id;
@@ -122,8 +123,12 @@ bool removeBus(TimelineData& data, int busId)
     if (i < 0 || busId == kMainBusId)
         return false;
     data.mixer.buses.erase(data.mixer.buses.begin() + i);
-    for (TrackData& t : data.audioTracks)
+    for (TrackData& t : data.audioTracks) {
         t.mix.buses.removeAll(busId);
+        removeSend(data, MixTarget::track(t.id), busId);
+    }
+    for (BusData& other : data.mixer.buses)
+        removeSend(data, MixTarget::bus(other.id), busId);
     if (data.mixer.outputBus == busId)
         data.mixer.outputBus = kMainBusId;
     return true;
@@ -140,7 +145,8 @@ bool setOutputBus(TimelineData& data, int busId)
 bool setTrackRoute(TimelineData& data, quint64 trackId, int busId, bool on)
 {
     TrackData* t = audioTrack(data, trackId);
-    if (!t || !bus(data, busId) || t->mix.buses.contains(busId) == on)
+    const BusData* target = bus(data, busId);
+    if (!t || !target || t->mix.buses.contains(busId) == on || (on && target->aux))
         return false;
     if (on) {
         t->mix.buses.append(busId);
@@ -211,6 +217,12 @@ struct KeyNode
     quint64 id = 0;
 };
 
+bool hasSendTo(const ChannelStrip& s, int busId)
+{
+    return std::any_of(
+        s.sends.begin(), s.sends.end(), [busId](const SendData& d) { return d.busId == busId; });
+}
+
 /// The key source of node @p n (kind Self when it has none or it is unknown).
 std::pair<KeyKind, quint64> keyOf(const TimelineData& d, KeyNode n)
 {
@@ -220,7 +232,7 @@ std::pair<KeyKind, quint64> keyOf(const TimelineData& d, KeyNode n)
     return {s->dynamics.keyKind, s->dynamics.keyId};
 }
 
-/// True if node @p from depends on node @p target (through keys and bus routes).
+/// True if node @p from depends on node @p target (through keys, bus routes and sends).
 bool dependsOn(const TimelineData& d, KeyNode from, KeyNode target, int depth = 0)
 {
     if (depth > 64)
@@ -229,8 +241,13 @@ bool dependsOn(const TimelineData& d, KeyNode from, KeyNode target, int depth = 
         return true;
     if (from.bus) {
         for (const TrackData& t : d.audioTracks) {
-            if (t.mix.buses.contains(int(from.id))
+            if ((t.mix.buses.contains(int(from.id)) || hasSendTo(t.mix.strip, int(from.id)))
                 && dependsOn(d, {false, t.id}, target, depth + 1))
+                return true;
+        }
+        // Buses that send to this bus feed it (spec 137); every send counts, on or off.
+        for (const BusData& b : d.mixer.buses) {
+            if (hasSendTo(b.strip, int(from.id)) && dependsOn(d, {true, quint64(b.id)}, target, depth + 1))
                 return true;
         }
     }
@@ -260,6 +277,101 @@ bool keySourceAllowed(
     if (self.bus == source.bus && self.id == source.id)
         return false;
     return !dependsOn(data, source, self);
+}
+
+bool sendAllowed(const TimelineData& data, const MixTarget& from, int busId)
+{
+    if (!strip(data, from) || !bus(data, busId))
+        return false;
+    if (from.isBus() && from.id == quint64(busId))
+        return false;
+    // The new edge makes the bus depend on the sender: a loop if the sender already depends
+    // on the bus (through routes, other sends or keys).
+    return !dependsOn(data, KeyNode {from.isBus(), from.id}, KeyNode {true, quint64(busId)});
+}
+
+bool addSend(TimelineData& data, const MixTarget& from, int busId, double levelDb, bool preFader)
+{
+    ChannelStrip* s = strip(data, from);
+    if (!s || hasSendTo(*s, busId) || s->sends.size() >= kMaxSends
+        || !sendAllowed(data, from, busId))
+        return false;
+    SendData d;
+    d.busId = busId;
+    d.levelDb = std::clamp(levelDb, kSendMinDb, kSendMaxDb);
+    d.preFader = preFader;
+    s->sends.append(d);
+    return true;
+}
+
+bool removeSend(TimelineData& data, const MixTarget& from, int busId)
+{
+    ChannelStrip* s = strip(data, from);
+    if (!s)
+        return false;
+    for (int i = 0; i < s->sends.size(); ++i) {
+        if (s->sends[i].busId == busId) {
+            s->sends.removeAt(i);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool updateSend(TimelineData& data, const MixTarget& from, const SendData& value)
+{
+    ChannelStrip* s = strip(data, from);
+    if (!s)
+        return false;
+    for (SendData& d : s->sends) {
+        if (d.busId != value.busId)
+            continue;
+        SendData next = value;
+        next.levelDb = std::clamp(next.levelDb, kSendMinDb, kSendMaxDb);
+        next.pan = std::clamp(next.pan, -1.0, 1.0);
+        if (next == d)
+            return false;
+        d = next;
+        return true;
+    }
+    return false;
+}
+
+bool setBusAux(TimelineData& data, int busId, bool aux)
+{
+    BusData* b = bus(data, busId);
+    if (!b || b->aux == aux || busId == kMainBusId || (aux && data.mixer.outputBus == busId))
+        return false;
+    b->aux = aux;
+    if (aux) {
+        for (TrackData& t : data.audioTracks)
+            t.mix.buses.removeAll(busId);
+    }
+    return true;
+}
+
+bool setStripInvert(TimelineData& data, const MixTarget& target, bool left, bool right)
+{
+    ChannelStrip* s = strip(data, target);
+    if (!s || (s->invertLeft == left && s->invertRight == right))
+        return false;
+    s->invertLeft = left;
+    s->invertRight = right;
+    return true;
+}
+
+bool applyEqPreset(TimelineData& data, const MixTarget& target, const EqSettings& eq)
+{
+    ChannelStrip* s = strip(data, target);
+    if (!s)
+        return false;
+    ChannelStrip next = *s;
+    next.eq = eq;
+    clampStrip(next);
+    if (next.eq == s->eq)
+        return false;
+    s->eq = next.eq;
+    return true;
 }
 
 bool setKeySource(TimelineData& data, const MixTarget& target, KeyKind kind, quint64 sourceId)
@@ -327,6 +439,10 @@ void clampStrip(ChannelStrip& s)
     d.kneeDb = std::clamp(d.kneeDb, 0.0, kDynMaxKneeDb);
     d.limiterCeilingDb = std::clamp(d.limiterCeilingDb, kLimiterMinCeilingDb, 0.0);
     d.limiterReleaseMs = std::clamp(d.limiterReleaseMs, kDynMinTimeMs, kDynMaxReleaseMs);
+    for (SendData& d : s.sends) {
+        d.levelDb = std::clamp(d.levelDb, kSendMinDb, kSendMaxDb);
+        d.pan = std::clamp(d.pan, -1.0, 1.0);
+    }
     s.volumeDb = std::clamp(s.volumeDb, kFaderMinDb, kFaderMaxDb);
     s.pan = std::clamp(s.pan, kPanMin, kPanMax);
 }

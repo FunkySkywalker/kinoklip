@@ -42,6 +42,7 @@ not a count.
 | 27 | Put effects on a whole audio track (compressor, equalizer, noise reduction) | Resolve users look for Fairlight's effect slots on a mixer track. | [Add effects to a whole audio track](add-effects-to-an-audio-track.md) |
 | 28 | Make a video loud enough for YouTube (loudness target, LUFS) | People ask what loudness YouTube, podcasts and TV want and how to reach it; Resolve users look for the loudness meter and Normalize Audio Levels (version 1.11 roadmap). | [Make your audio loud enough for YouTube](make-your-audio-loud-enough-for-youtube.md) |
 | 29 | Lower the music while someone speaks (ducking, sidechain) | Editors expect the music to dip under the voice; Resolve users look for Fairlight's key input on the compressor (version 1.11 roadmap). | [Lower music under a voice (ducking)](lower-music-under-a-voice-ducking.md) |
+| 30 | Send a voice to a reverb bus, invert the phase of a track, set an equalizer from a preset | Resolve users look for Fairlight's bus sends, the Phase Invert button and the EQ presets (version 1.11 roadmap). | [Send tracks to a bus, flip the phase and use EQ presets](send-tracks-to-a-bus-flip-phase-and-eq-presets.md) |
 
 Topics that come up often but that Kinoklip cannot do yet (no article until it can):
 

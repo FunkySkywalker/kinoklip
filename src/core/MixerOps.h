@@ -52,8 +52,8 @@ namespace mixerops {
 /// name; empty for an unknown target.
 [[nodiscard]] QString targetName(const TimelineData& data, const MixTarget& target);
 
-/// Adds a bus (mono or stereo) named @p name (empty = automatic) and returns its id.
-int addBus(TimelineData& data, bool mono, const QString& name = {});
+/// Adds a bus (mono or stereo; @p aux: send-only input, spec 137) named @p name (empty = automatic) and returns its id.
+int addBus(TimelineData& data, bool mono, const QString& name = {}, bool aux = false);
 /// Renames bus @p busId (empty = automatic name). Returns whether anything changed.
 bool renameBus(TimelineData& data, int busId, const QString& name);
 /// Sets the channel format of bus @p busId. Returns whether anything changed.
@@ -65,13 +65,41 @@ bool removeBus(TimelineData& data, int busId);
 /// anything changed (false for an unknown bus).
 bool setOutputBus(TimelineData& data, int busId);
 
-/// Routes track @p trackId to bus @p busId (@p on) or removes that route. Unknown buses are
-/// refused. Returns whether anything changed.
+/// Routes track @p trackId to bus @p busId (@p on) or removes that route. Unknown buses and aux
+/// buses (send-only) are refused. Returns whether anything changed.
 bool setTrackRoute(TimelineData& data, quint64 trackId, int busId, bool on);
 /// Sets the channel format of track @p trackId. Returns whether anything changed.
 bool setTrackMono(TimelineData& data, quint64 trackId, bool mono);
 /// Sets the automation mode of track @p trackId. Returns whether anything changed.
 bool setAutomationMode(TimelineData& data, quint64 trackId, AutomationMode mode);
+
+// ---- Sends, aux buses, phase invert (spec 137) ----
+
+/// True if the strip of @p from (a track or a bus) may get a send to bus @p busId: the bus
+/// exists, it is not @p from itself, and the send cannot make a loop (the sender must not depend
+/// on the bus through routes, sends or keys). The UI lists only allowed buses and the edit
+/// functions refuse the rest.
+[[nodiscard]] bool sendAllowed(const TimelineData& data, const MixTarget& from, int busId);
+/// Adds a send of @p from to bus @p busId (level @p levelDb, Pre or Post fader, on, pan 0).
+/// Refused (false) when sendAllowed() says no, the strip already sends to that bus or has
+/// kMaxSends sends.
+bool addSend(TimelineData& data, const MixTarget& from, int busId, double levelDb = 0.0,
+    bool preFader = false);
+/// Removes the send of @p from to bus @p busId. Returns whether anything changed.
+bool removeSend(TimelineData& data, const MixTarget& from, int busId);
+/// Replaces level, Pre / Post, on / off and pan of the send of @p from to @p value.busId
+/// (values clamped). Returns whether anything changed.
+bool updateSend(TimelineData& data, const MixTarget& from, const SendData& value);
+/// Makes bus @p busId an aux bus (send-only input: tracks are removed from its routes) or a
+/// normal bus again. Refused for the main bus and the output bus. Returns whether anything
+/// changed.
+bool setBusAux(TimelineData& data, int busId, bool aux);
+/// Phase Invert of the left / right channel of @p target's strip. Returns whether anything
+/// changed.
+bool setStripInvert(TimelineData& data, const MixTarget& target, bool left, bool right);
+/// Replaces the equalizer of @p target with @p eq (values clamped), e.g. a preset. Returns
+/// whether anything changed.
+bool applyEqPreset(TimelineData& data, const MixTarget& target, const EqSettings& eq);
 
 // ---- Key (side chain) of the Dynamics section (spec 136) ----
 

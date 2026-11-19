@@ -21,6 +21,27 @@ struct ChannelGains
     float right = 1.0f;
 };
 
+/// Smoothing state of one send (spec 137): the gains of the left and right side reached by the
+/// last block, glided like the fader gains so a level or pan change never clicks.
+struct SendGainState
+{
+    int busId = 0;
+    float left = 0.0f;
+    float right = 0.0f;
+    bool fresh = true; ///< the first block takes its target without gliding
+};
+
+/// Adds @p frames frames of interleaved stereo @p src into @p dst, scaled per side by the send
+/// gains @p wantLeft / @p wantRight (level times the send's pan gains): the gains glide
+/// (~5 ms) over each ChannelProcessor::kGainBlock-sample block and ramp linearly inside it, exactly like
+/// ChannelProcessor::applyGains(), so the sum does not depend on the block size (a multiple
+/// of the gain block). Nothing is added while both the state and the target are silent.
+void addSend(float* dst, const float* src, int frames, float wantLeft, float wantRight,
+    SendGainState& state);
+
+/// Inverts the phase of the left and / or right side of @p io (Phase Invert).
+void invertPhase(float* io, int frames, bool left, bool right);
+
 /// Processes one mixer channel in place on interleaved stereo, in signal flow order:
 /// mono fold (mono channels: (L + R) / 2 on both sides) -> EQ -> dynamics -> pan -> fader.
 ///

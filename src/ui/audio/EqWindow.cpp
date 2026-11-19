@@ -2,17 +2,24 @@
 // EqWindow layout and edits.
 #include "ui/audio/EqWindow.h"
 
+#include "core/EqPresets.h"
 #include "core/Timeline.h"
 #include "ui/audio/EqCurveView.h"
 #include "ui/audio/MixerController.h"
 #include "ui/common/Metrics.h"
 
 #include <QCheckBox>
+#include <QCoreApplication>
 #include <QComboBox>
 #include <QDoubleSpinBox>
 #include <QGridLayout>
+#include <QHBoxLayout>
+#include <QInputDialog>
+#include <QLineEdit>
 #include <QLabel>
+#include <QMenu>
 #include <QSignalBlocker>
+#include <QToolButton>
 #include <QVBoxLayout>
 
 namespace kk {
@@ -31,6 +38,18 @@ constexpr TypeEntry kTypes[] = {
     {EqBandType::Notch, QT_TRANSLATE_NOOP("kk::EqWindow", "Notch")},
     {EqBandType::HighShelf, QT_TRANSLATE_NOOP("kk::EqWindow", "High Shelf")},
     {EqBandType::LowPass, QT_TRANSLATE_NOOP("kk::EqWindow", "Low Pass")},
+};
+
+// The factory preset names (core/EqPresets.cpp) as the translation tool sees them; the menu
+// translates them at run time.
+[[maybe_unused]] constexpr const char* kPresetNames[] = {
+    QT_TRANSLATE_NOOP("kk::EqPresets", "Flat"),
+    QT_TRANSLATE_NOOP("kk::EqPresets", "Voice"),
+    QT_TRANSLATE_NOOP("kk::EqPresets", "Music"),
+    QT_TRANSLATE_NOOP("kk::EqPresets", "Telephone"),
+    QT_TRANSLATE_NOOP("kk::EqPresets", "Rumble Cut"),
+    QT_TRANSLATE_NOOP("kk::EqPresets", "De-Mud"),
+    QT_TRANSLATE_NOOP("kk::EqPresets", "Podcast Voice"),
 };
 
 QDoubleSpinBox* spin(double min, double max, int decimals, const QString& suffix)
@@ -57,8 +76,22 @@ EqWindow::EqWindow(MixerController* controller, const MixTarget& target, QWidget
     layout->setContentsMargins(
         metrics::kSpaceM, metrics::kSpaceM, metrics::kSpaceM, metrics::kSpaceM);
     layout->setSpacing(metrics::kSpaceM);
+    auto* top = new QHBoxLayout;
     m_enabled = new QCheckBox(tr("EQ on"));
-    layout->addWidget(m_enabled);
+    top->addWidget(m_enabled);
+    top->addStretch(1);
+    m_presets = new QToolButton;
+    m_presets->setObjectName(QStringLiteral("EqPresets"));
+    m_presets->setText(tr("Presets"));
+    m_presets->setToolTip(tr("Equalizer presets: Voice, Music, Telephone and more, or your own. "
+                             "Choosing one replaces all bands (one undo step)"));
+    m_presets->setPopupMode(QToolButton::InstantPopup);
+    m_presets->setFocusPolicy(Qt::NoFocus);
+    auto* presetMenu = new QMenu(m_presets);
+    m_presets->setMenu(presetMenu);
+    connect(presetMenu, &QMenu::aboutToShow, this, &EqWindow::fillPresetMenu);
+    top->addWidget(m_presets);
+    layout->addLayout(top);
     m_curve = new EqCurveView;
     m_curve->setShowBandCurves(true);
     layout->addWidget(m_curve, 1);
@@ -149,6 +182,79 @@ EqWindow::EqWindow(MixerController* controller, const MixTarget& target, QWidget
 
     connect(m_controller, &MixerController::mixChanged, this, &EqWindow::refresh);
     refresh();
+}
+
+bool EqWindow::applyPreset(const QString& name)
+{
+    const eqpresets::Preset preset = eqpresets::find(name);
+    if (preset.name.isEmpty())
+        return false;
+    bool changed = false;
+    m_controller->edit(tr("EQ Preset"), [&](TimelineData& d) {
+        changed = mixerops::applyEqPreset(d, m_target, preset.eq);
+        return changed;
+    });
+    return changed;
+}
+
+bool EqWindow::saveAsPreset(const QString& name)
+{
+    const ChannelStrip* s = mixerops::strip(m_controller->data(), m_target);
+    return s && eqpresets::saveUserPreset(name, s->eq);
+}
+
+bool EqWindow::deletePreset(const QString& name)
+{
+    return eqpresets::removeUserPreset(name);
+}
+
+void EqWindow::fillPresetMenu()
+{
+    QMenu* menu = m_presets->menu();
+    menu->clear();
+    for (const eqpresets::Preset& p : eqpresets::factoryPresets()) {
+        const QString name = p.name;
+        // Factory names are English keys; show them translated.
+        QAction* a = menu->addAction(QCoreApplication::translate("kk::EqPresets", name.toUtf8()));
+        a->setToolTip(tr("Replace the equalizer with this preset"));
+        connect(a, &QAction::triggered, this, [this, name] { applyPreset(name); });
+    }
+    const QList<eqpresets::Preset> user = eqpresets::userPresets();
+    if (!user.isEmpty())
+        menu->addSeparator();
+    for (const eqpresets::Preset& p : user) {
+        const QString name = p.name;
+        QAction* a = menu->addAction(name);
+        a->setToolTip(tr("Your preset: replace the equalizer with it"));
+        connect(a, &QAction::triggered, this, [this, name] { applyPreset(name); });
+    }
+    menu->addSeparator();
+    QAction* save = menu->addAction(tr("Save as Preset…"));
+    save->setToolTip(tr("Keep the current equalizer settings as a preset of your own"));
+    connect(save, &QAction::triggered, this, [this] {
+        std::optional<QString> name;
+        if (m_namePrompt) {
+            name = m_namePrompt();
+        } else {
+            bool ok = false;
+            const QString text = QInputDialog::getText(
+                this, tr("Save EQ Preset"), tr("Preset name"), QLineEdit::Normal, QString(), &ok);
+            if (ok)
+                name = text;
+        }
+        if (name && !saveAsPreset(*name))
+            m_presets->setToolTip(tr("The preset was not saved: it needs a name that is not a "
+                                     "factory preset"));
+    });
+    if (!user.isEmpty()) {
+        QMenu* del = menu->addMenu(tr("Delete Preset"));
+        del->setToolTip(tr("Delete one of your own presets"));
+        for (const eqpresets::Preset& p : user) {
+            const QString name = p.name;
+            QAction* a = del->addAction(name);
+            connect(a, &QAction::triggered, this, [this, name] { deletePreset(name); });
+        }
+    }
 }
 
 void EqWindow::editBand(int band, const QString& label, const std::function<void(EqBand&)>& change)

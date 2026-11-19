@@ -124,14 +124,36 @@ inline constexpr double kGateMaxHysteresisDb = 20.0;
 inline constexpr double kKeyMinHz = 20.0; ///< the key filters are off at the ends of their range
 inline constexpr double kKeyMaxHz = 20000.0;
 
+/// A send of a channel strip (spec 137): a copy of the strip's signal into a bus, with its own
+/// level and pan, taken before the strip's pan and fader (Pre) or after them (Post).
+struct SendData
+{
+    int busId = 0; ///< destination bus (BusData::id); one send per bus on a strip
+    bool enabled = true;
+    bool preFader = false; ///< true: the signal before the pan and fader; false: after them
+    double levelDb = 0.0; ///< send level: kSendMinDb (silence) ... kSendMaxDb
+    double pan = 0.0; ///< balance of the send: -1 (left) ... +1 (right)
+
+    friend bool operator==(const SendData&, const SendData&) = default;
+};
+
+/// Limits of the send controls.
+inline constexpr double kSendMinDb = -96.0;
+inline constexpr double kSendMaxDb = 12.0;
+/// Most sends one strip can have.
+inline constexpr int kMaxSends = 16;
+
 /// The processing of one mixer channel (a track or a bus), in signal flow order:
-/// EQ -> dynamics -> pan -> fader -> mute.
+/// phase invert -> EQ -> dynamics -> sends (Pre) -> pan -> fader -> mute -> sends (Post).
 struct ChannelStrip
 {
     EqSettings eq;
+    bool invertLeft = false; ///< Phase Invert of the left channel (before the effects)
+    bool invertRight = false; ///< Phase Invert of the right channel
+    QVector<SendData> sends; ///< sends to buses (aux buses and other buses)
     DynamicsSettings dynamics;
     double volumeDb = 0.0; ///< fader (static value; tracks may automate it)
-    double pan = 0.0; ///< -1 (left) ... +1 (right); buses ignore it
+    double pan = 0.0; ///< -1 (left) ... +1 (right)
     bool muted = false; ///< buses only: tracks use TrackData::muted (header and mixer agree)
 
     friend bool operator==(const ChannelStrip&, const ChannelStrip&) = default;
@@ -177,6 +199,8 @@ struct BusData
     int id = kMainBusId; ///< stable, unique within the timeline (1 = main bus)
     QString name; ///< empty = automatic ("Bus <id>")
     bool mono = false;
+    /// Aux bus: its input is send-only, tracks cannot be routed to it (spec 137).
+    bool aux = false;
     ChannelStrip strip;
 
     friend bool operator==(const BusData&, const BusData&) = default;

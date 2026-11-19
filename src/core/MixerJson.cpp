@@ -51,18 +51,45 @@ EqBand bandFromJson(const QJsonObject& o, const EqBand& def)
 
 } // namespace
 
+QJsonObject eqToJson(const EqSettings& settings)
+{
+    QJsonObject eq;
+    eq[key("on")] = settings.enabled;
+    QJsonArray bands;
+    for (const EqBand& b : settings.bands)
+        bands.append(bandToJson(b));
+    eq[key("bands")] = bands;
+    return eq;
+}
+
+EqSettings eqFromJson(const QJsonObject& eq)
+{
+    EqSettings s;
+    s.enabled = eq.value(key("on")).toBool(false);
+    const QJsonArray bands = eq.value(key("bands")).toArray();
+    for (int i = 0; i < kEqBandCount && i < bands.size(); ++i)
+        s.bands[size_t(i)] = bandFromJson(bands.at(i).toObject(), s.bands[size_t(i)]);
+    return s;
+}
+
 QJsonObject stripToJson(const ChannelStrip& s)
 {
     const ChannelStrip def;
     QJsonObject o;
-    if (s.eq != def.eq) {
-        QJsonObject eq;
-        eq[key("on")] = s.eq.enabled;
-        QJsonArray bands;
-        for (const EqBand& b : s.eq.bands)
-            bands.append(bandToJson(b));
-        eq[key("bands")] = bands;
-        o[key("eq")] = eq;
+    if (s.eq != def.eq)
+        o[key("eq")] = eqToJson(s.eq);
+    putIf(o, "invertL", s.invertLeft, def.invertLeft);
+    putIf(o, "invertR", s.invertRight, def.invertRight);
+    if (!s.sends.isEmpty()) {
+        QJsonArray sends;
+        for (const SendData& d : s.sends) {
+            QJsonObject so {{key("bus"), d.busId}, {key("level"), d.levelDb}};
+            putIf(so, "on", d.enabled, true);
+            putIf(so, "pre", d.preFader, false);
+            putIf(so, "pan", d.pan, 0.0);
+            sends.append(so);
+        }
+        o[key("sends")] = sends;
     }
     if (s.dynamics != def.dynamics) {
         const DynamicsSettings& d = s.dynamics;
@@ -106,12 +133,25 @@ QJsonObject stripToJson(const ChannelStrip& s)
 ChannelStrip stripFromJson(const QJsonObject& o)
 {
     ChannelStrip s;
-    if (o.contains(key("eq"))) {
-        const QJsonObject eq = o.value(key("eq")).toObject();
-        s.eq.enabled = eq.value(key("on")).toBool(false);
-        const QJsonArray bands = eq.value(key("bands")).toArray();
-        for (int i = 0; i < kEqBandCount && i < bands.size(); ++i)
-            s.eq.bands[size_t(i)] = bandFromJson(bands.at(i).toObject(), s.eq.bands[size_t(i)]);
+    if (o.contains(key("eq")))
+        s.eq = eqFromJson(o.value(key("eq")).toObject());
+    s.invertLeft = o.value(key("invertL")).toBool(false);
+    s.invertRight = o.value(key("invertR")).toBool(false);
+    for (const QJsonValue& v : o.value(key("sends")).toArray()) {
+        const QJsonObject so = v.toObject();
+        SendData d;
+        d.busId = so.value(key("bus")).toInt(0);
+        if (d.busId <= 0 || s.sends.size() >= kMaxSends)
+            continue;
+        const bool duplicate = std::any_of(s.sends.begin(), s.sends.end(),
+            [&](const SendData& e) { return e.busId == d.busId; });
+        if (duplicate)
+            continue;
+        d.levelDb = so.value(key("level")).toDouble(0.0);
+        d.enabled = so.value(key("on")).toBool(true);
+        d.preFader = so.value(key("pre")).toBool(false);
+        d.pan = so.value(key("pan")).toDouble(0.0);
+        s.sends.append(d);
     }
     if (o.contains(key("dynamics"))) {
         const QJsonObject dyn = o.value(key("dynamics")).toObject();
@@ -222,6 +262,7 @@ QJsonObject mixerToJson(const MixerData& mixer)
         if (!b.name.isEmpty())
             bo[key("name")] = b.name;
         putIf(bo, "mono", b.mono, false);
+        putIf(bo, "aux", b.aux, false);
         if (b.strip != ChannelStrip {})
             bo[key("strip")] = stripToJson(b.strip);
         buses.append(bo);
@@ -246,6 +287,7 @@ MixerData mixerFromJson(const QJsonObject& o)
             continue; // invalid or duplicate
         b.name = bo.value(key("name")).toString();
         b.mono = bo.value(key("mono")).toBool(false);
+        b.aux = bo.value(key("aux")).toBool(false) && b.id != kMainBusId;
         b.strip = stripFromJson(bo.value(key("strip")).toObject());
         mixer.buses.push_back(b);
     }
@@ -261,15 +303,35 @@ MixerData mixerFromJson(const QJsonObject& o)
     for (const BusData& b : mixer.buses)
         maxId = std::max(maxId, b.id);
     mixer.nextBusId = std::max(o.value(key("nextBusId")).toInt(maxId + 1), maxId + 1);
+    // Bus sends only go to buses that exist, and never to the bus itself.
+    for (BusData& b : mixer.buses) {
+        b.strip.sends.erase(std::remove_if(b.strip.sends.begin(), b.strip.sends.end(),
+                                [&](const SendData& d) {
+                                    return d.busId == b.id || mixerops::busIndex(mixer, d.busId) < 0;
+                                }),
+            b.strip.sends.end());
+    }
     return mixer;
 }
 
 void repairRoutes(const MixerData& mixer, std::vector<TrackData>& tracks)
 {
+    auto dropSends = [&mixer](ChannelStrip& strip) {
+        strip.sends.erase(std::remove_if(strip.sends.begin(), strip.sends.end(),
+                              [&mixer](const SendData& d) {
+                                  return mixerops::busIndex(mixer, d.busId) < 0;
+                              }),
+            strip.sends.end());
+    };
     for (TrackData& t : tracks) {
+        // Tracks cannot be routed to an aux bus (send-only input).
         t.mix.buses.erase(std::remove_if(t.mix.buses.begin(), t.mix.buses.end(),
-                              [&mixer](int id) { return mixerops::busIndex(mixer, id) < 0; }),
+                              [&mixer](int id) {
+                                  const int i = mixerops::busIndex(mixer, id);
+                                  return i < 0 || mixer.buses[size_t(i)].aux;
+                              }),
             t.mix.buses.end());
+        dropSends(t.mix.strip);
     }
 }
 
