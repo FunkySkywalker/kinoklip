@@ -4416,6 +4416,246 @@ Das Programm wurde wahrscheinlich vom System beendet, weil der Arbeitsspeicher d
         <source>Optional: lower everything that is not speech by up to this much. 0 is off.</source>
         <translation>Optional: alles, was keine Sprache ist, um bis zu diesen Wert absenken. 0 ist aus.</translation>
     </message>
+    <message>
+        <source>Bit Crush</source>
+        <translation>Bit Crush</translation>
+    </message>
+    <message>
+        <source>Cathedral</source>
+        <translation>Kathedrale</translation>
+    </message>
+    <message>
+        <source>Chamber</source>
+        <translation>Kammer</translation>
+    </message>
+    <message>
+        <source>Chorus</source>
+        <translation>Chorus</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>Benutzerdefiniert</translation>
+    </message>
+    <message>
+        <source>Cuts the high frequencies of the tail, like soft walls and curtains do. 0 is bright, 100 is dark.</source>
+        <translation>Dämpft die hohen Frequenzen des Nachhalls, wie weiche Wände und Vorhänge. 0 ist hell, 100 ist dunkel.</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>Abklingen</translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation>Tiefe</translation>
+    </message>
+    <message>
+        <source>Distortion</source>
+        <translation>Verzerrung</translation>
+    </message>
+    <message>
+        <source>Drive</source>
+        <translation>Drive</translation>
+    </message>
+    <message>
+        <source>Early Reflections</source>
+        <translation>Frühe Reflexionen</translation>
+    </message>
+    <message>
+        <source>Flanger</source>
+        <translation>Flanger</translation>
+    </message>
+    <message>
+        <source>Hall</source>
+        <translation>Saal</translation>
+    </message>
+    <message>
+        <source>Hard Clip</source>
+        <translation>Hard Clip</translation>
+    </message>
+    <message>
+        <source>How far the copies sweep: more is a wobblier, more obvious effect.</source>
+        <translation>Wie weit die Kopien wandern: mehr ergibt einen wackligeren, deutlicheren Effekt.</translation>
+    </message>
+    <message>
+        <source>How far the voices are spread between left and right.</source>
+        <translation>Wie weit die Stimmen zwischen links und rechts verteilt werden.</translation>
+    </message>
+    <message>
+        <source>How fast the copies sweep.</source>
+        <translation>Wie schnell die Kopien wandern.</translation>
+    </message>
+    <message>
+        <source>How fast the sweep goes up and down.</source>
+        <translation>Wie schnell der Durchlauf auf- und abgeht.</translation>
+    </message>
+    <message>
+        <source>How hard the sound is pushed into the distortion. For Bit Crush, more drive means fewer bits.</source>
+        <translation>Wie stark der Klang in die Verzerrung getrieben wird. Bei Bit Crush bedeutet mehr Drive weniger Bits.</translation>
+    </message>
+    <message>
+        <source>How long after the sound the reverb starts. A longer pre-delay keeps the voice clear in front of the room.</source>
+        <translation>Wie lange nach dem Klang der Hall einsetzt. Ein längeres Pre-Delay hält die Stimme klar vor dem Raum.</translation>
+    </message>
+    <message>
+        <source>How long the tail takes to die away (to a thousandth of its loudness).</source>
+        <translation>Wie lange der Nachhall zum Ausklingen braucht (bis auf ein Tausendstel seiner Lautstärke).</translation>
+    </message>
+    <message>
+        <source>How much of the copies is fed back in for a richer, more resonant sound.</source>
+        <translation>Wie viel der Kopien zurückgeführt wird, für einen satteren, resonanteren Klang.</translation>
+    </message>
+    <message>
+        <source>How much of the effect is fed back in. Positive is a bright ring, negative is a hollow, darker one.</source>
+        <translation>Wie viel des Effekts zurückgeführt wird. Positiv klingt hell und klingelnd, negativ hohl und dunkler.</translation>
+    </message>
+    <message>
+        <source>How wide the sweep is.</source>
+        <translation>Wie weit der Durchlauf reicht.</translation>
+    </message>
+    <message>
+        <source>Large Room</source>
+        <translation>Großer Raum</translation>
+    </message>
+    <message>
+        <source>Level of the distorted sound. Distortion is loud: lower this as you raise the Drive.</source>
+        <translation>Pegel des verzerrten Klangs. Verzerrung ist laut: Senken Sie diesen Wert, wenn Sie den Drive erhöhen.</translation>
+    </message>
+    <message>
+        <source>Make the stereo picture narrower or wider</source>
+        <translation>Das Stereobild schmaler oder breiter machen</translation>
+    </message>
+    <message>
+        <source>Makes the sound below this frequency mono, so the bass stays solid when the sound is widened. 0 is off.</source>
+        <translation>Macht den Klang unterhalb dieser Frequenz mono, damit der Bass beim Verbreitern solide bleibt. 0 ist aus.</translation>
+    </message>
+    <message>
+        <source>Mono Below</source>
+        <translation>Mono unterhalb</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>Ausgang</translation>
+    </message>
+    <message>
+        <source>Plate</source>
+        <translation>Platte</translation>
+    </message>
+    <message>
+        <source>Pre-delay</source>
+        <translation>Pre-Delay</translation>
+    </message>
+    <message>
+        <source>Preset</source>
+        <translation>Voreinstellung</translation>
+    </message>
+    <message>
+        <source>Rate</source>
+        <translation>Rate</translation>
+    </message>
+    <message>
+        <source>Small Room</source>
+        <translation>Kleiner Raum</translation>
+    </message>
+    <message>
+        <source>Soft Clip</source>
+        <translation>Soft Clip</translation>
+    </message>
+    <message>
+        <source>Soft Clip rounds the peaks, Hard Clip cuts them flat, Bit Crush lowers the resolution, Tube-like adds warm even harmonics.</source>
+        <translation>Soft Clip rundet die Spitzen ab, Hard Clip kappt sie flach, Bit Crush senkt die Auflösung, Röhrenartig fügt warme geradzahlige Obertöne hinzu.</translation>
+    </message>
+    <message>
+        <source>Stereo Spread</source>
+        <translation>Stereo-Spreizung</translation>
+    </message>
+    <message>
+        <source>Stereo Width</source>
+        <translation>Stereobreite</translation>
+    </message>
+    <message>
+        <source>The delay of the copies: short is tight and metallic, long is a loose double.</source>
+        <translation>Die Verzögerung der Kopien: kurz klingt eng und metallisch, lang wie eine lockere Doppelung.</translation>
+    </message>
+    <message>
+        <source>The level of the first echoes from the walls that give the sense of a room.</source>
+        <translation>Der Pegel der ersten Echos von den Wänden, die den Raumeindruck erzeugen.</translation>
+    </message>
+    <message>
+        <source>The middle delay of the sweep: shorter sounds higher and thinner.</source>
+        <translation>Die mittlere Verzögerung des Durchlaufs: kürzer klingt höher und dünner.</translation>
+    </message>
+    <message>
+        <source>The number of copies. More voices sound like a bigger ensemble.</source>
+        <translation>Die Anzahl der Kopien. Mehr Stimmen klingen wie ein größeres Ensemble.</translation>
+    </message>
+    <message>
+        <source>The size of the room: larger spaces have wider-spaced, smoother echoes.</source>
+        <translation>Die Größe des Raums: In größeren Räumen liegen die Echos weiter auseinander und klingen glatter.</translation>
+    </message>
+    <message>
+        <source>The stereo width of the reverb: 0 is mono, 100 is natural, more is wider.</source>
+        <translation>Die Stereobreite des Halls: 0 ist mono, 100 natürlich, mehr ist breiter.</translation>
+    </message>
+    <message>
+        <source>Thicken the sound with slightly detuned, moving copies</source>
+        <translation>Den Klang mit leicht verstimmten, bewegten Kopien dicker machen</translation>
+    </message>
+    <message>
+        <source>Tone</source>
+        <translation>Klang</translation>
+    </message>
+    <message>
+        <source>Tube-like</source>
+        <translation>Röhrenartig</translation>
+    </message>
+    <message>
+        <source>Voices</source>
+        <translation>Stimmen</translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation>Breite</translation>
+    </message>
+    <message>
+        <source>0 is mono, 100 leaves the sound as it is, 200 doubles the difference between left and right.</source>
+        <translation>0 ist mono, 100 lässt den Klang unverändert, 200 verdoppelt den Unterschied zwischen links und rechts.</translation>
+    </message>
+    <message>
+        <source>0 is only the original sound, 100 is only the copies.</source>
+        <translation>0 ist nur der Originalklang, 100 nur die Kopien.</translation>
+    </message>
+    <message>
+        <source>0 is only the original sound, 100 is only the distorted sound.</source>
+        <translation>0 ist nur der Originalklang, 100 nur der verzerrte Klang.</translation>
+    </message>
+    <message>
+        <source>0 is only the original sound, 100 is only the reverb.</source>
+        <translation>0 ist nur der Originalklang, 100 nur der Hall.</translation>
+    </message>
+    <message>
+        <source>0 is only the original sound; 50 gives the deepest notches.</source>
+        <translation>0 ist nur der Originalklang; 50 ergibt die tiefsten Einbrüche.</translation>
+    </message>
+    <message>
+        <source>A low-pass after the distortion: 0 is dark and smooth, 100 is bright and harsh.</source>
+        <translation>Ein Tiefpass nach der Verzerrung: 0 ist dunkel und weich, 100 hell und schroff.</translation>
+    </message>
+    <message>
+        <source>A ready-made room. With a preset chosen, its Pre-delay, Decay, Room Size, Damping, Early Reflections and Width are used; choose Custom to set them yourself. Mix always stays yours.</source>
+        <translation>Ein fertiger Raum. Ist ein Preset gewählt, gelten dessen Pre-Delay, Ausklingzeit, Raumgröße, Dämpfung, frühe Reflexionen und Breite; wählen Sie Benutzerdefiniert, um sie selbst einzustellen. Mix bleibt immer Ihre Einstellung.</translation>
+    </message>
+    <message>
+        <source>A room, plate or hall: pre-delay, a tail you set in seconds and room presets</source>
+        <translation>Ein Raum, eine Platte oder ein Saal: Pre-Delay, ein in Sekunden einstellbarer Nachhall und Raum-Presets</translation>
+    </message>
+    <message>
+        <source>A sweeping, jet-plane comb filter</source>
+        <translation>Ein wandernder Kammfilter wie ein Düsenjet</translation>
+    </message>
+    <message>
+        <source>Add grit and overdrive, or crush the sound</source>
+        <translation>Rauheit und Übersteuerung hinzufügen oder den Klang zerquetschen</translation>
+    </message>
 </context>
 <context>
     <name>kk::BuiltinEffects</name>
@@ -16323,6 +16563,226 @@ Danke fürs Zuschauen</translation>
     <message>
         <source>Optional: lower everything that is not speech by up to this much. 0 is off.</source>
         <translation>Optional: alles, was keine Sprache ist, um bis zu diesen Wert absenken. 0 ist aus.</translation>
+    </message>
+    <message>
+        <source>The size of the room: larger spaces have wider-spaced, smoother echoes.</source>
+        <translation>Die Größe des Raums: In größeren Räumen liegen die Echos weiter auseinander und klingen glatter.</translation>
+    </message>
+    <message>
+        <source>Cuts the high frequencies of the tail, like soft walls and curtains do. 0 is bright, 100 is dark.</source>
+        <translation>Dämpft die hohen Frequenzen des Nachhalls, wie weiche Wände und Vorhänge. 0 ist hell, 100 ist dunkel.</translation>
+    </message>
+    <message>
+        <source>Early Reflections</source>
+        <translation>Frühe Reflexionen</translation>
+    </message>
+    <message>
+        <source>The level of the first echoes from the walls that give the sense of a room.</source>
+        <translation>Der Pegel der ersten Echos von den Wänden, die den Raumeindruck erzeugen.</translation>
+    </message>
+    <message>
+        <source>The stereo width of the reverb: 0 is mono, 100 is natural, more is wider.</source>
+        <translation>Die Stereobreite des Halls: 0 ist mono, 100 natürlich, mehr ist breiter.</translation>
+    </message>
+    <message>
+        <source>0 is only the original sound, 100 is only the reverb.</source>
+        <translation>0 ist nur der Originalklang, 100 nur der Hall.</translation>
+    </message>
+    <message>
+        <source>Chorus</source>
+        <translation>Chorus</translation>
+    </message>
+    <message>
+        <source>Thicken the sound with slightly detuned, moving copies</source>
+        <translation>Den Klang mit leicht verstimmten, bewegten Kopien dicker machen</translation>
+    </message>
+    <message>
+        <source>Rate</source>
+        <translation>Rate</translation>
+    </message>
+    <message>
+        <source>How fast the copies sweep.</source>
+        <translation>Wie schnell die Kopien wandern.</translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation>Tiefe</translation>
+    </message>
+    <message>
+        <source>How far the copies sweep: more is a wobblier, more obvious effect.</source>
+        <translation>Wie weit die Kopien wandern: mehr ergibt einen wackligeren, deutlicheren Effekt.</translation>
+    </message>
+    <message>
+        <source>The delay of the copies: short is tight and metallic, long is a loose double.</source>
+        <translation>Die Verzögerung der Kopien: kurz klingt eng und metallisch, lang wie eine lockere Doppelung.</translation>
+    </message>
+    <message>
+        <source>How much of the copies is fed back in for a richer, more resonant sound.</source>
+        <translation>Wie viel der Kopien zurückgeführt wird, für einen satteren, resonanteren Klang.</translation>
+    </message>
+    <message>
+        <source>Voices</source>
+        <translation>Stimmen</translation>
+    </message>
+    <message>
+        <source>The number of copies. More voices sound like a bigger ensemble.</source>
+        <translation>Die Anzahl der Kopien. Mehr Stimmen klingen wie ein größeres Ensemble.</translation>
+    </message>
+    <message>
+        <source>Stereo Spread</source>
+        <translation>Stereo-Spreizung</translation>
+    </message>
+    <message>
+        <source>How far the voices are spread between left and right.</source>
+        <translation>Wie weit die Stimmen zwischen links und rechts verteilt werden.</translation>
+    </message>
+    <message>
+        <source>0 is only the original sound, 100 is only the copies.</source>
+        <translation>0 ist nur der Originalklang, 100 nur die Kopien.</translation>
+    </message>
+    <message>
+        <source>Flanger</source>
+        <translation>Flanger</translation>
+    </message>
+    <message>
+        <source>A sweeping, jet-plane comb filter</source>
+        <translation>Ein wandernder Kammfilter wie ein Düsenjet</translation>
+    </message>
+    <message>
+        <source>How fast the sweep goes up and down.</source>
+        <translation>Wie schnell der Durchlauf auf- und abgeht.</translation>
+    </message>
+    <message>
+        <source>How wide the sweep is.</source>
+        <translation>Wie weit der Durchlauf reicht.</translation>
+    </message>
+    <message>
+        <source>The middle delay of the sweep: shorter sounds higher and thinner.</source>
+        <translation>Die mittlere Verzögerung des Durchlaufs: kürzer klingt höher und dünner.</translation>
+    </message>
+    <message>
+        <source>How much of the effect is fed back in. Positive is a bright ring, negative is a hollow, darker one.</source>
+        <translation>Wie viel des Effekts zurückgeführt wird. Positiv klingt hell und klingelnd, negativ hohl und dunkler.</translation>
+    </message>
+    <message>
+        <source>0 is only the original sound; 50 gives the deepest notches.</source>
+        <translation>0 ist nur der Originalklang; 50 ergibt die tiefsten Einbrüche.</translation>
+    </message>
+    <message>
+        <source>Add grit and overdrive, or crush the sound</source>
+        <translation>Rauheit und Übersteuerung hinzufügen oder den Klang zerquetschen</translation>
+    </message>
+    <message>
+        <source>Drive</source>
+        <translation>Drive</translation>
+    </message>
+    <message>
+        <source>How hard the sound is pushed into the distortion. For Bit Crush, more drive means fewer bits.</source>
+        <translation>Wie stark der Klang in die Verzerrung getrieben wird. Bei Bit Crush bedeutet mehr Drive weniger Bits.</translation>
+    </message>
+    <message>
+        <source>Tone</source>
+        <translation>Klang</translation>
+    </message>
+    <message>
+        <source>A low-pass after the distortion: 0 is dark and smooth, 100 is bright and harsh.</source>
+        <translation>Ein Tiefpass nach der Verzerrung: 0 ist dunkel und weich, 100 hell und schroff.</translation>
+    </message>
+    <message>
+        <source>Soft Clip</source>
+        <translation>Soft Clip</translation>
+    </message>
+    <message>
+        <source>Hard Clip</source>
+        <translation>Hard Clip</translation>
+    </message>
+    <message>
+        <source>Bit Crush</source>
+        <translation>Bit Crush</translation>
+    </message>
+    <message>
+        <source>Tube-like</source>
+        <translation>Röhrenartig</translation>
+    </message>
+    <message>
+        <source>Soft Clip rounds the peaks, Hard Clip cuts them flat, Bit Crush lowers the resolution, Tube-like adds warm even harmonics.</source>
+        <translation>Soft Clip rundet die Spitzen ab, Hard Clip kappt sie flach, Bit Crush senkt die Auflösung, Röhrenartig fügt warme geradzahlige Obertöne hinzu.</translation>
+    </message>
+    <message>
+        <source>Level of the distorted sound. Distortion is loud: lower this as you raise the Drive.</source>
+        <translation>Pegel des verzerrten Klangs. Verzerrung ist laut: Senken Sie diesen Wert, wenn Sie den Drive erhöhen.</translation>
+    </message>
+    <message>
+        <source>0 is only the original sound, 100 is only the distorted sound.</source>
+        <translation>0 ist nur der Originalklang, 100 nur der verzerrte Klang.</translation>
+    </message>
+    <message>
+        <source>Stereo Width</source>
+        <translation>Stereobreite</translation>
+    </message>
+    <message>
+        <source>Make the stereo picture narrower or wider</source>
+        <translation>Das Stereobild schmaler oder breiter machen</translation>
+    </message>
+    <message>
+        <source>0 is mono, 100 leaves the sound as it is, 200 doubles the difference between left and right.</source>
+        <translation>0 ist mono, 100 lässt den Klang unverändert, 200 verdoppelt den Unterschied zwischen links und rechts.</translation>
+    </message>
+    <message>
+        <source>Mono Below</source>
+        <translation>Mono unterhalb</translation>
+    </message>
+    <message>
+        <source>Makes the sound below this frequency mono, so the bass stays solid when the sound is widened. 0 is off.</source>
+        <translation>Macht den Klang unterhalb dieser Frequenz mono, damit der Bass beim Verbreitern solide bleibt. 0 ist aus.</translation>
+    </message>
+    <message>
+        <source>A room, plate or hall: pre-delay, a tail you set in seconds and room presets</source>
+        <translation>Ein Raum, eine Platte oder ein Saal: Pre-Delay, ein in Sekunden einstellbarer Nachhall und Raum-Presets</translation>
+    </message>
+    <message>
+        <source>Preset</source>
+        <translation>Voreinstellung</translation>
+    </message>
+    <message>
+        <source>Small Room</source>
+        <translation>Kleiner Raum</translation>
+    </message>
+    <message>
+        <source>Large Room</source>
+        <translation>Großer Raum</translation>
+    </message>
+    <message>
+        <source>Hall</source>
+        <translation>Saal</translation>
+    </message>
+    <message>
+        <source>Plate</source>
+        <translation>Platte</translation>
+    </message>
+    <message>
+        <source>Chamber</source>
+        <translation>Kammer</translation>
+    </message>
+    <message>
+        <source>Cathedral</source>
+        <translation>Kathedrale</translation>
+    </message>
+    <message>
+        <source>A ready-made room. With a preset chosen, its Pre-delay, Decay, Room Size, Damping, Early Reflections and Width are used; choose Custom to set them yourself. Mix always stays yours.</source>
+        <translation>Ein fertiger Raum. Ist ein Preset gewählt, gelten dessen Pre-Delay, Ausklingzeit, Raumgröße, Dämpfung, frühe Reflexionen und Breite; wählen Sie Benutzerdefiniert, um sie selbst einzustellen. Mix bleibt immer Ihre Einstellung.</translation>
+    </message>
+    <message>
+        <source>Pre-delay</source>
+        <translation>Pre-Delay</translation>
+    </message>
+    <message>
+        <source>How long after the sound the reverb starts. A longer pre-delay keeps the voice clear in front of the room.</source>
+        <translation>Wie lange nach dem Klang der Hall einsetzt. Ein längeres Pre-Delay hält die Stimme klar vor dem Raum.</translation>
+    </message>
+    <message>
+        <source>How long the tail takes to die away (to a thousandth of its loudness).</source>
+        <translation>Wie lange der Nachhall zum Ausklingen braucht (bis auf ein Tausendstel seiner Lautstärke).</translation>
     </message>
 </context>
 <context>

@@ -159,8 +159,8 @@ private slots:
         }
         QCOMPARE(ids,
             QStringList({"audio_gain", "audio_eq", "audio_compressor", "audio_limiter",
-                "audio_highpass", "audio_lowpass", "audio_delay", "audio_reverb",
-                "audio_noise_reduction", "audio_deesser", "audio_dialogue_leveler"}));
+                "audio_highpass", "audio_lowpass", "audio_delay", "audio_reverb", "audio_chorus",
+                "audio_flanger", "audio_distortion", "audio_stereo_width", "audio_noise_reduction", "audio_deesser", "audio_dialogue_leveler"}));
     }
 
     void noEffectsIsUntouched()

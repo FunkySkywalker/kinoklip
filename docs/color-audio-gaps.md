@@ -86,10 +86,10 @@ Every missing piece has a line in [roadmap.md](roadmap.md) under "Next version (
 | A17 | Aux sends (reverb or delay send with a level knob) | works | Sends window on every track and bus strip: level, Pre / Post fader, pan, on / off (spec 137) |
 | A18 | Effects Library with track effect slots (insert effects in the mixer) | works | Audio page: Effects Library (Audio FX) and Inspector panels, a + FX button, drop target and slots (bypass, remove, controls in the Inspector) on every track strip, saved with the project (spec 133); no slots on buses yet |
 | A19 | Clip audio effects in the Inspector (Gain, Equalizer, Compressor, Limiter, filters, Delay, Reverb) | works | |
-| A20 | Reverb with a room preset | partly | Reverb has Room Size, Damping and Mix only; no Pre-delay, Decay time, Presets, no send |
+| A20 | Reverb with a room preset | works | Pre-delay, Decay, Room Size, Damping, Early Reflections, Width, Mix and six presets, as a clip effect and a track slot; the send is the Sends window (spec 137, 138) |
 | A21 | Echo / Delay | works | |
 | A22 | Pitch change of a clip | works | |
-| A23 | Chorus, Flanger, Distortion, Stereo Width | missing | Those effects |
+| A23 | Chorus, Flanger, Distortion, Stereo Width | works | Clip effects and track slots (spec 138) |
 | A24 | Fader automation: Read, Touch, Write | partly | Latch and Trim modes; automating pan or plug-in parameters from the strip's Auto buttons works for fader and pan only |
 | A25 | Edit automation curves on the timeline (automation lane) | missing | Automation lane under the track with Volume / Pan / effect parameter curves (spec 37.22) |
 | A26 | Pan, including surround panner | partly | Stereo balance works, also on buses (spec 137); no Surround panner / 3D joystick |

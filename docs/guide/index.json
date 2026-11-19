@@ -296,7 +296,12 @@
         "audio fx",
         "bypass",
         "compressor",
-        "equalizer"
+        "equalizer",
+        "reverb",
+        "chorus",
+        "flanger",
+        "distortion",
+        "stereo width"
       ],
       "contexts": [
         "page:audio",

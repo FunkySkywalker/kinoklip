@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// AudioClipEffects — gain, equalizer, compressor, limiter, high / low-pass, delay and reverb
+// AudioClipEffects — gain, equalizer, compressor, limiter, high / low-pass, delay, reverb, chorus,
+// flanger, distortion, stereo width, noise reduction, de-esser and dialogue leveler
 // processors of a clip's audio effect stack. The EQ and dynamics reuse the mixer's
 // dsp::Equalizer and dsp::Dynamics; filters use the RBJ biquads of render/Biquad.h.
 #include "render/AudioClipEffects.h"
@@ -11,6 +12,7 @@
 #include "render/DeEsser.h"
 #include "render/Dynamics.h"
 #include "render/Equalizer.h"
+#include "render/ModFx.h"
 #include "render/NoiseReduction.h"
 
 #include <algorithm>
@@ -220,116 +222,150 @@ private:
     float m_feedback = 0.0f, m_mix = 0.0f;
 };
 
-// ---- Reverb: Schroeder / Moorer design (parallel damped combs into series all-passes) ----
-// The comb and all-pass lengths are the classic public-domain "Freeverb" set (given for
-// 44.1 kHz, scaled to the mixer rate); the right side is lengthened a little for width.
-
-class Comb
+/// Index of the Reverb preset @p id in dsp::reverbPreset(), -1 for Custom or an unknown id.
+int reverbPresetIndex(const QString& id)
 {
-public:
-    void init(int length) { m_buf.assign(size_t(length), 0.0f), m_pos = 0, m_filter = 0.0f; }
-    void clear()
-    {
-        std::fill(m_buf.begin(), m_buf.end(), 0.0f);
-        m_filter = 0.0f;
+    for (int i = 0; i < kReverbPresetCount; ++i) {
+        if (id == QLatin1String(afxchoice::kReverbPresetIds[i]))
+            return i;
     }
-    float process(float in, float feedback, float damp)
-    {
-        const float out = m_buf[size_t(m_pos)];
-        m_filter = out * (1.0f - damp) + m_filter * damp; // low-pass in the feedback path
-        m_buf[size_t(m_pos)] = in + m_filter * feedback;
-        if (++m_pos == int(m_buf.size()))
-            m_pos = 0;
-        return out;
-    }
+    return -1;
+}
 
-private:
-    std::vector<float> m_buf;
-    int m_pos = 0;
-    float m_filter = 0.0f;
-};
-
-class AllPass
-{
-public:
-    void init(int length) { m_buf.assign(size_t(length), 0.0f), m_pos = 0; }
-    void clear() { std::fill(m_buf.begin(), m_buf.end(), 0.0f); }
-    float process(float in)
-    {
-        constexpr float kFeedback = 0.5f;
-        const float buffered = m_buf[size_t(m_pos)];
-        m_buf[size_t(m_pos)] = in + buffered * kFeedback;
-        if (++m_pos == int(m_buf.size()))
-            m_pos = 0;
-        return buffered - in;
-    }
-
-private:
-    std::vector<float> m_buf;
-    int m_pos = 0;
-};
+// ---- Reverb, Chorus, Flanger, Distortion, Stereo Width (render/ModFx.h, spec 138) ----
 
 class ReverbEffect final : public ClipEffect
 {
 public:
     ReverbEffect()
-    {
-        constexpr int kCombs[kCombCount] = {1116, 1188, 1277, 1356};
-        constexpr int kAllPasses[kAllPassCount] = {556, 441};
-        constexpr int kStereoSpread = 23; // samples at 44.1 kHz
-        const double scale = kRate / 44100.0;
-        for (int side = 0; side < 2; ++side) {
-            for (int i = 0; i < kCombCount; ++i)
-                m_combs[size_t(side)][size_t(i)].init(
-                    int(std::lround((kCombs[i] + side * kStereoSpread) * scale)));
-            for (int i = 0; i < kAllPassCount; ++i)
-                m_allPasses[size_t(side)][size_t(i)].init(
-                    int(std::lround((kAllPasses[i] + side * kStereoSpread) * scale)));
-        }
-    }
+        : m_reverb(kRate)
+    { }
     void configure(const ParamSet& p) override
     {
         namespace k = afxkeys;
-        // Freeverb's ranges: feedback 0.70 ... 0.98 with the room size, damping up to 0.4.
-        m_feedback = float(0.7 + 0.28 * param(p, k::RoomSize, 50, 0, 100) / 100.0);
-        m_damp = float(0.4 * param(p, k::Damping, 50, 0, 100) / 100.0);
-        m_mix = float(param(p, k::Mix, 25, 0, 100) / 100.0);
-    }
-    void reset() override
-    {
-        for (auto& side : m_combs)
-            for (Comb& c : side)
-                c.clear();
-        for (auto& side : m_allPasses)
-            for (AllPass& a : side)
-                a.clear();
-    }
-    void process(float* io, int frames) override
-    {
-        constexpr float kInputGain = 0.06f; // keeps the comb sum at a sensible level
-        constexpr float kWetGain = 3.0f;
-        for (int i = 0; i < frames; ++i) {
-            float& l = io[size_t(i) * 2];
-            float& r = io[size_t(i) * 2 + 1];
-            const float in = (l + r) * kInputGain;
-            float wet[2] = {0.0f, 0.0f};
-            for (size_t side = 0; side < 2; ++side) {
-                for (Comb& c : m_combs[side])
-                    wet[side] += c.process(in, m_feedback, m_damp);
-                for (AllPass& a : m_allPasses[side])
-                    wet[side] = a.process(wet[side]);
-            }
-            l = l * (1.0f - m_mix) + wet[0] * kWetGain * m_mix;
-            r = r * (1.0f - m_mix) + wet[1] * kWetGain * m_mix;
+        const QString preset
+            = p.staticValue(QLatin1String(k::RvPreset), QLatin1String(afxchoice::RvCustom)).toString();
+        const int index = reverbPresetIndex(preset);
+        ReverbSettings s;
+        if (index >= 0) {
+            s = reverbPreset(index);
+        } else {
+            s.preDelayMs = param(p, k::RvPreDelayMs, 10, 0, kReverbMaxPreDelayMs);
+            s.decaySeconds = param(p, k::RvDecayS, 1.8, 0.1, 20);
+            s.roomSizePercent = param(p, k::RoomSize, 50, 0, 100);
+            s.dampingPercent = param(p, k::Damping, 30, 0, 100);
+            s.earlyPercent = param(p, k::RvEarly, 40, 0, 100);
+            s.widthPercent = param(p, k::Width, 100, 0, 200);
         }
+        s.mixPercent = param(p, k::Mix, 25, 0, 100);
+        m_reverb.configure(s);
     }
+    void reset() override { m_reverb.reset(); }
+    void process(float* io, int frames) override { m_reverb.process(io, frames); }
 
 private:
-    static constexpr int kCombCount = 4;
-    static constexpr int kAllPassCount = 2;
-    std::array<std::array<Comb, kCombCount>, 2> m_combs;
-    std::array<std::array<AllPass, kAllPassCount>, 2> m_allPasses;
-    float m_feedback = 0.84f, m_damp = 0.2f, m_mix = 0.25f;
+    Reverb m_reverb;
+};
+
+class ChorusEffect final : public ClipEffect
+{
+public:
+    ChorusEffect()
+        : m_chorus(kRate)
+    { }
+    void configure(const ParamSet& p) override
+    {
+        namespace k = afxkeys;
+        ChorusSettings s;
+        s.rateHz = param(p, k::RateHz, 0.8, 0.05, 10);
+        s.depthPercent = param(p, k::DepthPercent, 40, 0, 100);
+        s.delayMs = param(p, k::DelayMs, 15, 1, 50);
+        s.feedbackPercent = param(p, k::Feedback, 0, 0, 90);
+        s.voices = int(std::lround(param(p, k::Voices, 2, 1, 4)));
+        s.spreadPercent = param(p, k::Spread, 60, 0, 100);
+        s.mixPercent = param(p, k::Mix, 50, 0, 100);
+        m_chorus.configure(s);
+    }
+    void reset() override { m_chorus.reset(); }
+    void process(float* io, int frames) override { m_chorus.process(io, frames); }
+
+private:
+    Chorus m_chorus;
+};
+
+class FlangerEffect final : public ClipEffect
+{
+public:
+    FlangerEffect()
+        : m_flanger(kRate)
+    { }
+    void configure(const ParamSet& p) override
+    {
+        namespace k = afxkeys;
+        FlangerSettings s;
+        s.rateHz = param(p, k::RateHz, 0.3, 0.05, 10);
+        s.depthPercent = param(p, k::DepthPercent, 70, 0, 100);
+        s.delayMs = param(p, k::DelayMs, 2, 0.1, 10);
+        s.feedbackPercent = param(p, k::Feedback, 50, -95, 95);
+        s.mixPercent = param(p, k::Mix, 50, 0, 100);
+        m_flanger.configure(s);
+    }
+    void reset() override { m_flanger.reset(); }
+    void process(float* io, int frames) override { m_flanger.process(io, frames); }
+
+private:
+    Flanger m_flanger;
+};
+
+class DistortionEffect final : public ClipEffect
+{
+public:
+    DistortionEffect()
+        : m_dist(kRate)
+    { }
+    void configure(const ParamSet& p) override
+    {
+        namespace k = afxkeys;
+        DistortionSettings s;
+        s.driveDb = param(p, k::DriveDb, 12, 0, 40);
+        s.tonePercent = param(p, k::Tone, 70, 0, 100);
+        const QString mode
+            = p.staticValue(QLatin1String(k::DistMode), QLatin1String(afxchoice::DistSoft)).toString();
+        s.mode = mode == QLatin1String(afxchoice::DistHard) ? DistortionMode::HardClip
+            : mode == QLatin1String(afxchoice::DistCrush)   ? DistortionMode::BitCrush
+            : mode == QLatin1String(afxchoice::DistTube)    ? DistortionMode::Tube
+                                                            : DistortionMode::SoftClip;
+        s.outputDb = param(p, k::NrOutputDb, -6, -24, 24);
+        s.mixPercent = param(p, k::Mix, 100, 0, 100);
+        m_dist.configure(s);
+    }
+    void reset() override { m_dist.reset(); }
+    void process(float* io, int frames) override { m_dist.process(io, frames); }
+
+private:
+    Distortion m_dist;
+};
+
+class StereoWidthEffect final : public ClipEffect
+{
+public:
+    StereoWidthEffect()
+        : m_width(kRate)
+    { }
+    void configure(const ParamSet& p) override
+    {
+        namespace k = afxkeys;
+        StereoWidthSettings s;
+        s.widthPercent = param(p, k::Width, 100, 0, 200);
+        s.monoBelowHz = param(p, k::MonoBelowHz, 0, 0, 500);
+        s.outputDb = param(p, k::NrOutputDb, 0, -24, 24);
+        m_width.configure(s);
+    }
+    void reset() override { m_width.reset(); }
+    void process(float* io, int frames) override { m_width.process(io, frames); }
+
+private:
+    StereoWidth m_width;
 };
 
 // ---- Noise Reduction: RNNoise or the spectral gate (render/NoiseReduction.h) ----
@@ -442,7 +478,7 @@ std::unique_ptr<ClipEffect> create(const QString& type)
         return std::make_unique<FilterEffect>(false);
     if (type == QLatin1String(Delay))
         return std::make_unique<DelayEffect>();
-    if (type == QLatin1String(Reverb))
+    if (type == QLatin1String(afxid::Reverb))
         return std::make_unique<ReverbEffect>();
     if (type == QLatin1String(NoiseReduction))
         return std::make_unique<NoiseReductionEffect>();
@@ -450,6 +486,14 @@ std::unique_ptr<ClipEffect> create(const QString& type)
         return std::make_unique<DeEsserEffect>();
     if (type == QLatin1String(LevelerFx))
         return std::make_unique<DialogueLevelerEffect>();
+    if (type == QLatin1String(afxid::Chorus))
+        return std::make_unique<ChorusEffect>();
+    if (type == QLatin1String(afxid::Flanger))
+        return std::make_unique<FlangerEffect>();
+    if (type == QLatin1String(afxid::Distortion))
+        return std::make_unique<DistortionEffect>();
+    if (type == QLatin1String(afxid::StereoWidth))
+        return std::make_unique<StereoWidthEffect>();
     return nullptr;
 }
 

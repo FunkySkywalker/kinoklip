@@ -88,11 +88,101 @@ void EffectRegistry::registerAudioEffects()
             value(k::Feedback, tr("Feedback"), 0, 95, 35, 1, kPercent),
             value(k::Mix, tr("Mix"), 0, 100, 30, 1, kPercent),
         }));
-    add(effect(Reverb, tr("Reverb"), tr("A simple room: the sound dies away slowly"),
+    add(effect(Reverb, tr("Reverb"),
+        tr("A room, plate or hall: pre-delay, a tail you set in seconds and room presets"),
         {
-            value(k::RoomSize, tr("Room Size"), 0, 100, 50, 1, kPercent),
-            value(k::Damping, tr("Damping"), 0, 100, 50, 1, kPercent),
-            value(k::Mix, tr("Mix"), 0, 100, 25, 1, kPercent),
+            tip(choice(QLatin1String(k::RvPreset), tr("Preset"),
+                    {QLatin1String(afxchoice::RvCustom), QLatin1String(afxchoice::kReverbPresetIds[0]),
+                        QLatin1String(afxchoice::kReverbPresetIds[1]),
+                        QLatin1String(afxchoice::kReverbPresetIds[2]),
+                        QLatin1String(afxchoice::kReverbPresetIds[3]),
+                        QLatin1String(afxchoice::kReverbPresetIds[4]),
+                        QLatin1String(afxchoice::kReverbPresetIds[5])},
+                    {tr("Custom"), tr("Small Room"), tr("Large Room"), tr("Hall"), tr("Plate"),
+                        tr("Chamber"), tr("Cathedral")},
+                    QLatin1String(afxchoice::RvCustom)),
+                tr("A ready-made room. With a preset chosen, its Pre-delay, Decay, Room Size, "
+                   "Damping, Early Reflections and Width are used; choose Custom to set them "
+                   "yourself. Mix always stays yours.")),
+            tip(value(k::RvPreDelayMs, tr("Pre-delay"), 0, kReverbMaxPreDelayMs, 10, 1, kMs),
+                tr("How long after the sound the reverb starts. A longer pre-delay keeps the "
+                   "voice clear in front of the room.")),
+            tip(value(k::RvDecayS, tr("Decay"), 0.1, 20, 1.8, 0.1, QStringLiteral("s")),
+                tr("How long the tail takes to die away (to a thousandth of its loudness).")),
+            tip(value(k::RoomSize, tr("Room Size"), 0, 100, 50, 1, kPercent),
+                tr("The size of the room: larger spaces have wider-spaced, smoother echoes.")),
+            tip(value(k::Damping, tr("Damping"), 0, 100, 30, 1, kPercent),
+                tr("Cuts the high frequencies of the tail, like soft walls and curtains do. "
+                   "0 is bright, 100 is dark.")),
+            tip(value(k::RvEarly, tr("Early Reflections"), 0, 100, 40, 1, kPercent),
+                tr("The level of the first echoes from the walls that give the sense of a room.")),
+            tip(value(k::Width, tr("Width"), 0, 200, 100, 1, kPercent),
+                tr("The stereo width of the reverb: 0 is mono, 100 is natural, more is wider.")),
+            tip(value(k::Mix, tr("Mix"), 0, 100, 25, 1, kPercent),
+                tr("0 is only the original sound, 100 is only the reverb.")),
+        }));
+    add(effect(Chorus, tr("Chorus"), tr("Thicken the sound with slightly detuned, moving copies"),
+        {
+            tip(value(k::RateHz, tr("Rate"), 0.05, 10, 0.8, 0.05, kHz),
+                tr("How fast the copies sweep.")),
+            tip(value(k::DepthPercent, tr("Depth"), 0, 100, 40, 1, kPercent),
+                tr("How far the copies sweep: more is a wobblier, more obvious effect.")),
+            tip(value(k::DelayMs, tr("Delay"), 1, 50, 15, 0.1, kMs),
+                tr("The delay of the copies: short is tight and metallic, long is a loose double.")),
+            tip(value(k::Feedback, tr("Feedback"), 0, 90, 0, 1, kPercent),
+                tr("How much of the copies is fed back in for a richer, more resonant sound.")),
+            tip(value(k::Voices, tr("Voices"), 1, 4, 2, 1),
+                tr("The number of copies. More voices sound like a bigger ensemble.")),
+            tip(value(k::Spread, tr("Stereo Spread"), 0, 100, 60, 1, kPercent),
+                tr("How far the voices are spread between left and right.")),
+            tip(value(k::Mix, tr("Mix"), 0, 100, 50, 1, kPercent),
+                tr("0 is only the original sound, 100 is only the copies.")),
+        }));
+    add(effect(Flanger, tr("Flanger"), tr("A sweeping, jet-plane comb filter"),
+        {
+            tip(value(k::RateHz, tr("Rate"), 0.05, 10, 0.3, 0.05, kHz),
+                tr("How fast the sweep goes up and down.")),
+            tip(value(k::DepthPercent, tr("Depth"), 0, 100, 70, 1, kPercent),
+                tr("How wide the sweep is.")),
+            tip(value(k::DelayMs, tr("Delay"), 0.1, 10, 2, 0.1, kMs),
+                tr("The middle delay of the sweep: shorter sounds higher and thinner.")),
+            tip(value(k::Feedback, tr("Feedback"), -95, 95, 50, 1, kPercent),
+                tr("How much of the effect is fed back in. Positive is a bright ring, negative is "
+                   "a hollow, darker one.")),
+            tip(value(k::Mix, tr("Mix"), 0, 100, 50, 1, kPercent),
+                tr("0 is only the original sound; 50 gives the deepest notches.")),
+        }));
+    add(effect(Distortion, tr("Distortion"), tr("Add grit and overdrive, or crush the sound"),
+        {
+            tip(value(k::DriveDb, tr("Drive"), 0, 40, 12, 0.5, kDb),
+                tr("How hard the sound is pushed into the distortion. For Bit Crush, more drive "
+                   "means fewer bits.")),
+            tip(value(k::Tone, tr("Tone"), 0, 100, 70, 1, kPercent),
+                tr("A low-pass after the distortion: 0 is dark and smooth, 100 is bright and "
+                   "harsh.")),
+            tip(choice(QLatin1String(k::DistMode), tr("Mode"),
+                    {QLatin1String(afxchoice::DistSoft), QLatin1String(afxchoice::DistHard),
+                        QLatin1String(afxchoice::DistCrush), QLatin1String(afxchoice::DistTube)},
+                    {tr("Soft Clip"), tr("Hard Clip"), tr("Bit Crush"), tr("Tube-like")},
+                    QLatin1String(afxchoice::DistSoft)),
+                tr("Soft Clip rounds the peaks, Hard Clip cuts them flat, Bit Crush lowers the "
+                   "resolution, Tube-like adds warm even harmonics.")),
+            tip(value(k::NrOutputDb, tr("Output"), -24, 24, -6, 0.1, kDb),
+                tr("Level of the distorted sound. Distortion is loud: lower this as you raise "
+                   "the Drive.")),
+            tip(value(k::Mix, tr("Mix"), 0, 100, 100, 1, kPercent),
+                tr("0 is only the original sound, 100 is only the distorted sound.")),
+        }));
+    add(effect(StereoWidth, tr("Stereo Width"), tr("Make the stereo picture narrower or wider"),
+        {
+            tip(value(k::Width, tr("Width"), 0, 200, 100, 1, kPercent),
+                tr("0 is mono, 100 leaves the sound as it is, 200 doubles the difference "
+                   "between left and right.")),
+            tip(value(k::MonoBelowHz, tr("Mono Below"), 0, 500, 0, 1, kHz),
+                tr("Makes the sound below this frequency mono, so the bass stays solid when "
+                   "the sound is widened. 0 is off.")),
+            tip(value(k::NrOutputDb, tr("Output"), -24, 24, 0, 0.1, kDb),
+                tr("Level of the result.")),
         }));
     add(effect(NoiseReduction, tr("Noise Reduction"),
         tr("Take hiss, hum and room noise out of speech (the RNNoise model is optional AI; a "

@@ -4424,6 +4424,246 @@ The program was probably closed by the system because the computer ran out of me
         <source>Optional: lower everything that is not speech by up to this much. 0 is off.</source>
         <translation>По желанию: снижает всё, что не является речью, не более чем на это значение. 0 — выключено.</translation>
     </message>
+    <message>
+        <source>Bit Crush</source>
+        <translation>Биткраш</translation>
+    </message>
+    <message>
+        <source>Cathedral</source>
+        <translation>Собор</translation>
+    </message>
+    <message>
+        <source>Chamber</source>
+        <translation>Камера</translation>
+    </message>
+    <message>
+        <source>Chorus</source>
+        <translation>Хорус</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>Свой</translation>
+    </message>
+    <message>
+        <source>Cuts the high frequencies of the tail, like soft walls and curtains do. 0 is bright, 100 is dark.</source>
+        <translation>Срезает высокие частоты хвоста, как мягкие стены и шторы. 0 — ярко, 100 — глухо.</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>Распад</translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation>Глубина</translation>
+    </message>
+    <message>
+        <source>Distortion</source>
+        <translation>Искажение</translation>
+    </message>
+    <message>
+        <source>Drive</source>
+        <translation>Драйв</translation>
+    </message>
+    <message>
+        <source>Early Reflections</source>
+        <translation>Ранние отражения</translation>
+    </message>
+    <message>
+        <source>Flanger</source>
+        <translation>Фленджер</translation>
+    </message>
+    <message>
+        <source>Hall</source>
+        <translation>Зал</translation>
+    </message>
+    <message>
+        <source>Hard Clip</source>
+        <translation>Жёсткое ограничение</translation>
+    </message>
+    <message>
+        <source>How far the copies sweep: more is a wobblier, more obvious effect.</source>
+        <translation>Насколько далеко «плывут» копии: чем больше, тем заметнее и неустойчивее эффект.</translation>
+    </message>
+    <message>
+        <source>How far the voices are spread between left and right.</source>
+        <translation>Насколько голоса разнесены между левым и правым каналами.</translation>
+    </message>
+    <message>
+        <source>How fast the copies sweep.</source>
+        <translation>Как быстро копии «плывут».</translation>
+    </message>
+    <message>
+        <source>How fast the sweep goes up and down.</source>
+        <translation>Как быстро «ход» идёт вверх и вниз.</translation>
+    </message>
+    <message>
+        <source>How hard the sound is pushed into the distortion. For Bit Crush, more drive means fewer bits.</source>
+        <translation>Насколько сильно звук загоняется в искажение. В режиме «Биткраш» больше драйва — меньше бит.</translation>
+    </message>
+    <message>
+        <source>How long after the sound the reverb starts. A longer pre-delay keeps the voice clear in front of the room.</source>
+        <translation>Через сколько после звука начинается реверберация. Чем длиннее предзадержка, тем яснее голос перед комнатой.</translation>
+    </message>
+    <message>
+        <source>How long the tail takes to die away (to a thousandth of its loudness).</source>
+        <translation>Сколько времени хвост затухает (до одной тысячной громкости).</translation>
+    </message>
+    <message>
+        <source>How much of the copies is fed back in for a richer, more resonant sound.</source>
+        <translation>Сколько копий возвращается на вход: звук становится насыщеннее и резонансней.</translation>
+    </message>
+    <message>
+        <source>How much of the effect is fed back in. Positive is a bright ring, negative is a hollow, darker one.</source>
+        <translation>Сколько эффекта возвращается на вход. Положительное значение даёт яркий звон, отрицательное — глухой, более тёмный.</translation>
+    </message>
+    <message>
+        <source>How wide the sweep is.</source>
+        <translation>Насколько широк «ход».</translation>
+    </message>
+    <message>
+        <source>Large Room</source>
+        <translation>Большая комната</translation>
+    </message>
+    <message>
+        <source>Level of the distorted sound. Distortion is loud: lower this as you raise the Drive.</source>
+        <translation>Уровень искажённого звука. Дисторшн громкий: уменьшайте этот параметр по мере роста драйва.</translation>
+    </message>
+    <message>
+        <source>Make the stereo picture narrower or wider</source>
+        <translation>Сделать стереокартину уже или шире</translation>
+    </message>
+    <message>
+        <source>Makes the sound below this frequency mono, so the bass stays solid when the sound is widened. 0 is off.</source>
+        <translation>Делает звук ниже этой частоты моно, чтобы бас оставался плотным при расширении звука. 0 — выключено.</translation>
+    </message>
+    <message>
+        <source>Mono Below</source>
+        <translation>Моно ниже</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>Вывод</translation>
+    </message>
+    <message>
+        <source>Plate</source>
+        <translation>Пластина</translation>
+    </message>
+    <message>
+        <source>Pre-delay</source>
+        <translation>Предзадержка</translation>
+    </message>
+    <message>
+        <source>Preset</source>
+        <translation>Пресет</translation>
+    </message>
+    <message>
+        <source>Rate</source>
+        <translation>Скорость</translation>
+    </message>
+    <message>
+        <source>Small Room</source>
+        <translation>Маленькая комната</translation>
+    </message>
+    <message>
+        <source>Soft Clip</source>
+        <translation>Мягкое ограничение</translation>
+    </message>
+    <message>
+        <source>Soft Clip rounds the peaks, Hard Clip cuts them flat, Bit Crush lowers the resolution, Tube-like adds warm even harmonics.</source>
+        <translation>Мягкое ограничение скругляет пики, жёсткое срезает их, «Биткраш» снижает разрядность, «Как лампа» добавляет тёплые чётные гармоники.</translation>
+    </message>
+    <message>
+        <source>Stereo Spread</source>
+        <translation>Стереоразброс</translation>
+    </message>
+    <message>
+        <source>Stereo Width</source>
+        <translation>Стереоширина</translation>
+    </message>
+    <message>
+        <source>The delay of the copies: short is tight and metallic, long is a loose double.</source>
+        <translation>Задержка копий: короткая звучит плотно и металлично, длинная — как свободный дубль.</translation>
+    </message>
+    <message>
+        <source>The level of the first echoes from the walls that give the sense of a room.</source>
+        <translation>Уровень первых отражений от стен, создающих ощущение комнаты.</translation>
+    </message>
+    <message>
+        <source>The middle delay of the sweep: shorter sounds higher and thinner.</source>
+        <translation>Средняя задержка «хода»: чем короче, тем звук выше и тоньше.</translation>
+    </message>
+    <message>
+        <source>The number of copies. More voices sound like a bigger ensemble.</source>
+        <translation>Число копий. Чем больше голосов, тем больше похоже на ансамбль.</translation>
+    </message>
+    <message>
+        <source>The size of the room: larger spaces have wider-spaced, smoother echoes.</source>
+        <translation>Размер комнаты: в больших помещениях эхо реже и ровнее.</translation>
+    </message>
+    <message>
+        <source>The stereo width of the reverb: 0 is mono, 100 is natural, more is wider.</source>
+        <translation>Стереоширина реверберации: 0 — моно, 100 — естественно, больше — шире.</translation>
+    </message>
+    <message>
+        <source>Thicken the sound with slightly detuned, moving copies</source>
+        <translation>Сделать звук гуще с помощью слегка расстроенных движущихся копий</translation>
+    </message>
+    <message>
+        <source>Tone</source>
+        <translation>Тембр</translation>
+    </message>
+    <message>
+        <source>Tube-like</source>
+        <translation>Как лампа</translation>
+    </message>
+    <message>
+        <source>Voices</source>
+        <translation>Голоса</translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation>Ширина</translation>
+    </message>
+    <message>
+        <source>0 is mono, 100 leaves the sound as it is, 200 doubles the difference between left and right.</source>
+        <translation>0 — моно, 100 оставляет звук как есть, 200 удваивает разницу между левым и правым каналами.</translation>
+    </message>
+    <message>
+        <source>0 is only the original sound, 100 is only the copies.</source>
+        <translation>0 — только исходный звук, 100 — только копии.</translation>
+    </message>
+    <message>
+        <source>0 is only the original sound, 100 is only the distorted sound.</source>
+        <translation>0 — только исходный звук, 100 — только искажённый.</translation>
+    </message>
+    <message>
+        <source>0 is only the original sound, 100 is only the reverb.</source>
+        <translation>0 — только исходный звук, 100 — только реверберация.</translation>
+    </message>
+    <message>
+        <source>0 is only the original sound; 50 gives the deepest notches.</source>
+        <translation>0 — только исходный звук; 50 даёт самые глубокие провалы.</translation>
+    </message>
+    <message>
+        <source>A low-pass after the distortion: 0 is dark and smooth, 100 is bright and harsh.</source>
+        <translation>Фильтр низких частот после искажения: 0 — тёмно и мягко, 100 — ярко и резко.</translation>
+    </message>
+    <message>
+        <source>A ready-made room. With a preset chosen, its Pre-delay, Decay, Room Size, Damping, Early Reflections and Width are used; choose Custom to set them yourself. Mix always stays yours.</source>
+        <translation>Готовое помещение. Если выбран пресет, используются его Предзадержка, Затухание, Размер комнаты, Демпфирование, Ранние отражения и Ширина; выберите «Свой», чтобы задать их самому. Микс всегда остаётся вашим.</translation>
+    </message>
+    <message>
+        <source>A room, plate or hall: pre-delay, a tail you set in seconds and room presets</source>
+        <translation>Комната, пластина или зал: предзадержка, хвост, заданный в секундах, и пресеты помещений</translation>
+    </message>
+    <message>
+        <source>A sweeping, jet-plane comb filter</source>
+        <translation>Скользящий гребенчатый фильтр, как шум реактивного самолёта</translation>
+    </message>
+    <message>
+        <source>Add grit and overdrive, or crush the sound</source>
+        <translation>Добавить грубость и перегруз или раздавить звук</translation>
+    </message>
 </context>
 <context>
     <name>kk::BuiltinEffects</name>
@@ -16334,6 +16574,226 @@ Thank you for watching</source>
     <message>
         <source>Optional: lower everything that is not speech by up to this much. 0 is off.</source>
         <translation>По желанию: снижает всё, что не является речью, не более чем на это значение. 0 — выключено.</translation>
+    </message>
+    <message>
+        <source>The size of the room: larger spaces have wider-spaced, smoother echoes.</source>
+        <translation>Размер комнаты: в больших помещениях эхо реже и ровнее.</translation>
+    </message>
+    <message>
+        <source>Cuts the high frequencies of the tail, like soft walls and curtains do. 0 is bright, 100 is dark.</source>
+        <translation>Срезает высокие частоты хвоста, как мягкие стены и шторы. 0 — ярко, 100 — глухо.</translation>
+    </message>
+    <message>
+        <source>Early Reflections</source>
+        <translation>Ранние отражения</translation>
+    </message>
+    <message>
+        <source>The level of the first echoes from the walls that give the sense of a room.</source>
+        <translation>Уровень первых отражений от стен, создающих ощущение комнаты.</translation>
+    </message>
+    <message>
+        <source>The stereo width of the reverb: 0 is mono, 100 is natural, more is wider.</source>
+        <translation>Стереоширина реверберации: 0 — моно, 100 — естественно, больше — шире.</translation>
+    </message>
+    <message>
+        <source>0 is only the original sound, 100 is only the reverb.</source>
+        <translation>0 — только исходный звук, 100 — только реверберация.</translation>
+    </message>
+    <message>
+        <source>Chorus</source>
+        <translation>Хорус</translation>
+    </message>
+    <message>
+        <source>Thicken the sound with slightly detuned, moving copies</source>
+        <translation>Сделать звук гуще с помощью слегка расстроенных движущихся копий</translation>
+    </message>
+    <message>
+        <source>Rate</source>
+        <translation>Скорость</translation>
+    </message>
+    <message>
+        <source>How fast the copies sweep.</source>
+        <translation>Как быстро копии «плывут».</translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation>Глубина</translation>
+    </message>
+    <message>
+        <source>How far the copies sweep: more is a wobblier, more obvious effect.</source>
+        <translation>Насколько далеко «плывут» копии: чем больше, тем заметнее и неустойчивее эффект.</translation>
+    </message>
+    <message>
+        <source>The delay of the copies: short is tight and metallic, long is a loose double.</source>
+        <translation>Задержка копий: короткая звучит плотно и металлично, длинная — как свободный дубль.</translation>
+    </message>
+    <message>
+        <source>How much of the copies is fed back in for a richer, more resonant sound.</source>
+        <translation>Сколько копий возвращается на вход: звук становится насыщеннее и резонансней.</translation>
+    </message>
+    <message>
+        <source>Voices</source>
+        <translation>Голоса</translation>
+    </message>
+    <message>
+        <source>The number of copies. More voices sound like a bigger ensemble.</source>
+        <translation>Число копий. Чем больше голосов, тем больше похоже на ансамбль.</translation>
+    </message>
+    <message>
+        <source>Stereo Spread</source>
+        <translation>Стереоразброс</translation>
+    </message>
+    <message>
+        <source>How far the voices are spread between left and right.</source>
+        <translation>Насколько голоса разнесены между левым и правым каналами.</translation>
+    </message>
+    <message>
+        <source>0 is only the original sound, 100 is only the copies.</source>
+        <translation>0 — только исходный звук, 100 — только копии.</translation>
+    </message>
+    <message>
+        <source>Flanger</source>
+        <translation>Фленджер</translation>
+    </message>
+    <message>
+        <source>A sweeping, jet-plane comb filter</source>
+        <translation>Скользящий гребенчатый фильтр, как шум реактивного самолёта</translation>
+    </message>
+    <message>
+        <source>How fast the sweep goes up and down.</source>
+        <translation>Как быстро «ход» идёт вверх и вниз.</translation>
+    </message>
+    <message>
+        <source>How wide the sweep is.</source>
+        <translation>Насколько широк «ход».</translation>
+    </message>
+    <message>
+        <source>The middle delay of the sweep: shorter sounds higher and thinner.</source>
+        <translation>Средняя задержка «хода»: чем короче, тем звук выше и тоньше.</translation>
+    </message>
+    <message>
+        <source>How much of the effect is fed back in. Positive is a bright ring, negative is a hollow, darker one.</source>
+        <translation>Сколько эффекта возвращается на вход. Положительное значение даёт яркий звон, отрицательное — глухой, более тёмный.</translation>
+    </message>
+    <message>
+        <source>0 is only the original sound; 50 gives the deepest notches.</source>
+        <translation>0 — только исходный звук; 50 даёт самые глубокие провалы.</translation>
+    </message>
+    <message>
+        <source>Add grit and overdrive, or crush the sound</source>
+        <translation>Добавить грубость и перегруз или раздавить звук</translation>
+    </message>
+    <message>
+        <source>Drive</source>
+        <translation>Драйв</translation>
+    </message>
+    <message>
+        <source>How hard the sound is pushed into the distortion. For Bit Crush, more drive means fewer bits.</source>
+        <translation>Насколько сильно звук загоняется в искажение. В режиме «Биткраш» больше драйва — меньше бит.</translation>
+    </message>
+    <message>
+        <source>Tone</source>
+        <translation>Тембр</translation>
+    </message>
+    <message>
+        <source>A low-pass after the distortion: 0 is dark and smooth, 100 is bright and harsh.</source>
+        <translation>Фильтр низких частот после искажения: 0 — тёмно и мягко, 100 — ярко и резко.</translation>
+    </message>
+    <message>
+        <source>Soft Clip</source>
+        <translation>Мягкое ограничение</translation>
+    </message>
+    <message>
+        <source>Hard Clip</source>
+        <translation>Жёсткое ограничение</translation>
+    </message>
+    <message>
+        <source>Bit Crush</source>
+        <translation>Биткраш</translation>
+    </message>
+    <message>
+        <source>Tube-like</source>
+        <translation>Как лампа</translation>
+    </message>
+    <message>
+        <source>Soft Clip rounds the peaks, Hard Clip cuts them flat, Bit Crush lowers the resolution, Tube-like adds warm even harmonics.</source>
+        <translation>Мягкое ограничение скругляет пики, жёсткое срезает их, «Биткраш» снижает разрядность, «Как лампа» добавляет тёплые чётные гармоники.</translation>
+    </message>
+    <message>
+        <source>Level of the distorted sound. Distortion is loud: lower this as you raise the Drive.</source>
+        <translation>Уровень искажённого звука. Дисторшн громкий: уменьшайте этот параметр по мере роста драйва.</translation>
+    </message>
+    <message>
+        <source>0 is only the original sound, 100 is only the distorted sound.</source>
+        <translation>0 — только исходный звук, 100 — только искажённый.</translation>
+    </message>
+    <message>
+        <source>Stereo Width</source>
+        <translation>Стереоширина</translation>
+    </message>
+    <message>
+        <source>Make the stereo picture narrower or wider</source>
+        <translation>Сделать стереокартину уже или шире</translation>
+    </message>
+    <message>
+        <source>0 is mono, 100 leaves the sound as it is, 200 doubles the difference between left and right.</source>
+        <translation>0 — моно, 100 оставляет звук как есть, 200 удваивает разницу между левым и правым каналами.</translation>
+    </message>
+    <message>
+        <source>Mono Below</source>
+        <translation>Моно ниже</translation>
+    </message>
+    <message>
+        <source>Makes the sound below this frequency mono, so the bass stays solid when the sound is widened. 0 is off.</source>
+        <translation>Делает звук ниже этой частоты моно, чтобы бас оставался плотным при расширении звука. 0 — выключено.</translation>
+    </message>
+    <message>
+        <source>A room, plate or hall: pre-delay, a tail you set in seconds and room presets</source>
+        <translation>Комната, пластина или зал: предзадержка, хвост, заданный в секундах, и пресеты помещений</translation>
+    </message>
+    <message>
+        <source>Preset</source>
+        <translation>Пресет</translation>
+    </message>
+    <message>
+        <source>Small Room</source>
+        <translation>Маленькая комната</translation>
+    </message>
+    <message>
+        <source>Large Room</source>
+        <translation>Большая комната</translation>
+    </message>
+    <message>
+        <source>Hall</source>
+        <translation>Зал</translation>
+    </message>
+    <message>
+        <source>Plate</source>
+        <translation>Пластина</translation>
+    </message>
+    <message>
+        <source>Chamber</source>
+        <translation>Камера</translation>
+    </message>
+    <message>
+        <source>Cathedral</source>
+        <translation>Собор</translation>
+    </message>
+    <message>
+        <source>A ready-made room. With a preset chosen, its Pre-delay, Decay, Room Size, Damping, Early Reflections and Width are used; choose Custom to set them yourself. Mix always stays yours.</source>
+        <translation>Готовое помещение. Если выбран пресет, используются его Предзадержка, Затухание, Размер комнаты, Демпфирование, Ранние отражения и Ширина; выберите «Свой», чтобы задать их самому. Микс всегда остаётся вашим.</translation>
+    </message>
+    <message>
+        <source>Pre-delay</source>
+        <translation>Предзадержка</translation>
+    </message>
+    <message>
+        <source>How long after the sound the reverb starts. A longer pre-delay keeps the voice clear in front of the room.</source>
+        <translation>Через сколько после звука начинается реверберация. Чем длиннее предзадержка, тем яснее голос перед комнатой.</translation>
+    </message>
+    <message>
+        <source>How long the tail takes to die away (to a thousandth of its loudness).</source>
+        <translation>Сколько времени хвост затухает (до одной тысячной громкости).</translation>
     </message>
 </context>
 <context>

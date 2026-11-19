@@ -19,6 +19,10 @@ inline constexpr char Reverb[] = "audio_reverb";
 inline constexpr char NoiseReduction[] = "audio_noise_reduction";
 inline constexpr char DeEsserFx[] = "audio_deesser";
 inline constexpr char LevelerFx[] = "audio_dialogue_leveler";
+inline constexpr char Chorus[] = "audio_chorus";
+inline constexpr char Flanger[] = "audio_flanger";
+inline constexpr char Distortion[] = "audio_distortion";
+inline constexpr char StereoWidth[] = "audio_stereo_width";
 } // namespace afxid
 
 /// Parameter keys (stored in EffectInstance::params). All audio effect parameters are plain
@@ -69,6 +73,22 @@ inline constexpr char LvMaxDownDb[] = "max_down_db";
 inline constexpr char LvSpeed[] = "speed"; ///< afxchoice::LvSlow / LvMedium / LvFast
 inline constexpr char LvNoiseFloorDb[] = "noise_floor_db";
 inline constexpr char LvBackgroundDb[] = "background_db";
+// Reverb (spec 138; RoomSize, Damping and Mix are older), Chorus, Flanger, Distortion, Stereo Width.
+// Feedback, Mix, FrequencyHz and the output key NrOutputDb are shared.
+inline constexpr char RvPreset[] = "preset"; ///< afxchoice::RvCustom or a room preset id
+inline constexpr char RvPreDelayMs[] = "pre_delay_ms";
+inline constexpr char RvDecayS[] = "decay_s";
+inline constexpr char RvEarly[] = "early_level"; ///< percent
+inline constexpr char Width[] = "width"; ///< percent (Reverb and Stereo Width)
+inline constexpr char RateHz[] = "rate_hz";
+inline constexpr char DepthPercent[] = "depth";
+inline constexpr char DelayMs[] = "delay_ms";
+inline constexpr char Voices[] = "voices";
+inline constexpr char Spread[] = "spread"; ///< percent
+inline constexpr char DriveDb[] = "drive_db";
+inline constexpr char Tone[] = "tone"; ///< percent
+inline constexpr char DistMode[] = "mode"; ///< afxchoice::DistSoft / DistHard / DistCrush / DistTube
+inline constexpr char MonoBelowHz[] = "mono_below_hz"; ///< 0 = off
 } // namespace afxkeys
 
 /// Choice values of the Noise Reduction effect.
@@ -80,9 +100,19 @@ inline constexpr char NrGate[] = "gate";
 inline constexpr char LvSlow[] = "slow";
 inline constexpr char LvMedium[] = "medium";
 inline constexpr char LvFast[] = "fast";
+inline constexpr char DistSoft[] = "soft";
+inline constexpr char DistHard[] = "hard";
+inline constexpr char DistCrush[] = "crush";
+inline constexpr char DistTube[] = "tube";
+inline constexpr char RvCustom[] = "custom";
+/// The Reverb presets, in the order of dsp::reverbPreset().
+inline constexpr const char* kReverbPresetIds[] = {
+    "small_room", "large_room", "hall", "plate", "chamber", "cathedral"};
 } // namespace afxchoice
 
 /// Longest delay time (ms); the processor's buffer is sized for it.
 inline constexpr double kAudioDelayMaxMs = 2000.0;
+/// Longest Reverb pre-delay (ms).
+inline constexpr double kReverbMaxPreDelayMs = 250.0;
 
 } // namespace kk
