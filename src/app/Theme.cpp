@@ -106,10 +106,15 @@ QString styleSheet(const QPalette& p)
     if (!header.isValid() || (header.lightness() < 128) != darkWindow)
         header = darkWindow ? window.lighter(115) : window.darker(103);
 
+    // Panel title bars: the header colour, except when the header is darker than the window
+    // (Kinoklip scheme: near-black top and page bars), where the title bars sit between them.
+    const QColor panelTitle
+        = darkWindow && header.lightness() < window.lightness() ? mix(window, header, 0.45) : header;
+
     QString sheet = QStringLiteral(R"(
 QSplitter::handle { background: %1; }
 QFrame#PanelFrame { background: %2; border: none; }
-QWidget#PanelTitleBar { background: %3; border-bottom: 1px solid %1; }
+QWidget#PanelTitleBar { background: %5; border-bottom: 1px solid %1; }
 QLabel#PanelTitle { font-weight: 600; }
 QLabel#PlaceholderText { color: %4; }
 QWidget#InterfaceBar, QWidget#PageBar { background: %3; }
@@ -119,7 +124,8 @@ QLabel#ProjectTitle { font-weight: 600; }
 QLabel#TimecodeLabel { font-family: monospace; font-weight: 600; }
 )");
     return sheet.arg(
-        css(separator), css(window), css(header), css(p.color(QPalette::PlaceholderText)));
+        css(separator), css(window), css(header), css(p.color(QPalette::PlaceholderText)),
+        css(panelTitle));
 }
 
 // ---- Styles ---------------------------------------------------------------------------

@@ -674,6 +674,14 @@ public:
         auto showSpeed = [this, speedLabel] {
             speedLabel->setText(tr("%1x").arg(m_speed->value() * kSpeedStep));
         };
+        // A fixed width that fits the widest value, so the slider does not move while the
+        // text changes between "2x" and "1.25x".
+        int speedWidth = 0;
+        for (int v = kMinSpeedStep; v <= kMaxSpeedStep; ++v)
+            speedWidth = std::max(speedWidth, speedLabel->fontMetrics().horizontalAdvance(
+                                                  tr("%1x").arg(v * kSpeedStep)));
+        speedLabel->setFixedWidth(speedWidth + 2);
+        speedLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
         showSpeed();
         connect(m_speed, &QSlider::valueChanged, this, showSpeed);
         connect(m_animate, &QCheckBox::toggled, m_speed, &QWidget::setEnabled);
