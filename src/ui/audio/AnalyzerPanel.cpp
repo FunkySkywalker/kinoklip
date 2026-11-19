@@ -13,6 +13,7 @@
 #include "ui/common/Metrics.h"
 #include "ui/common/PanelInfo.h"
 #include "ui/common/SchemeColors.h"
+#include "ui/common/UiFonts.h"
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -64,8 +65,7 @@ void SpectrumView::paintEvent(QPaintEvent*)
         return area.bottom() - t * area.height();
     };
     p.setPen(QPen(sc.textDim, 1, Qt::DotLine));
-    QFont small = font();
-    small.setPointSizeF(std::max(6.0, small.pointSizeF() - 2.0));
+    const QFont small = uifonts::font(uifonts::Role::Tiny, font());
     p.setFont(small);
     for (const double hz : {50.0, 100.0, 200.0, 500.0, 1000.0, 2000.0, 5000.0, 10000.0}) {
         p.drawLine(QPointF(xOf(hz), area.top()), QPointF(xOf(hz), area.bottom()));
@@ -130,8 +130,7 @@ void CorrelationBar::paintEvent(QPaintEvent*)
     p.setPen(QPen(sc.text, 1));
     p.drawLine(QPointF(mid, bar.top()), QPointF(mid, bar.bottom()));
     p.setPen(sc.textDim);
-    QFont small = font();
-    small.setPointSizeF(std::max(6.0, small.pointSizeF() - 2.0));
+    const QFont small = uifonts::font(uifonts::Role::Tiny, font());
     p.setFont(small);
     p.drawText(QRectF(bar.left(), bar.bottom(), 24, 12), Qt::AlignLeft, QStringLiteral("-1"));
     p.drawText(QRectF(mid - 12, bar.bottom(), 24, 12), Qt::AlignCenter, QStringLiteral("0"));

@@ -16,6 +16,7 @@
 #include "ui/common/SchemeColors.h"
 #include "ui/effects/EffectActions.h"
 #include "ui/help/Guide.h"
+#include "ui/common/UiFonts.h"
 
 #include <QApplication>
 #include <QFile>
@@ -240,9 +241,7 @@ QIcon categoryGlyph(EffectCategory category)
         break;
     }
     default: {
-        QFont font = QApplication::font();
-        font.setPixelSize(category == EffectCategory::Title ? 10 : 8);
-        font.setBold(true);
+        const QFont font = uifonts::font(uifonts::Role::SmallEmphasis, QApplication::font());
         p.setFont(font);
         p.setPen(tint.lighter(130));
         p.drawText(tile, Qt::AlignCenter,
@@ -585,8 +584,7 @@ void EffectsLibraryPanel::markStandardTransitions()
             continue;
         const bool audio = d->category == EffectCategory::AudioTransition;
         const bool standard = m_ctx.project->standardTransitionId(audio) == id;
-        QFont font = m_tree->font();
-        font.setBold(standard);
+        const QFont font = uifonts::font(standard ? uifonts::Role::Emphasis : uifonts::Role::Body, m_tree->font());
         (*it)->setFont(0, font);
         (*it)->setToolTip(0,
             standard ? tr("%1\nStandard transition of this project").arg(d->description)
@@ -597,8 +595,7 @@ void EffectsLibraryPanel::markStandardTransitions()
 void EffectsLibraryPanel::populate()
 {
     const EffectRegistry& registry = EffectRegistry::instance();
-    QFont sectionFont = m_tree->font();
-    sectionFont.setBold(true);
+    const QFont sectionFont = uifonts::font(uifonts::Role::Emphasis, m_tree->font());
     for (EffectCategory category : {EffectCategory::Transition, EffectCategory::AudioTransition,
              EffectCategory::Title, EffectCategory::Generator, EffectCategory::Effects,
              EffectCategory::VideoEffect, EffectCategory::AudioEffect}) {

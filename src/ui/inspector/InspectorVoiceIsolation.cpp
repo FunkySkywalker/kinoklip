@@ -5,6 +5,7 @@
 #include "core/Project.h"
 #include "core/Timeline.h"
 #include "ui/common/AppContext.h"
+#include "ui/common/StyleTokens.h"
 #include "core/VoiceIsolation.h"
 #include "ui/inspector/InspectorPanel.h"
 #include "ui/inspector/ParamGroupBox.h"
@@ -25,6 +26,7 @@ void InspectorPanel::buildVoiceIsolationSection(quint64 audioClipId)
 
     auto* toggle = new QCheckBox(tr("Voice Isolation (Optional AI)"));
     toggle->setObjectName(QStringLiteral("VoiceIsolationToggle"));
+    style::setToggle(toggle); // pill switch in the Kinoklip style
     toggle->setToolTip(tr("Keep the voice of this clip and take out noise, music and room sound. "
                           "Optional AI: the RNNoise model is built into Kinoklip and runs on "
                           "this computer; nothing is downloaded or uploaded."));

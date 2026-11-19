@@ -12,6 +12,7 @@
 #include "ui/keyframes/KeyframeGrid.h"
 #include "ui/keyframes/KeyframeTimeMap.h"
 #include "ui/keyframes/KeyframeViewBase.h"
+#include "ui/common/UiFonts.h"
 
 #include <QMouseEvent>
 #include <QPainter>
@@ -86,8 +87,7 @@ void KeyframeRuler::paintEvent(QPaintEvent*)
     const int64_t minor = std::max<int64_t>(1, step / kMinorTicks);
     const double f0 = m_map.xToFrame(m_labelWidth);
     const double f1 = m_map.xToFrame(width());
-    QFont small = font();
-    small.setPointSizeF(std::max(6.0, small.pointSizeF() - 1.0));
+    const QFont small = uifonts::font(uifonts::Role::Small, font());
     p.setFont(small);
     if (minor * ppf >= 4.0) {
         p.setPen(dim);

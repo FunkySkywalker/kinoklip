@@ -29,6 +29,7 @@
 #include "ui/audio/VoiceOverController.h"
 #include "ui/common/ActionRegistry.h"
 #include "ui/common/AppContext.h"
+#include "ui/common/UiFonts.h"
 #include "ui/common/LiveResize.h"
 #include "ui/common/MediaManagement.h"
 #include "ui/common/Resources.h"
@@ -223,6 +224,7 @@ int main(int argc, char** argv)
         return kk::runRenderFrame(
             options.renderFrameProject, options.renderFrameIndex, options.renderFramePath);
 
+    kk::uifonts::setSessionOverride(options.interfaceFont);
     kk::theme::setSessionOverrides(options.style, options.colorScheme);
     kk::theme::apply(app);
 

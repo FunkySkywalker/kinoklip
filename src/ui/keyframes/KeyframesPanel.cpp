@@ -20,6 +20,7 @@
 #include "ui/keyframes/KeyframeCommands.h"
 #include "ui/keyframes/KeyframeParamTree.h"
 #include "ui/keyframes/KeyframeRuler.h"
+#include "ui/common/UiFonts.h"
 
 #include <QApplication>
 #include <QButtonGroup>
@@ -118,8 +119,7 @@ KeyframesPanel::KeyframesPanel(AppContext& ctx, QWidget* parent)
     m_treeHeader->setFixedHeight(m_ruler->sizeHint().height());
     m_treeHeader->setContentsMargins(metrics::kSpaceM, 0, 0, 0);
     m_treeHeader->setAutoFillBackground(true);
-    QFont hf = m_treeHeader->font();
-    hf.setBold(true);
+    const QFont hf = uifonts::font(uifonts::Role::Emphasis, m_treeHeader->font());
     m_treeHeader->setFont(hf);
     leftLayout->addWidget(m_treeHeader);
     leftLayout->addWidget(m_tree, 1);

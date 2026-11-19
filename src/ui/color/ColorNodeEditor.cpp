@@ -5,6 +5,7 @@
 #include "ui/color/ColorNodeOps.h"
 #include "ui/color/ColorSession.h"
 #include "ui/common/ActionRegistry.h"
+#include "ui/common/UiFonts.h"
 
 #include <QAction>
 #include <QContextMenuEvent>
@@ -244,14 +245,12 @@ void ColorNodeEditor::paintTile(QPainter& p, const ClipGrade& g, int index) cons
     p.setBrush(body);
     p.drawRoundedRect(r, radius, radius);
 
-    QFont f = font();
-    f.setPointSizeF(std::max(5.0, f.pointSizeF() * std::min(1.0, m_zoom) * 0.9));
+    const QFont f = uifonts::font(uifonts::Role::Tiny, font(), std::min(1.0, m_zoom));
     p.setFont(f);
     if (n.isMixer()) {
         // A mixer: its kind as a letter (P / L) in the middle.
         p.setPen(text);
-        QFont big = f;
-        big.setBold(true);
+        const QFont big = uifonts::font(uifonts::Role::Emphasis, f, std::min(1.0, m_zoom));
         p.setFont(big);
         p.drawText(r, Qt::AlignCenter,
             n.type == GradeNodeType::Parallel ? tr("P", "Parallel mixer") : tr("L", "Layer mixer"));
@@ -357,8 +356,7 @@ void ColorNodeEditor::paintEvent(QPaintEvent*)
     p.drawEllipse(sourcePos(), pr, pr);
     p.drawEllipse(gradeOutputPos(), pr, pr);
     p.setPen(pal.color(QPalette::Text));
-    QFont f = font();
-    f.setPointSizeF(std::max(5.0, f.pointSizeF() * 0.85));
+    const QFont f = uifonts::font(uifonts::Role::Tiny, font());
     p.setFont(f);
     p.drawText(
         QRectF(sourcePos() - QPointF(40, 26), QSizeF(80, 16)), Qt::AlignCenter, tr("Source"));

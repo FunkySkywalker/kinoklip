@@ -10,6 +10,7 @@
 #include "ui/common/Metrics.h"
 #include "ui/keyframes/KeyframeCommands.h"
 #include "ui/timeline/TimelineLayout.h"
+#include "ui/common/UiFonts.h"
 
 #include <QPainter>
 #include <QToolButton>
@@ -173,8 +174,7 @@ void CurveEditorWidget::paintLabelColumn(QPainter& p)
         p.setBrush(shown ? col : Qt::NoBrush);
         p.drawRect(box);
         p.setBrush(Qt::NoBrush);
-        QFont f = small;
-        f.setBold(all[i].id == activeCurve());
+        const QFont f = uifonts::font(all[i].id == activeCurve() ? uifonts::Role::SmallEmphasis : uifonts::Role::Small, small);
         p.setFont(f);
         p.setPen(shown ? text : dim);
         const QString label = all[i].groupName + QStringLiteral(" / ") + all[i].label;

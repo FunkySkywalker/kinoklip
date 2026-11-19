@@ -5,6 +5,7 @@
 #include "render/Biquad.h"
 #include "ui/audio/AudioScales.h"
 #include "ui/common/SchemeColors.h"
+#include "ui/common/UiFonts.h"
 
 #include <QKeyEvent>
 #include <QMouseEvent>
@@ -125,8 +126,7 @@ void EqCurveView::paintEvent(QPaintEvent*)
     p.fillRect(r, sc.view);
 
     // Grid and labels.
-    QFont f = font();
-    f.setPointSizeF(std::max(6.0, f.pointSizeF() * 0.8));
+    const QFont f = uifonts::font(uifonts::Role::Tiny, font());
     p.setFont(f);
     for (double hz : kGridHz) {
         const double x = xOf(hz);

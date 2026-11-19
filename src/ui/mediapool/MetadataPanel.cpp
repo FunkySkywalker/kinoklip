@@ -15,6 +15,7 @@
 #include "ui/common/TimecodeFormat.h"
 #include "ui/common/VimRowOps.h"
 #include "ui/mediapool/MediaPoolPanel.h"
+#include "ui/common/UiFonts.h"
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -39,8 +40,7 @@ constexpr int kMaxRating = 5;
 QLabel* sectionLabel(const QString& title, bool first)
 {
     auto* label = new QLabel(title);
-    QFont bold = label->font();
-    bold.setBold(true);
+    const QFont bold = uifonts::font(uifonts::Role::Emphasis, label->font());
     label->setFont(bold);
     label->setContentsMargins(0, first ? 0 : 8, 0, 0);
     return label;
@@ -91,8 +91,7 @@ MetadataPanel::MetadataPanel(AppContext& ctx, QWidget* parent)
     m_heading = new QLabel;
     m_heading->setObjectName(QStringLiteral("MetadataHeading"));
     m_heading->setWordWrap(true);
-    QFont big = m_heading->font();
-    big.setBold(true);
+    const QFont big = uifonts::font(uifonts::Role::Heading, m_heading->font());
     m_heading->setFont(big);
     column->addWidget(m_heading);
     auto* detailsHost = new QWidget;

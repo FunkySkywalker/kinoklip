@@ -9,6 +9,7 @@
 #include "ui/common/SchemeColors.h"
 #include "ui/keyframes/KeyframeGrid.h"
 #include "ui/keyframes/KeyframeTimeMap.h"
+#include "ui/common/UiFonts.h"
 
 #include <QApplication>
 #include <QContextMenuEvent>
@@ -511,8 +512,7 @@ void CurveView::paintEvent(QPaintEvent*)
     QPainter p(this);
     p.translate(0, -yOffset());
     paintBackground(p, QRect(0, yOffset(), width(), height()));
-    QFont small = font();
-    small.setPointSizeF(std::max(6.0, small.pointSizeF() - 1.0));
+    const QFont small = uifonts::font(uifonts::Role::Small, font());
     p.setFont(small);
     ensureActive();
     paintLabelColumn(p);

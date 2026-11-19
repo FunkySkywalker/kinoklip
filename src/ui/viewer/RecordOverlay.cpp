@@ -3,6 +3,7 @@
 
 #include "ui/audio/VoiceOverController.h"
 #include "ui/viewer/ViewerSurface.h"
+#include "ui/common/UiFonts.h"
 
 #include <QCoreApplication>
 #include <QEvent>
@@ -55,10 +56,7 @@ void RecordOverlay::paintEvent(QPaintEvent*)
     p.setRenderHint(QPainter::Antialiasing, true);
     if (m_count > 0) {
         const int side = std::min(width(), height());
-        QFont f = font();
-        f.setBold(true);
-        f.setPixelSize(std::max(24, side / 3));
-        p.setFont(f);
+        p.setFont(uifonts::withPixelSize(uifonts::Role::Emphasis, font(), std::max(24, side / 3)));
         const QRect disc(
             width() / 2 - side / 5, height() / 2 - side / 5, 2 * side / 5, 2 * side / 5);
         p.setPen(Qt::NoPen);
@@ -68,9 +66,7 @@ void RecordOverlay::paintEvent(QPaintEvent*)
         p.drawText(disc, Qt::AlignCenter, QString::number(m_count));
     }
     if (m_recording) {
-        QFont f = font();
-        f.setBold(true);
-        p.setFont(f);
+        p.setFont(uifonts::font(uifonts::Role::Emphasis, font()));
         const QRect box(12, 12, 74, 26);
         p.setPen(Qt::NoPen);
         p.setBrush(QColor(0, 0, 0, 150));

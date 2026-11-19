@@ -76,6 +76,7 @@ Useful options:
 ```sh
 ./build/kinoklip --reset-layout                     # ignore the saved window layout
 QT_QPA_PLATFORM=offscreen ./build/kinoklip --menu-reference docs/menu-reference.md   # rewrite the menu and panel reference (scripts/menu-reference.sh)
+./build/kinoklip --interface-font system         # interface font for this run: resolve (Open Sans, default) or system
 ./build/kinoklip --color-scheme BreezeLight         # colour scheme for this run (or "system")
 ./build/kinoklip --widget-style Fusion              # widget style for this run
 QT_QPA_PLATFORM=offscreen ./build/kinoklip --screenshot edit out.png [project.kkproj]

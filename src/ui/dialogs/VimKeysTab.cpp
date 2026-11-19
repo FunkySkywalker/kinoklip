@@ -5,6 +5,7 @@
 #include "ui/common/VimKeymap.h"
 #include "ui/common/VimKeys.h"
 #include "ui/common/VimOptions.h"
+#include "ui/common/UiFonts.h"
 
 #include <QComboBox>
 #include <QCompleter>
@@ -277,8 +278,7 @@ void VimKeysTab::refresh()
     const QString currentKeys
         = m_tree->currentItem() ? m_tree->currentItem()->data(0, kKeysRole).toString() : QString();
     m_tree->clear();
-    QFont bold = m_tree->font();
-    bold.setBold(true);
+    const QFont bold = uifonts::font(uifonts::Role::Emphasis, m_tree->font());
     QMap<QString, QTreeWidgetItem*> groups;
     auto group = [&](const QString& key) {
         if (auto* g = groups.value(key))
@@ -341,7 +341,9 @@ void VimKeysTab::refresh()
         item->setData(0, kRunRole, b.run);
         if (b.origin != VimBinding::Origin::Default) {
             QFont f = item->font(0);
-            f.setBold(b.origin == VimBinding::Origin::User);
+            f = uifonts::font(b.origin == VimBinding::Origin::User ? uifonts::Role::Emphasis
+                                                                    : uifonts::Role::Body,
+                f);
             f.setItalic(b.origin == VimBinding::Origin::Vimrc);
             for (int c = 0; c < 4; ++c)
                 item->setFont(c, f);

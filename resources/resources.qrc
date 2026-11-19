@@ -14,6 +14,10 @@
         <file>color-schemes/BreezeDark.colors</file>
         <file>color-schemes/BreezeLight.colors</file>
         <file>color-schemes/Kinoklip.colors</file>
+        <file>fonts/OpenSans-Regular.ttf</file>
+        <file>fonts/OpenSans-Italic.ttf</file>
+        <file>fonts/OpenSans-SemiBold.ttf</file>
+        <file>fonts/OpenSans-Bold.ttf</file>
         <file>icons/add.svg</file>
         <file>icons/dissolve.svg</file>
         <file>icons/source_clip.svg</file>

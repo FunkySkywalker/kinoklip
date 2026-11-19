@@ -10,6 +10,7 @@
 #include "ui/common/ActionRegistry.h"
 #include "ui/common/SchemeColors.h"
 #include "ui/common/SettingsPages.h"
+#include "ui/common/UiFonts.h"
 
 #include <QAction>
 #include <QActionGroup>
@@ -115,17 +116,16 @@ QString styleSheet(const QPalette& p)
 QSplitter::handle { background: %1; }
 QFrame#PanelFrame { background: %2; border: none; }
 QWidget#PanelTitleBar { background: %5; border-bottom: 1px solid %1; }
-QLabel#PanelTitle { font-weight: 600; }
 QLabel#PlaceholderText { color: %4; }
 QWidget#InterfaceBar, QWidget#PageBar { background: %3; }
 QWidget#InterfaceBar { border-bottom: 1px solid %1; }
 QWidget#PageBar { border-top: 1px solid %1; }
-QLabel#ProjectTitle { font-weight: 600; }
-QLabel#TimecodeLabel { font-family: monospace; font-weight: 600; }
+QLabel#ProjectTitle { %6 }
 )");
-    return sheet.arg(
-        css(separator), css(window), css(header), css(p.color(QPalette::PlaceholderText)),
-        css(panelTitle));
+    return sheet.arg(css(separator), css(window), css(header),
+               css(p.color(QPalette::PlaceholderText)), css(panelTitle),
+               uifonts::css(uifonts::Role::PanelTitle))
+        + uifonts::styleSheetRules();
 }
 
 // ---- Styles ---------------------------------------------------------------------------
@@ -467,6 +467,7 @@ void applyStyleAndScheme(QApplication& app, const QString& style, const QString&
 
 void refreshChrome(QApplication& app)
 {
+    uifonts::apply(app);
     applyIconTheme();
     app.setStyleSheet(styleSheet(QApplication::palette()));
     // Last: custom-painted widgets repaint from the new roles (SchemeColorsNotifier).
@@ -587,6 +588,11 @@ void apply(QApplication& app)
     }
     applyStyleAndScheme(app, storedStyle(), storedScheme());
     refreshChrome(app);
+    // Preferences > UI Settings > Interface font: font and style sheet follow at once.
+    uifonts::setChangedHandler([] {
+        if (QApplication* a = application())
+            refreshChrome(*a);
+    });
     syncActionChecks();
     instantpopups::install(app); // menus and popups open and close at once
     qCInfo(lcTheme) << "style" << s.activeStyle << "colour scheme"

@@ -8,6 +8,7 @@
 #include "ui/common/TextFit.h"
 #include "ui/common/VimRowOps.h"
 #include "ui/inspector/ValueField.h"
+#include "ui/common/UiFonts.h"
 
 #include <QButtonGroup>
 #include <QCheckBox>
@@ -404,8 +405,7 @@ QualifierPanel::QualifierPanel(ColorSession* session, QWidget* parent)
     finesse->setVerticalSpacing(3);
     auto* finesseTitle = new QLabel(tr("Matte Finesse"), this);
     finesseTitle->setObjectName(QStringLiteral("QualifierFinesseTitle"));
-    QFont bold = finesseTitle->font();
-    bold.setBold(true);
+    const QFont bold = uifonts::font(uifonts::Role::Emphasis, finesseTitle->font());
     finesseTitle->setFont(bold);
     finesse->addWidget(finesseTitle, 0, 0, 2, 1, Qt::AlignTop);
     struct FinesseSpec

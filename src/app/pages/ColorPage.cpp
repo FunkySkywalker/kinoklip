@@ -6,6 +6,7 @@
 #include "core/GradeGallery.h"
 #include "core/MediaPool.h"
 #include "core/Project.h"
+#include "ui/common/UiFonts.h"
 #include "core/Timeline.h"
 #include "playback/PlaybackEngine.h"
 #include "ui/color/ColorBrowsers.h"
@@ -372,7 +373,9 @@ QWidget* ColorPage::buildViewer()
     trl->addStretch(1);
     m_timecode = new QLabel(transport);
     m_timecode->setObjectName(QStringLiteral("ColorTimecode"));
-    m_timecode->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
+    m_timecode->setFont(uifonts::choice() == uifonts::Choice::System
+            ? uifonts::font(uifonts::Role::Mono)
+            : uifonts::font(uifonts::Role::ViewerTimecode, m_timecode->font()));
     trl->addWidget(m_timecode);
     bl->addWidget(transport);
     m_viewerFrame->setContentWidget(body);

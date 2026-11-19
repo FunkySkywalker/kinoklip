@@ -18,6 +18,7 @@
 #include "ui/common/Metrics.h"
 #include "ui/common/SettingsPages.h"
 #include "ui/common/UiAnimation.h"
+#include "ui/common/UiFonts.h"
 #include "ui/common/VimOptions.h"
 #include "ui/dialogs/KeyboardCustomizationDialog.h"
 #include "ui/dialogs/PreferencesDialog.h"
@@ -652,6 +653,24 @@ public:
                     "grouped by task, with plain names. The commands and their keys are the "
                     "same."));
 
+        // Interface font (spec 142): Open Sans as in Resolve, or the platform's font.
+        m_interfaceFont = new QComboBox;
+        m_interfaceFont->setObjectName(QStringLiteral("InterfaceFont"));
+        m_interfaceFont->addItem(
+            tr("Resolve (Open Sans)"), uifonts::choiceId(uifonts::Choice::Resolve));
+        m_interfaceFont->addItem(tr("System font"), uifonts::choiceId(uifonts::Choice::System));
+        itemTip(m_interfaceFont, 0, tr("Open Sans, the font of DaVinci Resolve, in Resolve's sizes."));
+        itemTip(m_interfaceFont, 1, tr("The font the desktop is set to, as before."));
+        m_interfaceFont->setCurrentIndex(std::max(
+            0, m_interfaceFont->findData(uifonts::choiceId(uifonts::choice()))));
+        m_interfaceFont->setToolTip(tr("The font of menus, panels, the timeline and the "
+                                       "timecodes. Resolve uses Open Sans (included with "
+                                       "Kinoklip). A change applies at once."));
+        form->addRow(tr("Interface font"), m_interfaceFont);
+        hint(form, tr("Resolve (Open Sans): the font and text sizes of DaVinci Resolve. System "
+                    "font: the font the desktop is set to. The change applies at once; text "
+                    "drawn into titles and exports is not affected."));
+
         // v2.2: small tweens of timeline edits (src/ui/common/UiAnimation.h).
         m_animate = new QCheckBox(tr("Animate timeline edits"));
         m_animate->setObjectName(QStringLiteral("AnimateTimelineEdits"));
@@ -715,6 +734,8 @@ public:
         if (language != previous)
             PreferencesDialog::restartNeededFor(tr("Language"));
         menulayout::setLayout(menulayout::layoutFromId(m_menuLayout->currentData().toString()));
+        if (m_interfaceFont->currentData().toString() != uifonts::choiceId(uifonts::choice()))
+            uifonts::setChoice(uifonts::choiceFromId(m_interfaceFont->currentData().toString()));
         prefs::setAnimationsEnabled(m_animate->isChecked());
         prefs::setAnimationSpeed(m_speed->value() * kSpeedStep);
         prefs::setRenderNotificationsEnabled(m_renderNotify->isChecked());
@@ -728,6 +749,7 @@ private:
     QComboBox* m_scale = nullptr;
     QComboBox* m_language = nullptr;
     QComboBox* m_menuLayout = nullptr;
+    QComboBox* m_interfaceFont = nullptr;
     QCheckBox* m_animate = nullptr;
     QSlider* m_speed = nullptr;
     QCheckBox* m_renderNotify = nullptr;

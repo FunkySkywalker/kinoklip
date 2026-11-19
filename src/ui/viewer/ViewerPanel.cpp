@@ -32,6 +32,7 @@
 #include "ui/viewer/ViewerOverlaySettings.h"
 #include "ui/viewer/ViewerRuler.h"
 #include "ui/viewer/ViewerSurface.h"
+#include "ui/common/UiFonts.h"
 
 #include <QAction>
 #include <QApplication>
@@ -184,8 +185,9 @@ ViewerPanel::ViewerPanel(Mode mode, AppContext& ctx, QWidget* parent)
                                 "Export uses the camera originals."));
     // The scheme's neutral (warning) colour, refreshed on a scheme switch.
     const auto styleProxyLabel = [label = m_proxyLabel] {
-        label->setStyleSheet(QStringLiteral("color: %1; font-weight: bold;")
-                .arg(schemeColors().neutral.name(QColor::HexRgb)));
+        label->setStyleSheet(QStringLiteral("color: %1; %2")
+                .arg(schemeColors().neutral.name(QColor::HexRgb),
+                    uifonts::css(uifonts::Role::Emphasis)));
     };
     styleProxyLabel();
     connect(SchemeColorsNotifier::instance(), &SchemeColorsNotifier::changed, m_proxyLabel,

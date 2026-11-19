@@ -81,6 +81,10 @@ The menus at the top of the window come in two arrangements. **Resolve** (the de
 
 To switch, open **Kinoklip > Preferences > UI Settings** and choose **Menu layout**. The menus change at once.
 
+## Choose the interface font
+
+Menus, panels, the timeline and the timecodes use Open Sans, the font of DaVinci Resolve, at Resolve's text sizes (**Resolve (Open Sans)**, the default). To go back to the font your desktop is set to, open **Kinoklip > Preferences > UI Settings**, choose **Interface font** and pick **System font**. The change applies at once. Text in titles and exports is not affected.
+
 Next: [Import your clips](import-your-clips.md).
 
 ## Something went wrong?

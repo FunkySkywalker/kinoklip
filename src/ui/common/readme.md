@@ -167,3 +167,31 @@ runtime) in `resources/icons/<name>.svg`, list it in `resources/resources.qrc`, 
 page (`src/app/pages/*`). Call `setPanelInfo()` with its name and a one-line description (the
 menu reference lists it) and regenerate `docs/menu-reference.md`. If it should be toggleable, add
 a `PanelId` + toggle action.
+
+## Interface fonts (`UiFonts.h`, spec 142)
+
+Every text takes its font from a role of `kk::uifonts`; nothing else sets a family, size or weight
+(`test_uifonts` scans the sources). Preference `ui/interfaceFont` (Preferences > UI Settings >
+Interface font; `--interface-font resolve|system` for one run). Sizes measured on Resolve 21
+(1920x1080: "Media Pool" 47 px wide, "Fairlight" 33 px, timecode "01:01:43:23" 84 px; Open Sans
+advance widths give 9 px body text, 8 px captions, 15.5 px timecode). Digits of Open Sans are
+tabular, so timecodes do not jump while playing.
+
+| Role | Resolve (Open Sans) | System font (as before) |
+|---|---|---|
+| Body | 7 pt (9.3 px) regular | application font |
+| Emphasis | 7 pt Bold | application font, bold |
+| PanelTitle | 7 pt SemiBold | semi-bold |
+| SectionHeader | 7 pt regular | application font |
+| Heading | 8 pt SemiBold | +2 pt, semi-bold |
+| Title | 12 pt SemiBold | 1.8 x, semi-bold |
+| Small | 6.5 pt | font - 1.5 pt (min 6) |
+| SmallEmphasis | 6.5 pt Bold | same, bold |
+| Tiny | 6 pt | 0.8 x (min 6) |
+| Timecode (timeline corner) | 12 pt Bold | +2 pt, bold |
+| ViewerTimecode | 9 pt SemiBold | monospace, semi-bold |
+| Mono | the system fixed font | the system fixed font |
+
+Left outside the roles on purpose: text drawn into pictures (titles, Text+, Look HUD in `src/render`,
+user-chosen families), the font picker's `QFont(family)`, italic flags (`uifonts::italic`), and the
+shrink-to-fit loop of the welcome strip.

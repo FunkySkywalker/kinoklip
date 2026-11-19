@@ -9,6 +9,7 @@
 #include "ui/viewer/ScrubBar.h"
 #include "ui/viewer/ViewerPanel.h"
 #include "ui/viewer/ViewerSurface.h"
+#include "ui/common/UiFonts.h"
 
 #include <QLabel>
 
@@ -77,8 +78,9 @@ void ViewerPanel::updateOfflineNotice()
         m_offlineNotice->setText(text);
     const SchemeColors& c = schemeColors();
     m_offlineNotice->setStyleSheet(
-        QStringLiteral("QLabel { background: %1; color: %2; font-weight: bold; padding: 12px; }")
-            .arg(c.negative.darker(150).name(), c.textOn(c.negative.darker(150)).name()));
+        QStringLiteral("QLabel { background: %1; color: %2; %3 padding: 12px; }")
+            .arg(c.negative.darker(150).name(), c.textOn(c.negative.darker(150)).name(),
+                uifonts::css(uifonts::Role::Emphasis)));
     m_offlineNotice->resize(m_surface->widget()->size());
     m_offlineNotice->show();
     m_offlineNotice->raise();

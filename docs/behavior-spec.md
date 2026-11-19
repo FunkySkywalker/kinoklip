@@ -3219,6 +3219,17 @@ Follows the public Resolve / Fairlight manual (Voice Isolation, frequency analyz
 | 141.7 | Every new control has a tooltip; texts translated (ru, de, es, uk); the guide page "Check your mix: spectrum, phase and monitor controls" and a Voice Isolation section on "Remove background noise from a clip". | Done (analyzerPanelHasTipsAndTheMonitorButtonsWork, check_translations) |
 | 141.8 | Not done: a Voice Isolation that separates several speakers, a spectrogram (waterfall), a third-octave (RTA) view, K-metering, a monitor volume knob and speaker sets, spectrum of a strip while shuttling, Voice Isolation on buses. | Open |
 
+## 142. Interface fonts (1.12 roadmap)
+
+| # | Behaviour | Status |
+|---|---|---|
+| 142.1 | **Open Sans** (SIL OFL 1.1; Regular, Italic, SemiBold, Bold) is compiled in (`resources/fonts`), registered at start-up, credited in attribution.md. | Done (bundledOpenSansIsRegistered) |
+| 142.2 | **Roles**: every text takes its font from a role of `uifonts` (Body, Emphasis, PanelTitle, SectionHeader, Heading, Title, Small, SmallEmphasis, Tiny, Timecode, ViewerTimecode, Mono); the same role is the same font, size and weight in every widget, painter and style sheet. Sizes were measured on Resolve 21 (src/ui/common/readme.md). | Done (sameRoleSameFontInEveryWidget, noWidgetCodeSetsItsOwnFont) |
+| 142.3 | **Preference** Preferences > UI Settings > Interface font: **Resolve (Open Sans)** (default) or **System font**, which gives exactly the fonts used before. It applies at once (application font and style sheet), is stored as `ui/interfaceFont`, and is part of settings export / import. `--interface-font resolve|system` overrides it for one run. | Done (switchingBackRestoresTheApplicationFont, choiceIsStoredAndApplied, sessionOverrideWinsAndIsNotStored) |
+| 142.4 | Timecodes use digits of equal width, so they do not jump while playing. | Done (timecodeDigitsDoNotJump) |
+| 142.5 | Tooltips, hint and guide text; translated (ru, de, es, uk). | Done (check_translations) |
+| 142.6 | Not done: titles, captions and Look HUD drawn into the picture keep their own fonts; widgets that are already on screen keep a cached painter font until their next style change (most repaint at once). | Open |
+
 ## 143. Playback: a reversed clip and J play smoothly (1.11.0 roadmap)
 
 | # | Behaviour | Status |

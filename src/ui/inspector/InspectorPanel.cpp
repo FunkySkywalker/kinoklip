@@ -29,6 +29,7 @@
 #include "ui/inspector/ParamGroupBox.h"
 #include "ui/inspector/ParamRows.h"
 #include "ui/inspector/ValueField.h"
+#include "ui/common/UiFonts.h"
 
 #include <QAction>
 #include <QApplication>
@@ -115,14 +116,14 @@ QString inspectorStyleSheet(const QPalette& p)
     return QStringLiteral(R"(
 QWidget#InspectorGroupHeader { background: %1; border-top: 1px solid %3; }
 QWidget#InspectorGroupBody, QWidget#InspectorTabPage { background: %2; }
-QLabel#InspectorGroupTitle { font-weight: 600; }
+QLabel#InspectorGroupTitle { %5 }
 QLabel#InspectorParamLabel, QLabel#InspectorClipInfo { color: %4; }
-QLabel#InspectorClipName { font-weight: 600; }
+QLabel#InspectorClipName { %5 }
 QWidget#InspectorHeader { background: %2; border-bottom: 1px solid %3; }
 QScrollArea#InspectorScroll { background: %2; border: none; }
 )")
         .arg(header.name(QColor::HexArgb), body.name(QColor::HexArgb), gap.name(QColor::HexArgb),
-            dim.name(QColor::HexArgb));
+            dim.name(QColor::HexArgb), uifonts::css(uifonts::Role::PanelTitle));
 }
 
 QString tabName(int tab)
@@ -1082,9 +1083,7 @@ void InspectorPanel::buildEffectSection(
     barLayout->setContentsMargins(8, 6, 8, 6);
     if (!heading.isEmpty()) {
         auto* label = new QLabel(heading, bar);
-        QFont font = label->font();
-        font.setBold(true);
-        label->setFont(font);
+        label->setFont(uifonts::font(uifonts::Role::Emphasis, label->font()));
         barLayout->addWidget(label);
     }
     constexpr int kAddEffectRows = 10; // fewest matches listed while searching

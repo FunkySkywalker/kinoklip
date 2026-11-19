@@ -79,6 +79,7 @@ const QVector<Rule>& rules()
         add("ui/colorScheme", Kind::Text, 0, 128);
         add("ui/useSystemColors", Kind::Bool);
         add("ui/menuLayout", Kind::Choice, 0, 0, {"resolve", "streamlined"});
+        add("ui/interfaceFont", Kind::Choice, 0, 0, {"resolve", "system"});
         add("ui/animations", Kind::Bool);
         add("ui/animationSpeed", Kind::Double, 0.1, 10);
         add("ui/scaleFactor", Kind::Text, 0, 16);

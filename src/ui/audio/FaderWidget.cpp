@@ -5,6 +5,7 @@
 #include "core/MixerData.h"
 #include "ui/audio/AudioScales.h"
 #include "ui/common/SchemeColors.h"
+#include "ui/common/UiFonts.h"
 
 #include <QMouseEvent>
 #include <QPainter>
@@ -29,8 +30,7 @@ constexpr double kKnobSweep = 0.75 * std::numbers::pi; ///< +-135 degrees
 
 QFont smallFont(const QWidget* w)
 {
-    QFont f = w->font();
-    f.setPointSizeF(std::max(6.0, f.pointSizeF() * 0.72));
+    const QFont f = uifonts::font(uifonts::Role::Tiny, w->font());
     return f;
 }
 } // namespace

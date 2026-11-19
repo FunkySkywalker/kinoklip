@@ -64,6 +64,9 @@ inline constexpr char kAnimations[] = "ui/animations";
 /// double: speed factor of those animations (0.5 = twice as long .. 2 = half as long);
 /// default 1.
 inline constexpr char kAnimationSpeed[] = "ui/animationSpeed";
+/// Interface font (Preferences > UI Settings): "resolve" (Open Sans as DaVinci Resolve,
+/// default) or "system" (the platform font, as before v1.12). Applies at once.
+inline constexpr char kInterfaceFont[] = "ui/interfaceFont";
 /// Timeline View Options: video clip pictures, "filmstrip" (default), "headtail" or "none".
 inline constexpr char kTimelineThumbnails[] = "timeline/thumbnails";
 /// Timeline View Options: bool, audio clips draw waveforms (default true).

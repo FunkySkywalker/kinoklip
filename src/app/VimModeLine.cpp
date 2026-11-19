@@ -2,6 +2,7 @@
 #include "app/VimModeLine.h"
 
 #include "ui/common/Metrics.h"
+#include "ui/common/UiFonts.h"
 
 #include <QHBoxLayout>
 #include <QLabel>
@@ -22,9 +23,9 @@ QString chipStyle(const QString& mode)
         background = QStringLiteral("#b26a00"), text = QStringLiteral("#ffffff");
     else if (mode == QLatin1String("COMMAND"))
         background = QStringLiteral("#6a3d9a"), text = QStringLiteral("#ffffff");
-    return QStringLiteral("QLabel#VimModeChip { font-weight: 600; padding: 1px 8px; "
+    return QStringLiteral("QLabel#VimModeChip { %3 padding: 1px 8px; "
                           "border-radius: 3px; background: %1; color: %2; }")
-        .arg(background, text);
+        .arg(background, text, uifonts::css(uifonts::Role::PanelTitle));
 }
 
 } // namespace
@@ -43,12 +44,11 @@ VimModeLine::VimModeLine(QWidget* parent)
     m_chip->setAlignment(Qt::AlignCenter);
     m_pending = new QLabel(this);
     m_pending->setObjectName(QStringLiteral("VimPending"));
-    m_pending->setStyleSheet(
-        QStringLiteral("QLabel { font-family: monospace; font-weight: 600; }"));
+    m_pending->setFont(uifonts::font(uifonts::Role::ViewerTimecode, m_pending->font()));
     m_pending->setMinimumWidth(40);
     m_recording = new QLabel(this);
     m_recording->setObjectName(QStringLiteral("VimRecording"));
-    m_recording->setStyleSheet(QStringLiteral("QLabel { color: #e05050; font-weight: 600; }"));
+    m_recording->setStyleSheet(QStringLiteral("QLabel { color: #e05050; %1 }").arg(uifonts::css(uifonts::Role::PanelTitle)));
     m_recording->hide();
     m_panel = new QLabel(this);
     m_panel->setObjectName(QStringLiteral("VimPanelName"));
@@ -108,7 +108,7 @@ void VimModeLine::showError(const QString& text, int ms)
 {
     showMessage(text, ms);
     m_error = true;
-    m_message->setStyleSheet(QStringLiteral("QLabel { color: #e05050; font-weight: 600; }"));
+    m_message->setStyleSheet(QStringLiteral("QLabel { color: #e05050; %1 }").arg(uifonts::css(uifonts::Role::PanelTitle)));
 }
 
 void VimModeLine::clearMessage()

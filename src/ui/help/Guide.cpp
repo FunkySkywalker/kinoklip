@@ -8,6 +8,7 @@
 #include "ui/common/Page.h"
 #include "ui/common/PanelFrame.h"
 #include "ui/common/SchemeColors.h"
+#include "ui/common/UiFonts.h"
 
 #include <QAction>
 #include <QCoreApplication>
@@ -150,9 +151,7 @@ void HelpButton::paintEvent(QPaintEvent* event)
     p.setPen(QPen(color, 1.0));
     p.setBrush(Qt::NoBrush);
     p.drawEllipse(circle);
-    QFont f = font();
-    f.setPixelSize(10);
-    f.setBold(true);
+    const QFont f = uifonts::withPixelSize(uifonts::Role::SmallEmphasis, font(), 10);
     p.setFont(f);
     p.drawText(circle, Qt::AlignCenter, QStringLiteral("?"));
 }

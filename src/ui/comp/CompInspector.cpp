@@ -21,6 +21,7 @@
 #include "ui/inspector/InspectorGlyphs.h"
 #include "ui/inspector/ParamGroupBox.h"
 #include "ui/inspector/ParamRows.h"
+#include "ui/common/UiFonts.h"
 
 #include <QCheckBox>
 #include <QColorDialog>
@@ -63,8 +64,7 @@ CompInspector::CompInspector(AppContext& ctx, CompSession* session, QWidget* par
     m_enable->setToolTip(tr("Enabled (off: pass-through, the main input goes straight through)"));
     m_name = new QLabel;
     m_name->setObjectName(QStringLiteral("CompNodeName"));
-    QFont bold = m_name->font();
-    bold.setBold(true);
+    const QFont bold = uifonts::font(uifonts::Role::Emphasis, m_name->font());
     m_name->setFont(bold);
     m_reset = new QToolButton;
     m_reset->setObjectName(QStringLiteral("CompNodeReset"));

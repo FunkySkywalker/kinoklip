@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // ScopeView / ScopesPanel — drawing the scope counts.
 #include "ui/scopes/ScopeView.h"
+#include "ui/common/UiFonts.h"
 
 #include <QComboBox>
 #include <QPainter>
@@ -171,8 +172,7 @@ void ScopeView::paintEvent(QPaintEvent*)
     p.setRenderHint(QPainter::Antialiasing);
     const QColor line(255, 255, 255, 40);
     const QColor text(200, 200, 200, 150);
-    QFont f = font();
-    f.setPointSizeF(std::max(6.0, f.pointSizeF() * 0.75));
+    const QFont f = uifonts::font(uifonts::Role::Tiny, font());
     p.setFont(f);
     if (m_type == ScopeType::Vectorscope) {
         p.setPen(QPen(line, 1));

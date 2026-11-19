@@ -17,6 +17,7 @@
 #include "ui/common/StandardActions.h"
 #include "ui/common/VimOptions.h"
 #include "ui/dialogs/PreferencesDialog.h"
+#include "ui/common/UiFonts.h"
 
 #include <QAction>
 #include <QApplication>
@@ -265,9 +266,7 @@ QWidget* WelcomeDialog::makePage(const QString& title, QWidget* hero)
     layout->setSpacing(metrics::kSpaceL);
     layout->addSpacing(metrics::kSpaceM);
     auto* heading = new QLabel(title);
-    QFont font = heading->font();
-    font.setBold(true);
-    font.setPointSizeF(font.pointSizeF() * 1.4);
+    const QFont font = uifonts::font(uifonts::Role::Heading, heading->font());
     heading->setFont(font);
     heading->setAlignment(Qt::AlignHCenter);
     layout->addWidget(heading);
@@ -293,9 +292,7 @@ QWidget* WelcomeDialog::welcomePage()
     auto* greeting = new QLabel(tr("Welcome to %1").arg(appinfo::displayName()));
     greeting->setObjectName(QStringLiteral("WelcomeGreeting"));
     greeting->setAlignment(Qt::AlignHCenter);
-    QFont big = greeting->font();
-    big.setWeight(QFont::DemiBold);
-    big.setPointSizeF(big.pointSizeF() * 2.2);
+    const QFont big = uifonts::font(uifonts::Role::Title, greeting->font());
     greeting->setFont(big);
     auto* intro = new QLabel(tr("Works like DaVinci Resolve. A few choices and you're ready."));
     intro->setObjectName(QStringLiteral("WelcomeIntro"));

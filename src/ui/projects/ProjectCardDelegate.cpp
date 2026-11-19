@@ -5,6 +5,7 @@
 #include "ui/common/Icons.h"
 #include "ui/common/SchemeColors.h"
 #include "ui/projects/ProjectLibraryModel.h"
+#include "ui/common/UiFonts.h"
 
 #include <QApplication>
 #include <QImage>
@@ -25,9 +26,7 @@ constexpr int kLineGap = 2;
 void drawBadge(QPainter* p, const QPoint& anchor, bool alignRight, const QString& text,
     const QColor& fill, const QColor& textColor, const QFont& font)
 {
-    QFont f = font;
-    f.setPointSizeF(std::max(6.0, f.pointSizeF() * 0.85));
-    f.setBold(true);
+    const QFont f = uifonts::font(uifonts::Role::SmallEmphasis, font);
     const QFontMetrics fm(f);
     const int w = fm.horizontalAdvance(text) + 2 * kPadding;
     const int h = fm.height() + 2;
@@ -160,8 +159,7 @@ void ProjectCardDelegate::paint(
     }
 
     // Text: name (bold), modified, details.
-    QFont nameFont = font;
-    nameFont.setBold(true);
+    const QFont nameFont = uifonts::font(uifonts::Role::Emphasis, font);
     const QFontMetrics fm(font);
     QRect line = nameRect(card, fm);
     const QColor text = selected ? sc.textOn(body) : sc.text;

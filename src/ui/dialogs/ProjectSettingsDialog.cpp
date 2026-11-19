@@ -14,6 +14,7 @@
 #include "ui/common/SchemeColors.h"
 #include "ui/common/TextFit.h"
 #include "ui/common/TimecodeFormat.h"
+#include "ui/common/UiFonts.h"
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -64,7 +65,6 @@ constexpr int kMaxDimension = 8192;
 constexpr int kSampleRate = 48000; ///< the mixer's fixed rate (PLAN 5.1)
 const QSize kDialogSize(820, 560);
 constexpr int kSectionListWidth = 200; ///< minimum; wider when a section name needs it
-constexpr int kTitlePointDelta = 2; ///< section title: base font + 2 pt
 constexpr int kMaxAutosaveMinutes = 120;
 
 QFormLayout* makeForm()
@@ -100,9 +100,7 @@ QWidget* formWidget(QFormLayout* form)
 QLabel* subHeading(const QString& text)
 {
     auto* label = new QLabel(text);
-    QFont font = label->font();
-    font.setWeight(QFont::DemiBold);
-    label->setFont(font);
+    label->setFont(uifonts::font(uifonts::Role::PanelTitle, label->font()));
     return label;
 }
 
@@ -199,10 +197,7 @@ void ProjectSettingsDialog::addSection(const QString& id, const QString& title, 
         metrics::kSpaceXl, metrics::kSpaceL, metrics::kSpaceXl, metrics::kSpaceL);
     layout->setSpacing(metrics::kSpaceL);
     auto* heading = new QLabel(title);
-    QFont font = heading->font();
-    font.setWeight(QFont::DemiBold);
-    font.setPointSizeF(font.pointSizeF() + kTitlePointDelta);
-    heading->setFont(font);
+    heading->setFont(uifonts::font(uifonts::Role::Heading, heading->font()));
     layout->addWidget(heading);
     layout->addWidget(page);
     layout->addStretch(1);
@@ -386,8 +381,7 @@ void ProjectSettingsDialog::refreshPresets()
     const ProjectSettings now = m_project->settings();
     auto* current = new QTreeWidgetItem(
         {tr("Current Project"), sizeText(now.width, now.height), tr("%1 fps").arg(fpsLabel(now.fps))});
-    QFont bold = current->font(0);
-    bold.setWeight(QFont::DemiBold);
+    const QFont bold = uifonts::font(uifonts::Role::PanelTitle, current->font(0));
     current->setFont(0, bold);
     m_presetList->addTopLevelItem(current);
     for (const projectpresets::PresetInfo& info : projectpresets::list()) {

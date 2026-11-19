@@ -51,6 +51,11 @@ bool parseCommandLine(const QStringList& arguments, CommandLineOptions& options,
         QCoreApplication::translate("kk::CommandLine",
             "KDE colour scheme for this run (e.g. BreezeDark, BreezeLight, system)."),
         QStringLiteral("id"));
+    const QCommandLineOption interfaceFont(QStringLiteral("interface-font"),
+        QCoreApplication::translate("kk::CommandLine",
+            "Interface font for this run: resolve (Open Sans, as DaVinci Resolve) or system; the "
+            "stored choice is kept."),
+        QStringLiteral("choice"));
     const QCommandLineOption render(QStringLiteral("render"),
         QCoreApplication::translate("kk::CommandLine",
             "Export the timeline of <project> to a file, then exit. Usage: --render "
@@ -86,6 +91,7 @@ bool parseCommandLine(const QStringList& arguments, CommandLineOptions& options,
     parser.addOption(screenshot);
     parser.addOption(style);
     parser.addOption(colorScheme);
+    parser.addOption(interfaceFont);
     parser.addOption(resetLayout);
     parser.addOption(noWelcome);
     parser.addOption(renderFrame);
@@ -98,6 +104,7 @@ bool parseCommandLine(const QStringList& arguments, CommandLineOptions& options,
     options.noWelcome = parser.isSet(noWelcome);
     options.style = parser.value(style);
     options.colorScheme = parser.value(colorScheme);
+    options.interfaceFont = parser.value(interfaceFont);
     options.language = parser.value(lang);
     options.menuReferenceFile = parser.value(menuReference);
     if (parser.isSet(screenshot)) {

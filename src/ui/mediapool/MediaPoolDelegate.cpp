@@ -5,6 +5,7 @@
 #include "core/ClipColors.h"
 #include "ui/common/SchemeColors.h"
 #include "ui/mediapool/MediaPoolModel.h"
+#include "ui/common/UiFonts.h"
 
 #include <QApplication>
 #include <QFontMetrics>
@@ -211,8 +212,7 @@ void MediaPoolDelegate::paint(
     const bool offline = index.data(MediaPoolModel::OfflineRole).toBool();
     if (offline) {
         p->fillRect(posterRect, withAlpha(sc.negative.darker(130), 140));
-        QFont bold = option.font;
-        bold.setBold(true);
+        const QFont bold = uifonts::font(uifonts::Role::Emphasis, option.font);
         p->setFont(bold);
         p->setPen(sc.overlayText);
         p->drawText(posterRect, Qt::AlignCenter,
@@ -224,8 +224,7 @@ void MediaPoolDelegate::paint(
     // too small for it (zoomed-out grid).
     const QString duration = index.data(MediaPoolModel::DurationTextRole).toString();
     if (!duration.isEmpty()) {
-        QFont badgeFont = option.font;
-        badgeFont.setPointSizeF(badgeFont.pointSizeF() * 0.8);
+        const QFont badgeFont = uifonts::font(uifonts::Role::Tiny, option.font);
         const QFontMetrics fm(badgeFont);
         const QRect text(0, 0, fm.horizontalAdvance(duration) + 8, fm.height() + 2);
         if (text.width() <= posterRect.width() - 6 && text.height() * 2 <= posterRect.height()) {
@@ -244,9 +243,7 @@ void MediaPoolDelegate::paint(
     // generating, "P!" amber when stale or missing).
     const QString linkBadge = index.data(MediaPoolModel::LinkBadgeRole).toString();
     if (!linkBadge.isEmpty()) {
-        QFont small = option.font;
-        small.setPointSizeF(small.pointSizeF() * 0.8);
-        small.setBold(true);
+        const QFont small = uifonts::font(uifonts::Role::SmallEmphasis, option.font);
         p->setFont(small);
         const QFontMetrics fm(small);
         const QRect text(0, 0, fm.horizontalAdvance(linkBadge) + 8, fm.height() + 2);
@@ -298,8 +295,7 @@ void MediaPoolDelegate::paint(
         p->drawLine(QPointF(box.left(), box.top() + 3), QPointF(box.right(), box.top() + 3));
     } else if (location == MediaPoolModel::LinkedLocation
         && posterRect.width() >= kLinkedBadgeMinWidth) {
-        QFont small = option.font;
-        small.setPointSizeF(small.pointSizeF() * 0.75);
+        const QFont small = uifonts::font(uifonts::Role::Tiny, option.font);
         p->setFont(small);
         const QFontMetrics fm(small);
         const QString text = tr("Linked");

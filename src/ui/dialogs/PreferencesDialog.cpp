@@ -8,6 +8,7 @@
 #include "ui/common/Metrics.h"
 #include "ui/common/SettingsPages.h"
 #include "ui/common/TextFit.h"
+#include "ui/common/UiFonts.h"
 
 #include <QComboBox>
 #include <QDialogButtonBox>
@@ -99,10 +100,8 @@ void alignForms(QWidget* page)
 QLabel* heading(const QString& text, int pointDelta)
 {
     auto* label = new QLabel(text);
-    QFont font = label->font();
-    font.setWeight(QFont::DemiBold);
-    font.setPointSizeF(font.pointSizeF() + pointDelta);
-    label->setFont(font);
+    Q_UNUSED(pointDelta)
+    label->setFont(uifonts::font(uifonts::Role::Heading, label->font()));
     return label;
 }
 

@@ -4,6 +4,7 @@
 #include "app/LogExport.h"
 #include "platform/FileDialogs.h"
 #include "ui/common/DialogSizing.h"
+#include "ui/common/UiFonts.h"
 #include "ui/common/Metrics.h"
 
 #include <QDialogButtonBox>
@@ -40,7 +41,7 @@ LogExportDialog::LogExportDialog(const QString& logText, QWidget* parent)
     preview->setObjectName(QStringLiteral("LogPreview"));
     preview->setReadOnly(true);
     preview->setLineWrapMode(QPlainTextEdit::NoWrap);
-    preview->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
+    preview->setFont(uifonts::font(uifonts::Role::Mono));
     preview->setPlainText(m_text);
     preview->setMinimumHeight(220);
     layout->addWidget(preview, 1);

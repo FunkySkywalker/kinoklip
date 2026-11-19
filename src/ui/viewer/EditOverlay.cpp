@@ -4,6 +4,7 @@
 
 #include "ui/common/SchemeColors.h"
 #include "ui/viewer/ViewerSurface.h"
+#include "ui/common/UiFonts.h"
 
 #include <QEvent>
 #include <QPainter>
@@ -99,8 +100,7 @@ void EditOverlay::paintEvent(QPaintEvent*)
     p.setRenderHint(QPainter::Antialiasing, true);
     const SchemeColors& c = schemeColors();
     p.fillRect(rect(), withAlpha(c.shadow, kDimAlpha));
-    QFont title = font();
-    title.setBold(true);
+    const QFont title = uifonts::font(uifonts::Role::Emphasis, font());
     const QFont keyFont = font();
     for (int i = 0; i < int(m_tiles.size()); ++i) {
         const QRectF r = QRectF(tileRect(i)).adjusted(0.5, 0.5, -0.5, -0.5);

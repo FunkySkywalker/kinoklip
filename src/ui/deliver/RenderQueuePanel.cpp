@@ -10,6 +10,7 @@
 #include "ui/common/TextFit.h"
 #include "ui/common/ThinProgressBar.h"
 #include "ui/common/VimRowOps.h"
+#include "ui/common/UiFonts.h"
 
 #include <QApplication>
 #include <QContextMenuEvent>
@@ -49,8 +50,7 @@ public:
         layout->setSpacing(3);
         auto* top = new QHBoxLayout;
         m_name = new QLabel;
-        QFont bold = m_name->font();
-        bold.setBold(true);
+        const QFont bold = uifonts::font(uifonts::Role::Emphasis, m_name->font());
         m_name->setFont(bold);
         m_name->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred); // elided, not wide
         top->addWidget(m_name, 1);

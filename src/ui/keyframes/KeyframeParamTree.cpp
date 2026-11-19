@@ -12,6 +12,7 @@
 #include "ui/inspector/KeyframeButton.h"
 #include "ui/inspector/ValueField.h"
 #include "ui/keyframes/CurveView.h"
+#include "ui/common/UiFonts.h"
 
 #include <QCheckBox>
 #include <QEvent>
@@ -231,8 +232,7 @@ void KeyframeParamTree::buildRow(Row& row, int index)
     row.label->setMinimumWidth(20);
     row.label->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
     if (e.kind != KeyRow::Kind::Param) {
-        QFont f = row.label->font();
-        f.setBold(true);
+        const QFont f = uifonts::font(uifonts::Role::Emphasis, row.label->font());
         row.label->setFont(f);
     }
     h->addWidget(row.label, 1);

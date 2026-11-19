@@ -5,6 +5,7 @@
 #include "ui/common/DialogSizing.h"
 #include "ui/common/Metrics.h"
 #include "ui/help/Guide.h"
+#include "ui/common/UiFonts.h"
 
 #include <QKeyEvent>
 #include <QLabel>
@@ -58,8 +59,7 @@ void GuideDialog::populate()
     auto* start = new QListWidgetItem(tr("Start page"), m_list);
     start->setData(kStartRole, true);
     start->setToolTip(tr("The guide's contents"));
-    QFont bold = start->font();
-    bold.setBold(true);
+    const QFont bold = uifonts::font(uifonts::Role::Emphasis, start->font());
     start->setFont(bold);
     for (const GuideArticle& a : guide::index().articles()) {
         auto* item = new QListWidgetItem(a.title, m_list);

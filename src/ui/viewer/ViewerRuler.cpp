@@ -6,6 +6,7 @@
 #include "ui/common/SchemeColors.h"
 #include "ui/viewer/GuideOverlay.h"
 #include "ui/viewer/ViewerOverlaySettings.h"
+#include "ui/common/UiFonts.h"
 
 #include <QMouseEvent>
 #include <QPainter>
@@ -117,8 +118,7 @@ void ViewerRuler::paintEvent(QPaintEvent*)
     // than the ruler when zoomed in).
     const double first = std::floor(toFrame(0) / minor) * minor;
     const double last = toFrame(length);
-    QFont f = font();
-    f.setPointSizeF(std::max(6.0, f.pointSizeF() * 0.8));
+    const QFont f = uifonts::font(uifonts::Role::Tiny, font());
     p.setFont(f);
     const QFontMetrics fm(f);
     for (double v = first; v <= last; v += minor) {

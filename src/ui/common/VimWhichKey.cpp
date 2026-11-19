@@ -3,6 +3,7 @@
 
 #include "ui/common/Metrics.h"
 #include "ui/common/VimKeys.h"
+#include "ui/common/UiFonts.h"
 
 #include <QGridLayout>
 #include <QLabel>
@@ -30,7 +31,7 @@ VimWhichKey::VimWhichKey(QWidget* parent)
         metrics::kSpaceM, metrics::kSpaceS, metrics::kSpaceM, metrics::kSpaceS);
     m_title = new QLabel(this);
     m_title->setObjectName(QStringLiteral("VimWhichKeyTitle"));
-    m_title->setStyleSheet(QStringLiteral("QLabel { font-weight: 600; }"));
+    m_title->setStyleSheet(QStringLiteral("QLabel { %1 }").arg(uifonts::css(uifonts::Role::PanelTitle)));
     m_body = new QWidget(this);
     m_grid = new QGridLayout(m_body);
     m_grid->setContentsMargins(0, 0, 0, 0);

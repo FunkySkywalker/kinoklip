@@ -6,6 +6,7 @@
 #include "ui/common/AppContext.h"
 #include "ui/common/SchemeColors.h"
 #include "ui/keyframes/KeyframeTimeMap.h"
+#include "ui/common/UiFonts.h"
 
 #include <QApplication>
 #include <QContextMenuEvent>
@@ -141,10 +142,8 @@ void DopeSheetView::paintEvent(QPaintEvent*)
     const QPalette& pal = palette();
     const QColor text = pal.color(QPalette::WindowText);
     const QColor dim = pal.color(QPalette::PlaceholderText);
-    QFont small = font();
-    small.setPointSizeF(std::max(6.0, small.pointSizeF() - 1.0));
-    QFont bold = small;
-    bold.setBold(true);
+    const QFont small = uifonts::font(uifonts::Role::Small, font());
+    const QFont bold = uifonts::font(uifonts::Role::SmallEmphasis, font());
 
     const int lw = labelWidth();
     const double left = lw - kParamDiamond;

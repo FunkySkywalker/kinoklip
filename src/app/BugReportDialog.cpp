@@ -3,6 +3,7 @@
 #include "app/BugReportDialog.h"
 
 #include "ui/common/DialogSizing.h"
+#include "ui/common/UiFonts.h"
 #include "ui/help/Guide.h"
 
 #include <QButtonGroup>
@@ -53,7 +54,7 @@ BugReportDialog::BugReportDialog(bugreport::SystemInfo info, QWidget* parent)
     m_preview->setObjectName(QStringLiteral("BugReportPreview"));
     m_preview->setReadOnly(true);
     m_preview->setLineWrapMode(QPlainTextEdit::WidgetWidth);
-    m_preview->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
+    m_preview->setFont(uifonts::font(uifonts::Role::Mono));
     m_preview->setMinimumSize(560, 220);
     layout->addWidget(m_preview, 1);
 

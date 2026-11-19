@@ -11,6 +11,7 @@
 #include "ui/common/PanelInfo.h"
 #include "ui/common/VimRowOps.h"
 #include "ui/deliver/RenderPresetRow.h"
+#include "ui/common/UiFonts.h"
 
 #include <QButtonGroup>
 #include <QCheckBox>
@@ -282,8 +283,7 @@ QWidget* RenderSettingsPanel::buildHeader()
     auto* form = makeForm(header);
     m_presetName = new QLabel;
     m_presetName->setObjectName(QStringLiteral("RenderPresetName"));
-    QFont bold = m_presetName->font();
-    bold.setWeight(QFont::DemiBold);
+    const QFont bold = uifonts::font(uifonts::Role::PanelTitle, m_presetName->font());
     m_presetName->setFont(bold);
     form->addRow(m_presetName);
 
@@ -597,8 +597,7 @@ QWidget* RenderSettingsPanel::buildFileTab()
     // to the render, or a subtitle stream in the movie.
     m_fileForm = form;
     auto* subtitleHeading = new QLabel(tr("Subtitle Settings"));
-    QFont headingFont = subtitleHeading->font();
-    headingFont.setWeight(QFont::DemiBold);
+    const QFont headingFont = uifonts::font(uifonts::Role::PanelTitle, subtitleHeading->font());
     subtitleHeading->setFont(headingFont);
     form->addRow(subtitleHeading);
     m_subtitleExport = new QCheckBox(tr("Export subtitle"));

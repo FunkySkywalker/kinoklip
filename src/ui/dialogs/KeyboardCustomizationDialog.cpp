@@ -9,6 +9,7 @@
 #include "ui/common/VimKeymap.h"
 #include "ui/common/VimOptions.h"
 #include "ui/dialogs/VimKeysTab.h"
+#include "ui/common/UiFonts.h"
 
 #include <QAction>
 #include <QComboBox>
@@ -279,8 +280,7 @@ void KeyboardCustomizationDialog::populate()
     QHash<QString, QString> titles;
     for (const MenuCategory& menu : standardMenus())
         titles.insert(menu.id, stripMnemonic(menu.title));
-    QFont bold = m_tree->font();
-    bold.setBold(true);
+    const QFont bold = uifonts::font(uifonts::Role::Emphasis, m_tree->font());
     for (const QString& category : m_registry.categories()) {
         QString title = titles.value(category, stripMnemonic(m_registry.submenuTitle(category)));
         if (title.isEmpty())
@@ -316,8 +316,7 @@ void KeyboardCustomizationDialog::refreshRow(const QString& id)
     row->setText(DefaultColumn, keysText(m_registry.defaultShortcuts(id)));
     // Customised keys stand out in the accent colour.
     const bool custom = current != m_registry.defaultShortcuts(id);
-    QFont font = m_tree->font();
-    font.setBold(custom);
+    const QFont font = uifonts::font(custom ? uifonts::Role::Emphasis : uifonts::Role::Body, m_tree->font());
     row->setFont(ShortcutColumn, font);
     row->setForeground(ShortcutColumn,
         custom ? palette().brush(QPalette::Highlight) : palette().brush(QPalette::Text));

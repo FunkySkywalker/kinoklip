@@ -5,6 +5,7 @@
 #include "core/Multicam.h"
 #include "ui/common/SchemeColors.h"
 #include "ui/viewer/ViewerSurface.h"
+#include "ui/common/UiFonts.h"
 
 #include <QEvent>
 #include <QMouseEvent>
@@ -113,8 +114,7 @@ void MulticamOverlay::paintEvent(QPaintEvent*)
 {
     QPainter p(this);
     p.setRenderHint(QPainter::Antialiasing, false);
-    QFont font = p.font();
-    font.setBold(true);
+    QFont font = uifonts::font(uifonts::Role::Emphasis, p.font());
     p.setFont(font);
     const QFontMetrics fm(font);
     // Drawn over video: plates and text from the scheme's complementary (dark) set; active

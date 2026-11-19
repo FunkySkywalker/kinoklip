@@ -14,6 +14,7 @@
 #include "core/ParamKeys.h"
 #include "core/Retime.h"
 #include "media/WaveformData.h"
+#include "ui/common/UiFonts.h"
 #include "ui/common/Icons.h"
 #include "ui/common/SchemeColors.h"
 #include "ui/common/SourceTimecode.h"
@@ -106,10 +107,8 @@ TimelinePainter::TimelinePainter()
 void TimelinePainter::setStyle(const QPalette& pal, const QFont& font)
 {
     m_font = font;
-    m_smallFont = font;
-    m_smallFont.setPointSizeF(std::max(6.0, font.pointSizeF() - 1.5));
-    m_boldFont = font;
-    m_boldFont.setBold(true);
+    m_smallFont = uifonts::font(uifonts::Role::Small, font);
+    m_boldFont = uifonts::font(uifonts::Role::Emphasis, font);
     m_fontAscent = QFontMetrics(m_smallFont).ascent();
     m_base = pal.color(QPalette::Base);
     m_window = pal.color(QPalette::Window);
@@ -1435,8 +1434,7 @@ void TimelinePainter::paintRuler(QPainter& p, const TimelinePaintInput& in)
 
     // Top-left corner: playhead timecode.
     p.fillRect(QRect(0, 0, kHeaderWidth, kRulerHeight), m_window.darker(125));
-    QFont tcFont = m_boldFont;
-    tcFont.setPointSizeF(m_font.pointSizeF() + 2);
+    const QFont tcFont = uifonts::font(uifonts::Role::Timecode, m_font);
     p.setFont(tcFont);
     p.setPen(m_timecode);
     p.drawText(QRect(10, 0, kHeaderWidth - 14, kRulerHeight), Qt::AlignVCenter | Qt::AlignLeft,

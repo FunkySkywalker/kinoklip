@@ -2,6 +2,7 @@
 // ParamGroupBox implementation.
 #include "ui/inspector/ParamGroupBox.h"
 
+#include "ui/common/StyleTokens.h"
 #include "ui/inspector/ParamRows.h"
 
 #include <QAction>
@@ -95,6 +96,7 @@ QCheckBox* ParamGroupBox::addEnableToggle()
 {
     auto* box = new QCheckBox(m_header);
     box->setFocusPolicy(Qt::NoFocus);
+    kk::style::setToggle(box); // a pill switch in the Kinoklip style (a check box in the others)
     box->setToolTip(tr("Enable or disable"));
     m_headerLayout->insertWidget(1, box);
     m_enable = box;

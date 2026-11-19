@@ -5,6 +5,7 @@
 #include "ui/audio/AudioScales.h"
 #include "ui/audio/MeterModel.h"
 #include "ui/common/SchemeColors.h"
+#include "ui/common/UiFonts.h"
 
 #include <QPainter>
 
@@ -68,8 +69,7 @@ void LevelMeter::paintEvent(QPaintEvent*)
     };
 
     if (m_scale) {
-        QFont f = font();
-        f.setPointSizeF(std::max(6.0, f.pointSizeF() * 0.75));
+        const QFont f = uifonts::font(uifonts::Role::Tiny, font());
         p.setFont(f);
         p.setPen(sc.textDim);
         for (double mark : kScaleMarks) {

@@ -16,6 +16,7 @@
 #include "ui/projects/NewProjectDialog.h"
 #include "ui/projects/ProjectCardDelegate.h"
 #include "ui/projects/ProjectLibraryModel.h"
+#include "ui/common/UiFonts.h"
 
 #include <QApplication>
 #include <QCloseEvent>
@@ -429,8 +430,7 @@ void ProjectManagerWindow::rebuildCrumbs()
         b->setText(parts[i]);
         b->setEnabled(!folders[i].isEmpty());
         if (i == parts.size() - 1) {
-            QFont f = b->font();
-            f.setBold(true);
+            const QFont f = uifonts::font(uifonts::Role::Emphasis, b->font());
             b->setFont(f);
         }
         const QString folder = folders[i];

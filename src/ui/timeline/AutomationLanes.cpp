@@ -7,6 +7,7 @@
 #include "core/Timeline.h"
 #include "ui/common/AppContext.h"
 #include "ui/timeline/TimelineLayout.h"
+#include "ui/common/UiFonts.h"
 
 #include <QComboBox>
 #include <QContextMenuEvent>
@@ -481,8 +482,7 @@ void AutomationLaneWidget::paintEvent(QPaintEvent*)
     p.drawLine(QPointF(c.left(), c.bottom()), QPointF(c.right(), c.bottom()));
     const auto [lo, hi] = displayRange();
     p.setPen(pal.windowText().color().darker(150));
-    QFont small = font();
-    small.setPointSizeF(std::max(7.0, small.pointSizeF() * 0.85));
+    const QFont small = uifonts::font(uifonts::Role::Small, font());
     p.setFont(small);
     const auto param = mixerops::automationParam(m_ctx.project->timeline()->data(), *t, m_key);
     const QString unit = param ? param->unit : QString();

@@ -10643,6 +10643,10 @@ Gracias por ver</translation>
 <context>
     <name>kk::CommandLine</name>
     <message>
+        <source>Interface font for this run: resolve (Open Sans, as DaVinci Resolve) or system; the stored choice is kept.</source>
+        <translation>Fuente de la interfaz para esta ejecución: resolve (Open Sans, como DaVinci Resolve) o system; la opción guardada se mantiene.</translation>
+    </message>
+    <message>
         <source>Non-linear video editor</source>
         <translation>Editor de vídeo no lineal</translation>
     </message>
@@ -19016,6 +19020,34 @@ Arrastrar una desde la biblioteca de efectos al clip, o añadir una aquí.</tran
 </context>
 <context>
     <name>kk::InterfacePage</name>
+    <message>
+        <source>Interface font</source>
+        <translation>Fuente de la interfaz</translation>
+    </message>
+    <message>
+        <source>Resolve (Open Sans)</source>
+        <translation>Resolve (Open Sans)</translation>
+    </message>
+    <message>
+        <source>System font</source>
+        <translation>Fuente del sistema</translation>
+    </message>
+    <message>
+        <source>Open Sans, the font of DaVinci Resolve, in Resolve&apos;s sizes.</source>
+        <translation>Open Sans, la fuente de DaVinci Resolve, con los tamaños de Resolve.</translation>
+    </message>
+    <message>
+        <source>The font the desktop is set to, as before.</source>
+        <translation>La fuente configurada en el escritorio, como antes.</translation>
+    </message>
+    <message>
+        <source>The font of menus, panels, the timeline and the timecodes. Resolve uses Open Sans (included with Kinoklip). A change applies at once.</source>
+        <translation>La fuente de los menús, paneles, la línea de tiempo y los códigos de tiempo. Resolve usa Open Sans (incluida en Kinoklip). El cambio se aplica al instante.</translation>
+    </message>
+    <message>
+        <source>Resolve (Open Sans): the font and text sizes of DaVinci Resolve. System font: the font the desktop is set to. The change applies at once; text drawn into titles and exports is not affected.</source>
+        <translation>Resolve (Open Sans): la fuente y los tamaños de texto de DaVinci Resolve. Fuente del sistema: la fuente configurada en el escritorio. El cambio se aplica al instante; el texto de los títulos y las exportaciones no cambia.</translation>
+    </message>
     <message>
         <source>Automatic (system)</source>
         <translation>Automático (sistema)</translation>

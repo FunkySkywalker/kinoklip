@@ -2,6 +2,7 @@
 #include "app/WelcomeHeroes.h"
 
 #include "ui/common/UiAnimation.h"
+#include "ui/common/UiFonts.h"
 
 #include <QCoreApplication>
 #include <QFontMetricsF>
@@ -273,9 +274,7 @@ void MenusHero::drawKeys(QPainter& p, const QRectF& area, const QStringList& key
     const double y = area.center().y() - capH / 2 - 1;
     const QColor text = palette().color(QPalette::WindowText);
     const QColor button = palette().color(QPalette::Button);
-    QFont font = this->font();
-    font.setBold(true);
-    font.setPointSizeF(font.pointSizeF() * 1.25);
+    const QFont font = uifonts::font(uifonts::Role::Heading, this->font());
     p.save();
     p.setOpacity(opacity);
     p.setFont(font);
@@ -377,8 +376,7 @@ void TimelineHero::paintContent(QPainter& p, const QRectF& rect)
         {"A1", rect.top() + 114, 36}};
 
     // Lanes and their names.
-    QFont small = font();
-    small.setPointSizeF(small.pointSizeF() * 0.85);
+    const QFont small = uifonts::font(uifonts::Role::Small, font());
     p.setFont(small);
     for (const Lane& lane : lanes) {
         p.setPen(Qt::NoPen);
@@ -624,9 +622,7 @@ void SystemHero::paintContent(QPainter& p, const QRectF& rect)
         p.drawEllipse(ic, 10, 10);
         p.setPen(QPen(Qt::white, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
         p.drawPolyline(QPolygonF({ic + QPointF(-4.5, 0.5), ic + QPointF(-1.5, 3.5), ic + QPointF(4.5, -3.5)}));
-        QFont bold = font();
-        bold.setBold(true);
-        bold.setPointSizeF(bold.pointSizeF() * 0.95);
+        const QFont bold = uifonts::font(uifonts::Role::Emphasis, font());
         p.setFont(bold);
         p.setPen(withAlpha(text, 0.9));
         p.drawText(QRectF(card.left() + 40, card.top() + 5, card.width() - 48, 18), Qt::AlignVCenter | Qt::AlignLeft,

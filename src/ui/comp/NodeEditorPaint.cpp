@@ -6,6 +6,7 @@
 #include "ui/comp/NodeEditor.h"
 
 #include "core/CompGroups.h"
+#include "ui/common/UiFonts.h"
 
 #include <QElapsedTimer>
 #include <QPaintEvent>
@@ -98,8 +99,7 @@ void NodeEditor::paintEvent(QPaintEvent* event)
     }
     paintLinks(p, visible);
     // One font for every tile name (the size follows the zoom), set once per paint.
-    m_tileFont = font();
-    m_tileFont.setPointSizeF(std::max(4.0, m_tileFont.pointSizeF() * std::clamp(m_zoom, 0.6, 1.4)));
+    m_tileFont = uifonts::font(uifonts::Role::Body, font(), std::clamp(m_zoom, 0.6, 1.4));
     p.setFont(m_tileFont);
     const QFontMetricsF metrics(m_tileFont);
     m_tileMetrics = &metrics;
@@ -312,8 +312,7 @@ void NodeEditor::paintGroupFrame(QPainter& p, const CompNode& group) const
     p.drawRoundedRect(title, 6, 6);
     if (m_zoom >= kMinTextZoom) {
         p.setPen(sc.text);
-        QFont bold = m_tileFont;
-        bold.setBold(true);
+        const QFont bold = uifonts::font(uifonts::Role::Emphasis, m_tileFont);
         p.setFont(bold);
         p.drawText(title.adjusted(8, 0, -8, 0), Qt::AlignLeft | Qt::AlignVCenter,
             group.macro ? tr("%1 (Macro)").arg(group.name) : group.name);
