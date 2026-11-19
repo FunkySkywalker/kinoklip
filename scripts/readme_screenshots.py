@@ -3,9 +3,9 @@
 """Makes the screenshots of the readme's Screenshots section (docs/images/readme/).
 
 One picture per page (Media, Cut, Edit, Compositing, Color, Audio, Deliver), a few feature
-shots and themes.png (Breeze Dark and Breeze Light split diagonally), taken from the real app
-in Breeze Dark (Breeze widget style and colour scheme) at 1920x1080, then scaled to 1600 px
-wide and stored as palette PNGs.
+shots and themes.png (the Kinoklip look, Breeze Dark and Breeze Light split by two parallel
+diagonals), taken from the real app in the Kinoklip look (Kinoklip widget style and colour
+scheme, the default) at 1920x1080, then scaled to 1600 px wide and stored as palette PNGs.
 
 The footage is made from five CC0 photos of people doing creative work (scripts/readme-media,
 credited in attribution.md): each becomes a 1920x1080 25 fps clip with a slow zoom or pan, so
@@ -61,10 +61,15 @@ SHOTS = {
                         {"KK_PROJECT_LIBRARY": "{library}"}),
 }
 
-# The readme's theme picture: the Edit page in Breeze Dark and in Breeze Light, joined along a
-# diagonal (dark on the left). name: colour scheme id given with --color-scheme.
-THEMES = {"breeze-dark": "BreezeDark", "breeze-light": "BreezeLight"}
-SPLIT = (0.62, 0.38)  # where the dividing line meets the top and the bottom edge (of the width)
+# The look of every page shot: widget style and colour scheme given on the command line.
+LOOK = ("--widget-style", "Kinoklip", "--color-scheme", "Kinoklip")
+
+# The readme's theme picture: the Edit page in the Kinoklip look, Breeze Dark and Breeze Light,
+# joined along two parallel diagonals (left to right). name: (widget style, colour scheme id).
+THEMES = {"kinoklip": ("Kinoklip", "Kinoklip"), "breeze-dark": ("Breeze", "BreezeDark"),
+          "breeze-light": ("Breeze", "BreezeLight")}
+SPLIT = (0.45, 0.75)  # where the dividing lines cross the middle of the picture (of the width)
+SLOPE = 0.12          # how far each line runs right at the top and left at the bottom (of the width)
 
 
 PHOTOS = ROOT / "scripts" / "readme-media"
@@ -121,17 +126,23 @@ def store(raw: Path, out: Path) -> None:
           f"{out.stat().st_size // 1024} KB")
 
 
-def store_split(dark: Path, light: Path, out: Path) -> None:
-    """Joins two shots of the same size along a diagonal and stores the result like store()."""
+def store_split(shots: list, out: Path) -> None:
+    """Joins same-sized shots left to right along parallel diagonals (SPLIT, SLOPE) and stores
+    the result like store()."""
     from PIL import ImageDraw
-    a, b = Image.open(dark).convert("RGB"), Image.open(light).convert("RGB")
-    w, h = a.size
-    top, bottom = SPLIT[0] * w, SPLIT[1] * w
-    mask = Image.new("L", (w, h), 0)
-    ImageDraw.Draw(mask).polygon([(0, 0), (top, 0), (bottom, h), (0, h)], fill=255)
-    joined = Image.composite(a, b, mask)
-    ImageDraw.Draw(joined).line([(top, 0), (bottom, h)], fill=(128, 128, 128), width=4)
-    # Kept in full colour: two schemes in one 256-colour palette turn the reds and oranges
+    images = [Image.open(p).convert("RGB") for p in shots]
+    w, h = images[0].size
+    joined = images[-1].copy()
+    lines = []
+    for image, mid in zip(reversed(images[:-1]), reversed(SPLIT)):
+        top, bottom = (mid + SLOPE) * w, (mid - SLOPE) * w
+        mask = Image.new("L", (w, h), 0)
+        ImageDraw.Draw(mask).polygon([(0, 0), (top, 0), (bottom, h), (0, h)], fill=255)
+        joined = Image.composite(image, joined, mask)
+        lines.append([(top, 0), (bottom, h)])
+    for line in lines:
+        ImageDraw.Draw(joined).line(line, fill=(128, 128, 128), width=4)
+    # Kept in full colour: several schemes in one 256-colour palette turn the reds and oranges
     # (playhead, selection) brown.
     joined = joined.resize((WIDTH, round(h * WIDTH / w)), Image.LANCZOS)
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -219,16 +230,16 @@ def main() -> None:
         if not (args.keep and png.exists()):
             env = {k: v.format(library=library) for k, v in env.items()}
             guide.run_shot(app, target, projects / project, png, geo, env,
-                           args=("--color-scheme", "BreezeDark"))
+                           args=LOOK)
         store(png, OUT / f"{name}.png")
     if not args.only or args.only == "themes":
         target, project, env = SHOTS["edit"]
-        for name, scheme in THEMES.items():
+        for name, (style, scheme) in THEMES.items():
             png, geo = raw / f"{name}.png", raw / f"{name}.json"
             if not (args.keep and png.exists()):
                 guide.run_shot(app, target, projects / project, png, geo, env,
-                               args=("--color-scheme", scheme))
-        store_split(raw / "breeze-dark.png", raw / "breeze-light.png", OUT / "themes.png")
+                               args=("--widget-style", style, "--color-scheme", scheme))
+        store_split([raw / f"{name}.png" for name in THEMES], OUT / "themes.png")
 
 
 if __name__ == "__main__":

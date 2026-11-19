@@ -11,10 +11,10 @@
 <a href="https://ko-fi.com/seniormatthew">Support</a>
 </h3>
 
-<a href="docs/images/readme/themes.png"><img src="docs/images/readme/themes.png" width="100%" alt="The Edit page of Kinoklip in the Breeze Dark colour scheme on the left and Breeze Light on the right, divided by a diagonal line"></a>
+<a href="docs/images/readme/themes.png"><img src="docs/images/readme/themes.png" width="100%" alt="The Edit page of Kinoklip in the default Kinoklip look, which follows DaVinci Resolve, on the left, then Breeze Dark and Breeze Light, divided by two diagonal lines"></a>
 
 Kinoklip is a non-linear video editor written from scratch in C++20 with Qt 6 and FFmpeg. Its
-pages, layout, behaviour and default shortcuts follow DaVinci Resolve, with the KDE Breeze look.
+pages, layout, behaviour and default shortcuts follow DaVinci Resolve, and so does the default look (Kinoklip widget style and colour scheme). KDE Breeze Dark and Breeze Light are available too.
 
 <p align="center"><img src="docs/images/readme/star.svg" height="16" alt="" valign="middle"> If you like Kinoklip, give it a star. It helps a lot!</p>
 
