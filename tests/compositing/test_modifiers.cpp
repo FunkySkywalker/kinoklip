@@ -8,6 +8,7 @@
 #include "core/NodeRegistry.h"
 #include "core/Serialization.h"
 
+#include <QJsonDocument>
 #include <QTest>
 
 #include <cmath>

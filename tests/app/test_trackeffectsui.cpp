@@ -262,7 +262,7 @@ private slots:
         MixerStrip* strip = f.strip();
         const QPointF at = QPointF(strip->rect().center());
         const int before = f.steps();
-        QDragEnterEvent enter(at, Qt::CopyAction, mime, Qt::LeftButton, Qt::NoModifier);
+        QDragEnterEvent enter(at.toPoint(), Qt::CopyAction, mime, Qt::LeftButton, Qt::NoModifier);
         QApplication::sendEvent(strip, &enter);
         QVERIFY(enter.isAccepted());
         QDropEvent drop(at, Qt::CopyAction, mime, Qt::LeftButton, Qt::NoModifier);
@@ -274,7 +274,7 @@ private slots:
         // A video effect is refused.
         QMimeData video;
         video.setData(QLatin1String(mime::Effect), "gaussian_blur");
-        QDragEnterEvent refuse(at, Qt::CopyAction, &video, Qt::LeftButton, Qt::NoModifier);
+        QDragEnterEvent refuse(at.toPoint(), Qt::CopyAction, &video, Qt::LeftButton, Qt::NoModifier);
         refuse.ignore();
         QApplication::sendEvent(strip, &refuse);
         QVERIFY(!refuse.isAccepted());

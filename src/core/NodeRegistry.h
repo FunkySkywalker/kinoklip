@@ -558,7 +558,7 @@ inline const QString BcHigh = QStringLiteral("bcHigh");
 /// Channel Mapper: output channel @p out (0 R, 1 G, 2 B, 3 A) takes @p in times this number.
 inline QString mapperKey(int out, int in)
 {
-    return QStringLiteral("map%1%2").arg(QLatin1Char("RGBA"[out]), QLatin1Char("RGBA"[in]));
+    return QStringLiteral("map%1%2").arg(QChar(QLatin1Char("RGBA"[out])), QChar(QLatin1Char("RGBA"[in])));
 }
 /// Channel Mapper: added to output channel @p out.
 inline QString mapperOffsetKey(int out)

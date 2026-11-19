@@ -5,6 +5,9 @@ name: ARM64 release
 #
 #   gh workflow run arm64-release.yml -f tag=v1.8.3     build that tag, upload to its release
 #   gh workflow run arm64-release.yml --ref <branch>    test run: workflow artifact only
+#   gh workflow run arm64-release.yml -f tag=v1.11.0 -f ref=<commit>
+#                                                       build a later commit (a build fix for ARM64
+#                                                       only), upload to that tag's release
 #
 # scripts/publish_release.sh starts the first form after publishing the x86_64 release.
 # Base image: Debian 13 (trixie), see packaging/linux/readme.md, "ARM64".
@@ -14,6 +17,10 @@ on:
     inputs:
       tag:
         description: "Release tag to build and upload to (empty = test run, artifact only)"
+        required: false
+        default: ""
+      ref:
+        description: "Commit to build instead of the tag (empty = the tag itself)"
         required: false
         default: ""
       run_tests:
@@ -81,7 +88,7 @@ jobs:
 
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.tag || github.ref }}
+          ref: ${{ inputs.ref || inputs.tag || github.ref }}
           fetch-depth: 1
 
       - name: Restore ccache
