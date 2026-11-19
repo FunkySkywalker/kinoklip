@@ -76,6 +76,29 @@ struct DistortionSettings
     DistortionMode mode = DistortionMode::SoftClip;
     double outputDb = -6.0;
     double mixPercent = 100.0;
+    int oversampling = 2; ///< 1 (off), 2 or 4: the shaper runs at this multiple of the rate
+};
+
+/// Linear-phase FIR oversampler for one stereo stream (windowed sinc, Blackman): up by L, the
+/// caller shapes the L samples of each frame, down by L. Total delay latency() frames.
+class Oversampler
+{
+public:
+    /// @p factor 2 or 4 (anything else is treated as 2).
+    void setFactor(int factor);
+    [[nodiscard]] int factor() const { return m_l; }
+    /// The delay of up + down, in frames.
+    [[nodiscard]] int latency() const { return m_latency; }
+    void reset();
+    /// Upsamples frame sample @p in of channel @p ch into out[0 .. factor).
+    void up(int ch, float in, float* out);
+    /// Takes the factor shaped samples of channel @p ch and returns the frame sample.
+    float down(int ch, const float* in);
+
+private:
+    int m_l = 2, m_n = 0, m_latency = 0;
+    std::vector<float> m_coef; ///< the lowpass, m_n taps at the high rate
+    std::array<std::vector<float>, 2> m_upHist, m_downHist; ///< newest first
 };
 
 class Distortion
@@ -85,12 +108,23 @@ public:
     void configure(const DistortionSettings& s);
     void reset();
     void process(float* io, int frames);
+    /// The delay of the sound (the oversampling filters), in frames; 0 with oversampling off.
+    /// Mix 0 passes the sound through untouched, without delay.
+    [[nodiscard]] int latencyFrames() const
+    {
+        return m_s.oversampling > 1 && m_s.mixPercent > 0.0 ? m_over.latency() : 0;
+    }
 
 private:
+    [[nodiscard]] double shape(double in, double g, double step) const;
     double m_rate;
     DistortionSettings m_s;
     double m_toneCoef = 0.0, m_dcCoef = 0.0;
     std::array<double, 2> m_tone{}, m_dcX{}, m_dcY{};
+    Oversampler m_over;
+    std::array<std::vector<float>, 2> m_dry; ///< the dry sound, delayed like the wet
+    int m_dryPos = 0;
+    bool m_idle = true; ///< the memory is not running (Mix 0 or nothing processed yet)
 };
 
 /// Stereo width by mid / side. Width 100 % (and Mono Below off) leaves the sound unchanged.

@@ -89,6 +89,7 @@ inline constexpr char DriveDb[] = "drive_db";
 inline constexpr char Tone[] = "tone"; ///< percent
 inline constexpr char DistMode[] = "mode"; ///< afxchoice::DistSoft / DistHard / DistCrush / DistTube
 inline constexpr char MonoBelowHz[] = "mono_below_hz"; ///< 0 = off
+inline constexpr char Oversampling[] = "oversampling"; ///< afxchoice::OsOff / Os2 / Os4 (Distortion)
 } // namespace afxkeys
 
 /// Choice values of the Noise Reduction effect.
@@ -105,10 +106,27 @@ inline constexpr char DistHard[] = "hard";
 inline constexpr char DistCrush[] = "crush";
 inline constexpr char DistTube[] = "tube";
 inline constexpr char RvCustom[] = "custom";
+inline constexpr char OsOff[] = "off";
+inline constexpr char Os2[] = "2x";
+inline constexpr char Os4[] = "4x";
 /// The Reverb presets, in the order of dsp::reverbPreset().
 inline constexpr const char* kReverbPresetIds[] = {
     "small_room", "large_room", "hall", "plate", "chamber", "cathedral"};
 } // namespace afxchoice
+/// What a Reverb preset sets (the Preset choice writes these into the sliders, see
+/// ParamDescriptor::choiceValues), in the order of kReverbPresetIds.
+struct ReverbPresetValues
+{
+    double preDelayMs, decayS, roomSize, damping, early, width;
+};
+inline constexpr ReverbPresetValues kReverbPresetValues[] = {
+    {3, 0.5, 25, 45, 60, 80}, // Small Room
+    {12, 1.2, 55, 40, 50, 100}, // Large Room
+    {25, 2.4, 75, 35, 40, 110}, // Hall
+    {0, 1.6, 45, 15, 0, 120}, // Plate: bright, dense, no room reflections
+    {8, 1.0, 40, 50, 35, 90}, // Chamber
+    {40, 6.0, 100, 55, 30, 130}, // Cathedral
+};
 
 /// Longest delay time (ms); the processor's buffer is sized for it.
 inline constexpr double kAudioDelayMaxMs = 2000.0;

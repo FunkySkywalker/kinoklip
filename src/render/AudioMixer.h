@@ -168,8 +168,10 @@ private:
     const float* pitchedSource(Decoder& d, const NestedTimelines& nested, double ratio,
         int64_t clipStart, int64_t sourceIn, int64_t from, int n);
     /// Adds one clip over timeline samples [from, to) to @p out; false if it has no source.
+    /// @p inputEnd is the sample where the clip's sound stops; up to @p to (past it) only the
+    /// tail of its audio effects is rendered, from silent input (spec 140).
     bool mixClip(const TimelineData& tl, const NestedTimelines& nested, const ClipData& clip,
-        const Fade& head, const Fade& tail, int64_t from, int64_t to, float* out);
+        const Fade& head, const Fade& tail, int64_t from, int64_t to, int64_t inputEnd, float* out);
     void collectIdle();
 
     std::shared_ptr<const MediaPathMap> m_media;
@@ -180,6 +182,7 @@ private:
     std::vector<float> m_pitchF; ///< m_pitchZ low-passed (pitch up above an octave)
     std::vector<float> m_pitchZ; ///< a pitched clip's time-stretched source (scratch)
     std::vector<float> m_primeBuffer; ///< latency priming samples of a clip's effects (scratch)
+    std::vector<float> m_silentInput; ///< a clip's source with silence from its end (scratch)
     std::vector<float> m_effectBuffer; ///< a clip's samples after its audio effects (scratch)
     std::vector<double> m_positions; ///< retime curve source positions per block (scratch)
     QElapsedTimer m_clock;

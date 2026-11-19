@@ -452,6 +452,78 @@ private slots:
         QCOMPARE(d->params[1].choices, QStringList({"rnnoise", "gate"}));
     }
 
+    // ---- Spec 140: the tail of a clip's effects goes on past the clip's end ----
+
+    /// A clip of @p frames frames at @p start on A1 with @p effects (the impulse file).
+    static ClipData tailClip(TimelineData& tl, int64_t start, int64_t frames, const QVector<EffectInstance>& effects)
+    {
+        ClipData c = mediaClip(tl, kMedia, start, frames, 0, 2'000'000);
+        c.effects = effects;
+        return c;
+    }
+
+    void aDelayEchoesRingPastTheClipEnd()
+    {
+        // The clip is the first second; the impulse (0.8) is 1000 samples in. Echoes (mix 100,
+        // feedback 50 %, 300 ms) fall at 1000 + 14400 n with amplitude 0.8 * 0.5^(n-1); the 4th
+        // echo (0.1) is at 58600, after the clip ends at 48000.
+        TimelineData tl = emptyTimeline();
+        const EffectInstance echo = fx(tl, afxid::Delay,
+            {{afxkeys::TimeMs, 300}, {afxkeys::Feedback, 50}, {afxkeys::Mix, 100}});
+        addClip(tl, TrackType::Audio, 0, tailClip(tl, 0, 25, {echo}));
+        const auto out = render(tl, m_wavImpulse, 96000);
+        QVERIFY2(peak(out, 58500, 58700) > 0.09 && peak(out, 58500, 58700) < 0.11,
+            qPrintable(QString::number(peak(out, 58500, 58700))));
+        QVERIFY(peak(out, 44100, 44300) > 0.19); // the 3rd, inside the clip
+        // The tail ends where the echoes die (60 dB): nothing near the end of the render.
+        QVERIFY(peak(out, 90000, 96000) < 1e-3);
+        // The same samples in any block size (playback) as in one call (export).
+        for (int block : {1000, 1024, 4800, 777})
+            QVERIFY2(render(tl, m_wavImpulse, 96000, block) == out, qPrintable(QString::number(block)));
+        // Without the effect nothing is heard after the clip.
+        TimelineData plain = emptyTimeline();
+        addClip(plain, TrackType::Audio, 0, tailClip(plain, 0, 25, {}));
+        QVERIFY(peak(render(plain, m_wavImpulse, 96000), 48000, 96000) == 0.0);
+    }
+
+    void aReverbTailRingsOutAndStopsAtItsDecay()
+    {
+        TimelineData tl = emptyTimeline();
+        const EffectInstance rv = fx(tl, afxid::Reverb, {{afxkeys::Mix, 100}, {afxkeys::RvDecayS, 1.0}});
+        // A clip of 0.4 s (10 frames) of the sine file.
+        addClip(tl, TrackType::Audio, 0, tailClip(tl, 0, 10, {rv}));
+        const auto out = render(tl, m_wavSine, 192000);
+        const int end = 19200; // clip end
+        QVERIFY(rms(out, end + 2000, end + 6000) > 0.01); // still ringing 40 ms after the end
+        QVERIFY(rms(out, end + 2000, end + 6000) > rms(out, end + 24000, end + 28000) * 2);
+        QVERIFY(rms(out, 150000, 190000) < 1e-4); // gone long after the decay
+        QVERIFY(render(tl, m_wavSine, 192000, 1024) == out);
+        QVERIFY(render(tl, m_wavSine, 192000, 4999) == out);
+    }
+
+    void aFollowingClipOverlappingTheTailIsMixedWithIt()
+    {
+        TimelineData tl = emptyTimeline();
+        const EffectInstance echo = fx(tl, afxid::Delay,
+            {{afxkeys::TimeMs, 300}, {afxkeys::Feedback, 50}, {afxkeys::Mix, 100}});
+        // A is the first second, B follows at once with the same sound and echo.
+        addClip(tl, TrackType::Audio, 0, tailClip(tl, 0, 25, {echo}));
+        addClip(tl, TrackType::Audio, 0, tailClip(tl, 25, 25, {echo}));
+        TimelineData onlyA = emptyTimeline();
+        addClip(onlyA, TrackType::Audio, 0, tailClip(onlyA, 0, 25, {echo}));
+        TimelineData onlyB = emptyTimeline();
+        addClip(onlyB, TrackType::Audio, 0, tailClip(onlyB, 25, 25, {echo}));
+        const auto both = render(tl, m_wavImpulse, 144000);
+        const auto a = render(onlyA, m_wavImpulse, 144000);
+        const auto b = render(onlyB, m_wavImpulse, 144000);
+        // A's 4th echo (58600) rings through B's clip and is heard with B's own echoes.
+        QVERIFY(peak(both, 58500, 58700) > 0.09);
+        QVERIFY(peak(both, 63300, 63500) > 0.7); // B's first echo: 48000 + 1000 + 14400
+        for (size_t i = 0; i < both.size(); ++i)
+            QVERIFY2(std::abs(both[i] - (a[i] + b[i])) < 1e-6f, qPrintable(QString::number(i)));
+        QVERIFY(render(tl, m_wavImpulse, 144000, 1000) == both);
+    }
+
     void aSeekRestartsTheEffectMemory()
     {
         TimelineData tl = timeline({});

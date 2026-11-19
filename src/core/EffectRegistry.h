@@ -6,6 +6,7 @@
 #include "core/TimelineData.h"
 
 #include <QHash>
+#include <QPair>
 #include <QString>
 #include <QStringList>
 #include <QVariant>
@@ -77,6 +78,13 @@ struct ParamDescriptor
     /// What the control does (translated, optional): the Inspector shows it as the tooltip of
     /// the label and the editor. Nodes of the Compositing page fill it (spec 123).
     QString tooltip;
+    /// Choice only: parameters a choice value sets (key -> value), by choice value. Choosing the
+    /// value writes them into the parameter set in the same edit (one undo step), so the
+    /// controls show them. Choice values not listed set nothing (e.g. "Custom").
+    QHash<QString, QVector<QPair<QString, double>>> choiceValues;
+    /// Choice only, with choiceValues: the choice value the parameter falls back to when one
+    /// of the parameters that choiceValues sets is edited by hand ("Custom").
+    QString customChoice;
 
     /// The value shown for stored value @p stored (and back: the same negation).
     [[nodiscard]] double displayed(double stored) const

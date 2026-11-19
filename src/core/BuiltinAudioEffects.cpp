@@ -40,6 +40,26 @@ ParamDescriptor tip(ParamDescriptor p, const QString& text)
     return p;
 }
 
+/// The Reverb Preset choice: choosing a room writes its values into the six room sliders.
+ParamDescriptor reverbPresetChoice(const QString& label, const QStringList& labels)
+{
+    namespace k = afxkeys;
+    QStringList ids{QLatin1String(afxchoice::RvCustom)};
+    for (const char* id : afxchoice::kReverbPresetIds)
+        ids.append(QLatin1String(id));
+    ParamDescriptor p
+        = choice(QLatin1String(k::RvPreset), label, ids, labels, QLatin1String(afxchoice::RvCustom));
+    p.customChoice = QLatin1String(afxchoice::RvCustom);
+    int i = 0;
+    for (const afxchoice::ReverbPresetValues& v : afxchoice::kReverbPresetValues) {
+        p.choiceValues.insert(QLatin1String(afxchoice::kReverbPresetIds[i++]),
+            {{QLatin1String(k::RvPreDelayMs), v.preDelayMs}, {QLatin1String(k::RvDecayS), v.decayS},
+                {QLatin1String(k::RoomSize), v.roomSize}, {QLatin1String(k::Damping), v.damping},
+                {QLatin1String(k::RvEarly), v.early}, {QLatin1String(k::Width), v.width}});
+    }
+    return p;
+}
+
 EffectDescriptor effect(const char* id, const QString& name, const QString& description,
     QVector<ParamDescriptor> params)
 {
@@ -91,19 +111,12 @@ void EffectRegistry::registerAudioEffects()
     add(effect(Reverb, tr("Reverb"),
         tr("A room, plate or hall: pre-delay, a tail you set in seconds and room presets"),
         {
-            tip(choice(QLatin1String(k::RvPreset), tr("Preset"),
-                    {QLatin1String(afxchoice::RvCustom), QLatin1String(afxchoice::kReverbPresetIds[0]),
-                        QLatin1String(afxchoice::kReverbPresetIds[1]),
-                        QLatin1String(afxchoice::kReverbPresetIds[2]),
-                        QLatin1String(afxchoice::kReverbPresetIds[3]),
-                        QLatin1String(afxchoice::kReverbPresetIds[4]),
-                        QLatin1String(afxchoice::kReverbPresetIds[5])},
+            tip(reverbPresetChoice(tr("Preset"),
                     {tr("Custom"), tr("Small Room"), tr("Large Room"), tr("Hall"), tr("Plate"),
-                        tr("Chamber"), tr("Cathedral")},
-                    QLatin1String(afxchoice::RvCustom)),
-                tr("A ready-made room. With a preset chosen, its Pre-delay, Decay, Room Size, "
-                   "Damping, Early Reflections and Width are used; choose Custom to set them "
-                   "yourself. Mix always stays yours.")),
+                        tr("Chamber"), tr("Cathedral")}),
+                tr("A ready-made room. Choosing one sets Pre-delay, Decay, Room Size, Damping, "
+                   "Early Reflections and Width to its values; change any of them and the "
+                   "preset becomes Custom. Mix always stays yours.")),
             tip(value(k::RvPreDelayMs, tr("Pre-delay"), 0, kReverbMaxPreDelayMs, 10, 1, kMs),
                 tr("How long after the sound the reverb starts. A longer pre-delay keeps the "
                    "voice clear in front of the room.")),
@@ -167,6 +180,13 @@ void EffectRegistry::registerAudioEffects()
                     QLatin1String(afxchoice::DistSoft)),
                 tr("Soft Clip rounds the peaks, Hard Clip cuts them flat, Bit Crush lowers the "
                    "resolution, Tube-like adds warm even harmonics.")),
+            tip(choice(QLatin1String(k::Oversampling), tr("Oversampling"),
+                    {QLatin1String(afxchoice::OsOff), QLatin1String(afxchoice::Os2),
+                        QLatin1String(afxchoice::Os4)},
+                    {tr("Off"), tr("2x"), tr("4x")}, QLatin1String(afxchoice::Os2)),
+                tr("Runs the distortion at two or four times the sample rate so the harsh "
+                   "harmonics it makes do not fold back as inharmonic aliasing. Costs some "
+                   "processing and about a millisecond of delay (which is compensated).")),
             tip(value(k::NrOutputDb, tr("Output"), -24, 24, -6, 0.1, kDb),
                 tr("Level of the distorted sound. Distortion is loud: lower this as you raise "
                    "the Drive.")),

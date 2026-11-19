@@ -337,10 +337,16 @@ public:
                                                             : DistortionMode::SoftClip;
         s.outputDb = param(p, k::NrOutputDb, -6, -24, 24);
         s.mixPercent = param(p, k::Mix, 100, 0, 100);
+        const QString os
+            = p.staticValue(QLatin1String(k::Oversampling), QLatin1String(afxchoice::Os2)).toString();
+        s.oversampling = os == QLatin1String(afxchoice::OsOff) ? 1
+            : os == QLatin1String(afxchoice::Os4)               ? 4
+                                                                : 2;
         m_dist.configure(s);
     }
     void reset() override { m_dist.reset(); }
     void process(float* io, int frames) override { m_dist.process(io, frames); }
+    int latencyFrames() const override { return m_dist.latencyFrames(); }
 
 private:
     Distortion m_dist;
@@ -518,6 +524,69 @@ void ClipEffectChain::reset()
 }
 
 void ClipEffectChain::prepare(const QVector<EffectInstance>& effects)
+namespace {
+
+constexpr int kMaxTailFrames = 30 * int(kRate); ///< no effect keeps a clip sounding longer
+
+/// Frames until feedback loop of @p periodFrames with loop gain @p gain has fallen by 60 dB.
+double feedbackTail(double periodFrames, double gain)
+{
+    const double g = std::clamp(std::fabs(gain), 0.0, 0.999);
+    if (g < 1e-3)
+        return periodFrames;
+    return periodFrames * std::ceil(std::log(1e-3) / std::log(g)) + periodFrames;
+}
+
+/// The tail (frames) of one effect from its parameters; mirrors the processors above.
+int effectTail(const EffectInstance& fx)
+{
+    namespace k = afxkeys;
+    const ParamSet& p = fx.params;
+    double frames = 0.0;
+    if (fx.type == QLatin1String(afxid::Reverb)) {
+        if (param(p, k::Mix, 25, 0, 100) <= 0.0)
+            return 0;
+        const QString preset
+            = p.staticValue(QLatin1String(k::RvPreset), QLatin1String(afxchoice::RvCustom)).toString();
+        const int index = reverbPresetIndex(preset);
+        const ReverbSettings s = index >= 0 ? reverbPreset(index) : ReverbSettings{
+            param(p, k::RvPreDelayMs, 10, 0, kReverbMaxPreDelayMs), param(p, k::RvDecayS, 1.8, 0.1, 20)};
+        // the tail falls 60 dB in Decay seconds; high frequencies die sooner, so this is a bit
+        // more than needed
+        frames = (s.preDelayMs * 1e-3 + s.decaySeconds * 1.05 + 0.1) * kRate;
+    } else if (fx.type == QLatin1String(afxid::Delay)) {
+        if (param(p, k::Mix, 30, 0, 100) <= 0.0)
+            return 0;
+        frames = feedbackTail(param(p, k::TimeMs, 250, 1, kAudioDelayMaxMs) * 1e-3 * kRate,
+            param(p, k::Feedback, 35, 0, 95) / 100.0);
+    } else if (fx.type == QLatin1String(afxid::Chorus)) {
+        if (param(p, k::Mix, 50, 0, 100) <= 0.0)
+            return 0;
+        const double delay = param(p, k::DelayMs, 15, 1, 50) * 1e-3 * kRate;
+        frames = param(p, k::Feedback, 0, 0, 90) > 0
+            ? feedbackTail(delay * 1.5, param(p, k::Feedback, 0, 0, 90) / 100.0)
+            : delay * 2.0;
+    } else if (fx.type == QLatin1String(afxid::Flanger)) {
+        if (param(p, k::Mix, 50, 0, 100) <= 0.0)
+            return 0;
+        frames = feedbackTail(param(p, k::DelayMs, 2, 0.1, 10) * 2.0e-3 * kRate,
+            param(p, k::Feedback, 50, -95, 95) / 100.0);
+    }
+    return int(std::min<double>(std::ceil(frames), kMaxTailFrames));
+}
+
+} // namespace
+
+int ClipEffectChain::tailFrames(const QVector<EffectInstance>& effects)
+{
+    double total = 0.0;
+    for (const EffectInstance& fx : effects) {
+        if (fx.enabled && fx.type.startsWith(QLatin1String("audio_")))
+            total += effectTail(fx);
+    }
+    return int(std::min<double>(total, kMaxTailFrames));
+}
+
 {
     // Drop the processors of removed effects (or whose type changed).
     std::erase_if(m_slots, [&](const Slot& s) {

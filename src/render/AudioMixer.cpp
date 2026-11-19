@@ -277,8 +277,17 @@ bool AudioMixer::mixTrackClips(const TimelineData& tl, const NestedTimelines& ne
     // cannot reach it even through a transition handle, so the (linear) linked-clip lookup
     // below only runs for the few clips around the playhead.
     const int64_t margin = int64_t(kMaxHandleSeconds * tl.fps.toDouble()) + 1;
+    // A clip's effect tail (reverb, echoes) sounds after its end: reach back that far too.
+    int64_t tailMax = 0;
+    for (const ClipData& c : track.clips) {
+        if (!c.effects.isEmpty())
+            tailMax = std::max<int64_t>(tailMax, dsp::ClipEffectChain::tailFrames(c.effects));
+    }
+    const int64_t tailFramesMax = tailMax > 0
+        ? usToFrames(tailMax * 1'000'000 / kSampleRate, tl.fps) + 1
+        : 0;
     const int64_t windowFirst
-        = usToFrames(startSample48k * 1'000'000 / kSampleRate, tl.fps) - margin;
+        = usToFrames(startSample48k * 1'000'000 / kSampleRate, tl.fps) - margin - tailFramesMax;
     const int64_t windowLast = usToFrames(mixEnd * 1'000'000 / kSampleRate, tl.fps) + margin;
 
     // First clip that can reach the window (clips are sorted and disjoint).
@@ -320,11 +329,13 @@ bool AudioMixer::mixTrackClips(const TimelineData& tl, const NestedTimelines& ne
                 framesToSamples48k(tail->end, tl.fps), curveOf(*tail)};
         }
         const int64_t s0 = std::max(framesToSamples48k(playStart, tl.fps), startSample48k);
-        const int64_t s1 = std::min(framesToSamples48k(playEnd, tl.fps), mixEnd);
+        const int64_t inputEnd = framesToSamples48k(playEnd, tl.fps);
+        const int64_t soundEnd = inputEnd + dsp::ClipEffectChain::tailFrames(clip.effects);
+        const int64_t s1 = std::min(soundEnd, mixEnd);
         if (s1 <= s0)
             continue;
-        any |= mixClip(
-            tl, nested, clip, headFade, tailFade, s0, s1, out + (s0 - startSample48k) * kChannels);
+        any |= mixClip(tl, nested, clip, headFade, tailFade, s0, s1, inputEnd,
+            out + (s0 - startSample48k) * kChannels);
     }
     return any;
 }
@@ -482,7 +493,8 @@ const float* AudioMixer::retimedSource(Decoder& d, const NestedTimelines& nested
 }
 
 bool AudioMixer::mixClip(const TimelineData& tl, const NestedTimelines& nested,
-    const ClipData& clip, const Fade& head, const Fade& tail, int64_t from, int64_t to, float* out)
+    const ClipData& clip, const Fade& head, const Fade& tail, int64_t from, int64_t to,
+    int64_t inputEnd, float* out)
 {
     Decoder* d = decoderFor(clip, nested);
     if (!d)
@@ -504,7 +516,7 @@ bool AudioMixer::mixClip(const TimelineData& tl, const NestedTimelines& nested,
     // ---- Source stage: source samples, pitch and the clip equalizer for timeline samples
     // [f, f + cnt). Called for [from, to) normally; with latency-adding clip effects it is
     // called for the range shifted ahead by the latency (and once more for the priming).
-    auto upstream = [&](int64_t f, int cnt) -> const float* {
+    auto upstreamSound = [&](int64_t f, int cnt) -> const float* {
         const float* src = nullptr;
         if (!retimed) {
             if (m_source.size() < size_t(cnt) * kChannels)
@@ -561,6 +573,23 @@ bool AudioMixer::mixClip(const TimelineData& tl, const NestedTimelines& nested,
         }
         return src;
     };
+    // Past the clip's end the input is silent (only the effect tails ring on). An effect that
+    // delays the sound is read `latency` ahead, so what it reads is the clip's own sound
+    // (handles included) up to inputEnd + latency, the same as without a tail.
+    int64_t silentFrom = inputEnd;
+    auto upstream = [&](int64_t f, int cnt) -> const float* {
+        if (f + cnt <= silentFrom)
+            return upstreamSound(f, cnt);
+        if (m_silentInput.size() < size_t(cnt) * kChannels)
+            m_silentInput.resize(size_t(cnt) * kChannels);
+        std::fill(m_silentInput.begin(), m_silentInput.begin() + size_t(cnt) * kChannels, 0.0f);
+        const int live = int(std::clamp<int64_t>(silentFrom - f, 0, cnt));
+        if (live > 0) {
+            const float* src = upstreamSound(f, live);
+            std::copy(src, src + size_t(live) * kChannels, m_silentInput.begin());
+        }
+        return m_silentInput.data();
+    };
 
     // ---- Clip audio effects: on the clip's own source, before volume / pan / fades ----
     // (the clip stage; the track's EQ, dynamics, pan and fader come after, in the track
@@ -573,6 +602,7 @@ bool AudioMixer::mixClip(const TimelineData& tl, const NestedTimelines& nested,
     const float* src = nullptr;
     if (dsp::ClipEffectChain::hasActive(clip.effects)) {
         const int latency = d->effects.latencyFrames(clip.effects);
+        silentFrom = inputEnd + latency;
         if (from != d->effectsNext || latency != d->effectsLatency) {
             d->effects.reset();
             if (latency > 0) {
@@ -603,6 +633,10 @@ bool AudioMixer::mixClip(const TimelineData& tl, const NestedTimelines& nested,
         it != clip.audio.values.constEnd())
         volume = &*it;
     auto gainAt = [&](int64_t sample) {
+        // The tail after the clip's end keeps the gain of its last sample (no jump back up
+        // after a fade-out).
+        if (to > inputEnd)
+            sample = std::min(sample, inputEnd - 1);
         double db = 0.0;
         if (volume) {
             // The keyframe curve evaluated at the sample's exact (fractional) clip-local
@@ -636,7 +670,7 @@ bool AudioMixer::mixClip(const TimelineData& tl, const NestedTimelines& nested,
         if (g0 == 0.0f && g1 == 0.0f)
             continue;
         float panL = 1.0f, panR = 1.0f;
-        const int64_t mid = from + (b0 + b1) / 2;
+        const int64_t mid = std::min(from + (b0 + b1) / 2, to > inputEnd ? inputEnd - 1 : to);
         panGains(clip.audio.value(keys::Pan, int64_t(double(mid - clipStart) * framesPerSample)),
             panL, panR);
         const float step = (g1 - g0) / float(b1 - b0);

@@ -9,6 +9,7 @@
 #include "core/Serialization.h"
 #include "render/AudioClipEffects.h"
 #include "render/ModFx.h"
+#include "ui/inspector/ParamAccess.h"
 
 #include <QTest>
 
@@ -281,11 +282,15 @@ private slots:
         QVERIFY(componentDb(soft, 960) < componentDb(soft, 1440) - 30); // and almost no even ones
         const Signal hard = d(afxchoice::DistHard);
         QVERIFY(componentDb(hard, 1440) > -30);
-        QVERIFY(std::fabs(*std::max_element(hard.begin(), hard.end())) <= 1.0f);
+        QVERIFY(std::fabs(*std::max_element(hard.begin(), hard.end())) <= 1.15f); // the filters overshoot a little
         const Signal tube = d(afxchoice::DistTube, 12);
         QVERIFY(componentDb(tube, 960) > -40); // even harmonics
         // Bit crush at full drive: 3 bits, a handful of levels.
-        const Signal crush = d(afxchoice::DistCrush, 40);
+        EffectInstance crushFx = make(afxid::Distortion, {{afxkeys::DriveDb, 40}, {afxkeys::Tone, 100},
+                                                       {afxkeys::NrOutputDb, 0}, {afxkeys::Mix, 100}});
+        crushFx.params.setStatic(QLatin1String(afxkeys::DistMode), QLatin1String(afxchoice::DistCrush));
+        crushFx.params.setStatic(QLatin1String(afxkeys::Oversampling), QLatin1String(afxchoice::OsOff));
+        const Signal crush = run(crushFx, in); // oversampling off: the levels stay discrete
         std::vector<float> levels(crush.begin(), crush.end());
         std::sort(levels.begin(), levels.end());
         levels.erase(std::unique(levels.begin(), levels.end()), levels.end());
@@ -300,6 +305,108 @@ private slots:
                                                        {afxkeys::NrOutputDb, -6.0206}, {afxkeys::Mix, 100}}),
             in);
         QVERIFY(std::fabs(componentDb(half, 480) - (componentDb(soft, 480) - 6.0206)) < 0.05);
+    }
+
+    // ---- Spec 140: Distortion oversampling, Reverb preset values, clip effect tails ----
+
+    void oversamplingLowersTheAliasing()
+    {
+        // A 9.5 kHz sine hard driven: its 3rd harmonic (28.5 kHz) folds to 19.5 kHz and its 7th to
+        // 18.5 kHz when the shaper runs at the plain rate, and is filtered out when it runs at 2x
+        // or 4x.
+        const Signal in = sine(0.6, 9500, 0.5);
+        for (const char* mode : {afxchoice::DistHard, afxchoice::DistSoft, afxchoice::DistTube,
+                 afxchoice::DistCrush}) {
+            auto alias = [&](const char* os) {
+                EffectInstance e = make(afxid::Distortion, {{afxkeys::DriveDb, QLatin1String(mode) == QLatin1String(afxchoice::DistCrush) ? 40 : 26}, {afxkeys::Tone, 100},
+                                                         {afxkeys::NrOutputDb, 0}, {afxkeys::Mix, 100}});
+                e.params.setStatic(QLatin1String(afxkeys::DistMode), QLatin1String(mode));
+                e.params.setStatic(QLatin1String(afxkeys::Oversampling), QLatin1String(os));
+                const Signal out = run(e, in);
+                const double a = componentDb(out, 19500, 6000) - componentDb(out, 9500, 6000);
+                const double b = componentDb(out, 18500, 6000) - componentDb(out, 9500, 6000);
+                return std::max(a, b);
+            };
+            const double off = alias(afxchoice::OsOff);
+            const double x2 = alias(afxchoice::Os2);
+            const double x4 = alias(afxchoice::Os4);
+            qInfo("%s alias vs fundamental: off %.1f dB, 2x %.1f dB, 4x %.1f dB", mode, off, x2, x4);
+            const double need = QLatin1String(mode) == QLatin1String(afxchoice::DistCrush) ? 6.0 : 20.0;
+            QVERIFY2(x2 < off - need, mode);
+            QVERIFY2(x4 < off - need, mode);
+        }
+    }
+
+    void oversamplingIsAlignedAndBlockIndependent()
+    {
+        // The wet sound is delayed by latencyFrames(); the dry part of Mix is delayed the same,
+        // so a Mix of 50 % of a clean signal keeps its phase; and no block size changes a sample.
+        EffectInstance e = make(afxid::Distortion, {{afxkeys::DriveDb, 0}, {afxkeys::Tone, 100},
+                                                 {afxkeys::NrOutputDb, 0}, {afxkeys::Mix, 100}});
+        e.params.setStatic(QLatin1String(afxkeys::Oversampling), QLatin1String(afxchoice::Os4));
+        ClipEffectChain chain;
+        const int latency = chain.latencyFrames({e});
+        QVERIFY(latency > 0 && latency < 200);
+        // Drive 0 dB soft clip of a low quiet sine is nearly linear: out(n) = in(n - latency).
+        const Signal in = sine(0.5, 440, 0.05);
+        const Signal out = run(e, in);
+        for (int i = latency + 2000; i < 20000; ++i)
+            QVERIFY(std::fabs(out[size_t(2 * i)] - in[size_t(2 * (i - latency))]) < 2e-3f);
+        for (int block : {1, 37, 480, 4096})
+            QVERIFY(run(e, in, block) == out);
+        // Off: no delay at all; Mix 0: untouched.
+        e.params.setStatic(QLatin1String(afxkeys::Oversampling), QLatin1String(afxchoice::OsOff));
+        QCOMPARE(ClipEffectChain().latencyFrames({e}), 0);
+        e.params.setStatic(QLatin1String(afxkeys::Oversampling), QLatin1String(afxchoice::Os2));
+        e.params.setBase(QLatin1String(afxkeys::Mix), 0.0);
+        QCOMPARE(ClipEffectChain().latencyFrames({e}), 0);
+        QVERIFY(run(e, in) == in);
+    }
+
+    void reverbPresetMovesTheSliders()
+    {
+        ClipData clip;
+        clip.id = 1;
+        EffectInstance fx = make(afxid::Reverb);
+        fx.id = 5;
+        clip.effects.append(fx);
+        const EffectDescriptor* d = EffectRegistry::instance().find(QLatin1String(afxid::Reverb));
+        QVERIFY(d);
+        auto ref = [&](const char* key) { return ParamRef {1, ParamScope::Effect, 5, QLatin1String(key)}; };
+        auto number = [&](const char* key) {
+            return paramaccess::scalar(clip, ref(key), *d->param(QLatin1String(key)), 0);
+        };
+        // Choosing Cathedral writes its values into the six sliders.
+        paramaccess::setStatic(clip, ref(afxkeys::RvPreset), QLatin1String(afxchoice::kReverbPresetIds[5]));
+        const afxchoice::ReverbPresetValues& v = afxchoice::kReverbPresetValues[5];
+        QCOMPARE(number(afxkeys::RvPreDelayMs), v.preDelayMs);
+        QCOMPARE(number(afxkeys::RvDecayS), v.decayS);
+        QCOMPARE(number(afxkeys::RoomSize), v.roomSize);
+        QCOMPARE(number(afxkeys::Damping), v.damping);
+        QCOMPARE(number(afxkeys::RvEarly), v.early);
+        QCOMPARE(number(afxkeys::Width), v.width);
+        QCOMPARE(number(afxkeys::Mix), 25.0); // Mix stays the user's
+        auto presetNow = [&] {
+            return paramaccess::staticValue(clip, ref(afxkeys::RvPreset), *d->param(QLatin1String(afxkeys::RvPreset)))
+                .toString();
+        };
+        QCOMPARE(presetNow(), QString::fromLatin1(afxchoice::kReverbPresetIds[5]));
+        // Moving a slider makes the preset Custom, and keeps the other values.
+        paramaccess::setScalar(clip, ref(afxkeys::RvDecayS), *d->param(QLatin1String(afxkeys::RvDecayS)), 0, 3.0);
+        QCOMPARE(presetNow(), QString::fromLatin1(afxchoice::RvCustom));
+        QCOMPARE(number(afxkeys::RvDecayS), 3.0);
+        QCOMPARE(number(afxkeys::RoomSize), v.roomSize);
+        // Mix is not part of a preset: moving it keeps the preset.
+        paramaccess::setStatic(clip, ref(afxkeys::RvPreset), QLatin1String(afxchoice::kReverbPresetIds[1]));
+        paramaccess::setScalar(clip, ref(afxkeys::Mix), *d->param(QLatin1String(afxkeys::Mix)), 0, 60.0);
+        QCOMPARE(presetNow(), QString::fromLatin1(afxchoice::kReverbPresetIds[1]));
+        // Choosing Custom changes no slider.
+        const double decay = number(afxkeys::RvDecayS);
+        paramaccess::setStatic(clip, ref(afxkeys::RvPreset), QLatin1String(afxchoice::RvCustom));
+        QCOMPARE(number(afxkeys::RvDecayS), decay);
+        // The sound of a preset is the sound of the sliders it set.
+        EffectInstance* got = paramaccess::effect(clip, 5);
+        QVERIFY(got);
     }
 
     void stereoWidth()

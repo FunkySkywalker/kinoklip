@@ -27,18 +27,20 @@ them. Click a clip on the timeline to get the clip's own properties back.
 
 ## Reverb, Chorus, Flanger, Distortion and Stereo Width
 
-These five work on a clip (Inspector, **Add Effect**) and in a track slot. Put a reverb in a
-**track slot** when you want the tail to ring out after the last clip ends; on a clip the tail
-stops where the clip stops.
+These five work on a clip (Inspector, **Add Effect**) and in a track slot. The tail of a reverb
+or an echo rings out after the end of the clip, over the clips that follow, and in the render;
+a reverb in a **track slot** also rings out after the last clip.
 
 - **Reverb**: **Pre-delay** (how long after the sound the room starts), **Decay** (seconds),
   Room Size, Damping (cuts the highs of the tail), Early Reflections, Width and Mix. Choose a
-  **Preset** (Small Room, Large Room, Hall, Plate, Chamber, Cathedral) to use its settings, or
-  **Custom** to set them yourself; Mix stays yours either way.
+  **Preset** (Small Room, Large Room, Hall, Plate, Chamber, Cathedral) and its values appear in
+  the sliders; move any slider and the Preset changes to **Custom**. Mix is not part of a
+  preset.
 - **Chorus**: Rate, Depth, Delay, Feedback, Voices (1 to 4), Stereo Spread and Mix.
 - **Flanger**: Rate, Depth, Delay, Feedback (negative gives a hollow sound) and Mix.
-- **Distortion**: Drive, Tone, a Mode (Soft Clip, Hard Clip, Bit Crush, Tube-like), Output and
-  Mix. Lower the Output as you raise the Drive.
+- **Distortion**: Drive, Tone, a Mode (Soft Clip, Hard Clip, Bit Crush, Tube-like),
+  **Oversampling** (Off, 2x, 4x: fewer harsh, out-of-tune overtones, a little more processing),
+  Output and Mix. Lower the Output as you raise the Drive.
 - **Stereo Width**: Width from 0 (mono) over 100 (unchanged) to 200, Mono Below (keeps the
   bass solid) and Output.
 

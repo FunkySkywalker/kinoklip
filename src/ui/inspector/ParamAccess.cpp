@@ -2,6 +2,7 @@
 // ParamAccess implementation.
 #include "ui/inspector/ParamAccess.h"
 
+#include "core/EffectRegistry.h"
 #include "core/KeyframeOps.h"
 #include "core/ParamKeys.h"
 
@@ -203,6 +204,58 @@ double scalar(
     return value->valueAt(localFrame);
 }
 
+namespace {
+
+/// The descriptor of the effect addressed by @p ref (Effect scope), or nullptr.
+const EffectDescriptor* effectDescriptor(const ClipData& clip, const ParamRef& ref)
+{
+    if (ref.scope != ParamScope::Effect)
+        return nullptr;
+    const EffectInstance* fx = effect(clip, ref.effectId);
+    return fx ? EffectRegistry::instance().find(fx->type) : nullptr;
+}
+
+/// A hand edit of @p ref: every Choice of the effect whose choiceValues set that parameter
+/// falls back to its customChoice (Reverb: moving a slider makes the preset Custom).
+void noteHandEdit(ClipData& clip, const ParamRef& ref)
+{
+    const EffectDescriptor* d = effectDescriptor(clip, ref);
+    ParamSet* set = paramSet(clip, ref);
+    if (!d || !set)
+        return;
+    for (const ParamDescriptor& p : d->params) {
+        if (p.type != ParamType::Choice || p.customChoice.isEmpty() || p.key == ref.key)
+            continue;
+        bool sets = false;
+        for (const auto& list : p.choiceValues) {
+            for (const auto& kv : list)
+                sets = sets || kv.first == ref.key;
+        }
+        if (sets && set->staticValue(p.key, p.defStatic).toString() != p.customChoice)
+            set->setStatic(p.key, p.customChoice);
+    }
+}
+
+/// Choosing @p value of choice @p ref: writes the parameters it sets (same edit).
+void applyChoiceValues(ClipData& clip, const ParamRef& ref, const QVariant& value)
+{
+    const EffectDescriptor* d = effectDescriptor(clip, ref);
+    const ParamDescriptor* p = d ? d->param(ref.key) : nullptr;
+    ParamSet* set = paramSet(clip, ref);
+    if (!p || !set || p->choiceValues.isEmpty())
+        return;
+    const auto it = p->choiceValues.constFind(value.toString());
+    if (it == p->choiceValues.constEnd())
+        return;
+    for (const auto& kv : *it) {
+        if (const ParamDescriptor* target = d->param(kv.first))
+            set->animated(kv.first, target->def)
+                .setValue(0, std::clamp(kv.second, target->min, target->max));
+    }
+}
+
+} // namespace
+
 void setScalar(ClipData& clip, const ParamRef& ref, const ParamDescriptor& desc, int64_t localFrame,
     double value)
 {
@@ -221,6 +274,7 @@ void setScalar(ClipData& clip, const ParamRef& ref, const ParamDescriptor& desc,
     AnimatedValue& own = set->animated(ref.key, desc.def);
     const double before = own.valueAt(localFrame);
     own.setValue(localFrame, value);
+    noteHandEdit(clip, ref);
     if (const QString* partner = linkedZoomPartner(clip, ref)) {
         // Linked zoom changes both axes by the same factor: equal axes stay equal, and a
         // different X:Y ratio (left by a free Shift scale in the viewer) is kept instead of
@@ -361,8 +415,10 @@ void setStatic(ClipData& clip, const ParamRef& ref, const QVariant& value)
         }
         return;
     }
-    if (ParamSet* set = paramSet(clip, ref))
+    if (ParamSet* set = paramSet(clip, ref)) {
         set->setStatic(ref.key, value);
+        applyChoiceValues(clip, ref, value);
+    }
 }
 
 bool isModified(

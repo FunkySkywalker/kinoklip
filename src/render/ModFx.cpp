@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "render/ModFx.h"
 
+#include "core/AudioEffectKeys.h"
+
 #include <algorithm>
 #include <cmath>
 #include <numbers>
@@ -172,7 +174,18 @@ Distortion::Distortion(double sampleRate)
 
 void Distortion::configure(const DistortionSettings& s)
 {
+    const int os = s.oversampling >= 4 ? 4 : s.oversampling >= 2 ? 2 : 1;
+    const bool changed = os != (m_s.oversampling >= 4 ? 4 : m_s.oversampling >= 2 ? 2 : 1)
+        || m_over.latency() == 0;
     m_s = s;
+    m_s.oversampling = os;
+    if (changed && os > 1) {
+        m_over.setFactor(os);
+        for (auto& d : m_dry)
+            d.assign(size_t(m_over.latency()), 0.0f);
+        m_dryPos = 0;
+        m_over.reset();
+    }
     const double fc = 800.0 * std::pow(25.0, std::clamp(s.tonePercent, 0.0, 100.0) / 100.0);
     m_toneCoef = std::exp(-kTwoPi * std::min(fc, 0.45 * m_rate) / m_rate);
 }
@@ -182,6 +195,26 @@ void Distortion::reset()
     m_tone = {};
     m_dcX = {};
     m_dcY = {};
+    m_over.reset();
+    for (auto& d : m_dry)
+        std::fill(d.begin(), d.end(), 0.0f);
+    m_dryPos = 0;
+}
+
+double Distortion::shape(double in, double g, double step) const
+{
+    constexpr double kBias = 0.3;
+    switch (m_s.mode) {
+    case DistortionMode::SoftClip:
+        return std::tanh(g * in);
+    case DistortionMode::HardClip:
+        return std::clamp(g * in, -1.0, 1.0);
+    case DistortionMode::BitCrush:
+        return std::round(in * step) / step;
+    case DistortionMode::Tube:
+        return std::tanh(g * in + kBias) - std::tanh(kBias);
+    }
+    return in;
 }
 
 void Distortion::process(float* io, int frames)
@@ -192,31 +225,39 @@ void Distortion::process(float* io, int frames)
     const double bits = std::clamp(16.0 - m_s.driveDb / 40.0 * 13.0, 3.0, 16.0);
     const double step = std::pow(2.0, bits - 1.0);
     const bool toneOn = m_s.tonePercent < 100.0;
-    constexpr double kBias = 0.3;
-    const double tubeZero = std::tanh(kBias);
+    const bool over = m_s.oversampling > 1;
+    if (mix <= 0.0) {
+        m_idle = true; // the input as it is, no delay; the memory restarts afterwards
+        return;
+    }
+    if (m_idle) {
+        reset();
+        m_idle = false;
+    }
+    const int latency = over ? m_over.latency() : 0;
     for (int i = 0; i < frames; ++i) {
         for (size_t c = 0; c < 2; ++c) {
             float& x = io[size_t(i) * 2 + c];
             const double in = x;
+            double dry = in; // the dry sound as late as the wet
             double y = 0.0;
-            switch (m_s.mode) {
-            case DistortionMode::SoftClip:
-                y = std::tanh(g * in);
-                break;
-            case DistortionMode::HardClip:
-                y = std::clamp(g * in, -1.0, 1.0);
-                break;
-            case DistortionMode::BitCrush:
-                y = std::round(in * step) / step;
-                break;
-            case DistortionMode::Tube: {
-                y = std::tanh(g * in + kBias) - tubeZero;
+            if (over) {
+                float hi[4];
+                m_over.up(int(c), x, hi);
+                for (int p = 0; p < m_s.oversampling; ++p)
+                    hi[p] = float(shape(hi[p], g, step));
+                y = m_over.down(int(c), hi);
+                std::vector<float>& line = m_dry[c];
+                dry = line[size_t(m_dryPos)];
+                line[size_t(m_dryPos)] = x;
+            } else {
+                y = shape(in, g, step);
+            }
+            if (m_s.mode == DistortionMode::Tube) {
                 const double hp = y - m_dcX[c] + m_dcCoef * m_dcY[c]; // removes the offset it makes
                 m_dcX[c] = y;
                 m_dcY[c] = std::fabs(hp) < 1e-20 ? 0.0 : hp;
                 y = hp;
-                break;
-            }
             }
             if (toneOn) {
                 m_tone[c] = (1.0 - m_toneCoef) * y + m_toneCoef * m_tone[c];
@@ -224,9 +265,79 @@ void Distortion::process(float* io, int frames)
                     m_tone[c] = 0.0; // no denormals while the sound is silent
                 y = m_tone[c];
             }
-            x = flush(float(in * (1.0 - mix) + y * out * mix));
+            x = flush(float(dry * (1.0 - mix) + y * out * mix));
         }
+        if (over && ++m_dryPos >= latency)
+            m_dryPos = 0;
     }
+}
+
+// ---- Oversampler ----
+
+void Oversampler::setFactor(int factor)
+{
+    m_l = factor >= 4 ? 4 : 2;
+    const int half = 32 * m_l; // 64 for x2, 128 for x4
+    m_n = 2 * half + 1;
+    m_latency = (m_n - 1) / m_l;
+    // Blackman-windowed sinc, cut at 0.9 of the original Nyquist, gain L (the zero stuffing
+    // loses it) folded in at up().
+    const double fc = 0.45 / m_l; // cycles per high-rate sample
+    m_coef.assign(size_t(m_n), 0.0f);
+    double sum = 0.0;
+    for (int j = 0; j < m_n; ++j) {
+        const double t = double(j - half);
+        const double sinc = t == 0.0 ? 2.0 * fc : std::sin(kTwoPi * fc * t) / (std::numbers::pi * t);
+        const double w = 0.42 - 0.5 * std::cos(kTwoPi * j / (m_n - 1))
+            + 0.08 * std::cos(2.0 * kTwoPi * j / (m_n - 1));
+        m_coef[size_t(j)] = float(sinc * w);
+        sum += sinc * w;
+    }
+    for (float& c : m_coef) // unity gain at DC
+        c = float(c / sum);
+    reset();
+}
+
+void Oversampler::reset()
+{
+    for (auto& h : m_upHist)
+        h.assign(size_t(m_n / m_l + 1), 0.0f);
+    for (auto& h : m_downHist)
+        h.assign(size_t(m_n), 0.0f);
+}
+
+void Oversampler::up(int ch, float in, float* out)
+{
+    std::vector<float>& h = m_upHist[size_t(ch)];
+    std::move_backward(h.begin(), h.end() - 1, h.end());
+    h[0] = in;
+    const int taps = int(h.size());
+    for (int p = 0; p < m_l; ++p) {
+        double acc = 0.0;
+        for (int k = 0; k < taps; ++k) {
+            const int j = k * m_l + p;
+            if (j < m_n)
+                acc += double(h[size_t(k)]) * double(m_coef[size_t(j)]);
+        }
+        out[p] = float(acc * m_l);
+    }
+}
+
+float Oversampler::down(int ch, const float* in)
+{
+    std::vector<float>& h = m_downHist[size_t(ch)];
+    // newest first: the L new samples go in front, the last of them first
+    std::move_backward(h.begin(), h.end() - m_l, h.end());
+    for (int p = 0; p < m_l; ++p)
+        h[size_t(m_l - 1 - p)] = in[p];
+    // the output sits at the first of the L new samples (index L - 1 from the newest)
+    double acc = 0.0;
+    for (int j = 0; j < m_n; ++j) {
+        const size_t idx = size_t(j + m_l - 1);
+        if (idx < h.size())
+            acc += double(h[idx]) * double(m_coef[size_t(j)]);
+    }
+    return float(acc);
 }
 
 // ---- Stereo Width ----
@@ -276,32 +387,10 @@ void StereoWidth::process(float* io, int frames)
 ReverbSettings reverbPreset(int index)
 {
     ReverbSettings s;
-    switch (index) {
-    case 0: // Small Room
-        s.preDelayMs = 3, s.decaySeconds = 0.5, s.roomSizePercent = 25, s.dampingPercent = 45;
-        s.earlyPercent = 60, s.widthPercent = 80;
-        break;
-    case 1: // Large Room
-        s.preDelayMs = 12, s.decaySeconds = 1.2, s.roomSizePercent = 55, s.dampingPercent = 40;
-        s.earlyPercent = 50, s.widthPercent = 100;
-        break;
-    case 2: // Hall
-        s.preDelayMs = 25, s.decaySeconds = 2.4, s.roomSizePercent = 75, s.dampingPercent = 35;
-        s.earlyPercent = 40, s.widthPercent = 110;
-        break;
-    case 3: // Plate: bright, dense, no room reflections
-        s.preDelayMs = 0, s.decaySeconds = 1.6, s.roomSizePercent = 45, s.dampingPercent = 15;
-        s.earlyPercent = 0, s.widthPercent = 120;
-        break;
-    case 4: // Chamber
-        s.preDelayMs = 8, s.decaySeconds = 1.0, s.roomSizePercent = 40, s.dampingPercent = 50;
-        s.earlyPercent = 35, s.widthPercent = 90;
-        break;
-    default: // Cathedral
-        s.preDelayMs = 40, s.decaySeconds = 6.0, s.roomSizePercent = 100, s.dampingPercent = 55;
-        s.earlyPercent = 30, s.widthPercent = 130;
-        break;
-    }
+    const int i = std::clamp(index, 0, kReverbPresetCount - 1);
+    const afxchoice::ReverbPresetValues& v = afxchoice::kReverbPresetValues[i];
+    s.preDelayMs = v.preDelayMs, s.decaySeconds = v.decayS, s.roomSizePercent = v.roomSize;
+    s.dampingPercent = v.damping, s.earlyPercent = v.early, s.widthPercent = v.width;
     return s;
 }
 
