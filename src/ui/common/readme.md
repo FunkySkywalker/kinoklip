@@ -188,12 +188,20 @@ timecodes do not jump while playing.
 | PanelTitle, SectionHeader | 9.75 pt = 13 px regular | "Toolbox" 49 x 10, "Smart Bins" 63 x 9, "Cross Fade" header 65 x 10, "Video Transitions" 102 x 10, "34%" 24 x 9 | semi-bold / application font |
 | Heading | 10.5 pt = 14 px SemiBold | (dialog headings; no Resolve sample) | +2 pt, semi-bold |
 | Title | 12 pt = 16 px regular | "Untitled Project" 112 x 16 | 1.8 x, semi-bold |
-| Small | 8.25 pt = 11 px regular | "Cross Fade +3 dB" 86 x 8, "Bus1" 22 x 8; the ruler is 10 px in Resolve (ours 11) | font - 1.5 pt |
+| Small | 8.25 pt = 11 px regular | "Cross Fade +3 dB" 86 x 8, "Bus1" 22 x 8 | font - 1.5 pt |
+| Ruler | 7.5 pt = 10 px regular | ruler timecode "01:00:08:00" 55 x 8 | font - 1.5 pt |
 | SmallEmphasis | 8.25 pt Bold | track names | same, bold |
-| Tiny | 7.5 pt = 10 px | ruler / scale numbers, meters | 0.8 x |
+| Tiny | 7.5 pt = 10 px | scale numbers, meters | 0.8 x |
 | Timecode (timeline corner) | 15.75 pt = 21 px regular | "01:00:00:00" 112 x 15 | +2 pt, bold |
 | ViewerTimecode | 9.75 pt = 13 px regular | "00:00:00:01" 65 x 9 | monospace, semi-bold |
 | Mono | the system fixed font | | the system fixed font |
+
+Weight: Resolve's strokes are heavier than Open Sans Regular rendered hinted by Qt (ink density of "Media
+Pool" 0.303 in Resolve, 0.262 hinted, 0.275 with `QFont::PreferNoHinting`, 0.338 SemiBold). The
+Resolve fonts therefore use no hinting (about 7 % below Resolve, same widths). A Medium (500) would match
+better (0.30 as a variable-font instance), but the official repository has no static Medium file, and
+the variable font gives a weight only through `QFont::setVariableAxis` (Qt 6.7+, per font), which does
+not reach style-sheet weights; so Medium is not used.
 
 Pixel or point sizes: Resolve's sizes are fixed pixels at 100 % scaling; points give the same pixels at
 96 DPI and follow a desktop with another DPI or scale factor, so points stay.

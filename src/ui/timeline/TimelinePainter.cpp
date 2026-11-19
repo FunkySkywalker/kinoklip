@@ -1480,7 +1480,7 @@ void TimelinePainter::paintRuler(QPainter& p, const TimelinePaintInput& in)
     }
     p.setPen(m_textDim);
     p.drawLines(m_lines.data(), int(m_lines.size()));
-    p.setFont(m_smallFont);
+    p.setFont(uifonts::font(uifonts::Role::Ruler, m_font));
     p.setPen(m_text);
     // Start one step early so a label whose tick is just off-screen still shows its text.
     for (int64_t f = std::max<int64_t>(0, (f0 / major - 1) * major); f <= f1; f += major) {

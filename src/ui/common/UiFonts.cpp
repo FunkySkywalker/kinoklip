@@ -20,7 +20,7 @@ constexpr double kPanelPt = 9.75; ///< 13 px: panel titles, tree items, section 
 constexpr double kHeadingPt = 10.5; ///< 14 px
 constexpr double kTitlePt = 12.0; ///< 16 px: the project name
 constexpr double kSmallPt = 8.25; ///< 11 px: item labels, mixer labels, captions, ruler (10 px in Resolve)
-constexpr double kTinyPt = 7.5; ///< 10 px: ruler numbers, scales
+constexpr double kTinyPt = 7.5; ///< 10 px: ruler numbers (Role::Ruler), scales
 constexpr double kTimecodePt = 15.75; ///< 21 px: the big timeline timecode
 
 QString& sessionOverride()
@@ -34,7 +34,9 @@ QFont resolveFont(double pt, QFont::Weight weight)
     QFont f{QString::fromLatin1(kFamily)};
     f.setPointSizeF(pt);
     f.setWeight(weight);
-    f.setStyleStrategy(QFont::PreferDefault);
+    // No hinting: stems keep their natural weight (hinted Open Sans is about 14 % lighter than
+    // Resolve's text at these sizes, unhinted 8 %), and the widths stay the same.
+    f.setHintingPreference(QFont::PreferNoHinting);
     return f;
 }
 
@@ -67,6 +69,7 @@ QFont fontScaled(Role role, Choice which, const QFont& base, double scale)
             pt = b * 1.8;
             f.setWeight(QFont::DemiBold);
             break;
+        case Role::Ruler:
         case Role::Small:
             pt = std::max(6.0, b - 1.5);
             break;
@@ -99,6 +102,7 @@ QFont fontScaled(Role role, Choice which, const QFont& base, double scale)
         case Role::Heading: pt = kHeadingPt; w = QFont::DemiBold; break;
         case Role::Title: pt = kTitlePt; break;
         case Role::Small: pt = kSmallPt; break;
+        case Role::Ruler: pt = kTinyPt; break;
         case Role::SmallEmphasis: pt = kSmallPt; w = QFont::Bold; break;
         case Role::Tiny: pt = kTinyPt; break;
         case Role::Timecode: pt = kTimecodePt; break;
@@ -222,6 +226,7 @@ QString css(Role role)
         case Role::Body:
         case Role::SectionHeader:
         case Role::Small:
+        case Role::Ruler:
         case Role::Tiny:
         case Role::Mono:
             return {};

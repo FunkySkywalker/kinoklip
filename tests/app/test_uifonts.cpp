@@ -61,6 +61,10 @@ private slots:
         QCOMPARE(font(Role::PanelTitle, Choice::Resolve, base).weight(), QFont::Normal);
         QCOMPARE(font(Role::PanelTitle, Choice::Resolve, base).pointSizeF(), 9.75);
         QCOMPARE(font(Role::Small, Choice::Resolve, base).pointSizeF(), 8.25);
+        QCOMPARE(font(Role::Ruler, Choice::Resolve, base).pointSizeF(), 7.5); // 10 px
+        QCOMPARE(font(Role::Body, Choice::Resolve, base).hintingPreference(), QFont::PreferNoHinting);
+        QCOMPARE(font(Role::Ruler, Choice::System, QFont()).pointSizeF(),
+            std::max(6.0, QFont().pointSizeF() - 1.5)); // as the small font before
         QCOMPARE(font(Role::Timecode, Choice::Resolve, base).weight(), QFont::Normal);
         QCOMPARE(font(Role::Timecode, Choice::Resolve, base).pointSizeF(), 15.75);
         // Mono is a real monospace in both choices.
@@ -138,7 +142,7 @@ private slots:
         QFont odd(QStringLiteral("Courier"));
         odd.setPointSizeF(13);
         for (Role role : {Role::Body, Role::Emphasis, Role::PanelTitle, Role::Heading, Role::Title,
-                 Role::Small, Role::SmallEmphasis, Role::Tiny, Role::Timecode, Role::ViewerTimecode}) {
+                 Role::Ruler, Role::Small, Role::SmallEmphasis, Role::Tiny, Role::Timecode, Role::ViewerTimecode}) {
             const QFont a = font(role, Choice::Resolve, label.font());
             QCOMPARE(font(role, Choice::Resolve, tree.font()), a);
             QCOMPARE(font(role, Choice::Resolve, odd), a);

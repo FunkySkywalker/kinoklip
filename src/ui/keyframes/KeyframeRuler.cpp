@@ -87,7 +87,7 @@ void KeyframeRuler::paintEvent(QPaintEvent*)
     const int64_t minor = std::max<int64_t>(1, step / kMinorTicks);
     const double f0 = m_map.xToFrame(m_labelWidth);
     const double f1 = m_map.xToFrame(width());
-    const QFont small = uifonts::font(uifonts::Role::Small, font());
+    const QFont small = uifonts::font(uifonts::Role::Ruler, font());
     p.setFont(small);
     if (minor * ppf >= 4.0) {
         p.setPen(dim);

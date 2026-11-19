@@ -30,6 +30,7 @@ enum class Role
     SectionHeader, ///< inspector group headers ("Volume", "Equalizer")
     Heading, ///< dialog and settings headings
     Title, ///< the big greeting and titles of the welcome window
+    Ruler, ///< the numbers on rulers (timeline, keyframes): 10 px in Resolve
     Small, ///< page bar, track headers, ruler numbers, captions
     SmallEmphasis, ///< bold small text: category captions, active curve names
     Tiny, ///< axis and meter labels, badges, node captions
