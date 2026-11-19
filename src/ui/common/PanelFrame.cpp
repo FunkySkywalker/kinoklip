@@ -3,8 +3,10 @@
 #include "ui/common/PanelFrame.h"
 
 #include "ui/common/Metrics.h"
+#include "ui/common/StyleTokens.h"
 
 #include <QAction>
+#include <QEvent>
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -31,7 +33,7 @@ PanelFrame::PanelFrame(const QString& title, QWidget* parent)
     m_titleBar = new QWidget(this);
     m_titleBar->setObjectName(QStringLiteral("PanelTitleBar"));
     m_titleBar->setAttribute(Qt::WA_StyledBackground);
-    m_titleBar->setFixedHeight(kTitleBarHeight);
+    applyTitleHeight();
 
     m_titleLabel = new QLabel(title, m_titleBar);
     m_titleLabel->setObjectName(QStringLiteral("PanelTitle"));
@@ -58,6 +60,19 @@ PanelFrame::PanelFrame(const QString& title, QWidget* parent)
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
     layout->addWidget(m_titleBar);
+}
+
+void PanelFrame::applyTitleHeight()
+{
+    // The Kinoklip style follows Resolve 21's slimmer title bars; every other style keeps its own.
+    m_titleBar->setFixedHeight(style::kinoklipActive() ? style::kPanelTitleHeight : kTitleBarHeight);
+}
+
+void PanelFrame::changeEvent(QEvent* event)
+{
+    QFrame::changeEvent(event);
+    if (event->type() == QEvent::StyleChange)
+        applyTitleHeight();
 }
 
 bool PanelFrame::focusSearchField()

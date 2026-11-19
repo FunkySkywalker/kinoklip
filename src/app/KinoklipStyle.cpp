@@ -9,6 +9,8 @@
 #include <QAbstractSpinBox>
 #include <QComboBox>
 #include <QFontMetrics>
+#include <QIcon>
+#include <QPixmap>
 #include <QHeaderView>
 #include <QLineEdit>
 #include <QPainter>
@@ -87,6 +89,24 @@ void chevron(QPainter* p, const QRectF& r, int dir, const QColor& color, double 
     }
     p->drawPolyline(poly);
     p->restore();
+}
+
+/// @p icon redrawn in one colour (Resolve tints its toolbar and page bar glyphs like the text).
+QIcon tintedIcon(const QIcon& icon, const QSize& size, qreal dpr, const QColor& color, QIcon::State state)
+{
+    QPixmap pm = icon.pixmap(size, dpr, QIcon::Normal, state);
+    if (pm.isNull())
+        return icon;
+    QPainter q(&pm);
+    q.setCompositionMode(QPainter::CompositionMode_SourceIn);
+    q.fillRect(pm.rect(), color);
+    q.end();
+    return QIcon(pm);
+}
+
+bool flag(const QWidget* w, const char* name)
+{
+    return w && w->property(name).toBool();
 }
 
 bool isToggleWidget(const QWidget* w)
@@ -372,7 +392,7 @@ void KinoklipStyle::drawPrimitive(PrimitiveElement element, const QStyleOption* 
         return;
     }
     case PE_PanelButtonTool: {
-        const bool frameless = widget && widget->property("kkFrameless").toBool();
+        const bool frameless = flag(widget, "kkFrameless") || flag(widget, "kkTab") || flag(widget, "kkPage");
         if (!(hover || pressed || (on(o, State_On) && !frameless)))
             return;
         p->save();
@@ -520,12 +540,12 @@ void KinoklipStyle::drawControl(ControlElement element, const QStyleOption* o, Q
             const QRect r = o->rect;
             switch (tab->shape) {
             case QTabBar::RoundedSouth:
-            case QTabBar::TriangularSouth: p->fillRect(QRect(r.left(), r.top(), r.width(), tk::kTabUnderline), c.accent); break;
+            case QTabBar::TriangularSouth: p->fillRect(QRect(r.left(), r.top(), r.width(), tk::kTabUnderline), c.mark); break;
             case QTabBar::RoundedWest:
-            case QTabBar::TriangularWest: p->fillRect(QRect(r.right() - tk::kTabUnderline + 1, r.top(), tk::kTabUnderline, r.height()), c.accent); break;
+            case QTabBar::TriangularWest: p->fillRect(QRect(r.right() - tk::kTabUnderline + 1, r.top(), tk::kTabUnderline, r.height()), c.mark); break;
             case QTabBar::RoundedEast:
-            case QTabBar::TriangularEast: p->fillRect(QRect(r.left(), r.top(), tk::kTabUnderline, r.height()), c.accent); break;
-            default: p->fillRect(QRect(r.left(), r.bottom() - tk::kTabUnderline + 1, r.width(), tk::kTabUnderline), c.accent); break;
+            case QTabBar::TriangularEast: p->fillRect(QRect(r.left(), r.top(), tk::kTabUnderline, r.height()), c.mark); break;
+            default: p->fillRect(QRect(r.left(), r.bottom() - tk::kTabUnderline + 1, r.width(), tk::kTabUnderline), c.mark); break;
             }
         }
         p->restore();
@@ -736,6 +756,16 @@ void KinoklipStyle::drawComplexControl(ComplexControl control, const QStyleOptio
         p->setPen(Qt::NoPen);
         p->setBrush(enabled ? c.groove : withAlpha(c.groove, 100));
         p->drawRoundedRect(line, tk::kGroove / 2.0, tk::kGroove / 2.0);
+        if (flag(widget, "kkFilled") && sl->maximum > sl->minimum) {
+            // A volume-like slider: the groove is filled from its start up to the handle (as in Resolve).
+            QRectF part = line;
+            if (horizontal)
+                part.setRight(QRectF(handle).center().x());
+            else
+                part.setTop(QRectF(handle).center().y());
+            p->setBrush(enabled ? c.mark : withAlpha(c.mark, 100));
+            p->drawRoundedRect(part, tk::kGroove / 2.0, tk::kGroove / 2.0);
+        }
         const bool grabbed = on(o, State_Sunken) && (sl->activeSubControls & SC_SliderHandle);
         QColor col = c.handle;
         if (grabbed)
@@ -796,17 +826,32 @@ void KinoklipStyle::drawComplexControl(ComplexControl control, const QStyleOptio
         return;
     }
     case CC_ToolButton: {
-        if (!widget || !widget->property("kkFrameless").toBool())
+        const bool page = flag(widget, "kkPage");
+        const bool tab = flag(widget, "kkTab");
+        if (!flag(widget, "kkFrameless") && !page && !tab)
             break;
-        // Bar buttons (top toolbar): no frame; the current one has brighter text, the rest dimmer.
-        QStyleOptionToolButton copy(*qstyleoption_cast<const QStyleOptionToolButton*>(o));
+        // Bar buttons (top toolbar, page bar, tab-like tool buttons): no frame; the current one has
+        // brighter text and icon, the rest dimmer; the icon is tinted like the text.
+        const auto* tb = qstyleoption_cast<const QStyleOptionToolButton*>(o);
+        if (!tb)
+            break;
+        QStyleOptionToolButton copy(*tb);
         QPalette pal = o->palette;
         const QColor bright = c.dark ? QColor(255, 255, 255) : QColor(0, 0, 0); // current: white (7:1 and more)
-        const QColor col = on(o, State_On) || hover ? bright : tk::mix(c.window, c.text, enabled ? 0.9 : 0.4); // others: clearly readable
+        const bool current = on(o, State_On) || hover;
+        const QColor col = current ? bright : tk::mix(c.window, c.text, enabled ? 0.9 : 0.4); // others: clearly readable
         pal.setColor(QPalette::ButtonText, col);
         pal.setColor(QPalette::WindowText, col);
         copy.palette = pal;
+        if (!tb->icon.isNull())
+            copy.icon = tintedIcon(tb->icon, tb->iconSize, widget->devicePixelRatioF(), col, on(o, State_On) ? QIcon::On : QIcon::Off);
+        if (page && on(o, State_On))
+            p->fillRect(o->rect, c.pageActive);
         QProxyStyle::drawComplexControl(control, &copy, p, widget);
+        if ((page || tab) && on(o, State_On)) {
+            const int h = page ? tk::kPageUnderline : tk::kTabUnderline;
+            p->fillRect(QRect(o->rect.left(), o->rect.bottom() - h + 1, o->rect.width(), h), c.mark);
+        }
         return;
     }
     case CC_GroupBox: {

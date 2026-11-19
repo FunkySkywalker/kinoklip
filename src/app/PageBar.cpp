@@ -4,8 +4,10 @@
 
 #include "ui/common/Metrics.h"
 #include "ui/common/SpringLoad.h"
+#include "ui/common/StyleTokens.h"
 
 #include <QAction>
+#include <QEvent>
 #include <QHBoxLayout>
 #include <QToolButton>
 
@@ -66,6 +68,39 @@ void PageBar::addPageAction(QAction* pageAction)
     button->setProperty("kkFrameless", true); // Kinoklip style: white text when current, no frame
     new SpringLoad(button); // hovering a drag over the page switches to it (spec 71)
     m_buttons->addWidget(button);
+    m_pageButtons.append(button);
+    applyLook();
+}
+
+void PageBar::changeEvent(QEvent* event)
+{
+    QWidget::changeEvent(event);
+    if (event->type() == QEvent::StyleChange)
+        applyLook();
+}
+
+/// The Kinoklip style shows Resolve 21's page bar: icon above the label, slim buttons side by
+/// side, the current page on near-black with a red underline. Other styles keep the wide
+/// icon-beside-text buttons.
+void PageBar::applyLook()
+{
+    const bool kk = style::kinoklipActive();
+    setFixedHeight(kk ? style::kPageBarHeight : kBarHeight);
+    m_buttons->setSpacing(kk ? 0 : metrics::kSpaceM);
+    for (QToolButton* b : std::as_const(m_pageButtons)) {
+        b->setProperty("kkPage", kk);
+        b->setToolButtonStyle(kk ? Qt::ToolButtonTextUnderIcon : Qt::ToolButtonTextBesideIcon);
+        const int icon = kk ? style::kPageIcon : kIconSize;
+        b->setIconSize(QSize(icon, icon));
+        b->setMinimumWidth(kk ? style::kPageButtonWidth : kButtonMinWidth);
+        if (kk) {
+            b->setFixedHeight(style::kPageBarHeight - 1); // the bar's own top line
+        } else {
+            b->setMinimumHeight(0);
+            b->setMaximumHeight(QWIDGETSIZE_MAX);
+        }
+        b->update();
+    }
 }
 
 } // namespace kk

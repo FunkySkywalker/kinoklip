@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "ui/common/StyleTokens.h"
 
+#include "ui/common/SchemeColors.h"
+
 #include <QAbstractButton>
+#include <QApplication>
+#include <QStyle>
 
 #include <algorithm>
 
@@ -48,7 +52,29 @@ Colors colors(const QPalette& p)
     c.handle = mix(c.window, c.text, c.dark ? 0.72 : 0.45);
     c.toolHover = mix(c.window, c.text, 0.10);
     c.toolPressed = mix(c.window, c.text, 0.18);
+    c.mark = schemeColors().focus.isValid() ? schemeColors().focus : c.accent;
+    c.pageActive = c.dark ? mix(c.window, black, 0.85) : mix(c.window, white, 0.5);
+    c.faderCap = mix(c.window, c.text, c.dark ? 0.62 : 0.3);
+    c.faderCapLine = mix(c.faderCap, black, 0.65);
+    c.faderGroove = c.groove;
+    c.knobBody = c.dark ? mix(c.window, black, 0.30) : mix(c.window, black, 0.06);
+    c.knobArc = c.mark;
+    c.wheelDisc = c.dark ? mix(c.window, black, 0.45) : mix(c.window, black, 0.12);
+    c.wheelRingOuter = c.dark ? mix(c.window, black, 0.75) : mix(c.window, black, 0.25);
+    c.wheelLine = mix(c.wheelDisc, c.text, 0.22);
+    c.nodeFill = c.dark ? mix(c.window, black, 0.28) : mix(c.window, white, 0.5);
+    c.nodeBorder = c.dark ? mix(c.window, black, 0.6) : mix(c.window, black, 0.25);
     return c;
+}
+
+bool kinoklipActive()
+{
+    // With an application style sheet QApplication::style() is the style sheet's wrapper, so Theme
+    // also records the choice in a property.
+    if (qApp && qApp->property("kkKinoklipStyle").toBool())
+        return true;
+    const QStyle* s = QApplication::style();
+    return s && qstrcmp(s->metaObject()->className(), "kk::KinoklipStyle") == 0;
 }
 
 void setToggle(QAbstractButton* button, bool toggle)

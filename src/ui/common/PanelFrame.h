@@ -84,8 +84,10 @@ public:
 
 protected:
     void resizeEvent(QResizeEvent* event) override;
+    void changeEvent(QEvent* event) override;
 
 private:
+    void applyTitleHeight();
     QWidget* m_focusRing = nullptr;
     QWidget* m_titleBar = nullptr;
     QLabel* m_titleLabel = nullptr;

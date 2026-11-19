@@ -2,8 +2,12 @@
 // KinoklipStyle tests: sizes come from the style tokens, pill switches draw the dot where the
 // state says, every standard control draws without a crash in a dark and a light palette.
 #include "app/KinoklipStyle.h"
+#include "app/PageBar.h"
+#include "ui/audio/FaderWidget.h"
+#include "ui/common/PanelFrame.h"
 #include "ui/common/StyleTokens.h"
 
+#include <QAction>
 #include <QApplication>
 #include <QCheckBox>
 #include <QComboBox>
@@ -99,6 +103,79 @@ private slots:
         QStyleOptionButton opt;
         opt.initFrom(&toggle);
         QCOMPARE(s->pixelMetric(QStyle::PM_IndicatorWidth, &opt, &toggle), tk::kToggleWidth);
+    }
+
+    void active_and_chrome_sizes_follow_the_style()
+    {
+        QVERIFY(tk::kinoklipActive());
+        PanelFrame panel(QStringLiteral("Inspector"));
+        QCOMPARE(panel.findChild<QWidget*>(QStringLiteral("PanelTitleBar"))->maximumHeight(), tk::kPanelTitleHeight);
+        PageBar bar;
+        QAction page(QStringLiteral("Edit"));
+        page.setCheckable(true);
+        bar.addPageAction(&page);
+        QCOMPARE(bar.maximumHeight(), tk::kPageBarHeight);
+        // Another style: the bar and the title bar go back to the old sizes.
+        QApplication::setStyle(QStringLiteral("Fusion"));
+        QVERIFY(!tk::kinoklipActive());
+        QVERIFY(panel.findChild<QWidget*>(QStringLiteral("PanelTitleBar"))->maximumHeight() != tk::kPanelTitleHeight);
+        QVERIFY(bar.maximumHeight() != tk::kPageBarHeight);
+        QApplication::setStyle(new KinoklipStyle);
+        QCOMPARE(bar.maximumHeight(), tk::kPageBarHeight);
+    }
+
+    void tab_buttons_draw_an_underline_when_checked()
+    {
+        QToolButton b;
+        b.setText(QStringLiteral("Primaries"));
+        b.setCheckable(true);
+        b.setProperty("kkTab", true);
+        b.setChecked(true);
+        b.resize(90, 24);
+        const QImage on = b.grab().toImage();
+        const QColor mark = tk::colors(b.palette()).mark;
+        const QColor px = on.pixelColor(45, 23);
+        QVERIFY2(qAbs(px.red() - mark.red()) < 8 && qAbs(px.blue() - mark.blue()) < 8, qPrintable(px.name()));
+        b.setChecked(false);
+        QVERIFY(b.grab().toImage().pixelColor(45, 23) != px);
+    }
+
+    void filled_slider_groove_reaches_the_handle()
+    {
+        QSlider s(Qt::Horizontal);
+        s.setRange(0, 100);
+        s.setValue(50);
+        s.resize(200, 20);
+        const QImage plain = s.grab().toImage();
+        s.setProperty("kkFilled", true);
+        const QImage filled = s.grab().toImage();
+        QVERIFY(plain != filled);
+        const QColor mark = tk::colors(s.palette()).mark;
+        bool found = false;
+        for (int y = 0; y < filled.height() && !found; ++y) {
+            const QColor px = filled.pixelColor(40, y);
+            found = qAbs(px.red() - mark.red()) < 8 && qAbs(px.green() - mark.green()) < 8
+                && qAbs(px.blue() - mark.blue()) < 8;
+        }
+        QVERIFY(found);
+        found = false; // right of the handle the groove stays plain
+        for (int y = 0; y < filled.height(); ++y) {
+            const QColor px = filled.pixelColor(170, y);
+            found = found || (qAbs(px.red() - mark.red()) < 8 && qAbs(px.blue() - mark.blue()) < 8);
+        }
+        QVERIFY(!found);
+    }
+
+    void custom_painted_controls_take_their_look_from_the_style()
+    {
+        FaderWidget fader;
+        fader.resize(60, 200);
+        const QImage kk = fader.grab().toImage();
+        QApplication::setStyle(QStringLiteral("Fusion"));
+        const QImage other = fader.grab().toImage();
+        QApplication::setStyle(new KinoklipStyle);
+        QVERIFY(kk != other);
+        QCOMPARE(fader.grab().toImage(), kk); // switching back restores the Kinoklip drawing
     }
 
     void scrollbar_has_no_arrows()

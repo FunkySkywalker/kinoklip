@@ -2,6 +2,8 @@
 // FaderWidget and PanKnob painting and gestures.
 #include "ui/audio/FaderWidget.h"
 
+#include "ui/common/StyleTokens.h"
+
 #include "core/MixerData.h"
 #include "ui/audio/AudioScales.h"
 #include "ui/common/SchemeColors.h"
@@ -68,6 +70,9 @@ QRect FaderWidget::capRect() const
 {
     const QRect t = track();
     const int cx = t.left() + t.width() / 2;
+    if (style::kinoklipActive())
+        return QRect(cx - style::kFaderCapWidth / 2, yOf(m_db) - style::kFaderCapHeight / 2,
+            style::kFaderCapWidth, style::kFaderCapHeight);
     return QRect(cx - kCapWidth / 2, yOf(m_db) - kCapHeight / 2, kCapWidth, kCapHeight);
 }
 
@@ -87,6 +92,20 @@ void FaderWidget::paintEvent(QPaintEvent*)
         p.drawText(QRect(0, y - 6, kScaleWidth + cx - t.left() - 12, 12),
             Qt::AlignRight | Qt::AlignVCenter,
             mark > 0 ? QStringLiteral("+%1").arg(int(mark)) : QString::number(int(mark)));
+    }
+    if (style::kinoklipActive()) {
+        // Resolve's Fairlight fader: a thin dark groove and a small light cap with a dark centre line.
+        const style::Colors kc = style::colors(palette());
+        p.setPen(Qt::NoPen);
+        p.setBrush(kc.faderGroove);
+        const double gw = style::kFaderGroove;
+        p.drawRoundedRect(QRectF(cx - gw / 2.0, t.top(), gw, t.height()), gw / 2, gw / 2);
+        const QRectF cap = capRect();
+        p.setBrush(m_dragging ? kc.accent : kc.faderCap);
+        p.drawRoundedRect(cap, style::kFaderCapRadius, style::kFaderCapRadius);
+        p.setPen(QPen(kc.faderCapLine, style::kLine));
+        p.drawLine(QPointF(cap.left() + 2, cap.center().y()), QPointF(cap.right() - 2, cap.center().y()));
+        return;
     }
     // Groove.
     p.setPen(Qt::NoPen);
@@ -172,6 +191,23 @@ void PanKnob::paintEvent(QPaintEvent*)
     p.setRenderHint(QPainter::Antialiasing, true);
     const double side = std::min(width(), height()) - 6.0;
     const QRectF r((width() - side) / 2.0, (height() - side) / 2.0, side, side);
+    if (style::kinoklipActive()) {
+        // Resolve's knob: a dark body, a thin accent arc from the centre position, a thin pointer.
+        const style::Colors kc = style::colors(palette());
+        p.setPen(QPen(kc.border, style::kLine));
+        p.setBrush(kc.knobBody);
+        p.drawEllipse(r);
+        p.setBrush(Qt::NoBrush);
+        p.setPen(QPen(kc.knobArc, style::kKnobArc, Qt::SolidLine, Qt::RoundCap));
+        const int span = -int(std::lround(m_pan * kKnobSweep / std::numbers::pi * 180.0 * 16));
+        p.drawArc(r.adjusted(-2, -2, 2, 2), 90 * 16, span);
+        const double a = std::numbers::pi / 2.0 - m_pan * kKnobSweep;
+        const QPointF c = r.center();
+        p.setPen(QPen(m_dragging ? kc.accent : kc.text, style::kKnobPointer, Qt::SolidLine, Qt::RoundCap));
+        p.drawLine(c + QPointF(std::cos(a), -std::sin(a)) * (side / 4.0),
+            c + QPointF(std::cos(a), -std::sin(a)) * (side / 2.0 - 3.0));
+        return;
+    }
     p.setPen(QPen(sc.line, 1));
     p.setBrush(m_dragging ? sc.highlight : sc.button);
     p.drawEllipse(r);

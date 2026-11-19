@@ -2,10 +2,12 @@
 // PageBar — the strip of page buttons (Media · Edit · Color · Deliver) at the bottom.
 #pragma once
 
+#include <QList>
 #include <QWidget>
 
 class QAction;
 class QHBoxLayout;
+class QToolButton;
 
 namespace kk {
 
@@ -31,8 +33,11 @@ public:
 
 protected:
     void resizeEvent(QResizeEvent* event) override;
+    void changeEvent(QEvent* event) override;
 
 private:
+    void applyLook();
+    QList<QToolButton*> m_pageButtons;
     QHBoxLayout* m_buttons = nullptr;
     QHBoxLayout* m_root = nullptr;
     QWidget* m_overlay = nullptr;

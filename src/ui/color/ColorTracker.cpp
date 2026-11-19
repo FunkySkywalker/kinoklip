@@ -135,6 +135,7 @@ ColorTrackerPanel::ColorTrackerPanel(
     const QString names[2] = {tr("Window"), tr("Stabilizer")};
     for (int i = 0; i < 2; ++i) {
         m_modeButtons[i] = toolButton(names[i], this, true);
+        m_modeButtons[i]->setProperty("kkTab", true); // Kinoklip style: red underline when checked
         m_modeButtons[i]->setObjectName(QStringLiteral("TrackerMode_") + QString::number(i));
         group->addButton(m_modeButtons[i], i);
         modes->addWidget(m_modeButtons[i]);

@@ -5,6 +5,8 @@
 #include "ui/comp/CompSession.h"
 #include "ui/comp/NodeEditor.h"
 
+#include "ui/common/StyleTokens.h"
+
 #include "core/CompGroups.h"
 #include "ui/common/UiFonts.h"
 
@@ -192,8 +194,28 @@ void NodeEditor::paintTile(
         fill = mixColors(fill, sc.highlight, 0.25);
     if (!node.enabled)
         fill = mixColors(fill, sc.view, 0.55);
-    const double radius = h * kCornerFraction;
-    if (node.enabled) {
+    double radius = h * kCornerFraction;
+    const bool kk = style::kinoklipActive();
+    if (kk) {
+        // Resolve's Fusion tile: a dark tile, a hairline border, the accent when selected and a
+        // colour line along the bottom edge.
+        const style::Colors kc = style::colors(palette());
+        fill = node.color.isValid() ? mixColors(kc.nodeFill, node.color, 0.35) : kc.nodeFill;
+        if (current)
+            fill = mixColors(fill, kc.accent, 0.12);
+        if (!node.enabled)
+            fill = mixColors(fill, sc.view, 0.55);
+        radius = style::kNodeRadius * std::clamp(m_zoom, 0.6, 1.4);
+        const double bw = selected ? style::kNodeLineSelected : style::kNodeLine;
+        p.setPen(Qt::NoPen);
+        p.setBrush(selected ? kc.mark : kc.nodeBorder);
+        p.drawRoundedRect(r, radius, radius);
+        p.setBrush(fill);
+        p.drawRoundedRect(r.adjusted(bw, bw, -bw, -bw), radius - bw / 2, radius - bw / 2);
+        const double sh = std::max(1.0, style::kNodeStripe * m_zoom);
+        p.setBrush(io ? sc.videoClip : (node.color.isValid() ? node.color : sc.textDim));
+        p.drawRect(QRectF(r.left() + radius, r.bottom() - bw - sh, r.width() - 2 * radius, sh));
+    } else if (node.enabled) {
         // Border as a filled outer shape under the fill: two fills are much cheaper than an
         // antialiased stroke (measured: about a third of the tile cost with 200 nodes).
         const double bw = selected ? 2.0 : 1.0;

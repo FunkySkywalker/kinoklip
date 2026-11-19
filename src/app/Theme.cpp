@@ -109,9 +109,9 @@ QString styleSheet(const QPalette& p)
         header = darkWindow ? window.lighter(115) : window.darker(103);
 
     // Panel title bars: the header colour, except when the header is darker than the window
-    // (Kinoklip scheme: near-black top and page bars), where the title bars sit between them.
-    const QColor panelTitle
-        = darkWindow && header.lightness() < window.lightness() ? mix(window, header, 0.45) : header;
+    // (Kinoklip scheme: near-black top and page bars), where the title bars take the panel's
+    // own colour like Resolve's (a hairline below separates them).
+    const QColor panelTitle = darkWindow && header.lightness() < window.lightness() ? window : header;
 
     QString sheet = QStringLiteral(R"(
 QSplitter::handle { background: %1; }
@@ -163,6 +163,8 @@ QString storedStyle()
 /// MenuMetricsStyle itself.
 QString applyStyle(const QString& wanted)
 {
+    // Set before the style changes: widgets read it in their StyleChange handlers.
+    qApp->setProperty("kkKinoklipStyle", wanted.compare(KinoklipStyle::key(), Qt::CaseInsensitive) == 0);
     if (wanted.compare(KinoklipStyle::key(), Qt::CaseInsensitive) == 0) {
         QApplication::setStyle(new KinoklipStyle);
         return KinoklipStyle::key();

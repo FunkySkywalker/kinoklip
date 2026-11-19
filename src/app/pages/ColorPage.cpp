@@ -76,6 +76,7 @@ QToolButton* headerButton(const QString& text, const QString& name, QWidget* par
     b->setCheckable(true);
     b->setAutoRaise(true);
     b->setToolButtonStyle(Qt::ToolButtonTextOnly);
+    b->setProperty("kkTab", true); // Kinoklip style: flat, red underline when checked (other styles ignore it)
     return b;
 }
 

@@ -4,6 +4,7 @@
 
 #include "core/GradeMath.h"
 #include "ui/color/ColorSession.h"
+#include "ui/common/StyleTokens.h"
 #include "ui/common/VimRowOps.h"
 #include "ui/inspector/ValueField.h"
 
@@ -87,6 +88,7 @@ QToolButton* modeButton(const QString& text, QWidget* parent)
     b->setCheckable(true);
     b->setAutoRaise(true);
     b->setToolButtonStyle(Qt::ToolButtonTextOnly);
+    b->setProperty("kkTab", true); // Kinoklip style: flat with a red underline when checked
     return b;
 }
 
@@ -201,18 +203,33 @@ void ColorWheel::paintEvent(QPaintEvent*)
                 float(std::clamp(0.5 + c[1] * k, 0.0, 1.0)),
                 float(std::clamp(0.5 + c[2] * k, 0.0, 1.0))));
     }
-    p.setPen(Qt::NoPen);
-    p.setBrush(ring);
-    p.drawEllipse(d);
-    // The inner disc: dark with a faint tint towards the rim.
-    QRadialGradient fade(d.center(), d.width() / 2);
-    fade.setColorAt(0.0, QColor(34, 34, 38, 255));
-    fade.setColorAt(0.80, QColor(34, 34, 38, 235));
-    fade.setColorAt(0.93, QColor(34, 34, 38, 120));
-    fade.setColorAt(1.0, QColor(34, 34, 38, 0));
-    p.setBrush(fade);
-    p.drawEllipse(d.adjusted(2, 2, -2, -2));
-    p.setPen(QPen(QColor(255, 255, 255, 40), 1));
+    const bool kk = style::kinoklipActive();
+    const style::Colors kc = style::colors(pal);
+    if (kk) {
+        // Resolve's wheel: a dark outer ring, a thin hue ring and a dark disc inside it.
+        p.setPen(Qt::NoPen);
+        p.setBrush(kc.wheelRingOuter);
+        p.drawEllipse(d);
+        const QRectF hue = d.adjusted(2, 2, -2, -2);
+        p.setBrush(ring);
+        p.drawEllipse(hue);
+        p.setBrush(kc.wheelDisc);
+        const double rw = style::kWheelRing;
+        p.drawEllipse(hue.adjusted(rw, rw, -rw, -rw));
+    } else {
+        p.setPen(Qt::NoPen);
+        p.setBrush(ring);
+        p.drawEllipse(d);
+        // The inner disc: dark with a faint tint towards the rim.
+        QRadialGradient fade(d.center(), d.width() / 2);
+        fade.setColorAt(0.0, QColor(34, 34, 38, 255));
+        fade.setColorAt(0.80, QColor(34, 34, 38, 235));
+        fade.setColorAt(0.93, QColor(34, 34, 38, 120));
+        fade.setColorAt(1.0, QColor(34, 34, 38, 0));
+        p.setBrush(fade);
+        p.drawEllipse(d.adjusted(2, 2, -2, -2));
+    }
+    p.setPen(QPen(kk ? kc.wheelLine : QColor(255, 255, 255, 40), kk ? style::kWheelLine : 1));
     const double inset = d.width() * 0.12;
     p.drawLine(
         QPointF(d.left() + inset, d.center().y()), QPointF(d.right() - inset, d.center().y()));
@@ -231,12 +248,19 @@ void ColorWheel::paintEvent(QPaintEvent*)
         p.drawLine(d.center(), at);
     }
     p.setPen(QPen(Qt::white, 1.5));
-    p.drawEllipse(at, 4.0, 4.0);
+    p.drawEllipse(at, kk ? double(style::kWheelPuck) : 4.0, kk ? double(style::kWheelPuck) : 4.0);
     // Master strip: a groove with the neutral mark and a thumb.
     const QRectF s = stripRect();
-    p.setPen(QPen(pal.color(QPalette::Dark), 1));
-    p.setBrush(pal.color(QPalette::Base).darker(120));
-    p.drawRoundedRect(s, 3, 3);
+    if (kk) {
+        p.setPen(Qt::NoPen);
+        p.setBrush(kc.groove);
+        p.drawRoundedRect(QRectF(s.left(), s.center().y() - style::kWheelStrip / 2.0, s.width(), style::kWheelStrip),
+            style::kWheelStrip / 2.0, style::kWheelStrip / 2.0);
+    } else {
+        p.setPen(QPen(pal.color(QPalette::Dark), 1));
+        p.setBrush(pal.color(QPalette::Base).darker(120));
+        p.drawRoundedRect(s, 3, 3);
+    }
     p.setPen(QPen(QColor(255, 255, 255, 50), 1));
     p.drawLine(QPointF(s.center().x(), s.top() + 2), QPointF(s.center().x(), s.bottom() - 2));
     const double t = std::clamp(m_master / range() * 0.5 + 0.5, 0.0, 1.0);

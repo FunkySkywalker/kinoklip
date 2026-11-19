@@ -1240,6 +1240,7 @@ BlurPanel::BlurPanel(ColorSession* session, QWidget* parent)
     const QString names[3] = {tr("Blur"), tr("Sharpen"), tr("Mist")};
     for (int i = 0; i < 3; ++i) {
         m_modeButtons[i] = toolButton(names[i], this, true);
+        m_modeButtons[i]->setProperty("kkTab", true); // Kinoklip style: red underline when checked
         m_modeButtons[i]->setObjectName(QStringLiteral("BlurMode_") + QString::number(i));
         group->addButton(m_modeButtons[i], i);
         modes->addWidget(m_modeButtons[i]);

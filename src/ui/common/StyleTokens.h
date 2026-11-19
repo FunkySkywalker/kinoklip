@@ -37,6 +37,26 @@ inline constexpr int kSpinButtons = 12;     ///< width of the spin box arrow col
 inline constexpr int kComboArrow = 16;      ///< width of the combo box arrow column
 inline constexpr int kProgressHeight = 6;
 inline constexpr int kHeaderHeight = 22;
+inline constexpr int kPanelTitleHeight = 26;   ///< panel title bars (Resolve 21: about 18 px at 1440 wide)
+inline constexpr int kPageBarHeight = 39;      ///< bottom page bar (R21: 29 px at 1440 wide)
+inline constexpr int kPageButtonWidth = 72;    ///< page bar button (icon above the label)
+inline constexpr int kPageIcon = 14;
+inline constexpr int kPageUnderline = 2;       ///< red line under the current page
+/// Custom-painted controls (Fairlight faders and knobs, Color wheels, node tiles).
+inline constexpr int kFaderGroove = 3;
+inline constexpr int kFaderCapWidth = 12;
+inline constexpr int kFaderCapHeight = 20;
+inline constexpr int kFaderCapRadius = 2;
+inline constexpr int kKnobArc = 2;             ///< value arc width
+inline constexpr int kKnobPointer = 2;
+inline constexpr int kWheelRing = 4;           ///< hue ring thickness
+inline constexpr int kWheelLine = 1;           ///< crosshair, outer ring
+inline constexpr int kWheelPuck = 4;           ///< puck radius
+inline constexpr int kWheelStrip = 4;          ///< master level groove height
+inline constexpr int kNodeRadius = 3;
+inline constexpr int kNodeLine = 1;
+inline constexpr int kNodeLineSelected = 2;
+inline constexpr int kNodeStripe = 2;          ///< colour line along the bottom of a tile
 
 /// The colours of the style, all derived from the current palette so every colour scheme (the
 /// Kinoklip scheme, Breeze Dark and Light, user schemes) keeps working.
@@ -58,11 +78,21 @@ struct Colors
     QColor header;      ///< group and section header bars, table headers
     QColor toolHover;   ///< flat tool button background on hover
     QColor toolPressed;
+    QColor mark;         ///< the scheme's focus colour (red in Kinoklip): tab and page underlines, selected nodes, knob arcs
+    QColor pageActive;   ///< page bar button of the current page (near black)
+    QColor faderCap, faderCapLine, faderGroove;
+    QColor knobBody, knobArc;
+    QColor wheelDisc, wheelRingOuter, wheelLine;
+    QColor nodeFill, nodeBorder;
     bool dark = true;
 };
 
 /// Colours for @p palette (Active group).
 Colors colors(const QPalette& palette);
+
+/// True when the application's widget style is KinoklipStyle (custom-painted controls and
+/// title bars follow Resolve's look only then; every other style keeps its own drawing).
+bool kinoklipActive();
 
 /// Height of a button, field or combo box for a font of @p fontHeight px: text plus padding, never
 /// below kControlHeight (Resolve: 22 px at its 9 pt text).

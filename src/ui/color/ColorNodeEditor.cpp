@@ -2,6 +2,8 @@
 // ColorNodeEditor — painting, hit tests and gestures of the Color page node graph.
 #include "ui/color/ColorNodeEditor.h"
 
+#include "ui/common/StyleTokens.h"
+
 #include "ui/color/ColorNodeOps.h"
 #include "ui/color/ColorSession.h"
 #include "ui/common/ActionRegistry.h"
@@ -239,9 +241,23 @@ void ColorNodeEditor::paintTile(QPainter& p, const ClipGrade& g, int index) cons
         body = body.darker(130);
         text.setAlphaF(0.5f);
     }
-    const double radius = 4.0 * m_zoom;
-    p.setPen(QPen(selected ? pal.color(QPalette::Highlight) : pal.color(QPalette::Dark),
-        selected ? 2.0 : 1.0));
+    double radius = 4.0 * m_zoom;
+    QColor edge = pal.color(QPalette::Dark);
+    double edgeWidth = 1.0;
+    if (style::kinoklipActive()) {
+        // Resolve's node: a dark tile, a hairline border, the accent when selected.
+        const style::Colors kc = style::colors(pal);
+        body = (!n.enabled || !reached) ? kc.nodeFill.darker(130) : kc.nodeFill;
+        edge = kc.nodeBorder;
+        radius = style::kNodeRadius * m_zoom;
+        edgeWidth = style::kNodeLine;
+        if (selected) {
+            edge = kc.mark;
+            edgeWidth = style::kNodeLineSelected;
+        }
+    }
+    p.setPen(QPen(selected && !style::kinoklipActive() ? pal.color(QPalette::Highlight) : edge,
+        selected && !style::kinoklipActive() ? 2.0 : edgeWidth));
     p.setBrush(body);
     p.drawRoundedRect(r, radius, radius);
 
