@@ -30,6 +30,14 @@ struct DecodedFrame
     explicit operator bool() const { return av != nullptr; }
 };
 
+/// A frame of the reverse cache with the stream timestamps it answers: [ts, endTs).
+struct CachedFrame
+{
+    int64_t ts = 0;
+    int64_t endTs = 0;
+    std::shared_ptr<const VideoFrame> video;
+};
+
 } // namespace detail
 
 // ---- Implementation state ---------------------------------------------------------------
@@ -103,6 +111,21 @@ struct VideoDecoder::Impl
     /// oldest first. decodeFrame()/frameAt() answer from them without touching the decoder,
     /// which already stands after the last one; the first request they cannot answer drops them.
     std::vector<std::shared_ptr<const VideoFrame>> readAhead;
+    /// Reverse cache (spec 143): frames decoded forward in one stretch [keyframe .. target] while
+    /// the requests walk backwards, so the next requests cost no decoding. `rev` is contiguous and
+    /// ascending; `revExt` is the stretch below it being decoded in slices (prefetchReverse()).
+    std::vector<detail::CachedFrame> rev;
+    std::vector<detail::CachedFrame> revExt;
+    int64_t revExtTarget = AV_NOPTS_VALUE; ///< position() target the slices of `revExt` work towards
+    int64_t resumeTs = AV_NOPTS_VALUE; ///< position() target the decoder is part-way towards
+    std::vector<detail::CachedFrame>* collecting = nullptr; ///< advanceTo() copies frames here
+    size_t collectCap = 0;
+    int64_t collectFromTs = AV_NOPTS_VALUE;
+    /// Frames were decoded in catch-up mode (some missing): only served in catch-up mode.
+    bool revSkipNonReference = false;
+    bool revExtSkipNonReference = false; ///< the same for the stretch in `revExt`
+    int64_t lastRequestTs = AV_NOPTS_VALUE; ///< last Exact request (stream time)
+    int backSteps = 0; ///< consecutive requests that moved a little backwards
     QImage curImage; ///< `cur` converted for curImageMaxSize
     QSize curImageMaxSize;
     bool curImageValid = false;
@@ -191,6 +214,24 @@ struct VideoDecoder::Impl
     bool positionExact(int64_t ts);
     bool positionNearKeyframe(int64_t ts);
     bool position(int64_t ts, Accuracy accuracy);
+
+    // Reverse cache, see VideoDecoderReverse.cpp.
+    /// Frames the cache may hold (one stretch; the cache plus a stretch being decoded are twice it).
+    size_t reverseFrameLimit() const;
+    /// Notes a request for @p ts; true when the requests have been walking backwards.
+    bool noteRequest(int64_t ts);
+    /// The cached frame answering @p ts, or nullptr.
+    std::shared_ptr<const VideoFrame> reverseAt(int64_t ts) const;
+    /// Decodes the stretch ending at @p target and puts it below the cache; false if it failed.
+    /// With @p budgetMs > 0 gives up when the time is used (call again to continue).
+    enum class Extend { Failed, Done, Paused };
+    Extend extendReverse(int64_t target, size_t cap, int budgetMs);
+    /// Stores `cur` in `*collecting` (called before `cur` is replaced, `next` is known).
+    void collectCurrent(int64_t endTs);
+    /// The cached frame for a request at @p ts, filling the cache first when the requests walk
+    /// backwards; nullptr when the normal path must answer.
+    std::shared_ptr<const VideoFrame> reverseFrame(int64_t ts);
+    void dropReverse();
     std::shared_ptr<const VideoFrame> currentVideoFrame();
     QImage currentImage(QSize maxSize);
 };

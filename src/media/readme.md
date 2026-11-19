@@ -92,6 +92,39 @@ The decoder keeps the last returned frame (`cur`) and the following one (`next`)
   DTS) or nothing is decodable there (truncated file), retry 1 s, 2 s, 4 s earlier, then from the
   very start. Frames skipped on the way are recycled without conversion or GPU download.
 
+### Reverse cache (VideoDecoderReverse.cpp, spec 143)
+
+Frames can only be decoded forward from a keyframe, so a reversed clip (Change Clip Speed >
+Reverse) or a J shuttle used to seek and decode a whole GOP for every single frame (about 115
+decoded frames per request in the table below).
+* When Exact requests walk backwards (a request 0 - 2 s behind the last one, twice in a row),
+  `VideoDecoder` decodes one stretch [keyframe .. target] forward and keeps its last frames as
+  `VideoFrame`s (software frames shared, hardware frames downloaded, DMA-BUF frames replaced by
+  their system memory copy so the surface pool is not held). The next requests are answered from
+  them (`reverseAt()`, also for `frameAt()`), with the same pictures an exact seek gives.
+* One stretch is about 96 MB (at least 24 frames, at most 120; scaled by `membudget`). A stretch
+  is one fill or one slice-decoded extension; the cache holds at most two stretches and the
+  stretch being decoded below it is a third. Frames at or below the playhead are never dropped, frames above
+  it go first.
+* `prefetchReverse(budgetMs)` decodes the stretch below the cache in slices (the decoder keeps its
+  place between calls, `resumeTs`) when fewer than one stretch is left below the playhead; the GL
+  renderer calls it from its decode-ahead worker after every reverse frame (10 ms per call). Without
+  it (CPU renderer) the stretch is decoded when the cache runs out.
+* Dropped on: a forward request or a jump, a different file (`close()`), 3 s idle in
+  `DecoderPool::collectIdle()`, and the pool's idle release. A cache decoded in catch-up mode
+  (`setSkipNonReference`) only serves catch-up requests.
+* `KINOKLIP_REVERSE_CACHE=off` brings the old behaviour back (measurements). Measured with
+  `tests/playback/test_reverseplay.cpp` (1080p H.264, 60 fps, GOP 250, software decoding, xvfb +
+  llvmpipe, a reversed clip over two GOPs played at 1x):
+
+| | before | after |
+|---|---|---|
+| decoder stepping back 300 frames: time per frame | 196 - 253 ms | 7 - 10 ms |
+| decoder stepping back 300 frames: frames decoded per request | 115 | 4.2 |
+| reversed clip at 1x, GL (llvmpipe): frames shown of 240 | 27 - 39 (84 - 89 % lost) | 226 - 229 (5 - 6 % lost) |
+| same, CPU renderer (no decode-ahead) | 32 shown (87 % lost) | 179 shown (25 % lost) |
+| render thread decode per frame (GL): median / p95 | 25 / 408 ms | 0.01 / 6 - 8 ms |
+
 ### Hardware decoding
 
 * One table (`kBackends` in `HwAccel.cpp`) lists the backends and the **Auto order**. Linux:

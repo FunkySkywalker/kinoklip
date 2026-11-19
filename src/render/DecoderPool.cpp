@@ -229,10 +229,16 @@ void DecoderPool::collectIdle()
     const qint64 now = m_clock.elapsed();
     for (size_t i = 0; i < m_entries.size();) {
         Entry& e = *m_entries[i];
-        if (!e.busy && !e.reservation && now - e.lastUsedMs > m_idleCloseMs)
+        if (!e.busy && !e.reservation && now - e.lastUsedMs > m_idleCloseMs) {
             closeEntry(i);
-        else
-            ++i;
+            continue;
+        }
+        if (!e.busy && !e.reservation && now - e.lastUsedMs > kReverseCacheIdleMs && e.decoder
+            && e.decoder->reverseCachedFrames() > 0) {
+            e.waitAhead();
+            e.decoder->releaseReverseCache(); // playback stopped: give its frames back
+        }
+        ++i;
     }
 }
 

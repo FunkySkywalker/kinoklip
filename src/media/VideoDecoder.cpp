@@ -711,6 +711,12 @@ std::shared_ptr<const VideoFrame> VideoDecoder::decodeFrame(int64_t timeUs, Accu
         }
     }
     const int64_t ts = std::max(d.frameTsAt(std::max<int64_t>(timeUs, 0)), d.firstFrameTs);
+    if (accuracy == Accuracy::Exact) {
+        if (auto hit = d.reverseFrame(ts)) {
+            d.lastReturnedUs = hit->ptsUs;
+            return hit;
+        }
+    }
     if (!d.position(ts, accuracy)) {
         return nullptr;
     }
@@ -791,6 +797,17 @@ QImage VideoDecoder::frameAt(int64_t timeUs, QSize maxSize, Accuracy accuracy)
         }
     }
     const int64_t ts = std::max(d.frameTsAt(std::max<int64_t>(timeUs, 0)), d.firstFrameTs);
+    if (accuracy == Accuracy::Exact) {
+        if (auto hit = d.reverseFrame(ts)) {
+            QImage cached = hit->avFrame ? d.convertFrame(hit->avFrame, maxSize)
+                : hit->format == PixelFormat::Bgra && hit->data[0] ? d.bgraImage(*hit, maxSize)
+                                                                   : QImage();
+            if (!cached.isNull()) {
+                d.lastReturnedUs = hit->ptsUs;
+                return cached;
+            }
+        }
+    }
     if (!d.position(ts, accuracy)) {
         return {};
     }

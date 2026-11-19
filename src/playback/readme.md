@@ -5,6 +5,11 @@ shuttle, loop, audio-master clock, frame look-ahead through the `Compositor`, pr
 Depends on `core`, `media` (indirectly) and `render`; never on widgets. Namespace `kk`, logging
 category `kk.playback`.
 
+Reverse play (a reversed clip, J): the video decoder keeps a cache of forward-decoded frames and
+the GL renderer's decode-ahead fills it ahead of time (`VideoDecoder::prefetchReverse()`), see
+`src/media/readme.md`, "Reverse cache". `tests/playback/test_reverseplay.cpp` plays a reversed
+long-GOP clip at 1x and prints frames shown and lost.
+
 ## Public API
 
 | Header | What |

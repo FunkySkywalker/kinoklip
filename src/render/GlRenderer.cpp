@@ -51,6 +51,8 @@ constexpr int kDecodeThreads = 4;
 constexpr int kMaxNestingDepth = 16;
 /// In-between weights closer than this to a source frame show that frame (no interpolation).
 constexpr float kMinRetimeWeight = 1.0f / 128.0f;
+/// Time one decode-ahead slice may spend on the reverse cache (VideoDecoder::prefetchReverse()).
+constexpr int kReverseSliceMs = 10;
 /// A nested timeline is composited at the size it occupies in the output, times its zoom up
 /// to this factor (sharper when zoomed in, bounded memory).
 constexpr double kMaxNestedZoom = 2.0;
@@ -557,6 +559,18 @@ void GlRenderer::startDecodeAhead()
         const int64_t nextUs = d.nextTimeUs;
         const int64_t step = nextUs - d.timeUs;
         const int64_t lastStep = d.timeUs - entry->previousTimeUs;
+        if (step < 0 && lastStep < 0) {
+            // Reverse play: the frame is in the decoder's reverse cache; use the time before the
+            // next request to decode the stretch below the cache in slices (spec 143).
+            auto done = std::make_shared<std::promise<void>>();
+            entry->ahead = done->get_future();
+            media::VideoDecoder* decoder = entry->decoder.get();
+            m_decodeThreads.start([decoder, done] {
+                decoder->prefetchReverse(kReverseSliceMs);
+                done->set_value();
+            });
+            continue;
+        }
         if (step <= 0 || lastStep <= 0 || lastStep > 2 * step + 1)
             continue;
         auto done = std::make_shared<std::promise<void>>();

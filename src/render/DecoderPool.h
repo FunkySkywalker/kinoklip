@@ -196,6 +196,8 @@ private:
     static constexpr int64_t kForwardWindowUs = 2'000'000;
     /// Do not retry opening a failed file for this long.
     static constexpr qint64 kRetryFailedMs = 5000;
+    /// A decoder idle this long gives its reverse cache back (VideoDecoder::releaseReverseCache()).
+    static constexpr qint64 kReverseCacheIdleMs = 3000;
     /// Hard limit of decoders per path (beyond it the closest idle one is reused anyway).
     static constexpr int kMaxPerPath = 6;
 

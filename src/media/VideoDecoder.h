@@ -136,6 +136,20 @@ public:
     bool prepareFrame(
         int64_t timeUs, const std::function<bool()>& stop, int readAheadFrames = 0);
 
+    /// Reverse cache (spec 143). While exact requests walk backwards, one stretch from the
+    /// keyframe to the target is decoded forward and its last frames are kept (up to about
+    /// 96 MB, at least 24 frames), so the next requests need no decoding; when it runs out the
+    /// stretch before it is decoded the same way. prefetchReverse() decodes that previous
+    /// stretch ahead of time, for at most @p budgetMs per call (the playback engine calls it
+    /// from its decode-ahead after every reverse frame); it does nothing unless the requests are
+    /// walking backwards and the cache is running low. Forward requests, seeks away and
+    /// KINOKLIP_REVERSE_CACHE=off (diagnostics) leave the decoder as it was.
+    void prefetchReverse(int budgetMs);
+    /// Frees the reverse cache (playback stopped, the decoder idles).
+    void releaseReverseCache();
+    /// Frames the reverse cache holds (tests, statistics).
+    int reverseCachedFrames() const;
+
     /// Frames this decoder took from libavcodec since open(), skipped ones included
     /// (measurements and tests; not synchronised with a decode running on another thread).
     int64_t decodedFrameCount() const;

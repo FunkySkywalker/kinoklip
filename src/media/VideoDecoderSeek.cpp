@@ -186,6 +186,10 @@ bool VideoDecoder::Impl::seek(int64_t targetTs, int attempt)
     qCDebug(lcMedia) << "video seek" << info.path << "target" << tsToUs(targetTs) << "us, attempt"
                      << attempt << "seek point" << tsToUs(seekTs) << "us";
     ++generation;
+    resumeTs = AV_NOPTS_VALUE;
+    if (collecting) {
+        collecting->clear(); // a retry from further back starts the stretch again
+    }
     if (softSeekAllowed && !draining) {
         softSeekPending = true; // decided at the first packet (see decodeOne)
     } else {
@@ -257,6 +261,9 @@ void VideoDecoder::Impl::advanceTo(int64_t ts)
         if (next.pts > ts) {
             return;
         }
+        if (collecting && cur && cur.pts >= collectFromTs) {
+            collectCurrent(next.pts); // the reverse cache keeps it (spec 143)
+        }
         // Skipped frames are recycled without ever being converted or downloaded.
         release(cur);
         cur = std::move(next);
@@ -270,7 +277,9 @@ bool VideoDecoder::Impl::positionExact(int64_t ts)
     if (isCurrent(ts)) {
         return true;
     }
-    if (!canDecodeForwardTo(ts) && !seek(ts, 0)) {
+    // A stretch decoded in slices (VideoDecoder::prefetchReverse()) goes on where it stopped.
+    const bool resuming = resumeTs == ts && (cur || next);
+    if (!resuming && !canDecodeForwardTo(ts) && !seek(ts, 0)) {
         return false;
     }
     for (int attempt = 0;; ++attempt) {
