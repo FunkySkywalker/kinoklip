@@ -1767,8 +1767,9 @@ private slots:
             c.node(bg)->params.setStatic(nodekeys::Color, QColor(10, 200, 30));
             return true;
         });
+        // The new picture was a miss (a new file was stored). cacheHits() is the count of the
+        // viewer's latest render, which may be a repeat render of the same, now cached, state.
         QTRY_VERIFY_WITH_TIMEOUT(viewercache::usage().files > files, 10000);
-        QTRY_COMPARE_WITH_TIMEOUT(v->cacheHits(), 0, 10000);
         CompViewOptions::instance().setOptions({});
         viewercache::clear();
         QSettings().clear();
