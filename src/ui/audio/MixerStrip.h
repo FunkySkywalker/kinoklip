@@ -66,6 +66,9 @@ public:
     [[nodiscard]] QToolButton* sendsButton() const { return m_sends; }
     [[nodiscard]] QToolButton* invertButton() const { return m_invert; }
     [[nodiscard]] QComboBox* automationCombo() const { return m_automation; }
+    /// The Voice Isolation toggle (tracks only; nullptr on buses): lit when on, right-click for
+    /// the Amount.
+    [[nodiscard]] QToolButton* voiceIsolationButton() const { return m_voice; }
     /// The "+" button of the Effects section (tracks only; nullptr on buses).
     [[nodiscard]] QToolButton* addEffectButton() const { return m_addEffect; }
     /// Number of effect slots shown.
@@ -129,6 +132,7 @@ private:
     QToolButton* m_bus = nullptr;
     QToolButton* m_sends = nullptr;
     QToolButton* m_invert = nullptr;
+    QToolButton* m_voice = nullptr; ///< Voice Isolation (tracks only, spec 141)
     PanKnob* m_pan = nullptr;
     QComboBox* m_automation = nullptr;
     QToolButton* m_addEffect = nullptr;

@@ -5,6 +5,7 @@
 #include "core/EffectRegistry.h"
 #include "core/Project.h"
 #include "core/Timeline.h"
+#include "core/VoiceIsolation.h"
 #include "ui/audio/DynamicsWindow.h"
 #include "ui/audio/EqWindow.h"
 #include "ui/audio/SendsWindow.h"
@@ -30,7 +31,9 @@
 #include <QMenu>
 #include <QMouseEvent>
 #include <QPainter>
+#include <QSpinBox>
 #include <QToolButton>
+#include <QWidgetAction>
 #include <QVBoxLayout>
 
 #include <algorithm>
@@ -191,6 +194,49 @@ MixerStrip::MixerStrip(
                 setInvert(!before.invertLeft, before.invertRight);
             else if (chosen == r)
                 setInvert(before.invertLeft, !before.invertRight);
+        });
+    }
+
+    if (!bus) {
+        // Voice Isolation (spec 141): one click keeps only the voice of this track; the
+        // right-click menu sets the Amount.
+        m_voice = toggleButton(tr("Voice Isolation"),
+            tr("Voice Isolation (Optional AI): keeps the voice of this track and takes out noise, "
+               "music and room sound. Runs on this computer with the built-in RNNoise model; "
+               "nothing is downloaded. Right-click to set the Amount."));
+        m_voice->setObjectName(QStringLiteral("VoiceIsolationButton"));
+        m_voice->setContextMenuPolicy(Qt::CustomContextMenu);
+        layout->addWidget(m_voice);
+        connect(m_voice, &QToolButton::clicked, this, [this](bool on) {
+            m_controller->edit(on ? tr("Voice Isolation On") : tr("Voice Isolation Off"),
+                [&](TimelineData& d) { return mixerops::setTrackVoiceIsolation(d, m_target.id, on); });
+            refresh(m_frame);
+        });
+        connect(m_voice, &QToolButton::customContextMenuRequested, this, [this](QPoint pos) {
+            QMenu menu(this);
+            auto* box = new QSpinBox;
+            box->setRange(0, 100);
+            box->setSuffix(QStringLiteral(" %"));
+            box->setValue(int(voiceisolation::amount(mixerops::audioTrack(m_controller->data(), m_target.id)
+                    ? mixerops::audioTrack(m_controller->data(), m_target.id)->mix.effects
+                    : QVector<EffectInstance> {})));
+            box->setToolTip(tr("Amount: how strongly everything that is not a voice is taken "
+                               "away. 0 leaves the sound as it is."));
+            auto* row = new QWidget;
+            auto* rowLayout = new QHBoxLayout(row);
+            rowLayout->setContentsMargins(8, 2, 8, 2);
+            rowLayout->addWidget(new QLabel(tr("Amount")));
+            rowLayout->addWidget(box);
+            auto* action = new QWidgetAction(&menu);
+            action->setDefaultWidget(row);
+            menu.addAction(action);
+            connect(box, &QSpinBox::editingFinished, &menu, &QMenu::close);
+            menu.exec(m_voice->mapToGlobal(pos));
+            const double value = box->value();
+            m_controller->edit(tr("Voice Isolation Amount"), [&](TimelineData& d) {
+                return mixerops::setTrackVoiceIsolationAmount(d, m_target.id, value);
+            });
+            refresh(m_frame);
         });
     }
 
@@ -385,6 +431,10 @@ void MixerStrip::refresh(int64_t frame)
         rebuildSlots(d);
     m_eq->setChecked(s->eq.enabled);
     m_invert->setChecked(s->invertLeft || s->invertRight);
+    if (m_voice) {
+        const TrackData* t = mixerops::audioTrack(d, m_target.id);
+        m_voice->setChecked(t && voiceisolation::isOn(t->mix.effects));
+    }
     m_sends->setChecked(std::any_of(s->sends.begin(), s->sends.end(),
         [](const SendData& d) { return d.enabled; }));
     m_dynamics->setChecked(s->dynamics.gateEnabled || s->dynamics.compressorEnabled || s->dynamics.limiterEnabled);

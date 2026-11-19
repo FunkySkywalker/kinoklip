@@ -160,7 +160,8 @@ private slots:
         QCOMPARE(ids,
             QStringList({"audio_gain", "audio_eq", "audio_compressor", "audio_limiter",
                 "audio_highpass", "audio_lowpass", "audio_delay", "audio_reverb", "audio_chorus",
-                "audio_flanger", "audio_distortion", "audio_stereo_width", "audio_noise_reduction", "audio_deesser", "audio_dialogue_leveler"}));
+                "audio_flanger", "audio_distortion", "audio_stereo_width", "audio_noise_reduction", "audio_deesser", "audio_dialogue_leveler",
+                "audio_voice_isolation"}));
     }
 
     void noEffectsIsUntouched()
@@ -522,6 +523,40 @@ private slots:
         for (size_t i = 0; i < both.size(); ++i)
             QVERIFY2(std::abs(both[i] - (a[i] + b[i])) < 1e-6f, qPrintable(QString::number(i)));
         QVERIFY(render(tl, m_wavImpulse, 144000, 1000) == both);
+    }
+
+    // ---- Spec 141: Voice Isolation is aligned in the mixer and the same at any block size ----
+
+    void voiceIsolationAlignsAndMatchesAtAnyBlockSize()
+    {
+        TimelineData tl = timeline({});
+        tl.audioTracks[0].clips[0].effects.append(fx(tl, afxid::VoiceIsolation, {{afxkeys::DeAmount, 2.0}}));
+        const auto plain = render(timeline({}), m_wavSine, 96000);
+        const auto whole = render(tl, m_wavSine, 96000);
+        // A 2 % Amount changes the sound by a fraction of a dB, so what is left of the sine
+        // lines up with the plain clip (a delay of ~2000 samples would be an error of ~0.6).
+        float worst = 0.0f;
+        for (int i = 0; i < 96000; ++i)
+            worst = std::max(worst, std::abs(whole[size_t(2 * i)] - plain[size_t(2 * i)]));
+        QVERIFY2(worst < 0.1f, qPrintable(QString::number(worst)));
+        QVERIFY(rms(whole, 0, 1024) > 0.3);
+        for (const int block : {512, 1024, 997}) {
+            const auto chunks = render(tl, m_wavSine, 96000, block);
+            float diff = 0.0f;
+            for (size_t i = 0; i < whole.size(); ++i)
+                diff = std::max(diff, std::abs(whole[i] - chunks[i]));
+            QVERIFY2(diff < 1e-4f, qPrintable(QString::number(block) + ": " + QString::number(diff)));
+        }
+        // Amount 0 is the clip, bit for bit.
+        TimelineData zero = timeline({});
+        zero.audioTracks[0].clips[0].effects.append(fx(zero, afxid::VoiceIsolation, {{afxkeys::DeAmount, 0.0}}));
+        QVERIFY(render(zero, m_wavSine, 96000) == plain);
+        // Switched off (bypassed): the clip, bit for bit.
+        TimelineData off = timeline({});
+        EffectInstance e = fx(off, afxid::VoiceIsolation);
+        e.enabled = false;
+        off.audioTracks[0].clips[0].effects.append(e);
+        QVERIFY(render(off, m_wavSine, 96000) == plain);
     }
 
     void aSeekRestartsTheEffectMemory()

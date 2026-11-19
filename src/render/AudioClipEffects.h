@@ -53,6 +53,12 @@ public:
     [[nodiscard]] int latencyFrames(const QVector<EffectInstance>& effects);
     /// Clears the memory of every effect.
     void reset();
+    /// How long (frames) the enabled effects of @p effects go on sounding after their input
+    /// has stopped (a reverb tail, delay echoes, the ring of a flanger): the sum over the
+    /// enabled effects, 0 if none has a tail. Depends on the parameters only, so it can be
+    /// asked without a chain. The mixer keeps rendering the clip (with silent input) that long
+    /// past its end.
+    [[nodiscard]] static int tailFrames(const QVector<EffectInstance>& effects);
 
     /// True if @p effects has an enabled effect of a known audio type.
     [[nodiscard]] static bool hasActive(const QVector<EffectInstance>& effects);

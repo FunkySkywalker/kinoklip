@@ -411,6 +411,28 @@
       ]
     },
     {
+      "id": "check-your-mix-spectrum-phase-and-monitor",
+      "title": "Check your mix: spectrum, phase and monitor controls",
+      "file": "check-your-mix-spectrum-phase-and-monitor.md",
+      "summary": "See which frequencies are loud in a spectrum, check that left and right do not cancel (phase correlation), and Dim, Mono or Mute what you hear without changing the render.",
+      "keywords": [
+        "spectrum",
+        "spectrum analyzer",
+        "frequency",
+        "phase",
+        "correlation",
+        "goniometer",
+        "mono",
+        "dim",
+        "mute",
+        "monitor",
+        "speakers"
+      ],
+      "contexts": [
+        "page:audio"
+      ]
+    },
+    {
       "id": "remove-noise-from-a-clip",
       "title": "Remove background noise from a clip",
       "file": "remove-noise-from-a-clip.md",

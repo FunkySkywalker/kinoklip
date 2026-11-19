@@ -8,12 +8,15 @@
 #include <QByteArray>
 #include <QString>
 
+#include "playback/MonitorControls.h"
+
 #include <cstdint>
 #include <vector>
 
 namespace kk {
 
 class AudioRing;
+class MonitorControls;
 
 /// One output device as the routing logic sees it.
 struct AudioDeviceInfo
@@ -114,9 +117,14 @@ public:
     [[nodiscard]] int64_t pulled() const { return m_pulled; }
     /// Ring frames still to be skipped for earlier underruns.
     [[nodiscard]] int64_t skipDebt() const { return m_skipDebt; }
+    /// Monitor controls (Dim, Mono, Mute; spec 141) applied to what the device plays, after
+    /// the ring: nullptr (the default) plays the ring as it is. Not owned.
+    void setMonitor(const MonitorControls* monitor) { m_monitor = monitor; }
 
 private:
     AudioRing* m_ring;
+    const MonitorControls* m_monitor = nullptr;
+    MonitorProcessor m_monitorProcessor;
     bool m_int16 = false;
     std::vector<float> m_scratch;
     int64_t m_pulled = 0;

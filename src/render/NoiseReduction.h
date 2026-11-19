@@ -89,4 +89,31 @@ private:
     std::unique_ptr<Impl> m_impl;
 };
 
+/// Voice Isolation (spec 141): keeps the voice and removes everything else (noise, music, room).
+/// Two stages: a spectral gate that follows the slow background and takes it down, then RNNoise
+/// with its voice-activity gate at full strength (what the network hears as not-voice is taken
+/// down by up to 60 dB: music beds, room sound, the gaps between the words). Amount (0 - 100) scales how far both go: 0 is the input
+/// untouched (no delay), 100 is the full isolation. Like Reducer, the output is delayed by latencyFrames(), the result does
+/// not depend on how the input is split into calls, and the same input always gives the same
+/// output (no random numbers, no downloads: RNNoise is built in). Not thread-safe.
+class Isolator
+{
+public:
+    Isolator();
+    ~Isolator();
+    Isolator(const Isolator&) = delete;
+    Isolator& operator=(const Isolator&) = delete;
+
+    /// Takes Amount in percent (before every block); clamped to 0 .. 100.
+    void configure(double amountPercent);
+    void reset();
+    void process(float* io, int frames);
+    /// The delay of the processed sound in frames; 0 at Amount 0 (passes the input untouched).
+    [[nodiscard]] int latencyFrames() const;
+
+private:
+    struct Impl;
+    std::unique_ptr<Impl> m_impl;
+};
+
 } // namespace kk::dsp::noise

@@ -281,6 +281,14 @@ void EffectRegistry::registerAudioEffects()
                 tr("Optional: lower everything that is not speech by up to this much. 0 is "
                    "off.")),
         }));
+    add(effect(VoiceIsolation, tr("Voice Isolation"),
+        tr("Keep only the voice: takes out noise, music and room sound (Optional AI: the RNNoise "
+           "model runs on this computer)"),
+        {
+            tip(value(k::DeAmount, tr("Amount"), 0, 100, 100, 1, kPercent),
+                tr("How strongly everything that is not a voice is taken away. 0 leaves the "
+                   "sound as it is, 100 removes as much as possible.")),
+        }));
 }
 
 } // namespace kk

@@ -135,6 +135,14 @@ bool moveTrackEffect(TimelineData& data, quint64 trackId, quint64 effectId, int 
 /// The slot @p effectId of track @p trackId, or nullptr.
 [[nodiscard]] EffectInstance* trackEffect(TimelineData& data, quint64 trackId, quint64 effectId);
 
+// ---- Voice Isolation of a track (spec 141; core/VoiceIsolation.h) ----
+
+/// Switches Voice Isolation on or off for track @p trackId (the first effect slot; switching
+/// on adds it). Returns whether anything changed.
+bool setTrackVoiceIsolation(TimelineData& data, quint64 trackId, bool on);
+/// Sets the Amount (percent) of the track's Voice Isolation. Returns whether anything changed.
+bool setTrackVoiceIsolationAmount(TimelineData& data, quint64 trackId, double percent);
+
 // ---- Normalize (spec 134) ----
 
 /// Raises (or lowers) the level of @p target by @p deltaDb with its fader, as Normalize Audio

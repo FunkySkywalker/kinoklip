@@ -188,7 +188,7 @@ Beginner and intermediate tutorial workflows for Resolve's Color, Fairlight and 
 - [x] Audio: noise reduction with a local, open model (RNNoise, BSD-3-Clause, built in; spectral gate with Manual Learn; DeepFilterNet left open; spec 132)
 - [x] Audio: Effects Library and Inspector on the Audio page, effect slots on mixer tracks (tracks only; buses left open; spec 133)
 - [x] Audio: Normalize a whole track or bus / the main mix to a loudness target in one step (right-click a mixer strip or a track header, Normalize Audio Levels...; spec 134)
-- [ ] Audio: Voice Isolation button on a track and in the Inspector (local open model, optional)
+- [x] Audio: Voice Isolation button on a track and in the Inspector (local open model, optional) (spec 141: RNNoise plus a spectral gate, Amount, Optional AI)
 - [x] Audio: Gate and Expander (with hold, hysteresis and key filters) in the Dynamics window, a De-Esser effect, and a Dialogue Leveler (spec 136)
 - [x] Audio: sidechain input on the compressor and gate (key from another track or bus, loops refused) for ducking music under a voice (spec 136)
 - [x] Audio: Sends (level, Pre / Post fader, pan) to buses and aux buses, bus-to-bus feeds with loops refused, and a bus Pan (spec 137)
@@ -196,7 +196,7 @@ Beginner and intermediate tutorial workflows for Resolve's Color, Fairlight and 
 - [x] Audio: loudness meter standards and targets (-14 YouTube, -16, -23 EBU R128, ATSC), Loudness Range (LRA) and a history graph, and normalize to a loudness target when rendering (spec 134)
 - [x] Audio: Chorus, Flanger, Distortion and Stereo Width effects, and Reverb with Pre-delay, Decay and room presets
 - [x] Audio: EQ presets (voice, music, telephone, your own) and a Phase Invert button on the strip (spec 137)
-- [ ] Audio: Spectrum analyzer and Phase / correlation meters, and monitor controls (Dim, Mono, Mute) on the Audio page
+- [x] Audio: Spectrum analyzer and Phase / correlation meters, and monitor controls (Dim, Mono, Mute) on the Audio page (spec 141)
 - [ ] Color: Primaries Shad, Hi, Color Boost, Midtone Detail and Auto Color buttons, and a Log palette (Shadow, Midtone, Highlight, Offset wheels with Low / High range)
 - [ ] Color: Curves: Sat vs Lum curve, Soft Clip, and picking a colour or luma from the viewer to add curve points
 - [ ] Color: Color Warper palette (Hue - Sat and Chroma - Luma grids)

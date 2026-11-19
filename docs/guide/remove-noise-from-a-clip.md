@@ -18,6 +18,21 @@ nothing is uploaded or downloaded.
 Choose **Spectral Gate** as the Model if the sound is not speech or you do not want the neural
 network: it works out the noise by itself from the quietest parts of the clip.
 
+## Keep only the voice (Voice Isolation)
+
+When there is music or a room full of people behind the voice, use **Voice Isolation** (Optional
+AI) instead. It keeps the voice and takes out everything else.
+
+1. Select the clip. Open the **Inspector**, click the **Audio** tab and tick **Voice Isolation**.
+   Set **Amount**: 100 takes away as much as possible, 0 leaves the sound as it is.
+2. To do the same for a whole track, click **Voice Isolation** on the track's strip in the
+   Mixer on the Audio page. Right-click the button to set the Amount.
+
+It uses the same built-in RNNoise model as Noise Reduction, followed by a second step that
+quiets what is left between the words. Nothing is downloaded or uploaded, and it gives the same
+sound in playback and in the render. It adds a small delay that Kinoklip takes out again, so the
+sound stays in sync with the picture.
+
 ## Teach it the noise (Manual Learn)
 
 1. Find a pause where only the noise is heard. Mark it on the timeline with **I** and **O**

@@ -6,6 +6,7 @@
 #include "playback/AudioDeviceMonitor.h"
 #include "playback/AudioRing.h"
 #include "playback/AudioRouting.h"
+#include "playback/MonitorControls.h"
 #include "playback/PlaybackLog.h"
 
 #include <QAudioDevice>
@@ -52,7 +53,9 @@ class RingDevice : public QIODevice
 public:
     RingDevice(AudioRing* ring, bool int16)
         : m_puller(ring, int16)
-    { }
+    {
+        m_puller.setMonitor(&MonitorControls::shared()); // Dim / Mono / Mute (spec 141)
+    }
 
     [[nodiscard]] RingPuller& puller() { return m_puller; }
 

@@ -1,16 +1,17 @@
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-header">
-<div class="wrap">
-<a class="brand" href="{{root}}"><img src="{{root}}static/kinoklip-icon.png" alt="" width="32" height="32"><span>Kinoklip</span></a>
-<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+<div class="hdr">
+<a class="brand" href="{{root}}"><img src="{{root}}static/kinoklip-icon.png" alt="" width="28" height="28"><span>Kinoklip</span></a>
 <nav class="nav" id="site-nav" aria-label="Main">
 <a href="{{root}}guide/"{{cur_guide}}>Guide</a>
 <a href="{{root}}features/"{{cur_features}}>Features</a>
 <a href="{{root}}download/"{{cur_download}}>Download</a>
 <a href="{{root}}releases/"{{cur_releases}}>Releases</a>
 <a href="{{root}}report-a-bug/"{{cur_report}}>Report a bug</a>
-<a href="https://github.com/SeniorMatt/kinoklip">GitHub</a>
+<a href="https://github.com/SeniorMatt/kinoklip">GitHub <span aria-hidden="true">&#8599;</span></a>
 </nav>
-<a class="btn btn-primary hdr-dl" href="{{root}}download/">Download</a>
+<button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch between light and dark"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor" stroke="none"/></svg></button>
+<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg></button>
+<a class="hdr-dl" href="{{root}}download/">Download {{version_short}}</a>
 </div>
 </header>

@@ -965,6 +965,7 @@ void InspectorPanel::rebuild()
                 if (const EffectDescriptor* d = registry.find(QLatin1String(id)))
                     addDescriptorGroup(AudioTab, *d, ParamScope::Audio, m_audioClipId);
             }
+            buildVoiceIsolationSection(m_audioClipId);
         } else {
             addPlaceholder(AudioTab, tr("This clip has no audio."));
         }

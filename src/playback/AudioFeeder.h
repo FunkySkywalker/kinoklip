@@ -3,6 +3,7 @@
 // into an AudioRing.
 #pragma once
 
+#include "core/MixerOps.h"
 #include "core/TimelineData.h"
 #include "playback/VarispeedResampler.h"
 #include "render/MixLevels.h"
@@ -109,6 +110,9 @@ public:
     /// Pauses (true) or continues the loudness measurement: while paused the output is not
     /// measured and the readings stay where they were.
     void setLoudnessPaused(bool paused) { m_loudnessPaused = paused; }
+    /// Which signal the spectrum analyser shows: the main mix (default) or one track or bus
+    /// (spec 141). Tracks and buses are tapped at normal speed; in shuttle the main mix shows.
+    void setSpectrumSource(const MixTarget* strip);
     /// Forgets the meter frames (after stop, so a later start shows no stale levels).
     void clearMeters();
 
@@ -153,6 +157,8 @@ private:
     int m_meterHead = 0;
     std::atomic<bool> m_resetLoudness {false};
     std::atomic<bool> m_loudnessPaused {false};
+    std::atomic<int> m_spectrumKind {0}; ///< 0 main mix, 1 track, 2 bus
+    std::atomic<quint64> m_spectrumId {0};
 };
 
 } // namespace kk

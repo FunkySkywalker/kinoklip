@@ -508,4 +508,76 @@ void Reducer::process(float* io, int frames)
     d.gainNow = gainTarget;
 }
 
+// ---- Isolator (Voice Isolation, spec 141) ----
+
+struct Isolator::Impl
+{
+    Reducer speech; ///< RNNoise and its voice-activity gate
+    Reducer residual; ///< the spectral gate on what is left
+    double amount = 0.0; ///< percent
+    bool bypassed = true;
+};
+
+Isolator::Isolator()
+    : m_impl(std::make_unique<Impl>())
+{
+    configure(0.0);
+}
+
+Isolator::~Isolator() = default;
+
+void Isolator::configure(double amountPercent)
+{
+    Impl& d = *m_impl;
+    d.amount = std::clamp(amountPercent, 0.0, 100.0);
+    const double a = d.amount / 100.0;
+    Settings voice;
+    voice.rnnoise = true;
+    voice.thresholdDb = -80.0; // no expander: the voice-activity gate does the work
+    voice.ratio = 1.0;
+    voice.sensitivity = 100.0; // anything the network does not take for a voice is background
+    voice.attackMs = 8.0;
+    voice.reductionDb = 60.0 * a;
+    voice.mix = 100.0;
+    d.speech.configure(voice);
+    Settings rest;
+    rest.rnnoise = false;
+    rest.thresholdDb = -80.0;
+    rest.ratio = 1.0;
+    rest.sensitivity = 75.0;
+    rest.attackMs = 15.0;
+    rest.reductionDb = 30.0 * a;
+    rest.mix = 100.0;
+    d.residual.configure(rest);
+}
+
+void Isolator::reset()
+{
+    m_impl->speech.reset();
+    m_impl->residual.reset();
+}
+
+int Isolator::latencyFrames() const
+{
+    const Impl& d = *m_impl;
+    if (d.amount <= 0.0)
+        return 0;
+    return d.speech.latencyFrames() + d.residual.latencyFrames();
+}
+
+void Isolator::process(float* io, int frames)
+{
+    Impl& d = *m_impl;
+    if (d.amount <= 0.0) {
+        d.bypassed = true; // the input as it is, no delay; the memory restarts afterwards
+        return;
+    }
+    if (d.bypassed) {
+        reset();
+        d.bypassed = false;
+    }
+    d.residual.process(io, frames); // steady background first, so RNNoise hears a cleaner voice
+    d.speech.process(io, frames);
+}
+
 } // namespace kk::dsp::noise

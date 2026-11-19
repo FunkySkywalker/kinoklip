@@ -808,6 +808,12 @@ void PlaybackEngine::updateParams(bool rerender)
 
 // ---- Meters ----
 
+void PlaybackEngine::setSpectrumSource(const MixTarget* strip)
+{
+    if (m_feeder)
+        m_feeder->setSpectrumSource(strip);
+}
+
 void PlaybackEngine::resetLoudness()
 {
     if (m_feeder)

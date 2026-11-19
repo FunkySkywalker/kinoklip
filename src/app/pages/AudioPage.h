@@ -13,6 +13,7 @@ struct AppContext;
 class AutomationBar;
 class EffectsLibraryPanel;
 class InspectorPanel;
+class AnalyzerPanel;
 class LoudnessPanel;
 class MeterModel;
 class MixerController;
@@ -59,6 +60,7 @@ public:
     [[nodiscard]] TimelineWidget* timeline() const { return m_timeline; }
     [[nodiscard]] MixerPanel* mixer() const { return m_mixer; }
     [[nodiscard]] LoudnessPanel* meters() const { return m_meters; }
+    [[nodiscard]] AnalyzerPanel* analyzer() const { return m_analyzer; }
     [[nodiscard]] ViewerPanel* viewer() const { return m_viewer; }
     [[nodiscard]] MixerController* mixerController() const { return m_mixerController; }
     [[nodiscard]] AutomationBar* automationBar() const { return m_automationBar; }
@@ -91,6 +93,7 @@ private:
     QWidget* m_viewerDock = nullptr; ///< the viewer's place in the layout
     QWidget* m_viewerWindow = nullptr; ///< floating viewer window (created on demand)
     LoudnessPanel* m_meters = nullptr;
+    AnalyzerPanel* m_analyzer = nullptr;
     TimelineWidget* m_timeline = nullptr;
     MixerPanel* m_mixer = nullptr;
     AutomationBar* m_automationBar = nullptr; ///< Off / Read / Touch / Latch / Write / Trim

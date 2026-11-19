@@ -61,6 +61,7 @@ Also early: [Add a title](add-a-title.md) and [Transitions between clips](transi
 - [Remove background noise from a clip](remove-noise-from-a-clip.md)
 - [Add effects to a whole audio track](add-effects-to-an-audio-track.md)
 - [Make your audio loud enough for YouTube](make-your-audio-loud-enough-for-youtube.md)
+- [Check your mix: spectrum, phase and monitor controls](check-your-mix-spectrum-phase-and-monitor.md)
 - [Lower music under a voice (ducking)](lower-music-under-a-voice-ducking.md)
 - [Send tracks to a bus, flip the phase and use EQ presets](send-tracks-to-a-bus-flip-phase-and-eq-presets.md)
 - [Automate volume over time](automate-volume-over-time.md)

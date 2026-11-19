@@ -3,6 +3,8 @@
 // and MeterFrame, the time-stamped copy the playback engine hands to the meters.
 #pragma once
 
+#include "render/Spectrum.h"
+
 #include <QtGlobal>
 
 #include <array>
@@ -80,6 +82,12 @@ struct MeterFrame
     double loudnessRange = 0.0; ///< LRA since the last loudness reset (LU)
     double truePeakDb = -200.0; ///< of this block (dBTP)
     double truePeakMaxDb = -200.0; ///< since the last loudness reset (dBTP)
+    // Analysers of the main mix, or of the strip chosen with AudioFeeder::setSpectrumSource()
+    // (spec 141); filled for every block of normal-speed playback.
+    bool hasAnalysis = false;
+    std::array<float, dsp::kSpectrumBands> spectrumDb {}; ///< dBFS per display band
+    float correlation = 0.0f; ///< -1 .. +1, of the main mix
+    std::array<float, 2 * dsp::kGoniometerPoints> gonio {}; ///< (x, y) pairs of the main mix
 };
 
 } // namespace kk

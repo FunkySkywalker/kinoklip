@@ -23,6 +23,7 @@ inline constexpr char Chorus[] = "audio_chorus";
 inline constexpr char Flanger[] = "audio_flanger";
 inline constexpr char Distortion[] = "audio_distortion";
 inline constexpr char StereoWidth[] = "audio_stereo_width";
+inline constexpr char VoiceIsolation[] = "audio_voice_isolation"; ///< Amount is DeAmount ("amount")
 } // namespace afxid
 
 /// Parameter keys (stored in EffectInstance::params). All audio effect parameters are plain
@@ -88,8 +89,8 @@ inline constexpr char Spread[] = "spread"; ///< percent
 inline constexpr char DriveDb[] = "drive_db";
 inline constexpr char Tone[] = "tone"; ///< percent
 inline constexpr char DistMode[] = "mode"; ///< afxchoice::DistSoft / DistHard / DistCrush / DistTube
-inline constexpr char MonoBelowHz[] = "mono_below_hz"; ///< 0 = off
 inline constexpr char Oversampling[] = "oversampling"; ///< afxchoice::OsOff / Os2 / Os4 (Distortion)
+inline constexpr char MonoBelowHz[] = "mono_below_hz"; ///< 0 = off
 } // namespace afxkeys
 
 /// Choice values of the Noise Reduction effect.
@@ -105,14 +106,13 @@ inline constexpr char DistSoft[] = "soft";
 inline constexpr char DistHard[] = "hard";
 inline constexpr char DistCrush[] = "crush";
 inline constexpr char DistTube[] = "tube";
-inline constexpr char RvCustom[] = "custom";
 inline constexpr char OsOff[] = "off";
 inline constexpr char Os2[] = "2x";
 inline constexpr char Os4[] = "4x";
+inline constexpr char RvCustom[] = "custom";
 /// The Reverb presets, in the order of dsp::reverbPreset().
 inline constexpr const char* kReverbPresetIds[] = {
     "small_room", "large_room", "hall", "plate", "chamber", "cathedral"};
-} // namespace afxchoice
 /// What a Reverb preset sets (the Preset choice writes these into the sliders, see
 /// ParamDescriptor::choiceValues), in the order of kReverbPresetIds.
 struct ReverbPresetValues
@@ -127,6 +127,7 @@ inline constexpr ReverbPresetValues kReverbPresetValues[] = {
     {8, 1.0, 40, 50, 35, 90}, // Chamber
     {40, 6.0, 100, 55, 30, 130}, // Cathedral
 };
+} // namespace afxchoice
 
 /// Longest delay time (ms); the processor's buffer is sized for it.
 inline constexpr double kAudioDelayMaxMs = 2000.0;

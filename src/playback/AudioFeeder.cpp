@@ -6,6 +6,7 @@
 #include "playback/VarispeedResampler.h"
 #include "render/AudioMixer.h"
 #include "render/LoudnessMeter.h"
+#include "render/Spectrum.h"
 
 #include <algorithm>
 #include <chrono>
@@ -220,6 +221,12 @@ bool AudioFeeder::meterFrameAt(int64_t sample, MeterFrame* out) const
     return true;
 }
 
+void AudioFeeder::setSpectrumSource(const MixTarget* strip)
+{
+    m_spectrumId = strip ? strip->id : 0;
+    m_spectrumKind = !strip ? 0 : (strip->isBus() ? 2 : 1);
+}
+
 void AudioFeeder::clearMeters()
 {
     std::lock_guard lock(m_meterMutex);
@@ -238,6 +245,12 @@ void AudioFeeder::run()
     auto chunkLevels = std::make_unique<MixLevels>();
     auto frame = std::make_unique<MeterFrame>();
     mixer.setLevels(levels.get());
+    // Analysers (spec 141): spectrum of the main mix or of the tapped strip, correlation and
+    // goniometer of the main mix.
+    dsp::SpectrumAnalyzer spectrum;
+    dsp::CorrelationMeter correlation;
+    std::vector<float> tapBuffer(size_t(kChunkFrames) * ch);
+    bool analysing = false;
     std::unique_lock lock(m_mutex);
     while (!m_quit) {
         if (m_running && m_remixWanted && !m_remixWaiting) {
@@ -325,6 +338,11 @@ void AudioFeeder::run()
         // Meters: the sample the chunk starts at, and the peaks of every mix call in it.
         const int64_t chunkStart = rate != 1.0 ? int64_t(std::floor(m_srcPos)) : position;
         chunkLevels->clear();
+        const int spectrumKind = m_spectrumKind.load(std::memory_order_relaxed);
+        const bool tapped = spectrumKind != 0 && rate == 1.0;
+        const MixTarget tapTarget {
+            spectrumKind == 2 ? MixTarget::Kind::Bus : MixTarget::Kind::Track,
+            m_spectrumId.load(std::memory_order_relaxed)};
 
         if (rate != 1.0) {
             // Varispeed: a chunk never crosses the loop boundary in its playing direction.
@@ -350,6 +368,8 @@ void AudioFeeder::run()
                 if (loop.active()) {
                     count = int(std::min<int64_t>(count, loop.end - position));
                 }
+                if (tapped)
+                    mixer.setTap(tapTarget, tapBuffer.data() + size_t(done) * ch);
                 mixer.mix(*timeline, position, count, chunk.data() + size_t(done) * ch);
                 chunkLevels->merge(*levels);
                 done += count;
@@ -366,6 +386,21 @@ void AudioFeeder::run()
                 chunk[size_t(k) * ch + size_t(c)] *= gain;
         }
         m_fadeInLeft = 0;
+
+        if (tapped)
+            mixer.clearTap();
+        // Analysers: a restart (a jump of the playhead) starts them clean.
+        if (!analysing) {
+            spectrum.reset();
+            correlation.reset();
+            analysing = true;
+        }
+        spectrum.process(tapped ? tapBuffer.data() : chunk.data(), kChunkFrames);
+        correlation.process(chunk.data(), kChunkFrames);
+        frame->hasAnalysis = true;
+        spectrum.bandsDb(frame->spectrumDb.data());
+        frame->correlation = float(correlation.value());
+        dsp::goniometerPoints(chunk.data(), kChunkFrames, frame->gonio.data());
 
         // Meters: loudness of the output, then publish the time-stamped frame.
         if (m_resetLoudness.exchange(false))

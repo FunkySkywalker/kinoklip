@@ -3762,6 +3762,117 @@ The program was probably closed by the system because the computer ran out of me
     </message>
 </context>
 <context>
+    <name>kk::AnalyzerPanel</name>
+    <message>
+        <source>Analyzer</source>
+        <translation>Анализатор</translation>
+    </message>
+    <message>
+        <source>The spectrum of the main mix or one track, the phase correlation and the stereo picture, and the monitor controls (Dim, Mono, Mute) for what you hear.</source>
+        <translation>Спектр главного микса или одной дорожки, фазовая корреляция и стереокартина, а также органы мониторинга (Dim, Mono, Mute) для того, что вы слышите.</translation>
+    </message>
+    <message>
+        <source>What the spectrum shows: the main mix, or one track or bus on its own (while the timeline plays at normal speed).</source>
+        <translation>Что показывает спектр: главный микс или отдельная дорожка или шина (пока таймлайн воспроизводится с обычной скоростью).</translation>
+    </message>
+    <message>
+        <source>Peak hold</source>
+        <translation>Удержание пиков</translation>
+    </message>
+    <message>
+        <source>Keep a thin line at the highest level of each frequency for a moment before it falls.</source>
+        <translation>Тонкая линия на мгновение удерживает самый высокий уровень каждой частоты, прежде чем опуститься.</translation>
+    </message>
+    <message>
+        <source>Flat</source>
+        <translation>Плоский</translation>
+    </message>
+    <message>
+        <source>3 dB / octave</source>
+        <translation>3 дБ / октава</translation>
+    </message>
+    <message>
+        <source>4.5 dB / octave</source>
+        <translation>4,5 дБ / октава</translation>
+    </message>
+    <message>
+        <source>Tilts the display up towards the high frequencies, so music looks level instead of sloping down: 3 dB per octave makes pink noise flat, 4.5 dB per octave suits a full mix.</source>
+        <translation>Наклоняет картину вверх к высоким частотам, чтобы музыка выглядела ровной, а не спадающей: 3 дБ на октаву делает розовый шум плоским, 4,5 дБ на октаву подходит для полного микса.</translation>
+    </message>
+    <message>
+        <source>No smoothing</source>
+        <translation>Без сглаживания</translation>
+    </message>
+    <message>
+        <source>Fast</source>
+        <translation>Быстро</translation>
+    </message>
+    <message>
+        <source>Slow</source>
+        <translation>Медленно</translation>
+    </message>
+    <message>
+        <source>How much the bars lag behind the sound: slow is calmer to read, none shows every change.</source>
+        <translation>Насколько столбцы отстают от звука: медленно спокойнее читать, без сглаживания видно каждое изменение.</translation>
+    </message>
+    <message>
+        <source>Correlation 0.00</source>
+        <translation>Корреляция 0.00</translation>
+    </message>
+    <message>
+        <source>Monitor</source>
+        <translation>Мониторинг</translation>
+    </message>
+    <message>
+        <source>What you hear. These change the sound of the speakers only; the meters, the render and the export stay the same.</source>
+        <translation>То, что вы слышите. Это меняет звук только в колонках; индикаторы, рендер и экспорт остаются прежними.</translation>
+    </message>
+    <message>
+        <source>Dim</source>
+        <translation>Приглушить</translation>
+    </message>
+    <message>
+        <source>Lower what you hear by the dB amount below, to talk or check at a low level. Not part of the render.</source>
+        <translation>Снижает то, что вы слышите, на указанное число дБ: чтобы поговорить или проверить на тихом уровне. В рендер не входит.</translation>
+    </message>
+    <message>
+        <source> dB</source>
+        <translation> дБ</translation>
+    </message>
+    <message>
+        <source>How far Dim lowers the sound, -20 dB by default.</source>
+        <translation>Насколько Dim снижает звук, по умолчанию -20 дБ.</translation>
+    </message>
+    <message>
+        <source>Mono</source>
+        <translation>Моно</translation>
+    </message>
+    <message>
+        <source>Hear left and right added together, to check how the mix sounds on a mono speaker. Not part of the render.</source>
+        <translation>Левый и правый каналы звучат вместе, чтобы проверить микс на моно-колонке. В рендер не входит.</translation>
+    </message>
+    <message>
+        <source>Mute</source>
+        <translation>Выкл. звук</translation>
+    </message>
+    <message>
+        <source>Silence the speakers. The meters, the render and the export are not affected, and Mute is off again the next time Kinoklip starts.</source>
+        <translation>Выключает звук в колонках. Индикаторы, рендер и экспорт не меняются; при следующем запуске Kinoklip Mute снова выключен.</translation>
+    </message>
+    <message>
+        <source>Main mix</source>
+        <translation>Главный микс</translation>
+    </message>
+    <message>
+        <source>Track</source>
+        <translation>Дорожка</translation>
+    </message>
+    <message>
+        <source>Correlation %1</source>
+        <translation>Корреляция %1</translation>
+    </message>
+</context>
+<context>
     <name>kk::AudioInput</name>
     <message>
         <source>The operating system does not let Kinoklip use the microphone. Allow it in the system&apos;s privacy settings.</source>
@@ -3888,6 +3999,140 @@ The program was probably closed by the system because the computer ran out of me
     <message>
         <source>Viewer</source>
         <translation>Окно просмотра</translation>
+    </message>
+</context>
+<context>
+    <name>kk::AutomationBar</name>
+    <message>
+        <source>Automation</source>
+        <translation>Автоматизация</translation>
+    </message>
+    <message>
+        <source>What the audio tracks do with their automation curves (volume, pan, mute, sends and effect parameters)</source>
+        <translation>Что аудиодорожки делают со своими кривыми автоматизации (громкость, панорама, отключение звука, посылы и параметры эффектов)</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation>Выкл.</translation>
+    </message>
+    <message>
+        <source>Read</source>
+        <translation>Чтение</translation>
+    </message>
+    <message>
+        <source>Touch</source>
+        <translation>Касание</translation>
+    </message>
+    <message>
+        <source>Latch</source>
+        <translation>Фиксация</translation>
+    </message>
+    <message>
+        <source>Write</source>
+        <translation>Запись</translation>
+    </message>
+    <message>
+        <source>Trim</source>
+        <translation>Подстройка</translation>
+    </message>
+    <message>
+        <source>Off: the curves are ignored and the fader and knobs keep their own values</source>
+        <translation>Выкл.: кривые игнорируются, а фейдер и ручки сохраняют свои значения</translation>
+    </message>
+    <message>
+        <source>Read: the curves play; the faders and knobs follow them</source>
+        <translation>Чтение: кривые воспроизводятся, фейдеры и ручки следуют за ними</translation>
+    </message>
+    <message>
+        <source>Touch: while playing, moving a control records it; on release it returns to the existing curve</source>
+        <translation>Касание: при воспроизведении движение регулятора записывается; после отпускания он возвращается к существующей кривой</translation>
+    </message>
+    <message>
+        <source>Latch: like Touch, but after the release the last value keeps being recorded until playback stops</source>
+        <translation>Фиксация: как «Касание», но после отпускания последнее значение продолжает записываться до остановки воспроизведения</translation>
+    </message>
+    <message>
+        <source>Write: while playing, the values of the controls are recorded all the time and replace the curve</source>
+        <translation>Запись: при воспроизведении значения регуляторов записываются постоянно и заменяют кривую</translation>
+    </message>
+    <message>
+        <source>Trim: while playing, moving a control adds the change as an offset on top of the existing curve</source>
+        <translation>Подстройка: при воспроизведении изменение регулятора добавляется как смещение поверх существующей кривой</translation>
+    </message>
+    <message>
+        <source>Automation Mode</source>
+        <translation>Режим автоматизации</translation>
+    </message>
+</context>
+<context>
+    <name>kk::AutomationLaneWidget</name>
+    <message>
+        <source>Automation lane: click to add a point, drag a point to move it, drag a line up or down to move both its points, Delete removes the selected point, right-click a point to shape the line after it</source>
+        <translation>Дорожка автоматизации: щёлчок добавляет точку, перетаскивание точки перемещает её, перетаскивание линии вверх или вниз сдвигает обе её точки, Delete удаляет выбранную точку, правый щелчок по точке задаёт форму линии после неё</translation>
+    </message>
+    <message>
+        <source>What this lane shows: Volume, Pan, Mute, the level of a send or a parameter of an effect slot of the track. A dot marks parameters that already have a curve</source>
+        <translation>Что показывает эта дорожка: громкость, панораму, отключение звука, уровень посыла или параметр слота эффекта дорожки. Точка отмечает параметры, у которых уже есть кривая</translation>
+    </message>
+    <message>
+        <source>Delete Automation Point</source>
+        <translation>Удалить точку автоматизации</translation>
+    </message>
+    <message>
+        <source>Automation Curve</source>
+        <translation>Кривая автоматизации</translation>
+    </message>
+    <message>
+        <source>Clear Automation</source>
+        <translation>Очистить автоматизацию</translation>
+    </message>
+    <message>
+        <source>Add Automation Point</source>
+        <translation>Добавить точку автоматизации</translation>
+    </message>
+    <message>
+        <source>Move Automation Point</source>
+        <translation>Переместить точку автоматизации</translation>
+    </message>
+    <message>
+        <source>Move Automation Segment</source>
+        <translation>Переместить отрезок автоматизации</translation>
+    </message>
+    <message>
+        <source>Linear</source>
+        <translation>Линейная</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Плавная</translation>
+    </message>
+    <message>
+        <source>Ease In</source>
+        <translation>Плавное начало</translation>
+    </message>
+    <message>
+        <source>Ease Out</source>
+        <translation>Плавный конец</translation>
+    </message>
+    <message>
+        <source>Ease In and Out</source>
+        <translation>Плавное начало и конец</translation>
+    </message>
+    <message>
+        <source>Hold (step)</source>
+        <translation>Удержание (ступенька)</translation>
+    </message>
+    <message>
+        <source>Delete Point</source>
+        <translation>Удалить точку</translation>
+    </message>
+    <message>
+        <source>Clear Curve</source>
+        <translation>Очистить кривую</translation>
+    </message>
+    <message>
+        <source>Automation is off: the curves are ignored</source>
+        <translation>Автоматизация выключена: кривые игнорируются</translation>
     </message>
 </context>
 <context>
@@ -4109,10 +4354,6 @@ The program was probably closed by the system because the computer ran out of me
         <translation>0 — исходный звук, 100 — очищенный звук.</translation>
     </message>
     <message>
-        <source>A simple room: the sound dies away slowly</source>
-        <translation>Простая комната: звук затухает постепенно</translation>
-    </message>
-    <message>
         <source>Attack</source>
         <translation>Атака</translation>
     </message>
@@ -4189,6 +4430,14 @@ The program was probably closed by the system because the computer ran out of me
         <translation>Насколько тише становится звук ниже порога: 1 — совсем не тише, больше — тише (не сильнее, чем «Подавление»).</translation>
     </message>
     <message>
+        <source>How strongly everything that is not a voice is taken away. 0 leaves the sound as it is, 100 removes as much as possible.</source>
+        <translation>Насколько сильно убирается всё, что не является голосом. 0 оставляет звук как есть, 100 убирает как можно больше.</translation>
+    </message>
+    <message>
+        <source>Keep only the voice: takes out noise, music and room sound (Optional AI: the RNNoise model runs on this computer)</source>
+        <translation>Оставляет только голос: убирает шум, музыку и звук помещения (необязательный ИИ: модель RNNoise работает на этом компьютере)</translation>
+    </message>
+    <message>
         <source>Level of the result.</source>
         <translation>Уровень результата.</translation>
     </message>
@@ -4257,8 +4506,16 @@ The program was probably closed by the system because the computer ran out of me
         <translation>Подавление шума</translation>
     </message>
     <message>
+        <source>Off</source>
+        <translation>Выкл.</translation>
+    </message>
+    <message>
         <source>Output Gain</source>
         <translation>Выходное усиление</translation>
+    </message>
+    <message>
+        <source>Oversampling</source>
+        <translation>Передискретизация</translation>
     </message>
     <message>
         <source>RNNoise (AI, optional)</source>
@@ -4299,6 +4556,10 @@ The program was probably closed by the system because the computer ran out of me
     <message>
         <source>Room Size</source>
         <translation>Размер комнаты</translation>
+    </message>
+    <message>
+        <source>Runs the distortion at two or four times the sample rate so the harsh harmonics it makes do not fold back as inharmonic aliasing. Costs some processing and about a millisecond of delay (which is compensated).</source>
+        <translation>Выполняет искажение на удвоенной или учетверённой частоте дискретизации, чтобы резкие гармоники не отражались обратно как негармоничный алиасинг. Требует вычислений и даёт около миллисекунды задержки (она компенсируется).</translation>
     </message>
     <message>
         <source>Sensitivity</source>
@@ -4447,6 +4708,18 @@ The program was probably closed by the system because the computer ran out of me
     <message>
         <source>Bit Crush</source>
         <translation>Биткраш</translation>
+    </message>
+    <message>
+        <source>2x</source>
+        <translation>2x</translation>
+    </message>
+    <message>
+        <source>4x</source>
+        <translation>4x</translation>
+    </message>
+    <message>
+        <source>A ready-made room. Choosing one sets Pre-delay, Decay, Room Size, Damping, Early Reflections and Width to its values; change any of them and the preset becomes Custom. Mix always stays yours.</source>
+        <translation>Готовое помещение. Выбор пресета задаёт его значения для предзадержки, затухания, размера комнаты, демпфирования, ранних отражений и ширины; измените любое из них — и пресет станет «Пользовательский». Mix всегда остаётся вашим.</translation>
     </message>
     <message>
         <source>Cathedral</source>
@@ -4637,6 +4910,10 @@ The program was probably closed by the system because the computer ran out of me
         <translation>Как лампа</translation>
     </message>
     <message>
+        <source>Voice Isolation</source>
+        <translation>Изоляция голоса</translation>
+    </message>
+    <message>
         <source>Voices</source>
         <translation>Голоса</translation>
     </message>
@@ -4667,10 +4944,6 @@ The program was probably closed by the system because the computer ran out of me
     <message>
         <source>A low-pass after the distortion: 0 is dark and smooth, 100 is bright and harsh.</source>
         <translation>Фильтр низких частот после искажения: 0 — тёмно и мягко, 100 — ярко и резко.</translation>
-    </message>
-    <message>
-        <source>A ready-made room. With a preset chosen, its Pre-delay, Decay, Room Size, Damping, Early Reflections and Width are used; choose Custom to set them yourself. Mix always stays yours.</source>
-        <translation>Готовое помещение. Если выбран пресет, используются его Предзадержка, Затухание, Размер комнаты, Демпфирование, Ранние отражения и Ширина; выберите «Свой», чтобы задать их самому. Микс всегда остаётся вашим.</translation>
     </message>
     <message>
         <source>A room, plate or hall: pre-delay, a tail you set in seconds and room presets</source>
@@ -11366,6 +11639,13 @@ Thank you for watching</source>
     </message>
 </context>
 <context>
+    <name>kk::CorrelationBar</name>
+    <message>
+        <source>Phase correlation of left and right: +1 is the same sound on both sides (mono), 0 is wide stereo, -1 is out of phase (it disappears in mono).</source>
+        <translation>Фазовая корреляция левого и правого: +1 — одинаковый звук с обеих сторон (моно), 0 — широкое стерео, -1 — противофаза (в моно пропадает).</translation>
+    </message>
+</context>
+<context>
     <name>kk::CubeLut</name>
     <message>
         <source>%1 table rows, expected %2</source>
@@ -12506,10 +12786,6 @@ Thank you for watching</source>
     <message>
         <source>Reverb</source>
         <translation>Реверберация</translation>
-    </message>
-    <message>
-        <source>A simple room: the sound dies away slowly</source>
-        <translation>Простая комната: звук затухает постепенно</translation>
     </message>
     <message>
         <source>Room Size</source>
@@ -16600,6 +16876,10 @@ Thank you for watching</source>
         <translation>Размер комнаты: в больших помещениях эхо реже и ровнее.</translation>
     </message>
     <message>
+        <source>A ready-made room. Choosing one sets Pre-delay, Decay, Room Size, Damping, Early Reflections and Width to its values; change any of them and the preset becomes Custom. Mix always stays yours.</source>
+        <translation>Готовое помещение. Выбор пресета задаёт его значения для предзадержки, затухания, размера комнаты, демпфирования, ранних отражений и ширины; измените любое из них — и пресет станет «Пользовательский». Mix всегда остаётся вашим.</translation>
+    </message>
+    <message>
         <source>Cuts the high frequencies of the tail, like soft walls and curtains do. 0 is bright, 100 is dark.</source>
         <translation>Срезает высокие частоты хвоста, как мягкие стены и шторы. 0 — ярко, 100 — глухо.</translation>
     </message>
@@ -16740,6 +17020,22 @@ Thank you for watching</source>
         <translation>Мягкое ограничение скругляет пики, жёсткое срезает их, «Биткраш» снижает разрядность, «Как лампа» добавляет тёплые чётные гармоники.</translation>
     </message>
     <message>
+        <source>Oversampling</source>
+        <translation>Передискретизация</translation>
+    </message>
+    <message>
+        <source>2x</source>
+        <translation>2x</translation>
+    </message>
+    <message>
+        <source>4x</source>
+        <translation>4x</translation>
+    </message>
+    <message>
+        <source>Runs the distortion at two or four times the sample rate so the harsh harmonics it makes do not fold back as inharmonic aliasing. Costs some processing and about a millisecond of delay (which is compensated).</source>
+        <translation>Выполняет искажение на удвоенной или учетверённой частоте дискретизации, чтобы резкие гармоники не отражались обратно как негармоничный алиасинг. Требует вычислений и даёт около миллисекунды задержки (она компенсируется).</translation>
+    </message>
+    <message>
         <source>Level of the distorted sound. Distortion is loud: lower this as you raise the Drive.</source>
         <translation>Уровень искажённого звука. Дисторшн громкий: уменьшайте этот параметр по мере роста драйва.</translation>
     </message>
@@ -16766,6 +17062,18 @@ Thank you for watching</source>
     <message>
         <source>Makes the sound below this frequency mono, so the bass stays solid when the sound is widened. 0 is off.</source>
         <translation>Делает звук ниже этой частоты моно, чтобы бас оставался плотным при расширении звука. 0 — выключено.</translation>
+    </message>
+    <message>
+        <source>Voice Isolation</source>
+        <translation>Изоляция голоса</translation>
+    </message>
+    <message>
+        <source>Keep only the voice: takes out noise, music and room sound (Optional AI: the RNNoise model runs on this computer)</source>
+        <translation>Оставляет только голос: убирает шум, музыку и звук помещения (необязательный ИИ: модель RNNoise работает на этом компьютере)</translation>
+    </message>
+    <message>
+        <source>How strongly everything that is not a voice is taken away. 0 leaves the sound as it is, 100 removes as much as possible.</source>
+        <translation>Насколько сильно убирается всё, что не является голосом. 0 оставляет звук как есть, 100 убирает как можно больше.</translation>
     </message>
     <message>
         <source>A room, plate or hall: pre-delay, a tail you set in seconds and room presets</source>
@@ -16798,10 +17106,6 @@ Thank you for watching</source>
     <message>
         <source>Cathedral</source>
         <translation>Собор</translation>
-    </message>
-    <message>
-        <source>A ready-made room. With a preset chosen, its Pre-delay, Decay, Room Size, Damping, Early Reflections and Width are used; choose Custom to set them yourself. Mix always stays yours.</source>
-        <translation>Готовое помещение. Если выбран пресет, используются его Предзадержка, Затухание, Размер комнаты, Демпфирование, Ранние отражения и Ширина; выберите «Свой», чтобы задать их самому. Микс всегда остаётся вашим.</translation>
     </message>
     <message>
         <source>Pre-delay</source>
@@ -16922,6 +17226,37 @@ Standard transition of this project</source>
     <message>
         <source>Drag a band to change its frequency and gain (Shift: fine). The wheel or Alt-drag changes its Q, double-click resets the band, arrow keys move it.</source>
         <translation>Перетащите полосу для изменения её частоты и усиления (Shift: точно). Колесико или Alt+перетаскивание меняет её добротность Q, двойной щелчок сбрасывает полосу, клавиши со стрелками перемещают её.</translation>
+    </message>
+</context>
+<context>
+    <name>kk::EqPresets</name>
+    <message>
+        <source>Flat</source>
+        <translation>Плоский</translation>
+    </message>
+    <message>
+        <source>Voice</source>
+        <translation>Голос</translation>
+    </message>
+    <message>
+        <source>Music</source>
+        <translation>Музыка</translation>
+    </message>
+    <message>
+        <source>Telephone</source>
+        <translation>Телефон</translation>
+    </message>
+    <message>
+        <source>Rumble Cut</source>
+        <translation>Срез гула</translation>
+    </message>
+    <message>
+        <source>De-Mud</source>
+        <translation>Убрать муть</translation>
+    </message>
+    <message>
+        <source>Podcast Voice</source>
+        <translation>Голос для подкаста</translation>
     </message>
 </context>
 <context>
@@ -17598,6 +17933,13 @@ Standard transition of this project</source>
     <message>
         <source>… and %1 more</source>
         <translation>… и ещё %1</translation>
+    </message>
+</context>
+<context>
+    <name>kk::GoniometerView</name>
+    <message>
+        <source>Stereo picture: mono sound is a vertical line, left only or right only a diagonal, out of phase a horizontal line.</source>
+        <translation>Стереокартина: моно-звук — вертикальная линия, только левый или только правый — диагональ, противофаза — горизонтальная линия.</translation>
     </message>
 </context>
 <context>
@@ -18640,6 +18982,38 @@ Drag one from the Effects library onto the clip, or add one here.</source>
         <source> Manual Learn works like Auto Speech&apos;s spectral gate until you press Learn.</source>
         <translation> «Ручное обучение» работает как спектральный гейт режима «Авто (речь)», пока вы не нажмёте «Обучить».</translation>
     </message>
+    <message>
+        <source>Voice Isolation</source>
+        <translation>Изоляция голоса</translation>
+    </message>
+    <message>
+        <source>Voice Isolation (Optional AI)</source>
+        <translation>Изоляция голоса (необязательный ИИ)</translation>
+    </message>
+    <message>
+        <source>Keep the voice of this clip and take out noise, music and room sound. Optional AI: the RNNoise model is built into Kinoklip and runs on this computer; nothing is downloaded or uploaded.</source>
+        <translation>Оставляет голос этого клипа и убирает шум, музыку и звук помещения. Необязательный ИИ: модель RNNoise встроена в Kinoklip и работает на этом компьютере; ничего не скачивается и не отправляется.</translation>
+    </message>
+    <message>
+        <source>Amount: how strongly everything that is not a voice is taken away. 0 leaves the sound as it is, 100 removes as much as possible.</source>
+        <translation>Количество: насколько сильно убирается всё, что не является голосом. 0 оставляет звук как есть, 100 убирает как можно больше.</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Количество</translation>
+    </message>
+    <message>
+        <source>Voice Isolation On</source>
+        <translation>Изоляция голоса включена</translation>
+    </message>
+    <message>
+        <source>Voice Isolation Off</source>
+        <translation>Изоляция голоса выключена</translation>
+    </message>
+    <message>
+        <source>Voice Isolation Amount</source>
+        <translation>Количество изоляции голоса</translation>
+    </message>
 </context>
 <context>
     <name>kk::InterfaceBar</name>
@@ -19564,14 +19938,17 @@ You can also double-click the header, or drag the header out of the panel.</sour
     </message>
 </context>
 <context>
+    <name>kk::LoudnessHistoryGraph</name>
+    <message>
+        <source>Short-term loudness over the last minutes; the dashed line is the target</source>
+        <translation>Кратковременная громкость за последние минуты; штриховая линия — цель</translation>
+    </message>
+</context>
+<context>
     <name>kk::LoudnessPanel</name>
     <message>
         <source>Meters</source>
         <translation>Индикаторы</translation>
-    </message>
-    <message>
-        <source>Output and bus meters, and the loudness of the output bus (momentary, short-term, integrated, true peak).</source>
-        <translation>Индикаторы выхода и шин, а также громкость выходной шины (мгновенная, кратковременная, интегральная, истинный пик).</translation>
     </message>
     <message>
         <source>Output</source>
@@ -22662,6 +23039,34 @@ Import files with %1 or drop them here.</source>
         <translation>Динамика (компрессор, лимитер): светится, когда включена; нажмите для редактирования</translation>
     </message>
     <message>
+        <source>Voice Isolation</source>
+        <translation>Изоляция голоса</translation>
+    </message>
+    <message>
+        <source>Voice Isolation (Optional AI): keeps the voice of this track and takes out noise, music and room sound. Runs on this computer with the built-in RNNoise model; nothing is downloaded. Right-click to set the Amount.</source>
+        <translation>Изоляция голоса (необязательный ИИ): оставляет голос этой дорожки и убирает шум, музыку и звук помещения. Работает на этом компьютере со встроенной моделью RNNoise; ничего не скачивается. Правый щелчок — задать количество.</translation>
+    </message>
+    <message>
+        <source>Voice Isolation On</source>
+        <translation>Изоляция голоса включена</translation>
+    </message>
+    <message>
+        <source>Voice Isolation Off</source>
+        <translation>Изоляция голоса выключена</translation>
+    </message>
+    <message>
+        <source>Amount: how strongly everything that is not a voice is taken away. 0 leaves the sound as it is.</source>
+        <translation>Количество: насколько сильно убирается всё, что не является голосом. 0 оставляет звук как есть.</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Количество</translation>
+    </message>
+    <message>
+        <source>Voice Isolation Amount</source>
+        <translation>Количество изоляции голоса</translation>
+    </message>
+    <message>
         <source>+ FX</source>
         <translation>+ FX</translation>
     </message>
@@ -22684,10 +23089,6 @@ Import files with %1 or drop them here.</source>
     <message>
         <source>Set Output Bus</source>
         <translation>Назначить выходной шиной</translation>
-    </message>
-    <message>
-        <source>Automation mode of the fader and pan</source>
-        <translation>Режим автоматизации фейдера и панорамы</translation>
     </message>
     <message>
         <source>Automation Mode</source>
@@ -22728,10 +23129,6 @@ Import files with %1 or drop them here.</source>
     <message>
         <source>Sum</source>
         <translation>Сумма</translation>
-    </message>
-    <message>
-        <source>Input: the tracks routed to this bus</source>
-        <translation>Вход: дорожки, направленные на эту шину</translation>
     </message>
     <message>
         <source>Mono</source>
@@ -26046,6 +26443,85 @@ Import files with %1 or drop them here.</source>
     </message>
 </context>
 <context>
+    <name>kk::NormalizeMixDialog</name>
+    <message>
+        <source>Normalize Audio Levels</source>
+        <translation>Нормализовать уровни звука</translation>
+    </message>
+    <message>
+        <source>ITU-R BS.1770-4 (loudness)</source>
+        <translation>ITU-R BS.1770-4 (громкость)</translation>
+    </message>
+    <message>
+        <source>True Peak</source>
+        <translation>Истинный пик</translation>
+    </message>
+    <message>
+        <source>Sample Peak Program</source>
+        <translation>Пик по отсчётам</translation>
+    </message>
+    <message>
+        <source>What the target measures: the integrated loudness of the whole mix, its highest true peak, or its highest sample</source>
+        <translation>Что измеряет цель: интегральную громкость всего микса, его наибольший истинный пик или наибольший отсчёт</translation>
+    </message>
+    <message>
+        <source>Loudness standard: choosing one sets the target; Custom keeps your own number</source>
+        <translation>Стандарт громкости: его выбор задаёт цель; «Свой» сохраняет ваше число</translation>
+    </message>
+    <message>
+        <source>The level the mix should reach</source>
+        <translation>Уровень, которого должен достичь микс</translation>
+    </message>
+    <message>
+        <source>Normalization Mode</source>
+        <translation>Режим нормализации</translation>
+    </message>
+    <message>
+        <source>Standard</source>
+        <translation>Стандарт</translation>
+    </message>
+    <message>
+        <source>Target Level</source>
+        <translation>Целевой уровень</translation>
+    </message>
+    <message>
+        <source>Main mix</source>
+        <translation>Главный микс</translation>
+    </message>
+    <message>
+        <source>%1: the whole mix of the In / Out range, or of the timeline.</source>
+        <translation>%1: весь микс диапазона вход / выход или всей таймлайна.</translation>
+    </message>
+    <message>
+        <source>The fader of this channel is moved by one gain; one undo step</source>
+        <translation>Фейдер этого канала сдвигается на одно значение усиления; один шаг отмены</translation>
+    </message>
+    <message>
+        <source>Normalize</source>
+        <translation>Нормализовать</translation>
+    </message>
+    <message>
+        <source>Measuring…</source>
+        <translation>Измерение…</translation>
+    </message>
+    <message>
+        <source>Nothing to normalize: there is no sound in this range.</source>
+        <translation>Нормализовать нечего: в этом диапазоне нет звука.</translation>
+    </message>
+    <message>
+        <source> dBFS</source>
+        <translation> dBFS</translation>
+    </message>
+    <message>
+        <source> dBTP</source>
+        <translation> dBTP</translation>
+    </message>
+    <message>
+        <source> LUFS</source>
+        <translation> LUFS</translation>
+    </message>
+</context>
+<context>
     <name>kk::NumberRow</name>
     <message>
         <source>Drag to change (Shift: fine, Ctrl: coarse), double-click to type</source>
@@ -29209,6 +29685,101 @@ The timelines that use the project settings are converted: clips, markers and ef
     </message>
 </context>
 <context>
+    <name>kk::SendsWindow</name>
+    <message>
+        <source>No sends yet. Choose a bus below and press Add.</source>
+        <translation>Посылов пока нет. Выберите шину ниже и нажмите «Добавить».</translation>
+    </message>
+    <message>
+        <source>A send copies this channel&apos;s signal into another bus</source>
+        <translation>Посыл копирует сигнал этого канала в другую шину</translation>
+    </message>
+    <message>
+        <source>Buses this channel can send to; a bus that would make a loop is not listed</source>
+        <translation>Шины, на которые можно отправить этот канал; шина, создающая петлю, не показывается</translation>
+    </message>
+    <message>
+        <source>Add Send</source>
+        <translation>Добавить посыл</translation>
+    </message>
+    <message>
+        <source>Add a send to the chosen bus</source>
+        <translation>Добавить посыл на выбранную шину</translation>
+    </message>
+    <message>
+        <source>Switch this send on or off</source>
+        <translation>Включить или выключить этот посыл</translation>
+    </message>
+    <message>
+        <source> dB</source>
+        <translation> dB</translation>
+    </message>
+    <message>
+        <source>Send level in dB</source>
+        <translation>Уровень посыла в дБ</translation>
+    </message>
+    <message>
+        <source>Post</source>
+        <translation>Post</translation>
+    </message>
+    <message>
+        <source>Pre</source>
+        <translation>Pre</translation>
+    </message>
+    <message>
+        <source>Post: the signal after the fader and pan. Pre: the signal before them, so the fader does not change the send</source>
+        <translation>Post: сигнал после фейдера и панорамы. Pre: сигнал до них, поэтому фейдер не меняет посыл</translation>
+    </message>
+    <message>
+        <source> %</source>
+        <translation> %</translation>
+    </message>
+    <message>
+        <source>Send pan: -100 % left, 0 centre, +100 % right</source>
+        <translation>Панорама посыла: -100 % влево, 0 центр, +100 % вправо</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>Удалить</translation>
+    </message>
+    <message>
+        <source>Remove this send</source>
+        <translation>Удалить этот посыл</translation>
+    </message>
+    <message>
+        <source>Enable Send</source>
+        <translation>Включить посыл</translation>
+    </message>
+    <message>
+        <source>Disable Send</source>
+        <translation>Выключить посыл</translation>
+    </message>
+    <message>
+        <source>Send Level</source>
+        <translation>Уровень посыла</translation>
+    </message>
+    <message>
+        <source>Send Pre Fader</source>
+        <translation>Посыл до фейдера</translation>
+    </message>
+    <message>
+        <source>Send Post Fader</source>
+        <translation>Посыл после фейдера</translation>
+    </message>
+    <message>
+        <source>Send Pan</source>
+        <translation>Панорама посыла</translation>
+    </message>
+    <message>
+        <source>Remove Send</source>
+        <translation>Удалить посыл</translation>
+    </message>
+    <message>
+        <source>Sends - %1</source>
+        <translation>Посылы - %1</translation>
+    </message>
+</context>
+<context>
     <name>kk::SettingsTransferDialog</name>
     <message>
         <source>Kinoklip settings (*.%1)</source>
@@ -29459,6 +30030,13 @@ Restart Kinoklip to apply them.</source>
     <message>
         <source>Source tape: the clips of the bin, back to back. Click to jump.</source>
         <translation>Исходная лента: клипы из папки, один за другим. Нажмите, чтобы перейти.</translation>
+    </message>
+</context>
+<context>
+    <name>kk::SpectrumView</name>
+    <message>
+        <source>Spectrum: low to high frequency from left to right (20 Hz to 20 kHz), level from -90 to 0 dB. The thin line is the peak hold.</source>
+        <translation>Спектр: частоты от низких к высоким слева направо (20 Гц – 20 кГц), уровень от -90 до 0 дБ. Тонкая линия — удержание пиков.</translation>
     </message>
 </context>
 <context>
@@ -34677,6 +35255,41 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
     </message>
 </context>
 <context>
+    <name>kk::loudness</name>
+    <message>
+        <source>EBU R128 (-23 LUFS)</source>
+        <translation>EBU R128 (-23 LUFS)</translation>
+    </message>
+    <message>
+        <source>ATSC A/85 (-24 LKFS)</source>
+        <translation>ATSC A/85 (-24 LKFS)</translation>
+    </message>
+    <message>
+        <source>YouTube / streaming (-14 LUFS)</source>
+        <translation>YouTube / стриминг (-14 LUFS)</translation>
+    </message>
+    <message>
+        <source>Podcast (-16 LUFS)</source>
+        <translation>Подкаст (-16 LUFS)</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>Свой</translation>
+    </message>
+    <message>
+        <source>On target</source>
+        <translation>В цели</translation>
+    </message>
+    <message>
+        <source>Over by %1 LU</source>
+        <translation>Выше на %1 LU</translation>
+    </message>
+    <message>
+        <source>Under by %1 LU</source>
+        <translation>Ниже на %1 LU</translation>
+    </message>
+</context>
+<context>
     <name>kk::matting</name>
     <message>
         <source>The model could not be loaded: %1</source>
@@ -35453,387 +36066,6 @@ Clips, markers and effects stay at the same time and the keyframes are re-timed.
     <message>
         <source>Text</source>
         <translation>Текст</translation>
-    </message>
-</context>
-<context>
-    <name>kk::LoudnessHistoryGraph</name>
-    <message>
-        <source>Short-term loudness over the last minutes; the dashed line is the target</source>
-        <translation>Кратковременная громкость за последние минуты; штриховая линия — цель</translation>
-    </message>
-</context>
-<context>
-    <name>kk::loudness</name>
-    <message>
-        <source>EBU R128 (-23 LUFS)</source>
-        <translation>EBU R128 (-23 LUFS)</translation>
-    </message>
-    <message>
-        <source>ATSC A/85 (-24 LKFS)</source>
-        <translation>ATSC A/85 (-24 LKFS)</translation>
-    </message>
-    <message>
-        <source>YouTube / streaming (-14 LUFS)</source>
-        <translation>YouTube / стриминг (-14 LUFS)</translation>
-    </message>
-    <message>
-        <source>Podcast (-16 LUFS)</source>
-        <translation>Подкаст (-16 LUFS)</translation>
-    </message>
-    <message>
-        <source>Custom</source>
-        <translation>Свой</translation>
-    </message>
-    <message>
-        <source>On target</source>
-        <translation>В цели</translation>
-    </message>
-    <message>
-        <source>Over by %1 LU</source>
-        <translation>Выше на %1 LU</translation>
-    </message>
-    <message>
-        <source>Under by %1 LU</source>
-        <translation>Ниже на %1 LU</translation>
-    </message>
-</context>
-<context>
-    <name>kk::NormalizeMixDialog</name>
-    <message>
-        <source>Normalize Audio Levels</source>
-        <translation>Нормализовать уровни звука</translation>
-    </message>
-    <message>
-        <source>ITU-R BS.1770-4 (loudness)</source>
-        <translation>ITU-R BS.1770-4 (громкость)</translation>
-    </message>
-    <message>
-        <source>True Peak</source>
-        <translation>Истинный пик</translation>
-    </message>
-    <message>
-        <source>Sample Peak Program</source>
-        <translation>Пик по отсчётам</translation>
-    </message>
-    <message>
-        <source>What the target measures: the integrated loudness of the whole mix, its highest true peak, or its highest sample</source>
-        <translation>Что измеряет цель: интегральную громкость всего микса, его наибольший истинный пик или наибольший отсчёт</translation>
-    </message>
-    <message>
-        <source>Loudness standard: choosing one sets the target; Custom keeps your own number</source>
-        <translation>Стандарт громкости: его выбор задаёт цель; «Свой» сохраняет ваше число</translation>
-    </message>
-    <message>
-        <source>The level the mix should reach</source>
-        <translation>Уровень, которого должен достичь микс</translation>
-    </message>
-    <message>
-        <source>Normalization Mode</source>
-        <translation>Режим нормализации</translation>
-    </message>
-    <message>
-        <source>Standard</source>
-        <translation>Стандарт</translation>
-    </message>
-    <message>
-        <source>Target Level</source>
-        <translation>Целевой уровень</translation>
-    </message>
-    <message>
-        <source>Main mix</source>
-        <translation>Главный микс</translation>
-    </message>
-    <message>
-        <source>%1: the whole mix of the In / Out range, or of the timeline.</source>
-        <translation>%1: весь микс диапазона вход / выход или всей таймлайна.</translation>
-    </message>
-    <message>
-        <source>The fader of this channel is moved by one gain; one undo step</source>
-        <translation>Фейдер этого канала сдвигается на одно значение усиления; один шаг отмены</translation>
-    </message>
-    <message>
-        <source>Normalize</source>
-        <translation>Нормализовать</translation>
-    </message>
-    <message>
-        <source>Measuring…</source>
-        <translation>Измерение…</translation>
-    </message>
-    <message>
-        <source>Nothing to normalize: there is no sound in this range.</source>
-        <translation>Нормализовать нечего: в этом диапазоне нет звука.</translation>
-    </message>
-    <message>
-        <source> dBFS</source>
-        <translation> dBFS</translation>
-    </message>
-    <message>
-        <source> dBTP</source>
-        <translation> dBTP</translation>
-    </message>
-    <message>
-        <source> LUFS</source>
-        <translation> LUFS</translation>
-    </message>
-</context>
-<context>
-    <name>kk::EqPresets</name>
-    <message>
-        <source>Flat</source>
-        <translation>Плоский</translation>
-    </message>
-    <message>
-        <source>Voice</source>
-        <translation>Голос</translation>
-    </message>
-    <message>
-        <source>Music</source>
-        <translation>Музыка</translation>
-    </message>
-    <message>
-        <source>Telephone</source>
-        <translation>Телефон</translation>
-    </message>
-    <message>
-        <source>Rumble Cut</source>
-        <translation>Срез гула</translation>
-    </message>
-    <message>
-        <source>De-Mud</source>
-        <translation>Убрать муть</translation>
-    </message>
-    <message>
-        <source>Podcast Voice</source>
-        <translation>Голос для подкаста</translation>
-    </message>
-</context>
-<context>
-    <name>kk::SendsWindow</name>
-    <message>
-        <source>No sends yet. Choose a bus below and press Add.</source>
-        <translation>Посылов пока нет. Выберите шину ниже и нажмите «Добавить».</translation>
-    </message>
-    <message>
-        <source>A send copies this channel&apos;s signal into another bus</source>
-        <translation>Посыл копирует сигнал этого канала в другую шину</translation>
-    </message>
-    <message>
-        <source>Buses this channel can send to; a bus that would make a loop is not listed</source>
-        <translation>Шины, на которые можно отправить этот канал; шина, создающая петлю, не показывается</translation>
-    </message>
-    <message>
-        <source>Add Send</source>
-        <translation>Добавить посыл</translation>
-    </message>
-    <message>
-        <source>Add a send to the chosen bus</source>
-        <translation>Добавить посыл на выбранную шину</translation>
-    </message>
-    <message>
-        <source>Switch this send on or off</source>
-        <translation>Включить или выключить этот посыл</translation>
-    </message>
-    <message>
-        <source> dB</source>
-        <translation> dB</translation>
-    </message>
-    <message>
-        <source>Send level in dB</source>
-        <translation>Уровень посыла в дБ</translation>
-    </message>
-    <message>
-        <source>Post</source>
-        <translation>Post</translation>
-    </message>
-    <message>
-        <source>Pre</source>
-        <translation>Pre</translation>
-    </message>
-    <message>
-        <source>Post: the signal after the fader and pan. Pre: the signal before them, so the fader does not change the send</source>
-        <translation>Post: сигнал после фейдера и панорамы. Pre: сигнал до них, поэтому фейдер не меняет посыл</translation>
-    </message>
-    <message>
-        <source> %</source>
-        <translation> %</translation>
-    </message>
-    <message>
-        <source>Send pan: -100 % left, 0 centre, +100 % right</source>
-        <translation>Панорама посыла: -100 % влево, 0 центр, +100 % вправо</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Удалить</translation>
-    </message>
-    <message>
-        <source>Remove this send</source>
-        <translation>Удалить этот посыл</translation>
-    </message>
-    <message>
-        <source>Enable Send</source>
-        <translation>Включить посыл</translation>
-    </message>
-    <message>
-        <source>Disable Send</source>
-        <translation>Выключить посыл</translation>
-    </message>
-    <message>
-        <source>Send Level</source>
-        <translation>Уровень посыла</translation>
-    </message>
-    <message>
-        <source>Send Pre Fader</source>
-        <translation>Посыл до фейдера</translation>
-    </message>
-    <message>
-        <source>Send Post Fader</source>
-        <translation>Посыл после фейдера</translation>
-    </message>
-    <message>
-        <source>Send Pan</source>
-        <translation>Панорама посыла</translation>
-    </message>
-    <message>
-        <source>Remove Send</source>
-        <translation>Удалить посыл</translation>
-    </message>
-    <message>
-        <source>Sends - %1</source>
-        <translation>Посылы - %1</translation>
-    </message>
-</context>
-<context>
-    <name>kk::AutomationBar</name>
-    <message>
-        <source>Automation</source>
-        <translation>Автоматизация</translation>
-    </message>
-    <message>
-        <source>What the audio tracks do with their automation curves (volume, pan, mute, sends and effect parameters)</source>
-        <translation>Что аудиодорожки делают со своими кривыми автоматизации (громкость, панорама, отключение звука, посылы и параметры эффектов)</translation>
-    </message>
-    <message>
-        <source>Off</source>
-        <translation>Выкл.</translation>
-    </message>
-    <message>
-        <source>Read</source>
-        <translation>Чтение</translation>
-    </message>
-    <message>
-        <source>Touch</source>
-        <translation>Касание</translation>
-    </message>
-    <message>
-        <source>Latch</source>
-        <translation>Фиксация</translation>
-    </message>
-    <message>
-        <source>Write</source>
-        <translation>Запись</translation>
-    </message>
-    <message>
-        <source>Trim</source>
-        <translation>Подстройка</translation>
-    </message>
-    <message>
-        <source>Off: the curves are ignored and the fader and knobs keep their own values</source>
-        <translation>Выкл.: кривые игнорируются, а фейдер и ручки сохраняют свои значения</translation>
-    </message>
-    <message>
-        <source>Read: the curves play; the faders and knobs follow them</source>
-        <translation>Чтение: кривые воспроизводятся, фейдеры и ручки следуют за ними</translation>
-    </message>
-    <message>
-        <source>Touch: while playing, moving a control records it; on release it returns to the existing curve</source>
-        <translation>Касание: при воспроизведении движение регулятора записывается; после отпускания он возвращается к существующей кривой</translation>
-    </message>
-    <message>
-        <source>Latch: like Touch, but after the release the last value keeps being recorded until playback stops</source>
-        <translation>Фиксация: как «Касание», но после отпускания последнее значение продолжает записываться до остановки воспроизведения</translation>
-    </message>
-    <message>
-        <source>Write: while playing, the values of the controls are recorded all the time and replace the curve</source>
-        <translation>Запись: при воспроизведении значения регуляторов записываются постоянно и заменяют кривую</translation>
-    </message>
-    <message>
-        <source>Trim: while playing, moving a control adds the change as an offset on top of the existing curve</source>
-        <translation>Подстройка: при воспроизведении изменение регулятора добавляется как смещение поверх существующей кривой</translation>
-    </message>
-    <message>
-        <source>Automation Mode</source>
-        <translation>Режим автоматизации</translation>
-    </message>
-</context>
-<context>
-    <name>kk::AutomationLaneWidget</name>
-    <message>
-        <source>Automation lane: click to add a point, drag a point to move it, drag a line up or down to move both its points, Delete removes the selected point, right-click a point to shape the line after it</source>
-        <translation>Дорожка автоматизации: щёлчок добавляет точку, перетаскивание точки перемещает её, перетаскивание линии вверх или вниз сдвигает обе её точки, Delete удаляет выбранную точку, правый щелчок по точке задаёт форму линии после неё</translation>
-    </message>
-    <message>
-        <source>What this lane shows: Volume, Pan, Mute, the level of a send or a parameter of an effect slot of the track. A dot marks parameters that already have a curve</source>
-        <translation>Что показывает эта дорожка: громкость, панораму, отключение звука, уровень посыла или параметр слота эффекта дорожки. Точка отмечает параметры, у которых уже есть кривая</translation>
-    </message>
-    <message>
-        <source>Delete Automation Point</source>
-        <translation>Удалить точку автоматизации</translation>
-    </message>
-    <message>
-        <source>Automation Curve</source>
-        <translation>Кривая автоматизации</translation>
-    </message>
-    <message>
-        <source>Clear Automation</source>
-        <translation>Очистить автоматизацию</translation>
-    </message>
-    <message>
-        <source>Add Automation Point</source>
-        <translation>Добавить точку автоматизации</translation>
-    </message>
-    <message>
-        <source>Move Automation Point</source>
-        <translation>Переместить точку автоматизации</translation>
-    </message>
-    <message>
-        <source>Move Automation Segment</source>
-        <translation>Переместить отрезок автоматизации</translation>
-    </message>
-    <message>
-        <source>Linear</source>
-        <translation>Линейная</translation>
-    </message>
-    <message>
-        <source>Smooth</source>
-        <translation>Плавная</translation>
-    </message>
-    <message>
-        <source>Ease In</source>
-        <translation>Плавное начало</translation>
-    </message>
-    <message>
-        <source>Ease Out</source>
-        <translation>Плавный конец</translation>
-    </message>
-    <message>
-        <source>Ease In and Out</source>
-        <translation>Плавное начало и конец</translation>
-    </message>
-    <message>
-        <source>Hold (step)</source>
-        <translation>Удержание (ступенька)</translation>
-    </message>
-    <message>
-        <source>Delete Point</source>
-        <translation>Удалить точку</translation>
-    </message>
-    <message>
-        <source>Clear Curve</source>
-        <translation>Очистить кривую</translation>
-    </message>
-    <message>
-        <source>Automation is off: the curves are ignored</source>
-        <translation>Автоматизация выключена: кривые игнорируются</translation>
     </message>
 </context>
 </TS>

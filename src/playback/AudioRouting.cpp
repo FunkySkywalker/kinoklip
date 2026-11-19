@@ -94,6 +94,8 @@ void RingPuller::pull(char* data, size_t frames)
         std::fill(out + got * kChannels, out + frames * kChannels, 0.0f);
         m_skipDebt += int64_t(frames - got);
     }
+    if (m_monitor)
+        m_monitorProcessor.process(*m_monitor, out, int(frames));
     if (m_int16) {
         auto* dst = reinterpret_cast<int16_t*>(data);
         for (size_t i = 0; i < frames * kChannels; ++i) {

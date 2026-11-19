@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // MixerOps — bus, routing, strip and automation edits.
 #include "core/MixerOps.h"
+#include "core/VoiceIsolation.h"
 
 #include "core/EffectRegistry.h"
 
@@ -851,6 +852,24 @@ quint64 addTrackEffect(TimelineData& data, quint64 trackId, const QString& type,
                              : std::min(index, int(t->mix.effects.size()));
     t->mix.effects.insert(at, fx);
     return id;
+}
+
+bool setTrackVoiceIsolation(TimelineData& data, quint64 trackId, bool on)
+{
+    TrackData* t = audioTrack(data, trackId);
+    if (!t)
+        return false;
+    const bool exists = voiceisolation::find(t->mix.effects) != nullptr;
+    return voiceisolation::setOn(t->mix.effects, on, exists || !on ? 0 : data.allocateId());
+}
+
+bool setTrackVoiceIsolationAmount(TimelineData& data, quint64 trackId, double percent)
+{
+    TrackData* t = audioTrack(data, trackId);
+    if (!t)
+        return false;
+    const bool exists = voiceisolation::find(t->mix.effects) != nullptr;
+    return voiceisolation::setAmount(t->mix.effects, percent, exists ? 0 : data.allocateId());
 }
 
 bool removeTrackEffect(TimelineData& data, quint64 trackId, quint64 effectId)

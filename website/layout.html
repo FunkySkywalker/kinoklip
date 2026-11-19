@@ -5,14 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{{title}}</title>
 <meta name="description" content="{{description}}">
-<meta name="theme-color" content="#1b1e20">
-<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#f2f1ec" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141618" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
 <link rel="icon" type="image/png" href="{{root}}static/kinoklip-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@500&amp;family=Noto+Sans:wght@400;600;700&amp;family=Pixelify+Sans:wght@500;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;family=Pixelify+Sans:wght@600;700&amp;display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{root}}css/site.css">
-<script>document.documentElement.className += ' js';</script>
+<script>(function(d){d.className+=' js';try{var t=localStorage.getItem('kk-theme');if(t==='light'||t==='dark')d.setAttribute('data-theme',t);}catch(e){}})(document.documentElement);</script>
 </head>
 <body>
 {{header}}

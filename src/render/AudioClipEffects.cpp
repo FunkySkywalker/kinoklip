@@ -412,6 +412,23 @@ private:
     QString m_profileText;
 };
 
+// ---- Voice Isolation (render/NoiseReduction.h, Isolator) ----
+
+class VoiceIsolationEffect final : public ClipEffect
+{
+public:
+    void configure(const ParamSet& p) override
+    {
+        m_isolator.configure(param(p, afxkeys::DeAmount, 100, 0, 100));
+    }
+    void reset() override { m_isolator.reset(); }
+    void process(float* io, int frames) override { m_isolator.process(io, frames); }
+    int latencyFrames() const override { return m_isolator.latencyFrames(); }
+
+private:
+    noise::Isolator m_isolator;
+};
+
 // ---- De-Esser and Dialogue Leveler (render/DeEsser.h) ----
 
 class DeEsserEffect final : public ClipEffect
@@ -488,6 +505,8 @@ std::unique_ptr<ClipEffect> create(const QString& type)
         return std::make_unique<ReverbEffect>();
     if (type == QLatin1String(NoiseReduction))
         return std::make_unique<NoiseReductionEffect>();
+    if (type == QLatin1String(afxid::VoiceIsolation))
+        return std::make_unique<VoiceIsolationEffect>();
     if (type == QLatin1String(DeEsserFx))
         return std::make_unique<DeEsserEffect>();
     if (type == QLatin1String(LevelerFx))
@@ -505,25 +524,6 @@ std::unique_ptr<ClipEffect> create(const QString& type)
 
 } // namespace
 
-ClipEffectChain::ClipEffectChain() = default;
-ClipEffectChain::~ClipEffectChain() = default;
-
-bool ClipEffectChain::hasActive(const QVector<EffectInstance>& effects)
-{
-    return std::any_of(effects.begin(), effects.end(), [](const EffectInstance& fx) {
-        return fx.enabled && fx.type.startsWith(QLatin1String("audio_"));
-    });
-}
-
-void ClipEffectChain::reset()
-{
-    for (Slot& s : m_slots) {
-        if (s.effect)
-            s.effect->reset();
-    }
-}
-
-void ClipEffectChain::prepare(const QVector<EffectInstance>& effects)
 namespace {
 
 constexpr int kMaxTailFrames = 30 * int(kRate); ///< no effect keeps a clip sounding longer
@@ -587,6 +587,25 @@ int ClipEffectChain::tailFrames(const QVector<EffectInstance>& effects)
     return int(std::min<double>(total, kMaxTailFrames));
 }
 
+ClipEffectChain::ClipEffectChain() = default;
+ClipEffectChain::~ClipEffectChain() = default;
+
+bool ClipEffectChain::hasActive(const QVector<EffectInstance>& effects)
+{
+    return std::any_of(effects.begin(), effects.end(), [](const EffectInstance& fx) {
+        return fx.enabled && fx.type.startsWith(QLatin1String("audio_"));
+    });
+}
+
+void ClipEffectChain::reset()
+{
+    for (Slot& s : m_slots) {
+        if (s.effect)
+            s.effect->reset();
+    }
+}
+
+void ClipEffectChain::prepare(const QVector<EffectInstance>& effects)
 {
     // Drop the processors of removed effects (or whose type changed).
     std::erase_if(m_slots, [&](const Slot& s) {

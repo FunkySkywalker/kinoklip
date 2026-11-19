@@ -8,6 +8,7 @@
 #include "core/Timeline.h"
 #include "playback/PlaybackEngine.h"
 #include "ui/audio/AutomationBar.h"
+#include "ui/audio/AnalyzerPanel.h"
 #include "ui/audio/LoudnessPanel.h"
 #include "ui/audio/MeterModel.h"
 #include "ui/audio/MixerController.h"
@@ -35,11 +36,12 @@ namespace {
 
 // Default sizes for a 1920x1080 window (splitters scale them).
 constexpr int kViewerWidth = 420;
-constexpr int kMetersWidth = 1500;
+constexpr int kMetersWidth = 1000;
 constexpr int kTopRowHeight = 250;
 constexpr int kBottomRowHeight = 710;
 constexpr int kTimelineWidth = 1080;
 constexpr int kMixerWidth = 840;
+constexpr int kAnalyzerWidth = 760;
 const QSize kFloatingViewerSize(480, 300);
 constexpr int kEffectsWidth = 320;
 constexpr int kInspectorWidth = 380;
@@ -102,8 +104,11 @@ AudioPage::AudioPage(AppContext& ctx, TimelineController* controller, QWidget* p
     m_topRow = new PanelSplitter(Qt::Horizontal);
     m_topRow->addWidget(m_viewerDock);
     m_topRow->addWidget(m_meters);
+    m_analyzer = new AnalyzerPanel(ctx, m_mixerController, m_meterModel);
+    m_topRow->addWidget(m_analyzer);
     m_topRow->setStretchFactor(1, 1);
-    m_topRow->setSizes({kViewerWidth, kMetersWidth});
+    m_topRow->setStretchFactor(2, 1);
+    m_topRow->setSizes({kViewerWidth, kMetersWidth, kAnalyzerWidth});
 
     m_bottomRow = new PanelSplitter(Qt::Horizontal);
     m_bottomRow->addWidget(m_timeline);

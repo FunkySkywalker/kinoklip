@@ -3,6 +3,7 @@
 // loop), audio-master clock, frame look-ahead through the Compositor, preview quality.
 #pragma once
 
+#include "core/MixerOps.h"
 #include "media/DecodeStats.h"
 #include "playback/AudioOutput.h"
 #include "playback/AutoQuality.h"
@@ -379,6 +380,8 @@ public:
     void resetLoudness();
     /// Pauses or continues the loudness measurement (Start / Pause of the loudness meter).
     void setLoudnessPaused(bool paused);
+    /// The signal of the spectrum analyser: a track or bus, or the main mix (nullptr; spec 141).
+    void setSpectrumSource(const MixTarget* strip);
     [[nodiscard]] bool loudnessPaused() const { return m_loudnessPaused; }
     /// Throttle of metersUpdated() (about 30 updates per second).
     static constexpr int kMeterIntervalMs = 33;

@@ -219,6 +219,8 @@ private:
     /// The AI label, Learn / Clear Profile buttons and status under Noise Reduction (spec 132);
     /// other effects get nothing (InspectorNoiseReduction.cpp).
     void buildNoiseReductionControls(ParamGroupBox* group, const EffectInstance& fx, quint64 clipId);
+    /// The Voice Isolation section of the Audio tab: a switch and an Amount (spec 141).
+    void buildVoiceIsolationSection(quint64 audioClipId);
     void startEffectTrack(quint64 clipId, quint64 effectId, bool forward);
     void onEffectTrackFinished(kk::tracking::TrackOutcome outcome, const QString& reason);
     // ---- Stabilization (InspectorStabilize.cpp) ----
