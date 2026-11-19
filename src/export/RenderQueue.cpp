@@ -291,10 +291,15 @@ QString RenderQueue::statusText(const Job& job)
     }
     case Status::Done: {
         const int secs = int(std::round(job.result.seconds));
-        return tr("Done in %1:%2 (%3 fps)")
-            .arg(secs / 60)
-            .arg(secs % 60, 2, 10, QLatin1Char('0'))
-            .arg(job.result.averageFps(), 0, 'f', 1);
+        QString text = tr("Done in %1:%2 (%3 fps)")
+                           .arg(secs / 60)
+                           .arg(secs % 60, 2, 10, QLatin1Char('0'))
+                           .arg(job.result.averageFps(), 0, 'f', 1);
+        if (job.result.audioTargetMissed)
+            text += tr(" · loudness target not reached");
+        else if (job.result.audioHeavyLimiting)
+            text += tr(" · heavy limiting");
+        return text;
     }
     case Status::Failed:
         return tr("Failed: %1").arg(job.result.error);

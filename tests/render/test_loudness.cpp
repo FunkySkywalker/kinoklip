@@ -12,6 +12,7 @@
 #include "export/ExportJob.h"
 #include "render/AudioNormalize.h"
 #include "render/LoudnessMeter.h"
+#include "render/TruePeakLimiter.h"
 #include "render/LoudnessStandards.h"
 #include "ui/dialogs/NormalizeMixDialog.h"
 
@@ -442,8 +443,92 @@ private slots:
         src.endUs = 4'000'000;
         const audionorm::Measurement m = audionorm::measure(src);
         QVERIFY2(m.truePeakDb <= -1.0 + 0.3, qPrintable(QString::number(m.truePeakDb)));
-        // The limiter takes loudness off the bursts: the file stays under the target, not over.
-        QVERIFY2(m.loudnessLufs < -13.5 && m.loudnessLufs > -22.0, qPrintable(QString::number(m.loudnessLufs)));
+        // The measured correction pass makes up for what the limiter takes off the bursts:
+        // the file lands within 0.5 LU of the -14 LUFS target (it was -19.3 before).
+        QVERIFY2(std::abs(m.loudnessLufs - (-14.0)) <= 0.5, qPrintable(QString::number(m.loudnessLufs)));
+        QVERIFY(r.audioHeavyLimiting);
+        QVERIFY(!r.audioTargetMissed);
+        QVERIFY(!r.audioNotice.isEmpty());
+        QVERIFY(std::abs(r.audioResultLufs - m.loudnessLufs) < 0.3);
+        // Same length as the video-less range: the limiter's delay is taken out.
+        QVERIFY(m.valid);
+    }
+
+    void renderMildPeaksLandOnTheTarget()
+    {
+        TimelineFixture f;
+        // Bursts only a few dB over the body: a light limiter is enough.
+        const QString a = wav(QStringLiteral("mild.wav"), 4.0, [](int i) {
+            const int inSecond = i % kRate;
+            return inSecond < 2400 ? sine(i, 0.37) : sine(i, 0.11);
+        });
+        addAudioClip(f, a, 0, 0);
+        for (const double target : {-14.0, -16.0}) {
+            ExportSettings s;
+            s.container = QStringLiteral("wav");
+            s.audio.codec = QStringLiteral("pcm_f32le");
+            s.audio.normalize = true;
+            s.audio.normalizeTarget.standard = loudness::Standard::Custom;
+            s.audio.normalizeTarget.customLufs = target;
+            s.audio.normalizeTarget.customTruePeakDb = -3.0;
+            s.outputPath = m_dir.filePath(QStringLiteral("mild_out%1.wav").arg(int(-target)));
+            ExportJob job(s, f.project.timeline()->snapshot(),
+                makeMediaPathMap(f.project.mediaPool()->state()));
+            const ExportResult r = job.run();
+            QVERIFY2(r.ok, qPrintable(r.error));
+            audionorm::Source src;
+            src.path = r.outputPath;
+            src.endUs = 4'000'000;
+            const audionorm::Measurement m = audionorm::measure(src);
+            QVERIFY2(std::abs(m.loudnessLufs - target) <= 0.5, qPrintable(QString::number(m.loudnessLufs)));
+            QVERIFY2(m.truePeakDb <= -3.0 + 0.2, qPrintable(QString::number(m.truePeakDb)));
+        }
+    }
+
+    void renderReportsAnUnreachableTarget()
+    {
+        TimelineFixture f;
+        const QString a = wav(QStringLiteral("quiet.wav"), 4.0, [](int i) { return sine(i, 0.1); });
+        addAudioClip(f, a, 0, 0);
+        ExportSettings s;
+        s.container = QStringLiteral("wav");
+        s.audio.codec = QStringLiteral("pcm_f32le");
+        s.audio.normalize = true;
+        // A tone cannot reach -2 LUFS with its true peaks under -9 dBTP.
+        s.audio.normalizeTarget.standard = loudness::Standard::Custom;
+        s.audio.normalizeTarget.customLufs = -2.0;
+        s.audio.normalizeTarget.customTruePeakDb = -9.0;
+        s.outputPath = m_dir.filePath(QStringLiteral("unreachable.wav"));
+        ExportJob job(s, f.project.timeline()->snapshot(),
+            makeMediaPathMap(f.project.mediaPool()->state()));
+        const ExportResult r = job.run();
+        QVERIFY2(r.ok, qPrintable(r.error));
+        QVERIFY(r.audioTargetMissed);
+        QVERIFY(!r.audioNotice.isEmpty());
+        QVERIFY(r.audioResultLufs < -2.5);
+    }
+
+    void limiterKeepsTruePeaksUnderTheCeiling()
+    {
+        // 0.9 amplitude sine at fs/4 + 0.1 rad: the inter-sample peak is above the samples.
+        constexpr int n = 48000;
+        std::vector<float> in(size_t(n) * 2), out(size_t(n) * 2);
+        for (int i = 0; i < n; ++i) {
+            const float v = float(1.4 * std::sin(2.0 * M_PI * 11999.0 * i / 48000.0 + 0.7));
+            in[size_t(i) * 2] = in[size_t(i) * 2 + 1] = v;
+        }
+        dsp::TruePeakLimiter limiter(-1.0);
+        limiter.process(in.data(), out.data(), n);
+        dsp::LoudnessMeter meter;
+        meter.process(out.data() + size_t(limiter.latency() + 2000) * 2, n - limiter.latency() - 2000);
+        QVERIFY2(meter.truePeakMax() <= -1.0 + 0.2, qPrintable(QString::number(meter.truePeakMax())));
+        QVERIFY(limiter.maxReductionDb() > 3.0);
+        // Below the ceiling the signal passes unchanged (delayed by the look-ahead).
+        std::vector<float> quiet(size_t(4800) * 2, 0.0f), q2(quiet.size());
+        quiet[1000 * 2] = quiet[1000 * 2 + 1] = 0.1f;
+        dsp::TruePeakLimiter l2(-1.0);
+        l2.process(quiet.data(), q2.data(), 4800);
+        QVERIFY(std::abs(q2[size_t(1000 + l2.latency()) * 2] - 0.1f) < 1e-5f);
     }
 
     void renderCancelDuringMeasuring()

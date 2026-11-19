@@ -5,6 +5,7 @@
 #include "media/AudioDecoder.h"
 #include "render/AudioMixer.h"
 #include "render/LoudnessMeter.h"
+#include "render/TruePeakLimiter.h"
 
 #include <algorithm>
 #include <cmath>
@@ -127,6 +128,159 @@ Measurement measureMix(const TimelineData& timeline, std::shared_ptr<const Media
     result.loudnessLufs = meter.integrated();
     result.loudnessRange = meter.loudnessRange();
     return result;
+}
+
+namespace {
+
+constexpr int64_t kCacheFrames = 48000LL * 60 * 15; ///< mixes up to 15 min are kept in memory
+constexpr double kLimiterMarginDb = 0.1; ///< the limiter works this far under the ceiling
+constexpr double kSolveToleranceLu = 0.1; ///< the correction passes stop inside this
+constexpr int kMaxPasses = 8;
+constexpr double kMaxExtraGainDb = 40.0;
+
+} // namespace
+
+NormalizePlan planNormalize(const TimelineData& timeline, std::shared_ptr<const MediaPathMap> media,
+    int64_t firstFrame, int64_t endFrame, double targetLufs, double ceilingDb,
+    const std::atomic<bool>* cancel, const std::function<void(double)>& progress)
+{
+    NormalizePlan plan;
+    if (!timeline.fps.isValid() || endFrame <= firstFrame) {
+        plan.error = QStringLiteral("no audio");
+        return plan;
+    }
+    const int64_t first = framesToSamples48k(firstFrame, timeline.fps);
+    const int64_t last = framesToSamples48k(endFrame, timeline.fps);
+    const int64_t total = last - first;
+    constexpr int ch = AudioMixer::kChannels;
+    AudioMixer mixer;
+    mixer.setMediaPaths(std::move(media));
+    std::vector<float> cache;
+    const bool cached = total <= kCacheFrames;
+    if (cached)
+        cache.resize(size_t(total) * ch);
+    std::vector<float> block(size_t(kBlockFrames) * ch);
+    bool cancelled = false;
+    // Calls fn(samples, frames) for every block of the mix: mixed the first time, then read
+    // back from the cache (or mixed again for a long range).
+    bool mixed = false;
+    auto forEachBlock = [&](double passFrom, double passTo, auto&& fn) {
+        for (int64_t at = 0; at < total; at += kBlockFrames) {
+            if (cancel && cancel->load(std::memory_order_relaxed)) {
+                cancelled = true;
+                return;
+            }
+            const int frames = int(std::min<int64_t>(kBlockFrames, total - at));
+            const float* data = nullptr;
+            if (cached && mixed) {
+                data = cache.data() + size_t(at) * ch;
+            } else {
+                float* dest = cached ? cache.data() + size_t(at) * ch : block.data();
+                mixer.mix(timeline, first + at, frames, dest);
+                data = dest;
+            }
+            fn(data, frames);
+            if (progress)
+                progress(passFrom + (passTo - passFrom) * double(at + frames) / double(total));
+        }
+        if (cached)
+            mixed = true;
+    };
+    // Pass 0: the loudness of the mix as it is.
+    dsp::LoudnessMeter meter;
+    forEachBlock(0.0, 0.3, [&](const float* data, int frames) { meter.process(data, frames); });
+    if (cancelled) {
+        plan.error = QStringLiteral("cancelled");
+        return plan;
+    }
+    plan.measuredLufs = meter.integrated();
+    if (plan.measuredLufs <= -70.0) {
+        plan.error = QStringLiteral("silent");
+        return plan;
+    }
+    plan.valid = true;
+    const double truePeak = meter.truePeakMax();
+    const double g0 = targetLufs - plan.measuredLufs;
+    plan.gainDb = g0;
+    plan.resultLufs = targetLufs;
+    plan.resultTruePeakDb = truePeak + g0;
+    plan.limiterCeilingDb = ceilingDb - kLimiterMarginDb;
+    if (truePeak + g0 <= plan.limiterCeilingDb)
+        return plan; // linear gain reaches the target under the ceiling: nothing to limit
+    plan.limited = true;
+
+    // Loudness of the mix after gain @p gainDb and the limiter (re-measured).
+    struct Eval
+    {
+        double lufs = -200.0, truePeak = -200.0, reduction = 0.0;
+    };
+    int pass = 0;
+    auto evaluate = [&](double gainDb) {
+        ++pass;
+        const double from = 0.3 + 0.7 * double(pass - 1) / kMaxPasses;
+        const double to = 0.3 + 0.7 * double(pass) / kMaxPasses;
+        const float gain = float(AudioMixer::dbToGain(gainDb));
+        dsp::TruePeakLimiter limiter(plan.limiterCeilingDb);
+        dsp::LoudnessMeter m;
+        std::vector<float> tmp(size_t(kBlockFrames) * ch);
+        forEachBlock(from, to, [&](const float* data, int frames) {
+            for (int i = 0; i < frames * ch; ++i)
+                tmp[size_t(i)] = data[size_t(i)] * gain;
+            limiter.process(tmp.data(), tmp.data(), frames);
+            m.process(tmp.data(), frames);
+        });
+        // The limiter delays by latency() frames: the last ones come out of silence.
+        std::vector<float> silence(size_t(limiter.latency()) * ch, 0.0f);
+        limiter.process(silence.data(), silence.data(), limiter.latency());
+        m.process(silence.data(), limiter.latency());
+        return Eval {m.integrated(), m.truePeakMax(), limiter.maxReductionDb()};
+    };
+    double gain = g0;
+    double prevGain = 0.0, prevLufs = 0.0;
+    bool havePrev = false;
+    Eval best;
+    double bestGain = g0, bestError = std::numeric_limits<double>::infinity();
+    for (int i = 0; i < kMaxPasses; ++i) {
+        const Eval e = evaluate(gain);
+        if (cancelled) {
+            plan.valid = false;
+            plan.error = QStringLiteral("cancelled");
+            return plan;
+        }
+        const double error = targetLufs - e.lufs;
+        if (std::abs(error) < bestError) {
+            bestError = std::abs(error);
+            best = e;
+            bestGain = gain;
+        }
+        if (std::abs(error) <= kSolveToleranceLu)
+            break;
+        // Slope of the limited loudness against the gain: 1 below the limiter, towards 0 when
+        // everything is squashed against the ceiling.
+        double slope = 1.0;
+        if (havePrev && std::abs(gain - prevGain) > 1e-6)
+            slope = (e.lufs - prevLufs) / (gain - prevGain);
+        if (havePrev && slope < 0.03)
+            break; // saturated: more gain does not make it louder
+        slope = std::clamp(slope, 0.05, 1.0);
+        prevGain = gain;
+        prevLufs = e.lufs;
+        havePrev = true;
+        gain += error / slope;
+        if (gain > g0 + kMaxExtraGainDb) {
+            gain = g0 + kMaxExtraGainDb;
+            if (std::abs(gain - prevGain) < 0.01)
+                break;
+        }
+    }
+    plan.passes = pass;
+    plan.gainDb = bestGain;
+    plan.resultLufs = best.lufs;
+    plan.resultTruePeakDb = best.truePeak;
+    plan.maxReductionDb = best.reduction;
+    plan.reached = std::abs(targetLufs - best.lufs) <= kNormalizeToleranceLu;
+    plan.heavyLimiting = best.reduction > kHeavyLimitingDb;
+    return plan;
 }
 
 std::pair<int64_t, int64_t> mixRange(const TimelineData& timeline)

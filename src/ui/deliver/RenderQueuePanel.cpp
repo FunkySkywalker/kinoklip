@@ -109,8 +109,9 @@ public:
         details += plural(end - first, tr(" · %n frame"), tr(" · %n frames"));
         textfit::setElidedText(m_details, details, QDir::toNativeSeparators(s.outputPath));
         m_status->setText(RenderQueue::statusText(*job));
-        m_status->setToolTip(
-            job->status == RenderQueue::Status::Failed ? job->result.error : QString());
+        m_status->setToolTip(job->status == RenderQueue::Status::Failed ? job->result.error
+                : job->status == RenderQueue::Status::Done            ? job->result.audioNotice
+                                                                      : QString());
         const bool finished = job->status != RenderQueue::Status::Queued
             && job->status != RenderQueue::Status::Rendering;
         int value = int(job->progress.fraction() * 1000);

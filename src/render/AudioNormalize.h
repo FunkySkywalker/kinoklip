@@ -79,6 +79,40 @@ struct Measurement
     int64_t firstFrame, int64_t endFrame, const std::atomic<bool>* cancel = nullptr,
     const std::function<void(double)>& progress = {});
 
+/// The gain (and limiting) that brings a mix to a loudness target under a true peak ceiling.
+struct NormalizePlan
+{
+    bool valid = false; ///< false: cancelled, empty or silent mix (see error)
+    QString error;
+    double measuredLufs = -200.0; ///< integrated loudness of the mix as it is
+    double gainDb = 0.0; ///< gain applied before the limiter
+    bool limited = false; ///< the true peak ceiling needs the look-ahead limiter
+    double limiterCeilingDb = 0.0; ///< the ceiling the limiter works to (dBTP)
+    double resultLufs = -200.0; ///< loudness after gain and limiter, re-measured
+    double resultTruePeakDb = -200.0;
+    double maxReductionDb = 0.0; ///< deepest limiter gain reduction
+    bool reached = true; ///< resultLufs is within kNormalizeToleranceLu of the target
+    bool heavyLimiting = false; ///< the limiter takes more than kHeavyLimitingDb off a peak
+    int passes = 0; ///< measuring passes after the first
+};
+
+constexpr double kNormalizeToleranceLu = 0.5; ///< "within 0.5 LU" of the target
+constexpr double kHeavyLimitingDb = 6.0;
+
+/// Plans "Normalize audio to" for @p timeline over [@p firstFrame, @p endFrame): measures the
+/// integrated loudness, sets the linear gain target - measured and, if that would push the true
+/// peak over @p ceilingDb, runs the look-ahead true-peak limiter (dsp::TruePeakLimiter) and
+/// corrects the gain in measured passes (as FFmpeg's loudnorm does in two-pass mode): the
+/// limited result is re-measured and the gain adjusted (secant steps on the measured error)
+/// until it lands within 0.1 LU of @p targetLufs, or the target cannot be reached under the
+/// ceiling (the limiter's loudness saturates), in which case `reached` is false and
+/// `resultLufs` tells how far it got. Runs on any thread; @p cancel and @p progress as in
+/// measureMix().
+[[nodiscard]] NormalizePlan planNormalize(const TimelineData& timeline,
+    std::shared_ptr<const MediaPathMap> media, int64_t firstFrame, int64_t endFrame,
+    double targetLufs, double ceilingDb, const std::atomic<bool>* cancel = nullptr,
+    const std::function<void(double)>& progress = {});
+
 /// The timeline range a mix is normalized over: the In / Out marks (an unset mark keeps the
 /// edge of the timeline), as the render's In / Out range; [first, end) in timeline frames.
 [[nodiscard]] std::pair<int64_t, int64_t> mixRange(const TimelineData& timeline);

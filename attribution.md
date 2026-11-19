@@ -187,3 +187,5 @@ bundling them.
 The name "Kinoklip" and the logos above belong to the project owner and are not under the GPL: they
 may be used unmodified as part of Kinoklip, but forks must replace them. Terms:
 [logo-license.md](logo-license.md).
+
+**Normalize audio to: look-ahead true-peak limiter and measured correction pass (1.11).** `src/render/TruePeakLimiter.*`, `src/render/AudioNormalize.cpp` (`planNormalize`). Studied: FFmpeg's `loudnorm` filter (LGPL-2.1-or-later; two-pass mode: measure the input, apply the offset linearly, and when the true peak would pass the ceiling fall back to limiting; the idea of re-measuring the limited result and correcting the gain) and the published look-ahead limiter design (minimum filter over the look-ahead window, then a moving average as long as the window, as in the usual "brick-wall look-ahead limiter" write-ups). No code was copied; the limiter and the secant correction were written for Kinoklip.

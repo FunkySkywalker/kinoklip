@@ -13,9 +13,10 @@
 #include "export/VideoEncoder.h"
 #include "render/AudioMixer.h"
 #include "render/AudioNormalize.h"
-#include "render/Dynamics.h"
+#include "render/TruePeakLimiter.h"
 #include "render/Compositor.h"
 
+#include <QDebug>
 #include <QCoreApplication>
 #include <QDir>
 #include <QElapsedTimer>
@@ -42,10 +43,6 @@ QString tr(const char* text)
 constexpr int kMixBlock = 4096;
 /// Audio-only jobs advance this many timeline frames per loop iteration.
 constexpr int64_t kAudioOnlyStep = 50;
-/// Normalize audio to: the limiter works this far under the true peak ceiling, and releases in
-/// this time (ms).
-constexpr double kLimiterMarginDb = 0.5;
-constexpr double kLimiterReleaseMs = 100.0;
 /// Speed is measured over this window.
 constexpr double kSpeedWindowSeconds = 1.0;
 
@@ -229,24 +226,41 @@ ExportResult ExportJob::runStreams(const ProgressCallback& progress)
     bool normalizeLimit = false;
     double limitCeilingDb = -1.0;
     if (s.hasAudio() && s.audio.normalize) {
-        const audionorm::Measurement m = audionorm::measureMix(
-            tl, m_media, std::nullopt, first, end, &m_cancel);
+        const double ceiling = s.audio.normalizeTarget.truePeakDb();
+        const audionorm::NormalizePlan plan = audionorm::planNormalize(tl, m_media, first, end,
+            s.audio.normalizeTarget.lufs(), std::max(ceiling, kLimiterMinCeilingDb), &m_cancel);
         if (isCancelled()) {
             result.cancelled = true;
             result.error = tr("Cancelled.");
             return result;
         }
-        if (m.valid && m.loudnessLufs > -70.0) {
-            const double gainDb = s.audio.normalizeTarget.lufs() - m.loudnessLufs;
-            const double ceiling = s.audio.normalizeTarget.truePeakDb();
-            normalizeGain = AudioMixer::dbToGain(gainDb);
-            result.audioMeasuredLufs = m.loudnessLufs;
-            result.audioGainDb = gainDb;
-            // A sample limiter half a dB under the ceiling keeps the inter-sample peaks of
-            // ordinary material below it.
-            limitCeilingDb = std::max(ceiling - kLimiterMarginDb, kLimiterMinCeilingDb);
-            normalizeLimit = m.truePeakDb + gainDb > limitCeilingDb;
-            result.audioLimited = normalizeLimit;
+        if (plan.valid) {
+            normalizeGain = AudioMixer::dbToGain(plan.gainDb);
+            result.audioMeasuredLufs = plan.measuredLufs;
+            result.audioGainDb = plan.gainDb;
+            result.audioResultLufs = plan.resultLufs;
+            normalizeLimit = plan.limited;
+            limitCeilingDb = plan.limiterCeilingDb;
+            result.audioLimited = plan.limited;
+            result.audioTargetMissed = !plan.reached;
+            result.audioHeavyLimiting = plan.limited && plan.heavyLimiting;
+            const double target = s.audio.normalizeTarget.lufs();
+            if (!plan.reached) {
+                result.audioNotice
+                    = tr("Normalize audio: the target of %1 LUFS cannot be reached under the "
+                         "%2 dBTP ceiling; the mix reaches %3 LUFS.")
+                          .arg(target, 0, 'f', 1)
+                          .arg(ceiling, 0, 'f', 1)
+                          .arg(plan.resultLufs, 0, 'f', 1);
+            } else if (result.audioHeavyLimiting) {
+                result.audioNotice
+                    = tr("Normalize audio: reaching %1 LUFS needs heavy limiting (up to %2 dB "
+                         "off the peaks).")
+                          .arg(target, 0, 'f', 1)
+                          .arg(plan.maxReductionDb, 0, 'f', 1);
+            }
+            if (!result.audioNotice.isEmpty())
+                qWarning().noquote() << result.audioNotice;
         }
     }
 
@@ -390,14 +404,10 @@ ExportResult ExportJob::runStreams(const ProgressCallback& progress)
 
     AudioMixer mixer;
     mixer.setMediaPaths(m_media);
-    dsp::Dynamics limiter;
-    if (normalizeLimit) {
-        DynamicsSettings ds;
-        ds.limiterEnabled = true;
-        ds.limiterCeilingDb = limitCeilingDb;
-        ds.limiterReleaseMs = kLimiterReleaseMs;
-        limiter.setTarget(ds);
-    }
+    // Normalize audio to: the look-ahead true-peak limiter delays the audio by latency()
+    // frames; the first ones are dropped and the last ones come out of silence at the end.
+    dsp::TruePeakLimiter limiter(normalizeLimit ? limitCeilingDb : 0.0);
+    int limiterSkip = normalizeLimit ? limiter.latency() : 0;
     std::vector<float> mixBuffer(size_t(kMixBlock) * AudioMixer::kChannels);
     const int64_t audioBase = framesToSamples48k(first, tl.fps);
     int64_t audioDone = 0; ///< 48 kHz sample frames mixed so far (relative to audioBase)
@@ -410,10 +420,17 @@ ExportResult ExportJob::runStreams(const ProgressCallback& progress)
             if (normalizeGain != 1.0) {
                 for (int i = 0; i < n * AudioMixer::kChannels; ++i)
                     mixBuffer[size_t(i)] *= float(normalizeGain);
-                if (normalizeLimit)
-                    limiter.process(mixBuffer.data(), n);
             }
-            if (!audio.encode(mixBuffer.data(), n, audioSink, &error)) {
+            const float* encodeFrom = mixBuffer.data();
+            int encodeFrames = n;
+            if (normalizeLimit) {
+                limiter.process(mixBuffer.data(), mixBuffer.data(), n);
+                const int skip = std::min(limiterSkip, n);
+                limiterSkip -= skip;
+                encodeFrom += size_t(skip) * AudioMixer::kChannels;
+                encodeFrames -= skip;
+            }
+            if (encodeFrames > 0 && !audio.encode(encodeFrom, encodeFrames, audioSink, &error)) {
                 return false;
             }
             audioDone += n;
@@ -490,6 +507,16 @@ ExportResult ExportJob::runStreams(const ProgressCallback& progress)
     if (s.hasVideo() && !video.flush(videoSink, &error)) {
         return failWith(
             writeError.isEmpty() ? tr("Video encoding failed: %1").arg(error) : writeError, false);
+    }
+    if (s.hasAudio() && normalizeLimit) {
+        // The audio the limiter still holds.
+        std::vector<float> tail(size_t(limiter.latency()) * AudioMixer::kChannels, 0.0f);
+        limiter.process(tail.data(), tail.data(), limiter.latency());
+        if (!audio.encode(tail.data(), limiter.latency(), audioSink, &error)) {
+            return failWith(
+                writeError.isEmpty() ? tr("Audio encoding failed: %1").arg(error) : writeError,
+                false);
+        }
     }
     if (s.hasAudio() && !audio.flush(audioSink, &error)) {
         return failWith(

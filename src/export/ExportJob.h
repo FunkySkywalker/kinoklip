@@ -54,6 +54,15 @@ struct ExportResult
     double audioMeasuredLufs = std::numeric_limits<double>::quiet_NaN();
     double audioGainDb = 0.0;
     bool audioLimited = false; ///< the true peak ceiling needed the limiter
+    /// Loudness of the mix after the gain and limiter, re-measured before rendering (LUFS);
+    /// NaN when normalizing was off.
+    double audioResultLufs = std::numeric_limits<double>::quiet_NaN();
+    /// Normalize audio to could not land within 0.5 LU of the target under the true peak ceiling.
+    bool audioTargetMissed = false;
+    /// Heavy limiting was needed (more than 6 dB off a peak) to reach the target.
+    bool audioHeavyLimiting = false;
+    /// User-readable note (translated) about the two cases above; empty when all is well.
+    QString audioNotice;
     double seconds = 0.0; ///< wall-clock time of the job
     /// Average speed in frames per second (frames / seconds).
     [[nodiscard]] double averageFps() const { return seconds > 0 ? double(frames) / seconds : 0.0; }
