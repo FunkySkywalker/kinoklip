@@ -3,8 +3,8 @@
 """Makes the screenshots of the readme's Screenshots section (docs/images/readme/).
 
 One picture per page (Media, Cut, Edit, Compositing, Color, Audio, Deliver), a few feature
-shots and themes.png (the Kinoklip look, Breeze Dark and Breeze Light split by two parallel
-diagonals), taken from the real app in the Kinoklip look (Kinoklip widget style and colour
+shots and themes.png (the Kinoklip look and Breeze Dark split by a
+diagonal), taken from the real app in the Kinoklip look (Kinoklip widget style and colour
 scheme, the default) at 1920x1080, then scaled to 1600 px wide and stored as palette PNGs.
 
 The footage is made from five CC0 photos of people doing creative work (scripts/readme-media,
@@ -64,11 +64,11 @@ SHOTS = {
 # The look of every page shot: widget style and colour scheme given on the command line.
 LOOK = ("--widget-style", "Kinoklip", "--color-scheme", "Kinoklip")
 
-# The readme's theme picture: the Edit page in the Kinoklip look, Breeze Dark and Breeze Light,
-# joined along two parallel diagonals (left to right). name: (widget style, colour scheme id).
-THEMES = {"kinoklip": ("Kinoklip", "Kinoklip"), "breeze-dark": ("Breeze", "BreezeDark"),
-          "breeze-light": ("Breeze", "BreezeLight")}
-SPLIT = (0.45, 0.75)  # where the dividing lines cross the middle of the picture (of the width)
+# The readme's theme picture: the Edit page in the Kinoklip look (Kinoklip style and scheme) and
+# in Breeze Dark (Breeze style and scheme), joined along a diagonal (Kinoklip on the left).
+# name: (widget style, colour scheme id).
+THEMES = {"kinoklip": ("Kinoklip", "Kinoklip"), "breeze-dark": ("Breeze", "BreezeDark")}
+SPLIT = (0.5,)  # where the dividing line crosses the middle of the picture (of the width)
 SLOPE = 0.12          # how far each line runs right at the top and left at the bottom (of the width)
 
 
