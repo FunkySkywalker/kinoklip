@@ -1,4 +1,4 @@
-368 menu entries in 13 menus; 54 panels
+368 menu entries in 13 menus; 57 panels
 
 # Menu and panel reference
 
@@ -516,8 +516,11 @@ Shortcuts are the defaults of the Resolve keymap (Windows); another keyboard pro
 
 | Panel | What it is |
 |---|---|
+| Analyzer | The spectrum of the main mix or one track, the phase correlation and the stereo picture, and the monitor controls (Dim, Mono, Mute) for what you hear. |
 | Audio Timeline | The timeline with tall audio tracks, level lines and fade handles. |
-| Meters | Output and bus meters, and the loudness of the output bus (momentary, short-term, integrated, true peak). |
+| Effects | Searchable library of video transitions, titles, generators and video and audio effects; drag an entry onto the timeline or double-click it to apply it. |
+| Inspector | Edits the parameters of the selected clip on the video, audio, effects, title and transition tabs. |
+| Meters | Output and bus meters, and the loudness of the output bus (momentary, short-term, integrated, loudness range, true peak) against a loudness standard, with a history graph. |
 | Mixer | A strip for each audio track and each bus, with its level and meter. |
 | Timeline Viewer | Shows the picture of the timeline at the playhead, with transport controls. |
 
