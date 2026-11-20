@@ -415,8 +415,12 @@ private slots:
         p.setStatic(nodekeys::CustomRed, QStringLiteral("g2"));
         p.setStatic(nodekeys::CustomGreen, QStringLiteral("r2 + b2"));
         p.setStatic(nodekeys::CustomBlue, QStringLiteral("a2 * 0.5"));
+        int which = 0;
         for (const QImage& img : nodeImages(compTimeline(c), n))
-            QVERIFY2(near(px(img, 160, 90), 220, 40, 128, 255, 2), describe(px(img, 160, 90)));
+            QVERIFY2(near(px(img, 160, 90), 220, 40, 128, 255, 2),
+                qPrintable(QStringLiteral("%1: %2 (image null: %3)")
+                               .arg(which++ == 0 ? "GPU" : "CPU", describe(px(img, 160, 90)))
+                               .arg(img.isNull())));
         agree(compTimeline(c), n, 2, 5);
     }
 

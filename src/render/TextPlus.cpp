@@ -282,7 +282,19 @@ TitleImage renderTextPlus(const TitleStyle& s)
     QRectF bounds;
     const double px = s.size * s.scale;
     const QFontMetricsF emojiMetrics(layout.emojiFont);
+    const QFontMetricsF fontMetrics(layout.font);
     for (const GlyphPlace& g : layout.glyphs) {
+        if (g.shown && (s.underline || s.strikethrough)) {
+            // One bar per glyph, spaces and emoji included, so the line runs through the text
+            // (and follows a circle, a path, tracking and the Follower like the letters do).
+            QPainterPath bar = g.xf.map(textDecorations(
+                fontMetrics, 0, 0, g.advance, s.underline, s.strikethrough));
+            if (!bar.isEmpty()) {
+                bar.setFillRule(Qt::WindingFill);
+                bounds = bounds.united(bar.boundingRect());
+                drawn.push_back({std::move(bar), g.opacity});
+            }
+        }
         if (!g.shown || g.text.trimmed().isEmpty())
             continue;
         if (g.emoji) {

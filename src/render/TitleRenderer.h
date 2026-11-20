@@ -7,11 +7,13 @@
 
 #include <QBitArray>
 #include <QColor>
+#include <QFontMetricsF>
 #include <QImage>
 #include <QRectF>
 #include <QSize>
 #include <QString>
 
+#include <QPainterPath>
 #include <QPointF>
 
 #include <cstdint>
@@ -100,6 +102,8 @@ struct TitleStyle
     QString font;
     bool bold = false;
     bool italic = false;
+    bool underline = false; ///< a bar under every line (and under the hidden letters of Write On)
+    bool strikethrough = false; ///< a bar through every line
     int align = 1; ///< 0 = left, 1 = centre, 2 = right (lines inside the text block)
     QColor color;
     QColor outlineColor;
@@ -167,6 +171,13 @@ struct TitleImage
 /// kind @p kind) at clip-local frame @p localFrame.
 [[nodiscard]] TitleStyle resolveLayerStyle(const ParamSet& p, TitleLayerKind kind,
     const ClipData& clip, int64_t localFrame, QSize canvas, double scale);
+
+/// The underline and / or strikethrough bars of a stretch of text as a path: @p x is the left end
+/// and @p baseline the baseline, @p width the advance of the stretch. Drawn as bars (not with the
+/// font's own flags) so one bar runs under spaces and letters alike, in the outline, shadow and
+/// shading of the text.
+[[nodiscard]] QPainterPath textDecorations(
+    const QFontMetricsF& metrics, double x, double baseline, double width, bool underline, bool strikethrough);
 
 /// Rasterises @p style. Thread-safe (QPainter on a QImage); takes ~1-5 ms at 1080p.
 [[nodiscard]] TitleImage renderTitle(const TitleStyle& style);

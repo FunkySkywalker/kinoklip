@@ -146,11 +146,11 @@ Shipped in 1.4 ([release notes](releases/v1.4.0.md)):
 
 ## Next version (after 1.8.x)
 
-- [ ] Edit: ripple audit: every ripple delete, ripple cut and ripple trim entry point (Edit and Cut page, mouse, keys, menus) keeps all sync-locked tracks in sync
-- [ ] Edit: Alt-drag copy of a clip to another track shows up there
+- [x] Edit: ripple audit: every ripple delete, ripple cut and ripple trim entry point (Edit and Cut page, mouse, keys, menus) keeps all sync-locked tracks in sync (spec 145.1; test_rippleaudit drives each entry point on one timeline: keys and menu actions, Trim tool and Cut page mouse drags, several edit points, duration, speed, paste insert, range delete, Cut page smart edits)
+- [x] Edit: Alt-drag copy of a clip to another track shows up there (spec 145.2; test_parity spec7_3_altDragCopyToAnotherTrackShowsThere)
 - [x] Platform: AppImage for ARM64 on every release (`Kinoklip-aarch64.AppImage`, built by the `arm64-release.yml` workflow) (user request)
 - [ ] Playback: 10-bit HEVC (4K drone footage) decodes on Intel graphics without copying each frame to system memory (code and unit tests done: P010 import, compression metadata planes for Xe2, layout log; open until a Lunar Lake owner confirms, the build container has no readable render node)
-- [ ] Edit: several edit points selected and trimmed together
+- [x] Edit: several edit points selected and trimmed together (Ctrl+click edit points, trim with , . or the mouse, spec 104; test_multiedit)
 - [x] Performance: Kinoklip uses less memory (measure what holds RAM and VRAM while editing and playing: frame caches, decoders, thumbnails, waveforms, undo history), so it runs well on low-end computers (memory profile test; caches scale below 8 GB, Preferences > System > Memory and GPU > Limit Kinoklip memory usage to; same session on llvmpipe: 1601 MiB resident after 16 s idle before, 574 MiB after; peak 1597 before, 1476 after)
 - [x] Tests: quick, full and release test groups, so day-to-day builds run only the quick tests
 - [x] Platform: dev builds: a test AppImage built on our own computer (not on GitHub servers) with the quick and full tests, for trying new work before a release
@@ -227,7 +227,7 @@ Still to do:
 - [ ] Color: Split Screen modes (Selected Clips, Timeline), Lightbox and Output Blanking
 - [ ] Background Removal: Keep / Remove brush to correct the model by hand
 - [ ] Media: New Fusion Clip, and Fusion / compound clips as Media Pool entries you can drag to the timeline
-- [ ] Titles: underline and strikethrough
+- [x] Titles: underline and strikethrough (Title and Text node Inspector, drawn as bars under spaces too, Write On and Text+ aware, saved with the project; spec 145.3; test_titledecor)
 
 ## Next big release
 

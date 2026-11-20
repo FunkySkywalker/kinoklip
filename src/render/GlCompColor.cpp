@@ -6,6 +6,7 @@
 
 #include "core/Expression.h"
 #include "core/NodeRegistry.h"
+#include "render/RenderLog.h"
 
 #include <algorithm>
 
@@ -368,8 +369,10 @@ PooledTarget GlCompColor::customTool(GlKit& kit, const RenderTarget& in, const R
         custom = std::make_shared<Custom>();
         QString why;
         const QByteArray source = customSource(body);
-        if (!custom->program.build(gl, "compcolor.custom", source.constData(), &why))
+        if (!custom->program.build(gl, "compcolor.custom", source.constData(), &why)) {
+            qCWarning(lcRender).noquote() << "Custom Tool shader failed:" << why;
             return {};
+        }
         gl->glUseProgram(custom->program.id);
         gl->glUniform1i(custom->program.uniform(gl, "uTex"), 0);
         gl->glUniform1i(custom->program.uniform(gl, "uSecond"), 1);

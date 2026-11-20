@@ -381,6 +381,8 @@ QVector<ParamDescriptor> titleParams(const TitleLook& look)
         number(keys::Size, tr("Size"), 1, 500, look.size, 1, kPx),
         boolean(keys::Bold, tr("Bold"), false),
         boolean(keys::Italic, tr("Italic"), false),
+        boolean(keys::Underline, tr("Underline"), false),
+        boolean(keys::Strikethrough, tr("Strikethrough"), false),
         choice(keys::Align, tr("Alignment"), sides, sideLabels, look.align),
         color(keys::Color, tr("Color"), QColor(Qt::white)),
         number(keys::Tracking, tr("Tracking"), -50, 200, 0, 1, kPercent),

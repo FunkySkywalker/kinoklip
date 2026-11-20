@@ -326,6 +326,40 @@ private slots:
         QCOMPARE(v.f.selection.clips(), QVector<quint64>({a}));
     }
 
+    void spec7_3_altDragCopyToAnotherTrackShowsThere()
+    {
+        // Roadmap (1.12): Alt-drag a clip up to V2 leaves the original on V1 and puts the copy on
+        // V2; a linked pair takes its audio to A2 (same offset); the copy is selected; one undo.
+        View v;
+        const quint64 a = v.put(kV1, solidClip(10, 20));
+        v.drag(v.at(20, kV1), v.at(60, kV2), Qt::AltModifier);
+        QCOMPARE(layout(v.f.view(), kV1), QStringLiteral("10:20"));
+        QCOMPARE(layout(v.f.view(), kV2), QStringLiteral("50:20"));
+        QCOMPARE(v.f.selection.clips().size(), 1);
+        QVERIFY(v.f.selection.clips().first() != a);
+        QCOMPARE(v.f.selection.clips().first(), v.f.view().track(kV2)->clips[0].id);
+        QCOMPARE(v.f.view().track(kV2)->clips[0].id != a, true);
+        v.f.project.undoStack()->undo();
+        QVERIFY(v.f.view().track(kV2)->clips.empty());
+        QCOMPARE(layout(v.f.view(), kV1), QStringLiteral("10:20"));
+        v.f.project.undoStack()->redo();
+        QCOMPARE(layout(v.f.view(), kV2), QStringLiteral("50:20"));
+    }
+
+    void spec7_3_altDragLinkedPairToAnotherTrackCopiesBothHalves()
+    {
+        View v;
+        const quint64 a = v.put(kV1, solidClip(10, 20));
+        const quint64 b = v.put(kA1, solidClip(10, 20));
+        v.link({a, b});
+        v.drag(v.at(20, kV1), v.at(60, kV2), Qt::AltModifier);
+        QCOMPARE(layout(v.f.view(), kV1), QStringLiteral("10:20"));
+        QCOMPARE(layout(v.f.view(), kA1), QStringLiteral("10:20"));
+        QCOMPARE(layout(v.f.view(), kV2), QStringLiteral("50:20"));
+        QCOMPARE(v.f.view().audioTracks.size(), size_t(2));
+        QCOMPARE(layout(v.f.view(), TrackRef {TrackType::Audio, 1}), QStringLiteral("50:20"));
+    }
+
     void spec7_3_altDragCarriesTransitions()
     {
         // Owner request on 0.4.0: the copy of an Alt-dragged clip keeps its transitions.

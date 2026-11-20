@@ -195,7 +195,11 @@ private:
     QTimer m_decayTimer;
     QElapsedTimer m_levelEmit;
 
+    /// The count-in is timed by a clock, not by counting timer ticks: a late tick (a busy event
+    /// loop) must not push the start of the take later and later.
     QTimer m_countTimer;
+    QElapsedTimer m_countClock;
+    int m_countTotal = 0; ///< seconds the count-in started with
     int m_countRemaining = 0;
 
     std::unique_ptr<media::WavWriter> m_writer;

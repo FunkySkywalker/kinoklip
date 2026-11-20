@@ -50,7 +50,7 @@ VoiceOverController::VoiceOverController(
     ctx.voiceOver = this;
     m_decayTimer.setInterval(kDecayMs);
     connect(&m_decayTimer, &QTimer::timeout, this, &VoiceOverController::decay);
-    m_countTimer.setInterval(1000);
+    m_countTimer.setSingleShot(true);
     m_countTimer.setTimerType(Qt::PreciseTimer);
     connect(&m_countTimer, &QTimer::timeout, this, &VoiceOverController::tickCountIn);
     if (ctx.project) {
@@ -387,7 +387,9 @@ bool VoiceOverController::startRecording()
     }
     setState(State::CountIn);
     emit countInTick(m_countRemaining);
-    m_countTimer.start();
+    m_countTotal = m_countRemaining;
+    m_countClock.start();
+    m_countTimer.start(1000);
     return true;
 }
 
@@ -397,8 +399,15 @@ void VoiceOverController::tickCountIn()
         m_countTimer.stop();
         return;
     }
-    if (--m_countRemaining > 0) {
-        emit countInTick(m_countRemaining);
+    // What is left follows the clock: the timer is only a wake-up call for the next second.
+    const qint64 elapsed = m_countClock.elapsed();
+    const int left = m_countTotal - int(elapsed / 1000);
+    if (left > 0) {
+        if (left != m_countRemaining) {
+            m_countRemaining = left;
+            emit countInTick(m_countRemaining);
+        }
+        m_countTimer.start(int(1000 - elapsed % 1000));
         return;
     }
     m_countTimer.stop();
