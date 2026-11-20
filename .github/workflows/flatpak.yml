@@ -47,7 +47,7 @@ jobs:
       # The image ships the KDE runtime inside its overlay filesystem; updating it there fails on x86_64
       # with "Invalid cross-device link" (rename of a lower-layer directory). A fresh system
       # installation on the runner's volume avoids that.
-      FLATPAK_SYSTEM_DIR: ${{ runner.temp }}/flatpak-system
+      FLATPAK_SYSTEM_DIR: /__w/_temp/flatpak-system
     steps:
       - uses: actions/checkout@v4
         with:
