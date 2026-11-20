@@ -121,6 +121,7 @@ public:
 
 protected:
     void changeEvent(QEvent* event) override;
+    void showEvent(QShowEvent* event) override;
     void dragEnterEvent(QDragEnterEvent* event) override;
     void dragMoveEvent(QDragMoveEvent* event) override;
     void dropEvent(QDropEvent* event) override;
@@ -171,6 +172,10 @@ private:
     // ---- Building ----
     [[nodiscard]] Structure computeStructure(quint64 clipId) const;
     void onTimelineChanged();
+    void onSelectionChanged();
+    /// True while the window is shown but this panel is not (its page is not the current
+    /// one): the work waits for showEvent(), which brings the panel up to date once.
+    [[nodiscard]] bool deferWhileHidden();
     /// Switches between the Video and Audio tab for the part of a pair that was clicked.
     void followClickedPart(quint64 clickedId);
     /// Selected clips, counting a linked group once.
@@ -270,6 +275,7 @@ private:
     QVector<quint64> m_groupClip; ///< clip id bound to m_groups[i]
     QHash<QString, bool> m_collapsed; ///< group key → collapsed, survives rebuilds
     int m_rebuildCount = 0;
+    bool m_stale = false; ///< a change arrived while the panel was hidden
     int m_openEdits = 0; ///< beginParamEdit() calls not yet closed
 
     std::optional<ParamRef> m_activeRef;
