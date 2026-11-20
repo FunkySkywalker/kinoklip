@@ -295,6 +295,31 @@ Wayland platform plugin because Qt 6.10 renamed it). Manual Wayland check in the
 Test hooks: `KINOKLIP_FORCE_FALLBACK=1` (use every fallback), `KINOKLIP_HOST_LIBDIRS=dir:dir`
 (search only these dirs for host libraries, e.g. an empty dir to simulate a bare host).
 
+## Flatpak
+
+Stage 1 (a build, nothing published yet). Manifest `packaging/flatpak/org.kinoklip.Kinoklip.yml`
+(app id `org.kinoklip.Kinoklip`, runtime `org.kde.Platform` 6.11, so Qt, KF6 ColorScheme / IconThemes
+and the Breeze style and icons come from the runtime); workflow `.github/workflows/flatpak.yml`.
+Nothing is built locally: start it with `gh workflow run flatpak.yml -f ref=main -f branch=nightly`
+(`branch` is the Flatpak branch, `nightly` or `stable`; `ref` is any branch, tag or commit).
+
+- **Build:** the official `flatpak/flatpak-github-actions/flatpak-builder` action in the
+  `ghcr.io/flathub-infra/flatpak-github-actions:kde-6.11` container, x86_64 on `ubuntu-24.04` and
+  aarch64 on `ubuntu-24.04-arm`; the source is the checked-out commit (manifest source `dir`).
+  Result: workflow artifact `Kinoklip-flatpak-<branch>-<arch>` holding `Kinoklip-<branch>-<arch>.flatpak`.
+  The manifest runs `kinoklip --version` (offscreen) at the end of the build, and the workflow
+  installs the bundle and runs it again.
+- **Dependencies built as modules, every source pinned by SHA-256 or commit:** FFmpeg 9.0.2 (GPL, shared:
+  libx264, libx265, SVT-AV1 on x86_64, libass, VAAPI, NVENC/NVDEC through nv-codec-headers; libvpx, dav1d,
+  opus, vorbis, lame come from the runtime), libheif (+ libde265), LibRaw, ONNX Runtime 1.22.0 from Microsoft's
+  NuGet package (`linux-x64` / `linux-arm64`, same file as the ARM64 workflow). RNNoise is vendored.
+- **Permissions:** Wayland, X11 fallback, IPC, DRI (OpenGL, VAAPI), PulseAudio (PipeWire serves it), network
+  (model download), the home folder plus `/media`, `/run/media`, `/mnt` (a project refers to its clips by path,
+  so portal-only access would break it on the next start). File dialogs, notifications and URLs use the portals.
+- **Stage 2 (after the repository name is approved):** export an OSTree repository (`flatpak build-update-repo`,
+  GPG-signed with a repository secret), publish it with a `.flatpakrepo` file on GitHub Pages, and build
+  `stable` from release tags. The commented TODO block at the end of the workflow marks the place.
+
 ## ARM64 (aarch64)
 
 Every release also has `Kinoklip-aarch64.AppImage` (+ `.zsync`), for ARM64 computers (Raspberry Pi 5,
