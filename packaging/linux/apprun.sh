@@ -431,41 +431,12 @@ host_qt_ok() {
     return 1
 }
 
-# Optional widget styles the user installed for their own Qt, made visible to the bundled Qt
-# one by one: only allow-listed style plugins that need nothing newer than the bundled Qt and
-# no private Qt API (a whole host plugin folder could hold plugins built for another Qt).
-#   qtlibadwaitastyle.so   "Libadwaita" (qt-libadwaita, GNOME's look), public API, Qt >= 6.4
-# They are linked into <runtime dir>/kinoklip-user-styles/styles, which joins QT_PLUGIN_PATH.
-add_user_styles() {
-    _rt="${XDG_RUNTIME_DIR:-}"
-    { [ -n "$_rt" ] && [ -d "$_rt" ] && [ -w "$_rt" ] && [ -O "$_rt" ]; } || return 0
-    _us="$_rt/kinoklip-user-styles"
-    _found=""
-    _old_ifs="$IFS"; IFS=:
-    for _pd in $1 "${HOME:-/nonexistent}/.local/lib/qt6/plugins" /usr/lib/qt6/plugins \
-        /usr/lib64/qt6/plugins "/usr/lib/$ARCH_TRIPLET/qt6/plugins"; do
-        for _so in qtlibadwaitastyle.so; do
-            if [ -f "$_pd/styles/$_so" ] && [ ! -e "$_us/styles/$_so.seen" ]; then
-                mkdir -p "$_us/styles" 2>/dev/null || continue
-                ln -sfn "$_pd/styles/$_so" "$_us/styles/$_so" && : > "$_us/styles/$_so.seen"
-                _found=1
-            fi
-        done
-    done
-    IFS="$_old_ifs"
-    rm -f "$_us"/styles/*.seen 2>/dev/null
-    [ -n "$_found" ] && set_var QT_PLUGIN_PATH "$QT_PLUGIN_PATH:$_us"
-    return 0
-}
-
 use_bundled_qt() {
     # LD_LIBRARY_PATH (not RUNPATH) selects the bundled Qt, so host-Qt mode stays possible.
     set_var LD_LIBRARY_PATH "$QTDIR${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
     # Only our plugins (incl. the Breeze style and KDE's icon engine): host plugins are built
     # for another Qt/KF6 and could crash ours.
-    _host_plugin_path="${QT_PLUGIN_PATH:-}"
     set_var QT_PLUGIN_PATH "$QTDIR/plugins"
-    add_user_styles "$_host_plugin_path"
     # The app brings its own look (Breeze style, KDE colour scheme, Breeze icons) and must
     # look the same on every system: the "generic" theme stops Qt's built-in KDE/GNOME themes
     # from importing host fonts and colours, and a style override is dropped (the user picks

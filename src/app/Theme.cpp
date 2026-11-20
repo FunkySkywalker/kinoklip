@@ -36,6 +36,8 @@
 #include <KColorSchemeManager>
 #include <KColorSchemeModel>
 #include <KIconTheme>
+#include "adwaitastyle.h"
+
 #include <KSharedConfig>
 #include <kcolorscheme_version.h>
 #endif
@@ -91,11 +93,16 @@ QString styleKey(const QString& name)
     return {};
 }
 
+bool isAdwaita(const QString& style)
+{
+    return style.compare(QLatin1String("Libadwaita"), Qt::CaseInsensitive) == 0;
+}
+
 QString styleLabel(const QString& style)
 {
     if (style.compare(KinoklipStyle::key(), Qt::CaseInsensitive) == 0)
         return QCoreApplication::translate("kk::theme", "Kinoklip (Resolve look)");
-    if (style.compare(QLatin1String("Libadwaita"), Qt::CaseInsensitive) == 0)
+    if (isAdwaita(style))
         return QCoreApplication::translate("kk::theme", "Libadwaita (GNOME look)");
     return style;
 }
@@ -119,6 +126,10 @@ QString applyStyle(const QString& wanted)
     if (wanted.compare(KinoklipStyle::key(), Qt::CaseInsensitive) == 0) {
         QApplication::setStyle(new KinoklipStyle);
         return KinoklipStyle::key();
+    }
+    if (isAdwaita(wanted)) { // built in (third_party/qt-libadwaita), not the factory plugin
+        QApplication::setStyle(new MenuMetricsStyle(new AdwaitaStyle));
+        return QStringLiteral("Libadwaita");
     }
     for (const QString& candidate :
         {wanted, QStringLiteral("Breeze"), QString::fromLatin1(kFallbackStyle)}) {
@@ -430,8 +441,7 @@ void applyIconTheme()
 /// ADWAITA_KEEP_APP_PALETTE=1 switch keeps our scheme instead.
 bool styleOwnsPalette(const QString& style)
 {
-    return style.compare(QLatin1String("Libadwaita"), Qt::CaseInsensitive) == 0
-        && qEnvironmentVariableIntValue("ADWAITA_KEEP_APP_PALETTE") == 0;
+    return isAdwaita(style) && qEnvironmentVariableIntValue("ADWAITA_KEEP_APP_PALETTE") == 0;
 }
 
 void applyStyleAndScheme(QApplication& app, const QString& style, const QString& scheme,
@@ -611,6 +621,8 @@ QStringList availableStyles()
     QStringList keys = QStyleFactory::keys();
     keys.removeAll(KinoklipStyle::key());
     keys.prepend(KinoklipStyle::key());
+    keys.removeIf([](const QString& k) { return isAdwaita(k); }); // an installed plugin copy
+    keys.append(QStringLiteral("Libadwaita"));
     // Kinoklip first, then Breeze, then Fusion, then the rest alphabetically.
     std::sort(keys.begin(), keys.end(), [](const QString& a, const QString& b) {
         const auto rank = [](const QString& k) {

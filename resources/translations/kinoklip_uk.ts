@@ -4435,7 +4435,7 @@ The program was probably closed by the system because the computer ran out of me
     </message>
     <message>
         <source>Keep only the voice: takes out noise, music and room sound (Optional AI: the RNNoise model runs on this computer)</source>
-        <translation>Залишає лише голос: прибирає шум, музику та звук приміщення (необов'язковий ШІ: модель RNNoise працює на цьому комп'ютері)</translation>
+        <translation>Залишає лише голос: прибирає шум, музику та звук приміщення (необов&apos;язковий ШІ: модель RNNoise працює на цьому комп&apos;ютері)</translation>
     </message>
     <message>
         <source>Level of the result.</source>
@@ -17073,7 +17073,7 @@ Thank you for watching</source>
     </message>
     <message>
         <source>Keep only the voice: takes out noise, music and room sound (Optional AI: the RNNoise model runs on this computer)</source>
-        <translation>Залишає лише голос: прибирає шум, музику та звук приміщення (необов'язковий ШІ: модель RNNoise працює на цьому комп'ютері)</translation>
+        <translation>Залишає лише голос: прибирає шум, музику та звук приміщення (необов&apos;язковий ШІ: модель RNNoise працює на цьому комп&apos;ютері)</translation>
     </message>
     <message>
         <source>How strongly everything that is not a voice is taken away. 0 leaves the sound as it is, 100 removes as much as possible.</source>
@@ -18992,11 +18992,11 @@ Drag one from the Effects library onto the clip, or add one here.</source>
     </message>
     <message>
         <source>Voice Isolation (Optional AI)</source>
-        <translation>Ізоляція голосу (необов'язковий ШІ)</translation>
+        <translation>Ізоляція голосу (необов&apos;язковий ШІ)</translation>
     </message>
     <message>
         <source>Keep the voice of this clip and take out noise, music and room sound. Optional AI: the RNNoise model is built into Kinoklip and runs on this computer; nothing is downloaded or uploaded.</source>
-        <translation>Залишає голос цього кліпу та прибирає шум, музику і звук приміщення. Необов'язковий ШІ: модель RNNoise вбудована в Kinoklip і працює на цьому комп'ютері; нічого не завантажується й не вивантажується.</translation>
+        <translation>Залишає голос цього кліпу та прибирає шум, музику і звук приміщення. Необов&apos;язковий ШІ: модель RNNoise вбудована в Kinoklip і працює на цьому комп&apos;ютері; нічого не завантажується й не вивантажується.</translation>
     </message>
     <message>
         <source>Amount: how strongly everything that is not a voice is taken away. 0 leaves the sound as it is, 100 removes as much as possible.</source>
@@ -23076,7 +23076,7 @@ Import files with %1 or drop them here.</source>
     </message>
     <message>
         <source>Voice Isolation (Optional AI): keeps the voice of this track and takes out noise, music and room sound. Runs on this computer with the built-in RNNoise model; nothing is downloaded. Right-click to set the Amount.</source>
-        <translation>Ізоляція голосу (необов'язковий ШІ): залишає голос цієї доріжки та прибирає шум, музику і звук приміщення. Працює на цьому комп'ютері з вбудованою моделлю RNNoise; нічого не завантажується. Права кнопка — задати кількість.</translation>
+        <translation>Ізоляція голосу (необов&apos;язковий ШІ): залишає голос цієї доріжки та прибирає шум, музику і звук приміщення. Працює на цьому комп&apos;ютері з вбудованою моделлю RNNoise; нічого не завантажується. Права кнопка — задати кількість.</translation>
     </message>
     <message>
         <source>Voice Isolation On</source>
@@ -35888,6 +35888,10 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
     <message>
         <source>Kinoklip (Resolve look)</source>
         <translation>Kinoklip (вигляд Resolve)</translation>
+    </message>
+    <message>
+        <source>Libadwaita (GNOME look)</source>
+        <translation>Libadwaita (вигляд GNOME)</translation>
     </message>
     <message>
         <source>How buttons, menus and other controls are drawn. Kinoklip is the flat, dark look of DaVinci Resolve, the same on every desktop; Breeze is the KDE look, Fusion a neutral look.</source>

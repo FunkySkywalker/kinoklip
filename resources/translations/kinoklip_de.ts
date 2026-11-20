@@ -35869,6 +35869,10 @@ Einen Multicam-Clip aus dem Medienpool öffnen oder den Abspielkopf über einen 
         <translation>Kinoklip (Resolve-Look)</translation>
     </message>
     <message>
+        <source>Libadwaita (GNOME look)</source>
+        <translation>Libadwaita (GNOME-Look)</translation>
+    </message>
+    <message>
         <source>How buttons, menus and other controls are drawn. Kinoklip is the flat, dark look of DaVinci Resolve, the same on every desktop; Breeze is the KDE look, Fusion a neutral look.</source>
         <translation>Wie Schaltflächen, Menüs und andere Bedienelemente gezeichnet werden. Kinoklip ist der flache, dunkle Look von DaVinci Resolve, auf jedem Desktop gleich; Breeze ist der KDE-Look, Fusion ein neutraler Look.</translation>
     </message>
