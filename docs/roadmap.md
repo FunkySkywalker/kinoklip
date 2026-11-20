@@ -98,7 +98,7 @@ Shipped in 1.4 ([release notes](releases/v1.4.0.md)):
 - [x] Interface: Vim keys in every panel: windows and pages, lists and trees, the Inspector and other forms, the keyframe editor, node graphs, the mixer and transitions (spec 83, steps 5 to 7)
 - [x] Interface: Vim macros (q, @, @@, @:), append and numbered registers, ? backward search, f F t T ; , to find clips by name, * and #, a check of the whole key table, the guide "Vim for Kinoklip" and a one-page cheat sheet (spec 83, step 8).
 
-## Version 1.6 (in progress)
+## Version 1.6 (released 2026-11-12)
 
 - [x] Compositing: a Spline panel (Fusion-style curve editor for every animated node value) and a Keyframes panel on the page, with keyframe loops: Loop, Ping-Pong and Relative (repeat with offset) before and after the keys, Reverse and Time Stretch; the loop commands also in the Edit page's Curves view
 - [x] Compositing: dropping an output onto a connected node adds a Merge; Merge has Flip Horizontal and Flip Vertical
@@ -148,12 +148,12 @@ Shipped in 1.4 ([release notes](releases/v1.4.0.md)):
 
 - [ ] Edit: ripple audit: every ripple delete, ripple cut and ripple trim entry point (Edit and Cut page, mouse, keys, menus) keeps all sync-locked tracks in sync
 - [ ] Edit: Alt-drag copy of a clip to another track shows up there
-- [ ] Platform: AppImage for ARM64 (user request)
+- [x] Platform: AppImage for ARM64 on every release (`Kinoklip-aarch64.AppImage`, built by the `arm64-release.yml` workflow) (user request)
 - [ ] Playback: 10-bit HEVC (4K drone footage) decodes on Intel graphics without copying each frame to system memory (code and unit tests done: P010 import, compression metadata planes for Xe2, layout log; open until a Lunar Lake owner confirms, the build container has no readable render node)
 - [ ] Edit: several edit points selected and trimmed together
 - [x] Performance: Kinoklip uses less memory (measure what holds RAM and VRAM while editing and playing: frame caches, decoders, thumbnails, waveforms, undo history), so it runs well on low-end computers (memory profile test; caches scale below 8 GB, Preferences > System > Memory and GPU > Limit Kinoklip memory usage to; same session on llvmpipe: 1601 MiB resident after 16 s idle before, 574 MiB after; peak 1597 before, 1476 after)
-- [ ] Tests: quick, full and release test groups, so day-to-day builds run only the quick tests
-- [ ] Platform: dev builds: a test AppImage built on our own computer (not on GitHub servers) with the quick and full tests, for trying new work before a release
+- [x] Tests: quick, full and release test groups, so day-to-day builds run only the quick tests
+- [x] Platform: dev builds: a test AppImage built on our own computer (not on GitHub servers) with the quick and full tests, for trying new work before a release
 
 ## Version 1.10.0 (released 2026-11-18)
 
@@ -164,9 +164,9 @@ Shipped in 1.4 ([release notes](releases/v1.4.0.md)):
 - [x] Color: RGB Mixer palette (Red / Green / Blue output sliders, Monochrome, Preserve Luminance; spec 109; keyframes, undo, same maths on GPU and CPU)
 - [x] Color: Blur / Sharpen / Mist palette on the Color page, so a window can blur part of the picture (spec 106; Radius R G B with link, H/V Ratio, Scaling, Coring Softness, Level, Mist Mix; keyframes, undo, same maths on GPU and CPU; tracking a window is the Tracker palette, spec 107)
 
-## Next version (1.11.0)
+## Version 1.11.0 (released 2026-11-19)
 
-Beginner and intermediate tutorial workflows for Resolve's Color, Fairlight and Fusion pages that fail today are listed in [color-audio-gaps.md](color-audio-gaps.md); each gap below has its line. Order: Compositing, Audio, Color, then the rest.
+New default look that follows DaVinci Resolve 21 (Kinoklip widget style and colour scheme, Open Sans; Breeze stays selectable), the Audio page work, the Compositing nodes and the live Color page. [Release notes](releases/v1.11.0.md).
 
 - [x] Compositing: Text+ controls: Layout (Point, Frame, Circle, Path), Tracking, Line Spacing, Kerning, Shading elements, a Write On range on the Text node, and a Follower for per-character animation
 - [x] Compositing: Bezier mask with tangent handles and Roto assist, Point Follower, and mask tracking (a Mask Tracker moves a mask, polygon points, size and angle; also on the Edit page)
@@ -176,12 +176,10 @@ Beginner and intermediate tutorial workflows for Resolve's Color, Fairlight and 
 - [x] Compositing: particles: pEmitter, pRender, pMerge, pGravity, pTurbulence (2D output; more forces, mask regions and 3D output are open, spec 129.10)
 - [x] Compositing: 3D: Image Plane 3D, Text3D (flat), Shape3D, Merge3D, Camera3D, lights, Renderer3D and a 3D viewer (software rasterizer on both renderers; extruded text, shadows, 3D particles, importing models are open, spec 130.11)
 - [x] Compositing: Paint node (Stroke, Clone, Eraser, Smear tools, brush size / softness / opacity / colour, stroke duration, strokes saved as vector points with pressure, drawn in the viewer; Fill, Stroke mode and Emboss are open, spec 131.10)
-- [ ] Compositing: Magic Mask / Object Removal in the node graph (optional local open model); not started: Background Removal's matting code (`src/matting`) only makes a whole-picture foreground matte of a media file and has no point or stroke prompts and no inpainting, so it cannot be reused with modest effort
 - [x] Compositing: modifiers (Perturb, Wiggle, Offset, Expression, Cycle, XY Path), parameter links with Connect To and Publish, and expressions in value fields
 - [x] Compositing: Group, Macro (Make Macro, published controls, save as a title in the Effects Library), Underlay and Instance nodes
 - [x] Compositing: Grid Warp, Displace and Vector Distort nodes
 - [x] Compositing: build a transition on the page (MediaIn1 / MediaIn2 composite), Loader and Saver nodes, Time Speed and Time Stretcher nodes
-- [ ] Compositing: save a transition built on the page as a reusable preset in the Effects Library, Saver output as EXR, and a Saver in a transition graph (spec 128.10)
 - [x] Compositing: Vector Motion Blur, Custom Tool (pixel expressions), Color Curves, Hue Curves, Brightness Contrast, Alpha Multiply / Divide and Channel Mapper nodes
 - [x] Compositing: viewer Onion Skin, Region of Interest, Rulers, safe area overlay, and Proxy / Auto Proxy / High Quality / Motion Blur toggle buttons with a disk cache
 - [x] Audio: files with several audio tracks (an OBS recording with game, mic and Discord): every stream becomes its own linked audio clip on consecutive tracks on every kind of edit, the Media Pool and the metadata show the track count, Clip Attributes chooses the tracks, the project stores the stream per clip, and the waveforms, meters, Audio page and render play the right one (spec 126)
@@ -197,6 +195,19 @@ Beginner and intermediate tutorial workflows for Resolve's Color, Fairlight and 
 - [x] Audio: Chorus, Flanger, Distortion and Stereo Width effects, and Reverb with Pre-delay, Decay and room presets
 - [x] Audio: EQ presets (voice, music, telephone, your own) and a Phase Invert button on the strip (spec 137)
 - [x] Audio: Spectrum analyzer and Phase / correlation meters, and monitor controls (Dim, Mono, Mute) on the Audio page (spec 141)
+- [x] Project Settings: a Presets page (Save As, Load, Update, Delete, Import, Export), Save As User Default Config and Reset to factory default, so new projects start at your own resolution and frame rate (user request); the first-clip question also matches the resolution
+
+## Next version (after 1.11.0)
+
+Beginner and intermediate tutorial workflows for Resolve's Color, Fairlight and Fusion pages that fail today are listed in [color-audio-gaps.md](color-audio-gaps.md); each gap below has its line. Order: Compositing, Audio, Color, then the rest.
+
+Done on main since 1.11.0:
+- [x] Platform: Flatpak repository on GitHub Pages with a stable and a nightly branch for x86_64 and aarch64, signed, updated by every release and every dev build (see [Installing Kinoklip](install.md))
+- [x] Interface: the optional Libadwaita (GNOME look) widget style is listed in Preferences when the separate style plugin is installed
+
+Still to do:
+- [ ] Compositing: Magic Mask / Object Removal in the node graph (optional local open model); not started: Background Removal's matting code (`src/matting`) only makes a whole-picture foreground matte of a media file and has no point or stroke prompts and no inpainting, so it cannot be reused with modest effort
+- [ ] Compositing: save a transition built on the page as a reusable preset in the Effects Library, Saver output as EXR, and a Saver in a transition graph (spec 128.10)
 - [ ] Color: Primaries Shad, Hi, Color Boost, Midtone Detail and Auto Color buttons, and a Log palette (Shadow, Midtone, Highlight, Offset wheels with Low / High range)
 - [ ] Color: Curves: Sat vs Lum curve, Soft Clip, and picking a colour or luma from the viewer to add curve points
 - [ ] Color: Color Warper palette (Hue - Sat and Chroma - Luma grids)
@@ -217,7 +228,6 @@ Beginner and intermediate tutorial workflows for Resolve's Color, Fairlight and 
 - [ ] Background Removal: Keep / Remove brush to correct the model by hand
 - [ ] Media: New Fusion Clip, and Fusion / compound clips as Media Pool entries you can drag to the timeline
 - [ ] Titles: underline and strikethrough
-- [x] Project Settings: a Presets page (Save As, Load, Update, Delete, Import, Export), Save As User Default Config and Reset to factory default, so new projects start at your own resolution and frame rate (user request); the first-clip question also matches the resolution
 
 ## Next big release
 
@@ -248,7 +258,7 @@ when the owner asks for it.
 - [ ] Interface: translations: a language choice in Preferences and translation files that volunteers can fill in
 - [ ] Deliver: lossless FFV1 video and MP3 audio as export formats
 - [ ] Platform: `kinoklip --graphics-check`: draws a test picture with the graphics card, reads it back, says whether video decodes on the card and why not, and prints a report for bug reports
-- [ ] Platform: AppImage for ARM64 computers, and a Flathub submission once the Flatpak exists
+- [ ] Platform: a Flathub submission (the Kinoklip Flatpak repository exists, see "Next version")
 - [ ] Pages: compare the Media, Cut, Compositing, Color, Audio and Deliver pages with Resolve and add what is missing
 - [ ] Media: clone tool on the Media page
 - [ ] Deliver: render presets per platform
@@ -271,7 +281,7 @@ when the owner asks for it.
 ## Long-term
 
 - [ ] Platform: Windows build, after the first stable (non-beta) release ([#4](https://github.com/SeniorMatt/kinoklip/issues/4)) (KDE Craft provides Qt, KF6 and Breeze there); the code already keeps platform code in `src/platform/`
-- [ ] Platform: [Flatpak](https://flatpak.org) and distro packages (Arch PKGBUILD / AUR, .deb, .rpm), Windows installer
+- [ ] Platform: distro packages (Arch PKGBUILD / AUR, .deb, .rpm), Windows installer
 - [ ] Interface: interface profiles beyond the default (a Plasma profile)
 - [ ] Project: project website presenting Kinoklip as a free alternative to DaVinci Resolve: features, screenshots, downloads, roadmap, docs. It names Resolve only for comparison, uses no Blackmagic logos or screenshots, and claims only what the shipped build does
 - [ ] Project: version 1.0.0, released only when the owner decides; until then every build is an alpha or beta

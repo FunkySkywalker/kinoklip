@@ -1,10 +1,12 @@
 # Cutwise — live status log
 
-## Current state (2026-11-09)
-- Published: 1.1.6-beta.1. Main is clean; unreleased on main: bundled fallback libraries, start-failure dialog, the "Why use Kinoklip over Resolve?" readme section, agent guide and recovery notes.
-- Open branch `searchbox`: Media Pool search box squeezed by the thumbnail slider, not merged.
-- Next version: nothing started; the list is in [Kinoklip roadmap](docs/roadmap.md).
-- Pending owner decisions are in the handoff note at the bottom.
+## Current state (2026-11-20)
+- Published: 1.11.0 (2026-11-19): new default Kinoklip look (Resolve 21 widget style and colour scheme, Open Sans; Breeze selectable), Audio page work, Compositing nodes, live Color page, Arabic titles fix. Release notes: docs/releases/v1.11.0.md.
+- Every release has `Kinoklip-x86_64.AppImage` and `Kinoklip-aarch64.AppImage`; the rolling `dev` pre-release has `KinoklipDev-x86_64.AppImage`.
+- Flatpak: signed repository with stable and nightly branches (x86_64, aarch64) at https://seniormatt.github.io/kinoklip-flatpak/, built by .github/workflows/flatpak.yml; not on Flathub.
+- On main since 1.11.0: Flatpak repository, optional Libadwaita widget style, faster theme switching.
+- Next: the open lines under "Next version (after 1.11.0)" in docs/roadmap.md (Color page gaps, Fusion clips, Background Removal brush, multi edit points).
+- The log below is from the first weeks of the project (2026-11-02 to 2026-11-09) and is not kept up to date: the roadmap and git log are the record since then.
 
 (newest at the bottom; times are local)
 
