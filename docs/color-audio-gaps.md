@@ -29,11 +29,11 @@ Every missing piece has a line in [roadmap.md](roadmap.md) under "Next version (
 | C13 | Change the sky colour (qualifier plus gradient window) | works | |
 | C14 | Sky replacement | missing | Sky Replacement effect (planned in effects-library-status.md) |
 | C15 | Primaries wheels: Lift, Gamma, Gain, Offset, Contrast, Pivot, Sat, Hue, Lum Mix, Temp, Tint | works | |
-| C16 | Primaries extras: Shad, Hi, Color Boost, Midtone Detail, Auto Color / Auto Balance buttons | works | Boost, Shad, Hi, MD and Auto in the Primaries palette (spec 145) |
+| C16 | Primaries extras: Shad, Hi, Color Boost, Midtone Detail, Auto Color / Auto Balance buttons | works | Boost, Shad, Hi, MD and Auto in the Primaries palette (spec 146) |
 | C17 | Primaries bars mode | works | |
-| C18 | Log wheels (Shadow, Midtone, Highlight, Offset with Low / High range) | works | Log palette: Shadow, Midtone, Highlight, Offset wheels, Low / High Range (spec 145) |
-| C19 | Custom curves Y, R, G, B with the Link toggle | works | Soft Clip fields and the Pick eyedropper (spec 145) |
-| C20 | Hue vs Hue, Hue vs Sat, Hue vs Lum, Lum vs Sat, Sat vs Sat | works | Sat vs Lum curve and the Pick eyedropper adds the three points (spec 145) |
+| C18 | Log wheels (Shadow, Midtone, Highlight, Offset with Low / High range) | works | Log palette: Shadow, Midtone, Highlight, Offset wheels, Low / High Range (spec 146) |
+| C19 | Custom curves Y, R, G, B with the Link toggle | works | Soft Clip fields and the Pick eyedropper (spec 146) |
+| C20 | Hue vs Hue, Hue vs Sat, Hue vs Lum, Lum vs Sat, Sat vs Sat | works | Sat vs Lum curve and the Pick eyedropper adds the three points (spec 146) |
 | C21 | Color Warper (Hue - Sat grid, Chroma - Luma grid) | missing | Color Warper palette |
 | C22 | HDR palette (zones, Global, Shadow, Light, Highlight, Specular) | missing | HDR palette |
 | C23 | RGB Mixer | works | Spec 109: Red / Green / Blue output tabs with three sliders each, Monochrome, Preserve Luminance; not done: HSV / HSL mixer spaces |
@@ -41,7 +41,7 @@ Every missing piece has a line in [roadmap.md](roadmap.md) under "Next version (
 | C25 | Magic Mask (draw a stroke on a person or object, it follows) | missing | Magic Mask palette; the optional Background Removal model only cuts a person out on the Edit page |
 | C26 | Color match / Shot Match to another clip | missing | Color Match palette (Shot Match, Color Chart); Color Stabilizer is another effect |
 | C27 | Apply a LUT to a node, a clip or the timeline (3D LUT browser) | works | |
-| C28 | Export a LUT from a grade (Generate 3D LUT) | works | Generate 3D LUT (CUBE) in the clips strip menu (spec 145) |
+| C28 | Export a LUT from a grade (Generate 3D LUT) | works | Generate 3D LUT (CUBE) in the clips strip menu (spec 146) |
 | C29 | Node types: Serial, Parallel, Layer | works | |
 | C30 | Node types: Outside, Key Mixer, Splitter / Combiner, compound node, typed node labels | missing | Add Outside Node (Alt+O), Add Key Mixer, Splitter / Combiner, Compound Node, Node Label field |
 | C31 | Alpha output and key: node Key tab, Key Output, Alpha Output | partly | Key tab has gain, invert and matte; no Alpha Output node, no key input / output ports, a grade cannot make the clip transparent |
@@ -50,7 +50,7 @@ Every missing piece has a line in [roadmap.md](roadmap.md) under "Next version (
 | C34 | Versions of a grade (Local / Remote, Create New Version) | missing | Versions menu on the clip |
 | C35 | Groups with Pre-Clip and Post-Clip grades; Timeline grade | partly | Timeline grade works; Groups, Pre-Clip and Post-Clip grades, ColorTrace missing |
 | C36 | Scopes: Waveform, RGB Waveform, Parade, Vectorscope, Histogram | works | |
-| C37 | CIE chromaticity scope, scope gain / settings, HDR scales | works | CIE Chromaticity scope and scope settings Scale and Gain (spec 145); HDR scales not done |
+| C37 | CIE chromaticity scope, scope gain / settings, HDR scales | works | CIE Chromaticity scope and scope settings Scale and Gain (spec 146); HDR scales not done |
 | C38 | Color space transform, ACES, color managed project, input colour space per clip | missing | Color Space Transform, ACES Transform, Gamut Mapping and Chromatic Adaptation effects (planned in effects-library-status.md); Color Management in Project Settings; Input Color Space in Clip Attributes |
 | C39 | Film grain and film look (Film Grain, Halation, Vignette, Film Look) | partly | The Edit page effects exist; no OpenFX / Resolve FX palette to apply them to a node on the Color page |
 | C40 | Face Refinement, Depth Map, Relight (Neural Engine tools) | missing | The three effects (planned) with optional local open models |

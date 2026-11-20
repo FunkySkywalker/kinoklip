@@ -208,18 +208,18 @@ Done on main since 1.11.0:
 Still to do:
 - [ ] Compositing: Magic Mask / Object Removal in the node graph (optional local open model); not started: Background Removal's matting code (`src/matting`) only makes a whole-picture foreground matte of a media file and has no point or stroke prompts and no inpainting, so it cannot be reused with modest effort
 - [ ] Compositing: save a transition built on the page as a reusable preset in the Effects Library, Saver output as EXR, and a Saver in a transition graph (spec 128.10)
-- [x] Color: Primaries Shad, Hi, Color Boost, Midtone Detail (MD) and an Auto Color button, and a Log palette (Shadow, Midtone, Highlight, Offset wheels with Low / High Range) (spec 145; keyframes, undo, same maths on GPU and CPU; Auto Color is levels per channel plus a midtone balance, not Resolve's exact analysis)
-- [x] Color: Curves: Sat vs Lum curve, Soft Clip (Low, Low Soft, High, High Soft) and a Pick eyedropper that adds a colour's or luma's points from the viewer (spec 145)
+- [x] Color: Primaries Shad, Hi, Color Boost, Midtone Detail (MD) and an Auto Color button, and a Log palette (Shadow, Midtone, Highlight, Offset wheels with Low / High Range) (spec 146; keyframes, undo, same maths on GPU and CPU; Auto Color is levels per channel plus a midtone balance, not Resolve's exact analysis)
+- [x] Color: Curves: Sat vs Lum curve, Soft Clip (Low, Low Soft, High, High Soft) and a Pick eyedropper that adds a colour's or luma's points from the viewer (spec 146)
 - [ ] Color: Color Warper palette (Hue - Sat and Chroma - Luma grids)
 - [ ] Color: HDR palette (zones: Global, Shadow, Light, Highlight, Specular)
 - [ ] Color: Motion Effects palette: temporal and spatial Noise Reduction with Better / Faster modes
 - [ ] Color: Magic Mask palette: draw a stroke on a person or object and it follows (local open model, optional)
 - [ ] Color: Color Match palette: Shot Match to another clip, and a colour chart
-- [x] Color: Generate 3D LUT (CUBE) from a grade, in the clip strip's context menu with 17, 33 and 65 point cubes (spec 145; windows, qualifiers and blur are not part of a LUT)
+- [x] Color: Generate 3D LUT (CUBE) from a grade, in the clip strip's context menu with 17, 33 and 65 point cubes (spec 146; windows, qualifiers and blur are not part of a LUT)
 - [ ] Color: node types Outside, Key Mixer, Splitter / Combiner and Compound Node, typed node labels, and an Alpha Output node with key input and output ports
 - [ ] Color: Gallery albums, Memories A to Z, Power Grade albums, Import Still and Export Still (DRX and image)
 - [ ] Color: Versions of a grade (Local and Remote), Groups with Pre-Clip and Post-Clip grades
-- [x] Color: CIE Chromaticity scope (spectral locus, Rec. 709 / DCI-P3 / Rec. 2020 triangles, D65) and scope settings (Scale 0 - 1023 / 0 - 255 / percent / 0.0 - 1.0, Gain), remembered per scope (spec 145)
+- [x] Color: CIE Chromaticity scope (spectral locus, Rec. 709 / DCI-P3 / Rec. 2020 triangles, D65) and scope settings (Scale 0 - 1023 / 0 - 255 / percent / 0.0 - 1.0, Gain), remembered per scope (spec 146)
 - [ ] Color: Color Space Transform, ACES Transform, Gamut Mapping and Chromatic Adaptation effects, Color Management in Project Settings and Input Color Space in Clip Attributes
 - [ ] Color: Face Refinement, Depth Map, Relight and Sky Replacement effects (optional local open models)
 - [ ] Color: Resolve FX palette: put an effect (Glow, Lens Blur, Film Grain, Halation, Film Look) on a node so its window or qualifier limits it

@@ -3256,14 +3256,14 @@ Follows the public Resolve / Fairlight manual (Voice Isolation, frequency analyz
 | 144.9 | **Chrome**: panel title bars are 26 px (`kPanelTitleHeight`) and, in the Kinoklip scheme, the colour of the panel with a hairline below like Resolve's; the page bar is 39 px with narrow buttons (icon above the label, `kPageButtonWidth`), the current page on near black with a 2 px red underline. Top toolbar and page bar icons are tinted like their text (current and hovered white, the rest the dimmer grey). Other styles keep the old heights and the icon-beside-text page buttons (switching the style at run time restores them). | Done (test_kinoklipstyle active_and_chrome_sizes_follow_the_style) |
 | 144.10 | Tab-like checked tool buttons (property `kkTab`: the Color page's palette tabs, Scopes / Key, Wheels / Bars, the Blur and Tracker modes) are flat with a 2 px red underline like tabs; tab underlines use the scheme's focus colour (red in the Kinoklip scheme). A slider with the property `kkFilled` fills its groove from the start to the handle (Resolve's volume slider; no such slider exists in the app yet). | Done (tab_buttons_draw_an_underline_when_checked, filled_slider_groove_reaches_the_handle) |
 
-## 145. Color page: Primaries extras, Log palette, curves extras, 3D LUT and scope settings (1.12 roadmap)
+## 146. Color page: Primaries extras, Log palette, curves extras, 3D LUT and scope settings (1.12 roadmap)
 
 | # | Behaviour | Status |
 |---|---|---|
-| 145.1 | Primaries palette: MD, Boost, Shad, Hi fields (0 = neutral, -100..100), an Auto button; all keyframeable, one undo step each, same pixels on GPU and CPU. | Done (`test_grade`, `test_graderender`, `test_colorpageui` primariesExtrasAndAutoColor) |
-| 145.2 | Auto Color sets per-channel Lift, Gamma, Gain from the node's input picture in one undo step; a flat picture changes nothing. | Done (`test_grade` autoColorBalancesACast, `test_colorpageui`) |
-| 145.3 | Log palette tab (last): Shadow, Midtone, Highlight, Offset wheels, Low / High Range (0.33 / 0.55), shared Temp / Tint / Contrast / Pivot / MD / Sat / Hue / Lum Mix. | Done (`test_grade` logZonesAndWheels, `test_colorpageui` logPalette) |
-| 145.4 | Curves: Sat vs Lum mode; Soft Clip row in Custom mode; Pick eyedropper adds the picked colour's points (one undo step). | Done (`test_grade`, `test_colorpageui` curvesSoftClipSatLumAndPick) |
-| 145.5 | Clips strip menu Generate 3D LUT (CUBE) 17 / 33 / 65 points; greyed without a grade. | Done (`test_graderender` gradeLut*, `test_colorpageui` generateLutFromAGrade) |
-| 145.6 | CIE Chromaticity scope; scope Settings button (Scale, Gain) remembered per scope. | Done (`test_scopes`) |
-| 145.7 | Not done: Split Screen modes, Lightbox, Output Blanking, Color Warper, HDR palette. | Open |
+| 146.1 | Primaries palette: MD, Boost, Shad, Hi fields (0 = neutral, -100..100), an Auto button; all keyframeable, one undo step each, same pixels on GPU and CPU. | Done (`test_grade`, `test_graderender`, `test_colorpageui` primariesExtrasAndAutoColor) |
+| 146.2 | Auto Color sets per-channel Lift, Gamma, Gain from the node's input picture in one undo step; a flat picture changes nothing. | Done (`test_grade` autoColorBalancesACast, `test_colorpageui`) |
+| 146.3 | Log palette tab (last): Shadow, Midtone, Highlight, Offset wheels, Low / High Range (0.33 / 0.55), shared Temp / Tint / Contrast / Pivot / MD / Sat / Hue / Lum Mix. | Done (`test_grade` logZonesAndWheels, `test_colorpageui` logPalette) |
+| 146.4 | Curves: Sat vs Lum mode; Soft Clip row in Custom mode; Pick eyedropper adds the picked colour's points (one undo step). | Done (`test_grade`, `test_colorpageui` curvesSoftClipSatLumAndPick) |
+| 146.5 | Clips strip menu Generate 3D LUT (CUBE) 17 / 33 / 65 points; greyed without a grade. | Done (`test_graderender` gradeLut*, `test_colorpageui` generateLutFromAGrade) |
+| 146.6 | CIE Chromaticity scope; scope Settings button (Scale, Gain) remembered per scope. | Done (`test_scopes`) |
+| 146.7 | Not done: Split Screen modes, Lightbox, Output Blanking, Color Warper, HDR palette. | Open |

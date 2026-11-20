@@ -100,7 +100,7 @@ rotation about the grey axis, saturation about Rec. 709 luma; then the curves; t
 `render/GlGrade.cpp` mirrors every function in GLSL; `render/GradeEval.cpp` runs the graph per
 pixel on the CPU (reference and CPU fallback).
 
-### Primaries extras and Log palette (spec 145)
+### Primaries extras and Log palette (spec 146)
 Params (Resolve units -100..100, divided by 100 in the maths): Color Boost (vibrance: saturation scaled by 1 - HSV saturation), Shad / Hi (luma weighted, move towards white (+) or black (-)), Midtone Detail (a 4th blur stage: wide unsharp mask or blur weighted by 4 y (1 - y)). Log palette: `log*` wheels as additive offsets weighted by three luma zones (Low / High Range 0.33 / 0.55, ramps of 0.2), plus a Log Offset. Auto Color (`grademath::autoColor`): per-channel lift / gain from the 0.2 % / 99.8 % percentiles and gamma from the medians. Generate 3D LUT: `render/GradeLut`.
 
 ## Operations and undo
