@@ -1013,6 +1013,8 @@ TitleStyle textStyle(const ParamSet& p, int64_t frame, QSize canvas, double scal
     s.font = p.staticValue(k::Font, QStringLiteral("Sans Serif")).toString();
     s.bold = p.staticValue(k::Bold, false).toBool();
     s.italic = p.staticValue(k::Italic, false).toBool();
+    s.underline = p.staticValue(k::Underline, false).toBool();
+    s.strikethrough = p.staticValue(k::Strikethrough, false).toBool();
     const QVariant color = p.staticValue(k::Color, QColor(Qt::white));
     s.color = color.value<QColor>().isValid() ? color.value<QColor>() : QColor(Qt::white);
     const QVariant outline = p.staticValue(k::OutlineColor, QColor(Qt::black));

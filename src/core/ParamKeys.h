@@ -86,6 +86,10 @@ inline const QString Font
     = QStringLiteral("font"); ///< static QString font family; default "Sans Serif"
 inline const QString Bold = QStringLiteral("bold"); ///< static bool; default false
 inline const QString Italic = QStringLiteral("italic"); ///< static bool; default false
+inline const QString Underline
+    = QStringLiteral("underline"); ///< static bool; default false (titles and Text nodes)
+inline const QString Strikethrough
+    = QStringLiteral("strikethrough"); ///< static bool; default false (titles and Text nodes)
 inline const QString Align
     = QStringLiteral("align"); ///< static choice "left"|"center"|"right"; default center
 inline const QString Color = QStringLiteral("color"); ///< static QColor text colour; default white

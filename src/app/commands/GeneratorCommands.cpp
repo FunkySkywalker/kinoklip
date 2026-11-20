@@ -38,6 +38,8 @@ const TitleOption kTitleOptions[] = {
     {"color", &keys::Color, ParamType::String, "text colour: #rrggbb or a colour name"},
     {"bold", &keys::Bold, ParamType::Boolean, "bold text"},
     {"italic", &keys::Italic, ParamType::Boolean, "italic text"},
+    {"underline", &keys::Underline, ParamType::Boolean, "underlined text"},
+    {"strikethrough", &keys::Strikethrough, ParamType::Boolean, "struck-through text"},
     {"align", &keys::Align, ParamType::String, "alignment of the lines: left, center or right"},
     {"text-x", &keys::TextPosX, ParamType::Number,
         "position of the text block, 0 (left) to 1 (right)"},

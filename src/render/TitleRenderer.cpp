@@ -108,7 +108,8 @@ size_t qHash(const TitleStyle& s, size_t seed)
     seed = hash(seed, s.text);
     seed = hash(seed, s.font);
     seed
-        = hash(seed, int(s.bold) | int(s.italic) << 1 | int(s.bgEnabled) << 2 | int(s.shadow) << 3);
+        = hash(seed, int(s.bold) | int(s.italic) << 1 | int(s.bgEnabled) << 2 | int(s.shadow) << 3
+            | int(s.underline) << 4 | int(s.strikethrough) << 5);
     seed = hash(seed, s.align);
     seed = hash(seed, s.color.rgba());
     seed = hash(seed, s.outlineColor.rgba());
@@ -216,6 +217,8 @@ TitleStyle resolveLayerStyle(const ParamSet& p, TitleLayerKind kind, const ClipD
     s.font = stringStatic(p, keys::Font, kDefaultFont);
     s.bold = boolStatic(p, keys::Bold, false);
     s.italic = boolStatic(p, keys::Italic, false);
+    s.underline = boolStatic(p, keys::Underline, false);
+    s.strikethrough = boolStatic(p, keys::Strikethrough, false);
     const QString align = stringStatic(p, keys::Align, QString());
     s.align = align == kLeft ? 0 : align == kRight ? 2 : 1;
     s.color = colorStatic(p, keys::Color, QColor(Qt::white));
@@ -363,6 +366,8 @@ TitleImage renderText(const TitleStyle& s)
     const QBitArray shown = writeOnVisible(s.text, s.writeOnStart, s.writeOnEnd);
     const bool partial = shown.count(false) > 0;
     const auto addRun = [&](const QString& text, double x, double baseline) {
+        path.addPath(textDecorations(emojiMetrics, x, baseline, emojiMetrics.horizontalAdvance(text),
+            s.underline, s.strikethrough));
         if (!emoji::containsEmoji(text)) {
             path.addText(x, baseline, font, text);
             return;
@@ -392,6 +397,8 @@ TitleImage renderText(const TitleStyle& s)
             QPainterPath linePath;
             linePath.setFillRule(Qt::WindingFill);
             linePath.addText(block.left() + x, baseline, font, lines[i]);
+            linePath.addPath(textDecorations(emojiMetrics, block.left() + x, baseline, w,
+                s.underline, s.strikethrough));
             const QPainterPath cut = visibleClip(lines[i], font, shown, lineOffset,
                 block.left() + x, baseline - fm.ascent() - fm.height(), fm.height() * 3);
             path.addPath(linePath.intersected(cut));
@@ -619,6 +626,25 @@ TitleImage renderStack(const TitleStyle& s)
 }
 
 } // namespace
+
+QPainterPath textDecorations(const QFontMetricsF& metrics, double x, double baseline, double width,
+    bool underline, bool strikethrough)
+{
+    QPainterPath bars;
+    if ((!underline && !strikethrough) || width <= 0)
+        return bars;
+    const double thickness = std::max(1.0, metrics.lineWidth());
+    if (underline) {
+        // A little below the baseline, never touching it.
+        const double top = baseline + std::max(metrics.underlinePos(), thickness * 0.75);
+        bars.addRect(QRectF(x, top, width, thickness));
+    }
+    if (strikethrough) {
+        const double centre = baseline - metrics.strikeOutPos();
+        bars.addRect(QRectF(x, centre - thickness / 2, width, thickness));
+    }
+    return bars;
+}
 
 TitleImage renderTitle(const TitleStyle& style)
 {
