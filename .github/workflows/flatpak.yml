@@ -173,6 +173,8 @@ jobs:
         run: |
           set -euo pipefail
           [ -d site/repo/objects ] || ostree init --repo=site/repo --mode=archive-z2
+          # git does not keep empty directories; ostree wants them
+          mkdir -p site/repo/refs/heads site/repo/refs/remotes site/repo/tmp site/repo/state site/repo/extensions
           rm -rf incoming && ostree init --repo=incoming --mode=archive
           for b in bundles/*.flatpak; do
             flatpak build-import-bundle incoming "$b"
