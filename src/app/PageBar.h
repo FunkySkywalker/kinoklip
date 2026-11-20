@@ -3,7 +3,7 @@
 #pragma once
 
 #include <QList>
-#include <QWidget>
+#include "ui/common/ChromeBar.h"
 
 class QAction;
 class QHBoxLayout;
@@ -14,7 +14,7 @@ namespace kk {
 /// Bottom bar with one button per page. Each button shows a page action (checkable, in an
 /// exclusive group owned by MainWindow), so clicking, the View menu and Shift+N shortcuts all
 /// stay in sync. Object name "PageBar" for the style sheet.
-class PageBar : public QWidget
+class PageBar : public ChromeBar
 {
     Q_OBJECT
 public:

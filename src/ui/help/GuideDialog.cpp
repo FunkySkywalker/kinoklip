@@ -38,6 +38,7 @@ GuideDialog::GuideDialog(QWidget* parent)
 
     auto* hint = new QLabel(tr("Articles open in your web browser."), this);
     hint->setObjectName(QStringLiteral("PlaceholderText"));
+    hint->setForegroundRole(QPalette::PlaceholderText);
 
     auto* layout = new QVBoxLayout(this);
     layout->setContentsMargins(

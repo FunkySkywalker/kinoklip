@@ -2,7 +2,9 @@
 // PanelFrame implementation and placeholder helpers.
 #include "ui/common/PanelFrame.h"
 
+#include "ui/common/ChromeBar.h"
 #include "ui/common/Metrics.h"
+#include "ui/common/UiFonts.h"
 #include "ui/common/StyleTokens.h"
 
 #include <QAction>
@@ -28,15 +30,15 @@ PanelFrame::PanelFrame(const QString& title, QWidget* parent)
     : QFrame(parent)
 {
     setObjectName(QStringLiteral("PanelFrame"));
-    setAttribute(Qt::WA_StyledBackground);
+    setAutoFillBackground(true); // the palette's window colour (was a style sheet rule)
 
-    m_titleBar = new QWidget(this);
+    m_titleBar = new ChromeBar(ChromeBar::Fill::PanelTitle, ChromeBar::BottomLine, this);
     m_titleBar->setObjectName(QStringLiteral("PanelTitleBar"));
-    m_titleBar->setAttribute(Qt::WA_StyledBackground);
     applyTitleHeight();
 
     m_titleLabel = new QLabel(title, m_titleBar);
     m_titleLabel->setObjectName(QStringLiteral("PanelTitle"));
+    uifonts::bindLabel(m_titleLabel, uifonts::Role::PanelTitle);
 
     // Three columns: leading widgets (+ title when left aligned) | centred title | tools.
     // Columns 0 and 2 stretch equally, so a centred title stays in the middle of the bar
@@ -209,6 +211,7 @@ QWidget* createPlaceholderContent(const QString& text, QWidget* parent)
 {
     auto* label = new QLabel(text, parent);
     label->setObjectName(QStringLiteral("PlaceholderText"));
+    label->setForegroundRole(QPalette::PlaceholderText);
     label->setAlignment(Qt::AlignCenter);
     label->setWordWrap(true);
     label->setMargin(metrics::kSpaceXl);

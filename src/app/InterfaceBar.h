@@ -3,7 +3,7 @@
 #pragma once
 
 #include <QHash>
-#include <QWidget>
+#include "ui/common/ChromeBar.h"
 
 class QAction;
 class QHBoxLayout;
@@ -13,7 +13,7 @@ namespace kk {
 
 /// "[Media Pool][Effects][Edit Index]   Project name   [Mixer][Metadata][Inspector]".
 /// Buttons show checkable panel-toggle actions. Object name "InterfaceBar" for styling.
-class InterfaceBar : public QWidget
+class InterfaceBar : public ChromeBar
 {
     Q_OBJECT
 public:

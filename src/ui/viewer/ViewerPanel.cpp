@@ -198,6 +198,7 @@ ViewerPanel::ViewerPanel(Mode mode, AppContext& ctx, QWidget* parent)
 
     m_timecode = new QLabel(timecode::format(0, Rational {}));
     m_timecode->setObjectName(QStringLiteral("TimecodeLabel"));
+    uifonts::bindLabel(m_timecode, uifonts::Role::ViewerTimecode);
     m_timecode->setContentsMargins(metrics::kSpaceS, 0, metrics::kSpaceS, 0);
     m_timecode->setToolTip(tr("Current timecode"));
     addTitleBarWidget(m_timecode);

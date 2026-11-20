@@ -19,6 +19,7 @@
 #include "ui/dialogs/PreferencesDialog.h"
 
 #include <QAction>
+#include <QElapsedTimer>
 #include <QApplication>
 #include <QDir>
 #include <QFile>
@@ -31,6 +32,7 @@
 
 #include <algorithm>
 #include <cstdlib>
+#include <functional>
 #include <memory>
 
 using namespace kk;
@@ -180,6 +182,45 @@ private slots:
         app.actions.action(theme::colorSchemeActionId(QStringLiteral("BreezeDark")))->trigger();
         QCoreApplication::processEvents();
         verifyConsistent(app, QStringLiteral("BreezeDark"));
+    }
+
+    // Timing of one switch (setting + all follow-up events). Prints the figures; only a very
+    // generous bound is asserted so the test is not a flaky perf gate.
+    void switchTiming()
+    {
+        App app;
+        QString why;
+        if (test::ensureFixtures(&why))
+            app.project.importMedia({test::fixture("h264_25fps.mp4")});
+        app.window->resize(1600, 900);
+        app.window->show();
+        QVERIFY(QTest::qWaitForWindowExposed(app.window.get()));
+        const auto settle = [] {
+            for (int i = 0; i < 3; ++i) {
+                QCoreApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
+                QCoreApplication::sendPostedEvents(nullptr, QEvent::LayoutRequest);
+                QCoreApplication::processEvents();
+            }
+        };
+        const auto time = [&](const char* what, const std::function<void()>& fn) {
+            settle();
+            QElapsedTimer t;
+            t.start();
+            fn();
+            settle();
+            const qint64 ms = t.elapsed();
+            qInfo("SWITCH %-34s %lld ms", what, static_cast<long long>(ms));
+            return ms;
+        };
+        const QString first = theme::availableStyles().first();
+        qint64 worst = 0;
+        for (int round = 0; round < 3; ++round) {
+            worst = std::max(worst, time("scheme BreezeLight", [] { theme::setColorScheme(QStringLiteral("BreezeLight")); }));
+            worst = std::max(worst, time("scheme BreezeDark", [] { theme::setColorScheme(QStringLiteral("BreezeDark")); }));
+            worst = std::max(worst, time("style Breeze", [] { theme::setStyle(QStringLiteral("Breeze")); }));
+            worst = std::max(worst, time("style Kinoklip", [&] { theme::setStyle(first); }));
+        }
+        QVERIFY2(worst < 20000, "a theme switch took over 20 s");
     }
 
 private:

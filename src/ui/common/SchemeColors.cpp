@@ -87,6 +87,10 @@ SchemeColors compute(const SchemeRoles& r, const QPalette& p, quint64 generation
     if ((c.header.lightness() < 128) != c.dark)
         c.header = c.dark ? c.window.lighter(115) : c.window.darker(103);
 
+    c.chromeSeparator = mixColors(c.window, c.text, 0.2);
+    c.chromeSeparator.setAlpha(255);
+    c.chromePanelTitle = c.dark && c.header.lightness() < c.window.lightness() ? c.window : c.header;
+
     c.link = or_(r.link, p.color(QPalette::Link));
     c.visited = or_(r.visited, p.color(QPalette::LinkVisited));
     c.focus = or_(r.focus, c.highlight);

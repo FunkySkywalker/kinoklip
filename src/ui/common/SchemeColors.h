@@ -52,6 +52,8 @@ struct SchemeColors
     // ---- scheme roles ------------------------------------------------------------------
     QColor window, windowAlt, view, viewAlt, button, header;
     QColor text, textDim, textDisabled, highlight, highlightText;
+    QColor chromeSeparator; ///< hairlines of the panel title, interface and page bars
+    QColor chromePanelTitle; ///< panel title bar fill (header, or the window in near-black-header schemes)
     QColor line; ///< separators, frames (QPalette::Dark)
     QColor shadow; ///< darkest shade of the scheme (key outlines, dimming)
     QColor bright; ///< the lighter of text and view background (light marks on clip bodies)

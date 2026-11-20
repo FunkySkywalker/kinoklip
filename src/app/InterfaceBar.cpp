@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // InterfaceBar implementation: a 3-column grid keeps the title centred whatever the button widths.
 #include "app/InterfaceBar.h"
+#include "ui/common/UiFonts.h"
 
 #include "ui/common/Metrics.h"
 #include "ui/common/SpringLoad.h"
@@ -20,10 +21,9 @@ constexpr int kIconSize = metrics::kToolIconSize;
 } // namespace
 
 InterfaceBar::InterfaceBar(QWidget* parent)
-    : QWidget(parent)
+    : ChromeBar(ChromeBar::Fill::Header, ChromeBar::BottomLine, parent)
 {
     setObjectName(QStringLiteral("InterfaceBar"));
-    setAttribute(Qt::WA_StyledBackground);
     setFixedHeight(kBarHeight);
 
     auto* grid = new QGridLayout(this);
@@ -34,6 +34,7 @@ InterfaceBar::InterfaceBar(QWidget* parent)
     m_right->setSpacing(metrics::kSpaceXs);
     m_title = new QLabel(this);
     m_title->setObjectName(QStringLiteral("ProjectTitle"));
+    uifonts::bindLabel(m_title, uifonts::Role::Title);
     m_title->setAlignment(Qt::AlignCenter);
 
     m_remote = new QLabel(tr("Assistant connected"), this);

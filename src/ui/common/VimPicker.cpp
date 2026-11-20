@@ -88,7 +88,7 @@ VimPicker::VimPicker(QWidget* window)
     layout->setContentsMargins(
         metrics::kSpaceM, metrics::kSpaceM, metrics::kSpaceM, metrics::kSpaceM);
     m_title = new QLabel(this);
-    m_title->setStyleSheet(QStringLiteral("QLabel { %1 }").arg(uifonts::css(uifonts::Role::PanelTitle)));
+    uifonts::bindLabel(m_title, uifonts::Role::PanelTitle);
     m_field = new QLineEdit(this);
     m_field->setObjectName(QStringLiteral("VimPickerField"));
     m_field->setClearButtonEnabled(false);

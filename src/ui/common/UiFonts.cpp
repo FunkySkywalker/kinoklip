@@ -5,6 +5,8 @@
 
 #include <QApplication>
 #include <QFontDatabase>
+#include <QPointer>
+#include <QWidget>
 #include <QSettings>
 
 #include <algorithm>
@@ -238,11 +240,43 @@ QString css(Role role)
     return out;
 }
 
+namespace {
+struct Bound
+{
+    QPointer<QWidget> widget;
+    Role role;
+};
+QList<Bound>& bound()
+{
+    static QList<Bound> list;
+    return list;
+}
+void restyle(const Bound& b)
+{
+    if (!b.widget)
+        return;
+    const QFont f = font(b.role, systemFont());
+    if (b.widget->font() != f)
+        b.widget->setFont(f);
+}
+} // namespace
+
+void bindLabel(QWidget* label, Role role)
+{
+    bound().removeIf([](const Bound& b) { return b.widget.isNull(); });
+    bound().append({label, role});
+    restyle(bound().last());
+}
+
 void apply(QApplication& app)
 {
     loadBundledFonts();
     const QFont system = systemFont(); // before the first change
-    app.setFont(font(Role::Body, choice(), system));
+    const QFont body = font(Role::Body, choice(), system);
+    if (app.font() != body)
+        app.setFont(body);
+    for (const Bound& b : std::as_const(bound()))
+        restyle(b);
 }
 
 QString styleSheetRules()

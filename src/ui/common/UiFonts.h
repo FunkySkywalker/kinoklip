@@ -85,7 +85,13 @@ void loadBundledFonts();
 void apply(QApplication& app);
 
 /// Style sheet rules for the labels with a role (PanelTitle, TimecodeLabel), for the choice
-/// in force; Theme appends them to the application style sheet.
+/// in force. Not part of the application style sheet any more (see bindLabel).
 [[nodiscard]] QString styleSheetRules();
+
+/// Gives @p label the font of @p role and keeps it in step with the interface font choice
+/// (apply() refreshes every bound label). Replaces rules in the application style sheet, which
+/// re-polished every widget of the program on each theme switch (and a style sheet on the label
+/// itself would freeze its palette).
+void bindLabel(QWidget* label, Role role);
 
 } // namespace kk::uifonts

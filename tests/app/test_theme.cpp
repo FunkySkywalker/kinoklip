@@ -122,9 +122,8 @@ private slots:
         QCOMPARE(QSettings().value(QLatin1String(prefs::kColorScheme)).toString(),
             QStringLiteral("BreezeLight"));
         QCOMPARE(QApplication::palette().color(QPalette::Window), QColor(239, 240, 241));
-        // The panel style sheet follows the palette.
-        QVERIFY(qApp->styleSheet().contains(QStringLiteral("PanelFrame")));
-        QVERIFY(qApp->styleSheet().contains(QColor(239, 240, 241).name(QColor::HexArgb)));
+        // No application style sheet: it made every switch re-polish every widget.
+        QVERIFY(qApp->styleSheet().isEmpty());
 
         // Style switch keeps the colour scheme.
         QAction* fusion = registry.action(theme::styleActionId(QStringLiteral("Fusion")));

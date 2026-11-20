@@ -53,9 +53,6 @@ constexpr char kSchemeCategory[] = "settings.color_scheme";
 constexpr char kStyleCategory[] = "settings.style";
 constexpr char kSystemActionSuffix[] = "system";
 constexpr int kSwatchSize = 16; ///< px, colour scheme preview icon in the fallback build
-/// Weight of the text colour in separators/borders. Breeze draws frames and separators with
-/// KColorUtils::mix(background, text, 0.2); using the same keeps our chrome lines identical.
-constexpr double kSeparatorMix = 0.2;
 
 /// Everything the theme remembers between calls (GUI thread only).
 struct State
@@ -79,54 +76,6 @@ State& state()
 {
     static State s;
     return s;
-}
-
-QColor mix(const QColor& a, const QColor& b, double amount)
-{
-    const auto lerp = [amount](int x, int y) { return int(x + (y - x) * amount + 0.5); };
-    return QColor(lerp(a.red(), b.red()), lerp(a.green(), b.green()), lerp(a.blue(), b.blue()));
-}
-
-QString css(const QColor& c)
-{
-    return c.name(QColor::HexArgb);
-}
-
-// ---- Style sheet ----------------------------------------------------------------------
-// Only our own chrome (object names from PanelFrame, InterfaceBar, PageBar) gets rules, and
-// only backgrounds, borders and font weights: buttons, tabs, menus, scroll bars, focus rings
-// and selections are all drawn by the widget style (Breeze), never by QSS.
-QString styleSheet(const QPalette& p)
-{
-    const QColor window = p.color(QPalette::Window);
-    const QColor text = p.color(QPalette::WindowText);
-    const QColor separator = mix(window, text, kSeparatorMix);
-    QColor header = state().headerBackground;
-    // A header from another scheme than the palette (light window, dark header or the other
-    // way round) is never right: derive it from the window colour then.
-    const bool darkWindow = window.lightness() < 128;
-    if (!header.isValid() || (header.lightness() < 128) != darkWindow)
-        header = darkWindow ? window.lighter(115) : window.darker(103);
-
-    // Panel title bars: the header colour, except when the header is darker than the window
-    // (Kinoklip scheme: near-black top and page bars), where the title bars take the panel's
-    // own colour like Resolve's (a hairline below separates them).
-    const QColor panelTitle = darkWindow && header.lightness() < window.lightness() ? window : header;
-
-    QString sheet = QStringLiteral(R"(
-QSplitter::handle { background: %1; }
-QFrame#PanelFrame { background: %2; border: none; }
-QWidget#PanelTitleBar { background: %5; border-bottom: 1px solid %1; }
-QLabel#PlaceholderText { color: %4; }
-QWidget#InterfaceBar, QWidget#PageBar { background: %3; }
-QWidget#InterfaceBar { border-bottom: 1px solid %1; }
-QWidget#PageBar { border-top: 1px solid %1; }
-QLabel#ProjectTitle { %6 }
-)");
-    return sheet.arg(css(separator), css(window), css(header),
-               css(p.color(QPalette::PlaceholderText)), css(panelTitle),
-               uifonts::css(uifonts::Role::PanelTitle))
-        + uifonts::styleSheetRules();
 }
 
 // ---- Styles ---------------------------------------------------------------------------
@@ -473,21 +422,46 @@ void applyIconTheme()
 /// Breeze style reads KDE's Header colours for menu and tool bars from that path when it is
 /// created and does not notice later in-app changes), then the scheme again (a style change
 /// resets the application palette). Updates the state's active ids.
-void applyStyleAndScheme(QApplication& app, const QString& style, const QString& scheme)
+void applyStyleAndScheme(QApplication& app, const QString& style, const QString& scheme,
+    bool keepStyle = false)
 {
     State& s = state();
     s.activeScheme = applyScheme(app, scheme);
+    if (keepStyle)
+        return; // the style follows the palette by itself: no re-polish of every widget
     s.activeStyle = applyStyle(style);
     s.activeScheme = applyScheme(app, s.activeScheme);
+}
+
+/// True for styles that read the application palette each time they paint (Kinoklip, Fusion),
+/// so a colour scheme switch does not need a new style instance. Breeze reads the scheme
+/// file at creation and does.
+bool styleFollowsPalette(const QString& style)
+{
+    return style.compare(KinoklipStyle::key(), Qt::CaseInsensitive) == 0
+        || style.compare(QLatin1String("Fusion"), Qt::CaseInsensitive) == 0;
 }
 
 void refreshChrome(QApplication& app)
 {
     uifonts::apply(app);
     applyIconTheme();
-    app.setStyleSheet(styleSheet(QApplication::palette()));
+    if (!app.styleSheet().isEmpty())
+        app.setStyleSheet(QString()); // the chrome paints itself (ChromeBar)
     // Last: custom-painted widgets repaint from the new roles (SchemeColorsNotifier).
     setSchemeRoles(state().roles);
+    // A widget with an own style sheet keeps the palette its sheet derived when it was applied
+    // (and "palette(...)" colours in it), so it does not follow the new scheme by itself. The
+    // application style sheet used to re-polish everything and hide this; now only the few
+    // widgets that have a sheet of their own are polished again.
+    const QWidgetList all = QApplication::allWidgets();
+    for (QWidget* w : all) {
+        const QString sheet = w->styleSheet();
+        if (sheet.isEmpty())
+            continue;
+        w->setStyleSheet(QString());
+        w->setStyleSheet(sheet);
+    }
 }
 
 void syncActionChecks()
@@ -703,7 +677,7 @@ void setColorScheme(const QString& id)
     QApplication* app = application();
     if (!app)
         return;
-    applyStyleAndScheme(*app, state().activeStyle, id);
+    applyStyleAndScheme(*app, state().activeStyle, id, styleFollowsPalette(state().activeStyle));
     refreshChrome(*app);
     syncActionChecks();
 }

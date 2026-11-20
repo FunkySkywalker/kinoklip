@@ -21,10 +21,9 @@ constexpr int kButtonMinWidth = 112;
 } // namespace
 
 PageBar::PageBar(QWidget* parent)
-    : QWidget(parent)
+    : ChromeBar(ChromeBar::Fill::Header, ChromeBar::TopLine, parent)
 {
     setObjectName(QStringLiteral("PageBar"));
-    setAttribute(Qt::WA_StyledBackground);
     setFixedHeight(kBarHeight);
     m_root = new QHBoxLayout(this);
     m_root->setContentsMargins(metrics::kSpaceM, 0, metrics::kSpaceM, 0);
@@ -74,7 +73,7 @@ void PageBar::addPageAction(QAction* pageAction)
 
 void PageBar::changeEvent(QEvent* event)
 {
-    QWidget::changeEvent(event);
+    ChromeBar::changeEvent(event);
     if (event->type() == QEvent::StyleChange)
         applyLook();
 }

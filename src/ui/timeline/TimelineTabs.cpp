@@ -18,6 +18,23 @@ namespace {
 
 constexpr int kMaxTabTextWidth = 220; ///< px; longer names are elided
 
+/// Tab bar whose tabs are at most kMaxTabTextWidth wide (long names elide). Was a widget style
+/// sheet, which kept this bar's whole subtree on QStyleSheetStyle and its palette stale on a
+/// colour scheme switch.
+class CappedTabBar final : public QTabBar
+{
+public:
+    using QTabBar::QTabBar;
+
+protected:
+    QSize tabSizeHint(int index) const override
+    {
+        QSize size = QTabBar::tabSizeHint(index);
+        size.setWidth(qMin(size.width(), kMaxTabTextWidth));
+        return size;
+    }
+};
+
 QIcon timelineIcon(const TimelineData& data)
 {
     return icon(data.compound ? QStringLiteral("compound_clip") : QStringLiteral("timeline"));
@@ -34,7 +51,7 @@ TimelineTabs::TimelineTabs(AppContext& ctx, QWidget* parent)
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
 
-    m_bar = new QTabBar(this);
+    m_bar = new CappedTabBar(this);
     m_bar->setObjectName(QStringLiteral("TimelineTabBar"));
     m_bar->setDocumentMode(true);
     m_bar->setMovable(true);
@@ -44,7 +61,6 @@ TimelineTabs::TimelineTabs(AppContext& ctx, QWidget* parent)
     m_bar->setUsesScrollButtons(true);
     m_bar->setFocusPolicy(Qt::NoFocus); // keys stay with the timeline
     m_bar->setContextMenuPolicy(Qt::CustomContextMenu);
-    m_bar->setStyleSheet(QStringLiteral("QTabBar::tab { max-width: %1px; }").arg(kMaxTabTextWidth));
     layout->addWidget(m_bar, 1); // the tabs take the row (scroll buttons only when they must)
 
     m_combo = new QComboBox(this);
