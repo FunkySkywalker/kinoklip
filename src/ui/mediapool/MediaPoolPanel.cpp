@@ -960,7 +960,13 @@ void MediaPoolPanel::setViewMode(ViewMode mode)
         m_stack->setCurrentIndex(kStackEmpty);
     if (m_applyingView)
         return;
-    QSettings().setValue(QLatin1String(kViewModeKey), viewModeKey(mode));
+    // Only a change is written: QSettings() flushes the file (an fsync) when it goes out of
+    // scope, and every media pool panel restores the stored mode while the window is built.
+    {
+        QSettings settings;
+        if (viewModeFromKey(settings.value(QLatin1String(kViewModeKey)).toString()) != mode)
+            settings.setValue(QLatin1String(kViewModeKey), viewModeKey(mode));
+    }
     storeBinView();
 }
 
