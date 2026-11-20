@@ -4,6 +4,7 @@
 #include "app/Theme.h"
 
 #include "app/ColorSchemeFile.h"
+#include "app/ComboPopups.h"
 #include "app/InstantPopups.h"
 #include "app/KinoklipStyle.h"
 #include "app/MenuMetricsStyle.h"
@@ -600,6 +601,7 @@ void apply(QApplication& app)
     });
     syncActionChecks();
     instantpopups::install(app); // menus and popups open and close at once
+    combopopups::install(app); // combo lists are as wide as their widest entry
     qCInfo(lcTheme) << "style" << s.activeStyle << "colour scheme"
                     << (s.activeScheme.isEmpty() ? QStringLiteral("(system)") : s.activeScheme)
                     << "icon theme" << QIcon::themeName()
