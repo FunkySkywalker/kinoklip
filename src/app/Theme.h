@@ -51,6 +51,8 @@ void apply(QApplication& app);
 
 /// QStyleFactory keys the user can choose (Breeze first when present).
 [[nodiscard]] QStringList availableStyles();
+/// The label shown for the style @p key in menus and combo boxes (translated).
+[[nodiscard]] QString styleDisplayName(const QString& key);
 /// The active widget style key.
 [[nodiscard]] QString currentStyle();
 /// Stores @p style and switches the running application to it (re-applies the colours).

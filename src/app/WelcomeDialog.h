@@ -9,6 +9,7 @@
 #include <QDialog>
 #include <QList>
 #include <QString>
+#include <QVariant>
 #include <QStringList>
 
 class QCheckBox;
@@ -36,6 +37,8 @@ class TimelineHero;
 /// starts at what is stored now, so Next, Next, Next, Finish changes nothing; Finish stores
 /// only the fields that were changed, through the same code the Preferences pages use, and
 /// emits applied() so the window re-reads them. Skip (or closing the window) stores nothing.
+/// The one exception is shown live: the colour theme and widget style apply to the whole
+/// application as soon as they are picked, and Skip or closing puts them back.
 ///
 /// The window records itself as shown ("welcome/shown" = kVersion) when it appears; raise
 /// kVersion to show it once more after a change big enough to need new questions.
@@ -70,6 +73,9 @@ public:
     void skip();
     /// Stores the changed choices, announces them and closes (the Finish button).
     void finish();
+    /// Closes like Skip: the previewed colour theme and widget style go back to what they were
+    /// when the window opened (Skip, Esc and the close button all end here).
+    void reject() override;
     /// What needed a restart in the last finish() (language, interface scale).
     [[nodiscard]] QStringList restartNeeded() const { return m_restartNeeded; }
 
@@ -90,6 +96,10 @@ private:
     QWidget* systemPage();
     void showPage(int index);
     void updateMenuPreview();
+    /// Applies the Look page's colour theme and widget style to the running application now.
+    void previewLook();
+    /// Puts the colour theme and widget style (and their stored values) back to the start.
+    void restoreLook();
 
     ActionRegistry& m_registry;
     QStackedWidget* m_pages = nullptr;
@@ -108,6 +118,14 @@ private:
     QComboBox* m_language = nullptr;
     // Look
     QComboBox* m_theme = nullptr;
+    QComboBox* m_style = nullptr;
+    // The look when the window opened, restored by Skip, Esc and the close button.
+    QString m_startScheme;
+    QString m_startStyle;
+    QVariant m_startStoredScheme;
+    QVariant m_startStoredStyle;
+    QVariant m_startStoredSystemColors;
+    bool m_lookPreviewed = false;
     QComboBox* m_scale = nullptr;
     QCheckBox* m_animate = nullptr;
     // Menus and keys

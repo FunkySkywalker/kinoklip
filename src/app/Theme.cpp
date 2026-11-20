@@ -636,6 +636,11 @@ QStringList availableStyles()
     return keys;
 }
 
+QString styleDisplayName(const QString& key)
+{
+    return styleLabel(key);
+}
+
 QString currentStyle()
 {
     return state().activeStyle;

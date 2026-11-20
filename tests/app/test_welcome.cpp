@@ -229,6 +229,57 @@ private slots:
         QVERIFY(!WelcomeDialog::shouldShow());
     }
 
+    void lookChoicesPreviewLiveAndSkipRestores()
+    {
+        Fixture f;
+        const auto before = stored();
+        const QString startStyle = theme::currentStyle();
+        const QString startScheme = theme::currentColorScheme();
+        WelcomeDialog* d = f.window->showWelcome();
+        auto* styleBox = field<QComboBox>(d, "WelcomeStyle");
+        auto* themeBox = field<QComboBox>(d, "WelcomeTheme");
+        QVERIFY(styleBox && styleBox->count() >= 2);
+        QCOMPARE(styleBox->currentData().toString(), startStyle);
+        // Colour scheme: applied at once, the style instance stays.
+        const QString otherScheme = startScheme == QLatin1String("BreezeLight")
+            ? QStringLiteral("BreezeDark")
+            : QStringLiteral("BreezeLight");
+        const QStyle* styleBefore = QApplication::style();
+        pick(themeBox, otherScheme);
+        QCOMPARE(theme::currentColorScheme(), otherScheme);
+        QCOMPARE(QApplication::style(), styleBefore);
+        // Widget style: every listed style applies at once and keeps the chosen scheme.
+        for (int i = 0; i < styleBox->count(); ++i) {
+            styleBox->setCurrentIndex(i);
+            QCOMPARE(theme::currentStyle(), styleBox->currentData().toString());
+            QCOMPARE(theme::currentColorScheme(), otherScheme);
+            QApplication::processEvents();
+            d->grab(); // paints the dialog in the new style without crashing
+        }
+        // Skip puts everything back, also what is stored.
+        field<QPushButton>(d, "WelcomeSkip")->click();
+        QCOMPARE(theme::currentStyle(), startStyle);
+        QCOMPARE(theme::currentColorScheme(), startScheme);
+        QCOMPARE(stored(), before);
+    }
+
+    void finishKeepsThePreviewedLook()
+    {
+        Fixture f;
+        const QString startStyle = theme::currentStyle();
+        WelcomeDialog* d = f.window->showWelcome();
+        auto* styleBox = field<QComboBox>(d, "WelcomeStyle");
+        QString other;
+        for (int i = 0; i < styleBox->count(); ++i)
+            if (styleBox->itemData(i).toString() != startStyle)
+                other = styleBox->itemData(i).toString();
+        pick(styleBox, other);
+        d->finish();
+        QCOMPARE(theme::currentStyle(), other);
+        QCOMPARE(QSettings().value(QLatin1String(prefs::kWidgetStyle)).toString(), other);
+        theme::setStyle(startStyle);
+    }
+
     void fieldsStartAtTheStoredChoices()
     {
         Fixture f;
