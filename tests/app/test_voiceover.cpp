@@ -404,6 +404,25 @@ private slots:
         QCOMPARE(int(wav.ch0.size()), 4800); // only what came after the count-in
     }
 
+    void countInFollowsTheClockWhenTheEventLoopIsBusy()
+    {
+        // A tick that comes late (a busy event loop, a loaded machine) must not push the start of
+        // the take later: the count-in is timed by a clock, not by counting ticks.
+        Fixture f;
+        QSettings().setValue(QLatin1String(prefs::kVoiceOverCountIn), 2);
+        QVERIFY(f.vo->arm(f.a1()));
+        QList<int> ticks;
+        connect(f.vo.get(), &VoiceOverController::countInTick, this, [&](int n) { ticks << n; });
+        QElapsedTimer clock;
+        clock.start();
+        QVERIFY(f.vo->startRecording());
+        QTest::qSleep(1300); // the first tick is 300 ms late
+        QTRY_COMPARE_WITH_TIMEOUT(f.vo->state(), VoiceOverController::State::Recording, 5000);
+        const qint64 elapsed = clock.elapsed();
+        QVERIFY2(elapsed >= 1950 && elapsed < 2250, qPrintable(QString::number(elapsed)));
+        QCOMPARE(ticks, (QList<int> {2, 1, 0}));
+    }
+
     void cancellingTheCountInMakesNothing()
     {
         Fixture f;
