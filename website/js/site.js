@@ -325,6 +325,20 @@
     });
   }
 
+  /* Command boxes: a small button copies the command. */
+  $$('pre[data-copy]').forEach(function (pre) {
+    if (!navigator.clipboard) return;
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'copy-btn'; b.textContent = 'Copy';
+    b.addEventListener('click', function () {
+      navigator.clipboard.writeText(pre.querySelector('code').textContent.trim()).then(function () {
+        b.textContent = 'Copied';
+        setTimeout(function () { b.textContent = 'Copy'; }, 1800);
+      }, function () {});
+    });
+    pre.appendChild(b);
+  });
+
   /* Download button: the download starts, and a small window asks about a donation. */
   var donate = $('#donate');
   if (donate && typeof donate.showModal === 'function') {
