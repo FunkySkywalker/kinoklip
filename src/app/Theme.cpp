@@ -95,6 +95,8 @@ QString styleLabel(const QString& style)
 {
     if (style.compare(KinoklipStyle::key(), Qt::CaseInsensitive) == 0)
         return QCoreApplication::translate("kk::theme", "Kinoklip (Resolve look)");
+    if (style.compare(QLatin1String("Libadwaita"), Qt::CaseInsensitive) == 0)
+        return QCoreApplication::translate("kk::theme", "Libadwaita (GNOME look)");
     return style;
 }
 
@@ -422,15 +424,27 @@ void applyIconTheme()
 /// Breeze style reads KDE's Header colours for menu and tool bars from that path when it is
 /// created and does not notice later in-app changes), then the scheme again (a style change
 /// resets the application palette). Updates the state's active ids.
+/// True for a style that brings its own palette: the optional "Libadwaita" Qt style
+/// (qt-libadwaita, loaded from the user's plugin folder when installed) follows GNOME's light /
+/// dark setting by itself, so the colour scheme only feeds the custom-painted roles. Its
+/// ADWAITA_KEEP_APP_PALETTE=1 switch keeps our scheme instead.
+bool styleOwnsPalette(const QString& style)
+{
+    return style.compare(QLatin1String("Libadwaita"), Qt::CaseInsensitive) == 0
+        && qEnvironmentVariableIntValue("ADWAITA_KEEP_APP_PALETTE") == 0;
+}
+
 void applyStyleAndScheme(QApplication& app, const QString& style, const QString& scheme,
     bool keepStyle = false)
 {
     State& s = state();
     s.activeScheme = applyScheme(app, scheme);
-    if (keepStyle)
-        return; // the style follows the palette by itself: no re-polish of every widget
-    s.activeStyle = applyStyle(style);
-    s.activeScheme = applyScheme(app, s.activeScheme);
+    if (!keepStyle) {
+        s.activeStyle = applyStyle(style);
+        s.activeScheme = applyScheme(app, s.activeScheme);
+    } // else: the style follows the palette by itself, no re-polish of every widget
+    if (styleOwnsPalette(s.activeStyle))
+        QApplication::setPalette(QApplication::style()->standardPalette());
 }
 
 /// True for styles that read the application palette each time they paint (Kinoklip, Fusion),
