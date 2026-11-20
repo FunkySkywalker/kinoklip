@@ -356,6 +356,12 @@ EffectsLibraryPanel::EffectsLibraryPanel(AppContext& ctx, QWidget* parent)
     m_categories->setHeaderHidden(true);
     m_categories->setFrameShape(QFrame::NoFrame);
     m_categories->setIndentation(metrics::kSpaceL);
+    // The sidebar is narrow by default: names elide with "..." (full name as the tooltip)
+    // instead of being cut off at its edge or growing a horizontal scroll bar.
+    m_categories->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_categories->setTextElideMode(Qt::ElideRight);
+    m_categories->header()->setStretchLastSection(false);
+    m_categories->header()->setSectionResizeMode(0, QHeaderView::Stretch);
     m_categories->setSelectionMode(QAbstractItemView::SingleSelection);
 
     auto* listSide = new QWidget;
@@ -644,6 +650,7 @@ void EffectsLibraryPanel::populate()
             continue;
         auto* item = new QTreeWidgetItem(toolbox, {sectionTitle(category)});
         item->setData(0, Qt::UserRole, int(category));
+        item->setToolTip(0, item->text(0)); // the full name when the sidebar elides it
     }
     toolbox->setExpanded(true);
     if (!registry.byCategory(EffectCategory::AudioEffect).isEmpty()) {
