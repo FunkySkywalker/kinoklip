@@ -256,6 +256,52 @@ void WelcomeDialog::skip()
     reject();
 }
 
+void WelcomeDialog::reject()
+{
+    restoreLook();
+    QDialog::reject();
+}
+
+void WelcomeDialog::previewLook()
+{
+    if (!m_theme || !m_style)
+        return;
+    const QString style = m_style->currentData().toString();
+    const QString scheme = m_theme->currentData().toString();
+    // One switch at a time: a scheme-only change keeps the style instance (cheap), a style change
+    // re-applies the current scheme with it. Both store the choice; restoreLook() undoes that.
+    if (style != theme::currentStyle()) {
+        m_lookPreviewed = true;
+        theme::setStyle(style);
+    }
+    if (scheme != theme::currentColorScheme()) {
+        m_lookPreviewed = true;
+        theme::setColorScheme(scheme);
+    }
+}
+
+void WelcomeDialog::restoreLook()
+{
+    if (!m_lookPreviewed)
+        return;
+    m_lookPreviewed = false;
+    if (m_startStyle != theme::currentStyle())
+        theme::setStyle(m_startStyle);
+    if (m_startScheme != theme::currentColorScheme())
+        theme::setColorScheme(m_startScheme);
+    // The setters stored the values; put the stored state back exactly (also "never stored").
+    QSettings settings;
+    const auto put = [&settings](const char* key, const QVariant& value) {
+        if (value.isValid())
+            settings.setValue(QLatin1String(key), value);
+        else
+            settings.remove(QLatin1String(key));
+    };
+    put(prefs::kWidgetStyle, m_startStoredStyle);
+    put(prefs::kColorScheme, m_startStoredScheme);
+    put(prefs::kUseSystemColors, m_startStoredSystemColors);
+}
+
 /// A page from the second on: a bold centred title and the hero under it. The fields are added
 /// by the caller; every element is also an entrance group.
 QWidget* WelcomeDialog::makePage(const QString& title, QWidget* hero)
@@ -340,6 +386,25 @@ QWidget* WelcomeDialog::lookPage()
     rows << addRow(form, tr("Colour theme"), m_theme,
         tr("The colours of the whole window, dark or light. Change it later in the Workspace "
            "menu or in Preferences > User > UI Settings."));
+
+    m_style = choice("WelcomeStyle");
+    for (const QString& style : theme::availableStyles())
+        m_style->addItem(theme::styleDisplayName(style), style);
+    m_style->setCurrentIndex(std::max(0, m_style->findData(theme::currentStyle())));
+    rows << addRow(form, tr("Widget style"), m_style,
+        tr("How buttons, menus and fields are drawn. Kinoklip is the Resolve look. Change it "
+           "later in the Workspace menu."));
+    // Live preview: the window and the main window behind it change as the choice changes.
+    m_startScheme = theme::currentColorScheme();
+    m_startStyle = theme::currentStyle();
+    {
+        const QSettings stored;
+        m_startStoredScheme = stored.value(QLatin1String(prefs::kColorScheme));
+        m_startStoredStyle = stored.value(QLatin1String(prefs::kWidgetStyle));
+        m_startStoredSystemColors = stored.value(QLatin1String(prefs::kUseSystemColors));
+    }
+    connect(m_theme, &QComboBox::currentIndexChanged, this, &WelcomeDialog::previewLook);
+    connect(m_style, &QComboBox::currentIndexChanged, this, &WelcomeDialog::previewLook);
 
     m_scale = choice("WelcomeScale");
     m_scale->addItem(tr("Automatic (system)"), QStringLiteral("auto"));
@@ -528,9 +593,8 @@ void WelcomeDialog::finish()
         settings.setValue(QLatin1String(i18n::kLanguageKey), language);
         m_restartNeeded << tr("Language");
     }
-    const QString scheme = m_theme->currentData().toString();
-    if (scheme != theme::currentColorScheme())
-        theme::setColorScheme(scheme);
+    previewLook(); // normally a no-op: the choices were applied when they were picked
+    m_lookPreviewed = false; // kept: the stored values stay
     const QString scale = m_scale->currentData().toString();
     if (scale
         != settings.value(QLatin1String(prefs::kUiScale), QStringLiteral("auto")).toString()) {
