@@ -14,11 +14,11 @@
 #include "core/ParamKeys.h"
 #include "core/Retime.h"
 #include "media/WaveformData.h"
-#include "ui/common/UiFonts.h"
 #include "ui/common/Icons.h"
 #include "ui/common/SchemeColors.h"
 #include "ui/common/SourceTimecode.h"
 #include "ui/common/TimecodeFormat.h"
+#include "ui/common/UiFonts.h"
 #include "ui/timeline/LevelLines.h"
 #include "ui/timeline/NestedPreview.h"
 #include "ui/timeline/RetimeBar.h"
@@ -27,6 +27,7 @@
 #include <QCoreApplication>
 #include <QFontMetrics>
 #include <QPainter>
+#include <QPainterPath>
 #include <QPalette>
 #include <QPolygonF>
 
@@ -127,10 +128,6 @@ void TimelinePainter::setStyle(const QPalette& pal, const QFont& font)
     auto pix = [](const char* name) { return kk::icon(QLatin1String(name)).pixmap(kIconSize); };
     m_iconLock = pix("lock");
     m_iconUnlock = pix("unlock");
-    m_iconVisible = pix("visible");
-    m_iconHidden = pix("hidden");
-    m_iconMute = pix("mute");
-    m_iconSolo = pix("solo");
 }
 
 QColor TimelinePainter::clipColor(const ClipData& clip, TrackType type)
@@ -1206,6 +1203,84 @@ void TimelinePainter::paintOverlays(QPainter& p, const TimelinePaintInput& in)
 
 // ---- Headers ----
 
+namespace {
+
+/// Auto select (Resolve's "<|>" button): two chevrons around a vertical bar with a cap.
+void paintAutoSelectGlyph(QPainter& p, const QRect& r, const QColor& color)
+{
+    const QPointF c = QRectF(r).center();
+    p.save();
+    p.setRenderHint(QPainter::Antialiasing, true);
+    p.setBrush(Qt::NoBrush);
+    p.setPen(QPen(color, 1.2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    QPainterPath path;
+    path.moveTo(c.x() - 4.4, c.y() - 2.8); // left chevron
+    path.lineTo(c.x() - 7.0, c.y());
+    path.lineTo(c.x() - 4.4, c.y() + 2.8);
+    path.moveTo(c.x() + 4.4, c.y() - 2.8); // right chevron
+    path.lineTo(c.x() + 7.0, c.y());
+    path.lineTo(c.x() + 4.4, c.y() + 2.8);
+    path.moveTo(c.x(), c.y() - 4.2); // bar
+    path.lineTo(c.x(), c.y() + 4.2);
+    path.moveTo(c.x() - 1.4, c.y() - 4.2); // caps
+    path.lineTo(c.x() + 1.4, c.y() - 4.2);
+    path.moveTo(c.x() - 1.4, c.y() + 4.2);
+    path.lineTo(c.x() + 1.4, c.y() + 4.2);
+    p.drawPath(path);
+    p.restore();
+}
+
+/// Track enable (Resolve's film strip button): a rounded frame with perforations.
+void paintFilmGlyph(QPainter& p, const QRect& r, const QColor& color)
+{
+    const QRectF f = QRectF(r).adjusted(3.5, 4.5, -3.5, -4.5);
+    p.save();
+    p.setRenderHint(QPainter::Antialiasing, true);
+    p.setPen(Qt::NoPen);
+    p.setBrush(color);
+    p.drawRoundedRect(f, 1.5, 1.5);
+    // Punch the frame window and the perforation holes out in the plate colour.
+    const QColor hole
+        = p.brush().color().lightness() > 128 ? QColor(0, 0, 0, 110) : QColor(255, 255, 255, 90);
+    p.setBrush(hole);
+    p.drawRect(QRectF(f.left() + 3.2, f.top() + 2.2, f.width() - 6.4, f.height() - 4.4));
+    for (int i = 0; i < 3; ++i) {
+        const double y = f.top() + 1.1 + i * (f.height() - 2.6) / 2.0;
+        p.drawRect(QRectF(f.left() + 0.9, y, 1.4, 1.1));
+        p.drawRect(QRectF(f.right() - 2.3, y, 1.4, 1.1));
+    }
+    p.restore();
+}
+
+/// Sync lock: two arrows chasing each other round a circle (the usual "in sync" symbol).
+void paintSyncGlyph(QPainter& p, const QRect& r, const QColor& color)
+{
+    const QPointF c = QRectF(r).center();
+    constexpr double radius = 4.2;
+    p.save();
+    p.setRenderHint(QPainter::Antialiasing, true);
+    p.setBrush(Qt::NoBrush);
+    p.setPen(QPen(color, 1.4, Qt::SolidLine, Qt::RoundCap));
+    const QRectF circle(c.x() - radius, c.y() - radius, 2 * radius, 2 * radius);
+    p.drawArc(circle, 20 * 16, 130 * 16);
+    p.drawArc(circle, 200 * 16, 130 * 16);
+    // Arrow heads at the arcs' ends (counter-clockwise ends at 150 and 330 degrees).
+    p.setPen(Qt::NoPen);
+    p.setBrush(color);
+    for (const double deg : {150.0, 330.0}) {
+        const double a = deg * M_PI / 180.0;
+        const QPointF tip(c.x() + radius * std::cos(a), c.y() - radius * std::sin(a));
+        const QPointF dir(std::sin(a), std::cos(a)); // counter-clockwise tangent
+        const QPointF out(std::cos(a), -std::sin(a));
+        QPolygonF head;
+        head << tip + dir * 2.6 << tip + out * 2.0 - dir * 0.4 << tip - out * 2.0 - dir * 0.4;
+        p.drawPolygon(head);
+    }
+    p.restore();
+}
+
+} // namespace
+
 void TimelinePainter::paintHeaders(QPainter& p, const TimelinePaintInput& in)
 {
     const TimelineLayout& L = *in.layout;
@@ -1230,18 +1305,19 @@ void TimelinePainter::paintHeaders(QPainter& p, const TimelinePaintInput& in)
         p.fillRect(QRect(0, r.top(), 3, r.height()), strip);
         p.fillRect(QRect(0, r.bottom(), kHeaderWidth, 1), m_line);
 
-        // Destination patch with the short name ("V1"); filled when targeted.
+        // Destination patch with the short name ("V1"). Resolve paints the active destination
+        // as a dark red plate with a red outline; an inactive one is a plain dark plate.
         const QRect patch = L.headerButtonRect(row, HeaderButton::Target);
         // Subtitle tracks have no source patch: their label is never "targeted".
         const bool targeted = !subtitle && (video ? in.targetVideo : in.targetAudio) == ref.index;
-        const QColor patchColor = strip;
+        const QColor patchColor = mixColors(m_window, sc().negative, 0.40);
         p.setRenderHint(QPainter::Antialiasing, true);
-        p.setPen(targeted ? patchColor.lighter(130) : m_line.lighter(220));
+        p.setPen(targeted ? mixColors(m_window, sc().negative, 0.75) : m_line.lighter(220));
         p.setBrush(targeted ? patchColor : m_window.darker(125));
         p.drawRoundedRect(QRectF(patch).adjusted(0.5, 0.5, -0.5, -0.5), 3, 3);
         p.setRenderHint(QPainter::Antialiasing, false);
         p.setFont(m_boldFont);
-        p.setPen(targeted ? sc().textOn(patchColor) : m_text);
+        p.setPen(m_text);
         const QString shortName = (video             ? QStringLiteral("V")
                                           : subtitle ? QStringLiteral("ST")
                                                      : QStringLiteral("A"))
@@ -1249,6 +1325,8 @@ void TimelinePainter::paintHeaders(QPainter& p, const TimelinePaintInput& in)
         p.drawText(patch, Qt::AlignCenter, shortName);
 
         // Buttons from the right.
+        const QColor buttonFace = m_window.darker(118);
+        const QColor toggledFace = mixColors(buttonFace, m_text, 0.12);
         int buttonsLeft = kHeaderWidth;
         for (HeaderButton b : L.buttonsFor(ref.type)) {
             const QRect br = L.headerButtonRect(row, b);
@@ -1263,41 +1341,47 @@ void TimelinePainter::paintHeaders(QPainter& p, const TimelinePaintInput& in)
                 icon = on ? &m_iconLock : &m_iconUnlock;
                 break;
             case HeaderButton::Visible:
+                // Painted film glyph (Resolve's track enable): bright while the track is on.
                 on = !track.enabled;
-                onColor = m_window.darker(150);
-                icon = track.enabled ? &m_iconVisible : &m_iconHidden;
+                onColor = m_window.darker(118);
                 break;
             case HeaderButton::Mute:
                 on = track.muted;
                 onColor = sc().muted;
-                icon = &m_iconMute;
                 break;
             case HeaderButton::Solo:
                 on = track.solo;
                 onColor = sc().soloed;
-                icon = &m_iconSolo;
                 break;
             case HeaderButton::AutoSelect:
                 on = track.autoSelect;
-                onColor = strip.darker(140);
+                onColor = toggledFace;
                 break;
             case HeaderButton::SyncLock:
                 on = track.syncLock;
-                onColor = strip.darker(140);
+                onColor = toggledFace;
                 break;
             case HeaderButton::Automation:
                 on = in.automationOpen && in.automationOpen->contains(track.id);
-                onColor = strip.darker(140);
+                onColor = toggledFace;
                 break;
             case HeaderButton::Arm:
                 on = in.voiceOver.armedTrack == track.id && track.id != 0;
-                onColor
-                    = in.voiceOver.recording ? QColor(0xd0, 0x20, 0x20) : QColor(0x9c, 0x30, 0x30);
+                onColor = in.voiceOver.recording ? sc().negative : sc().negative.darker(130);
                 break;
             default:
                 break;
             }
-            p.fillRect(br, on ? onColor : m_window.darker(118));
+            // The painted toggles (enable, auto select, sync lock) show their state by the
+            // glyph's brightness; their plate only lifts a little when active.
+            const bool painted = b == HeaderButton::Visible || b == HeaderButton::SyncLock
+                || b == HeaderButton::AutoSelect;
+            const bool active = b == HeaderButton::Visible ? !on : on;
+            p.fillRect(br,
+                painted  ? (active ? toggledFace : buttonFace)
+                    : on ? onColor
+                         : buttonFace);
+            const QColor glyph = active ? m_text : mixColors(m_window, m_text, 0.42);
             if (icon && !icon->isNull()) {
                 const double dpr = icon->devicePixelRatio();
                 const QSizeF s = QSizeF(icon->size()) / dpr;
@@ -1308,7 +1392,7 @@ void TimelinePainter::paintHeaders(QPainter& p, const TimelinePaintInput& in)
             if (b == HeaderButton::Arm) {
                 p.setFont(m_boldFont);
                 const bool usable = in.voiceOver.present && in.voiceOver.available;
-                p.setPen(on ? QColor(Qt::white) : usable ? m_text : sc().textDisabled);
+                p.setPen(on ? sc().textOn(onColor) : usable ? m_text : sc().textDisabled);
                 p.drawText(br, Qt::AlignCenter, qtr("R"));
                 if (on) {
                     // Input level of the armed track: a thin bar along the header's foot.
@@ -1328,21 +1412,22 @@ void TimelinePainter::paintHeaders(QPainter& p, const TimelinePaintInput& in)
                             sc().negative);
                 }
             }
-            if (b == HeaderButton::SyncLock) {
-                // Painted glyph: two track bars joined by a link; bright while the track is
-                // kept in sync.
-                p.setPen(Qt::NoPen);
-                p.setBrush(on ? sc().textOn(onColor) : m_text.darker(160));
-                p.drawRect(QRect(br.left() + 4, br.top() + 4, br.width() - 8, 3));
-                p.drawRect(QRect(br.left() + 4, br.bottom() - 6, br.width() - 8, 3));
-                if (on)
-                    p.drawRect(QRect(br.center().x() - 1, br.top() + 4, 2, br.height() - 8));
-                p.setBrush(Qt::NoBrush);
+            if (b == HeaderButton::Mute || b == HeaderButton::Solo) {
+                // Resolve prints the letter: M and S, bright while on.
+                p.setFont(m_boldFont);
+                p.setPen(on ? sc().textOn(onColor) : mixColors(m_window, m_text, 0.55));
+                p.drawText(br, Qt::AlignCenter, b == HeaderButton::Mute ? qtr("M") : qtr("S"));
             }
+            if (b == HeaderButton::SyncLock)
+                paintSyncGlyph(p, br, glyph);
+            if (b == HeaderButton::Visible)
+                paintFilmGlyph(p, br, glyph);
+            if (b == HeaderButton::AutoSelect)
+                paintAutoSelectGlyph(p, br, glyph);
             if (b == HeaderButton::Automation) {
                 // Painted glyph: a curve with a point on it.
                 p.setRenderHint(QPainter::Antialiasing, true);
-                p.setPen(QPen(on ? sc().textOn(onColor) : m_text.darker(160), 1.5));
+                p.setPen(QPen(glyph, 1.5));
                 p.setBrush(Qt::NoBrush);
                 QPainterPath path;
                 path.moveTo(br.left() + 3, br.bottom() - 5);
@@ -1354,36 +1439,37 @@ void TimelinePainter::paintHeaders(QPainter& p, const TimelinePaintInput& in)
                 p.setRenderHint(QPainter::Antialiasing, false);
                 p.setBrush(Qt::NoBrush);
             }
-            if (b == HeaderButton::AutoSelect) {
-                // Painted glyph (no icon file): a track bar with a selection tick; bright when
-                // the auto track selector is on.
-                p.setPen(Qt::NoPen);
-                p.setBrush(on ? sc().textOn(onColor) : m_text.darker(160));
-                p.drawRect(QRect(br.left() + 4, br.top() + 5, br.width() - 8, 3));
-                p.drawRect(QRect(br.left() + 4, br.bottom() - 7, br.width() - 8, 3));
-                p.setBrush(Qt::NoBrush);
-            }
         }
 
         // Track name, then the clip count on the second line if there is room. With the
         // buttons on the second line (Audio page) the name runs up to the meter.
         const bool twoLines = L.twoLineHeader(row);
+        const bool nameBelow = L.nameBelowButtons(row);
         const int nameLeft = patch.right() + 8;
         const int nameRight = twoLines ? kHeaderWidth - 4 - kHeaderMeterWidth : buttonsLeft;
         const int nameRoom = nameRight - 6 - nameLeft;
-        if (nameRoom > 10) {
+        const QString name = track.name.isEmpty() ? (video             ? qtr("Video %1")
+                                                            : subtitle ? qtr("Subtitle %1")
+                                                                       : qtr("Audio %1"))
+                                                        .arg(ref.index + 1)
+                                                  : track.name;
+        if (nameBelow) {
+            // Resolve: the name has a line of its own under the patch and buttons, bold.
+            const QRect nr = L.headerNameRect(row);
+            const QFont nameFont = uifonts::font(uifonts::Role::SmallEmphasis, m_font);
+            p.setFont(nameFont);
+            p.setPen(m_text);
+            const QFontMetrics boldMetrics(nameFont);
+            p.drawText(QPointF(nr.left(), nr.center().y() + boldMetrics.ascent() / 2.0 - 1),
+                boldMetrics.elidedText(name, Qt::ElideRight, nr.width()));
+        } else if (nameRoom > 10) {
             p.setFont(m_smallFont);
             p.setPen(m_text);
-            const QString name = track.name.isEmpty() ? (video             ? qtr("Video %1")
-                                                                : subtitle ? qtr("Subtitle %1")
-                                                                           : qtr("Audio %1"))
-                                                            .arg(ref.index + 1)
-                                                      : track.name;
             p.drawText(QPointF(nameLeft, patch.center().y() + m_fontAscent / 2.0 - 1),
                 smallMetrics.elidedText(name, Qt::ElideRight, nameRoom));
         }
         const bool audioPage = L.audioPageHeaders() && ref.type == TrackType::Audio;
-        if (r.height() >= 44) {
+        if (r.height() >= 44 && !nameBelow) {
             p.setFont(m_smallFont);
             p.setPen(m_textDim);
             // Audio page: the channel format instead of the clip count.

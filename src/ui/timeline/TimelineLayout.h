@@ -44,6 +44,10 @@ inline constexpr int kHeaderMeterWidth = 12;
 inline constexpr int kTwoLineHeaderMinHeight = 2 * kHeaderButton + 14;
 /// Vertical gap between the two header lines.
 inline constexpr int kHeaderLineGap = 4;
+/// Rows at least this tall show the track name on its own line under the buttons.
+inline constexpr int kNameBelowMinHeight = 44;
+/// Height of that name line.
+inline constexpr int kHeaderNameLine = 16;
 /// Zoom limits in pixels per frame: ~2.5 h of 25 fps per 1000 px .. 48 px per frame.
 inline constexpr double kMinPixelsPerFrame = 0.004;
 inline constexpr double kMaxPixelsPerFrame = 48.0;
@@ -248,6 +252,9 @@ public:
     /// True if row @p row's header shows its buttons on a second line, under the name
     /// (Audio page headers of tall audio rows, so the track name stays readable).
     [[nodiscard]] bool twoLineHeader(int row) const;
+    /// True if row @p row's header puts the track name on a line of its own under the buttons
+    /// (Resolve's arrangement; every tall row that is not a two-line audio header).
+    [[nodiscard]] bool nameBelowButtons(int row) const;
     /// View rect of @p button in the header of row @p row (empty if the type has no such
     /// button).
     [[nodiscard]] QRect headerButtonRect(int row, HeaderButton button) const;
