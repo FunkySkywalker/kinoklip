@@ -32383,6 +32383,14 @@ Trim the clips so the media covers the transition?</source>
         <source>%1 Clips</source>
         <translation>%1 clips</translation>
     </message>
+    <message>
+        <source>M</source>
+        <translation>M</translation>
+    </message>
+    <message>
+        <source>S</source>
+        <translation>S</translation>
+    </message>
 </context>
 <context>
     <name>kk::TimelinePanel</name>
@@ -34419,6 +34427,14 @@ Abrir un clip multicámara del panel de medios o mover el cabezal de reproducci�
     <message>
         <source>The colours of the whole window, dark or light. Change it later in the Workspace menu or in Preferences &gt; User &gt; UI Settings.</source>
         <translation>Los colores de toda la ventana, oscuros o claros. Puedes cambiarlo en el menú Espacio de trabajo o en Preferencias &gt; Usuario &gt; Ajustes de interfaz.</translation>
+    </message>
+    <message>
+        <source>Widget style</source>
+        <translation>Estilo de widgets</translation>
+    </message>
+    <message>
+        <source>How buttons, menus and fields are drawn. Kinoklip is the Resolve look. Change it later in the Workspace menu.</source>
+        <translation>Cómo se dibujan los botones, menús y campos. Kinoklip es el aspecto de Resolve. Puedes cambiarlo más tarde en el menú Espacio de trabajo.</translation>
     </message>
     <message>
         <source>Follows the scale of your desktop.</source>

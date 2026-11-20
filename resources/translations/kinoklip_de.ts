@@ -32383,6 +32383,14 @@ Die Clips trimmen, damit die Medien den Übergang abdecken?</translation>
         <source>%1 Clips</source>
         <translation>%1 Clips</translation>
     </message>
+    <message>
+        <source>M</source>
+        <translation>M</translation>
+    </message>
+    <message>
+        <source>S</source>
+        <translation>S</translation>
+    </message>
 </context>
 <context>
     <name>kk::TimelinePanel</name>
@@ -34419,6 +34427,14 @@ Einen Multicam-Clip aus dem Medienpool öffnen oder den Abspielkopf über einen 
     <message>
         <source>The colours of the whole window, dark or light. Change it later in the Workspace menu or in Preferences &gt; User &gt; UI Settings.</source>
         <translation>Die Farben des gesamten Fensters, dunkel oder hell. Später änderbar im Menü Arbeitsbereich oder unter Einstellungen &gt; Benutzer &gt; Oberflächeneinstellungen.</translation>
+    </message>
+    <message>
+        <source>Widget style</source>
+        <translation>Widget-Stil</translation>
+    </message>
+    <message>
+        <source>How buttons, menus and fields are drawn. Kinoklip is the Resolve look. Change it later in the Workspace menu.</source>
+        <translation>Wie Schaltflächen, Menüs und Felder gezeichnet werden. Kinoklip ist der Resolve-Look. Später im Menü Arbeitsbereich änderbar.</translation>
     </message>
     <message>
         <source>Follows the scale of your desktop.</source>

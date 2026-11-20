@@ -32403,6 +32403,14 @@ Trim the clips so the media covers the transition?</source>
         <source>%1 Clips</source>
         <translation>%1 клипов</translation>
     </message>
+    <message>
+        <source>M</source>
+        <translation>М</translation>
+    </message>
+    <message>
+        <source>S</source>
+        <translation>К</translation>
+    </message>
 </context>
 <context>
     <name>kk::TimelinePanel</name>
@@ -34440,6 +34448,14 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
     <message>
         <source>The colours of the whole window, dark or light. Change it later in the Workspace menu or in Preferences &gt; User &gt; UI Settings.</source>
         <translation>Цвета всего окна, тёмные или светлые. Позже это можно изменить в меню «Рабочее пространство» или в Настройки &gt; Пользователь &gt; Настройки интерфейса.</translation>
+    </message>
+    <message>
+        <source>Widget style</source>
+        <translation>Стиль виджетов</translation>
+    </message>
+    <message>
+        <source>How buttons, menus and fields are drawn. Kinoklip is the Resolve look. Change it later in the Workspace menu.</source>
+        <translation>Как рисуются кнопки, меню и поля. Kinoklip — вид Resolve. Можно изменить позже в меню «Рабочая область».</translation>
     </message>
     <message>
         <source>Follows the scale of your desktop.</source>

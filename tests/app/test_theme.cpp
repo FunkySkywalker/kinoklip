@@ -210,7 +210,9 @@ private slots:
     {
         QFETCH(QString, style);
         theme::setStyle(style);
-        constexpr int kFrame = 24; // frame, margins and scroll arrows of any style
+        // Frame, margins and scroll arrows of any style; Libadwaita's popover adds its drop
+        // shadow margin around the list.
+        const int kFrame = style.compare(QLatin1String("Libadwaita"), Qt::CaseInsensitive) == 0 ? 40 : 24;
         QWidget host;
         host.resize(300, 200);
         host.show();
