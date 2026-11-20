@@ -1,0 +1,89 @@
+name: Flatpak
+
+# Builds the Flatpak bundle of Kinoklip (packaging/flatpak/org.kinoklip.Kinoklip.yml) in the
+# official flathub-infra KDE container, for x86_64 and aarch64, and uploads it as a workflow
+# artifact. Stage 1: no publishing. See packaging/linux/readme.md, "Flatpak".
+#
+#   gh workflow run flatpak.yml -f ref=main -f branch=nightly
+#   gh workflow run flatpak.yml -f ref=v1.11.0 -f branch=stable
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Branch, tag or commit to build"
+        required: false
+        default: "main"
+      branch:
+        description: "Flatpak branch"
+        type: choice
+        options: [nightly, stable]
+        default: nightly
+
+permissions:
+  contents: read
+
+concurrency:
+  group: flatpak-${{ inputs.branch }}-${{ inputs.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Flatpak ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:kde-6.11
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+          fetch-depth: 1
+
+      - name: Build
+        uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: Kinoklip-${{ inputs.branch }}-${{ matrix.arch }}.flatpak
+          manifest-path: packaging/flatpak/org.kinoklip.Kinoklip.yml
+          arch: ${{ matrix.arch }}
+          branch: ${{ inputs.branch }}
+          cache-key: flatpak-builder-${{ matrix.arch }}-${{ inputs.branch }}-${{ github.sha }}
+          restore-cache: true
+          upload-artifact: false
+          # gpg-sign: ${{ secrets.FLATPAK_GPG_KEY_ID }}   # stage 2, see the TODO block below
+
+      - name: Smoke test the installed bundle
+        run: |
+          flatpak --user remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          flatpak --user install -y --noninteractive --bundle Kinoklip-${{ inputs.branch }}-${{ matrix.arch }}.flatpak
+          flatpak run --env=QT_QPA_PLATFORM=offscreen --command=kinoklip org.kinoklip.Kinoklip --version
+          ls -l Kinoklip-${{ inputs.branch }}-${{ matrix.arch }}.flatpak
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Kinoklip-flatpak-${{ inputs.branch }}-${{ matrix.arch }}
+          path: Kinoklip-${{ inputs.branch }}-${{ matrix.arch }}.flatpak
+          if-no-files-found: error
+          retention-days: 14
+
+      # TODO (stage 2, after the owner approves the repository name): publish as an OSTree repo for
+      # GitHub Pages. The action leaves the repo in ./repo (--repo=repo); with gpg-sign set above
+      # (secret holding the key id, key imported by a gpg step from a secret) it is signed.
+      #
+      # - name: Export to the OSTree repository
+      #   run: |
+      #     git clone --depth 1 https://github.com/SeniorMatt/<repo-name>.git pages   # existing repo
+      #     flatpak build-update-repo --generate-static-deltas --prune \
+      #       --gpg-sign=${{ secrets.FLATPAK_GPG_KEY_ID }} --gpg-homedir=$GNUPGHOME repo
+      #     # merge the per-arch repo/ into pages/repo with ostree pull-local, then:
+      #     flatpak build-update-repo --gpg-sign=... pages/repo
+      #     # write kinoklip.flatpakrepo (Url=, GPGKey=<base64 public key>) and push to gh-pages

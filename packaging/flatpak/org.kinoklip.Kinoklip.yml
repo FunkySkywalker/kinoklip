@@ -1,0 +1,215 @@
+# Flatpak manifest for Kinoklip. Built on GitHub Actions only (.github/workflows/flatpak.yml);
+# see packaging/linux/readme.md, "Flatpak". The application source is this repository checkout
+# (type dir, two levels up), so a build is always of the commit the workflow checked out.
+app-id: org.kinoklip.Kinoklip
+runtime: org.kde.Platform
+runtime-version: '6.11'
+sdk: org.kde.Sdk
+command: kinoklip
+
+finish-args:
+  - --share=ipc
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --socket=pulseaudio          # audio output and capture (PipeWire serves this socket too)
+  - --device=dri                 # OpenGL viewer, VAAPI / NVENC hardware decode and encode
+  - --share=network              # model download for Background Removal, update check
+  # A video editor opens media wherever the user keeps it, and a project file refers to its clips by
+  # path; portal-only access would break projects on the next start. So: the home folder and
+  # removable / mounted disks.
+  - --filesystem=home
+  - --filesystem=/media
+  - --filesystem=/run/media
+  - --filesystem=/mnt
+  - --env=QT_MEDIA_BACKEND=ffmpeg
+  - --env=TMPDIR=/var/tmp
+  # File dialogs, notifications and OpenURI go through the portals (no --talk-name needed).
+
+cleanup:
+  - /include
+  - /lib/pkgconfig
+  - /lib/cmake
+  - /share/man
+  - /share/doc
+  - '*.a'
+  - '*.la'
+
+modules:
+  # ---- FFmpeg and its encoders: the same feature set the AppImage relies on ----
+  - name: nv-codec-headers
+    buildsystem: simple
+    only-arches: [x86_64, aarch64]
+    build-commands:
+      - make install PREFIX=/app
+    sources:
+      - type: git
+        url: https://github.com/FFmpeg/nv-codec-headers.git
+        tag: n13.1.15.0
+        commit: 0a6fba9a2820628b8103464f4c8753ee05838baa
+
+  - name: x264
+    config-opts: [--disable-cli, --enable-shared]
+    sources:
+      - type: git
+        url: https://code.videolan.org/videolan/x264.git
+        commit: b35605ace3ddf7c1a5d67a2eb553f034aef41d55
+
+  - name: x265
+    buildsystem: cmake-ninja
+    builddir: true
+    subdir: source
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DENABLE_CLI=OFF
+      - -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+    sources:
+      - type: archive
+        url: https://bitbucket.org/multicoreware/x265_git/downloads/x265_4.2.tar.gz
+        sha256: 40b1ea0453e0309f0eba934e0ddf533f8f6295966679e8894e8f1c1c8d5e1210
+
+  - name: SVT-AV1
+    only-arches: [x86_64]
+    buildsystem: cmake-ninja
+    builddir: true
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DBUILD_SHARED_LIBS=ON
+      - -DBUILD_TESTING=OFF
+      - -DBUILD_APPS=OFF
+    sources:
+      - type: git
+        url: https://gitlab.com/AOMediaCodec/SVT-AV1.git
+        tag: v3.1.2
+        commit: b33dcc56cc64fcb3b3569094af8ab1d0d81ab4c1
+
+  - name: libass
+    config-opts: [--enable-harfbuzz, --enable-fontconfig]
+    sources:
+      - type: archive
+        url: https://github.com/libass/libass/releases/download/0.17.5/libass-0.17.5.tar.xz
+        sha256: 2dca25c0e0c837ddf00b52011b3f82cac1e4ddd3ad018227806b0c2288864acc
+
+  # GPL build (x264, x265 are GPL); Kinoklip is GPL-3.0-or-later. Decoders for H.264/HEVC/AV1/VP9
+  # and the other formats come from FFmpeg itself, dav1d / libvpx / opus / vorbis / lame from the
+  # runtime; VAAPI and NVENC/NVDEC are loaded at run time from the host driver.
+  - name: ffmpeg
+    config-opts:
+      - --disable-doc
+      - --disable-static
+      - --enable-shared
+      - --enable-rpath
+      - --enable-gpl
+      - --enable-version3
+      - --enable-libx264
+      - --enable-libx265
+      - --enable-libvpx
+      - --enable-libdav1d
+      - --enable-libopus
+      - --enable-libvorbis
+      - --enable-libmp3lame
+      - --enable-libass
+      - --enable-libfreetype
+      - --enable-libfontconfig
+      - --enable-vaapi
+      - --enable-ffnvcodec
+      - --enable-nvdec
+      - --enable-nvenc
+    build-options:
+      arch:
+        x86_64:
+          config-opts: [--enable-libsvtav1]
+    cleanup: [/share/ffmpeg/examples]
+    sources:
+      - type: archive
+        url: https://www.ffmpeg.org/releases/ffmpeg-9.0.2.tar.xz
+        sha256: 8c3850283eb25fa026482078a04051e0be17347b09ef81a0849bec15a96e002e
+
+  # ---- Still images: HEIC / HEIF / AVIF and camera RAW ----
+  - name: libde265
+    buildsystem: cmake-ninja
+    config-opts: [-DCMAKE_BUILD_TYPE=Release, -DENABLE_SDL=OFF, -DENABLE_DECODER=OFF]
+    sources:
+      - type: archive
+        url: https://github.com/strukturag/libde265/releases/download/v1.1.3/libde265-1.1.3.tar.gz
+        sha256: 554228bd17788c99a7e63b37ab5634722190e6e2bf60c1dcb01cef328e133905
+
+  - name: libheif
+    buildsystem: cmake-ninja
+    builddir: true
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DBUILD_TESTING=OFF
+      - -DWITH_EXAMPLES=OFF
+      - -DWITH_LIBDE265=ON
+      - -DWITH_DAV1D=ON
+      - -DWITH_X265=OFF
+      - -DWITH_AOM_ENCODER=OFF
+      - -DWITH_AOM_DECODER=OFF
+      - -DWITH_RAV1E=OFF
+      - -DWITH_SvtEnc=OFF
+    sources:
+      - type: archive
+        url: https://github.com/strukturag/libheif/releases/download/v1.23.7/libheif-1.23.7.tar.gz
+        sha256: f7483e818503ea6224c8863e4a56ac02c7089021a98472c811c12aa19faf2475
+
+  - name: libraw
+    config-opts: [--disable-examples, --disable-static]
+    sources:
+      - type: archive
+        url: https://www.libraw.org/data/LibRaw-0.22.3.tar.gz
+        sha256: 789f3c33466210a1a0907f747a97c715d21bbf4af712f257fcbbd90111b227e4
+
+  # ---- ONNX Runtime 1.22.0 (Background Removal), Microsoft's NuGet package, as in the AppImage ----
+  # (the GitHub release files went away; arm64-release.yml pins the same file)
+  - name: onnxruntime
+    buildsystem: simple
+    build-commands:
+      - |
+        set -e
+        case "$FLATPAK_ARCH" in x86_64) rt=linux-x64;; aarch64) rt=linux-arm64;; esac
+        install -Dm644 build/native/include/*.h -t /app/include/onnxruntime
+        install -Dm755 runtimes/$rt/native/libonnxruntime.so /app/lib/libonnxruntime.so.1.22.0
+        ln -sf libonnxruntime.so.1.22.0 /app/lib/libonnxruntime.so.1
+        ln -sf libonnxruntime.so.1 /app/lib/libonnxruntime.so
+        install -Dm644 LICENSE /app/share/licenses/onnxruntime/LICENSE
+        install -Dm644 ThirdPartyNotices.txt /app/share/licenses/onnxruntime/ThirdPartyNotices.txt
+    sources:
+      - type: archive
+        archive-type: zip
+        url: https://api.nuget.org/v3-flatcontainer/microsoft.ml.onnxruntime/1.22.0/microsoft.ml.onnxruntime.1.22.0.nupkg
+        sha256: d571e63a2329baacb713f441e65ad75284de354db6e1ac435fe4bebbb417986a
+        strip-components: 0
+
+  # ---- Kinoklip ----
+  - name: kinoklip
+    buildsystem: simple
+    build-options:
+      env:
+        CMAKE_PREFIX_PATH: /app
+    build-commands:
+      - cmake -S . -B _build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/app
+      - cmake --build _build --target kinoklip
+      - cmake --install _build
+      - |
+        set -e
+        id=org.kinoklip.Kinoklip
+        pk=packaging/linux
+        for s in 16 24 32 48 64 128 256 512; do
+          install -Dm644 resources/icons/app/kinoklip-$s.png /app/share/icons/hicolor/${s}x${s}/apps/$id.png
+        done
+        install -Dm644 $pk/$id.desktop /app/share/applications/$id.desktop
+        install -Dm644 $pk/$id.xml /app/share/mime/packages/$id.xml
+        # AppStream: fill @VERSION@ and @DATE@ the way scripts/package_linux.sh does
+        ver="$(sed -n 's/^project([^ ]* VERSION \([0-9.]*\).*/\1/p' CMakeLists.txt)"
+        pre="$(sed -n 's/.*prerelease = "\([^"]*\)".*/\1/p' src/app/AppInfo.h)"
+        date="$(git -c safe.directory='*' log -1 --format=%cs 2>/dev/null || date -u +%F)"
+        sed -e "s/@VERSION@/$ver${pre:+-$pre}/" -e "s/@DATE@/$date/" $pk/$id.metainfo.xml \
+          > _metainfo.xml
+        install -Dm644 _metainfo.xml /app/share/metainfo/$id.metainfo.xml
+      # Smoke test inside the build sandbox (a failure fails the build).
+      - QT_QPA_PLATFORM=offscreen /app/bin/kinoklip --version
+      - ldd /app/bin/kinoklip | grep -E 'avcodec|heif|raw_r|onnxruntime|KF6'
+    sources:
+      - type: dir
+        path: ../..
+        skip: [.git, build, build-arch-release, build-asan, dist, logs, local, _site, .claude]
