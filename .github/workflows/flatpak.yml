@@ -54,6 +54,9 @@ jobs:
           ref: ${{ inputs.ref }}
           fetch-depth: 1
 
+      - name: Flathub remote in the fresh system installation
+        run: flatpak remote-add --system --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
       - name: Build
         uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
