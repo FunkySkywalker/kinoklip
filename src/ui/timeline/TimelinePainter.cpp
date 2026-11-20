@@ -1519,7 +1519,7 @@ void TimelinePainter::paintRuler(QPainter& p, const TimelinePaintInput& in)
     p.fillRect(QRect(0, 0, width, kRulerHeight), bg);
 
     // Top-left corner: playhead timecode.
-    p.fillRect(QRect(0, 0, kHeaderWidth, kRulerHeight), m_window.darker(125));
+    p.fillRect(QRect(0, 0, kHeaderWidth, kRulerHeight), bg);
     const QFont tcFont = uifonts::font(uifonts::Role::Timecode, m_font);
     p.setFont(tcFont);
     p.setPen(m_timecode);

@@ -140,7 +140,11 @@ SchemeColors compute(const SchemeRoles& r, const QPalette& p, quint64 generation
     // distinguishable in light schemes too (lighter() does nothing on white).
     c.lane = mixColors(c.view, c.text, 0.05);
     c.laneAlt = mixColors(c.view, c.text, 0.08);
-    c.ruler = c.dark ? c.window.darker(112) : c.window.darker(104);
+    // Resolve's ruler, the timecode corner and the lanes share one colour (#29282e on a #222127
+    // header); the Kinoklip scheme (near-black header below a lighter window) follows it, other
+    // dark schemes keep a ruler a little darker than the window.
+    const bool nearBlackHeader = c.dark && c.header.lightness() < c.window.lightness();
+    c.ruler = nearBlackHeader ? c.window : c.dark ? c.window.darker(112) : c.window.darker(104);
     c.grid = mixColors(c.view, c.text, 0.18);
     // Dark schemes put the view only a shade below the window, too close to read as a separate
     // area: go further towards the shadow. Light schemes already have white against grey.
