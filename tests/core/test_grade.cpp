@@ -1319,7 +1319,7 @@ private slots:
     {
         // Sat vs Lum at y = 1 for saturated colours only: a saturated colour gets brighter, a
         // grey does not change.
-        const CurvePoints boostSaturated = {{0.0, 0.5}, {0.4, 0.5}, {0.9, 1.0}};
+        const CurvePoints boostSaturated = {{0.0, 0.5}, {0.4, 0.5}, {1.0, 1.0}};
         float vivid[3] = {1.0f, 0.1f, 0.1f};
         const float y0 = luma(vivid);
         applyCurves(tablesWith(GradeCurve::SatLum, boostSaturated), vivid);
@@ -1341,10 +1341,12 @@ private slots:
         // Hue Lum and Sat Lum together multiply their luma factors.
         float both[3] = {1.0f, 0.1f, 0.1f};
         GradeCurves curves;
-        curves[GradeCurve::SatLum] = {{0.5, 1.0}};
-        curves[GradeCurve::HueLum] = {{0.5, 1.0}};
+        curves[GradeCurve::SatLum] = {{1.0, 0.75}};
+        curves[GradeCurve::HueLum] = {{0.0, 0.75}};
         applyCurves(CurveTables::bake(curves), both);
-        QVERIFY(luma(both) > luma(vivid));
+        const float yBoth = luma(both);
+        const float y1[3] = {1.0f, 0.1f, 0.1f};
+        QVERIFY(near(yBoth, luma(y1) * 1.5 * 1.5, 0.02)); // 1.5 x 1.5 on the luma
     }
 
     void curvePickPoints()

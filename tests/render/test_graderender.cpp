@@ -385,7 +385,7 @@ class TestGradeRender : public QObject
             out.append({QStringLiteral("shadows_crush"),
                 primariesGrade({{gk::Shadows, -80.0}, {gk::Highlights, 80.0}})});
             out.append({QStringLiteral("midtone_detail"),
-                primariesGrade({{gk::MidtoneDetail, 100.0}})});
+                primariesGrade({{gk::MidtoneDetail, 100.0}, {gk::Contrast, 1.25}})});
             out.append({QStringLiteral("midtone_soften"),
                 primariesGrade({{gk::MidtoneDetail, -100.0}, {gk::Contrast, 1.2}})});
             out.append({QStringLiteral("log_wheels"),

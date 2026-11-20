@@ -31,8 +31,9 @@ float glow(uint32_t count, double typical, double gain)
 {
     if (count == 0)
         return 0.0f;
-    return float(
-        std::clamp(gain * (0.15 + 0.85 * (1.0 - std::exp(-3.0 * count / typical))), 0.0, 1.0));
+    // Gain above 1 lets the trace go past full brightness (the colours then burn out to white).
+    return float(std::clamp(gain * (0.15 + 0.85 * (1.0 - std::exp(-3.0 * count / typical))), 0.0,
+        kMaxScopeGain));
 }
 
 /// Adds @p rgb x @p v to pixel (@p x, @p y) of @p img (additive mixing of the trace colours).
