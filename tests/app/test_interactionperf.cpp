@@ -26,11 +26,18 @@
 #include <QTest>
 
 #include <algorithm>
+#include <memory>
 #include <vector>
 
 using namespace kk;
 
 namespace {
+
+#if defined(__SANITIZE_ADDRESS__)
+constexpr double kSlack = 15.0; // AddressSanitizer builds run many times slower
+#else
+constexpr double kSlack = 1.0;
+#endif
 
 double medianOf(std::vector<double> v)
 {
@@ -88,7 +95,9 @@ private slots:
 
         QElapsedTimer t;
         t.start();
-        auto* window = new MainWindow(ctx, windowOptions);
+        // Declared after everything it uses: a failed check returns and it is destroyed first.
+        auto windowOwner = std::make_unique<MainWindow>(ctx, windowOptions);
+        MainWindow* window = windowOwner.get();
         const double construct = t.nsecsElapsed() / 1e6;
         window->resize(1600, 900);
         window->setCurrentPage(QStringLiteral("edit"));
@@ -119,7 +128,7 @@ private slots:
             qInfo("pages %s: %s ms (sum %.1f)", round == 0 ? "first visit" : "revisit",
                 qPrintable(line.join(QStringLiteral(", "))), sum);
             if (round == 1)
-                QVERIFY2(sum < 5000, "page switching is far too slow");
+                QVERIFY2(sum < 5000 * kSlack, "page switching is far too slow");
         }
 
         // Select clips one after another (Inspector rebuild, viewer, keyframes panel).
@@ -141,7 +150,7 @@ private slots:
         const double selMedian = medianOf(sel);
         qInfo("select clip (Edit page): median %.1f ms, max %.1f ms", selMedian,
             *std::max_element(sel.begin(), sel.end()));
-        QVERIFY2(selMedian < 500, "selecting a clip is far too slow");
+        QVERIFY2(selMedian < 500 * kSlack, "selecting a clip is far too slow");
 
         // Playhead scrub: the whole window follows the playhead.
         std::vector<double> scrub;
@@ -154,7 +163,7 @@ private slots:
         const double scrubMedian = medianOf(scrub);
         qInfo("playhead move: median %.1f ms, max %.1f ms", scrubMedian,
             *std::max_element(scrub.begin(), scrub.end()));
-        QVERIFY2(scrubMedian < 300, "playhead moves are far too slow");
+        QVERIFY2(scrubMedian < 300 * kSlack, "playhead moves are far too slow");
 
         // Timeline zoom.
         auto* widget = window->findChild<TimelineWidget*>();
@@ -170,9 +179,8 @@ private slots:
         }
         qInfo("timeline zoom step: median %.1f ms, max %.1f ms", medianOf(zoom),
             *std::max_element(zoom.begin(), zoom.end()));
-        QVERIFY2(medianOf(zoom) < 500, "timeline zoom is far too slow");
+        QVERIFY2(medianOf(zoom) < 500 * kSlack, "timeline zoom is far too slow");
 
-        delete window;
         qInfo("test total %.1f s", total.elapsed() / 1000.0);
     }
 };
