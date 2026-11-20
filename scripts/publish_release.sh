@@ -36,4 +36,9 @@ gh release create "$tag" --latest --title "$title" --notes-file "$page" \
 gh workflow run arm64-release.yml --ref main -f tag="$tag" ||
     echo "Could not start the ARM64 build; run: gh workflow run arm64-release.yml --ref main -f tag=$tag" >&2
 
+# Flatpak (stable branch of https://seniormatt.github.io/kinoklip-flatpak/), built and published by
+# GitHub Actions from the tag; a few hours at most. Not an error if it cannot be started.
+gh workflow run flatpak.yml --ref main -f ref="$tag" -f branch=stable ||
+    echo "Could not start the Flatpak build; run: gh workflow run flatpak.yml --ref main -f ref=$tag -f branch=stable" >&2
+
 echo "Published $title: https://github.com/SeniorMatt/kinoklip/releases/tag/$tag"

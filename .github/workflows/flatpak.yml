@@ -6,6 +6,13 @@ name: Flatpak
 #
 #   gh workflow run flatpak.yml -f ref=main -f branch=nightly
 #   gh workflow run flatpak.yml -f ref=v1.11.0 -f branch=stable
+#   gh workflow run flatpak.yml -f ref=v1.11.0 -f manifest_ref=main -f branch=stable   (tag without the manifest)
+#   ... -f publish=false                                                               (artifact only)
+#
+# The publish job imports both bundles into the OSTree repository on the gh-pages branch of
+# SeniorMatt/kinoklip-flatpak (served at https://seniormatt.github.io/kinoklip-flatpak/), signs
+# them, rebuilds the summary and static deltas and force-pushes one orphan commit.
+# Secrets: FLATPAK_DEPLOY_KEY (SSH key with write access to that repository), FLATPAK_GPG_PRIVATE_KEY.
 
 on:
   workflow_dispatch:
@@ -14,6 +21,14 @@ on:
         description: "Branch, tag or commit to build"
         required: false
         default: "main"
+      manifest_ref:
+        description: "Take packaging/flatpak from this ref (empty = the same ref); for a tag older than the manifest"
+        required: false
+        default: ""
+      publish:
+        description: "Publish to the Flatpak repository (GitHub Pages, SeniorMatt/kinoklip-flatpak)"
+        type: boolean
+        default: true
       branch:
         description: "Flatpak branch"
         type: choice
@@ -54,6 +69,21 @@ jobs:
           ref: ${{ inputs.ref }}
           fetch-depth: 1
 
+      - name: Manifest from another ref
+        if: ${{ inputs.manifest_ref != '' }}
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.manifest_ref }}
+          path: _manifest
+          fetch-depth: 1
+
+      - name: Use that manifest
+        if: ${{ inputs.manifest_ref != '' }}
+        run: |
+          rm -rf packaging/flatpak
+          cp -r _manifest/packaging/flatpak packaging/flatpak
+          rm -rf _manifest
+
       - name: Flathub remote in the fresh system installation
         run: flatpak remote-add --system --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
@@ -83,15 +113,94 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-      # TODO (stage 2, after the owner approves the repository name): publish as an OSTree repo for
-      # GitHub Pages. The action leaves the repo in ./repo (--repo=repo); with gpg-sign set above
-      # (secret holding the key id, key imported by a gpg step from a secret) it is signed.
-      #
-      # - name: Export to the OSTree repository
-      #   run: |
-      #     git clone --depth 1 https://github.com/SeniorMatt/<repo-name>.git pages   # existing repo
-      #     flatpak build-update-repo --generate-static-deltas --prune \
-      #       --gpg-sign=${{ secrets.FLATPAK_GPG_KEY_ID }} --gpg-homedir=$GNUPGHOME repo
-      #     # merge the per-arch repo/ into pages/repo with ostree pull-local, then:
-      #     flatpak build-update-repo --gpg-sign=... pages/repo
-      #     # write kinoklip.flatpakrepo (Url=, GPGKey=<base64 public key>) and push to gh-pages
+  publish:
+    name: Publish to the Flatpak repository
+    needs: build
+    if: ${{ inputs.publish }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    # one publish at a time: they read, change and replace the whole repository
+    concurrency:
+      group: flatpak-publish
+      cancel-in-progress: false
+    env:
+      PAGES_REPO: git@github.com:SeniorMatt/kinoklip-flatpak.git
+      BRANCH: ${{ inputs.branch }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: Kinoklip-flatpak-${{ inputs.branch }}-*
+          path: bundles
+          merge-multiple: true
+
+      - name: Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends flatpak ostree gnupg git openssh-client
+          flatpak --version; ostree --version | head -2; ls -l bundles
+
+      - name: Import the signing key
+        env:
+          KEY: ${{ secrets.FLATPAK_GPG_PRIVATE_KEY }}
+        run: |
+          export GNUPGHOME="$RUNNER_TEMP/gnupg"
+          mkdir -m 700 "$GNUPGHOME"
+          printf '%s\n' "$KEY" | gpg --batch --quiet --import
+          fpr="$(gpg --list-secret-keys --with-colons | awk -F: '/^fpr/{print $10; exit}')"
+          [ -n "$fpr" ] || { echo "no secret key imported" >&2; exit 1; }
+          echo "GNUPGHOME=$GNUPGHOME" >>"$GITHUB_ENV"
+          echo "FPR=$fpr" >>"$GITHUB_ENV"
+          echo "signing key $fpr"
+
+      - name: Fetch the current repository
+        env:
+          DEPLOY_KEY: ${{ secrets.FLATPAK_DEPLOY_KEY }}
+        run: |
+          install -m 600 /dev/null "$RUNNER_TEMP/deploy_key"
+          printf '%s\n' "$DEPLOY_KEY" >"$RUNNER_TEMP/deploy_key"
+          echo "GIT_SSH_COMMAND=ssh -i $RUNNER_TEMP/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new" >>"$GITHUB_ENV"
+          export GIT_SSH_COMMAND="ssh -i $RUNNER_TEMP/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
+          git clone --depth 1 --branch gh-pages "$PAGES_REPO" site
+          rm -rf site/.git
+          ls site; du -sm site
+
+      - name: Import the bundles, sign, update the summary
+        run: |
+          set -euo pipefail
+          [ -d site/repo/objects ] || ostree init --repo=site/repo --mode=archive-z2
+          rm -rf incoming && ostree init --repo=incoming --mode=archive
+          for b in bundles/*.flatpak; do
+            flatpak build-import-bundle incoming "$b"
+          done
+          ostree refs --repo=incoming
+          for ref in $(ostree refs --repo=incoming | grep '^app/'); do
+            flatpak build-commit-from --src-repo=incoming --src-ref="$ref" \
+              --subject="Kinoklip $BRANCH ($GITHUB_SHA)" --update-appstream \
+              --gpg-sign="$FPR" --gpg-homedir="$GNUPGHOME" site/repo "$ref"
+          done
+          flatpak build-update-repo --generate-static-deltas --prune --prune-depth=2 \
+            --title="Kinoklip" --default-branch=stable \
+            --gpg-sign="$FPR" --gpg-homedir="$GNUPGHOME" site/repo
+          ostree refs --repo=site/repo
+          packaging/flatpak/make_site.sh site "$FPR"
+          size="$(du -sm site | cut -f1)"
+          echo "site size: $size MB"
+          [ "$size" -le 900 ] || { echo "::error::the repository is $size MB, over the 900 MB limit (GitHub Pages: 1 GB)"; exit 1; }
+
+      - name: Push one orphan commit to gh-pages
+        run: |
+          set -euo pipefail
+          cd site
+          git init -q -b gh-pages
+          git config user.name "Kinoklip Flatpak"
+          git config user.email "noreply@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Kinoklip $BRANCH from $GITHUB_SHA"
+          git remote add origin "$PAGES_REPO"
+          git push -f origin gh-pages
+          rm -f "$RUNNER_TEMP/deploy_key"

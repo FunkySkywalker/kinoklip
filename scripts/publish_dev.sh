@@ -85,4 +85,9 @@ gh release view "$TAG" --json assets -q '.assets[].name' | { grep -E '^Kinoklip-
     gh release delete-asset "$TAG" "$a" -y
 done
 
+# Flatpak nightly (https://seniormatt.github.io/kinoklip-flatpak/) from the same commit, built and
+# published by GitHub Actions (the manifest comes from main). Not an error if it cannot be started.
+gh workflow run flatpak.yml --ref main -f ref="$COMMIT" -f manifest_ref=main -f branch=nightly ||
+    log "could not start the Flatpak nightly build"
+
 log "published $STAMP: https://github.com/SeniorMatt/kinoklip/releases/tag/$TAG"

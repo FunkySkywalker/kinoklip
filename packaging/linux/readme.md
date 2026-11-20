@@ -297,7 +297,7 @@ Test hooks: `KINOKLIP_FORCE_FALLBACK=1` (use every fallback), `KINOKLIP_HOST_LIB
 
 ## Flatpak
 
-Stage 1 (a build, nothing published yet). Manifest `packaging/flatpak/org.kinoklip.Kinoklip.yml`
+Manifest `packaging/flatpak/org.kinoklip.Kinoklip.yml`
 (app id `org.kinoklip.Kinoklip`, runtime `org.kde.Platform` 6.11, so Qt, KF6 ColorScheme / IconThemes
 and the Breeze style and icons come from the runtime); workflow `.github/workflows/flatpak.yml`.
 Nothing is built locally: start it with `gh workflow run flatpak.yml -f ref=main -f branch=nightly`
@@ -316,9 +316,20 @@ Nothing is built locally: start it with `gh workflow run flatpak.yml -f ref=main
 - **Permissions:** Wayland, X11 fallback, IPC, DRI (OpenGL, VAAPI), PulseAudio (PipeWire serves it), network
   (model download), the home folder plus `/media`, `/run/media`, `/mnt` (a project refers to its clips by path,
   so portal-only access would break it on the next start). File dialogs, notifications and URLs use the portals.
-- **Stage 2 (after the repository name is approved):** export an OSTree repository (`flatpak build-update-repo`,
-  GPG-signed with a repository secret), publish it with a `.flatpakrepo` file on GitHub Pages, and build
-  `stable` from release tags. The commented TODO block at the end of the workflow marks the place.
+- **Repository (stage 2):** the `publish` job of the workflow (input `publish`, default true) imports both bundles
+  into an OSTree repository, signs the commits and the summary with a GPG key (secret `FLATPAK_GPG_PRIVATE_KEY`),
+  generates static deltas, keeps the last 2 builds per ref (`--prune-depth=2`) and force-pushes one orphan commit
+  to the `gh-pages` branch of `SeniorMatt/kinoklip-flatpak` (deploy key in secret `FLATPAK_DEPLOY_KEY`), served at
+  <https://seniormatt.github.io/kinoklip-flatpak/>. The job fails above 900 MB (GitHub Pages: 1 GB) and publishes
+  one at a time. Refs are `app/org.kinoklip.Kinoklip/<arch>/<stable|nightly>`; the other branch's refs survive.
+  `packaging/flatpak/make_site.sh` writes `kinoklip.flatpakrepo` (stable), `kinoklip-nightly.flatpakrepo`, the two
+  `.flatpakref` files and `index.html`.
+- **Install:** `flatpak remote-add --user --if-not-exists kinoklip https://seniormatt.github.io/kinoklip-flatpak/kinoklip.flatpakrepo`
+  then `flatpak install --user kinoklip org.kinoklip.Kinoklip` (nightly: `kinoklip-nightly`, `kinoklip-nightly.flatpakrepo`,
+  `org.kinoklip.Kinoklip//nightly`). Discover / GNOME Software: open the `.flatpakrepo` file.
+- **Automatic:** `scripts/publish_release.sh` starts the `stable` build from the release tag, `scripts/publish_dev.sh`
+  starts `nightly` from the dev commit. By hand: `gh workflow run flatpak.yml -f ref=<ref> -f branch=<stable|nightly>`
+  (`manifest_ref=main` takes the manifest from main for a ref older than it).
 
 ## ARM64 (aarch64)
 
