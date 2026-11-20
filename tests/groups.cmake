@@ -10,7 +10,7 @@ set(KK_TESTS_RELEASE
   test_playbackperf test_realworld test_wayland_session test_resizebench test_keyframecut
   test_memorysoak test_renderperf test_mediaperf test_proxyperf test_hevc4kperf test_compperf
   test_exportperf test_audioperf test_pageturnplayback test_cutlookahead test_editplaying
-  test_firstplay test_uniqueframes test_timelinebench test_rendermemory test_playbackstats test_playbackstatslog
+  test_firstplay test_uniqueframes test_timelinebench test_rendermemory test_playbackstats test_playbackstatslog test_interactionperf
   test_livepreview test_pasteaudiolive test_memoryprofile test_reverseplay
 )
 

@@ -277,7 +277,14 @@ CompTransport::CompTransport(AppContext& ctx, CompSession* session, QWidget* par
 void CompTransport::setAudioOn(bool on)
 {
     m_audioOn = on;
-    QSettings().setValue(QStringLiteral("compositing/audio"), on);
+    {
+        // Written only on a change: QSettings flushes the file (an fsync) when it is destroyed,
+        // and the constructor calls this with the value it just read.
+        QSettings settings;
+        const QString key = QStringLiteral("compositing/audio");
+        if (settings.value(key, true).toBool() != on) // true is the default
+            settings.setValue(key, on);
+    }
     const QSignalBlocker block(m_audioButton);
     m_audioButton->setChecked(on);
     m_audioButton->setIcon(icon(on ? QStringLiteral("audio") : QStringLiteral("mute")));

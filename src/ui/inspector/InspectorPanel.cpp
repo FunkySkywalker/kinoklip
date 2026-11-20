@@ -225,18 +225,7 @@ InspectorPanel::InspectorPanel(AppContext& ctx, QWidget* parent)
         }
     }
     if (ctx.selection) {
-        connect(ctx.selection, &SelectionModel::changed, this, [this] {
-            // A selected transition shows its clip on the Transition tab (spec 13.10).
-            if (const auto t = m_ctx.selection->transition()) {
-                inspect(t->clipId, TransitionTab);
-                return;
-            }
-            const quint64 current = m_ctx.selection->currentClip();
-            showClip(current);
-            if (current != m_lastCurrent && m_clipId != 0)
-                followClickedPart(current);
-            m_lastCurrent = current;
-        });
+        connect(ctx.selection, &SelectionModel::changed, this, &InspectorPanel::onSelectionChanged);
     }
     Timeline* timeline = ctx.project->timeline();
     connect(timeline, &Timeline::changed, this, &InspectorPanel::onTimelineChanged);
@@ -724,8 +713,47 @@ InspectorPanel::Structure InspectorPanel::computeStructure(quint64 clipId) const
     return s;
 }
 
+bool InspectorPanel::deferWhileHidden()
+{
+    // A hidden Inspector (the other page's) would rebuild its tabs for nothing on every
+    // selection change; it catches up when its page is shown. Without a shown window (unit
+    // tests, headless use) panels follow at once.
+    QWidget* top = window();
+    if (isVisible() || !top || !top->isVisible())
+        return false;
+    m_stale = true;
+    return true;
+}
+
+void InspectorPanel::showEvent(QShowEvent* event)
+{
+    PanelFrame::showEvent(event);
+    if (!m_stale)
+        return;
+    m_stale = false;
+    onSelectionChanged();
+}
+
+void InspectorPanel::onSelectionChanged()
+{
+    if (deferWhileHidden())
+        return;
+    // A selected transition shows its clip on the Transition tab (spec 13.10).
+    if (const auto t = m_ctx.selection->transition()) {
+        inspect(t->clipId, TransitionTab);
+        return;
+    }
+    const quint64 current = m_ctx.selection->currentClip();
+    showClip(current);
+    if (current != m_lastCurrent && m_clipId != 0)
+        followClickedPart(current);
+    m_lastCurrent = current;
+}
+
 void InspectorPanel::onTimelineChanged()
 {
+    if (deferWhileHidden())
+        return;
     const Structure structure = computeStructure(m_clipId);
     if (structure != m_structure) {
         m_clipId = structure.clipId;
