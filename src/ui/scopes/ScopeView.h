@@ -10,6 +10,8 @@
 #include <QWidget>
 
 class QComboBox;
+class QSlider;
+class QToolButton;
 
 namespace kk {
 
@@ -28,6 +30,12 @@ public:
 
     void setType(scopes::ScopeType type);
     [[nodiscard]] scopes::ScopeType type() const { return m_type; }
+    /// Scope settings: the numbers beside the levels (Scale) and the trace brightness (Gain, a
+    /// multiplier clamped to scopes::kMinScopeGain .. kMaxScopeGain).
+    void setScale(scopes::ScopeScale scale);
+    [[nodiscard]] scopes::ScopeScale scale() const { return m_scale; }
+    void setGain(double gain);
+    [[nodiscard]] double gain() const { return m_gain; }
     /// Shows the scope of @p image (any size; reduced with scopes::scopeInput()). A null
     /// image clears the trace.
     void setImage(const QImage& image);
@@ -45,6 +53,8 @@ private:
     void rebuild();
 
     scopes::ScopeType m_type = scopes::ScopeType::WaveformLuma;
+    scopes::ScopeScale m_scale = scopes::ScopeScale::TenBit;
+    double m_gain = scopes::kDefaultScopeGain;
     QImage m_input;
     QImage m_trace;
 };
@@ -62,10 +72,17 @@ public:
     /// Shows the scopes of @p image.
     void setImage(const QImage& image) { m_view->setImage(image); }
     void setType(scopes::ScopeType type);
+    /// The scope settings button (Scale and Gain), and the controls of its popup (tests).
+    [[nodiscard]] QToolButton* settingsButton() const { return m_settings; }
+    [[nodiscard]] QComboBox* scaleBox() const { return m_scaleBox; }
+    [[nodiscard]] QSlider* gainSlider() const { return m_gainSlider; }
 
 private:
     QString m_settingsKey;
     QComboBox* m_types = nullptr;
+    QToolButton* m_settings = nullptr;
+    QComboBox* m_scaleBox = nullptr;
+    QSlider* m_gainSlider = nullptr;
     ScopeView* m_view = nullptr;
 };
 
