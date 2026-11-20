@@ -82,6 +82,19 @@ PrimaryValues PrimaryValues::at(const GradeNode& node, int64_t localFrame)
     p.temperature = float(node.value(gradekeys::Temperature, localFrame));
     p.tint = float(node.value(gradekeys::Tint, localFrame));
     p.lumMix = float(std::clamp(node.value(gradekeys::LumMix, localFrame), 0.0, 1.0));
+    for (int ch = 0; ch < 4; ++ch) {
+        p.logShadow[ch] = float(node.value(gradekeys::wheelKey(Wheel::LogShadow, ch), localFrame));
+        p.logMid[ch] = float(node.value(gradekeys::wheelKey(Wheel::LogMidtone, ch), localFrame));
+        p.logHigh[ch] = float(node.value(gradekeys::wheelKey(Wheel::LogHighlight, ch), localFrame));
+        p.logOffset[ch] = float(node.value(gradekeys::wheelKey(Wheel::LogOffset, ch), localFrame));
+    }
+    p.logLowRange = float(std::clamp(node.value(gradekeys::LogLowRange, localFrame), 0.0, 1.0));
+    p.logHighRange = float(std::clamp(node.value(gradekeys::LogHighRange, localFrame), 0.0, 1.0));
+    p.colorBoost
+        = float(std::clamp(node.value(gradekeys::ColorBoost, localFrame) / 100.0, -1.0, 1.0));
+    p.shadows = float(std::clamp(node.value(gradekeys::Shadows, localFrame) / 100.0, -1.0, 1.0));
+    p.highlights
+        = float(std::clamp(node.value(gradekeys::Highlights, localFrame) / 100.0, -1.0, 1.0));
     if (p.hueDegrees != 0.0f) {
         // Rotation about the grey axis (1, 1, 1) (Rodrigues; keeps (r + g + b) / 3).
         const float a = p.hueDegrees * float(std::numbers::pi) / 180.0f;
@@ -102,7 +115,27 @@ bool PrimaryValues::isIdentity() const
             return false;
     }
     return contrast == 1.0f && saturation == 1.0f && hueDegrees == 0.0f && temperature == 0.0f
-        && tint == 0.0f;
+        && tint == 0.0f && !logActive() && colorBoost == 0.0f && shadows == 0.0f
+        && highlights == 0.0f;
+}
+
+bool PrimaryValues::logActive() const
+{
+    for (int ch = 0; ch < 4; ++ch) {
+        if (logShadow[ch] != 0.0f || logMid[ch] != 0.0f || logHigh[ch] != 0.0f
+            || logOffset[ch] != 0.0f)
+            return true;
+    }
+    return false;
+}
+
+void logZoneWeights(float y, float low, float high, float w[3])
+{
+    const float shadow = 1.0f - smoothStep(low - kLogRamp, low + kLogRamp, y);
+    const float highlight = smoothStep(high - kLogRamp, high + kLogRamp, y);
+    w[0] = shadow;
+    w[2] = highlight;
+    w[1] = std::max(1.0f - shadow - highlight, 0.0f);
 }
 
 MixerValues MixerValues::at(const GradeNode& node, int64_t f)
@@ -305,6 +338,56 @@ void applyAgx(const AgxValues& v, float c[3])
     }
 }
 
+AutoColorResult autoColor(const float* rgb, size_t pixels)
+{
+    AutoColorResult out;
+    constexpr int kBins = 1024;
+    if (pixels < 16)
+        return out;
+    float low[3], high[3], median[3];
+    for (int ch = 0; ch < 3; ++ch) {
+        std::vector<uint32_t> hist(kBins, 0);
+        for (size_t i = 0; i < pixels; ++i) {
+            const float v = std::clamp(rgb[i * 3 + size_t(ch)], 0.0f, 1.0f);
+            ++hist[size_t(std::min(int(v * kBins), kBins - 1))];
+        }
+        auto percentile = [&](double fraction) {
+            const double target = fraction * double(pixels);
+            double seen = 0.0;
+            for (int b = 0; b < kBins; ++b) {
+                seen += hist[size_t(b)];
+                if (seen >= target)
+                    return (float(b) + 0.5f) / float(kBins);
+            }
+            return 1.0f;
+        };
+        low[ch] = percentile(kAutoColorClip);
+        high[ch] = percentile(1.0 - kAutoColorClip);
+        median[ch] = percentile(0.5);
+    }
+    // Flat picture: nothing to stretch.
+    for (int ch = 0; ch < 3; ++ch) {
+        if (high[ch] - low[ch] < 0.05f)
+            return out;
+    }
+    float stretched[3];
+    for (int ch = 0; ch < 3; ++ch) {
+        const float b = low[ch];
+        out.lift[ch] = -b / (1.0f - b);
+        out.gain[ch] = 1.0f / (high[ch] + out.lift[ch] * (1.0f - high[ch]));
+        stretched[ch] = std::clamp(
+            out.gain[ch] * (median[ch] + out.lift[ch] * (1.0f - median[ch])), 0.02f, 0.98f);
+    }
+    const float target = (stretched[0] + stretched[1] + stretched[2]) / 3.0f;
+    for (int ch = 0; ch < 3; ++ch) {
+        // pow(stretched, e) = target with e = 2^(-kGammaRange gamma)
+        const float e = std::log(target) / std::log(stretched[ch]);
+        out.gamma[ch] = std::clamp(-std::log2(e) / kGammaRange, -kAutoColorMaxGamma, kAutoColorMaxGamma);
+    }
+    out.valid = true;
+    return out;
+}
+
 float liftGammaGain(float x, float lift, float gamma, float gain)
 {
     const float v = std::max(gain * (x + lift * (1.0f - x)), 0.0f);
@@ -315,11 +398,21 @@ void applyPrimaries(const PrimaryValues& p, float c[3])
 {
     // 1. Offset: shifts everything (Resolve's offset wheel, "printer lights" style).
     for (int ch = 0; ch < 3; ++ch)
-        c[ch] += p.offset[ch] + p.offset[3];
+        c[ch] += p.offset[ch] + p.offset[3] + p.logOffset[ch] + p.logOffset[3];
     // 2. Temperature (red <-> blue) and tint (green <-> magenta), simple channel gains.
     c[0] *= 1.0f + kTemperatureRange * p.temperature;
     c[2] *= 1.0f - kTemperatureRange * p.temperature;
     c[1] *= 1.0f - kTintRange * p.tint;
+    // 2b. Log palette zones: the Shadow, Midtone and Highlight wheels as offsets weighted by the
+    //     luma of the colour so far (additive: a gain in linear light is an offset in log).
+    if (p.logActive()) {
+        float w[3];
+        logZoneWeights(std::clamp(luma(c), 0.0f, 1.0f), p.logLowRange, p.logHighRange, w);
+        for (int ch = 0; ch < 3; ++ch) {
+            c[ch] += w[0] * (p.logShadow[ch] + p.logShadow[3])
+                + w[1] * (p.logMid[ch] + p.logMid[3]) + w[2] * (p.logHigh[ch] + p.logHigh[3]);
+        }
+    }
     // 3. Per-channel lift / gamma / gain.
     for (int ch = 0; ch < 3; ++ch)
         c[ch] = liftGammaGain(c[ch], p.lift[ch], p.gamma[ch], p.gain[ch]);
@@ -335,6 +428,19 @@ void applyPrimaries(const PrimaryValues& p, float c[3])
     // 5. Contrast around the pivot.
     for (int ch = 0; ch < 3; ++ch)
         c[ch] = (c[ch] - p.pivot) * p.contrast + p.pivot;
+    // 5b. Shad / Hi: luma weighted lift or crush of the shadows, raise or recovery of the
+    //     highlights. A positive amount moves the channel towards white, a negative one towards
+    //     black, so nothing overshoots.
+    if (p.shadows != 0.0f || p.highlights != 0.0f) {
+        const float y = std::clamp(luma(c), 0.0f, 1.0f);
+        const float wShadow = 1.0f - smoothStep(0.0f, 0.5f, y);
+        const float wHigh = smoothStep(0.5f, 1.0f, y);
+        for (int ch = 0; ch < 3; ++ch) {
+            const float x = std::clamp(c[ch], 0.0f, 1.0f);
+            c[ch] += p.shadows * wShadow * kShadHiStrength * (p.shadows > 0.0f ? 1.0f - x : x);
+            c[ch] += p.highlights * wHigh * kShadHiStrength * (p.highlights > 0.0f ? 1.0f - x : x);
+        }
+    }
     // 6. Hue: rotation about the grey axis (PrimaryValues::hueMatrix).
     {
         const float* m = p.hueMatrix;
@@ -347,6 +453,17 @@ void applyPrimaries(const PrimaryValues& p, float c[3])
     const float y3 = luma(c);
     for (int ch = 0; ch < 3; ++ch)
         c[ch] = y3 + (c[ch] - y3) * p.saturation;
+    // 8. Color Boost: saturation scaled by 1 - the colour's own (HSV) saturation, so dull
+    //    colours gain most and strong ones are left alone (negative: the opposite way round).
+    if (p.colorBoost != 0.0f) {
+        const float mx = std::max(c[0], std::max(c[1], c[2]));
+        const float mn = std::min(c[0], std::min(c[1], c[2]));
+        const float s = mx > 1e-5f ? std::clamp((mx - mn) / mx, 0.0f, 1.0f) : 0.0f;
+        const float factor = 1.0f + p.colorBoost * (1.0f - s);
+        const float y4 = luma(c);
+        for (int ch = 0; ch < 3; ++ch)
+            c[ch] = y4 + (c[ch] - y4) * factor;
+    }
 }
 
 double evaluateCurve(const CurvePoints& points, GradeCurve curve, double x)
@@ -482,11 +599,13 @@ void applyCurves(const CurveTables& t, float c[3])
     const bool hueLum = active(GradeCurve::HueLum);
     const bool lumSat = active(GradeCurve::LumSat);
     const bool satSat = active(GradeCurve::SatSat);
-    if (!hueHue && !hueSat && !hueLum && !lumSat && !satSat)
+    const bool satLum = active(GradeCurve::SatLum);
+    if (!hueHue && !hueSat && !hueLum && !lumSat && !satSat && !satLum)
         return;
     float hsl[3];
     rgbToHsl(c, hsl);
     const float h = hsl[0];
+    const float s0 = hsl[1];
     const float y = std::clamp(luma(c), 0.0f, 1.0f);
     float factor = 1.0f;
     if (hueSat)
@@ -501,13 +620,129 @@ void applyCurves(const CurveTables& t, float c[3])
     }
     hsl[1] = std::clamp(hsl[1] * factor, 0.0f, 1.0f);
     hslToRgb(hsl, c);
-    if (hueLum) {
-        // Luminance of the selected hues: the luma moves, the colour differences stay.
+    if (hueLum || satLum) {
+        // Luminance of the selected hues / saturations: the luma moves, the colour
+        // differences stay.
+        float lumFactor = 1.0f;
+        if (hueLum)
+            lumFactor *= t.sample(GradeCurve::HueLum, h);
+        if (satLum)
+            lumFactor *= t.sample(GradeCurve::SatLum, s0);
         const float y2 = luma(c);
-        const float delta = y2 * (t.sample(GradeCurve::HueLum, h) - 1.0f);
+        const float delta = y2 * (lumFactor - 1.0f);
         for (int ch = 0; ch < 3; ++ch)
             c[ch] += delta;
     }
+}
+
+SoftClipValues SoftClipValues::at(const GradeNode& node, int64_t f)
+{
+    namespace gk = gradekeys;
+    SoftClipValues v;
+    v.low = float(std::clamp(node.value(gk::SoftClipLow, f), 0.0, 1.0));
+    v.lowSoft = float(std::clamp(node.value(gk::SoftClipLowSoft, f), 0.0, 1.0));
+    v.high = float(std::clamp(node.value(gk::SoftClipHigh, f), 0.0, 1.0));
+    v.highSoft = float(std::clamp(node.value(gk::SoftClipHighSoft, f), 0.0, 1.0));
+    v.high = std::max(v.high, v.low);
+    return v;
+}
+
+bool SoftClipValues::isIdentity() const
+{
+    return low <= 0.0f && lowSoft <= 0.0f && high >= 1.0f && highSoft <= 0.0f;
+}
+
+float softClip(const SoftClipValues& v, float x)
+{
+    const float wl = v.lowSoft * 0.5f;
+    if (wl <= 0.0f) {
+        x = std::max(x, v.low);
+    } else if (x < v.low + wl) {
+        if (x <= v.low - wl) {
+            x = v.low;
+        } else {
+            const float t = (v.low + wl) - x;
+            x = (v.low + wl) - t + t * t / (4.0f * wl);
+        }
+    }
+    const float wh = v.highSoft * 0.5f;
+    if (wh <= 0.0f) {
+        x = std::min(x, v.high);
+    } else if (x > v.high - wh) {
+        if (x >= v.high + wh) {
+            x = v.high;
+        } else {
+            const float t = x - (v.high - wh);
+            x = (v.high - wh) + t - t * t / (4.0f * wh);
+        }
+    }
+    return x;
+}
+
+void applySoftClip(const SoftClipValues& v, float rgb[3])
+{
+    for (int ch = 0; ch < 3; ++ch)
+        rgb[ch] = softClip(v, rgb[ch]);
+}
+
+void addCurvePickPoints(CurvePoints& points, GradeCurve curve, const float rgb[3])
+{
+    float c[3] = {std::clamp(rgb[0], 0.0f, 1.0f), std::clamp(rgb[1], 0.0f, 1.0f),
+        std::clamp(rgb[2], 0.0f, 1.0f)};
+    float hsl[3];
+    rgbToHsl(c, hsl);
+    double x = 0.0;
+    switch (curve) {
+    case GradeCurve::Luma:
+        x = luma(c);
+        break;
+    case GradeCurve::Red:
+        x = c[0];
+        break;
+    case GradeCurve::Green:
+        x = c[1];
+        break;
+    case GradeCurve::Blue:
+        x = c[2];
+        break;
+    case GradeCurve::HueHue:
+    case GradeCurve::HueSat:
+    case GradeCurve::HueLum:
+        x = hsl[0];
+        break;
+    case GradeCurve::LumSat:
+        x = luma(c);
+        break;
+    case GradeCurve::SatSat:
+    case GradeCurve::SatLum:
+        x = hsl[1];
+        break;
+    }
+    x = std::clamp(x, 0.0, 1.0);
+    const bool channel = isChannelCurve(curve);
+    std::vector<double> xs {x};
+    if (!channel) {
+        for (const double d : {-kCurvePickSpread, kCurvePickSpread}) {
+            double nx = x + d;
+            if (isHueCurve(curve))
+                nx -= std::floor(nx);
+            else if (nx <= 0.0 || nx >= 1.0)
+                continue;
+            xs.push_back(nx);
+        }
+    }
+    for (const double px : xs) {
+        const bool exists = std::any_of(points.cbegin(), points.cend(),
+            [&](const CurvePoint& p) { return std::abs(p.x - px) < kCurvePickSpread / 4.0; });
+        if (exists)
+            continue;
+        // Where the curve is now at px: a pick must not move the picture by itself.
+        const double y = points.isEmpty() ? (channel ? px : 0.5)
+                                          : evaluateCurve(points, curve, px);
+        points.append({px, y});
+    }
+    std::sort(points.begin(), points.end(),
+        [](const CurvePoint& a, const CurvePoint& b) { return a.x < b.x; });
 }
 
 void rgbToHsl(const float rgb[3], float hsl[3])
@@ -960,6 +1195,21 @@ BlurValues BlurValues::at(const GradeNode& node, int64_t f, double pictureHeight
             out.stages[2].mix[ch] *= mix;
         }
     }
+    // Midtone Detail: a wide blur put back as an unsharp mask (+) or a blend towards it (-),
+    // weighted to the midtones.
+    {
+        const float md = std::clamp(v(gk::MidtoneDetail) / 100.0f, -1.0f, 1.0f);
+        BlurStage& s = out.stages[3];
+        const float sigma = kMidDetailSigma * float(pictureHeight);
+        if (md != 0.0f && sigma >= kMinBlurSigma) {
+            s.midWeight = true;
+            for (int ch = 0; ch < 3; ++ch) {
+                s.sigmaH[ch] = s.sigmaV[ch] = sigma;
+                s.sharp[ch] = md > 0.0f ? md * kMidDetailGain : 0.0f;
+                s.mix[ch] = md < 0.0f ? -md : 0.0f;
+            }
+        }
+    }
     return out;
 }
 
@@ -993,10 +1243,16 @@ float coringFactor(float detail, float coring)
     return smoothStep(0.0f, coring * kCoringRange, std::abs(detail));
 }
 
-float blurCombine(float c, float b, float mix, float sharp, float coring)
+float midtoneWeight(float y)
+{
+    y = std::clamp(y, 0.0f, 1.0f);
+    return 4.0f * y * (1.0f - y);
+}
+
+float blurCombine(float c, float b, float mix, float sharp, float coring, float weight)
 {
     const float d = c - b;
-    return c + (b - c) * mix + d * sharp * coringFactor(d, coring);
+    return c + ((b - c) * mix + d * sharp * coringFactor(d, coring)) * weight;
 }
 
 } // namespace kk::grademath

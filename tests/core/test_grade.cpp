@@ -1116,6 +1116,365 @@ private slots:
 
     // ---- Serialization ----
 
+    // ---- Primaries extras, Log palette, Soft Clip, Sat vs Lum, Auto Color, curve picks ----
+
+    void extraKeysDefaultsAndRanges()
+    {
+        for (const QString& key : {gk::ColorBoost, gk::Shadows, gk::Highlights, gk::MidtoneDetail,
+                 gk::LogLowRange, gk::LogHighRange, gk::SoftClipLow, gk::SoftClipHigh}) {
+            QVERIFY(gk::allKeys().contains(key));
+            QVERIFY2(gk::label(key) != key, qPrintable(key));
+        }
+        QCOMPARE(gk::defaultValue(gk::ColorBoost), 0.0);
+        QCOMPARE(gk::defaultValue(gk::LogLowRange), 0.33);
+        QCOMPARE(gk::defaultValue(gk::LogHighRange), 0.55);
+        QCOMPARE(gk::defaultValue(gk::SoftClipHigh), 1.0);
+        QCOMPARE(gk::range(gk::Shadows), (std::pair<double, double> {-100.0, 100.0}));
+        QCOMPARE(gk::range(gk::LogLowRange), (std::pair<double, double> {0.0, 1.0}));
+        QCOMPARE(gk::range(gk::LogShadowR), (std::pair<double, double> {-1.0, 1.0}));
+        // The four Log wheels have their own keys; every wheel key is a known key.
+        QCOMPARE(gk::wheelKey(gk::Wheel::LogShadow, 0), gk::LogShadowR);
+        QCOMPARE(gk::wheelKey(gk::Wheel::LogOffset, 3), gk::LogOffsetY);
+        for (int w = 0; w < gk::kWheelCount; ++w) {
+            for (int ch = 0; ch < 4; ++ch)
+                QVERIFY(gk::allKeys().contains(gk::wheelKey(gk::Wheel(w), ch)));
+        }
+        // A node with only a Log range moved is still identity (the ranges matter only with a wheel).
+        GradeNode n;
+        n.params.setBase(gk::LogLowRange, 0.2);
+        QVERIFY(go::isNodeIdentity(n, 0));
+        n.params.setBase(gk::LogMidG, 0.1);
+        QVERIFY(!go::isNodeIdentity(n, 0));
+        GradeNode shad;
+        shad.params.setBase(gk::Shadows, 10.0);
+        QVERIFY(!go::isNodeIdentity(shad, 0));
+        GradeNode soft;
+        soft.params.setBase(gk::SoftClipHigh, 0.9);
+        QVERIFY(!go::isNodeIdentity(soft, 0));
+        GradeNode md;
+        md.params.setBase(gk::MidtoneDetail, -20.0);
+        QVERIFY(!go::isNodeIdentity(md, 0));
+    }
+
+    void colorBoostProtectsStrongColours()
+    {
+        QVERIFY(primaries({}).isIdentity());
+        const PrimaryValues boost = primaries({{gk::ColorBoost, 100.0}});
+        QVERIFY(!boost.isIdentity());
+        // Greys and white do not change.
+        float grey[3] = {0.4f, 0.4f, 0.4f};
+        applyPrimaries(boost, grey);
+        KK_COMPARE_RGB(grey, 0.4, 0.4, 0.4, 1e-5);
+        // A dull colour gains saturation more than a strong one.
+        auto chromaOf = [](const float c[3]) { return std::max({c[0], c[1], c[2]}) - std::min({c[0], c[1], c[2]}); };
+        float dull[3] = {0.5f, 0.45f, 0.4f};
+        float strong[3] = {0.9f, 0.2f, 0.1f};
+        const float dull0 = chromaOf(dull), strong0 = chromaOf(strong);
+        applyPrimaries(boost, dull);
+        applyPrimaries(boost, strong);
+        QVERIFY(chromaOf(dull) / dull0 > chromaOf(strong) / strong0 + 0.3f);
+        QVERIFY(chromaOf(strong) / strong0 < 1.15f);
+        // Negative boost lowers saturation, dull colours first.
+        float dull2[3] = {0.5f, 0.45f, 0.4f};
+        applyPrimaries(primaries({{gk::ColorBoost, -100.0}}), dull2);
+        QVERIFY(chromaOf(dull2) < dull0);
+        // Luma is kept.
+        float c[3] = {0.5f, 0.45f, 0.4f};
+        const float y = luma(c);
+        applyPrimaries(boost, c);
+        QVERIFY(near(luma(c), y, 1e-5));
+    }
+
+    void shadowsAndHighlights()
+    {
+        const PrimaryValues lift = primaries({{gk::Shadows, 100.0}});
+        float dark[3] = {0.1f, 0.1f, 0.1f};
+        float bright[3] = {0.9f, 0.9f, 0.9f};
+        applyPrimaries(lift, dark);
+        applyPrimaries(lift, bright);
+        QVERIFY(dark[0] > 0.1f + 0.2f); // shadows lifted
+        QVERIFY(near(bright[0], 0.9, 1e-5)); // highlights untouched
+        // A negative Shad crushes the darks towards black without going below it.
+        float crushed[3] = {0.1f, 0.1f, 0.1f};
+        applyPrimaries(primaries({{gk::Shadows, -100.0}}), crushed);
+        QVERIFY(crushed[0] < 0.1f && crushed[0] >= 0.0f);
+        // Hi recovers (negative) or raises the brights and leaves the darks.
+        float hi[3] = {0.9f, 0.9f, 0.9f}, lo[3] = {0.1f, 0.1f, 0.1f};
+        applyPrimaries(primaries({{gk::Highlights, -100.0}}), hi);
+        applyPrimaries(primaries({{gk::Highlights, -100.0}}), lo);
+        QVERIFY(hi[0] < 0.9f - 0.2f);
+        QVERIFY(near(lo[0], 0.1, 1e-5));
+        float raised[3] = {0.8f, 0.8f, 0.8f};
+        applyPrimaries(primaries({{gk::Highlights, 100.0}}), raised);
+        QVERIFY(raised[0] > 0.8f && raised[0] <= 1.0f + 1e-6f);
+    }
+
+    void logZonesAndWheels()
+    {
+        // The zone weights always add up to one (midtones take what the ramps leave).
+        for (float y = 0.0f; y <= 1.0f; y += 0.05f) {
+            float w[3];
+            logZoneWeights(y, 0.33f, 0.55f, w);
+            QVERIFY(near(w[0] + w[1] + w[2], 1.0, 1e-5));
+            QVERIFY(w[0] >= 0 && w[1] >= 0 && w[2] >= 0);
+        }
+        float w0[3], w1[3];
+        logZoneWeights(0.0f, 0.33f, 0.55f, w0);
+        logZoneWeights(1.0f, 0.33f, 0.55f, w1);
+        QVERIFY(w0[0] > 0.99f && w1[2] > 0.99f);
+        // The Shadow wheel moves darks, hardly the brights; the Highlight wheel the opposite.
+        const PrimaryValues shadow = primaries({{gk::LogShadowR, 0.2}});
+        float dark[3] = {0.05f, 0.05f, 0.05f}, bright[3] = {0.95f, 0.95f, 0.95f};
+        applyPrimaries(shadow, dark);
+        applyPrimaries(shadow, bright);
+        QVERIFY(dark[0] > 0.05f + 0.15f);
+        QVERIFY(near(bright[0], 0.95, 1e-4));
+        const PrimaryValues high = primaries({{gk::LogHighB, 0.1}, {gk::LogHighY, 0.05}});
+        float d2[3] = {0.05f, 0.05f, 0.05f}, b2[3] = {0.95f, 0.95f, 0.95f};
+        applyPrimaries(high, d2);
+        applyPrimaries(high, b2);
+        QVERIFY(near(d2[0], 0.05, 1e-3));
+        QVERIFY(near(b2[2], 0.95 + 0.15, 1e-3) && near(b2[0], 0.95 + 0.05, 1e-3));
+        // Moving the range boundary moves the zone: a mid grey is shadow-ish with a high Low Range.
+        const PrimaryValues lowRange = primaries({{gk::LogShadowG, 0.2}, {gk::LogLowRange, 0.8}});
+        float mid[3] = {0.5f, 0.5f, 0.5f}, mid2[3] = {0.5f, 0.5f, 0.5f};
+        applyPrimaries(shadow, mid);
+        applyPrimaries(primaries({{gk::LogShadowR, 0.2}}), mid2);
+        float mid3[3] = {0.5f, 0.5f, 0.5f};
+        applyPrimaries(lowRange, mid3);
+        QVERIFY(mid3[1] - 0.5f > mid[0] - 0.5f);
+        // The Log Offset wheel adds to everything.
+        float o[3] = {0.3f, 0.3f, 0.3f};
+        applyPrimaries(primaries({{gk::LogOffsetR, 0.1}, {gk::LogOffsetY, 0.02}}), o);
+        KK_COMPARE_RGB(o, 0.42, 0.32, 0.32, 1e-5);
+    }
+
+    void midtoneDetailStage()
+    {
+        GradeNode n;
+        QVERIFY(!BlurValues::at(n, 0, 1080).stages[3].active());
+        n.params.setBase(gk::MidtoneDetail, 50.0);
+        BlurValues v = BlurValues::at(n, 0, 1080);
+        QVERIFY(v.active() && v.stages[3].active() && v.stages[3].midWeight);
+        QVERIFY(!v.stages[0].active() && !v.stages[1].active() && !v.stages[2].active());
+        QCOMPARE(v.stages[3].sharp[0], 0.5f * kMidDetailGain);
+        QCOMPARE(v.stages[3].mix[0], 0.0f);
+        QCOMPARE(v.stages[3].sigmaH[0], kMidDetailSigma * 1080.0f);
+        // Negative: softens (blends towards the blur), no sharpening.
+        n.params.setBase(gk::MidtoneDetail, -50.0);
+        v = BlurValues::at(n, 0, 1080);
+        QCOMPARE(v.stages[3].sharp[0], 0.0f);
+        QCOMPARE(v.stages[3].mix[0], 0.5f);
+        // The midtone weight is 1 at mid grey and 0 at the ends; blurCombine scales by it.
+        QCOMPARE(midtoneWeight(0.5f), 1.0f);
+        QCOMPARE(midtoneWeight(0.0f), 0.0f);
+        QCOMPARE(midtoneWeight(1.0f), 0.0f);
+        QCOMPARE(blurCombine(0.6f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f), 0.7f);
+        QCOMPARE(blurCombine(0.6f, 0.5f, 0.0f, 1.0f, 0.0f, 0.5f), 0.65f);
+    }
+
+    void softClipMaths()
+    {
+        QVERIFY(SoftClipValues {}.isIdentity());
+        SoftClipValues hard;
+        hard.low = 0.2f;
+        hard.high = 0.8f;
+        QVERIFY(!hard.isIdentity());
+        QCOMPARE(softClip(hard, 0.1f), 0.2f);
+        QCOMPARE(softClip(hard, 0.5f), 0.5f);
+        QCOMPARE(softClip(hard, 0.95f), 0.8f);
+        // A soft knee is continuous, monotonic, never passes the limit and starts below it.
+        SoftClipValues soft = hard;
+        soft.lowSoft = 0.4f;
+        soft.highSoft = 0.4f;
+        float last = -1.0f;
+        for (float x = -0.2f; x <= 1.2f; x += 0.01f) {
+            const float y = softClip(soft, x);
+            QVERIFY(y >= last - 1e-6f);
+            QVERIFY(y >= soft.low - 1e-6f && y <= soft.high + 1e-6f);
+            if (last >= 0.0f)
+                QVERIFY(std::abs(y - last) < 0.0125f); // no jump
+            last = y;
+        }
+        QVERIFY(softClip(soft, 0.7f) < 0.7f); // the knee begins before the limit
+        QCOMPARE(softClip(soft, 0.5f), 0.5f);
+        QVERIFY(near(softClip(soft, 1.2f), 0.8, 1e-6));
+        // From a node, keyframeable params, applied to the three channels.
+        GradeNode n;
+        n.params.setBase(gk::SoftClipHigh, 0.5);
+        n.params.values[gk::SoftClipLow].setKey(0, 0.0);
+        n.params.values[gk::SoftClipLow].setKey(10, 0.4);
+        QCOMPARE(SoftClipValues::at(n, 5).low, 0.2f);
+        float c[3] = {0.1f, 0.3f, 0.9f};
+        applySoftClip(SoftClipValues::at(n, 10), c);
+        KK_COMPARE_RGB(c, 0.4, 0.4, 0.5, 1e-6);
+        // High below Low is repaired (high follows low).
+        GradeNode bad;
+        bad.params.setBase(gk::SoftClipLow, 0.7);
+        bad.params.setBase(gk::SoftClipHigh, 0.3);
+        QVERIFY(SoftClipValues::at(bad, 0).high >= SoftClipValues::at(bad, 0).low);
+    }
+
+    void satVsLumCurve()
+    {
+        // Sat vs Lum at y = 1 for saturated colours only: a saturated colour gets brighter, a
+        // grey does not change.
+        const CurvePoints boostSaturated = {{0.0, 0.5}, {0.4, 0.5}, {0.9, 1.0}};
+        float vivid[3] = {1.0f, 0.1f, 0.1f};
+        const float y0 = luma(vivid);
+        applyCurves(tablesWith(GradeCurve::SatLum, boostSaturated), vivid);
+        QVERIFY(luma(vivid) > y0 + 0.05f);
+        float grey[3] = {0.5f, 0.5f, 0.5f};
+        applyCurves(tablesWith(GradeCurve::SatLum, boostSaturated), grey);
+        KK_COMPARE_RGB(grey, 0.5, 0.5, 0.5, 1e-5);
+        // It is a real curve: neutral when empty, saved and restored, listed.
+        QVERIFY(GradeCurves {}.isIdentity(GradeCurve::SatLum));
+        QCOMPARE(kGradeCurveCount, 10);
+        QVERIFY(!isHueCurve(GradeCurve::SatLum) && !isChannelCurve(GradeCurve::SatLum));
+        ClipGrade g;
+        const quint64 a = go::initialize(g);
+        g.node(a)->curves[GradeCurve::SatLum] = boostSaturated;
+        QVERIFY(!go::isNodeIdentity(*g.node(a), 0));
+        const ClipGrade back = serialization::gradeFromJson(serialization::gradeToJson(g));
+        QCOMPARE(back, g);
+        QCOMPARE(back.nodes[0].curves[GradeCurve::SatLum], boostSaturated);
+        // Hue Lum and Sat Lum together multiply their luma factors.
+        float both[3] = {1.0f, 0.1f, 0.1f};
+        GradeCurves curves;
+        curves[GradeCurve::SatLum] = {{0.5, 1.0}};
+        curves[GradeCurve::HueLum] = {{0.5, 1.0}};
+        applyCurves(CurveTables::bake(curves), both);
+        QVERIFY(luma(both) > luma(vivid));
+    }
+
+    void curvePickPoints()
+    {
+        const float orange[3] = {0.9f, 0.5f, 0.1f};
+        float hsl[3];
+        rgbToHsl(orange, hsl);
+        // Hue curves: three neutral points, the hue and one either side.
+        CurvePoints hue;
+        addCurvePickPoints(hue, GradeCurve::HueSat, orange);
+        QCOMPARE(hue.size(), 3);
+        bool middle = false;
+        for (const CurvePoint& p : hue) {
+            QCOMPARE(p.y, 0.5);
+            middle = middle || near(p.x, hsl[0], 1e-6);
+        }
+        QVERIFY(middle);
+        // Dragging the middle point changes only its area.
+        // Picking the same colour again does not add duplicates.
+        addCurvePickPoints(hue, GradeCurve::HueSat, orange);
+        QCOMPARE(hue.size(), 3);
+        // A hue near red wraps the neighbour round to the other end.
+        const float red[3] = {1.0f, 0.02f, 0.0f};
+        CurvePoints wrap;
+        addCurvePickPoints(wrap, GradeCurve::HueHue, red);
+        QCOMPARE(wrap.size(), 3);
+        for (const CurvePoint& p : wrap)
+            QVERIFY(p.x >= 0.0 && p.x <= 1.0);
+        QVERIFY(wrap.front().x < 0.01 && wrap.back().x > 0.9);
+        // Custom: one point on the diagonal at the luma (Y) or the channel (R, G, B).
+        CurvePoints y;
+        addCurvePickPoints(y, GradeCurve::Luma, orange);
+        QCOMPARE(y.size(), 1);
+        const float lum = luma(orange);
+        QVERIFY(near(y[0].x, lum, 1e-6) && near(y[0].y, lum, 1e-6));
+        CurvePoints g;
+        addCurvePickPoints(g, GradeCurve::Green, orange);
+        QVERIFY(near(g[0].x, 0.5, 1e-6) && near(g[0].y, 0.5, 1e-6));
+        // Lum vs Sat / Sat vs Sat / Sat vs Lum: at the luma or saturation, neutral 0.5.
+        CurvePoints ls, ss;
+        addCurvePickPoints(ls, GradeCurve::LumSat, orange);
+        addCurvePickPoints(ss, GradeCurve::SatLum, orange);
+        QCOMPARE(ls.size(), 3);
+        QCOMPARE(ss.size(), 3);
+        QVERIFY(near(ls[1].x, lum, 1e-6) && near(ss[1].x, hsl[1], 1e-6));
+        // A point added to a bent custom curve sits on the curve, so a pick changes nothing.
+        CurvePoints bent = {{0.25, 0.1}, {0.75, 0.9}};
+        addCurvePickPoints(bent, GradeCurve::Luma, orange);
+        QCOMPARE(bent.size(), 3);
+        for (const CurvePoint& p : bent) {
+            if (near(p.x, lum, 1e-6))
+                QVERIFY(near(p.y, evaluateCurve({{0.25, 0.1}, {0.75, 0.9}}, GradeCurve::Luma, lum), 1e-6));
+        }
+    }
+
+    void autoColorBalancesACast()
+    {
+        // A picture with a blue cast, black at 0.1 / 0.05 / 0.2 and white at 0.8 / 0.7 / 0.95.
+        std::vector<float> img;
+        const int n = 2000;
+        for (int i = 0; i < n; ++i) {
+            const float t = float(i) / float(n - 1);
+            img.push_back(0.1f + 0.7f * t);
+            img.push_back(0.05f + 0.65f * t);
+            img.push_back(0.2f + 0.75f * t);
+        }
+        const AutoColorResult r = autoColor(img.data(), size_t(n));
+        QVERIFY(r.valid);
+        // Black and white points land on 0 and 1.
+        for (int ch = 0; ch < 3; ++ch) {
+            const float lo = 0.1f - 0.05f * float(ch == 1) + 0.1f * float(ch == 2);
+            const float hi = ch == 0 ? 0.8f : ch == 1 ? 0.7f : 0.95f;
+            QVERIFY2(std::abs(liftGammaGain(lo + 0.002f * (hi - lo), r.lift[ch], 0.0f, r.gain[ch])) < 0.03f, qPrintable(QString::number(ch)));
+            QVERIFY2(std::abs(liftGammaGain(hi - 0.002f * (hi - lo), r.lift[ch], 0.0f, r.gain[ch]) - 1.0f) < 0.03f, qPrintable(QString::number(ch)));
+        }
+        // The midtones are brought together: the three channels' middles agree afterwards.
+        float mid[3];
+        for (int ch = 0; ch < 3; ++ch) {
+            const float lo = 0.1f - 0.05f * float(ch == 1) + 0.1f * float(ch == 2);
+            const float hi = ch == 0 ? 0.8f : ch == 1 ? 0.7f : 0.95f;
+            mid[ch] = liftGammaGain(lo + 0.5f * (hi - lo), r.lift[ch], r.gamma[ch], r.gain[ch]);
+        }
+        QVERIFY(std::abs(mid[0] - mid[1]) < 0.03f && std::abs(mid[1] - mid[2]) < 0.03f);
+        // A neutral picture needs (almost) nothing; a flat or tiny one is refused.
+        std::vector<float> ramp;
+        for (int i = 0; i < n; ++i) {
+            const float t = float(i) / float(n - 1);
+            ramp.insert(ramp.end(), {t, t, t});
+        }
+        const AutoColorResult neutral = autoColor(ramp.data(), size_t(n));
+        QVERIFY(neutral.valid);
+        for (int ch = 0; ch < 3; ++ch) {
+            QVERIFY(std::abs(neutral.lift[ch]) < 0.02f);
+            QVERIFY(std::abs(neutral.gain[ch] - 1.0f) < 0.03f);
+            QVERIFY(std::abs(neutral.gamma[ch]) < 0.03f);
+        }
+        const std::vector<float> flat(300, 0.4f);
+        QVERIFY(!autoColor(flat.data(), 100).valid);
+        QVERIFY(!autoColor(img.data(), 4).valid);
+    }
+
+    void extrasSerializeAndKeyframe()
+    {
+        ClipGrade g;
+        const quint64 a = go::initialize(g);
+        g.node(a)->params.setBase(gk::ColorBoost, 35.0);
+        g.node(a)->params.setBase(gk::LogShadowB, 0.12);
+        g.node(a)->params.setBase(gk::LogLowRange, 0.4);
+        g.node(a)->params.setBase(gk::SoftClipHighSoft, 0.3);
+        g.node(a)->params.values[gk::Highlights].setKey(0, 0.0);
+        g.node(a)->params.values[gk::Highlights].setKey(10, -50.0);
+        g.node(a)->params.values[gk::MidtoneDetail].setKey(0, 0.0);
+        g.node(a)->params.values[gk::MidtoneDetail].setKey(10, 80.0);
+        const ClipGrade back = serialization::gradeFromJson(serialization::gradeToJson(g));
+        QCOMPARE(back, g);
+        QCOMPARE(PrimaryValues::at(back.nodes[0], 5).highlights, -0.25f);
+        QCOMPARE(PrimaryValues::at(back.nodes[0], 0).colorBoost, 0.35f);
+        QCOMPARE(PrimaryValues::at(back.nodes[0], 0).logShadow[2], 0.12f);
+        QCOMPARE(PrimaryValues::at(back.nodes[0], 0).logLowRange, 0.4f);
+        QCOMPARE(BlurValues::at(back.nodes[0], 10, 1080).stages[3].sharp[0], 0.8f * kMidDetailGain);
+        // Reset puts them all back.
+        QVERIFY(go::resetNode(g, a));
+        QVERIFY(go::isNodeIdentity(*g.node(a), 0));
+        QVERIFY(go::isNodeIdentity(*g.node(a), 10));
+        // An old file without them reads as neutral.
+        ClipGrade old;
+        go::initialize(old);
+        QVERIFY(PrimaryValues::at(old.nodes[0], 0).isIdentity());
+    }
+
     void serializationRoundTrip()
     {
         const ClipGrade g = richGrade();

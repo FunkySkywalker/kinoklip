@@ -56,10 +56,11 @@ enum class GradeCurve : quint8 {
     HueSat, ///< hue vs saturation: y 0.5 = unchanged, 0 = grey, 1 = double
     HueLum, ///< hue vs luminance: y 0.5 = unchanged, 0 = luma to 0, 1 = double luma
     LumSat, ///< luma vs saturation: y 0.5 = unchanged, 0 = grey, 1 = double
-    SatSat ///< saturation vs saturation: y 0.5 = unchanged, 0 = grey, 1 = double
+    SatSat, ///< saturation vs saturation: y 0.5 = unchanged, 0 = grey, 1 = double
+    SatLum ///< saturation vs luminance: y 0.5 = unchanged, 0 = luma to 0, 1 = double luma
 };
 /// Number of GradeCurve values.
-inline constexpr int kGradeCurveCount = 9;
+inline constexpr int kGradeCurveCount = 10;
 
 /// True for the curves whose x is a hue (periodic: x = 0 and x = 1 are the same hue).
 [[nodiscard]] constexpr bool isHueCurve(GradeCurve c)
@@ -302,6 +303,42 @@ inline const QString Tint = QStringLiteral("tint"); ///< -1..1 (+ = magenta); de
 inline const QString LumMix = QStringLiteral("lumMix"); ///< 0..1; default 1
 inline const QString Mix = QStringLiteral("mix"); ///< 0..1 node opacity; default 1
 
+// Primaries extras (Resolve's units: -100..100, 0 = neutral; the maths divides by 100).
+inline const QString ColorBoost = QStringLiteral("colorBoost"); ///< vibrance: low saturation first
+inline const QString Shadows = QStringLiteral("shadows"); ///< Shad: lifts (+) or crushes (-) darks
+inline const QString Highlights = QStringLiteral("highlights"); ///< Hi: raises (+) or recovers (-) brights
+inline const QString MidtoneDetail = QStringLiteral("midtoneDetail"); ///< MD: local contrast (+) / soften (-)
+
+// Soft Clip of the custom curves (Curves palette): limits the picture to Low .. High, the
+// corners rounded over the Soft values (0..1; a soft of 1 rounds half the range).
+inline const QString SoftClipLow = QStringLiteral("softClipLow"); ///< default 0
+inline const QString SoftClipLowSoft = QStringLiteral("softClipLowSoft"); ///< default 0
+inline const QString SoftClipHigh = QStringLiteral("softClipHigh"); ///< default 1
+inline const QString SoftClipHighSoft = QStringLiteral("softClipHighSoft"); ///< default 0
+
+// Log palette: Shadow, Midtone, Highlight and Offset wheels (R, G, B and master Y, additive,
+// 0 = neutral) and the two range boundaries between the zones.
+inline const QString LogShadowR = QStringLiteral("logShadowR");
+inline const QString LogShadowG = QStringLiteral("logShadowG");
+inline const QString LogShadowB = QStringLiteral("logShadowB");
+inline const QString LogShadowY = QStringLiteral("logShadowY");
+inline const QString LogMidR = QStringLiteral("logMidR");
+inline const QString LogMidG = QStringLiteral("logMidG");
+inline const QString LogMidB = QStringLiteral("logMidB");
+inline const QString LogMidY = QStringLiteral("logMidY");
+inline const QString LogHighR = QStringLiteral("logHighR");
+inline const QString LogHighG = QStringLiteral("logHighG");
+inline const QString LogHighB = QStringLiteral("logHighB");
+inline const QString LogHighY = QStringLiteral("logHighY");
+inline const QString LogOffsetR = QStringLiteral("logOffsetR");
+inline const QString LogOffsetG = QStringLiteral("logOffsetG");
+inline const QString LogOffsetB = QStringLiteral("logOffsetB");
+inline const QString LogOffsetY = QStringLiteral("logOffsetY");
+inline const QString LogLowRange = QStringLiteral("logLowRange"); ///< shadow / midtone boundary; default 0.33
+inline const QString LogHighRange = QStringLiteral("logHighRange"); ///< midtone / highlight boundary; default 0.55
+/// True for a Log palette key.
+[[nodiscard]] bool isLogKey(QStringView key);
+
 // Blur palette (Blur / Sharpen / Mist modes, see grademath::BlurValues). Radius 0.5 = no
 // change in the Blur and Sharpen modes; Mist radius 0 = none.
 inline const QString BlurRadiusR = QStringLiteral("blurRadiusR"); ///< 0..1; default 0.5
@@ -362,13 +399,20 @@ inline const QString AgxOutput = QStringLiteral("agxOutput"); ///< AgxOutput; de
 /// True for a blur palette key.
 [[nodiscard]] bool isBlurKey(QStringView key);
 
-/// The four colour wheels (Primaries palette), in palette order.
+/// The colour wheels: the four of the Primaries palette (Lift, Gamma, Gain, Offset) and the four
+/// of the Log palette (Shadow, Midtone, Highlight, Offset), each in palette order.
 enum class Wheel : quint8 {
     Lift,
     Gamma,
     Gain,
-    Offset
+    Offset,
+    LogShadow,
+    LogMidtone,
+    LogHighlight,
+    LogOffset
 };
+/// Number of Wheel values.
+inline constexpr int kWheelCount = 8;
 /// Key of channel @p channel (0 R, 1 G, 2 B, 3 master Y) of wheel @p wheel.
 [[nodiscard]] const QString& wheelKey(Wheel wheel, int channel);
 /// Documented default of grade parameter @p key (unknown keys: 0).

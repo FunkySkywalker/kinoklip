@@ -39,6 +39,9 @@ struct PreparedGradeNode
     grademath::AgxValues agx;
     bool agxOn = false; ///< agx.on
     std::shared_ptr<const grademath::CurveTables> curves; ///< null = identity
+    /// Soft Clip of the custom curves (after the curves, before the LUT).
+    grademath::SoftClipValues softClip;
+    bool softClips = false; ///< not softClip.isIdentity()
     std::shared_ptr<const CubeLut> lut; ///< null = none (or unreadable)
     bool tetrahedral = true;
     GradeQualifier qualifier;

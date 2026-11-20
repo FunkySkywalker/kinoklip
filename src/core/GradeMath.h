@@ -49,6 +49,18 @@ struct PrimaryValues
     float temperature = 0.0f;
     float tint = 0.0f;
     float lumMix = 1.0f;
+    /// Log palette: additive Shadow / Midtone / Highlight zone wheels and an Offset wheel
+    /// (channels as above, 0 = neutral) and the two zone boundaries (luma, 0..1).
+    float logShadow[4] = {0, 0, 0, 0};
+    float logMid[4] = {0, 0, 0, 0};
+    float logHigh[4] = {0, 0, 0, 0};
+    float logOffset[4] = {0, 0, 0, 0};
+    float logLowRange = 0.33f;
+    float logHighRange = 0.55f;
+    /// Color Boost, Shad and Hi as fractions (the node's -100..100 divided by 100).
+    float colorBoost = 0.0f;
+    float shadows = 0.0f;
+    float highlights = 0.0f;
     /// Hue rotation about the grey axis as a row-major 3x3 matrix (from hueDegrees; identity
     /// for 0). The GPU receives exactly these floats.
     float hueMatrix[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
@@ -57,12 +69,26 @@ struct PrimaryValues
     [[nodiscard]] static PrimaryValues at(const GradeNode& node, int64_t localFrame);
     /// True if applyPrimaries() changes nothing.
     [[nodiscard]] bool isIdentity() const;
+    /// True if any Log palette wheel is off its neutral value (the zone weights are needed).
+    [[nodiscard]] bool logActive() const;
 };
 
-/// Applies the primaries to straight (un-premultiplied) RGB @p rgb in place. Order: offset,
-/// temperature / tint, per-channel lift / gamma / gain, master lift / gamma / gain (mixed
-/// between per-channel and luma-only by lumMix), contrast around the pivot, hue rotation about
-/// the grey axis, saturation around Rec. 709 luma. No clamping.
+/// Half width of the ramp between two Log palette zones (luma units).
+inline constexpr float kLogRamp = 0.2f;
+/// Strength of Shad / Hi at +-100: the fraction of the way to white (+) or black (-) at full
+/// weight.
+inline constexpr float kShadHiStrength = 0.5f;
+/// Weights of the Log palette zones at luma @p y: the shadow weight falls from 1 to 0 around
+/// @p low, the highlight weight rises around @p high, the midtone weight is what is left (never
+/// negative). @p w receives shadow, midtone, highlight.
+void logZoneWeights(float y, float low, float high, float w[3]);
+
+/// Applies the primaries to straight (un-premultiplied) RGB @p rgb in place. Order: offset
+/// (with the Log palette's Offset wheel), temperature / tint, the Log zone wheels (weighted by
+/// luma), per-channel lift / gamma / gain, master lift / gamma / gain (mixed between
+/// per-channel and luma-only by lumMix), contrast around the pivot, Shad / Hi (luma weighted
+/// shadow and highlight lift), hue rotation about the grey axis, saturation around Rec. 709
+/// luma, Color Boost (saturation scaled by 1 - the colour's own saturation). No clamping.
 void applyPrimaries(const PrimaryValues& p, float rgb[3]);
 
 /// RGB Mixer palette of a node at one frame (row-major: out = m * in; row 0 makes the red
@@ -117,6 +143,29 @@ struct AgxValues
 /// Applies AgX to straight RGB @p rgb in place; the result is clamped to 0..1.
 void applyAgx(const AgxValues& v, float rgb[3]);
 
+/// Result of autoColor(): per-channel (R, G, B) lift, gamma and gain that stretch each channel
+/// to the full range and balance the midtones to a common level.
+struct AutoColorResult
+{
+    float lift[3] = {0, 0, 0};
+    float gamma[3] = {0, 0, 0};
+    float gain[3] = {1, 1, 1};
+    /// False when the picture is too flat or too small to analyse (the values stay neutral).
+    bool valid = false;
+};
+/// Fraction of the pixels cut off at each end of a channel's histogram (a few specks of
+/// black or white must not decide the black and white points).
+inline constexpr float kAutoColorClip = 0.002f;
+/// Largest gamma the balance may set (wheel units).
+inline constexpr float kAutoColorMaxGamma = 0.3f;
+/// Auto Color / Auto Balance for the Primaries palette: from the straight RGB picture
+/// @p rgb (@p pixels triples, 0..1) it finds each channel's black and white points (the
+/// kAutoColorClip percentiles) and sets lift and gain so they map to 0 and 1 (the Levels /
+/// "stretch contrast" step of GIMP's Auto White Balance and Natron's Grade), then a gamma that
+/// brings each channel's median to the mean of the three medians (removing a colour cast
+/// from the midtones). The result feeds the Primaries wheels' per-channel values.
+[[nodiscard]] AutoColorResult autoColor(const float* rgb, size_t pixels);
+
 /// One lift / gamma / gain transfer: pow(max(gain * (x + lift * (1 - x)), 0), 2^(-2 gamma)).
 [[nodiscard]] float liftGammaGain(float x, float lift, float gamma, float gain);
 
@@ -149,6 +198,34 @@ struct CurveTables
     /// fetches the two samples and interpolates the same way).
     [[nodiscard]] float sample(GradeCurve c, float x) const;
 };
+
+/// Soft Clip of the custom curves at one frame: the picture is limited to low .. high; the
+/// limits are rounded over a knee of half-width soft / 2 (a quadratic ease from slope 1 to 0, so
+/// the result is continuous and smooth; soft 0 is a hard clip).
+struct SoftClipValues
+{
+    float low = 0.0f;
+    float lowSoft = 0.0f;
+    float high = 1.0f;
+    float highSoft = 0.0f;
+    [[nodiscard]] static SoftClipValues at(const GradeNode& node, int64_t localFrame);
+    /// True if applySoftClip() changes nothing.
+    [[nodiscard]] bool isIdentity() const;
+};
+/// Soft clips one channel value.
+[[nodiscard]] float softClip(const SoftClipValues& v, float x);
+/// Soft clips the three channels of @p rgb in place.
+void applySoftClip(const SoftClipValues& v, float rgb[3]);
+
+/// Distance of the two neighbour points a picked hue / luma / saturation gets on its curve.
+inline constexpr double kCurvePickSpread = 1.0 / 12.0;
+/// The Curves palette's eyedropper: adds the picked colour @p rgb (straight, 0..1) to
+/// @p points of curve @p curve. Y: a point at the colour's luma, R / G / B: at that channel's
+/// value, both on the diagonal (no change yet); hue, luma and saturation curves: the colour's
+/// hue, luma (lum vs sat) or HSL saturation (sat vs sat / lum) and a neutral point either side
+/// (hue wraps), so only that range moves when the middle one is dragged. A point already near
+/// one of them is kept.
+void addCurvePickPoints(CurvePoints& points, GradeCurve curve, const float rgb[3]);
 
 /// Applies the curves to RGB @p rgb in place: values clamped to 0..1, the Y curve on every
 /// channel, the R / G / B curves, then the HSL curves (hue vs hue / sat / lum, lum vs sat, sat
@@ -252,6 +329,8 @@ struct BlurStage
     float mix[3] = {0, 0, 0};
     float sharp[3] = {0, 0, 0};
     float coring = 0.0f; ///< 0..1 (Coring Softness)
+    /// Weights the stage by the pixel's midtone-ness, 4 y (1 - y) of its luma (Midtone Detail).
+    bool midWeight = false;
 
     /// True if the stage changes the picture.
     [[nodiscard]] bool active() const;
@@ -259,14 +338,24 @@ struct BlurStage
     [[nodiscard]] bool uniformSigma() const;
 };
 
-/// The Blur palette of a node at one frame: the Blur, Sharpen and Mist stages in that order.
+/// Midtone Detail: the blur radius of the stage (fraction of the picture height) and its
+/// strength at +-100 (unsharp gain; a negative value blends towards the blur by up to 1).
+inline constexpr float kMidDetailSigma = 0.008f;
+inline constexpr float kMidDetailGain = 2.0f;
+/// The midtone weight 4 y (1 - y) of luma @p y (clamped to 0..1).
+[[nodiscard]] float midtoneWeight(float y);
+
+/// The Blur palette of a node at one frame: the Blur, Sharpen and Mist stages in that order,
+/// then Midtone Detail.
 /// Radius 0.5 is neutral in Blur and Sharpen mode; above it Blur blurs and Sharpen sharpens,
 /// below it Blur sharpens and Sharpen blurs; Mist (a soft glow mixed over the picture) starts
 /// at radius 0. H/V Ratio 0.5 blurs both ways, 0 only horizontally, 1 only vertically.
 /// Scaling 0.5 = the nominal size (0 none, 1 twice).
 struct BlurValues
 {
-    std::array<BlurStage, 3> stages;
+    /// Blur, Sharpen, Mist, then Midtone Detail (a wide unsharp mask or blur weighted to the
+    /// midtones, from the Primaries palette's MD field).
+    std::array<BlurStage, 4> stages;
 
     /// True if any stage changes the picture.
     [[nodiscard]] bool active() const;
@@ -282,8 +371,10 @@ struct BlurValues
 /// Coring factor of detail @p detail (0..1): smoothstep(0, coring * kCoringRange, |detail|), 1
 /// when coring is 0.
 [[nodiscard]] float coringFactor(float detail, float coring);
-/// One channel of a stage: colour @p c with blurred colour @p b.
-[[nodiscard]] float blurCombine(float c, float b, float mix, float sharp, float coring);
+/// One channel of a stage: colour @p c with blurred colour @p b, the correction scaled by
+/// @p weight (1, or the midtone weight of a Midtone Detail stage).
+[[nodiscard]] float blurCombine(
+    float c, float b, float mix, float sharp, float coring, float weight = 1.0f);
 
 /// Layer mixer step: lays node output @p o (fed from @p in, key @p alpha) over @p result:
 /// result = (1 - alpha) result + alpha in + (o - in), per channel, in place. Equals

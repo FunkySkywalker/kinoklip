@@ -14,7 +14,7 @@ namespace {
 
 /// JSON keys of the curves, in GradeCurve order.
 const char* const kCurveNames[kGradeCurveCount]
-    = {"luma", "red", "green", "blue", "hueHue", "hueSat", "hueLum", "lumSat", "satSat"};
+    = {"luma", "red", "green", "blue", "hueHue", "hueSat", "hueLum", "lumSat", "satSat", "satLum"};
 
 QJsonObject qualifierToJson(const GradeQualifier& q)
 {
