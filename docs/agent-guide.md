@@ -6,9 +6,9 @@ Claude to free models. If something breaks, read docs/recovery.md.
 ## The project
 
 Kinoklip is a free Linux video editor (C++20, Qt 6, FFmpeg, OpenGL 3.3) that copies DaVinci
-Resolve's layout, behaviour and keyboard shortcuts as closely as possible, with the KDE Breeze
-look. Owner: SeniorMatt on GitHub (repo SeniorMatt/kinoklip, public). Released as one AppImage,
-currently 1.1.6-beta.1. Pages: Media, Cut, Edit, Compositing, Color, Audio, Deliver; the
+Resolve's layout, behaviour and keyboard shortcuts as closely as possible, with the Kinoklip look
+(Resolve 21 style; KDE Breeze is selectable). Owner: SeniorMatt on GitHub (repo SeniorMatt/kinoklip, public).
+Released as an AppImage (x86_64 and ARM64) and a Flatpak repository; see the latest release for the version. Pages: Media, Cut, Edit, Compositing, Color, Audio, Deliver; the
 in-app names "Compositing" and "Audio" stay as they are.
 
 Start here, in this order: readme.md, docs/directory-map.md, docs/coding-style.md, the

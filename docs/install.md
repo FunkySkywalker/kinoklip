@@ -12,7 +12,24 @@ Download `Kinoklip-x86_64.AppImage` from the [latest release](https://github.com
 If double-clicking shows nothing, install `fuse3` (or `libfuse2` on older distributions), or run it with
 `--appimage-extract-and-run`.
 
-## Dev build (help with testing)
+## Flatpak
+
+A signed Flatpak repository with a stable and a nightly branch, for x86_64 and ARM64
+(<https://seniormatt.github.io/kinoklip-flatpak/>). Kinoklip is not on Flathub. Kinoklip needs the KDE
+runtime, which comes from Flathub, so [set up Flathub](https://flathub.org/setup) first if you have not.
+
+```sh
+flatpak remote-add --user --if-not-exists kinoklip https://seniormatt.github.io/kinoklip-flatpak/kinoklip.flatpakrepo
+flatpak install --user kinoklip org.kinoklip.Kinoklip
+flatpak run org.kinoklip.Kinoklip
+```
+
+`flatpak update` brings later versions. In Discover or GNOME Software, open
+[kinoklip.flatpakrepo](https://seniormatt.github.io/kinoklip-flatpak/kinoklip.flatpakrepo) and choose "Add Source".
+The one-click file [org.kinoklip.Kinoklip.flatpakref](https://seniormatt.github.io/kinoklip-flatpak/org.kinoklip.Kinoklip.flatpakref)
+adds the repository and installs Kinoklip in one go. How the repository is built: [Flatpak](../packaging/linux/readme.md#flatpak).
+
+## Dev builds (help with testing)
 
 <p align="center"><img src="../resources/icons/app/kinoklip-dev-128.png" width="96" alt="Kinoklip Dev"></p>
 
@@ -24,6 +41,17 @@ Kinoklip as "Kinoklip Dev" with this red icon, and the two share their settings.
 Lever to get each new dev build in one click; the version shows the build, for example
 `1.9.0-faea4fd`. The [dev release page](https://github.com/SeniorMatt/kinoklip/releases/tag/dev) lists
 what is new.
+
+**Nightly Flatpak:** the same newest code as a Flatpak branch, for x86_64 and ARM64. It is a separate
+repository, so it sits next to the stable one:
+
+```sh
+flatpak remote-add --user --if-not-exists kinoklip-nightly https://seniormatt.github.io/kinoklip-flatpak/kinoklip-nightly.flatpakrepo
+flatpak install --user kinoklip-nightly org.kinoklip.Kinoklip//nightly
+```
+
+(Repository file: [kinoklip-nightly.flatpakrepo](https://seniormatt.github.io/kinoklip-flatpak/kinoklip-nightly.flatpakrepo),
+one-click file: [org.kinoklip.Kinoklip-nightly.flatpakref](https://seniormatt.github.io/kinoklip-flatpak/org.kinoklip.Kinoklip-nightly.flatpakref).)
 
 Found a bug or something that works differently from Resolve? Please
 [open an issue](https://github.com/SeniorMatt/kinoklip/issues/new/choose) and say which build you used.

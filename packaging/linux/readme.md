@@ -12,8 +12,8 @@ icons and the KDE colour schemes. Verified to run on the build container and, fr
 environment, on Linux Mint 22 / Ubuntu 24.04 (glibc 2.39, Breeze 5 icons on the host) with
 identical rendering.
 
-Other formats ([Flatpak](https://flatpak.org), distribution packages, ...) may come later; for now the AppImage is
-the only release artefact.
+The other release formats are the ARM64 AppImage ([ARM64](#arm64-aarch64)) and a signed Flatpak repository
+([Flatpak](#flatpak)). Distribution packages may come later.
 
 ## Build
 

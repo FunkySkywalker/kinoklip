@@ -1,11 +1,11 @@
 # Install and start Kinoklip
 
-Kinoklip is one AppImage: a single file that holds the whole program. There is no installer and no
-account.
+Kinoklip comes as an AppImage, a single file that holds the whole program, and as a Flatpak. There is
+no installer and no account. This page is about the AppImage; the Flatpak is under "Other ways to get it".
 
 1. Download **Kinoklip-x86_64.AppImage** from the
    [download page](https://github.com/SeniorMatt/kinoklip/releases/latest). On an ARM64 computer
-   the file is called **Kinoklip-aarch64.AppImage**, where a release has one.
+   the file is called **Kinoklip-aarch64.AppImage**.
 2. Make it runnable, in one of two ways:
    - **With Gear Lever (easiest):** install [Gear Lever](https://flathub.org/apps/it.mijorus.gearlever)
      from your software centre, then open the AppImage with it. Kinoklip appears in your
@@ -29,9 +29,9 @@ asks a few short questions; see [Getting started](getting-started.md#the-welcome
 
 ## Other ways to get it
 
-Nix, the dev build for testers and building from source are described in
-[Installing Kinoklip](../install.md). Kinoklip does not check for updates by itself; Gear Lever
-updates the AppImage when you ask it to.
+The Flatpak (stable and nightly, with its two commands), Nix, the dev build for testers and building
+from source are described in [Installing Kinoklip](../install.md). Kinoklip does not check for updates by itself; Gear Lever
+updates the AppImage and Flatpak updates the Flatpak when you ask them to.
 
 Kinoklip is still a beta version: save often and keep a copy of your original files.
 

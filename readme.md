@@ -16,7 +16,7 @@
 <p align="center"><a href="docs/images/readme/themes-closeup.png"><img src="docs/images/readme/themes-closeup.png" width="100%" alt="Close-up of the Inspector and the page bar in the Kinoklip look and in Breeze Dark. Kinoklip has flat tabs with a red underline, frameless buttons and a near-black current page with a red underline; Breeze has boxed tabs and buttons"></a></p>
 
 Kinoklip is a non-linear video editor written from scratch in C++20 with Qt 6 and FFmpeg. Its
-pages, layout, behaviour and default shortcuts follow DaVinci Resolve, and so does the default look (Kinoklip widget style and colour scheme). KDE Breeze (Breeze widget style with Breeze Dark or Breeze Light) is available too.
+pages, layout, behaviour and default shortcuts follow DaVinci Resolve, and so does the default look (Kinoklip widget style and colour scheme). KDE Breeze (Breeze widget style with Breeze Dark or Breeze Light) is available too, and so is a GNOME look ("Libadwaita") when the optional Qt style plugin for it is installed.
 
 <p align="center"><img src="docs/images/readme/star.svg" height="16" alt="" valign="middle"> If you like Kinoklip, give it a star. It helps a lot!</p>
 
@@ -37,24 +37,35 @@ NVIDIA-first GPU support, and no H.264 or H.265 in the free version. Kinoklip gi
   ([how](docs/guide/record-a-voice-over.md)).
 - **Any GPU with OpenGL 3.3**: AMD, Intel and NVIDIA, integrated graphics included.
 - **The same layout and shortcuts as Resolve**, plus presets for Premiere Pro, Final Cut Pro, Vegas and others.
-- **One AppImage** for every distribution, x86_64 and ARM64.
+- **An AppImage for every distribution, or a Flatpak**, on x86_64 and ARM64.
 - **Free and open source** (GPL-3.0).
 
 ## Install
 
-Download the AppImage from the [latest release](https://github.com/SeniorMatt/kinoklip/releases/latest)
+**AppImage** (every distribution): download `Kinoklip-x86_64.AppImage` from the
+[latest release](https://github.com/SeniorMatt/kinoklip/releases/latest) (`Kinoklip-aarch64.AppImage` on ARM64)
 and open it with [Gear Lever](https://flathub.org/apps/it.mijorus.gearlever), or make it executable
-and double-click it. On Nix: `nix run github:SeniorMatt/kinoklip`.
+and double-click it.
+
+**Flatpak** (signed repository, x86_64 and ARM64; not on Flathub):
+
+```sh
+flatpak remote-add --user --if-not-exists kinoklip https://seniormatt.github.io/kinoklip-flatpak/kinoklip.flatpakrepo
+flatpak install --user kinoklip org.kinoklip.Kinoklip
+```
+
+In Discover or GNOME Software, open the [repository file](https://seniormatt.github.io/kinoklip-flatpak/kinoklip.flatpakrepo)
+to add it as a source. On Nix: `nix run github:SeniorMatt/kinoklip`.
 
 Want to help test the next version? Get the
-[dev build](docs/install.md#dev-build-help-with-testing).
+[dev build](docs/install.md#dev-builds-help-with-testing): a dev AppImage, or the nightly Flatpak.
 
 More ways (NixOS, Arch Linux, building from source): [Installing Kinoklip](docs/install.md).
 
 ## Status
 
 <!-- status:start -->
-![Status: 75.35% of the roadmap items are done, 92.90% of the effects library works](docs/images/status.svg)
+![Status: 76.57% of the roadmap items are done, 92.90% of the effects library works](docs/images/status.svg)
 
 Green is done, grey is still to do. Details: [roadmap](docs/roadmap.md) and [effects library](docs/effects-library-status.md).
 <!-- status:end -->
