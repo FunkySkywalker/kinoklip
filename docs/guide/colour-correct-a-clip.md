@@ -82,6 +82,22 @@ same time (**Pivot** is the brightness that stays put); **Sat** makes all colour
 weaker (0 is black and white); **Hue** turns every colour round the colour wheel; **Mix**
 fades the whole node in and out.
 
+Four more fields help with a flat or harsh picture, all at 0 when nothing is changed:
+**Shad** lifts the dark parts (a negative value makes them darker) and **Hi** raises the bright
+parts (a negative value pulls bright skies back), both without touching the other end;
+**Boost** makes dull colours stronger and leaves strong ones alone (a negative value does the
+opposite), which looks more natural than **Sat**; **MD** (midtone detail) adds local contrast
+to the middle tones (a negative value softens them).
+
+**Auto** (left of **Wheels** and **Bars**) looks at the picture and sets Lift, Gamma and Gain of
+the red, green and blue channels so that the darkest parts become black, the brightest white and
+a colour cast in the middle tones goes. It is one undo step, so try it and press **Ctrl+Z** if you
+prefer your own result.
+
+The **Log** palette (the last tab) has four other wheels for flat, log-encoded shots:
+**Shadow**, **Midtone** and **Highlight** change only that part of the picture and **Offset**
+moves everything. **Low Range** and **High Range** set where shadows end and highlights begin.
+
 ## Read the waveform
 
 The eye gets used to a colour cast within seconds, and every monitor shows colours a little
@@ -105,7 +121,10 @@ grey, the three should be at the same height; if the blue one is higher, the pic
 blue there.
 
 The menu also has **Waveform RGB**, a **Vectorscope** (how strong the colours are and which
-way they lean) and a **Histogram**. To see two scopes in a separate window on any page, choose
+way they lean), a **Histogram** and the **CIE Chromaticity** scope (every colour of the picture
+as a dot on the map of colours the eye can see, with the Rec. 709, DCI-P3 and Rec. 2020
+triangles and the D65 white point). **Settings** beside the menu sets the **Scale** of the
+numbers (0 - 1023, 0 - 255, percent or 0.0 - 1.0) and the **Gain**, the brightness of the trace. To see two scopes in a separate window on any page, choose
 **View > Show Panel in Workspace > Video Scopes** (**Ctrl+Shift+W**).
 
 ## Compare with the original
@@ -152,7 +171,11 @@ Stills are saved with the project.
   for a final look; click **Clip** to go back to the clip.
 - **Curves:** the **Curves** palette shapes brightness more freely: click the line to add a
   point and drag it (a gentle "S" adds contrast). Double-click or right-click a point to
-  remove it.
+  remove it. **Pick** (top right of the palette) is an eyedropper: turn it on and click the
+  picture in the viewer to add the point of that colour, or of that brightness on the Custom
+  curves, so you only have to drag it. **Soft Clip** (Custom curves) limits the picture between
+  **Low** and **High**, with **L.Soft** and **H.Soft** rounding the corners. **Sat vs Lum** makes
+  strong colours brighter or darker.
 - **Fix one part of the picture only:** see
   [Change the colour of one object](change-the-colour-of-one-object.md).
 - **A ready-made look:** see [Use a LUT](use-a-lut.md).

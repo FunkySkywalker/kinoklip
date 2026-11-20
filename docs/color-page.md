@@ -57,7 +57,7 @@ Decisions:
   Contrast + Pivot, Saturation, Hue, Temperature, Tint, Lum Mix, and **Mix** (the node's
   opacity / key output gain).
 - **Curves**: Custom Y, R, G, B; Hue vs Hue, Hue vs Sat, Hue vs Lum, Lum vs Sat, Sat vs Sat.
-  Monotone cubic (no overshoot); hue curves wrap. Soft clip: later.
+  Monotone cubic (no overshoot); hue curves wrap. Also Sat vs Lum. Soft Clip (`softClip*` params) limits the picture to Low .. High with quadratic knees, after the curves.
 - **Qualifier**: HSL, RGB, Luma or 3D mode (`QualifierMode`) with soft edges, per-channel
   enable, invert, and Matte Finesse (Clean Black / White, Shrink / Grow, Denoise, Blur Radius,
   In / Out Ratio; spec 108). Static (not keyed).
@@ -66,7 +66,7 @@ Decisions:
   Several windows combine as a union. Coordinates are fractions of the graded picture.
 - **LUT node**: any corrector can load a `.cube` (1D or 3D), applied last in the node,
   tetrahedral (default) or trilinear.
-- Midtone detail, soft clip, the HDR and log wheels, tracking of windows, shape keyframes of
+- The HDR wheels, tracking of windows, shape keyframes of
   key mixers and splitter / combiner nodes: later.
 
 ### Node semantics (identical on GPU and CPU)
@@ -99,6 +99,9 @@ lift / gamma / gain mixed between RGB and luma-only by Lum Mix, contrast about t
 rotation about the grey axis, saturation about Rec. 709 luma; then the curves; then the LUT.
 `render/GlGrade.cpp` mirrors every function in GLSL; `render/GradeEval.cpp` runs the graph per
 pixel on the CPU (reference and CPU fallback).
+
+### Primaries extras and Log palette (spec 145)
+Params (Resolve units -100..100, divided by 100 in the maths): Color Boost (vibrance: saturation scaled by 1 - HSV saturation), Shad / Hi (luma weighted, move towards white (+) or black (-)), Midtone Detail (a 4th blur stage: wide unsharp mask or blur weighted by 4 y (1 - y)). Log palette: `log*` wheels as additive offsets weighted by three luma zones (Low / High Range 0.33 / 0.55, ramps of 0.2), plus a Log Offset. Auto Color (`grademath::autoColor`): per-channel lift / gain from the 0.2 % / 99.8 % percentiles and gamma from the medians. Generate 3D LUT: `render/GradeLut`.
 
 ## Operations and undo
 - Pure graph operations in `gradeops::` (Grade.h): `initialize`, `addSerialNode` (Alt+S),
