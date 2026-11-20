@@ -844,6 +844,16 @@ void KinoklipStyle::drawComplexControl(ComplexControl control, const QStyleOptio
         const bool tab = flag(widget, "kkTab");
         if (const auto* tb = qstyleoption_cast<const QStyleOptionToolButton*>(o);
             tb && instantMenu(tb) && tb->toolButtonStyle != Qt::ToolButtonIconOnly && !page && !tab) {
+            // A dropdown-like button (mixer FX and bus slots) is framed like a combo box, so
+            // it does not look like a label beside the combo boxes of the same strip.
+            if (flag(widget, "kkWell")) {
+                p->save();
+                p->setRenderHint(QPainter::Antialiasing);
+                p->setPen(QPen(c.border, tk::kLine));
+                p->setBrush(hover || on(o, State_Sunken) ? c.wellHover : c.well);
+                p->drawRoundedRect(QRectF(o->rect).adjusted(0.5, 0.5, -0.5, -0.5), tk::kWellRadius, tk::kWellRadius);
+                p->restore();
+            }
             // Draw the button without Fusion's corner arrow in the room left of a chevron.
             QStyleOptionToolButton copy(*tb);
             copy.features &= ~QStyleOptionToolButton::HasMenu;
