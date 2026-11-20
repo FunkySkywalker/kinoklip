@@ -262,9 +262,12 @@ ColorPage::ColorPage(AppContext& ctx, QWidget* parent)
         updateWipe();
     });
     connect(m_ctx.project->gallery(), &GradeGallery::changed, this, &ColorPage::updateWipe);
-    connect(m_overlay, &ColorViewerOverlay::pickRequested, this, &ColorPage::pickQualifier);
-    connect(m_qualifier, &QualifierPanel::pickModeChanged, this,
-        [this] { m_overlay->setPickMode(m_qualifier->pickMode().has_value()); });
+    connect(m_overlay, &ColorViewerOverlay::pickRequested, this, &ColorPage::pickFromViewer);
+    auto syncPickMode = [this] {
+        m_overlay->setPickMode(m_qualifier->pickMode().has_value() || m_curves->pickActive());
+    };
+    connect(m_qualifier, &QualifierPanel::pickModeChanged, this, syncPickMode);
+    connect(m_curves, &ColorCurvesPanel::pickModeChanged, this, syncPickMode);
     connect(m_qualifier, &QualifierPanel::highlightModeChanged, this, &ColorPage::refreshPictures);
     connect(m_qualifier->highlightButton(), &QToolButton::toggled, this, &ColorPage::setHighlight);
     connect(m_highlightButton, &QToolButton::toggled, this, &ColorPage::setHighlight);
@@ -388,6 +391,18 @@ QWidget* ColorPage::buildPalettes()
     m_primaries = new PrimariesPanel(m_session);
     setPanelInfo(
         m_primaries, tr("Primaries"), tr("Primary colour correction of the current node."));
+    connect(m_primaries, &PrimariesPanel::autoColorRequested, this, [this] {
+        // An ungraded clip's node 01 does not exist yet: the first edit creates it.
+        const GradeNode* n = m_session->currentNode();
+        if (n && n->isMixer())
+            return;
+        const quint64 id = n ? n->id : 0;
+        m_session->autoColor(id, m_frames->nodeInput(id));
+    });
+    m_log = new PrimariesPanel(m_session, nullptr, PrimariesPanel::Kind::Log);
+    setPanelInfo(m_log, tr("Log"),
+        tr("Log wheels of the current node: Shadow, Midtone, Highlight and Offset with the Low "
+           "and High Range of the zones."));
     m_curves = new ColorCurvesPanel(m_session);
     setPanelInfo(m_curves, tr("Curves"), tr("Curve adjustments of the current node."));
     m_qualifier = new QualifierPanel(m_session);
@@ -421,7 +436,7 @@ QWidget* ColorPage::buildPalettes()
              static_cast<QWidget*>(m_qualifier), static_cast<QWidget*>(m_windows),
              static_cast<QWidget*>(m_luts), static_cast<QWidget*>(m_blur),
              static_cast<QWidget*>(m_tracker), static_cast<QWidget*>(m_rgbMixer),
-             static_cast<QWidget*>(m_agx)})
+             static_cast<QWidget*>(m_agx), static_cast<QWidget*>(m_log)})
         m_paletteStack->addWidget(w);
     auto* box = new QWidget;
     box->setObjectName(QStringLiteral("ColorPalettes"));
@@ -431,7 +446,7 @@ QWidget* ColorPage::buildPalettes()
     m_paletteButtons = new QButtonGroup(this);
     QWidget* bar = tabRow(m_paletteButtons,
         {tr("Primaries"), tr("Curves"), tr("Qualifier"), tr("Windows"), tr("LUTs"), tr("Blur"), tr("Tracker"),
-            tr("RGB Mixer"), tr("AgX")},
+            tr("RGB Mixer"), tr("AgX"), tr("Log")},
         QStringLiteral("ColorPaletteTab_"), box);
     // The primaries reset sits at the right of the bar (like Resolve's palette reset).
     auto* reset = new QToolButton(bar);
@@ -444,6 +459,9 @@ QWidget* ColorPage::buildPalettes()
         switch (currentPalette()) {
         case Palette::Primaries:
             m_primaries->resetAll();
+            break;
+        case Palette::Log:
+            m_log->resetAll();
             break;
         case Palette::Curves:
             m_curves->resetCurve();
@@ -644,6 +662,48 @@ void ColorPage::refreshPictures()
                                                : ColorFrameSource::HighlightMode::Grey);
     }
     m_overlay->setHighlightImage(highlight);
+}
+
+void ColorPage::pickFromViewer(const QRectF& frameRect)
+{
+    // The curves eyedropper owns the viewer while the Curves palette is shown with Pick on.
+    if (currentPalette() == Palette::Curves && m_curves->pickActive())
+        pickCurve(frameRect);
+    else
+        pickQualifier(frameRect);
+}
+
+void ColorPage::pickCurve(const QRectF& frameRect)
+{
+    if (!m_session->hasGrade())
+        return;
+    const GradeNode* current = m_session->currentNode();
+    if (!m_session->grade().isEmpty() && (!current || current->isMixer()))
+        return;
+    const quint64 node = current ? current->id : 0;
+    float sum[3] = {0, 0, 0};
+    int count = 0;
+    const int steps = frameRect.isEmpty() ? 1 : 6;
+    for (int iy = 0; iy < steps; ++iy) {
+        for (int ix = 0; ix < steps; ++ix) {
+            const QPointF uv = steps == 1
+                ? frameRect.topLeft()
+                : QPointF(frameRect.left() + frameRect.width() * (ix + 0.5) / steps,
+                      frameRect.top() + frameRect.height() * (iy + 0.5) / steps);
+            float rgb[3];
+            if (m_frames->sampleNodeInput(node, uv, rgb)) {
+                for (int ch = 0; ch < 3; ++ch)
+                    sum[ch] += rgb[ch];
+                ++count;
+            }
+        }
+    }
+    if (count == 0)
+        return;
+    // The pick shows what the curves stage receives: the node's input graded by the stages
+    // before the curves would be exact; the node input is the usual (and Resolve's) sample.
+    const float avg[3] = {sum[0] / count, sum[1] / count, sum[2] / count};
+    m_curves->pickColor(avg);
 }
 
 void ColorPage::pickQualifier(const QRectF& frameRect)
@@ -926,7 +986,7 @@ void ColorPage::restoreLayout(const QSettings& settings)
     m_rows->restoreState(settings.value(QStringLiteral("rows")).toByteArray());
     m_top->restoreState(settings.value(QStringLiteral("top")).toByteArray());
     m_bottom->restoreState(settings.value(QStringLiteral("bottom")).toByteArray());
-    showPalette(Palette(std::clamp(settings.value(QStringLiteral("palette"), 0).toInt(), 0, 8)));
+    showPalette(Palette(std::clamp(settings.value(QStringLiteral("palette"), 0).toInt(), 0, 9)));
     m_primaries->setBarsMode(settings.value(QStringLiteral("bars"), false).toBool());
     const int right = std::clamp(settings.value(QStringLiteral("rightTab"), 0).toInt(), 0, 1);
     m_rightStack->setCurrentIndex(right);

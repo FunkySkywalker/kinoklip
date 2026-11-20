@@ -77,7 +77,8 @@ public:
         Blur,
         Tracker,
         RgbMixer,
-        Agx
+        Agx,
+        Log
     };
 
     explicit ColorPage(AppContext& ctx, QWidget* parent = nullptr);
@@ -95,6 +96,7 @@ public:
     [[nodiscard]] ColorFrameSource* frames() const { return m_frames; }
     [[nodiscard]] ColorNodeEditor* nodeEditor() const { return m_nodes; }
     [[nodiscard]] PrimariesPanel* primaries() const { return m_primaries; }
+    [[nodiscard]] PrimariesPanel* logPalette() const { return m_log; }
     [[nodiscard]] ColorCurvesPanel* curves() const { return m_curves; }
     [[nodiscard]] QualifierPanel* qualifier() const { return m_qualifier; }
     [[nodiscard]] WindowsPanel* windows() const { return m_windows; }
@@ -114,6 +116,9 @@ public:
 
     /// Shows palette @p palette (the tab buttons do the same).
     void showPalette(Palette palette);
+    /// The viewer eyedropper: the Curves palette's pick when it is on, else the qualifier's.
+    void pickFromViewer(const QRectF& frameRect);
+    void pickCurve(const QRectF& frameRect);
     [[nodiscard]] Palette currentPalette() const;
     /// Highlight on (the viewer shows the current node's key).
     [[nodiscard]] bool isHighlighting() const { return m_highlightOn; }
@@ -167,6 +172,7 @@ private:
     ScopeFeeder* m_feeder = nullptr;
     ColorNodeEditor* m_nodes = nullptr;
     PrimariesPanel* m_primaries = nullptr;
+    PrimariesPanel* m_log = nullptr;
     ColorCurvesPanel* m_curves = nullptr;
     QualifierPanel* m_qualifier = nullptr;
     WindowsPanel* m_windows = nullptr;

@@ -77,6 +77,8 @@ private:
     void rebuild();
     void updateCurrent();
     void syncSelection();
+    /// Generate 3D LUT (CUBE) of clip @p clipId with @p size points: asks for the file.
+    void generateLut(quint64 clipId, int size);
 
     QPointer<ColorSession> m_session;
     Project* m_project = nullptr;

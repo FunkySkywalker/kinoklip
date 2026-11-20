@@ -6,12 +6,17 @@
 #include "core/GradeGallery.h"
 #include "core/Project.h"
 #include "core/Timeline.h"
+#include "render/GradeLut.h"
 #include "ui/color/ColorFrameSource.h"
+#include "ui/color/ColorPalettes.h"
 #include "ui/color/ColorSession.h"
 #include "ui/common/SchemeColors.h"
 #include "ui/common/TimecodeFormat.h"
 
 #include <QApplication>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QRegularExpression>
 #include <QContextMenuEvent>
 #include <QHBoxLayout>
 #include <QInputDialog>
@@ -420,7 +425,19 @@ void ColorClipStrip::contextMenuEvent(QContextMenuEvent* event)
     QAction* paste = menu.addAction(tr("Paste Grade"));
     paste->setEnabled(m_session->hasCopiedGrade());
     QAction* reset = menu.addAction(tr("Reset Grade"));
+    menu.addSeparator();
+    QMenu* lutMenu = menu.addMenu(tr("Generate 3D LUT (CUBE)"));
+    lutMenu->setObjectName(QStringLiteral("GenerateLutMenu"));
+    lutMenu->setEnabled(!m_project->clipGrade(m_project->activeTimelineUid(), clip).isEmpty());
+    for (const int size : render::kGradeLutSizes) {
+        QAction* a = lutMenu->addAction(tr("%1 Point Cube").arg(size));
+        a->setData(size);
+    }
     QAction* chosen = menu.exec(event->globalPos());
+    if (chosen && chosen->parent() == lutMenu) {
+        generateLut(clip, chosen->data().toInt());
+        return;
+    }
     if (chosen == grade) {
         m_session->gradeClip(clip);
     } else if (chosen == copy) {
@@ -432,6 +449,23 @@ void ColorClipStrip::contextMenuEvent(QContextMenuEvent* event)
         m_project->setClipGrade(
             m_project->activeTimelineUid(), clip, ClipGrade {}, tr("Reset Grade"));
     }
+}
+
+void ColorClipStrip::generateLut(quint64 clipId, int size)
+{
+    const ClipData* c = editops::clipById(m_project->timeline()->data(), clipId);
+    QString base = c ? c->name : QString();
+    if (base.isEmpty())
+        base = tr("grade");
+    base.replace(QRegularExpression(QStringLiteral("[\\\\/:*?\"<>|]")), QStringLiteral("_"));
+    const QString dir = LutBrowser::defaultFolder();
+    const QString path = QFileDialog::getSaveFileName(this, tr("Generate 3D LUT (CUBE)"),
+        dir + QLatin1Char('/') + base + QStringLiteral(".cube"), tr("Cube LUT (*.cube)"));
+    if (path.isEmpty())
+        return;
+    QString error;
+    if (!m_session->generateLut(clipId, size, path, &error))
+        QMessageBox::warning(this, tr("Generate 3D LUT (CUBE)"), error);
 }
 
 // ---- ColorMiniTimeline ----

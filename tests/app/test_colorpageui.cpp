@@ -14,6 +14,7 @@
 #include "core/Project.h"
 #include "core/SelectionModel.h"
 #include "core/Timeline.h"
+#include "render/GradeEval.h"
 #include "ui/color/ColorBrowsers.h"
 #include "ui/color/ColorFrameSource.h"
 #include "ui/color/ColorNodeEditor.h"
@@ -56,6 +57,7 @@
 #include <random>
 
 using namespace kk;
+namespace go = kk::gradeops;
 namespace gk = kk::gradekeys;
 namespace wk = kk::gradewindowkeys;
 
@@ -1230,6 +1232,256 @@ private slots:
         KeyPanel* key = f.page()->keyPanel();
         Q_EMIT key->gainField()->valueCommitted(0.4);
         QCOMPARE(f.grade(f.clips[0]).nodes[0].value(gk::Mix, 0), 0.4);
+    }
+
+    void primariesExtrasAndAutoColor()
+    {
+        Fixture f;
+        f.showPage();
+        PrimariesPanel* prim = f.page()->primaries();
+        // MD, Boost, Shad and Hi sit in the palette, neutral, with tooltips.
+        for (const QString& key : {gk::MidtoneDetail, gk::ColorBoost, gk::Shadows, gk::Highlights}) {
+            ValueField* field = prim->field(key);
+            QVERIFY2(field, qPrintable(key));
+            QVERIFY(!field->toolTip().isEmpty());
+            QCOMPARE(field->value(), 0.0);
+            QVERIFY(field->isVisible());
+        }
+        const int base = f.steps();
+        Q_EMIT prim->field(gk::ColorBoost)->valueCommitted(40);
+        QCOMPARE(f.steps(), base + 1); // the first edit makes the node
+        QCOMPARE(f.session()->currentNode()->value(gk::ColorBoost, 0), 40.0);
+        // A scrub of Shad is one step; MD and Hi commit like the other fields.
+        Q_EMIT prim->field(gk::Shadows)->scrubStarted();
+        Q_EMIT prim->field(gk::Shadows)->valueScrubbed(10);
+        Q_EMIT prim->field(gk::Shadows)->valueScrubbed(25);
+        Q_EMIT prim->field(gk::Shadows)->scrubFinished();
+        QCOMPARE(f.steps(), base + 2);
+        QCOMPARE(f.session()->currentNode()->value(gk::Shadows, 0), 25.0);
+        Q_EMIT prim->field(gk::Highlights)->valueCommitted(-30);
+        Q_EMIT prim->field(gk::MidtoneDetail)->valueCommitted(60);
+        QCOMPARE(f.session()->currentNode()->value(gk::Highlights, 0), -30.0);
+        QCOMPARE(f.session()->currentNode()->value(gk::MidtoneDetail, 0), 60.0);
+        // Undo takes the last one back.
+        f.project.undoStack()->undo();
+        QCOMPARE(f.session()->currentNode()->value(gk::MidtoneDetail, 0), 0.0);
+        // The Primaries reset puts them back with everything else.
+        auto* reset = f.page()->findChild<QToolButton*>(QStringLiteral("ColorPaletteReset"));
+        QVERIFY(reset);
+        reset->click();
+        for (const QString& key : {gk::ColorBoost, gk::Shadows, gk::Highlights})
+            QCOMPARE(f.session()->currentNode()->value(key, 0), 0.0);
+        QVERIFY(go::isNodeIdentity(*f.session()->currentNode(), 0));
+
+        // Auto Color: from the node's input picture (red | blue halves, limited range) it sets
+        // the per-channel lift, gamma and gain in one undo step.
+        f.splitInput();
+        QVERIFY(prim->autoButton());
+        QVERIFY(!prim->autoButton()->toolTip().isEmpty());
+        const int before = f.steps();
+        prim->autoButton()->click();
+        QCOMPARE(f.steps(), before + 1);
+        const GradeNode* n = f.session()->currentNode();
+        QVERIFY(n);
+        bool changed = false;
+        for (int ch = 0; ch < 3; ++ch) {
+            changed = changed || n->value(gk::wheelKey(gk::Wheel::Lift, ch), 0) != 0.0
+                || n->value(gk::wheelKey(gk::Wheel::Gain, ch), 0) != 1.0;
+        }
+        QVERIFY(changed);
+        QCOMPARE(n->value(gk::LiftY, 0), 0.0); // the master wheels stay
+        QCOMPARE(n->value(gk::GainY, 0), 1.0);
+        // The red channel spans 40..220: its black point is lifted off (lift below 0) and its
+        // gain is above 1 so the white point reaches 1.
+        QVERIFY(n->value(gk::LiftR, 0) < 0.0);
+        QVERIFY(n->value(gk::GainR, 0) > 1.0);
+        f.project.undoStack()->undo();
+        QCOMPARE(f.session()->currentNode()->value(gk::GainR, 0), 1.0);
+    }
+
+    void logPalette()
+    {
+        Fixture f;
+        f.showPage();
+        ColorPage* page = f.page();
+        auto* tab = page->findChild<QAbstractButton*>(QStringLiteral("ColorPaletteTab_9"));
+        QVERIFY(tab);
+        QCOMPARE(tab->text(), QStringLiteral("Log"));
+        tab->click();
+        QCOMPARE(page->currentPalette(), ColorPage::Palette::Log);
+        PrimariesPanel* log = page->logPalette();
+        QVERIFY(log && log->isVisible());
+        QCOMPARE(log->kind(), PrimariesPanel::Kind::Log);
+        QVERIFY(!log->autoButton());
+        // Shadow, Midtone, Highlight and Offset wheels, each with Y R G B fields.
+        for (const gk::Wheel w : {gk::Wheel::LogShadow, gk::Wheel::LogMidtone,
+                 gk::Wheel::LogHighlight, gk::Wheel::LogOffset}) {
+            QVERIFY(log->wheel(w));
+            for (int ch = 0; ch < 4; ++ch)
+                QVERIFY2(log->field(gk::wheelKey(w, ch)), qPrintable(gk::wheelKey(w, ch)));
+        }
+        // Low and High Range with Resolve's defaults.
+        QCOMPARE(log->field(gk::LogLowRange)->value(), 0.33);
+        QCOMPARE(log->field(gk::LogHighRange)->value(), 0.55);
+        // A drag on the Shadow wheel is one step and writes the log shadow keys only.
+        ColorWheel* shadow = log->wheel(gk::Wheel::LogShadow);
+        const int base = f.steps();
+        const QPointF c = shadow->discRect().center();
+        drag(shadow, c, c + QPointF(-15, 10));
+        QCOMPARE(f.steps(), base + 1);
+        const GradeNode* n = f.session()->currentNode();
+        QVERIFY(n);
+        QVERIFY(n->value(gk::LogShadowB, 0) != 0.0 || n->value(gk::LogShadowR, 0) != 0.0);
+        QCOMPARE(n->value(gk::LiftR, 0), 0.0);
+        QCOMPARE(n->value(gk::LogMidR, 0), 0.0);
+        // The master strip of the Highlight wheel and the range fields.
+        ColorWheel* high = log->wheel(gk::Wheel::LogHighlight);
+        const QPointF s = high->stripRect().center();
+        drag(high, s, s + QPointF(20, 0));
+        QVERIFY(f.session()->currentNode()->value(gk::LogHighY, 0) > 0.0);
+        Q_EMIT log->field(gk::LogLowRange)->valueCommitted(0.4);
+        QCOMPARE(f.session()->currentNode()->value(gk::LogLowRange, 0), 0.4);
+        // The grade through the viewer path: the node is not identity and renders differently
+        // in the CPU reference.
+        QVERIFY(!go::isNodeIdentity(*f.session()->currentNode(), 0));
+        // The Log palette's wheels show the node's values after another selection.
+        QVERIFY(log->field(gk::LogHighY)->value() > 0.0);
+        // Reset (the bar's button) clears the Log values.
+        auto* reset = page->findChild<QToolButton*>(QStringLiteral("ColorPaletteReset"));
+        reset->click();
+        n = f.session()->currentNode();
+        QCOMPARE(n->value(gk::LogShadowB, 0), 0.0);
+        QCOMPARE(n->value(gk::LogHighY, 0), 0.0);
+        QCOMPARE(n->value(gk::LogLowRange, 0), 0.33);
+        // Primaries and Log share Temp / Tint / Contrast / Pivot / Sat / Hue: a value typed in
+        // one palette shows in the other.
+        Q_EMIT log->field(gk::Saturation)->valueCommitted(1.4);
+        QCOMPARE(page->primaries()->field(gk::Saturation)->value(), 1.4);
+    }
+
+    void curvesSoftClipSatLumAndPick()
+    {
+        Fixture f;
+        f.showPage();
+        f.splitInput();
+        ColorPage* page = f.page();
+        page->showPalette(ColorPage::Palette::Curves);
+        ColorCurvesPanel* panel = page->curves();
+        // Sat vs Lum is the seventh mode.
+        auto* satLum = page->findChild<QAbstractButton*>(
+            QStringLiteral("CurveMode_") + QString::number(int(GradeCurve::SatLum)));
+        QVERIFY(satLum);
+        QCOMPARE(satLum->text(), QStringLiteral("Sat vs Lum"));
+        satLum->click();
+        QCOMPARE(panel->editor()->curve(), GradeCurve::SatLum);
+        panel->editor()->resize(300, 240);
+        const QRectF plot = panel->editor()->plotRect();
+        QTest::mouseClick(panel->editor(), Qt::LeftButton, {},
+            QPoint(int(plot.left() + plot.width() * 0.5), int(plot.bottom() - plot.height() * 0.8)));
+        QCOMPARE(f.session()->currentNode()->curves[GradeCurve::SatLum].size(), 3);
+        panel->resetCurve();
+        QVERIFY(f.session()->currentNode()->curves[GradeCurve::SatLum].isEmpty());
+
+        // Soft Clip: four fields in the Custom mode, one undo step each, saved in the node.
+        panel->showCurve(GradeCurve::Luma);
+        ValueField* low = panel->softClipField(gk::SoftClipLow);
+        ValueField* high = panel->softClipField(gk::SoftClipHigh);
+        QVERIFY(low && high && panel->softClipField(gk::SoftClipLowSoft)
+            && panel->softClipField(gk::SoftClipHighSoft));
+        QVERIFY(low->isVisible());
+        QCOMPARE(low->value(), 0.0);
+        QCOMPARE(high->value(), 1.0);
+        const int base = f.steps();
+        Q_EMIT low->valueCommitted(0.1);
+        Q_EMIT high->valueCommitted(0.9);
+        QCOMPARE(f.steps(), base + 2);
+        QCOMPARE(f.session()->currentNode()->value(gk::SoftClipLow, 0), 0.1);
+        QCOMPARE(f.session()->currentNode()->value(gk::SoftClipHigh, 0), 0.9);
+        // The soft clip does change the rendered picture (CPU reference of the grade).
+        const ClipGrade graded = f.grade(f.clips[0]);
+        QImage img(8, 8, QImage::Format_ARGB32_Premultiplied);
+        img.fill(QColor(250, 5, 128));
+        render::applyGrade(graded, 0, img);
+        QVERIFY(std::abs(qRed(img.pixel(0, 0)) - 230) <= 1);
+        QVERIFY(std::abs(qGreen(img.pixel(0, 0)) - 26) <= 1);
+        // Other curve modes hide the Soft Clip row.
+        panel->showCurve(GradeCurve::HueSat);
+        QVERIFY(!low->isVisible());
+        panel->showCurve(GradeCurve::Luma);
+        // The palette's reset in Custom mode also resets the Soft Clip.
+        panel->resetCurve();
+        QCOMPARE(f.session()->currentNode()->value(gk::SoftClipLow, 0), 0.0);
+        QCOMPARE(f.session()->currentNode()->value(gk::SoftClipHigh, 0), 1.0);
+
+        // Pick: the eyedropper over the viewer adds the picked colour's points.
+        QVERIFY(panel->pickButton());
+        QVERIFY(!page->overlay()->pickMode());
+        panel->pickButton()->setChecked(true);
+        QVERIFY(panel->pickActive());
+        QVERIFY(page->overlay()->pickMode());
+        const QRectF pic = page->overlay()->pictureRect();
+        const int beforePick = f.steps();
+        QTest::mouseClick(page->overlay(), Qt::LeftButton, {},
+            QPoint(int(pic.left() + pic.width() * 0.25), int(pic.center().y())));
+        QCOMPARE(f.steps(), beforePick + 1);
+        const CurvePoints y = f.session()->currentNode()->curves[GradeCurve::Luma];
+        QCOMPARE(y.size(), 1);
+        const float red[3] = {220.0f / 255, 40.0f / 255, 40.0f / 255};
+        QVERIFY(std::abs(y[0].x - grademath::luma(red)) < 0.02);
+        QVERIFY(std::abs(y[0].y - y[0].x) < 1e-9); // on the diagonal: nothing changes yet
+        // The qualifier did not change, the palette stayed on Curves.
+        QVERIFY(!f.session()->currentNode()->qualifier.enabled);
+        QCOMPARE(page->currentPalette(), ColorPage::Palette::Curves);
+        // Hue vs Sat: three neutral points around the colour's hue; blue half next.
+        panel->showCurve(GradeCurve::HueSat);
+        QTest::mouseClick(page->overlay(), Qt::LeftButton, {},
+            QPoint(int(pic.left() + pic.width() * 0.75), int(pic.center().y())));
+        const CurvePoints hs = f.session()->currentNode()->curves[GradeCurve::HueSat];
+        QCOMPARE(hs.size(), 3);
+        const float blue[3] = {40.0f / 255, 60.0f / 255, 220.0f / 255};
+        float hsl[3];
+        grademath::rgbToHsl(blue, hsl);
+        QVERIFY(std::abs(hs[1].x - hsl[0]) < 0.02 || std::abs(hs[0].x - hsl[0]) < 0.02
+            || std::abs(hs[2].x - hsl[0]) < 0.02);
+        for (const CurvePoint& p : hs)
+            QCOMPARE(p.y, 0.5);
+        // Pick off: a click on the viewer is the qualifier's again (no pick mode at all).
+        panel->pickButton()->setChecked(false);
+        QVERIFY(!page->overlay()->pickMode());
+    }
+
+    void generateLutFromAGrade()
+    {
+        Fixture f;
+        f.showPage();
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const QString path = dir.filePath(QStringLiteral("grade.cube"));
+        QString error;
+        // An ungraded clip has nothing to bake.
+        QVERIFY(!f.session()->generateLut(f.clips[0], 17, path, &error));
+        QVERIFY(!error.isEmpty());
+        QVERIFY(!QFile::exists(path));
+        f.session()->setParam(0, gk::Saturation, 0.0, QStringLiteral("test"));
+        QVERIFY2(f.session()->generateLut(f.clips[0], 17, path, &error), qPrintable(error));
+        QFile file(path);
+        QVERIFY(file.open(QIODevice::ReadOnly));
+        const QByteArray text = file.readAll();
+        QVERIFY(text.contains("LUT_3D_SIZE 17"));
+        QVERIFY(text.contains("TITLE \"Clip 1\""));
+        // Saturation 0: every row is grey (r = g = b).
+        int rows = 0;
+        for (const QByteArray& line : text.split('\n')) {
+            const QList<QByteArray> parts = line.split(' ');
+            if (parts.size() != 3 || !(line[0] >= '0' && line[0] <= '9'))
+                continue;
+            ++rows;
+            QVERIFY(std::abs(parts[0].toDouble() - parts[1].toDouble()) < 2e-3);
+            QVERIFY(std::abs(parts[1].toDouble() - parts[2].toDouble()) < 2e-3);
+        }
+        QCOMPARE(rows, 17 * 17 * 17);
+        QVERIFY(!f.session()->generateLut(999999, 17, path, &error)); // not a clip
+        QVERIFY(!f.session()->generateLut(f.clips[0], 17, dir.filePath(QStringLiteral("no/such/dir/x.cube")), &error));
     }
 
     /// Writes a demo project for screenshots when KK_COLOR_DEMO_PROJECT names a file (the
