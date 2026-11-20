@@ -178,12 +178,14 @@ int TimelineLayout::rowOf(TrackRef ref) const
 
 const std::vector<HeaderButton>& TimelineLayout::headerButtons(TrackType type)
 {
-    static const std::vector<HeaderButton> video {
-        HeaderButton::Visible, HeaderButton::SyncLock, HeaderButton::Lock, HeaderButton::AutoSelect};
-    static const std::vector<HeaderButton> audio {HeaderButton::Solo, HeaderButton::Mute,
-        HeaderButton::Arm, HeaderButton::SyncLock, HeaderButton::Lock, HeaderButton::AutoSelect};
-    static const std::vector<HeaderButton> subtitle {
-        HeaderButton::Visible, HeaderButton::SyncLock, HeaderButton::Lock, HeaderButton::AutoSelect};
+    // Listed from the right edge; shown left to right in Resolve's order: lock, auto select,
+    // then enable (video) or solo and mute (audio), with the sync lock after them.
+    static const std::vector<HeaderButton> video {HeaderButton::SyncLock, HeaderButton::Visible,
+        HeaderButton::AutoSelect, HeaderButton::Lock};
+    static const std::vector<HeaderButton> audio {HeaderButton::SyncLock, HeaderButton::Arm,
+        HeaderButton::Mute, HeaderButton::Solo, HeaderButton::AutoSelect, HeaderButton::Lock};
+    static const std::vector<HeaderButton> subtitle {HeaderButton::SyncLock, HeaderButton::Visible,
+        HeaderButton::AutoSelect, HeaderButton::Lock};
     switch (type) {
     case TrackType::Video:
         return video;
@@ -212,6 +214,17 @@ bool TimelineLayout::twoLineHeader(int row) const
     return r.height() - m_rows[size_t(row)].laneHeight >= kTwoLineHeaderMinHeight;
 }
 
+bool TimelineLayout::nameBelowButtons(int row) const
+{
+    if (row < 0 || row >= int(m_rows.size()) || twoLineHeader(row))
+        return false;
+    // The Audio page's audio headers carry too many buttons to cluster beside the patch.
+    if (m_audioPageHeaders && m_rows[size_t(row)].ref.type == TrackType::Audio)
+        return false;
+    // Room for the button line plus a name line under it.
+    return m_rows[size_t(row)].height - m_rows[size_t(row)].laneHeight >= kNameBelowMinHeight;
+}
+
 QRect TimelineLayout::headerMeterRect(int row) const
 {
     const QRect r = rowRect(row);
@@ -237,6 +250,17 @@ QRect TimelineLayout::headerButtonRect(int row, HeaderButton button) const
     if (twoLineHeader(row))
         y += kHeaderButton + kHeaderLineGap;
     const auto& buttons = buttonsFor(type);
+    if (nameBelowButtons(row)) {
+        // Resolve's arrangement: the buttons follow the patch from the left, in the reverse of
+        // the list order (the list runs from the right edge), the name has the line below.
+        int left = 10 + 30 + 8;
+        for (auto it = buttons.rbegin(); it != buttons.rend(); ++it) {
+            if (*it == button)
+                return QRect(left, y, kHeaderButton, kHeaderButton);
+            left += kHeaderButton + kHeaderButtonGap;
+        }
+        return {};
+    }
     int x = kHeaderWidth - 8 - kHeaderButton;
     if (m_audioPageHeaders && type == TrackType::Audio)
         x -= kHeaderMeterWidth + 2; // the meter sits at the right edge
@@ -254,6 +278,10 @@ QRect TimelineLayout::headerNameRect(int row) const
     if (patch.isEmpty())
         return {};
     // The same bounds as TimelinePainter's track name.
+    if (nameBelowButtons(row)) {
+        const int top = patch.bottom() + kHeaderLineGap + 3;
+        return QRect(10, top, kHeaderWidth - 20, kHeaderNameLine);
+    }
     int right = kHeaderWidth;
     if (twoLineHeader(row)) {
         right = kHeaderWidth - 4 - kHeaderMeterWidth;

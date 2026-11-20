@@ -3,11 +3,11 @@
 #include "app/Screenshot.h"
 
 #include "app/BugReportDialog.h"
-#include "app/WelcomeDialog.h"
 #include "app/MainWindow.h"
 #include "app/ProjectController.h"
 #include "app/ScreenshotAudio.h"
 #include "app/ScreenshotGeometry.h"
+#include "app/WelcomeDialog.h"
 #include "app/pages/ColorPage.h"
 #include "app/pages/CompositingPage.h"
 #include "app/pages/CutPage.h"
@@ -58,6 +58,7 @@
 #include "ui/viewer/ViewerPanel.h"
 
 #include <QAbstractButton>
+#include <QAbstractItemView>
 #include <QAction>
 #include <QApplication>
 #include <QCheckBox>
@@ -78,12 +79,14 @@
 #include <QScreen>
 #include <QTabWidget>
 #include <QTimer>
+#include <QToolButton>
 #include <QTreeWidget>
 #include <QTreeWidgetItemIterator>
 #include <QUndoStack>
 
 #include <algorithm>
 #include <cstdio>
+#include <functional>
 #include <memory>
 
 namespace kk {
@@ -132,6 +135,23 @@ QPixmap grabWithMenus(QWidget& window, const QList<QMenu*>& menus)
         painter.drawPixmap(menuRect(window, menu).topLeft(), menu->grab());
     painter.end();
     return shot.copy(menuShotArea(window, menus));
+}
+
+/// Window grab with open popup widgets (combo box lists, tool button menus) painted on top,
+/// cropped to the popups and the widget that opened them (@p anchor, window coordinates).
+QPixmap grabWithPopups(QWidget& window, const QList<QWidget*>& popups, const QRect& anchor)
+{
+    QPixmap shot = window.grab();
+    QPainter painter(&shot);
+    QRect area = anchor;
+    for (QWidget* popup : popups) {
+        const QRect r(window.mapFromGlobal(popup->mapToGlobal(QPoint(0, 0))), popup->size());
+        painter.drawPixmap(r.topLeft(), popup->grab());
+        area |= r;
+    }
+    painter.end();
+    area = area.adjusted(-kMenuMargin, -kMenuMargin, kMenuMargin, kMenuMargin);
+    return shot.copy(area & window.rect());
 }
 
 /// Geometry sidecar of a menu shot (ScreenshotGeometry.h format): one `menu` entry per open
@@ -332,6 +352,9 @@ int runScreenshot(MainWindow& window, const QString& target, const QString& pngP
     QWidget* panel = nullptr; // panel targets: only this widget is saved
     QWidget* toolWindow = nullptr; // a floating editor composited into the window grab
     QList<QMenu*> menus;
+    QList<QWidget*> popups; // "popup:" targets: open lists and menus of widgets
+    QRect popupAnchor; // the widget a "popup:" target opened
+    std::function<void()> openPopup; // "popup:" targets: opens them just before the grab
     if (!isPage)
         window.setCurrentPage(QStringLiteral("edit"));
     // KK_SCREENSHOT_SIZE=1366x768 checks the layout on small screens.
@@ -760,6 +783,57 @@ int runScreenshot(MainWindow& window, const QString& target, const QString& pngP
         const QString onscreenId = QStringLiteral("view.onscreen_") + onscreen;
         if (!onscreen.isEmpty() && ctx.actions->contains(onscreenId))
             ctx.actions->action(onscreenId)->setChecked(true);
+    } else if (base == QLatin1String("popup")) {
+        // "popup:<page>:<object name>[:<n>]": the n-th (default 0) tool button with a menu or
+        // combo box of that object name on that page, with its popup open.
+        // KK_SCREENSHOT_SUBMENU=<n> also opens the n-th submenu of a menu. A development aid
+        // for checking popup sizes.
+        const QStringList parts = section.split(QLatin1Char(':'));
+        window.setCurrentPage(parts.value(0));
+        for (int i = 0; i < 20; ++i)
+            QCoreApplication::processEvents();
+        // Opened right before the grab: the page's panels may still rebuild their widgets.
+        openPopup = [&window, &popups, &popupAnchor, parts] {
+            const QString name = parts.value(1);
+            const int index = parts.value(2).toInt();
+            int seen = 0;
+            QWidget* found = nullptr;
+            // "@combo" is any combo box, in tree order (to step through a page's combos).
+            const bool anyCombo = name == QLatin1String("@combo");
+            for (QWidget* w : window.findChildren<QWidget*>(anyCombo ? QString() : name)) {
+                if (anyCombo && !qobject_cast<QComboBox*>(w))
+                    continue;
+                if (w->isVisibleTo(&window)
+                    && (qobject_cast<QToolButton*>(w) || qobject_cast<QComboBox*>(w))
+                    && seen++ == index)
+                    found = w;
+            }
+            if (!found) {
+                std::fprintf(stderr, "popup: no widget '%s'\n", qPrintable(name));
+                return;
+            }
+            popupAnchor
+                = QRect(window.mapFromGlobal(found->mapToGlobal(QPoint(0, 0))), found->size());
+            if (auto* button = qobject_cast<QToolButton*>(found); button && button->menu()) {
+                QMenu* menu = button->menu();
+                menu->popup(button->mapToGlobal(button->rect().bottomLeft()));
+                popups = {menu};
+                const int sub = qEnvironmentVariableIsSet("KK_SCREENSHOT_SUBMENU")
+                    ? qEnvironmentVariableIntValue("KK_SCREENSHOT_SUBMENU")
+                    : -1;
+                int n = 0;
+                for (QAction* a : menu->actions()) {
+                    if (a->menu() && n++ == sub) {
+                        menu->setActiveAction(a);
+                        a->menu()->popup(menu->mapToGlobal(menu->actionGeometry(a).topRight()));
+                        popups.append(a->menu());
+                    }
+                }
+            } else if (auto* combo = qobject_cast<QComboBox*>(found)) {
+                combo->showPopup();
+                popups = {combo->view()->window()};
+            }
+        };
     } else if (base == QLatin1String("menu")) {
         // "menu:<category>[:<submenu category>]" (user guide): that menu of the menu bar open
         // (and its submenu), KK_SCREENSHOT_MENU_ITEM=<action id> highlighted in the last one.
@@ -1132,6 +1206,11 @@ int runScreenshot(MainWindow& window, const QString& target, const QString& pngP
     int exitCode = 1;
     QElapsedTimer waited;
     auto grab = [&] {
+        if (openPopup) {
+            openPopup();
+            for (int i = 0; i < 10; ++i)
+                QCoreApplication::processEvents();
+        }
         // Viewer guides, safe areas and grid are working aids, never part of an output
         // picture (spec 41.12): hidden for the grab whatever the user's settings say.
         GuideOverlay::setSuppressed(true);
@@ -1152,6 +1231,7 @@ int runScreenshot(MainWindow& window, const QString& target, const QString& pngP
         const QPixmap pixmap = dialog ? dialog->grab()
             : toolWindow              ? grabWithToolWindow(window, toolWindow)
             : panel                   ? panel->grab()
+            : !popups.isEmpty()       ? grabWithPopups(window, popups, popupAnchor)
             : menus.isEmpty()         ? window.grab()
                                       : grabWithMenus(window, menus);
         if (pixmap.save(pngPath, "PNG")) {

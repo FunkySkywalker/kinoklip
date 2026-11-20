@@ -238,9 +238,8 @@ private slots:
         QCOMPARE(h.area, TimelineHit::Area::Header);
         QCOMPARE(h.track, (TrackRef {TrackType::Audio, 0}));
         QCOMPARE(L.hitTest(d, {100, double(r.bottom())}).area, TimelineHit::Area::HeaderResize);
-        for (HeaderButton b :
-            {HeaderButton::Target, HeaderButton::Lock, HeaderButton::SyncLock, HeaderButton::Mute,
-                HeaderButton::Solo}) {
+        for (HeaderButton b : {HeaderButton::Target, HeaderButton::Lock, HeaderButton::SyncLock,
+                 HeaderButton::Mute, HeaderButton::Solo}) {
             const QRect br = L.headerButtonRect(row, b);
             QVERIFY(!br.isEmpty());
             QVERIFY(br.right() < kHeaderWidth);
@@ -254,6 +253,43 @@ private slots:
         // Sync Lock sits right of the track lock (spec 97.1).
         QVERIFY(L.headerButtonRect(vRow, HeaderButton::SyncLock).left()
             > L.headerButtonRect(vRow, HeaderButton::Lock).left());
+    }
+
+    // Resolve's header: the buttons follow the patch on the first line, the name has the line
+    // below; no button overlaps the name line, and short rows keep the one-line header.
+    void nameLineSitsUnderTheButtons()
+    {
+        TimelineData d = timeline();
+        TimelineLayout L = layoutFor(d, 1.0);
+        for (const TrackRef ref :
+            {TrackRef {TrackType::Video, 0}, TrackRef {TrackType::Audio, 0}}) {
+            const int row = L.rowOf(ref);
+            QVERIFY(L.nameBelowButtons(row));
+            const QRect name = L.headerNameRect(row);
+            QVERIFY(!name.isEmpty());
+            QVERIFY(name.right() < kHeaderWidth);
+            const QRect patch = L.headerButtonRect(row, HeaderButton::Target);
+            QVERIFY(name.top() > patch.bottom());
+            QVERIFY(name.bottom() <= L.rowRect(row).bottom());
+            int previousRight = patch.right();
+            const auto& right2left = L.buttonsFor(ref.type);
+            // Left to right: lock first, sync lock last (Resolve's order plus Kinoklip's sync
+            // lock).
+            for (auto it = right2left.rbegin(); it != right2left.rend(); ++it) {
+                const QRect br = L.headerButtonRect(row, *it);
+                QVERIFY(!br.isEmpty());
+                QVERIFY(br.left() > previousRight);
+                QVERIFY(br.bottom() < name.top());
+                QVERIFY(br.right() < kHeaderWidth);
+                previousRight = br.right();
+            }
+            QVERIFY(L.headerButtonRect(row, HeaderButton::Lock).left()
+                < L.headerButtonRect(row, HeaderButton::AutoSelect).left());
+        }
+        // A row too short for two lines keeps the name beside the patch.
+        d.videoTracks[0].height = kMinTrackHeight;
+        TimelineLayout S = layoutFor(d, 1.0);
+        QVERIFY(!S.nameBelowButtons(S.rowOf(TrackRef {TrackType::Video, 0})));
     }
 };
 

@@ -261,6 +261,7 @@ MixerStrip::MixerStrip(
                                    "Effects Library."));
         m_addEffect->setPopupMode(QToolButton::InstantPopup);
         m_addEffect->setFocusPolicy(Qt::NoFocus);
+        m_addEffect->setProperty("kkWell", true); // a dropdown: framed like the combo boxes
         m_addEffect->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         auto* menu = new QMenu(m_addEffect);
         m_addEffect->setMenu(menu);
@@ -274,11 +275,13 @@ MixerStrip::MixerStrip(
     }
 
     m_bus = new QToolButton;
+    m_bus->setObjectName(QStringLiteral("StripBus"));
     m_bus->setPopupMode(QToolButton::InstantPopup);
     m_bus->setFocusPolicy(Qt::NoFocus);
     m_bus->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     if (!bus) {
         m_bus->setToolTip(tr("Bus assignment"));
+        m_bus->setProperty("kkWell", true); // drawn like the Read combo box below it
         auto* menu = new QMenu(m_bus);
         m_bus->setMenu(menu);
         connect(menu, &QMenu::aboutToShow, this, &MixerStrip::fillBusMenu);
@@ -312,6 +315,7 @@ MixerStrip::MixerStrip(
     }
     if (!bus) {
         m_automation = new QComboBox;
+        m_automation->setObjectName(QStringLiteral("StripAutomation"));
         m_automation->setToolTip(tr("Automation mode of this track: Off ignores the curves, Read plays them, "
                                     "Touch records while a control is held, Latch keeps the last value after "
                                     "the release, Write records all the time, Trim adds your change to the "

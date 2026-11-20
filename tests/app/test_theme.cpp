@@ -20,13 +20,13 @@
 #include <QComboBox>
 #include <QMenu>
 #include <QPushButton>
-#include <QSlider>
-#include <QVBoxLayout>
 #include <QSettings>
+#include <QSlider>
 #include <QStandardPaths>
 #include <QStyle>
 #include <QStyleFactory>
 #include <QTest>
+#include <QVBoxLayout>
 
 #include <memory>
 
@@ -176,9 +176,11 @@ private slots:
         QCOMPARE(theme::currentStyle(), other);
         registry.action(theme::styleActionId(QStringLiteral("Kinoklip")))->trigger();
         QCOMPARE(theme::currentStyle(), QStringLiteral("Kinoklip"));
-        QCOMPARE(QApplication::style()->pixelMetric(QStyle::PM_ScrollBarExtent), kk::style::kScrollBar);
+        QCOMPARE(
+            QApplication::style()->pixelMetric(QStyle::PM_ScrollBarExtent), kk::style::kScrollBar);
         QVERIFY(picture() != before);
-        QCOMPARE(QSettings().value(QLatin1String(prefs::kWidgetStyle)).toString(), QStringLiteral("Kinoklip"));
+        QCOMPARE(QSettings().value(QLatin1String(prefs::kWidgetStyle)).toString(),
+            QStringLiteral("Kinoklip"));
         registry.action(theme::styleActionId(other))->trigger();
         QCOMPARE(theme::currentStyle(), other);
         QCOMPARE(QApplication::style()->pixelMetric(QStyle::PM_ScrollBarExtent), extentBefore);
@@ -190,9 +192,96 @@ private slots:
         PreferencesDialog dialog(&pages);
         auto* styleCombo = dialog.findChild<QComboBox*>(QStringLiteral("WidgetStyleCombo"));
         QVERIFY(styleCombo);
-        QCOMPARE(styleCombo->itemData(0).toString(), theme::styleActionId(QStringLiteral("Kinoklip")));
+        QCOMPARE(
+            styleCombo->itemData(0).toString(), theme::styleActionId(QStringLiteral("Kinoklip")));
         QVERIFY(styleCombo->itemText(0).contains(QStringLiteral("Kinoklip")));
         QVERIFY(!styleCombo->toolTip().isEmpty());
+    }
+
+    /// A combo box list and a menu are no taller than their items plus a frame: few entries
+    /// never get a big empty dropdown, in every widget style.
+    void popupsAreNoTallerThanTheirItems_data()
+    {
+        QTest::addColumn<QString>("style");
+        for (const QString& style : theme::availableStyles())
+            QTest::newRow(qPrintable(style)) << style;
+    }
+    void popupsAreNoTallerThanTheirItems()
+    {
+        QFETCH(QString, style);
+        theme::setStyle(style);
+        constexpr int kFrame = 24; // frame, margins and scroll arrows of any style
+        QWidget host;
+        host.resize(300, 200);
+        host.show();
+        QVERIFY(QTest::qWaitForWindowExposed(&host));
+        for (const int count : {1, 3, 8}) {
+            QComboBox combo(&host);
+            for (int i = 0; i < count; ++i)
+                combo.addItem(QStringLiteral("Entry %1").arg(i));
+            combo.show();
+            combo.showPopup();
+            QWidget* list = combo.view()->window();
+            QVERIFY(list->isVisible());
+            const int items = count * combo.view()->sizeHintForRow(0);
+            QVERIFY2(list->height() <= items + kFrame,
+                qPrintable(QStringLiteral("%1: %2 items need %3 px, popup is %4 px")
+                               .arg(style)
+                               .arg(count)
+                               .arg(items)
+                               .arg(list->height())));
+            combo.hidePopup();
+        }
+        for (const int count : {1, 3, 8}) {
+            QMenu menu(&host);
+            int items = 0;
+            for (int i = 0; i < count; ++i) {
+                QAction* a = menu.addAction(QStringLiteral("Entry %1").arg(i));
+                Q_UNUSED(a);
+            }
+            menu.popup(host.mapToGlobal(QPoint(20, 20)));
+            for (QAction* a : menu.actions())
+                items += menu.actionGeometry(a).height();
+            QVERIFY2(menu.height() <= items + kFrame,
+                qPrintable(QStringLiteral("%1: menu of %2 items needs %3 px, is %4 px")
+                               .arg(style)
+                               .arg(count)
+                               .arg(items)
+                               .arg(menu.height())));
+            menu.hide();
+        }
+        theme::setStyle(QString::fromLatin1(theme::kDefaultStyle));
+    }
+
+    /// A narrow combo box opens a list wide enough for its longest entry, in every style:
+    /// entries are never cut off by the list (combopopups).
+    void comboListsFitTheirEntries_data() { popupsAreNoTallerThanTheirItems_data(); }
+    void comboListsFitTheirEntries()
+    {
+        QFETCH(QString, style);
+        theme::setStyle(style);
+        QWidget host;
+        host.resize(600, 200);
+        host.show();
+        QVERIFY(QTest::qWaitForWindowExposed(&host));
+        QComboBox combo(&host);
+        combo.addItems({QStringLiteral("Main mix"), QStringLiteral("A rather long bus name"),
+            QStringLiteral("Music")});
+        combo.setFixedWidth(60);
+        combo.move(40, 20);
+        combo.show();
+        combo.showPopup();
+        QWidget* list = combo.view()->window();
+        QVERIFY(list->isVisible());
+        const int longest = combo.view()->sizeHintForColumn(0);
+        QVERIFY2(list->width() >= longest,
+            qPrintable(QStringLiteral("%1: list is %2 px wide, an entry needs %3 px")
+                           .arg(style)
+                           .arg(list->width())
+                           .arg(longest)));
+        QVERIFY(list->width() > combo.width());
+        combo.hidePopup();
+        theme::setStyle(QString::fromLatin1(theme::kDefaultStyle));
     }
 
     void breezeIconsMapped()
