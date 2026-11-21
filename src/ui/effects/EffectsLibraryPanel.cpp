@@ -7,6 +7,7 @@
 #include "core/EffectRegistry.h"
 #include "core/Preferences.h"
 #include "core/Project.h"
+#include "core/TransitionPresets.h"
 #include "ui/common/AppContext.h"
 #include "ui/common/DragMime.h"
 #include "ui/common/Icons.h"
@@ -22,6 +23,7 @@
 #include <QFile>
 #include <QFileSystemWatcher>
 #include <QHeaderView>
+#include <QInputDialog>
 #include <QKeyEvent>
 #include <QLineEdit>
 #include <QMenu>
@@ -516,6 +518,58 @@ void EffectsLibraryPanel::refreshMacros()
     setFilterText(m_search->text());
 }
 
+void EffectsLibraryPanel::refreshPresets()
+{
+    QTreeWidgetItem* transitions = nullptr;
+    for (int i = 0; i < m_tree->topLevelItemCount(); ++i) {
+        if (m_tree->topLevelItem(i)->data(0, kCategoryRole).toInt() == int(EffectCategory::Transition))
+            transitions = m_tree->topLevelItem(i);
+    }
+    if (!transitions)
+        return;
+    endHover();
+    for (int i = transitions->childCount() - 1; i >= 0; --i) {
+        if (transitions->child(i)->data(0, kFolderRole).toString()
+            == QLatin1String(effectgroups::UserTransitions))
+            delete transitions->takeChild(i);
+    }
+    const QVector<transitionpresets::Entry> presets = transitionpresets::list();
+    if (presets.isEmpty())
+        return;
+    auto* folder = new QTreeWidgetItem(transitions, {EffectRegistry::groupName(effectgroups::UserTransitions)});
+    folder->setFlags(Qt::ItemIsEnabled);
+    folder->setData(0, kFolderRole, QString::fromLatin1(effectgroups::UserTransitions));
+    folder->setToolTip(0, tr("Transitions saved from the Compositing page"));
+    const QIcon glyph = categoryGlyph(EffectCategory::Transition);
+    for (const transitionpresets::Entry& e : presets) {
+        auto* item = new QTreeWidgetItem(folder, {e.name});
+        item->setIcon(0, glyph);
+        item->setData(0, kDescriptorRole, e.id());
+        item->setToolTip(0, tr("A transition you saved from the Compositing page. Drag it onto a cut like any transition."));
+        item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled);
+    }
+    folder->setExpanded(true);
+    setFilterText(m_search->text());
+}
+
+bool EffectsLibraryPanel::renamePreset(const QString& descriptorId, const QString& newName)
+{
+    const auto preset = transitionpresets::loadById(descriptorId);
+    if (!preset || !transitionpresets::rename(preset->name, newName))
+        return false;
+    refreshPresets();
+    return true;
+}
+
+bool EffectsLibraryPanel::deletePreset(const QString& descriptorId)
+{
+    const auto preset = transitionpresets::loadById(descriptorId);
+    if (!preset || !transitionpresets::remove(preset->name))
+        return false;
+    refreshPresets();
+    return true;
+}
+
 QMenu* EffectsLibraryPanel::createContextMenu(const QString& descriptorId)
 {
     if (descriptorId.startsWith(macrofiles::kIdPrefix)) {
@@ -567,6 +621,23 @@ QMenu* EffectsLibraryPanel::createContextMenu(const QString& descriptorId)
             m_ctx.project->setStandardTransition(!videoTransition, id);
             markStandardTransitions();
         });
+    }
+    if (descriptorId.startsWith(transitionpresets::kIdPrefix)) {
+        menu->addSeparator();
+        QAction* rename = menu->addAction(tr("Rename Preset…"), this, [this, descriptorId] {
+            const auto preset = transitionpresets::loadById(descriptorId);
+            if (!preset)
+                return;
+            bool ok = false;
+            const QString name = QInputDialog::getText(this, tr("Rename Preset"), tr("Name of the preset:"),
+                QLineEdit::Normal, preset->name, &ok).trimmed();
+            if (ok && !name.isEmpty())
+                renamePreset(descriptorId, name);
+        });
+        rename->setObjectName(QStringLiteral("RenameTransitionPreset"));
+        QAction* remove = menu->addAction(tr("Delete Preset"), this, [this, descriptorId] { deletePreset(descriptorId); });
+        remove->setObjectName(QStringLiteral("DeleteTransitionPreset"));
+        remove->setToolTip(tr("Deletes the saved preset; transitions already on the timeline are not changed"));
     }
     if (menu->isEmpty()) {
         delete menu;
@@ -659,9 +730,14 @@ void EffectsLibraryPanel::populate()
     }
     m_categories->setCurrentItem(toolbox);
     refreshMacros();
-    // Macros saved from the Compositing page appear (and deleted ones go) as the folder changes.
-    m_macroWatcher = new QFileSystemWatcher({macrofiles::directory()}, this);
-    connect(m_macroWatcher, &QFileSystemWatcher::directoryChanged, this, [this] { refreshMacros(); });
+    refreshPresets();
+    // Macros and transition presets saved from the Compositing page appear (and deleted ones go)
+    // as their folders change.
+    m_macroWatcher = new QFileSystemWatcher({macrofiles::directory(), transitionpresets::directory()}, this);
+    connect(m_macroWatcher, &QFileSystemWatcher::directoryChanged, this, [this] {
+        refreshMacros();
+        refreshPresets();
+    });
 }
 
 bool EffectsLibraryPanel::livePreviewEnabled() const

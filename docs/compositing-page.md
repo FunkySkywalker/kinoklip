@@ -84,13 +84,15 @@ general knowledge of node compositors, our own drawing, names and icons; never R
   Color Curves, Hue Curves and the Custom Tool (a formula per pixel, GLSL generated from `core/Expression.*`); spec section 124.
   Maths `src/render/CompColorMath.*`, GPU `src/render/GlCompColor.*`. **Vector Motion Blur** (Filter) blurs along the vectors of a second picture.
 - **I/O and Time** (spec 128): **Loader** (an image, an image sequence by any one of its files, or a movie; Global In, Trim In / Out,
-  Hold First / Last Frame, Loop, Reverse), **Saver** (writes PNG or TIFF files when the composition is rendered with the page's
+  Hold First / Last Frame, Loop, Reverse), **Saver** (writes PNG, TIFF or OpenEXR files (half / float, none / RLE / ZIP, `render/ExrWriter.*`) when the composition or the open transition is rendered with the page's
   Render Savers button; never while playing), **Time Speed** (Speed, Delay, Nearest / Blend) and **Time Stretcher** (an animatable Source Time).
   The time nodes pull their input again at the mapped frame (`GlComposition::timeNode()`, `Evaluator::timeNode()`);
   `compops::evaluationOrder()` leaves their input out of the order. Frame maths `src/render/CompTimeMath.*`, files `CompLoader.*`, `CompSaver.*`.
 - **Transitions** (spec 128): a transition of type `fusion_composition` stores a graph in `TransitionData::composition` with
   MediaIn1 / MediaIn2 (`CompNode::transitionSide`); "Open in Compositing Page" on a timeline transition opens it
   (`CompSession::openTransition()`); comp frame 0 is the first frame of the transition window.
+  "Save Transition Preset" (page tool bar) and "Create Transition Preset..." (timeline transition menu) save the graph as a file
+  (`core/TransitionPresets.*`) listed in the Effects Library under Video Transitions > User Presets (spec 128.10).
 - **Tracking**: Tracker (point tracker, see "Tracker" below), Planar Tracker.
 - **Particles** (spec 129): **pEmitter**, **pGravity**, **pTurbulence**, **pMerge** (stream nodes; the new port kind
   `PortKind::Particles` connects only to particle inputs) and **pRender** (draws the stream as a picture). The stream at a frame is

@@ -66,6 +66,9 @@ public:
     void openClip(quint64 clipId = 0);
     /// Render Savers: renders the open composition and writes what its Saver nodes save (spec 128).
     void renderSavers();
+    /// Asks for a name and saves the open transition's graph as a preset of the Effects Library
+    /// (core/TransitionPresets.h); only while a transition is open.
+    void saveTransitionPreset();
     /// Opens the transition stored in clip @p clipId (its transitionOut when @p tail, else its
     /// transitionIn); when the page is not shown yet, it opens when it is (spec 128).
     void openTransition(quint64 clipId, bool tail);
@@ -113,6 +116,7 @@ private:
     AppContext& m_ctx;
     CompSession* m_session = nullptr;
     QToolButton* m_renderSavers = nullptr;
+    QToolButton* m_savePreset = nullptr; ///< "Save Transition Preset", enabled for a transition
     quint64 m_pendingTransitionClip = 0; ///< openTransition() before the page was shown
     bool m_pendingTransitionTail = false;
     CompViewer* m_left = nullptr;

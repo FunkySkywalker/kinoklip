@@ -8,6 +8,8 @@
 #include "core/Project.h"
 #include "core/SelectionModel.h"
 #include "core/Timeline.h"
+#include "core/CompOps.h"
+#include "core/TransitionPresets.h"
 #include "export/RenderCacheManager.h"
 #include "playback/PlaybackEngine.h"
 #include "ui/audio/VoiceOverController.h"
@@ -28,6 +30,8 @@
 #include <QContextMenuEvent>
 #include <QInputDialog>
 #include <QKeyEvent>
+#include <QLineEdit>
+#include <QMessageBox>
 #include <QMenu>
 #include <QPainter>
 #include <QScrollBar>
@@ -773,6 +777,31 @@ void TimelineWidget::transitionMenu(QMenu& menu, const TransitionRef& ref)
     compose->setToolTip(slot->type == kCompositionTransition
             ? tr("Builds the transition as a node graph from the outgoing and the incoming clip")
             : tr("Only a Fusion Composition transition can be built on the page: drag it from the Effects Library, Fusion Transitions"));
+    // Resolve: right-click a Fusion transition > Create Transition Preset (Effects Library, User).
+    QAction* preset = menu.addAction(tr("Create Transition Preset…"), this, [this, ref] {
+        const ClipData* c = editops::clipById(m_ctx.project->timeline()->data(), ref.clipId);
+        const auto& t = c ? (ref.head ? c->transitionIn : c->transitionOut)
+                          : std::optional<TransitionData> {};
+        if (!t || t->type != kCompositionTransition)
+            return;
+        bool ok = false;
+        const QString name = QInputDialog::getText(this, tr("Create Transition Preset"),
+            tr("Name of the preset:"), QLineEdit::Normal, tr("My Transition"), &ok).trimmed();
+        if (!ok || name.isEmpty())
+            return;
+        transitionpresets::Preset p;
+        p.name = name;
+        p.duration = std::max<int64_t>(1, t->duration);
+        p.composition = t->composition ? *t->composition : compops::defaultTransitionComposition(t->duration);
+        QString error;
+        if (transitionpresets::save(p, &error).isEmpty())
+            QMessageBox::warning(this, tr("Create Transition Preset"), tr("Cannot save the preset: %1").arg(error));
+    });
+    preset->setObjectName(QStringLiteral("CreateTransitionPreset"));
+    preset->setEnabled(slot->type == kCompositionTransition);
+    preset->setToolTip(slot->type == kCompositionTransition
+            ? tr("Saves this transition's node graph in the Effects Library, Video Transitions, User Presets")
+            : tr("Only a Fusion Composition transition can be saved as a preset"));
     menu.addSeparator();
     QAction* duration = menu.addAction(tr("Change Transition Duration…"), this, [this, ref] {
         const ClipData* c = editops::clipById(m_ctx.project->timeline()->data(), ref.clipId);

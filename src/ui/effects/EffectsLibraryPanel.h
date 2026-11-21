@@ -100,6 +100,15 @@ public:
     /// Rebuilds the saved macros under Titles (spec 120): one entry per file of
     /// macrofiles::directory(), id "macro:<file>". Called when the folder changes.
     void refreshMacros();
+    /// Rebuilds the folder User Presets under Video Transitions (the transitions saved from the
+    /// Compositing page, core/TransitionPresets.h; spec 128.10). Called when the folder changes.
+    void refreshPresets();
+    /// Renames the saved transition preset @p descriptorId ("tpreset:<name>") to @p newName; the
+    /// context menu asks for the name. False when it cannot (no such preset, name taken).
+    bool renamePreset(const QString& descriptorId, const QString& newName);
+    /// Deletes the saved transition preset @p descriptorId; transitions on the timeline keep
+    /// their graph.
+    bool deletePreset(const QString& descriptorId);
 
 private:
     QFileSystemWatcher* m_macroWatcher = nullptr;

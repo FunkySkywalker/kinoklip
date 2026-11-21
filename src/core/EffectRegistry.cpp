@@ -2,7 +2,10 @@
 // EffectRegistry lookup functions. The built-in catalogue is in BuiltinEffects.cpp.
 #include "core/EffectRegistry.h"
 
+#include "core/TransitionPresets.h"
+
 #include <QCoreApplication>
+#include <QFileInfo>
 
 #include <algorithm>
 
@@ -40,6 +43,27 @@ void EffectRegistry::add(EffectDescriptor descriptor)
 
 const EffectDescriptor* EffectRegistry::find(const QString& id) const
 {
+    if (id.startsWith(transitionpresets::kIdPrefix)) {
+        if (!QFileInfo::exists(transitionpresets::directory() + QLatin1Char('/')
+                + id.mid(transitionpresets::kIdPrefix.size()) + QLatin1String(".kktransition")))
+            return nullptr;
+        auto& cached = m_presetDescriptors[id];
+        if (!cached) {
+            const auto preset = transitionpresets::loadById(id);
+            if (!preset) {
+                m_presetDescriptors.remove(id);
+                return nullptr;
+            }
+            cached = std::make_shared<EffectDescriptor>();
+            cached->id = id;
+            cached->name = preset->name;
+            cached->category = EffectCategory::Transition;
+            cached->group = QLatin1String(effectgroups::UserTransitions);
+            cached->description
+                = QCoreApplication::translate("kk::EffectRegistry", "A transition you saved from the Compositing page");
+        }
+        return cached.get();
+    }
     const auto it = m_index.constFind(id);
     return it == m_index.cend() ? nullptr : &m_descriptors[*it];
 }
@@ -80,6 +104,11 @@ EffectInstance EffectRegistry::createEffect(const QString& id, quint64 instanceI
 
 TransitionData EffectRegistry::createTransition(const QString& id, int64_t durationFrames) const
 {
+    if (id.startsWith(transitionpresets::kIdPrefix)) {
+        if (const auto preset = transitionpresets::loadById(id))
+            return transitionpresets::makeTransition(*preset, durationFrames);
+        return createTransition(QStringLiteral("cross_dissolve"), durationFrames); // preset deleted
+    }
     TransitionData t;
     t.type = id;
     t.duration = durationFrames;
@@ -138,6 +167,7 @@ QString EffectRegistry::groupName(const QString& group)
         {effectgroups::Wipe, QT_TRANSLATE_NOOP("kk::EffectRegistry", "Wipe")},
         {effectgroups::FusionTransitions,
             QT_TRANSLATE_NOOP("kk::EffectRegistry", "Fusion Transitions")},
+        {effectgroups::UserTransitions, QT_TRANSLATE_NOOP("kk::EffectRegistry", "User Presets")},
         {effectgroups::ResolveFxTransitions,
             QT_TRANSLATE_NOOP("kk::EffectRegistry", "Resolve FX Transitions")},
     };

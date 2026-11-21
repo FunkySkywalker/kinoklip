@@ -6,6 +6,7 @@
 #include "core/Project.h"
 #include "render/CompSaver.h"
 #include "core/SelectionModel.h"
+#include "core/TransitionPresets.h"
 #include "core/Timeline.h"
 #include "playback/PlaybackEngine.h"
 #include "ui/common/ActionRegistry.h"
@@ -30,8 +31,10 @@
 
 #include <QAction>
 #include <QApplication>
+#include <QFileInfo>
 #include <QHBoxLayout>
 #include <QInputDialog>
+#include <QLineEdit>
 #include <QMessageBox>
 #include <QProgressDialog>
 #include <QHideEvent>
@@ -247,18 +250,65 @@ QWidget* CompositingPage::buildToolBar()
     m_renderSavers->setFocusPolicy(Qt::NoFocus);
     connect(m_renderSavers, &QToolButton::clicked, this, [this] { renderSavers(); });
     bar->addWidget(m_renderSavers);
+    m_savePreset = new QToolButton(bar);
+    m_savePreset->setObjectName(QStringLiteral("CompSaveTransitionPreset"));
+    m_savePreset->setText(tr("Save Transition Preset"));
+    m_savePreset->setToolTip(
+        tr("Saves the open transition's node graph in the Effects Library, Video Transitions, User Presets, where it drags onto cuts like any transition"));
+    m_savePreset->setAutoRaise(true);
+    m_savePreset->setFocusPolicy(Qt::NoFocus);
+    m_savePreset->setEnabled(false);
+    connect(m_savePreset, &QToolButton::clicked, this, [this] { saveTransitionPreset(); });
+    connect(m_session, &CompSession::clipChanged, this,
+        [this] { m_savePreset->setEnabled(m_session->transition() != 0); });
+    bar->addWidget(m_savePreset);
     return bar;
+}
+
+void CompositingPage::saveTransitionPreset()
+{
+    if (!m_session->transition())
+        return;
+    bool ok = false;
+    const QString name = QInputDialog::getText(this, tr("Save Transition Preset"),
+        tr("Name of the preset:"), QLineEdit::Normal, tr("My Transition"), &ok).trimmed();
+    if (!ok || name.isEmpty())
+        return;
+    if (QFileInfo::exists(transitionpresets::pathFor(name))
+        && QMessageBox::question(this, tr("Save Transition Preset"),
+               tr("A preset named \"%1\" exists. Replace it?").arg(name))
+            != QMessageBox::Yes)
+        return;
+    transitionpresets::Preset preset;
+    preset.name = name;
+    preset.duration = std::max<int64_t>(1, m_session->compFrameCount());
+    preset.composition = m_session->composition();
+    QString error;
+    if (transitionpresets::save(preset, &error).isEmpty())
+        QMessageBox::warning(this, tr("Save Transition Preset"), tr("Cannot save the preset: %1").arg(error));
 }
 
 void CompositingPage::renderSavers()
 {
     PlaybackEngine* engine = m_ctx.playback;
     const quint64 clipId = m_session->clipId();
-    if (!engine || !engine->compositor() || !clipId || m_session->transition())
+    if (!engine || !engine->compositor() || !clipId)
         return;
+    const int transition = m_session->transition();
     const auto snapshot = m_ctx.project->timeline()->snapshot();
     const ClipData* clip = editops::clipById(*snapshot, clipId);
-    if (!clip || !clip->composition || render::compsaver::activeSavers(*clip->composition).isEmpty()) {
+    // A clip's graph, or the graph of the open transition (its frames are the transition window).
+    const std::optional<Composition>* graph = nullptr;
+    int64_t frames = 0;
+    if (clip && transition) {
+        const std::optional<TransitionData>& slot = transition == 1 ? clip->transitionIn : clip->transitionOut;
+        graph = slot ? &slot->composition : nullptr;
+        frames = slot ? slot->duration : 0;
+    } else if (clip) {
+        graph = &clip->composition;
+        frames = clip->duration;
+    }
+    if (!graph || !graph->has_value() || render::compsaver::activeSavers(**graph).isEmpty()) {
         QMessageBox::information(this, tr("Render Savers"),
             tr("The composition has no Saver node with a file name that is switched on."));
         return;
@@ -267,14 +317,14 @@ void CompositingPage::renderSavers()
     progress.setWindowModality(Qt::WindowModal);
     progress.setMinimumDuration(0);
     const render::compsaver::Result result = render::compsaver::run(*engine->compositor(), snapshot,
-        clipId, 0, std::max<int64_t>(0, clip->duration - 1),
+        clipId, 0, std::max<int64_t>(0, frames - 1),
         [&progress](int done, int total) {
             progress.setMaximum(std::max(1, total));
             progress.setValue(done);
             QCoreApplication::processEvents();
             return !progress.wasCanceled();
         },
-        m_ctx.playback->mediaPaths());
+        m_ctx.playback->mediaPaths(), transition);
     progress.close();
     QString text = tr("%1 image(s) written.").arg(result.files);
     if (result.cancelled)

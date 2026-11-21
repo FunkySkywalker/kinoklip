@@ -207,7 +207,7 @@ Done on main since 1.11.0:
 
 Still to do:
 - [ ] Compositing: Magic Mask / Object Removal in the node graph (optional local open model); not started: Background Removal's matting code (`src/matting`) only makes a whole-picture foreground matte of a media file and has no point or stroke prompts and no inpainting, so it cannot be reused with modest effort
-- [ ] Compositing: save a transition built on the page as a reusable preset in the Effects Library, Saver output as EXR, and a Saver in a transition graph (spec 128.10)
+- [x] Compositing: save a transition built on the page as a reusable preset in the Effects Library (User Presets, rename, delete), Saver output as OpenEXR (half / float, none / RLE / ZIP; PIZ and DWAA need the OpenEXR library), and a Saver in a transition graph (spec 128.10 - 128.13)
 - [x] Color: Primaries Shad, Hi, Color Boost, Midtone Detail (MD) and an Auto Color button, and a Log palette (Shadow, Midtone, Highlight, Offset wheels with Low / High Range) (spec 146; keyframes, undo, same maths on GPU and CPU; Auto Color is levels per channel plus a midtone balance, not Resolve's exact analysis)
 - [x] Color: Curves: Sat vs Lum curve, Soft Clip (Low, Low Soft, High, High Soft) and a Pick eyedropper that adds a colour's or luma's points from the viewer (spec 146)
 - [x] Color: Color Warper palette: Hue - Sat and Chroma - Luma pin grids (Low / Medium / High resolution; select, drag, nudge, reset pins; same maths on GPU and CPU, saved in the project, one undo step per drag) (spec 147)

@@ -9,6 +9,7 @@
 #include "render/CompLoader.h"
 #include "render/CompSaver.h"
 #include "render/CompTimeMath.h"
+#include "render/ExrWriter.h"
 #include "render/Compositor.h"
 #include "render/TimelineEval.h"
 
@@ -412,6 +413,104 @@ private slots:
         QVERIFY2(render::compsaver::writeImage(image, file, saverformats::Tiff, &error), qPrintable(error));
         const QImage back(file);
         QCOMPARE(QColor(back.pixel(2, 2)), QColor(10, 20, 30));
+    }
+
+
+    void saverWritesExrFromAClipComposition()
+    {
+        QTemporaryDir src, out;
+        const QString first = writeSequence(src.path(), 3);
+        Composition c = co::defaultComposition();
+        const quint64 ld = addLoader(c, first);
+        const quint64 sv = co::addNode(c, nodetypes::Saver, {});
+        co::connect(c, ld, 0, sv, nodeports::Input);
+        co::connect(c, sv, 0, c.mediaOutId, nodeports::Input);
+        c.node(sv)->params.setStatic(nodekeys::SaverPath, QDir(out.path()).filePath(QStringLiteral("hdr.png")));
+        c.node(sv)->params.setStatic(nodekeys::SaverFormat, saverformats::Exr);
+        c.node(sv)->params.setStatic(nodekeys::SaverExrDepth, QStringLiteral("float"));
+        c.node(sv)->params.setStatic(nodekeys::SaverExrCompression, QStringLiteral("zip1"));
+        c.node(sv)->params.setStatic(nodekeys::SaverLinear, false);
+        const TimelineData tl = compTimeline(c);
+        for (Compositor* b : backends()) {
+            QDir(out.path()).removeRecursively();
+            const render::compsaver::Result r = render::compsaver::run(*b, snap(tl), clipIdOf(tl), 0, 2);
+            QCOMPARE(r.files, 3);
+            QVERIFY2(r.errors.isEmpty(), qPrintable(r.errors.join(QLatin1Char(';'))));
+            QCOMPARE(QDir(out.path()).entryList(QDir::Files, QDir::Name),
+                QStringList({QStringLiteral("hdr0000.exr"), QStringLiteral("hdr0001.exr"),
+                    QStringLiteral("hdr0002.exr")}));
+            for (int i = 0; i < 3; ++i) {
+                const render::exr::Info info
+                    = render::exr::read(QDir(out.path()).filePath(QStringLiteral("hdr%1.exr").arg(i, 4, 10, QLatin1Char('0'))));
+                QVERIFY(info.ok);
+                QCOMPARE(info.width, kW);
+                QCOMPARE(info.height, kH);
+                QCOMPARE(info.bitsPerChannel, 32);
+                QCOMPARE(info.compression, QStringLiteral("zip1"));
+                const QVector<float> p = info.pixel(kW / 2, kH / 2);
+                QVERIFY(std::abs(p[0] - frameColor(i).red() / 255.f) < 0.02f);
+                QVERIFY(std::abs(p[1] - 40 / 255.f) < 0.02f);
+                QVERIFY(std::abs(p[2] - 60 / 255.f) < 0.02f);
+            }
+        }
+    }
+
+    // ---- Saver in the graph of a transition (spec 128.10) ----
+
+    void saverInATransitionGraph()
+    {
+        QTemporaryDir out;
+        Composition comp = co::defaultTransitionComposition(10);
+        quint64 merge = 0;
+        for (const CompNode& n : comp.nodes)
+            if (n.type == nodetypes::Merge)
+                merge = n.id;
+        // Merge -> Saver -> MediaOut.
+        const quint64 sv = co::addNode(comp, nodetypes::Saver, QPointF(2, 1));
+        co::connect(comp, merge, 0, sv, nodeports::Input);
+        co::connect(comp, sv, 0, comp.mediaOutId, nodeports::Input);
+        comp.node(sv)->params.setStatic(nodekeys::SaverPath, QDir(out.path()).filePath(QStringLiteral("tr.png")));
+        comp.node(sv)->params.setStatic(nodekeys::SaverFormat, saverformats::Exr);
+        comp.node(sv)->params.setStatic(nodekeys::SaverExrDepth, QStringLiteral("float"));
+        comp.node(sv)->params.setStatic(nodekeys::SaverExrCompression, QStringLiteral("none"));
+        comp.node(sv)->params.setStatic(nodekeys::SaverLinear, false);
+        const TimelineData tl = transitionTimeline(comp);
+        const quint64 holder = tl.videoTracks[0].clips[1].id;
+
+        // Playing and exporting the timeline show the transition as it is and write nothing.
+        expectTimelineColor(tl, 44, blended(0));
+        expectTimelineColor(tl, 50, blended(6.0 / 11));
+        expectTimelineColor(tl, 54, blended(10.0 / 11));
+        for (Compositor* b : backends()) {
+            const QImage viewer = nodeImage(b, tl, holder, sv, 5, 1);
+            QVERIFY(!viewer.isNull());
+            const QColor want = blended(6.0 / 11);
+            QVERIFY(near(px(viewer, kW / 2, kH / 2), want.red(), want.green(), want.blue(), 255, 4));
+        }
+        QCOMPARE(QDir(out.path()).entryList(QDir::Files).size(), 0);
+        QCOMPARE(render::compsaver::activeSavers(*tl.videoTracks[0].clips[1].transitionIn->composition).size(), 1);
+
+        // Rendering the transition's graph writes one file per frame of the window.
+        for (Compositor* b : backends()) {
+            QDir(out.path()).removeRecursively();
+            const render::compsaver::Result r
+                = render::compsaver::run(*b, snap(tl), holder, 0, 9, nullptr, nullptr, 1);
+            QCOMPARE(r.files, 10);
+            QVERIFY2(r.errors.isEmpty(), qPrintable(r.errors.join(QLatin1Char(';'))));
+            QCOMPARE(QDir(out.path()).entryList(QDir::Files).size(), 10);
+            for (int f : {0, 5, 9}) {
+                const render::exr::Info info = render::exr::read(
+                    QDir(out.path()).filePath(QStringLiteral("tr%1.exr").arg(f, 4, 10, QLatin1Char('0'))));
+                QVERIFY(info.ok);
+                const QColor want = blended((f + 1) / 11.0);
+                const QVector<float> p = info.pixel(kW / 2, kH / 2);
+                QVERIFY(std::abs(p[0] - want.red() / 255.f) < 0.03f);
+                QVERIFY(std::abs(p[2] - want.blue() / 255.f) < 0.03f);
+            }
+        }
+        // A clip without a stored graph, or the wrong side, writes nothing.
+        QCOMPARE(render::compsaver::run(*m_cpu, snap(tl), holder, 0, 9, nullptr, nullptr, 2).files, 0);
+        QCOMPARE(render::compsaver::run(*m_cpu, snap(tl), holder, 0, 9).files, 0);
     }
 
     // ---- Transition built on the page ----

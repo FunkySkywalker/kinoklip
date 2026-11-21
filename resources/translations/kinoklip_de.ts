@@ -11733,6 +11733,30 @@ Danke fürs Zuschauen</translation>
         <translation>Rendert jedes Bild der geöffneten Komposition und schreibt die Bilder ihrer Saver-Knoten in deren Bilddateien. Wiedergabe und Scrubben schreiben nie Dateien</translation>
     </message>
     <message>
+        <source>Save Transition Preset</source>
+        <translation>Übergangsvorgabe speichern</translation>
+    </message>
+    <message>
+        <source>Saves the open transition&apos;s node graph in the Effects Library, Video Transitions, User Presets, where it drags onto cuts like any transition</source>
+        <translation>Speichert den Node-Graphen des geöffneten Übergangs in der Effektbibliothek unter Videoübergänge, Eigene Vorgaben; dort lässt er sich wie jeder Übergang auf Schnitte ziehen</translation>
+    </message>
+    <message>
+        <source>Name of the preset:</source>
+        <translation>Name der Vorgabe:</translation>
+    </message>
+    <message>
+        <source>My Transition</source>
+        <translation>Mein Übergang</translation>
+    </message>
+    <message>
+        <source>A preset named &quot;%1&quot; exists. Replace it?</source>
+        <translation>Eine Vorgabe namens &quot;%1&quot; existiert. Ersetzen?</translation>
+    </message>
+    <message>
+        <source>Cannot save the preset: %1</source>
+        <translation>Die Vorgabe kann nicht gespeichert werden: %1</translation>
+    </message>
+    <message>
         <source>The composition has no Saver node with a file name that is switched on.</source>
         <translation>Die Komposition hat keinen eingeschalteten Saver-Knoten mit Dateinamen.</translation>
     </message>
@@ -16825,6 +16849,10 @@ Danke fürs Zuschauen</translation>
         <translation>Voll (langsam)</translation>
     </message>
     <message>
+        <source>A transition you saved from the Compositing page</source>
+        <translation>Ein Übergang, den Sie von der Compositing-Seite gespeichert haben</translation>
+    </message>
+    <message>
         <source>Video Effects</source>
         <translation>Video-Effekte</translation>
     </message>
@@ -16899,6 +16927,10 @@ Danke fürs Zuschauen</translation>
     <message>
         <source>Fusion Transitions</source>
         <translation>Fusion-Übergänge</translation>
+    </message>
+    <message>
+        <source>User Presets</source>
+        <translation>Eigene Vorgaben</translation>
     </message>
     <message>
         <source>Resolve FX Transitions</source>
@@ -17316,6 +17348,14 @@ Danke fürs Zuschauen</translation>
         <translation>Ein als Titel gespeichertes Makro. Doppelklick fügt es an der Abspielposition in die Timeline ein.</translation>
     </message>
     <message>
+        <source>Transitions saved from the Compositing page</source>
+        <translation>Von der Compositing-Seite gespeicherte Übergänge</translation>
+    </message>
+    <message>
+        <source>A transition you saved from the Compositing page. Drag it onto a cut like any transition.</source>
+        <translation>Ein Übergang, den Sie von der Compositing-Seite gespeichert haben. Ziehen Sie ihn wie jeden Übergang auf einen Schnitt.</translation>
+    </message>
+    <message>
         <source>Delete Macro</source>
         <translation>Makro löschen</translation>
     </message>
@@ -17338,6 +17378,26 @@ Danke fürs Zuschauen</translation>
     <message>
         <source>Set as Standard Transition</source>
         <translation>Als Standardübergang festlegen</translation>
+    </message>
+    <message>
+        <source>Rename Preset…</source>
+        <translation>Vorgabe umbenennen…</translation>
+    </message>
+    <message>
+        <source>Rename Preset</source>
+        <translation>Vorgabe umbenennen</translation>
+    </message>
+    <message>
+        <source>Name of the preset:</source>
+        <translation>Name der Vorgabe:</translation>
+    </message>
+    <message>
+        <source>Delete Preset</source>
+        <translation>Vorgabe löschen</translation>
+    </message>
+    <message>
+        <source>Deletes the saved preset; transitions already on the timeline are not changed</source>
+        <translation>Löscht die gespeicherte Vorgabe; Übergänge, die schon auf der Timeline liegen, bleiben unverändert</translation>
     </message>
     <message>
         <source>%1
@@ -24706,6 +24766,54 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
     <message>
         <source>3D</source>
         <translation>3D</translation>
+    </message>
+    <message>
+        <source>OpenEXR</source>
+        <translation>OpenEXR</translation>
+    </message>
+    <message>
+        <source>EXR Bit Depth</source>
+        <translation>EXR-Bittiefe</translation>
+    </message>
+    <message>
+        <source>16-bit half float</source>
+        <translation>16 Bit Half-Float</translation>
+    </message>
+    <message>
+        <source>32-bit float</source>
+        <translation>32 Bit Float</translation>
+    </message>
+    <message>
+        <source>OpenEXR only: the size of every colour value in the file</source>
+        <translation>Nur OpenEXR: die Größe jedes Farbwerts in der Datei</translation>
+    </message>
+    <message>
+        <source>EXR Compression</source>
+        <translation>EXR-Kompression</translation>
+    </message>
+    <message>
+        <source>RLE</source>
+        <translation>RLE</translation>
+    </message>
+    <message>
+        <source>ZIP (1 line)</source>
+        <translation>ZIP (1 Zeile)</translation>
+    </message>
+    <message>
+        <source>ZIP (16 lines)</source>
+        <translation>ZIP (16 Zeilen)</translation>
+    </message>
+    <message>
+        <source>OpenEXR only: how the file is compressed (all of them lose nothing)</source>
+        <translation>Nur OpenEXR: wie die Datei komprimiert wird (keine Variante verliert Daten)</translation>
+    </message>
+    <message>
+        <source>EXR Linear Light</source>
+        <translation>EXR Linearlicht</translation>
+    </message>
+    <message>
+        <source>OpenEXR only: on, the sRGB picture is converted to linear light, as compositing programs store it; off, the values are written as they are</source>
+        <translation>Nur OpenEXR: an, das sRGB-Bild wird in Linearlicht umgerechnet, wie Compositing-Programme es speichern; aus, die Werte werden unverändert geschrieben</translation>
     </message>
     <message>
         <source>pEmitter</source>
@@ -33174,6 +33282,34 @@ Die Clips trimmen, damit die Medien den Übergang abdecken?</translation>
     <message>
         <source>Only a Fusion Composition transition can be built on the page: drag it from the Effects Library, Fusion Transitions</source>
         <translation>Auf der Seite lässt sich nur ein Übergang „Fusion-Komposition“ aufbauen: Ziehen Sie ihn aus der Effektbibliothek, Fusion Transitions</translation>
+    </message>
+    <message>
+        <source>Create Transition Preset…</source>
+        <translation>Übergangsvorgabe erstellen…</translation>
+    </message>
+    <message>
+        <source>Create Transition Preset</source>
+        <translation>Übergangsvorgabe erstellen</translation>
+    </message>
+    <message>
+        <source>Name of the preset:</source>
+        <translation>Name der Vorgabe:</translation>
+    </message>
+    <message>
+        <source>My Transition</source>
+        <translation>Mein Übergang</translation>
+    </message>
+    <message>
+        <source>Cannot save the preset: %1</source>
+        <translation>Die Vorgabe kann nicht gespeichert werden: %1</translation>
+    </message>
+    <message>
+        <source>Saves this transition&apos;s node graph in the Effects Library, Video Transitions, User Presets</source>
+        <translation>Speichert den Node-Graphen dieses Übergangs in der Effektbibliothek unter Videoübergänge, Eigene Vorgaben</translation>
+    </message>
+    <message>
+        <source>Only a Fusion Composition transition can be saved as a preset</source>
+        <translation>Nur ein Fusion-Composition-Übergang kann als Vorgabe gespeichert werden</translation>
     </message>
     <message>
         <source>Change Transition Duration…</source>

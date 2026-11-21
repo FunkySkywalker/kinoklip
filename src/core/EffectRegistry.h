@@ -12,6 +12,8 @@
 #include <QVariant>
 #include <QVector>
 
+#include <memory>
+
 namespace kk {
 
 /// What kind of thing a descriptor describes (also the Effects Library sections).
@@ -156,6 +158,8 @@ inline constexpr char Shape[] = "shape";
 inline constexpr char Wipe[] = "wipe";
 inline constexpr char FusionTransitions[] = "fusion_transitions";
 inline constexpr char ResolveFxTransitions[] = "resolve_fx_transitions";
+/// Transitions saved from the Compositing page (core/TransitionPresets.h).
+inline constexpr char UserTransitions[] = "user_transitions";
 } // namespace effectgroups
 
 /// Process-wide catalogue of descriptors.
@@ -173,6 +177,9 @@ public:
     void add(EffectDescriptor descriptor);
     /// Descriptor with id @p id, or nullptr. O(1), no allocation (called per effect per frame
     /// by the renderer). Pointers stay valid as long as no descriptor is added.
+    /// A saved transition preset (id "tpreset:<name>", core/TransitionPresets.h) answers with a
+    /// descriptor made from its file (category Transition, no parameters); it stays valid for the
+    /// life of the process. Preset descriptors are looked up from the GUI thread only.
     [[nodiscard]] const EffectDescriptor* find(const QString& id) const;
     /// All descriptors of @p category in registration order.
     [[nodiscard]] QVector<const EffectDescriptor*> byCategory(EffectCategory category) const;
@@ -183,7 +190,8 @@ public:
     [[nodiscard]] ParamSet defaultParams(const QString& id) const;
     /// New EffectInstance of type @p id with default parameters and the given instance id.
     [[nodiscard]] EffectInstance createEffect(const QString& id, quint64 instanceId) const;
-    /// New TransitionData of type @p id with default parameters.
+    /// New TransitionData of type @p id with default parameters; a transition preset id gives a
+    /// Fusion Composition transition with the preset's graph, its keys stretched to @p durationFrames.
     [[nodiscard]] TransitionData createTransition(const QString& id, int64_t durationFrames) const;
 
     /// Translated name of a category, for section headers.
@@ -213,6 +221,7 @@ private:
     /// The clip audio effects (BuiltinAudioEffects.cpp).
     void registerAudioEffects();
 
+    mutable QHash<QString, std::shared_ptr<EffectDescriptor>> m_presetDescriptors;
     QVector<EffectDescriptor> m_descriptors;
     QHash<QString, qsizetype> m_index; ///< id → position in m_descriptors (O(1) find())
 };

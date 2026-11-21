@@ -11743,6 +11743,30 @@ Thank you for watching</source>
         <translation>Рендерить кожен кадр відкритої композиції та записує картинки її вузлів Saver у файли зображень. Відтворення й прокручування файли не записують</translation>
     </message>
     <message>
+        <source>Save Transition Preset</source>
+        <translation>Зберегти пресет переходу</translation>
+    </message>
+    <message>
+        <source>Saves the open transition&apos;s node graph in the Effects Library, Video Transitions, User Presets, where it drags onto cuts like any transition</source>
+        <translation>Зберігає граф вузлів відкритого переходу в бібліотеці ефектів, Відеопереходи, Мої пресети; звідти його можна перетягнути на стик, як будь-який перехід</translation>
+    </message>
+    <message>
+        <source>Name of the preset:</source>
+        <translation>Назва пресета:</translation>
+    </message>
+    <message>
+        <source>My Transition</source>
+        <translation>Мій перехід</translation>
+    </message>
+    <message>
+        <source>A preset named &quot;%1&quot; exists. Replace it?</source>
+        <translation>Пресет &quot;%1&quot; уже існує. Замінити?</translation>
+    </message>
+    <message>
+        <source>Cannot save the preset: %1</source>
+        <translation>Не вдалося зберегти пресет: %1</translation>
+    </message>
+    <message>
         <source>The composition has no Saver node with a file name that is switched on.</source>
         <translation>У композиції немає ввімкненого вузла Saver з іменем файлу.</translation>
     </message>
@@ -16836,6 +16860,10 @@ Thank you for watching</source>
         <translation>Повна (повільно)</translation>
     </message>
     <message>
+        <source>A transition you saved from the Compositing page</source>
+        <translation>Перехід, збережений вами зі сторінки композитингу</translation>
+    </message>
+    <message>
         <source>Video Effects</source>
         <translation>Відеоефекти</translation>
     </message>
@@ -16910,6 +16938,10 @@ Thank you for watching</source>
     <message>
         <source>Fusion Transitions</source>
         <translation>Переходи Fusion</translation>
+    </message>
+    <message>
+        <source>User Presets</source>
+        <translation>Мої пресети</translation>
     </message>
     <message>
         <source>Resolve FX Transitions</source>
@@ -17327,6 +17359,14 @@ Thank you for watching</source>
         <translation>Макрос, збережений як титр. Подвійне клацання додає його на таймлайн у позиції курсора.</translation>
     </message>
     <message>
+        <source>Transitions saved from the Compositing page</source>
+        <translation>Переходи, збережені зі сторінки композитингу</translation>
+    </message>
+    <message>
+        <source>A transition you saved from the Compositing page. Drag it onto a cut like any transition.</source>
+        <translation>Перехід, збережений вами зі сторінки композитингу. Перетягніть його на стик, як будь-який перехід.</translation>
+    </message>
+    <message>
         <source>Delete Macro</source>
         <translation>Видалити макрос</translation>
     </message>
@@ -17349,6 +17389,26 @@ Thank you for watching</source>
     <message>
         <source>Set as Standard Transition</source>
         <translation>Зробити стандартним переходом</translation>
+    </message>
+    <message>
+        <source>Rename Preset…</source>
+        <translation>Перейменувати пресет…</translation>
+    </message>
+    <message>
+        <source>Rename Preset</source>
+        <translation>Перейменувати пресет</translation>
+    </message>
+    <message>
+        <source>Name of the preset:</source>
+        <translation>Назва пресета:</translation>
+    </message>
+    <message>
+        <source>Delete Preset</source>
+        <translation>Видалити пресет</translation>
+    </message>
+    <message>
+        <source>Deletes the saved preset; transitions already on the timeline are not changed</source>
+        <translation>Видаляє збережений пресет; переходи, що вже лежать на таймлайні, не змінюються</translation>
     </message>
     <message>
         <source>%1
@@ -24724,6 +24784,54 @@ Import files with %1 or drop them here.</source>
     <message>
         <source>3D</source>
         <translation>3D</translation>
+    </message>
+    <message>
+        <source>OpenEXR</source>
+        <translation>OpenEXR</translation>
+    </message>
+    <message>
+        <source>EXR Bit Depth</source>
+        <translation>Розрядність EXR</translation>
+    </message>
+    <message>
+        <source>16-bit half float</source>
+        <translation>16 біт, половинна точність</translation>
+    </message>
+    <message>
+        <source>32-bit float</source>
+        <translation>32 біти, float</translation>
+    </message>
+    <message>
+        <source>OpenEXR only: the size of every colour value in the file</source>
+        <translation>Лише OpenEXR: розмір кожного значення кольору у файлі</translation>
+    </message>
+    <message>
+        <source>EXR Compression</source>
+        <translation>Стиснення EXR</translation>
+    </message>
+    <message>
+        <source>RLE</source>
+        <translation>RLE</translation>
+    </message>
+    <message>
+        <source>ZIP (1 line)</source>
+        <translation>ZIP (1 рядок)</translation>
+    </message>
+    <message>
+        <source>ZIP (16 lines)</source>
+        <translation>ZIP (16 рядків)</translation>
+    </message>
+    <message>
+        <source>OpenEXR only: how the file is compressed (all of them lose nothing)</source>
+        <translation>Лише OpenEXR: як стискається файл (жоден спосіб не втрачає дані)</translation>
+    </message>
+    <message>
+        <source>EXR Linear Light</source>
+        <translation>EXR у лінійному світлі</translation>
+    </message>
+    <message>
+        <source>OpenEXR only: on, the sRGB picture is converted to linear light, as compositing programs store it; off, the values are written as they are</source>
+        <translation>Лише OpenEXR: увімкнено - картинка sRGB переводиться в лінійне світло, як зберігають програми композитингу; вимкнено - значення пишуться як є</translation>
     </message>
     <message>
         <source>pEmitter</source>
@@ -33194,6 +33302,34 @@ Trim the clips so the media covers the transition?</source>
     <message>
         <source>Only a Fusion Composition transition can be built on the page: drag it from the Effects Library, Fusion Transitions</source>
         <translation>На сторінці можна зібрати лише перехід «Композиція Fusion»: перетягніть його з бібліотеки ефектів, Fusion Transitions</translation>
+    </message>
+    <message>
+        <source>Create Transition Preset…</source>
+        <translation>Створити пресет переходу…</translation>
+    </message>
+    <message>
+        <source>Create Transition Preset</source>
+        <translation>Створити пресет переходу</translation>
+    </message>
+    <message>
+        <source>Name of the preset:</source>
+        <translation>Назва пресета:</translation>
+    </message>
+    <message>
+        <source>My Transition</source>
+        <translation>Мій перехід</translation>
+    </message>
+    <message>
+        <source>Cannot save the preset: %1</source>
+        <translation>Не вдалося зберегти пресет: %1</translation>
+    </message>
+    <message>
+        <source>Saves this transition&apos;s node graph in the Effects Library, Video Transitions, User Presets</source>
+        <translation>Зберігає граф вузлів цього переходу в бібліотеці ефектів, Відеопереходи, Мої пресети</translation>
+    </message>
+    <message>
+        <source>Only a Fusion Composition transition can be saved as a preset</source>
+        <translation>Як пресет можна зберегти лише перехід Fusion Composition</translation>
     </message>
     <message>
         <source>Change Transition Duration…</source>

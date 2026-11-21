@@ -251,6 +251,7 @@ inline const QString BlinnPhong = QStringLiteral("blinnPhong");
 namespace saverformats {
 inline const QString Png = QStringLiteral("png");
 inline const QString Tiff = QStringLiteral("tiff");
+inline const QString Exr = QStringLiteral("exr"); ///< OpenEXR (half or float, linear)
 } // namespace saverformats
 
 /// Well-known port ids.
@@ -364,6 +365,9 @@ inline const QString SaverPath = QStringLiteral("saverPath"); ///< output file n
 inline const QString SaverFormat = QStringLiteral("saverFormat"); ///< choice (saverformats::)
 inline const QString SaverStart = QStringLiteral("saverStart"); ///< number of the first written file
 inline const QString SaverActive = QStringLiteral("saverActive"); ///< bool: Save When Rendered
+inline const QString SaverExrDepth = QStringLiteral("saverExrDepth"); ///< choice: half / float (OpenEXR)
+inline const QString SaverExrCompression = QStringLiteral("saverExrCompression"); ///< choice: none / rle / zip1 / zip16
+inline const QString SaverLinear = QStringLiteral("saverLinear"); ///< bool: write linear light (OpenEXR)
 inline const QString TimeSpeedKey = QStringLiteral("timeSpeed"); ///< Time Speed: speed factor
 inline const QString TimeDelay = QStringLiteral("timeDelay"); ///< Time Speed: frames
 inline const QString TimeInterp = QStringLiteral("timeInterp"); ///< choice (timeinterps::)
