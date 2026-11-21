@@ -194,6 +194,52 @@ GradeWindowShape gradeWindowShapeFromString(const QString& text)
     return GradeWindowShape::Circle;
 }
 
+std::pair<int, int> warpGridSize(WarpGrid grid, int resolution)
+{
+    static const std::pair<int, int> hueSat[kWarpResolutions] = {{8, 4}, {12, 5}, {24, 8}};
+    static const std::pair<int, int> chromaLuma[kWarpResolutions] = {{4, 4}, {5, 5}, {8, 8}};
+    const int r = std::clamp(resolution, 0, kWarpResolutions - 1);
+    return grid == WarpGrid::HueSat ? hueSat[r] : chromaLuma[r];
+}
+
+bool GradeWarp::isIdentity(WarpGrid grid) const
+{
+    for (const float v : pins(grid)) {
+        if (v != 0.0f)
+            return false;
+    }
+    return true;
+}
+
+bool GradeWarp::isIdentity() const
+{
+    return isIdentity(WarpGrid::HueSat) && isIdentity(WarpGrid::ChromaLuma);
+}
+
+std::pair<float, float> GradeWarp::pin(WarpGrid grid, int col, int row) const
+{
+    const auto [cols, rows] = warpGridSize(grid, resolution);
+    const QVector<float>& v = pins(grid);
+    const int i = (row * cols + col) * 2;
+    if (col < 0 || row < 0 || col >= cols || row >= rows || i + 1 >= v.size())
+        return {0.0f, 0.0f};
+    return {v[i], v[i + 1]};
+}
+
+void GradeWarp::setPin(WarpGrid grid, int col, int row, float dx, float dy)
+{
+    const auto [cols, rows] = warpGridSize(grid, resolution);
+    if (col < 0 || row < 0 || col >= cols || row >= rows)
+        return;
+    QVector<float>& v = pins(grid);
+    if (v.size() != cols * rows * 2)
+        v = QVector<float>(cols * rows * 2, 0.0f);
+    v[(row * cols + col) * 2] = dx;
+    v[(row * cols + col) * 2 + 1] = dy;
+    if (isIdentity(grid))
+        v.clear();
+}
+
 namespace gradekeys {
 
 const QString& wheelKey(Wheel wheel, int channel)
@@ -207,6 +253,12 @@ const QString& wheelKey(Wheel wheel, int channel)
         {&LogMidR, &LogMidG, &LogMidB, &LogMidY},
         {&LogHighR, &LogHighG, &LogHighB, &LogHighY},
         {&LogOffsetR, &LogOffsetG, &LogOffsetB, &LogOffsetY},
+        {&HdrGlobalR, &HdrGlobalG, &HdrGlobalB, &HdrGlobalY},
+        {&HdrShadowR, &HdrShadowG, &HdrShadowB, &HdrShadowY},
+        {&HdrLightR, &HdrLightG, &HdrLightB, &HdrLightY},
+        {&HdrHighlightR, &HdrHighlightG, &HdrHighlightB, &HdrHighlightY},
+        {&HdrSpecularR, &HdrSpecularG, &HdrSpecularB, &HdrSpecularY},
+        {&HdrBlackR, &HdrBlackG, &HdrBlackB, &HdrBlackY},
     };
     return *table[std::clamp(int(wheel), 0, kWheelCount - 1)][std::clamp(channel, 0, 3)];
 }
@@ -227,6 +279,19 @@ double defaultValue(QStringView key)
         return 0.55; // and High Range
     if (key.startsWith(u"agx"))
         return 0.0;
+    if (key.startsWith(u"hdr")) {
+        if (key.endsWith(u"Sat"))
+            return 1.0;
+        if (key == HdrShadowRange)
+            return -1.5;
+        if (key == HdrLightRange)
+            return 1.0;
+        if (key == HdrHighlightRange)
+            return 3.0;
+        if (key.endsWith(u"Falloff"))
+            return 1.5;
+        return 0.0;
+    }
     if (key.startsWith(u"mixer")) {
         if (key == MixerRR || key == MixerGG || key == MixerBB)
             return 1.0;
@@ -249,6 +314,28 @@ double defaultValue(QStringView key)
 bool isLogKey(QStringView key)
 {
     return key.startsWith(u"log");
+}
+
+const QVector<QString>& hdrKeys()
+{
+    static const QVector<QString> keys = {HdrGlobalR, HdrGlobalG, HdrGlobalB, HdrGlobalY,
+        HdrShadowR, HdrShadowG, HdrShadowB, HdrShadowY, HdrLightR, HdrLightG, HdrLightB,
+        HdrLightY, HdrHighlightR, HdrHighlightG, HdrHighlightB, HdrHighlightY, HdrSpecularR,
+        HdrSpecularG, HdrSpecularB, HdrSpecularY, HdrBlackR, HdrBlackG, HdrBlackB, HdrBlackY,
+        HdrGlobalSat, HdrShadowSat, HdrLightSat, HdrHighlightSat, HdrSpecularSat,
+        HdrShadowRange, HdrShadowFalloff, HdrLightRange, HdrLightFalloff, HdrHighlightRange,
+        HdrHighlightFalloff};
+    return keys;
+}
+
+bool isHdrKey(QStringView key)
+{
+    return key.startsWith(u"hdr");
+}
+
+bool isHdrZoneKey(QStringView key)
+{
+    return key.endsWith(u"Range") || key.endsWith(u"Falloff");
 }
 
 const QVector<QString>& blurKeys()
@@ -299,7 +386,13 @@ const QVector<QString>& allKeys()
         BlurRatio, BlurScaling, SharpRadiusR, SharpRadiusG, SharpRadiusB, SharpRatio, SharpScaling,
         SharpCoring, SharpLevel, MistRadius, MistRatio, MistScaling, MistMix, MixerRR, MixerRG, MixerRB,
         MixerGR, MixerGG, MixerGB, MixerBR, MixerBG, MixerBB, MixerMonoR, MixerMonoG, MixerMonoB,
-        MixerMono, MixerPreserve, AgxOn, AgxInput, AgxExposure, AgxLook, AgxOutput};
+        MixerMono, MixerPreserve, AgxOn, AgxInput, AgxExposure, AgxLook, AgxOutput,
+        HdrGlobalR, HdrGlobalG, HdrGlobalB, HdrGlobalY, HdrShadowR, HdrShadowG, HdrShadowB,
+        HdrShadowY, HdrLightR, HdrLightG, HdrLightB, HdrLightY, HdrHighlightR, HdrHighlightG,
+        HdrHighlightB, HdrHighlightY, HdrSpecularR, HdrSpecularG, HdrSpecularB, HdrSpecularY,
+        HdrBlackR, HdrBlackG, HdrBlackB, HdrBlackY, HdrGlobalSat, HdrShadowSat, HdrLightSat,
+        HdrHighlightSat, HdrSpecularSat, HdrShadowRange, HdrShadowFalloff, HdrLightRange,
+        HdrLightFalloff, HdrHighlightRange, HdrHighlightFalloff};
     return keys;
 }
 
@@ -311,7 +404,13 @@ QString label(const QString& key)
         QT_TRANSLATE_NOOP("kk::gradekeys", "Log Shadow"),
         QT_TRANSLATE_NOOP("kk::gradekeys", "Log Midtone"),
         QT_TRANSLATE_NOOP("kk::gradekeys", "Log Highlight"),
-        QT_TRANSLATE_NOOP("kk::gradekeys", "Log Offset")};
+        QT_TRANSLATE_NOOP("kk::gradekeys", "Log Offset"),
+        QT_TRANSLATE_NOOP("kk::gradekeys", "HDR Global"),
+        QT_TRANSLATE_NOOP("kk::gradekeys", "HDR Shadow"),
+        QT_TRANSLATE_NOOP("kk::gradekeys", "HDR Light"),
+        QT_TRANSLATE_NOOP("kk::gradekeys", "HDR Highlight"),
+        QT_TRANSLATE_NOOP("kk::gradekeys", "HDR Specular"),
+        QT_TRANSLATE_NOOP("kk::gradekeys", "Black Offset")};
     static const char* const channels[4] = {"R", "G", "B", "Y"};
     for (int w = 0; w < kWheelCount; ++w) {
         for (int ch = 0; ch < 4; ++ch) {
@@ -356,6 +455,17 @@ QString label(const QString& key)
         {&AgxExposure, QT_TRANSLATE_NOOP("kk::gradekeys", "AgX Exposure")},
         {&AgxLook, QT_TRANSLATE_NOOP("kk::gradekeys", "AgX Look")},
         {&AgxOutput, QT_TRANSLATE_NOOP("kk::gradekeys", "AgX Output")},
+        {&HdrGlobalSat, QT_TRANSLATE_NOOP("kk::gradekeys", "HDR Global Saturation")},
+        {&HdrShadowSat, QT_TRANSLATE_NOOP("kk::gradekeys", "HDR Shadow Saturation")},
+        {&HdrLightSat, QT_TRANSLATE_NOOP("kk::gradekeys", "HDR Light Saturation")},
+        {&HdrHighlightSat, QT_TRANSLATE_NOOP("kk::gradekeys", "HDR Highlight Saturation")},
+        {&HdrSpecularSat, QT_TRANSLATE_NOOP("kk::gradekeys", "HDR Specular Saturation")},
+        {&HdrShadowRange, QT_TRANSLATE_NOOP("kk::gradekeys", "HDR Shadow Range")},
+        {&HdrShadowFalloff, QT_TRANSLATE_NOOP("kk::gradekeys", "HDR Shadow Falloff")},
+        {&HdrLightRange, QT_TRANSLATE_NOOP("kk::gradekeys", "HDR Light Range")},
+        {&HdrLightFalloff, QT_TRANSLATE_NOOP("kk::gradekeys", "HDR Light Falloff")},
+        {&HdrHighlightRange, QT_TRANSLATE_NOOP("kk::gradekeys", "HDR Highlight Range")},
+        {&HdrHighlightFalloff, QT_TRANSLATE_NOOP("kk::gradekeys", "HDR Highlight Falloff")},
         {&Contrast, QT_TRANSLATE_NOOP("kk::gradekeys", "Contrast")},
         {&Pivot, QT_TRANSLATE_NOOP("kk::gradekeys", "Pivot")},
         {&Saturation, QT_TRANSLATE_NOOP("kk::gradekeys", "Saturation")},
@@ -384,6 +494,17 @@ QString label(const QString& key)
 
 std::pair<double, double> range(const QString& key)
 {
+    if (isHdrKey(key)) {
+        if (key.endsWith(QLatin1String("Y")))
+            return {-4.0, 4.0}; // exposure in stops
+        if (key.endsWith(QLatin1String("Sat")))
+            return {0.0, 4.0};
+        if (key.endsWith(QLatin1String("Range")))
+            return {-8.0, 8.0};
+        if (key.endsWith(QLatin1String("Falloff")))
+            return {0.0, 8.0};
+        return {-1.0, 1.0};
+    }
     if (key.startsWith(QLatin1String("gain")))
         return {0.0, 4.0};
     if (key.startsWith(QLatin1String("lift")) || key.startsWith(QLatin1String("gamma"))
@@ -679,13 +800,13 @@ bool isNodeIdentity(const GradeNode& node, int64_t localFrame)
         return false;
     if (!node.enabled || node.value(gradekeys::Mix, localFrame) <= 0.0)
         return true;
-    if (!node.lutPath.isEmpty() || !node.curves.isIdentity())
+    if (!node.lutPath.isEmpty() || !node.curves.isIdentity() || !node.warp.isIdentity())
         return false;
     for (const QString& key : gradekeys::allKeys()) {
         if (key == gradekeys::Pivot || key == gradekeys::LumMix || key == gradekeys::Mix
             || key == gradekeys::LogLowRange || key == gradekeys::LogHighRange
             || gradekeys::isBlurKey(key) || gradekeys::isRgbMixerKey(key)
-            || gradekeys::isAgxKey(key))
+            || gradekeys::isAgxKey(key) || gradekeys::isHdrZoneKey(key))
             continue; // only matter together with another value (blur, mixer, AgX: below)
         if (node.value(key, localFrame) != gradekeys::defaultValue(key))
             return false;
@@ -885,6 +1006,7 @@ bool resetNode(ClipGrade& grade, quint64 id)
         return false;
     n->params = ParamSet {};
     n->curves = GradeCurves {};
+    n->warp = GradeWarp {};
     n->qualifier = GradeQualifier {};
     n->windows.clear();
     n->track = GradeTrack {};

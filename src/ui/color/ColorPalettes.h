@@ -7,6 +7,8 @@
 #include "core/Grade.h"
 #include "ui/color/QualifierPick.h"
 
+#include <QImage>
+#include <QPoint>
 #include <QPointer>
 #include <QWidget>
 
@@ -319,6 +321,107 @@ private:
     QComboBox* m_look = nullptr;
     QComboBox* m_output = nullptr;
     ValueField* m_exposure = nullptr;
+    bool m_refreshing = false;
+};
+
+/// The pin mesh of the Color Warper palette: Hue - Sat as a polar plot (the angle is the hue, the
+/// distance from the centre the saturation) or Chroma - Luma as a rectangle (chroma to the
+/// right, luma up), with the mesh lines and a pin on every vertex. Click a pin to select it,
+/// drag it to move that colour, double-click it (or Delete) to put it back, arrow keys nudge
+/// it, Shift while dragging is fine control. The widget only holds a copy of the node's warp:
+/// every change is emitted as warpChanged() and the panel commits it to the session.
+class WarperGrid : public QWidget
+{
+    Q_OBJECT
+public:
+    explicit WarperGrid(QWidget* parent = nullptr);
+
+    [[nodiscard]] WarpGrid grid() const { return m_grid; }
+    void setGrid(WarpGrid grid);
+    /// The node's warp (the pins show where each colour goes).
+    void setWarp(const GradeWarp& warp);
+    [[nodiscard]] const GradeWarp& warp() const { return m_warp; }
+    /// The selected vertex of the shown grid ({-1, -1} = none).
+    [[nodiscard]] QPoint selectedPin() const { return m_selected; }
+    void selectPin(int col, int row);
+    /// Whether vertex (@p col, @p row) can be moved (the grey centre / axis cannot).
+    [[nodiscard]] bool isMovable(int col, int row) const;
+    /// Where the pin of a vertex is drawn now (widget pixels), with its displacement.
+    [[nodiscard]] QPointF pinPosition(int col, int row) const;
+    /// Puts the selected pin back where it was (one change).
+    void resetSelectedPin();
+    /// The plot rectangle (Hue - Sat: the square holding the disc).
+    [[nodiscard]] QRectF plotRect() const;
+
+    [[nodiscard]] QSize sizeHint() const override { return {260, 170}; }
+    [[nodiscard]] QSize minimumSizeHint() const override { return {120, 90}; }
+
+Q_SIGNALS:
+    /// A drag started / ended (one undo step in between).
+    void dragStarted();
+    void dragFinished();
+    /// The pins changed (a drag step, a nudge or a reset); @p label names the step.
+    void warpChanged(const GradeWarp& warp, const QString& label);
+    void selectionChanged();
+
+protected:
+    void paintEvent(QPaintEvent* event) override;
+    void mousePressEvent(QMouseEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
+    void mouseReleaseEvent(QMouseEvent* event) override;
+    void mouseDoubleClickEvent(QMouseEvent* event) override;
+    void keyPressEvent(QKeyEvent* event) override;
+
+private:
+    /// Vertex position without displacement, as (x = hue turns / chroma, y = sat / luma).
+    [[nodiscard]] QPointF baseUnit(int col, int row) const;
+    [[nodiscard]] QPointF unitToPixel(QPointF unit) const;
+    [[nodiscard]] QPointF pixelToUnit(QPointF pixel) const;
+    /// Largest displacement of a pin (one cell: neighbours cannot be passed).
+    [[nodiscard]] QPointF maxDisplacement() const;
+    void setDisplacement(int col, int row, QPointF d, const QString& label);
+    [[nodiscard]] QPoint pinAt(QPointF pos) const;
+
+    WarpGrid m_grid = WarpGrid::HueSat;
+    GradeWarp m_warp;
+    QPoint m_selected {-1, -1};
+    bool m_dragging = false;
+    QPointF m_grabOffset; ///< pixels from the pin centre to the press
+    QPointF m_pressPos;
+    QPointF m_pressDisplacement;
+    QImage m_disc;
+};
+
+/// The Color Warper palette: the Hue - Sat and Chroma - Luma pin meshes of the selected node
+/// (WarperGrid), a Resolution choice (Low / Medium / High: how many pins; changing it keeps
+/// the colours where they are), Reset Pin and Reset Grid. The palette bar's Reset puts every
+/// pin back. Every drag is one undo step.
+class WarperPanel : public QWidget
+{
+    Q_OBJECT
+public:
+    explicit WarperPanel(ColorSession* session, QWidget* parent = nullptr);
+
+    [[nodiscard]] WarperGrid* gridWidget() const { return m_gridWidget; }
+    [[nodiscard]] QComboBox* resolutionBox() const { return m_resolution; }
+    [[nodiscard]] QToolButton* hueSatButton() const { return m_hueSat; }
+    [[nodiscard]] QToolButton* chromaLumaButton() const { return m_chromaLuma; }
+    [[nodiscard]] QToolButton* resetPinButton() const { return m_resetPin; }
+    [[nodiscard]] QToolButton* resetGridButton() const { return m_resetGrid; }
+    /// Puts every pin of both grids back (the palette's Reset).
+    void resetAll();
+
+private:
+    void refresh();
+    void commit(const GradeWarp& warp, const QString& label);
+
+    QPointer<ColorSession> m_session;
+    WarperGrid* m_gridWidget = nullptr;
+    QToolButton* m_hueSat = nullptr;
+    QToolButton* m_chromaLuma = nullptr;
+    QComboBox* m_resolution = nullptr;
+    QToolButton* m_resetPin = nullptr;
+    QToolButton* m_resetGrid = nullptr;
     bool m_refreshing = false;
 };
 

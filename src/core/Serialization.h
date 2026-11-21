@@ -134,7 +134,11 @@ namespace kk::serialization {
 ///   grade node may carry the "agx..." parameters. Files of versions 1 - 21 have none and look
 ///   exactly as before; older builds refuse version 22 instead of silently showing the
 ///   untoned picture.
-inline constexpr int kFormatVersion = 22;
+/// - 23 (color warper branch): a grade node may carry "warp" ({"res": 0..2, "hueSat": [...],
+///   "chromaLuma": [...]}, the pin displacements) and the "hdr..." parameters of the HDR palette.
+///   Files of versions 1 - 22 have none and look exactly as before; older builds refuse version
+///   23 instead of silently dropping the warped colours.
+inline constexpr int kFormatVersion = 23;
 
 /// The "toneMap" object of a project or timeline, and back (unknown or missing = none).
 [[nodiscard]] QJsonObject toneMapToJson(const ToneMap& map);

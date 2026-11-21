@@ -36,6 +36,8 @@ class LutBrowser;
 class BlurPanel;
 class RgbMixerPanel;
 class AgxPanel;
+class WarperPanel;
+class HdrPanel;
 class ColorTrackerPanel;
 class PanelFrame;
 class PrimariesPanel;
@@ -78,7 +80,9 @@ public:
         Tracker,
         RgbMixer,
         Agx,
-        Log
+        Log,
+        Warper,
+        Hdr
     };
 
     explicit ColorPage(AppContext& ctx, QWidget* parent = nullptr);
@@ -104,6 +108,8 @@ public:
     [[nodiscard]] BlurPanel* blur() const { return m_blur; }
     [[nodiscard]] RgbMixerPanel* rgbMixer() const { return m_rgbMixer; }
     [[nodiscard]] AgxPanel* agx() const { return m_agx; }
+    [[nodiscard]] WarperPanel* warper() const { return m_warper; }
+    [[nodiscard]] HdrPanel* hdr() const { return m_hdr; }
     [[nodiscard]] ColorTrackerPanel* tracker() const { return m_tracker; }
     [[nodiscard]] KeyPanel* keyPanel() const { return m_key; }
     [[nodiscard]] ScopesPanel* scopes() const { return m_scopes; }
@@ -180,6 +186,8 @@ private:
     BlurPanel* m_blur = nullptr;
     RgbMixerPanel* m_rgbMixer = nullptr;
     AgxPanel* m_agx = nullptr;
+    WarperPanel* m_warper = nullptr;
+    HdrPanel* m_hdr = nullptr;
     ColorTrackerPanel* m_tracker = nullptr;
     KeyPanel* m_key = nullptr;
     ColorGallery* m_gallery = nullptr;

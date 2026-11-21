@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cmath>
 #include <numbers>
+#include <tuple>
 #include <vector>
 
 namespace kk::grademath {
@@ -1405,6 +1406,241 @@ void applyMatteFinesse(const MatteFinesse& f, std::vector<float>& m, int w, int 
         for (float& v : m)
             v = matteRatio(v, f.ratio);
     }
+}
+
+
+// ---- HDR palette ----
+
+HdrValues HdrValues::at(const GradeNode& node, int64_t f)
+{
+    namespace gk = gradekeys;
+    static const gk::Wheel zoneWheels[kHdrZones] = {gk::Wheel::HdrGlobal, gk::Wheel::HdrShadow,
+        gk::Wheel::HdrLight, gk::Wheel::HdrHighlight, gk::Wheel::HdrSpecular};
+    const QString* const sats[kHdrZones] = {&gk::HdrGlobalSat, &gk::HdrShadowSat,
+        &gk::HdrLightSat, &gk::HdrHighlightSat, &gk::HdrSpecularSat};
+    HdrValues v;
+    for (int z = 0; z < kHdrZones; ++z) {
+        const float master = float(node.value(gk::wheelKey(zoneWheels[z], 3), f));
+        for (int ch = 0; ch < 3; ++ch)
+            v.stops[z][ch] = master
+                + kHdrTintStops * float(node.value(gk::wheelKey(zoneWheels[z], ch), f));
+        v.sat[z] = float(node.value(*sats[z], f));
+    }
+    const QString* const edges[3] = {&gk::HdrShadowRange, &gk::HdrLightRange, &gk::HdrHighlightRange};
+    const QString* const falls[3]
+        = {&gk::HdrShadowFalloff, &gk::HdrLightFalloff, &gk::HdrHighlightFalloff};
+    for (int k = 0; k < 3; ++k) {
+        v.edge[k] = float(node.value(*edges[k], f));
+        if (k > 0)
+            v.edge[k] = std::max(v.edge[k], v.edge[k - 1]); // the zones stay in order
+        v.falloff[k] = std::max(float(node.value(*falls[k], f)), 0.0f);
+    }
+    const gk::Wheel black = gk::Wheel::HdrBlack;
+    const float master = float(node.value(gk::wheelKey(black, 3), f));
+    for (int ch = 0; ch < 3; ++ch)
+        v.black[ch] = kHdrBlackScale * (master + float(node.value(gk::wheelKey(black, ch), f)));
+    return v;
+}
+
+bool HdrValues::isIdentity() const
+{
+    for (int z = 0; z < kHdrZones; ++z) {
+        if (sat[z] != 1.0f)
+            return false;
+        for (int ch = 0; ch < 3; ++ch) {
+            if (stops[z][ch] != 0.0f)
+                return false;
+        }
+    }
+    return black[0] == 0.0f && black[1] == 0.0f && black[2] == 0.0f;
+}
+
+namespace {
+float smoothEdge(float e0, float e1, float x)
+{
+    const float t = std::clamp((x - e0) / (e1 - e0), 0.0f, 1.0f);
+    return t * t * (3.0f - 2.0f * t);
+}
+} // namespace
+
+void applyHdr(const HdrValues& v, float c[3])
+{
+    float lin[3];
+    for (int i = 0; i < 3; ++i)
+        lin[i] = std::copysign(std::pow(std::fabs(c[i]), kHdrGamma), c[i]);
+    const float e = std::log2(std::max(luma(lin), 1e-6f) / kHdrMidGrey);
+    float s[3];
+    for (int k = 0; k < 3; ++k) {
+        const float half = 0.5f * std::max(v.falloff[k], 0.01f);
+        s[k] = smoothEdge(v.edge[k] - half, v.edge[k] + half, e);
+    }
+    const float w[kHdrZones] = {
+        1.0f, 1.0f - s[0], std::max(s[0] - s[1], 0.0f), std::max(s[1] - s[2], 0.0f), s[2]};
+    float sat = 1.0f;
+    for (int z = 1; z < kHdrZones; ++z)
+        sat += w[z] * (v.sat[z] - 1.0f);
+    sat *= v.sat[0];
+    for (int ch = 0; ch < 3; ++ch) {
+        float st = v.stops[0][ch];
+        for (int z = 1; z < kHdrZones; ++z)
+            st += w[z] * v.stops[z][ch];
+        lin[ch] *= std::exp2(st);
+    }
+    const float y = luma(lin);
+    for (int ch = 0; ch < 3; ++ch) {
+        float o = y + sat * (lin[ch] - y);
+        o += v.black[ch] * (1.0f - std::clamp(o, 0.0f, 1.0f));
+        c[ch] = std::copysign(std::pow(std::fabs(o), 1.0f / kHdrGamma), o);
+    }
+}
+
+// ---- Color Warper ----
+//
+// The mesh warp is our own: a displacement field over the Hue - Sat and the Chroma - Luma planes,
+// held on a regular mesh of pins and interpolated with smoothstep-weighted bilinear blending
+// (zero slope at every pin, so a pin's colour lands exactly on the pin and the field is C1
+// between them). The idea of moving colours with pins on a grid follows the zone based tools
+// of darktable (color zones) and the hue / saturation warps of Natron's colour correct nodes;
+// no code of either was used.
+
+namespace {
+
+void sampleMesh(const std::vector<float>& t, int rowBase, int cols, int rows, bool wrap, float fx,
+    float fy, float out[2])
+{
+    int x0 = 0, x1 = 0;
+    float tx = 0.0f;
+    if (wrap) {
+        fx -= std::floor(fx);
+        const float gx = fx * float(cols);
+        x0 = std::min(int(gx), cols - 1);
+        tx = gx - float(x0);
+        x1 = (x0 + 1) % cols;
+    } else {
+        const float gx = std::clamp(fx, 0.0f, 1.0f) * float(cols - 1);
+        x0 = std::min(int(gx), cols - 2);
+        tx = gx - float(x0);
+        x1 = x0 + 1;
+    }
+    const float gy = std::clamp(fy, 0.0f, 1.0f) * float(rows - 1);
+    const int y0 = std::min(int(gy), rows - 2);
+    const float ty = gy - float(y0);
+    tx = tx * tx * (3.0f - 2.0f * tx);
+    const float uy = ty * ty * (3.0f - 2.0f * ty);
+    const auto at = [&](int x, int y) { return &t[(size_t(rowBase + y) * kWarpTexWidth + size_t(x)) * 2]; };
+    for (int k = 0; k < 2; ++k) {
+        const float a = at(x0, y0)[k] + (at(x1, y0)[k] - at(x0, y0)[k]) * tx;
+        const float b = at(x0, y0 + 1)[k] + (at(x1, y0 + 1)[k] - at(x0, y0 + 1)[k]) * tx;
+        out[k] = a + (b - a) * uy;
+    }
+}
+
+} // namespace
+
+WarpTables WarpTables::bake(const GradeWarp& warp)
+{
+    WarpTables t;
+    t.texels.assign(size_t(kWarpTexWidth) * kWarpTexHeight * 2, 0.0f);
+    std::tie(t.hsCols, t.hsRows) = warpGridSize(WarpGrid::HueSat, warp.resolution);
+    std::tie(t.clCols, t.clRows) = warpGridSize(WarpGrid::ChromaLuma, warp.resolution);
+    const auto put = [&](int x, int y, float dx, float dy) {
+        float* p = &t.texels[(size_t(y) * kWarpTexWidth + size_t(x)) * 2];
+        p[0] = dx;
+        p[1] = dy;
+    };
+    for (int row = 1; row < t.hsRows; ++row) { // row 0 is the grey centre: it stays
+        for (int col = 0; col < t.hsCols; ++col) {
+            const auto [dx, dy] = warp.pin(WarpGrid::HueSat, col, row);
+            put(col, row, dx, dy);
+            t.hs = t.hs || dx != 0.0f || dy != 0.0f;
+        }
+    }
+    for (int row = 0; row < t.clRows; ++row) {
+        for (int col = 0; col < t.clCols; ++col) {
+            auto [dx, dy] = warp.pin(WarpGrid::ChromaLuma, col, row);
+            if (col == 0)
+                dx = 0.0f; // grey stays grey
+            put(col, kWarpMaxRows + row, dx, dy);
+            t.cl = t.cl || dx != 0.0f || dy != 0.0f;
+        }
+    }
+    return t;
+}
+
+void WarpTables::sampleHueSat(float hue, float sat, float out[2]) const
+{
+    sampleMesh(texels, 0, hsCols, hsRows, true, hue, sat, out);
+}
+
+void WarpTables::sampleChromaLuma(float sat, float lum, float out[2]) const
+{
+    sampleMesh(texels, kWarpMaxRows, clCols, clRows, false, sat, lum, out);
+}
+
+void applyWarp(const WarpTables& t, float c[3])
+{
+    constexpr float kTwoPi = 2.0f * std::numbers::pi_v<float>;
+    const float y = luma(c);
+    float cb = (c[2] - y) / kWarpCbScale;
+    float cr = (c[0] - y) / kWarpCrScale;
+    const float chroma = std::sqrt(cb * cb + cr * cr);
+    float s = chroma / kWarpChromaMax;
+    if (t.hs && chroma > 1e-6f) {
+        float h = std::atan2(cr, cb) / kTwoPi;
+        h -= std::floor(h);
+        float d[2];
+        t.sampleHueSat(h, s, d);
+        h += d[0];
+        s = std::max(s + d[1], 0.0f);
+        const float ch = s * kWarpChromaMax;
+        cb = ch * std::cos(kTwoPi * h);
+        cr = ch * std::sin(kTwoPi * h);
+    }
+    float yo = y;
+    if (t.cl) {
+        float d[2];
+        t.sampleChromaLuma(s, y, d);
+        const float s2 = std::max(s + d[0], 0.0f);
+        if (s > 1e-6f) {
+            cb *= s2 / s;
+            cr *= s2 / s;
+        }
+        yo = y + d[1];
+    }
+    c[0] = yo + kWarpCrScale * cr;
+    c[2] = yo + kWarpCbScale * cb;
+    c[1] = (yo - kLumaR * c[0] - kLumaB * c[2]) / kLumaG;
+}
+
+GradeWarp resampleWarp(const GradeWarp& warp, int resolution)
+{
+    resolution = std::clamp(resolution, 0, kWarpResolutions - 1);
+    if (resolution == warp.resolution)
+        return warp;
+    const WarpTables old = WarpTables::bake(warp);
+    GradeWarp out;
+    out.resolution = quint8(resolution);
+    if (old.hs) {
+        const auto [cols, rows] = warpGridSize(WarpGrid::HueSat, resolution);
+        for (int row = 1; row < rows; ++row) {
+            for (int col = 0; col < cols; ++col) {
+                float d[2];
+                old.sampleHueSat(float(col) / float(cols), float(row) / float(rows - 1), d);
+                out.setPin(WarpGrid::HueSat, col, row, d[0], d[1]);
+            }
+        }
+    }
+    if (old.cl) {
+        const auto [cols, rows] = warpGridSize(WarpGrid::ChromaLuma, resolution);
+        for (int row = 0; row < rows; ++row) {
+            for (int col = 0; col < cols; ++col) {
+                float d[2];
+                old.sampleChromaLuma(float(col) / float(cols - 1), float(row) / float(rows - 1), d);
+                out.setPin(WarpGrid::ChromaLuma, col, row, d[0], d[1]);
+            }
+        }
+    }
+    return out;
 }
 
 } // namespace kk::grademath

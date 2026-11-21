@@ -116,6 +116,9 @@ public:
         const QString& label);
     /// Replaces the qualifier of node @p nodeId (0: selected).
     bool setQualifier(quint64 nodeId, const GradeQualifier& qualifier, const QString& label);
+    /// Replaces the Color Warper of node @p nodeId (0: selected); a pin drag calls this between
+    /// beginGesture() and endGesture(), so the whole drag is one undo step.
+    bool setWarp(quint64 nodeId, const GradeWarp& warp, const QString& label);
     /// Sets the LUT of node @p nodeId (0: selected; empty path removes it).
     bool setLut(quint64 nodeId, const QString& path);
     /// Color > Add / Remove Keyframe: keys every parameter of node @p nodeId (0: selected; an

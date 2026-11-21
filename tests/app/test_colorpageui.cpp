@@ -1043,6 +1043,185 @@ private slots:
         QVERIFY(!agx->enableBox()->isChecked());
     }
 
+    void hdrPalette()
+    {
+        Fixture f;
+        f.showPage();
+        ColorPage* page = f.page();
+        auto* tab = page->findChild<QAbstractButton*>(QStringLiteral("ColorPaletteTab_11"));
+        QVERIFY(tab);
+        QCOMPARE(tab->text(), QStringLiteral("HDR"));
+        tab->click();
+        QCOMPARE(page->currentPalette(), ColorPage::Palette::Hdr);
+        HdrPanel* hdr = page->hdr();
+        QVERIFY(hdr && hdr->isVisible());
+        // Black Offset, Global, Shadow, Light, Highlight and Specular wheels (in that order on
+        // screen) with Y R G B fields, every field with a tool tip.
+        const gk::Wheel wheels[] = {gk::Wheel::HdrBlack, gk::Wheel::HdrGlobal, gk::Wheel::HdrShadow,
+            gk::Wheel::HdrLight, gk::Wheel::HdrHighlight, gk::Wheel::HdrSpecular};
+        int lastX = -1;
+        for (const gk::Wheel w : wheels) {
+            ColorWheel* wheel = hdr->wheel(w);
+            QVERIFY(wheel && wheel->isVisible());
+            QVERIFY(wheel->mapTo(hdr, QPoint(0, 0)).x() > lastX);
+            lastX = wheel->mapTo(hdr, QPoint(0, 0)).x();
+            for (int ch = 0; ch < 4; ++ch) {
+                ValueField* field = hdr->field(gk::wheelKey(w, ch));
+                QVERIFY2(field, qPrintable(gk::wheelKey(w, ch)));
+                QVERIFY2(!field->toolTip().isEmpty(), qPrintable(gk::wheelKey(w, ch)));
+            }
+        }
+        for (const QString& key : gk::hdrKeys()) {
+            ValueField* field = hdr->field(key);
+            QVERIFY2(field, qPrintable(key));
+            QCOMPARE(field->value(), gk::defaultValue(key));
+        }
+        // Typing a value is one undo step (the first edit makes the node) and is saved in the grade.
+        const int base = f.steps();
+        Q_EMIT hdr->field(gk::HdrGlobalY)->valueCommitted(1.0);
+        QCOMPARE(f.steps(), base + 1);
+        QCOMPARE(f.session()->currentNode()->value(gk::HdrGlobalY, 0), 1.0);
+        QCOMPARE(f.grade(f.clips[0]).nodes[0].value(gk::HdrGlobalY, 0), 1.0);
+        Q_EMIT hdr->field(gk::HdrLightRange)->valueCommitted(0.5);
+        QCOMPARE(f.session()->currentNode()->value(gk::HdrLightRange, 0), 0.5);
+        // A drag on the Shadow wheel is one step and writes the HDR shadow keys only.
+        ColorWheel* shadow = hdr->wheel(gk::Wheel::HdrShadow);
+        const int beforeDrag = f.steps();
+        const QPointF c = shadow->discRect().center();
+        drag(shadow, c, c + QPointF(-15, 10));
+        QCOMPARE(f.steps(), beforeDrag + 1);
+        const GradeNode* n = f.session()->currentNode();
+        QVERIFY(n->value(gk::HdrShadowR, 0) != 0.0 || n->value(gk::HdrShadowB, 0) != 0.0);
+        QCOMPARE(n->value(gk::HdrGlobalR, 0), 0.0);
+        QCOMPARE(n->value(gk::LogShadowR, 0), 0.0);
+        // The master strip is the zone's exposure in stops.
+        const int beforeStrip = f.steps();
+        const QPointF s = shadow->stripRect().center();
+        drag(shadow, s, s + QPointF(20, 0));
+        QCOMPARE(f.steps(), beforeStrip + 1);
+        QVERIFY(f.session()->currentNode()->value(gk::HdrShadowY, 0) > 0.0);
+        // The grade is not an identity: it renders.
+        QVERIFY(!kk::gradeops::isIdentity(f.grade(f.clips[0]), 0));
+        // One undo step takes the strip drag back; a double-click on a wheel resets it.
+        f.action("edit.undo")->trigger();
+        QCOMPARE(f.session()->currentNode()->value(gk::HdrShadowY, 0), 0.0);
+        QTest::mouseDClick(shadow, Qt::LeftButton, {}, c.toPoint());
+        QCOMPARE(f.session()->currentNode()->value(gk::HdrShadowR, 0), 0.0);
+        // The palette's Reset puts every HDR value back.
+        auto* reset = page->findChild<QToolButton*>(QStringLiteral("ColorPaletteReset"));
+        QVERIFY(reset);
+        reset->click();
+        for (const QString& key : gk::hdrKeys())
+            QCOMPARE(f.session()->currentNode()->value(key, 0), gk::defaultValue(key));
+        QVERIFY(kk::gradeops::isIdentity(f.grade(f.clips[0]), 0));
+    }
+
+    void warperPalette()
+    {
+        Fixture f;
+        f.showPage();
+        ColorPage* page = f.page();
+        auto* tab = page->findChild<QAbstractButton*>(QStringLiteral("ColorPaletteTab_10"));
+        QVERIFY(tab);
+        QCOMPARE(tab->text(), QStringLiteral("Color Warper"));
+        tab->click();
+        QCOMPARE(page->currentPalette(), ColorPage::Palette::Warper);
+        WarperPanel* warper = page->warper();
+        QVERIFY(warper && warper->isVisible());
+        WarperGrid* grid = warper->gridWidget();
+        QVERIFY(grid && grid->isVisible());
+        QCOMPARE(grid->grid(), WarpGrid::HueSat);
+        QCOMPARE(warper->resolutionBox()->currentIndex(), 1);
+        for (QWidget* w : {static_cast<QWidget*>(warper->resolutionBox()),
+                 static_cast<QWidget*>(warper->hueSatButton()),
+                 static_cast<QWidget*>(warper->chromaLumaButton()),
+                 static_cast<QWidget*>(warper->resetPinButton()),
+                 static_cast<QWidget*>(warper->resetGridButton()), static_cast<QWidget*>(grid)})
+            QVERIFY2(!w->toolTip().isEmpty(), qPrintable(w->objectName()));
+        QVERIFY(!warper->resetPinButton()->isEnabled()); // no pin selected
+        // The grey centre cannot be picked.
+        QVERIFY(!grid->isMovable(0, 0));
+        QVERIFY(grid->isMovable(3, 4));
+        // A click selects a pin without a step; a drag moves it: one undo step for the whole drag.
+        const int base = f.steps();
+        const QPointF pin = grid->pinPosition(3, 4);
+        QTest::mouseClick(grid, Qt::LeftButton, {}, pin.toPoint());
+        QCOMPARE(grid->selectedPin(), QPoint(3, 4));
+        QVERIFY(warper->resetPinButton()->isEnabled());
+        QCOMPARE(f.steps(), base);
+        const QPointF target = pin + QPointF(4, -3);
+        drag(grid, pin, target);
+        QCOMPARE(f.steps(), base + 1);
+        const GradeNode* n = f.session()->currentNode();
+        QVERIFY(n);
+        const auto [dx, dy] = n->warp.pin(WarpGrid::HueSat, 3, 4);
+        QVERIFY(dx != 0.0f || dy != 0.0f);
+        QVERIFY(QLineF(grid->pinPosition(3, 4), target).length() < 2.5);
+        QVERIFY(n->warp.isIdentity(WarpGrid::ChromaLuma));
+        // Saved with the clip's grade, and the node now changes the picture.
+        const ClipGrade stored = f.grade(f.clips[0]);
+        QCOMPARE(stored.nodes[0].warp, n->warp);
+        QVERIFY(!kk::gradeops::isIdentity(stored, 0));
+        // Undo takes the whole drag back, redo brings it again.
+        f.action("edit.undo")->trigger();
+        const ClipGrade undone = f.grade(f.clips[0]);
+        QVERIFY(undone.nodes.isEmpty() || undone.nodes[0].warp.isIdentity());
+        f.action("edit.redo")->trigger();
+        QCOMPARE(f.grade(f.clips[0]).nodes[0].warp, stored.nodes[0].warp);
+        // Arrow keys nudge the selected pin (one step each), Delete puts it back.
+        const int beforeKeys = f.steps();
+        QTest::keyClick(grid, Qt::Key_Right);
+        QCOMPARE(f.steps(), beforeKeys + 1);
+        QVERIFY(f.session()->currentNode()->warp.pin(WarpGrid::HueSat, 3, 4).first != dx);
+        QTest::keyClick(grid, Qt::Key_Delete);
+        QCOMPARE(f.steps(), beforeKeys + 2);
+        QVERIFY(f.session()->currentNode()->warp.isIdentity());
+        // A double-click on a moved pin puts it back; Reset Pin does the same for the selection.
+        drag(grid, grid->pinPosition(2, 3), grid->pinPosition(2, 3) + QPointF(3, 3));
+        QVERIFY(!f.session()->currentNode()->warp.isIdentity());
+        QTest::mouseDClick(grid, Qt::LeftButton, {}, grid->pinPosition(2, 3).toPoint());
+        QVERIFY(f.session()->currentNode()->warp.isIdentity());
+        drag(grid, grid->pinPosition(5, 2), grid->pinPosition(5, 2) + QPointF(3, 3));
+        QVERIFY(!f.session()->currentNode()->warp.isIdentity());
+        warper->resetPinButton()->click();
+        QVERIFY(f.session()->currentNode()->warp.isIdentity());
+        // Chroma - Luma: its own grid; the grey axis only moves up and down.
+        warper->chromaLumaButton()->click();
+        QCOMPARE(grid->grid(), WarpGrid::ChromaLuma);
+        QVERIFY(grid->selectedPin().x() < 0);
+        QVERIFY(grid->isMovable(0, 2));
+        const QPointF p0 = grid->pinPosition(0, 2);
+        drag(grid, p0, p0 + QPointF(8, -5));
+        const auto [gx, gy] = f.session()->currentNode()->warp.pin(WarpGrid::ChromaLuma, 0, 2);
+        QCOMPARE(gx, 0.0f);
+        QVERIFY(gy != 0.0f);
+        const QPointF p1 = grid->pinPosition(3, 3);
+        drag(grid, p1, p1 + QPointF(-6, 4));
+        const auto [hx, hy] = f.session()->currentNode()->warp.pin(WarpGrid::ChromaLuma, 3, 3);
+        QVERIFY(hx != 0.0f && hy != 0.0f);
+        QVERIFY(f.session()->currentNode()->warp.isIdentity(WarpGrid::HueSat));
+        // Resolution keeps the colours: the moved pin's vertex exists in the finer mesh as well.
+        warper->hueSatButton()->click();
+        drag(grid, grid->pinPosition(3, 4), grid->pinPosition(3, 4) + QPointF(4, -3));
+        const auto before = f.session()->currentNode()->warp.pin(WarpGrid::HueSat, 3, 4);
+        const int beforeRes = f.steps();
+        Q_EMIT warper->resolutionBox()->activated(2);
+        QCOMPARE(f.steps(), beforeRes + 1);
+        const GradeWarp fine = f.session()->currentNode()->warp;
+        QCOMPARE(int(fine.resolution), 2);
+        QVERIFY(std::abs(fine.pin(WarpGrid::HueSat, 6, 7).first - before.first) < 1e-6f);
+        QVERIFY(std::abs(fine.pin(WarpGrid::HueSat, 6, 7).second - before.second) < 1e-6f);
+        QCOMPARE(warper->resolutionBox()->currentIndex(), 2);
+        // Reset Grid empties the shown grid only; the palette's Reset empties everything.
+        warper->resetGridButton()->click();
+        QVERIFY(f.session()->currentNode()->warp.isIdentity(WarpGrid::HueSat));
+        QVERIFY(!f.session()->currentNode()->warp.isIdentity(WarpGrid::ChromaLuma));
+        auto* reset = page->findChild<QToolButton*>(QStringLiteral("ColorPaletteReset"));
+        QVERIFY(reset);
+        reset->click();
+        QVERIFY(f.session()->currentNode()->warp.isIdentity());
+    }
+
     void trackerPalette()
     {
         Fixture f;

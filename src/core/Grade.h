@@ -394,13 +394,62 @@ inline const QString AgxOutput = QStringLiteral("agxOutput"); ///< AgxOutput; de
 /// True for an AgX key.
 [[nodiscard]] bool isAgxKey(QStringView key);
 
+
+// HDR palette (see grademath::HdrValues): six wheels, each R, G, B (puck, 0 = neutral; 1.0 is
+// 4 stops of tint) and the master Y = exposure in stops (-4..4); a saturation per zone (factor,
+// default 1); the Range (the zone's upper edge, in stops from mid grey 18 %) and Falloff
+// (width of the transition, stops) of Shadow, Light and Highlight. The Black Offset wheel is
+// additive in linear light and fades out towards white.
+inline const QString HdrGlobalR = QStringLiteral("hdrGlobalR");
+inline const QString HdrGlobalG = QStringLiteral("hdrGlobalG");
+inline const QString HdrGlobalB = QStringLiteral("hdrGlobalB");
+inline const QString HdrGlobalY = QStringLiteral("hdrGlobalY");
+inline const QString HdrShadowR = QStringLiteral("hdrShadowR");
+inline const QString HdrShadowG = QStringLiteral("hdrShadowG");
+inline const QString HdrShadowB = QStringLiteral("hdrShadowB");
+inline const QString HdrShadowY = QStringLiteral("hdrShadowY");
+inline const QString HdrLightR = QStringLiteral("hdrLightR");
+inline const QString HdrLightG = QStringLiteral("hdrLightG");
+inline const QString HdrLightB = QStringLiteral("hdrLightB");
+inline const QString HdrLightY = QStringLiteral("hdrLightY");
+inline const QString HdrHighlightR = QStringLiteral("hdrHighlightR");
+inline const QString HdrHighlightG = QStringLiteral("hdrHighlightG");
+inline const QString HdrHighlightB = QStringLiteral("hdrHighlightB");
+inline const QString HdrHighlightY = QStringLiteral("hdrHighlightY");
+inline const QString HdrSpecularR = QStringLiteral("hdrSpecularR");
+inline const QString HdrSpecularG = QStringLiteral("hdrSpecularG");
+inline const QString HdrSpecularB = QStringLiteral("hdrSpecularB");
+inline const QString HdrSpecularY = QStringLiteral("hdrSpecularY");
+inline const QString HdrBlackR = QStringLiteral("hdrBlackR");
+inline const QString HdrBlackG = QStringLiteral("hdrBlackG");
+inline const QString HdrBlackB = QStringLiteral("hdrBlackB");
+inline const QString HdrBlackY = QStringLiteral("hdrBlackY");
+inline const QString HdrGlobalSat = QStringLiteral("hdrGlobalSat"); ///< factor; default 1
+inline const QString HdrShadowSat = QStringLiteral("hdrShadowSat");
+inline const QString HdrLightSat = QStringLiteral("hdrLightSat");
+inline const QString HdrHighlightSat = QStringLiteral("hdrHighlightSat");
+inline const QString HdrSpecularSat = QStringLiteral("hdrSpecularSat");
+inline const QString HdrShadowRange = QStringLiteral("hdrShadowRange"); ///< stops; default -1.5
+inline const QString HdrShadowFalloff = QStringLiteral("hdrShadowFalloff"); ///< stops; default 1.5
+inline const QString HdrLightRange = QStringLiteral("hdrLightRange"); ///< default 1
+inline const QString HdrLightFalloff = QStringLiteral("hdrLightFalloff");
+inline const QString HdrHighlightRange = QStringLiteral("hdrHighlightRange"); ///< default 3
+inline const QString HdrHighlightFalloff = QStringLiteral("hdrHighlightFalloff");
+/// The HDR keys, in palette order (wheels first).
+[[nodiscard]] const QVector<QString>& hdrKeys();
+/// True for an HDR palette key.
+[[nodiscard]] bool isHdrKey(QStringView key);
+/// True for the Range / Falloff keys (they matter only together with a wheel or saturation).
+[[nodiscard]] bool isHdrZoneKey(QStringView key);
+
 /// The blur palette keys (every key above from BlurRadiusR on), in palette order.
 [[nodiscard]] const QVector<QString>& blurKeys();
 /// True for a blur palette key.
 [[nodiscard]] bool isBlurKey(QStringView key);
 
 /// The colour wheels: the four of the Primaries palette (Lift, Gamma, Gain, Offset) and the four
-/// of the Log palette (Shadow, Midtone, Highlight, Offset), each in palette order.
+/// of the Log palette (Shadow, Midtone, Highlight, Offset), each in palette order; then the six of
+/// the HDR palette (Global, Shadow, Light, Highlight, Specular, Black Offset).
 enum class Wheel : quint8 {
     Lift,
     Gamma,
@@ -409,10 +458,16 @@ enum class Wheel : quint8 {
     LogShadow,
     LogMidtone,
     LogHighlight,
-    LogOffset
+    LogOffset,
+    HdrGlobal,
+    HdrShadow,
+    HdrLight,
+    HdrHighlight,
+    HdrSpecular,
+    HdrBlack
 };
 /// Number of Wheel values.
-inline constexpr int kWheelCount = 8;
+inline constexpr int kWheelCount = 14;
 /// Key of channel @p channel (0 R, 1 G, 2 B, 3 master Y) of wheel @p wheel.
 [[nodiscard]] const QString& wheelKey(Wheel wheel, int channel);
 /// Documented default of grade parameter @p key (unknown keys: 0).
@@ -440,6 +495,46 @@ struct ToneMap
     bool agx = false;
     AgxLook look = AgxLook::None;
     friend bool operator==(const ToneMap&, const ToneMap&) = default;
+};
+
+/// The Color Warper palette of a node: two pin meshes that move colours smoothly. Hue - Sat:
+/// the columns run round the hue circle (they wrap), the rows from the grey centre (row 0) out
+/// to full saturation. Chroma - Luma: the columns run from grey (column 0) to full chroma, the
+/// rows from black to white. Every vertex holds a displacement (dx, dy) of that vertex's colour:
+/// Hue - Sat (turns of hue, saturation); Chroma - Luma (chroma, luma). The grey axis stays grey:
+/// Hue - Sat row 0 and the dx of Chroma - Luma column 0 count as 0 whatever is stored.
+/// Empty vectors = no pin moved.
+inline constexpr int kWarpMaxCols = 24;
+inline constexpr int kWarpMaxRows = 8;
+/// Number of resolution levels (Low, Medium, High).
+inline constexpr int kWarpResolutions = 3;
+enum class WarpGrid : quint8 { HueSat, ChromaLuma };
+/// Columns and rows of @p grid at resolution level @p resolution (0..2, clamped).
+[[nodiscard]] std::pair<int, int> warpGridSize(WarpGrid grid, int resolution);
+
+struct GradeWarp
+{
+    quint8 resolution = 1; ///< 0 Low, 1 Medium, 2 High
+    QVector<float> hueSat; ///< 2 floats per vertex, index (row * cols + col) * 2
+    QVector<float> chromaLuma;
+
+    [[nodiscard]] const QVector<float>& pins(WarpGrid grid) const
+    {
+        return grid == WarpGrid::HueSat ? hueSat : chromaLuma;
+    }
+    [[nodiscard]] QVector<float>& pins(WarpGrid grid)
+    {
+        return grid == WarpGrid::HueSat ? hueSat : chromaLuma;
+    }
+    /// True if no pin of @p grid is moved.
+    [[nodiscard]] bool isIdentity(WarpGrid grid) const;
+    /// True if neither mesh moves a colour.
+    [[nodiscard]] bool isIdentity() const;
+    /// Displacement of vertex (@p col, @p row) of @p grid (0, 0 if none is stored).
+    [[nodiscard]] std::pair<float, float> pin(WarpGrid grid, int col, int row) const;
+    /// Sets that vertex's displacement (allocates the mesh; clears it again when all are 0).
+    void setPin(WarpGrid grid, int col, int row, float dx, float dy);
+    friend bool operator==(const GradeWarp&, const GradeWarp&) = default;
 };
 
 /// One frame of a node's tracker data (Color page Tracker palette): how the tracked subject
@@ -493,6 +588,7 @@ struct GradeNode
     bool enabled = true; ///< false = bypassed: passes its input through (Ctrl+D)
     ParamSet params; ///< gradekeys::*
     GradeCurves curves;
+    GradeWarp warp; ///< Color Warper pins (after the curves, before the LUT)
     GradeQualifier qualifier;
     QVector<GradeWindow> windows;
     GradeTrack track; ///< tracker data: the windows follow the subject

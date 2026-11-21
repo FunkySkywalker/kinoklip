@@ -330,6 +330,43 @@ class TestGradeRender : public QObject
                 primariesGrade({{gk::AgxOn, 1.0}, {gk::AgxInput, 3.0}})});
         }
         {
+            // HDR palette: exposure and tint of each zone, saturation, ranges, Black Offset.
+            out.append({QStringLiteral("hdr_global"),
+                primariesGrade({{gk::HdrGlobalY, 1.0}, {gk::HdrGlobalR, 0.1}, {gk::HdrGlobalB, -0.05}})});
+            out.append({QStringLiteral("hdr_zones"),
+                primariesGrade({{gk::HdrShadowY, 2.0}, {gk::HdrShadowG, 0.08}, {gk::HdrLightB, 0.12},
+                    {gk::HdrHighlightY, -1.0}, {gk::HdrSpecularSat, 0.3}, {gk::HdrLightRange, 0.5},
+                    {gk::HdrLightFalloff, 2.5}, {gk::HdrBlackY, 0.5}, {gk::HdrBlackR, 0.05}})});
+            out.append({QStringLiteral("hdr_sat_after_primaries"),
+                primariesGrade({{gk::HdrGlobalSat, 0.4}, {gk::HdrShadowSat, 1.8}, {gk::Contrast, 1.2},
+                    {gk::HdrShadowRange, 0.0}})});
+        }
+        {
+            // Color Warper: Hue - Sat, Chroma - Luma, both with the curves and a LUT-free chain.
+            ClipGrade hs = primariesGrade({});
+            ClipGrade cl = primariesGrade({});
+            for (int row = 0; row < 5; ++row) {
+                for (int col = 0; col < 12; ++col)
+                    hs.nodes[0].warp.setPin(WarpGrid::HueSat, col, row,
+                        (col % 2 ? 0.07f : -0.07f), (row % 2 ? 0.15f : -0.1f));
+                for (int col = 0; col < 5; ++col)
+                    cl.nodes[0].warp.setPin(WarpGrid::ChromaLuma, col, row,
+                        (col % 2 ? 0.15f : -0.1f), (row % 2 ? 0.2f : -0.15f));
+            }
+            out.append({QStringLiteral("warp_hue_sat"), hs});
+            out.append({QStringLiteral("warp_chroma_luma"), cl});
+            ClipGrade both = hs;
+            both.nodes[0].warp.chromaLuma = cl.nodes[0].warp.chromaLuma;
+            both.nodes[0].params.setBase(gk::Saturation, 1.3);
+            out.append({QStringLiteral("warp_both_after_primaries"), both});
+            ClipGrade high = primariesGrade({});
+            high.nodes[0].warp.resolution = 2;
+            for (int row = 1; row < 8; row += 2)
+                for (int col = 0; col < 24; col += 3)
+                    high.nodes[0].warp.setPin(WarpGrid::HueSat, col, row, 0.03f, 0.12f);
+            out.append({QStringLiteral("warp_high_resolution"), high});
+        }
+        {
             ClipGrade g = primariesGrade({});
             g.nodes[0].lutPath = m_lut3d;
             out.append({QStringLiteral("lut3d_tetrahedral"), g});

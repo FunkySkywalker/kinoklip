@@ -285,6 +285,43 @@ GradeTrack trackFromJson(const QJsonObject& o)
     return t;
 }
 
+QJsonObject warpToJson(const GradeWarp& warp)
+{
+    QJsonObject o;
+    o[QLatin1String("res")] = int(warp.resolution);
+    for (const WarpGrid grid : {WarpGrid::HueSat, WarpGrid::ChromaLuma}) {
+        if (warp.isIdentity(grid))
+            continue;
+        QJsonArray a;
+        for (const float v : warp.pins(grid))
+            a.append(double(v));
+        o[QLatin1String(grid == WarpGrid::HueSat ? "hueSat" : "chromaLuma")] = a;
+    }
+    return o;
+}
+
+GradeWarp warpFromJson(const QJsonObject& o)
+{
+    GradeWarp warp;
+    warp.resolution = quint8(std::clamp(o.value(QLatin1String("res")).toInt(1), 0, kWarpResolutions - 1));
+    for (const WarpGrid grid : {WarpGrid::HueSat, WarpGrid::ChromaLuma}) {
+        const QJsonArray a
+            = o.value(QLatin1String(grid == WarpGrid::HueSat ? "hueSat" : "chromaLuma")).toArray();
+        const auto [cols, rows] = warpGridSize(grid, warp.resolution);
+        if (a.size() != cols * rows * 2)
+            continue; // damaged: no pins rather than guessed ones
+        QVector<float> v;
+        for (const QJsonValue& x : a) {
+            const double d = x.toDouble();
+            v.append(std::isfinite(d) ? float(std::clamp(d, -2.0, 2.0)) : 0.0f);
+        }
+        warp.pins(grid) = v;
+        if (warp.isIdentity(grid))
+            warp.pins(grid).clear();
+    }
+    return warp;
+}
+
 } // namespace
 
 QJsonObject toneMapToJson(const ToneMap& map)
@@ -333,6 +370,8 @@ QJsonObject gradeToJson(const ClipGrade& grade)
             o[QLatin1String("params")] = paramSetToJson(n.params);
         if (n.curves != GradeCurves {})
             o[QLatin1String("curves")] = curvesToJson(n.curves);
+        if (!n.warp.isIdentity())
+            o[QLatin1String("warp")] = warpToJson(n.warp);
         if (n.qualifier != GradeQualifier {})
             o[QLatin1String("qualifier")] = qualifierToJson(n.qualifier);
         if (!n.windows.isEmpty()) {
@@ -369,6 +408,7 @@ ClipGrade gradeFromJson(const QJsonObject& json)
         n.enabled = o.value(QLatin1String("enabled")).toBool(true);
         n.params = paramSetFromJson(o.value(QLatin1String("params")).toObject());
         n.curves = curvesFromJson(o.value(QLatin1String("curves")).toObject());
+        n.warp = warpFromJson(o.value(QLatin1String("warp")).toObject());
         n.qualifier = qualifierFromJson(o.value(QLatin1String("qualifier")).toObject());
         for (const QJsonValue& w : o.value(QLatin1String("windows")).toArray())
             n.windows.append(windowFromJson(w.toObject()));

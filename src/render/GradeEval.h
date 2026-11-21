@@ -38,7 +38,12 @@ struct PreparedGradeNode
     /// AgX of the node (the last of its corrections, after the LUT).
     grademath::AgxValues agx;
     bool agxOn = false; ///< agx.on
+    /// HDR palette of the node (after the RGB Mixer, before the curves).
+    grademath::HdrValues hdr;
+    bool hdrOn = false; ///< not hdr.isIdentity()
     std::shared_ptr<const grademath::CurveTables> curves; ///< null = identity
+    /// Color Warper of the node (after the curves and Soft Clip, before the LUT); null = identity.
+    std::shared_ptr<const grademath::WarpTables> warp;
     /// Soft Clip of the custom curves (after the curves, before the LUT).
     grademath::SoftClipValues softClip;
     bool softClips = false; ///< not softClip.isIdentity()

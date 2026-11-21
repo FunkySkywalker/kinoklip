@@ -10259,6 +10259,22 @@ Thank you for watching</source>
         <source>grades bypassed</source>
         <translation>коррекции отключены</translation>
     </message>
+    <message>
+        <source>Color Warper</source>
+        <translation>Деформация цвета</translation>
+    </message>
+    <message>
+        <source>Drag pins on the Hue - Sat and Chroma - Luma grids to move colours smoothly.</source>
+        <translation>Перетаскивайте точки на сетках «Оттенок - Насыщенность» и «Цветность - Яркость», чтобы плавно смещать цвета.</translation>
+    </message>
+    <message>
+        <source>HDR</source>
+        <translation>HDR</translation>
+    </message>
+    <message>
+        <source>Colour wheels and exposure for the Shadow, Light, Highlight and Specular zones of the picture, Global and a Black Offset.</source>
+        <translation>Цветовые круги и экспозиция для зон изображения Тень, Свет, Подсветка и Блики, общие настройки и смещение чёрного.</translation>
+    </message>
 </context>
 <context>
     <name>kk::ColorPickOverlay</name>
@@ -10756,6 +10772,22 @@ Thank you for watching</source>
     <message>
         <source>%1: drag the centre to balance the colour, drag the bar below for the master level; Shift for fine control; the arrow at the top right or a double-click resets</source>
         <translation>%1: перетащите центр для баланса цвета, полосу внизу — для общего уровня; Shift для точной настройки; стрелка вверху справа или двойной щелчок сбрасывают значение</translation>
+    </message>
+    <message>
+        <source>Global</source>
+        <translation>Глобальный</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <translation>Свет</translation>
+    </message>
+    <message>
+        <source>Specular</source>
+        <translation>Блики</translation>
+    </message>
+    <message>
+        <source>Black Offset</source>
+        <translation>Смещение чёрного</translation>
     </message>
 </context>
 <context>
@@ -18157,6 +18189,37 @@ Standard transition of this project</source>
     <message>
         <source>Remove</source>
         <translation>Удалить</translation>
+    </message>
+</context>
+<context>
+    <name>kk::HdrPanel</name>
+    <message>
+        <source>Reset %1</source>
+        <translation>Сбросить %1</translation>
+    </message>
+    <message>
+        <source>%1 level</source>
+        <translation>Уровень: %1</translation>
+    </message>
+    <message>
+        <source>%1 exposure (stops)</source>
+        <translation>Экспозиция %1 (в ступенях)</translation>
+    </message>
+    <message>
+        <source>Sat</source>
+        <translation>Нас.</translation>
+    </message>
+    <message>
+        <source>Range</source>
+        <translation>Диапазон</translation>
+    </message>
+    <message>
+        <source>Fall</source>
+        <translation>Спад</translation>
+    </message>
+    <message>
+        <source>Reset HDR</source>
+        <translation>Сброс HDR</translation>
     </message>
 </context>
 <context>
@@ -34560,6 +34623,92 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
     </message>
 </context>
 <context>
+    <name>kk::WarperGrid</name>
+    <message>
+        <source>Click a pin to select it and drag it to move that colour; double-click or Delete puts it back; arrow keys nudge it; Shift while dragging is fine control</source>
+        <translation>Щёлкните точку, чтобы выбрать её, и перетащите, чтобы сместить этот цвет; двойной щелчок или Delete возвращает её; стрелки сдвигают её понемногу; Shift при перетаскивании: точная настройка</translation>
+    </message>
+    <message>
+        <source>Reset Pin</source>
+        <translation>Сбросить точку</translation>
+    </message>
+    <message>
+        <source>Warp Hue - Sat</source>
+        <translation>Деформация Оттенок - Насыщенность</translation>
+    </message>
+    <message>
+        <source>Warp Chroma - Luma</source>
+        <translation>Деформация Цветность - Яркость</translation>
+    </message>
+</context>
+<context>
+    <name>kk::WarperPanel</name>
+    <message>
+        <source>Hue - Sat</source>
+        <translation>Оттенок - Насыщенность</translation>
+    </message>
+    <message>
+        <source>Chroma - Luma</source>
+        <translation>Цветность - Яркость</translation>
+    </message>
+    <message>
+        <source>Move colours by hue and saturation: the angle is the hue, the distance from the centre the saturation</source>
+        <translation>Смещение цветов по оттенку и насыщенности: угол — это оттенок, расстояние от центра — насыщенность</translation>
+    </message>
+    <message>
+        <source>Move colours by chroma and luma: chroma to the right, brightness up</source>
+        <translation>Смещение цветов по цветности и яркости: цветность вправо, яркость вверх</translation>
+    </message>
+    <message>
+        <source>Resolution</source>
+        <translation>Разрешение</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>Низкое</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Среднее</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>Высокое</translation>
+    </message>
+    <message>
+        <source>How many pins the grids have: more pins give finer control. Changing it keeps the colours where they are.</source>
+        <translation>Сколько точек в сетках: больше точек — точнее управление. При смене цвета остаются на своих местах.</translation>
+    </message>
+    <message>
+        <source>Reset Pin</source>
+        <translation>Сбросить точку</translation>
+    </message>
+    <message>
+        <source>Put the selected pin back (also Delete or a double-click)</source>
+        <translation>Вернуть выбранную точку на место (также Delete или двойной щелчок)</translation>
+    </message>
+    <message>
+        <source>Reset Grid</source>
+        <translation>Сбросить сетку</translation>
+    </message>
+    <message>
+        <source>Put every pin of the shown grid back</source>
+        <translation>Вернуть на место все точки показанной сетки</translation>
+    </message>
+    <message>
+        <source>Color Warper</source>
+        <translation>Деформация цвета</translation>
+    </message>
+    <message>
+        <source>Warper Resolution</source>
+        <translation>Разрешение деформации</translation>
+    </message>
+    <message>
+        <source>Reset Color Warper</source>
+        <translation>Сброс деформации цвета</translation>
+    </message>
+</context>
+<context>
     <name>kk::WelcomeDialog</name>
     <message>
         <source>Welcome to %1</source>
@@ -35431,6 +35580,74 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
     <message>
         <source>High Range</source>
         <translation>Верхняя граница</translation>
+    </message>
+    <message>
+        <source>HDR Global</source>
+        <translation>HDR общий</translation>
+    </message>
+    <message>
+        <source>HDR Shadow</source>
+        <translation>HDR Тень</translation>
+    </message>
+    <message>
+        <source>HDR Light</source>
+        <translation>HDR Свет</translation>
+    </message>
+    <message>
+        <source>HDR Highlight</source>
+        <translation>HDR Подсветка</translation>
+    </message>
+    <message>
+        <source>HDR Specular</source>
+        <translation>HDR Блики</translation>
+    </message>
+    <message>
+        <source>Black Offset</source>
+        <translation>Смещение чёрного</translation>
+    </message>
+    <message>
+        <source>HDR Global Saturation</source>
+        <translation>Насыщенность HDR: общая</translation>
+    </message>
+    <message>
+        <source>HDR Shadow Saturation</source>
+        <translation>Насыщенность HDR: тени</translation>
+    </message>
+    <message>
+        <source>HDR Light Saturation</source>
+        <translation>Насыщенность HDR: света</translation>
+    </message>
+    <message>
+        <source>HDR Highlight Saturation</source>
+        <translation>Насыщенность HDR: подсветки</translation>
+    </message>
+    <message>
+        <source>HDR Specular Saturation</source>
+        <translation>Насыщенность HDR: бликов</translation>
+    </message>
+    <message>
+        <source>HDR Shadow Range</source>
+        <translation>Диапазон HDR: тени</translation>
+    </message>
+    <message>
+        <source>HDR Shadow Falloff</source>
+        <translation>Спад HDR: тени</translation>
+    </message>
+    <message>
+        <source>HDR Light Range</source>
+        <translation>Диапазон HDR: света</translation>
+    </message>
+    <message>
+        <source>HDR Light Falloff</source>
+        <translation>Спад HDR: света</translation>
+    </message>
+    <message>
+        <source>HDR Highlight Range</source>
+        <translation>Диапазон HDR: подсветки</translation>
+    </message>
+    <message>
+        <source>HDR Highlight Falloff</source>
+        <translation>Спад HDR: подсветки</translation>
     </message>
 </context>
 <context>

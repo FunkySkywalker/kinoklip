@@ -210,8 +210,8 @@ Still to do:
 - [ ] Compositing: save a transition built on the page as a reusable preset in the Effects Library, Saver output as EXR, and a Saver in a transition graph (spec 128.10)
 - [x] Color: Primaries Shad, Hi, Color Boost, Midtone Detail (MD) and an Auto Color button, and a Log palette (Shadow, Midtone, Highlight, Offset wheels with Low / High Range) (spec 146; keyframes, undo, same maths on GPU and CPU; Auto Color is levels per channel plus a midtone balance, not Resolve's exact analysis)
 - [x] Color: Curves: Sat vs Lum curve, Soft Clip (Low, Low Soft, High, High Soft) and a Pick eyedropper that adds a colour's or luma's points from the viewer (spec 146)
-- [ ] Color: Color Warper palette (Hue - Sat and Chroma - Luma grids)
-- [ ] Color: HDR palette (zones: Global, Shadow, Light, Highlight, Specular)
+- [x] Color: Color Warper palette: Hue - Sat and Chroma - Luma pin grids (Low / Medium / High resolution; select, drag, nudge, reset pins; same maths on GPU and CPU, saved in the project, one undo step per drag) (spec 147)
+- [x] Color: HDR palette: Global, Shadow, Light, Highlight and Specular zones (wheel, exposure, saturation, range and falloff) and a Black Offset (keyframes, undo, same maths on GPU and CPU) (spec 147)
 - [ ] Color: Motion Effects palette: temporal and spatial Noise Reduction with Better / Faster modes
 - [ ] Color: Magic Mask palette: draw a stroke on a person or object and it follows (local open model, optional)
 - [ ] Color: Color Match palette: Shot Match to another clip, and a colour chart

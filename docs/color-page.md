@@ -50,7 +50,7 @@ Decisions:
 - `ClipGrade { nodes, output }` — used for clips (`ClipData::grade`) and timelines
   (`TimelineData::grade`). Empty = ungraded (renders exactly as before, no pass at all).
 - `GradeNode`: `id`, `type` (Corrector, Parallel, Layer), `label`, `enabled` (bypass), `params`
-  (`gradekeys::*`, all keyframeable), `curves` (`GradeCurves`), `qualifier` (`GradeQualifier`),
+  (`gradekeys::*`, all keyframeable), `curves` (`GradeCurves`), `warp` (`GradeWarp`, not keyed), `qualifier` (`GradeQualifier`),
   `windows` (`GradeWindow`), `lutPath` + `lutInterpolation`, `inputs` (node ids, 0 = the grade's
   input picture), `pos` (node editor position). Node and window ids share one id space per grade.
 - **Primaries** (`gradekeys`): Lift / Gamma / Gain / Offset wheels with R, G, B and master Y,
@@ -82,6 +82,8 @@ Decisions:
 - **AgX palette** (spec 112): `G` = primaries -> RGB Mixer -> curves -> LUT -> AgX (input decode, exposure, AgX curve,
   look, output encode; clamped to 0..1). The values are node params (`agx*` keys). The project's output tone
   mapping (`TimelineData::toneMap`) runs the same code as one extra corrector after the timeline grade.
+- **HDR palette** (spec 147): `G` = primaries -> RGB Mixer -> HDR -> curves -> Soft Clip -> Color Warper -> LUT -> AgX. The picture goes to linear light (gamma 2.4); its luma in stops from mid grey (`log2(Y / 0.18)`) weights five zones that sum to 1: Shadow (below the Shadow Range), Light, Highlight, Specular (above the Highlight Range); every edge is a smoothstep of its Falloff in stops. Each zone multiplies the colour by `2^(exposure + 4 * wheel)` per channel and scales its saturation about luma; Global applies everywhere. Black Offset adds linear light that fades towards white. The values are node params (`hdr*` keys, keyframeable).
+- **Color Warper palette** (spec 147): two pin meshes per node (`GradeNode::warp`, project format 23). Hue - Sat: columns round the hue circle, rows from the grey centre to full saturation; Chroma - Luma: chroma to the right, luma up. A pin holds a displacement; between pins it is smoothstep-weighted bilinear (zero slope at the pins, so the pin's colour lands exactly on it). The maths runs in Y / Cb / Cr (Rec. 709): Hue - Sat turns the hue and changes the saturation (luma kept), then Chroma - Luma changes the saturation and the luma (hue kept). Greys stay grey. Resolution Low / Medium / High is 8x4 / 12x5 / 24x8 and 4x4 / 5x5 / 8x8 pins; changing it resamples the field, so the colours stay put. GPU: the meshes are one RG32F texture (`kWarpTexWidth` x `kWarpTexHeight`) read with `texelFetch`.
 - **Tracker palette** (spec 107): the node's tracker data (`GradeTrack`) moves, scales and turns
   every window of the node about the track's pivot before the window matte is evaluated
   (`grademath::trackedWindowGeometry`, used by the GPU pass, the CPU reference and the overlay).

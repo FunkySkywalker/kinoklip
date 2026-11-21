@@ -71,6 +71,10 @@ PreparedGrade prepareGrade(const ClipGrade& grade, int64_t frame, const PictureG
                 p.mixes = !p.mixer.isIdentity();
                 p.agx = AgxValues::at(n, frame);
                 p.agxOn = p.agx.on;
+                p.hdr = HdrValues::at(n, frame);
+                p.hdrOn = !p.hdr.isIdentity();
+                if (!n.warp.isIdentity())
+                    p.warp = std::make_shared<const WarpTables>(WarpTables::bake(n.warp));
                 if (!n.curves.isIdentity())
                     p.curves = std::make_shared<const CurveTables>(CurveTables::bake(n.curves));
                 if (!n.lutPath.isEmpty()) {
@@ -83,8 +87,8 @@ PreparedGrade prepareGrade(const ClipGrade& grade, int64_t frame, const PictureG
                 p.softClips = !p.softClip.isIdentity();
                 p.tetrahedral = n.lutInterpolation == LutInterpolation::Tetrahedral;
                 p.corrects = p.mix > 0.0f
-                    && (!p.primariesIdentity || p.mixes || p.agxOn || p.curves || p.softClips
-                        || p.lut);
+                    && (!p.primariesIdentity || p.mixes || p.agxOn || p.hdrOn || p.curves
+                        || p.softClips || p.warp || p.lut);
                 p.blur = BlurValues::at(n, frame, geometry.height);
                 p.blurs = p.mix > 0.0f && p.blur.active();
                 p.qualifier = n.qualifier;
@@ -151,10 +155,14 @@ void evalNode(const PreparedGrade& g, size_t i, const float rgb[3], float px, fl
             applyPrimaries(n.primaries, c);
         if (n.mixes)
             applyMixer(n.mixer, c);
+        if (n.hdrOn)
+            applyHdr(n.hdr, c);
         if (n.curves)
             applyCurves(*n.curves, c);
         if (n.softClips)
             applySoftClip(n.softClip, c);
+        if (n.warp)
+            applyWarp(*n.warp, c);
         if (n.lut) {
             if (n.tetrahedral)
                 n.lut->applyTetrahedral(c);
@@ -386,10 +394,14 @@ void applyGradeBlurred(const PreparedGrade& g, QImage& image)
                                 applyPrimaries(n.primaries, c);
                             if (n.mixes)
                                 applyMixer(n.mixer, c);
+                            if (n.hdrOn)
+                                applyHdr(n.hdr, c);
                             if (n.curves)
                                 applyCurves(*n.curves, c);
                             if (n.softClips)
                                 applySoftClip(n.softClip, c);
+                            if (n.warp)
+                                applyWarp(*n.warp, c);
                             if (n.lut) {
                                 if (n.tetrahedral)
                                     n.lut->applyTetrahedral(c);

@@ -61,10 +61,20 @@ QString wheelName(Wheel w)
     case Wheel::LogOffset:
         return ColorWheel::tr("Offset");
     case Wheel::LogShadow:
+    case Wheel::HdrShadow:
         return ColorWheel::tr("Shadow");
+    case Wheel::HdrGlobal:
+        return ColorWheel::tr("Global");
+    case Wheel::HdrLight:
+        return ColorWheel::tr("Light");
+    case Wheel::HdrSpecular:
+        return ColorWheel::tr("Specular");
+    case Wheel::HdrBlack:
+        return ColorWheel::tr("Black Offset");
     case Wheel::LogMidtone:
         return ColorWheel::tr("Midtone");
     case Wheel::LogHighlight:
+    case Wheel::HdrHighlight:
         return ColorWheel::tr("Highlight");
     }
     return {};
@@ -73,6 +83,8 @@ QString wheelName(Wheel w)
 /// Name for object names: unique across both palettes.
 QString wheelId(Wheel w)
 {
+    if (int(w) >= int(Wheel::HdrGlobal))
+        return QStringLiteral("Hdr") + QString::number(int(w) - int(Wheel::HdrGlobal));
     return int(w) >= int(Wheel::LogShadow) ? QStringLiteral("Log") + wheelName(w) : wheelName(w);
 }
 
@@ -120,6 +132,13 @@ ColorWheel::ColorWheel(Wheel wheel, QWidget* parent)
                   "level; Shift for fine control; the arrow at the top right or a "
                   "double-click resets")
                    .arg(wheelName(wheel)));
+}
+
+double ColorWheel::masterRange() const
+{
+    if (m_wheel == Wheel::HdrBlack)
+        return 0.25;
+    return int(m_wheel) >= int(Wheel::HdrGlobal) ? 1.0 : range(); // HDR master: exposure, stops
 }
 
 double ColorWheel::range() const
@@ -278,7 +297,7 @@ void ColorWheel::paintEvent(QPaintEvent*)
     }
     p.setPen(QPen(QColor(255, 255, 255, 50), 1));
     p.drawLine(QPointF(s.center().x(), s.top() + 2), QPointF(s.center().x(), s.bottom() - 2));
-    const double t = std::clamp(m_master / range() * 0.5 + 0.5, 0.0, 1.0);
+    const double t = std::clamp(m_master / masterRange() * 0.5 + 0.5, 0.0, 1.0);
     const double x = s.left() + 3 + t * (s.width() - 6);
     p.setPen(Qt::NoPen);
     p.setBrush(m_master == 0.0 ? pal.color(QPalette::Mid) : pal.color(QPalette::Highlight));
@@ -336,7 +355,8 @@ void ColorWheel::mouseMoveEvent(QMouseEvent* event)
         if (fine)
             dx *= 0.25;
         m_master = std::clamp(
-            m_pressMaster + dx / masterThrowPx() * 2 * range(), -range() * 4, range() * 4);
+            m_pressMaster + dx / masterThrowPx() * 2 * masterRange(), -masterRange() * 4,
+            masterRange() * 4);
         update();
         emit masterChanged(m_master);
     }
@@ -758,7 +778,213 @@ void PrimariesPanel::refresh()
     m_refreshing = false;
 }
 
+// ---- HdrPanel ----
+
+HdrPanel::HdrPanel(ColorSession* session, QWidget* parent)
+    : QWidget(parent)
+    , m_session(session)
+{
+    markVimForm(this);
+    setObjectName(QStringLiteral("HdrPanel"));
+    static constexpr Wheel order[] = {Wheel::HdrBlack, Wheel::HdrGlobal, Wheel::HdrShadow,
+        Wheel::HdrLight, Wheel::HdrHighlight, Wheel::HdrSpecular};
+    struct Extra
+    {
+        const QString* sat;
+        const QString* range;
+        const QString* falloff;
+    };
+    const auto extraOf = [](Wheel w) -> Extra {
+        switch (w) {
+        case Wheel::HdrGlobal:
+            return {&gk::HdrGlobalSat, nullptr, nullptr};
+        case Wheel::HdrShadow:
+            return {&gk::HdrShadowSat, &gk::HdrShadowRange, &gk::HdrShadowFalloff};
+        case Wheel::HdrLight:
+            return {&gk::HdrLightSat, &gk::HdrLightRange, &gk::HdrLightFalloff};
+        case Wheel::HdrHighlight:
+            return {&gk::HdrHighlightSat, &gk::HdrHighlightRange, &gk::HdrHighlightFalloff};
+        case Wheel::HdrSpecular:
+            return {&gk::HdrSpecularSat, nullptr, nullptr};
+        default:
+            return {nullptr, nullptr, nullptr};
+        }
+    };
+    auto* layout = new QVBoxLayout(this);
+    layout->setContentsMargins(6, 2, 6, 4);
+    layout->setSpacing(2);
+    auto* wheelsRow = new QHBoxLayout;
+    wheelsRow->setSpacing(6);
+    auto* fieldsRow = new QHBoxLayout;
+    fieldsRow->setSpacing(6);
+    for (const Wheel w : order) {
+        const QString label = wheelName(w);
+        auto* wheel = new ColorWheel(w, this);
+        m_wheels[size_t(w)] = wheel;
+        wheelsRow->addWidget(wheel, 1);
+        connect(wheel, &ColorWheel::dragStarted, this, [this, label] {
+            if (m_session)
+                m_session->beginGesture(label);
+        });
+        connect(wheel, &ColorWheel::dragFinished, this, [this] {
+            if (m_session)
+                m_session->endGesture();
+        });
+        connect(wheel, &ColorWheel::balanceChanged, this,
+            [this, w, label](const std::array<double, 3>& d) {
+                if (m_session)
+                    m_session->setParams(0,
+                        {{gk::wheelKey(w, 0), d[0]}, {gk::wheelKey(w, 1), d[1]},
+                            {gk::wheelKey(w, 2), d[2]}},
+                        label);
+            });
+        connect(wheel, &ColorWheel::masterChanged, this, [this, w, label](double m) {
+            if (m_session)
+                m_session->setParam(0, gk::wheelKey(w, 3), m, label);
+        });
+        connect(wheel, &ColorWheel::resetRequested, this, [this, w] { resetWheel(w); });
+        connect(wheel, &ColorWheel::masterResetRequested, this, [this, w, label] {
+            if (m_session)
+                m_session->setParam(0, gk::wheelKey(w, 3), 0.0, tr("Reset %1").arg(label));
+        });
+
+        auto* column = new QVBoxLayout;
+        column->setSpacing(1);
+        auto* ychan = new QHBoxLayout;
+        ychan->setSpacing(1);
+        for (const int c : {3, 0, 1, 2}) {
+            auto* f = new ValueField(this);
+            const QString& key = gk::wheelKey(w, c);
+            f->setObjectName(QStringLiteral("HdrPalette_") + key);
+            const auto [lo, hi] = gk::range(key);
+            f->setRange(lo, hi);
+            f->setStep(c == 3 ? 0.01 : 0.001);
+            f->setDecimals(c == 3 ? 2 : 3);
+            f->setToolTip(c == 3 ? (w == Wheel::HdrBlack ? tr("%1 level").arg(label)
+                                                         : tr("%1 exposure (stops)").arg(label))
+                                 : gk::label(key));
+            QPalette pal = f->palette();
+            pal.setColor(QPalette::Link, channelColour(c));
+            f->setPalette(pal);
+            f->setMinimumWidth(10);
+            ychan->addWidget(f, 1);
+            bindField(f, key);
+        }
+        column->addLayout(ychan);
+        const Extra extra = extraOf(w);
+        const auto addPair = [&](QHBoxLayout* row, const QString* key, const QString& text,
+                                 double step, int decimals) {
+            auto* name = new QLabel(text, this);
+            name->setObjectName(QStringLiteral("PrimariesLabel"));
+            auto* f = new ValueField(this);
+            f->setObjectName(QStringLiteral("HdrPalette_") + *key);
+            const auto [lo, hi] = gk::range(*key);
+            f->setRange(lo, hi);
+            f->setStep(step);
+            f->setDecimals(decimals);
+            f->setToolTip(gk::label(*key));
+            f->setMinimumWidth(10);
+            row->addWidget(name);
+            row->addWidget(f, 1);
+            bindField(f, *key);
+        };
+        auto* satRow = new QHBoxLayout;
+        satRow->setSpacing(2);
+        if (extra.sat)
+            addPair(satRow, extra.sat, tr("Sat"), 0.005, 2);
+        column->addLayout(satRow);
+        auto* rangeRow = new QHBoxLayout;
+        rangeRow->setSpacing(2);
+        if (extra.range) {
+            addPair(rangeRow, extra.range, tr("Range"), 0.05, 2);
+            addPair(rangeRow, extra.falloff, tr("Fall"), 0.05, 2);
+        }
+        column->addLayout(rangeRow);
+        fieldsRow->addLayout(column, 1);
+    }
+    layout->addLayout(wheelsRow, 1);
+    layout->addLayout(fieldsRow);
+    if (m_session) {
+        connect(m_session, &ColorSession::gradeChanged, this, &HdrPanel::refresh);
+        connect(m_session, &ColorSession::selectedNodeChanged, this, &HdrPanel::refresh);
+        connect(m_session, &ColorSession::clipChanged, this, &HdrPanel::refresh);
+    }
+    refresh();
+}
+
+void HdrPanel::bindField(ValueField* f, const QString& key)
+{
+    connect(f, &ValueField::scrubStarted, this, [this, key] {
+        if (m_session)
+            m_session->beginGesture(gk::label(key));
+    });
+    connect(f, &ValueField::valueScrubbed, this, [this, key](double v) {
+        if (!m_refreshing && m_session)
+            m_session->setParam(0, key, v, gk::label(key));
+    });
+    connect(f, &ValueField::scrubFinished, this, [this] {
+        if (m_session)
+            m_session->endGesture();
+    });
+    connect(f, &ValueField::valueCommitted, this, [this, key](double v) {
+        if (!m_refreshing && m_session)
+            m_session->setParam(0, key, v, gk::label(key));
+    });
+    m_fields.append({key, f});
+}
+
+void HdrPanel::resetWheel(Wheel w)
+{
+    if (!m_session)
+        return;
+    m_session->setParams(0,
+        {{gk::wheelKey(w, 0), 0.0}, {gk::wheelKey(w, 1), 0.0}, {gk::wheelKey(w, 2), 0.0},
+            {gk::wheelKey(w, 3), 0.0}},
+        tr("Reset %1").arg(wheelName(w)));
+}
+
+void HdrPanel::resetAll()
+{
+    if (!m_session || !m_session->currentNode())
+        return;
+    QVector<std::pair<QString, double>> values;
+    for (const QString& key : gk::hdrKeys())
+        values.append({key, gk::defaultValue(key)});
+    m_session->setParams(0, values, tr("Reset HDR"));
+}
+
+ValueField* HdrPanel::field(const QString& key) const
+{
+    for (const auto& [k, f] : m_fields) {
+        if (k == key)
+            return f;
+    }
+    return nullptr;
+}
+
+void HdrPanel::refresh()
+{
+    m_refreshing = true;
+    const GradeNode* n = m_session ? m_session->currentNode() : nullptr;
+    setEnabled(m_session && m_session->hasGrade() && (!n || !n->isMixer()));
+    const int64_t frame = m_session ? m_session->gradeFrame() : 0;
+    const auto value
+        = [&](const QString& key) { return n ? n->value(key, frame) : gk::defaultValue(key); };
+    for (int i = int(Wheel::HdrGlobal); i < gk::kWheelCount; ++i) {
+        const Wheel w = Wheel(i);
+        m_wheels[size_t(w)]->setValues({value(gk::wheelKey(w, 0)), value(gk::wheelKey(w, 1)),
+                                           value(gk::wheelKey(w, 2))},
+            value(gk::wheelKey(w, 3)));
+    }
+    for (const auto& [key, f] : std::as_const(m_fields)) {
+        if (!f->isScrubbing())
+            f->setValue(value(key));
+    }
+    m_refreshing = false;
+}
+
 // ---- GradeCurveEditor ----
+
 
 GradeCurveEditor::GradeCurveEditor(ColorSession* session, QWidget* parent)
     : QWidget(parent)

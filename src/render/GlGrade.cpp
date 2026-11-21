@@ -22,6 +22,7 @@ constexpr int kUnitLut3d = 2;
 constexpr int kUnitLut1d = 3;
 constexpr int kUnitPoints = 4;
 constexpr int kUnitMatte = 5;
+constexpr int kUnitWarp = 6;
 
 const std::string kCorrectorSource = std::string(R"(
 uniform sampler2D uInput;
@@ -29,6 +30,7 @@ uniform sampler2D uCurves;
 uniform sampler3D uLut3d;
 uniform sampler2D uLut1d;
 uniform sampler2D uPoints;
+uniform sampler2D uWarp;   // Color Warper meshes (RG32F, kWarpTexWidth x kWarpTexHeight)
 uniform sampler2D uMatte;  // the qualifier matte after Matte Finesse (when uUseMatte)
 uniform int uUseMatte;
 uniform int uMode;        // 0 = graded picture, 1 = the key (alpha for a Layer mixer), 2 = ungated,
@@ -48,6 +50,14 @@ uniform float uBoost;     // Color Boost (fraction)
 uniform int uMixer;       // RGB Mixer: 0 off, else bit 0 on, bit 1 Monochrome, bit 2 Preserve Luminance
 uniform mat3 uMixM;       // row-major on the CPU (out = M * in)
 uniform vec3 uMixGrey;
+uniform int uHdr;         // HDR palette: 0 off, 1 on
+uniform vec3 uHdrStops[5]; // Global, Shadow, Light, Highlight, Specular: exposure + tint (stops)
+uniform float uHdrSat[5];
+uniform vec3 uHdrEdge;    // Range of Shadow, Light, Highlight (stops from mid grey)
+uniform vec3 uHdrFall;    // Falloff of the same (stops)
+uniform vec3 uHdrBlack;   // Black Offset (linear light)
+uniform int uWarpOn;      // Color Warper: bit 0 Hue - Sat mesh, bit 1 Chroma - Luma mesh
+uniform ivec4 uWarpSize;  // Hue - Sat columns, rows; Chroma - Luma columns, rows
 uniform int uAgx;         // AgX: 0 off, 1 on
 uniform int uAgxIn, uAgxLook, uAgxOut;
 uniform float uAgxExp;    // stops
@@ -239,6 +249,96 @@ vec3 agx(vec3 c)
     if (uAgxOut == 0)
         o = pow(pow(o, vec3(2.2)), vec3(1.0 / 2.4));
     return min(o, vec3(1.0));
+}
+
+// Mirrors grademath::applyHdr (CPU).
+vec3 hdr(vec3 c)
+{
+    vec3 lin = sign(c) * pow(abs(c), vec3(2.4));
+    float e = log2(max(luma(lin), 1e-6) / 0.18);
+    vec3 half3 = 0.5 * max(uHdrFall, vec3(0.01));
+    float s0 = smoothstep(uHdrEdge.x - half3.x, uHdrEdge.x + half3.x, e);
+    float s1 = smoothstep(uHdrEdge.y - half3.y, uHdrEdge.y + half3.y, e);
+    float s2 = smoothstep(uHdrEdge.z - half3.z, uHdrEdge.z + half3.z, e);
+    float w1 = 1.0 - s0;
+    float w2 = max(s0 - s1, 0.0);
+    float w3 = max(s1 - s2, 0.0);
+    float w4 = s2;
+    float sat = 1.0 + w1 * (uHdrSat[1] - 1.0) + w2 * (uHdrSat[2] - 1.0)
+        + w3 * (uHdrSat[3] - 1.0) + w4 * (uHdrSat[4] - 1.0);
+    sat *= uHdrSat[0];
+    vec3 st = uHdrStops[0] + w1 * uHdrStops[1] + w2 * uHdrStops[2] + w3 * uHdrStops[3]
+        + w4 * uHdrStops[4];
+    lin *= exp2(st);
+    float y = luma(lin);
+    vec3 o = vec3(y) + sat * (lin - vec3(y));
+    o += uHdrBlack * (1.0 - clamp(o, 0.0, 1.0));
+    return sign(o) * pow(abs(o), vec3(1.0 / 2.4));
+}
+
+// Mirrors WarpTables::sampleHueSat / sampleChromaLuma (smoothstep-weighted bilinear).
+vec2 warpSample(int rowBase, int cols, int rows, bool wrap, float fx, float fy)
+{
+    int x0;
+    int x1;
+    float tx;
+    if (wrap) {
+        fx -= floor(fx);
+        float gx = fx * float(cols);
+        x0 = min(int(gx), cols - 1);
+        tx = gx - float(x0);
+        x1 = (x0 + 1) % cols;
+    } else {
+        float gx = clamp(fx, 0.0, 1.0) * float(cols - 1);
+        x0 = min(int(gx), cols - 2);
+        tx = gx - float(x0);
+        x1 = x0 + 1;
+    }
+    float gy = clamp(fy, 0.0, 1.0) * float(rows - 1);
+    int y0 = min(int(gy), rows - 2);
+    float ty = gy - float(y0);
+    tx = tx * tx * (3.0 - 2.0 * tx);
+    ty = ty * ty * (3.0 - 2.0 * ty);
+    vec2 a = mix(texelFetch(uWarp, ivec2(x0, rowBase + y0), 0).xy,
+        texelFetch(uWarp, ivec2(x1, rowBase + y0), 0).xy, tx);
+    vec2 b = mix(texelFetch(uWarp, ivec2(x0, rowBase + y0 + 1), 0).xy,
+        texelFetch(uWarp, ivec2(x1, rowBase + y0 + 1), 0).xy, tx);
+    return mix(a, b, ty);
+}
+
+// Mirrors grademath::applyWarp (CPU). The Chroma - Luma mesh starts at row 8 (kWarpMaxRows).
+vec3 warp(vec3 c)
+{
+    const float kTwoPi = 6.28318530718;
+    float y = luma(c);
+    float cb = (c.b - y) / 1.8556;
+    float cr = (c.r - y) / 1.5748;
+    float chroma = sqrt(cb * cb + cr * cr);
+    float s = chroma / 0.5;
+    if ((uWarpOn & 1) != 0 && chroma > 1e-6) {
+        float h = atan(cr, cb) / kTwoPi;
+        h -= floor(h);
+        vec2 d = warpSample(0, uWarpSize.x, uWarpSize.y, true, h, s);
+        h += d.x;
+        s = max(s + d.y, 0.0);
+        float ch = s * 0.5;
+        cb = ch * cos(kTwoPi * h);
+        cr = ch * sin(kTwoPi * h);
+    }
+    float yo = y;
+    if ((uWarpOn & 2) != 0) {
+        vec2 d = warpSample(8, uWarpSize.z, uWarpSize.w, false, s, y);
+        float s2 = max(s + d.x, 0.0);
+        if (s > 1e-6) {
+            cb *= s2 / s;
+            cr *= s2 / s;
+        }
+        yo = y + d.y;
+    }
+    float r = yo + 1.5748 * cr;
+    float b = yo + 1.8556 * cb;
+    float g = (yo - 0.2126 * r - 0.0722 * b) / 0.7152;
+    return vec3(r, g, b);
 }
 
 float curve(int index, float x)
@@ -522,10 +622,14 @@ vec3 correct(vec3 c)
             g = primaries(g);
         if (uMixer != 0)
             g = mixer(g);
+        if (uHdr != 0)
+            g = hdr(g);
         if (uCurveMask != 0)
             g = curves(g);
         if (uSoftClipOn != 0)
             g = softClip(g);
+        if (uWarpOn != 0)
+            g = warp(g);
         if (uLutMode != 0)
             g = lut(g);
         if (uAgx != 0)
@@ -811,6 +915,14 @@ bool GlGrade::initialize(GlKit& kit, QString* why)
     m_u.mixer = u("uMixer");
     m_u.mixM = u("uMixM");
     m_u.mixGrey = u("uMixGrey");
+    m_u.hdr = u("uHdr");
+    m_u.hdrStops = u("uHdrStops");
+    m_u.hdrSat = u("uHdrSat");
+    m_u.hdrEdge = u("uHdrEdge");
+    m_u.hdrFall = u("uHdrFall");
+    m_u.hdrBlack = u("uHdrBlack");
+    m_u.warpOn = u("uWarpOn");
+    m_u.warpSize = u("uWarpSize");
     m_u.agx = u("uAgx");
     m_u.agxIn = u("uAgxIn");
     m_u.agxLook = u("uAgxLook");
@@ -851,6 +963,7 @@ bool GlGrade::initialize(GlKit& kit, QString* why)
     gl->glUniform1i(u("uLut1d"), kUnitLut1d);
     gl->glUniform1i(u("uPoints"), kUnitPoints);
     gl->glUniform1i(u("uMatte"), kUnitMatte);
+    gl->glUniform1i(u("uWarp"), kUnitWarp);
 
     m_parallelCount = m_parallel.uniform(gl, "uCount");
     gl->glUseProgram(m_parallel.id);
@@ -905,6 +1018,11 @@ bool GlGrade::initialize(GlKit& kit, QString* why)
     m_lut3d = makeTexture(gl, GL_TEXTURE_3D);
     m_lut1d = makeTexture(gl, GL_TEXTURE_2D);
     m_pointsTex = makeTexture(gl, GL_TEXTURE_2D);
+    m_warpTex = makeTexture(gl, GL_TEXTURE_2D);
+    gl->glBindTexture(GL_TEXTURE_2D, m_warpTex);
+    gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, kWarpTexWidth, kWarpTexHeight, 0, GL_RG, GL_FLOAT,
+        nullptr);
+    gl->glBindTexture(GL_TEXTURE_2D, 0);
     return true;
 }
 
@@ -920,7 +1038,7 @@ void GlGrade::destroy(GlKit& kit)
     m_matteMorph.destroy(gl);
     m_matteMedian.destroy(gl);
     m_matteRatio.destroy(gl);
-    for (GLuint* tex : {&m_curveTex, &m_lut3d, &m_lut1d, &m_pointsTex}) {
+    for (GLuint* tex : {&m_curveTex, &m_lut3d, &m_lut1d, &m_pointsTex, &m_warpTex}) {
         if (*tex)
             gl->glDeleteTextures(1, tex);
         *tex = 0;
@@ -935,6 +1053,15 @@ void GlGrade::uploadCurves(GlFunctions* gl, const CurveTables& tables)
     gl->glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
     gl->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, kCurveTableSize, kGradeCurveCount, GL_RED, GL_FLOAT,
         tables.table.data());
+    gl->glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void GlGrade::uploadWarp(GlFunctions* gl, const WarpTables& tables)
+{
+    gl->glBindTexture(GL_TEXTURE_2D, m_warpTex);
+    gl->glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    gl->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, kWarpTexWidth, kWarpTexHeight, GL_RG, GL_FLOAT,
+        tables.texels.data());
     gl->glBindTexture(GL_TEXTURE_2D, 0);
 }
 
@@ -993,6 +1120,8 @@ void GlGrade::drawCorrector(
     uploadPoints(gl, n, ranges);
     if (n.curves && (mode == 0 || mode == 2))
         uploadCurves(gl, *n.curves);
+    if (n.warp && (mode == 0 || mode == 2))
+        uploadWarp(gl, *n.warp);
     if (n.lut && (mode == 0 || mode == 2))
         uploadLut(gl, n.lut);
     gl->glUseProgram(m_corrector.id);
@@ -1026,6 +1155,18 @@ void GlGrade::drawCorrector(
         n.mixes ? (1 | (n.mixer.mono ? 2 : 0) | (n.mixer.preserveLum ? 4 : 0)) : 0);
     gl->glUniformMatrix3fv(m_u.mixM, 1, GL_TRUE, n.mixer.m); // row-major on the CPU
     gl->glUniform3f(m_u.mixGrey, n.mixer.grey[0], n.mixer.grey[1], n.mixer.grey[2]);
+    gl->glUniform1i(m_u.hdr, n.hdrOn ? 1 : 0);
+    if (n.hdrOn) {
+        gl->glUniform3fv(m_u.hdrStops, kHdrZones, &n.hdr.stops[0][0]);
+        gl->glUniform1fv(m_u.hdrSat, kHdrZones, n.hdr.sat);
+        gl->glUniform3fv(m_u.hdrEdge, 1, n.hdr.edge);
+        gl->glUniform3fv(m_u.hdrFall, 1, n.hdr.falloff);
+        gl->glUniform3fv(m_u.hdrBlack, 1, n.hdr.black);
+    }
+    gl->glUniform1i(m_u.warpOn, n.warp ? (n.warp->hs ? 1 : 0) | (n.warp->cl ? 2 : 0) : 0);
+    if (n.warp)
+        gl->glUniform4i(m_u.warpSize, n.warp->hsCols, n.warp->hsRows, n.warp->clCols,
+            n.warp->clRows);
     gl->glUniform1i(m_u.agx, n.agxOn ? 1 : 0);
     gl->glUniform1i(m_u.agxIn, int(n.agx.input));
     gl->glUniform1i(m_u.agxLook, int(n.agx.look));
@@ -1104,6 +1245,7 @@ void GlGrade::drawCorrector(
     gl->glBindTexture(GL_TEXTURE_3D, m_lut3d);
     kit.bindTexture(kUnitLut1d, m_lut1d);
     kit.bindTexture(kUnitPoints, m_pointsTex);
+    kit.bindTexture(kUnitWarp, m_warpTex);
     kit.bindTexture(kUnitMatte, matte ? matte : input);
     kit.setBlendOver(false);
     kit.drawQuad();

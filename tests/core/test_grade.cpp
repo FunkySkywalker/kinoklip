@@ -1011,6 +1011,280 @@ private slots:
         QVERIFY(std::abs(half[1] - 0.49674f) < 2e-3f);
     }
 
+    void hdrZonesAndExposure()
+    {
+        HdrValues none;
+        QVERIFY(none.isIdentity());
+        float same[3] = {0.3f, 0.5f, 0.7f};
+        applyHdr(none, same); // a round trip through linear light changes nothing
+        QVERIFY(std::abs(same[0] - 0.3f) < 1e-4f && std::abs(same[1] - 0.5f) < 1e-4f
+            && std::abs(same[2] - 0.7f) < 1e-4f);
+        // Global +1 stop doubles the linear light.
+        HdrValues up;
+        for (int ch = 0; ch < 3; ++ch)
+            up.stops[0][ch] = 1.0f;
+        QVERIFY(!up.isIdentity());
+        float g[3] = {0.5f, 0.5f, 0.5f};
+        applyHdr(up, g);
+        QVERIFY(std::abs(g[1] - 0.5f * std::pow(2.0f, 1.0f / 2.4f)) < 1e-4f);
+        // The zones partition the picture: the same exposure in all four equals Global.
+        HdrValues zones;
+        for (int z = 1; z < kHdrZones; ++z) {
+            for (int ch = 0; ch < 3; ++ch)
+                zones.stops[z][ch] = 1.0f;
+        }
+        for (const float v : {0.02f, 0.2f, 0.5f, 0.9f, 1.5f}) {
+            float a[3] = {v, v, v}, b[3] = {v, v, v};
+            applyHdr(up, a);
+            applyHdr(zones, b);
+            QVERIFY2(std::abs(a[0] - b[0]) < 2e-4f * std::max(1.0f, v), qPrintable(QString::number(v)));
+        }
+        // Shadow reaches the darks, not the brights; Specular only the over-bright values.
+        HdrValues shadow;
+        for (int ch = 0; ch < 3; ++ch)
+            shadow.stops[1][ch] = 3.0f;
+        float dark[3] = {0.05f, 0.05f, 0.05f}, bright[3] = {0.9f, 0.9f, 0.9f};
+        applyHdr(shadow, dark);
+        applyHdr(shadow, bright);
+        QVERIFY(dark[1] > 0.1f);
+        QVERIFY(std::abs(bright[1] - 0.9f) < 1e-4f);
+        HdrValues specular;
+        for (int ch = 0; ch < 3; ++ch)
+            specular.stops[4][ch] = -1.0f;
+        float white[3] = {0.9f, 0.9f, 0.9f}, over[3] = {4.0f, 4.0f, 4.0f};
+        applyHdr(specular, white);
+        applyHdr(specular, over);
+        QVERIFY(std::abs(white[1] - 0.9f) < 1e-4f);
+        QVERIFY(std::abs(over[1] - 4.0f * std::pow(0.5f, 1.0f / 2.4f)) < 1e-2f);
+        // A tint moves one channel only; saturation 0 removes the colour.
+        HdrValues red;
+        red.stops[0][0] = 1.0f;
+        float tint[3] = {0.4f, 0.4f, 0.4f};
+        applyHdr(red, tint);
+        QVERIFY(tint[0] > 0.4f + 0.05f && std::abs(tint[1] - 0.4f) < 1e-4f);
+        HdrValues grey;
+        grey.sat[0] = 0.0f;
+        float colour[3] = {0.8f, 0.4f, 0.2f};
+        applyHdr(grey, colour);
+        QVERIFY(std::abs(colour[0] - colour[1]) < 1e-4f && std::abs(colour[1] - colour[2]) < 1e-4f);
+        // Black Offset lifts black and leaves white.
+        HdrValues black;
+        for (float& b : black.black)
+            b = 0.01f;
+        float bk[3] = {0, 0, 0}, wh[3] = {1, 1, 1};
+        applyHdr(black, bk);
+        applyHdr(black, wh);
+        QVERIFY(bk[0] > 0.1f);
+        QVERIFY(std::abs(wh[0] - 1.0f) < 1e-4f);
+    }
+
+    void hdrNodeParametersAndSerialization()
+    {
+        GradeNode n;
+        QVERIFY(go::isNodeIdentity(n, 0));
+        QVERIFY(HdrValues::at(n, 0).isIdentity());
+        n.params.setBase(gk::HdrLightRange, 0.0); // a range matters only with a value
+        n.params.setBase(gk::HdrShadowFalloff, 3.0);
+        QVERIFY(go::isNodeIdentity(n, 0));
+        n.params.setBase(gk::HdrGlobalY, 1.0);
+        n.params.setBase(gk::HdrGlobalR, 0.25);
+        n.params.setBase(gk::HdrBlackY, 0.5);
+        QVERIFY(!go::isNodeIdentity(n, 0));
+        const HdrValues v = HdrValues::at(n, 0);
+        QCOMPARE(v.stops[0][0], 1.0f + kHdrTintStops * 0.25f);
+        QCOMPARE(v.stops[0][1], 1.0f);
+        QCOMPARE(v.black[2], kHdrBlackScale * 0.5f);
+        QCOMPARE(v.edge[1], std::max(0.0f, v.edge[0])); // the ranges stay in order
+        QCOMPARE(gk::defaultValue(gk::HdrGlobalSat), 1.0);
+        QCOMPARE(gk::defaultValue(gk::HdrShadowRange), -1.5);
+        for (const QString& key : gk::hdrKeys()) {
+            QVERIFY2(gk::allKeys().contains(key), qPrintable(key));
+            QVERIFY2(gk::label(key) != key, qPrintable(key));
+            QVERIFY(gk::isHdrKey(key));
+            const auto [lo, hi] = gk::range(key);
+            QVERIFY2(gk::defaultValue(key) >= lo && gk::defaultValue(key) <= hi, qPrintable(key));
+        }
+        QCOMPARE(gk::wheelKey(gk::Wheel::HdrBlack, 3), gk::HdrBlackY);
+        ClipGrade grade;
+        const quint64 id = go::initialize(grade);
+        grade.node(id)->params = n.params;
+        QCOMPARE(serialization::gradeFromJson(serialization::gradeToJson(grade)), grade);
+        // Keyed values animate like the others.
+        n.params.animated(gk::HdrGlobalY, 0.0).setKey(0, 0.0, Interp::Linear);
+        n.params.animated(gk::HdrGlobalY, 0.0).setKey(10, 2.0, Interp::Linear);
+        QVERIFY(std::abs(n.value(gk::HdrGlobalY, 5) - 1.0) < 1e-6);
+    }
+
+    static void warpColour(float y, float h, float s, float rgb[3])
+    {
+        const float ch = s * kWarpChromaMax;
+        const float cb = ch * std::cos(2.0f * 3.14159265f * h);
+        const float cr = ch * std::sin(2.0f * 3.14159265f * h);
+        rgb[0] = y + kWarpCrScale * cr;
+        rgb[2] = y + kWarpCbScale * cb;
+        rgb[1] = (y - kLumaR * rgb[0] - kLumaB * rgb[2]) / kLumaG;
+    }
+
+    static void warpCoords(const float rgb[3], float& y, float& h, float& s)
+    {
+        y = luma(rgb);
+        const float cb = (rgb[2] - y) / kWarpCbScale;
+        const float cr = (rgb[0] - y) / kWarpCrScale;
+        s = std::sqrt(cb * cb + cr * cr) / kWarpChromaMax;
+        h = std::atan2(cr, cb) / (2.0f * 3.14159265f);
+        h -= std::floor(h);
+    }
+
+    void warperPinsLandWhereDragged()
+    {
+        GradeWarp warp;
+        QVERIFY(warp.isIdentity());
+        QVERIFY(WarpTables::bake(warp).isIdentity());
+        const auto [cols, rows] = warpGridSize(WarpGrid::HueSat, warp.resolution);
+        QCOMPARE(cols, 12);
+        QCOMPARE(rows, 5);
+        // Hue - Sat: the colour of vertex (3, 4) (hue a quarter turn, full saturation) lands on
+        // the pin: hue + 0.02, saturation - 0.1, luma untouched.
+        warp.setPin(WarpGrid::HueSat, 3, 4, 0.02f, -0.1f);
+        QVERIFY(!warp.isIdentity());
+        const WarpTables t = WarpTables::bake(warp);
+        float rgb[3];
+        warpColour(0.5f, 3.0f / 12.0f, 1.0f, rgb);
+        applyWarp(t, rgb);
+        float y, h, s;
+        warpCoords(rgb, y, h, s);
+        QVERIFY(std::abs(y - 0.5f) < 1e-4f);
+        QVERIFY2(std::abs(h - (0.25f + 0.02f)) < 1e-4f, qPrintable(QString::number(h)));
+        QVERIFY2(std::abs(s - 0.9f) < 1e-4f, qPrintable(QString::number(s)));
+        // The other vertices stay; in between the move fades smoothly (no jump, no overshoot).
+        float other[3];
+        warpColour(0.5f, 3.0f / 12.0f, 0.75f, other);
+        applyWarp(t, other);
+        warpCoords(other, y, h, s);
+        QVERIFY(std::abs(h - 0.25f) < 1e-4f && std::abs(s - 0.75f) < 1e-4f);
+        float last = 0.0f;
+        for (int i = 1; i < 8; ++i) {
+            float between[3];
+            warpColour(0.5f, 0.25f + float(i) / 8.0f / 12.0f, 1.0f, between);
+            applyWarp(t, between);
+            warpCoords(between, y, h, s);
+            const float moved = 1.0f - s; // the saturation falls by the pin's -0.1 .. 0
+            QVERIFY(moved >= 0.0f && moved < 0.1f);
+            QVERIFY2(i == 1 || moved <= last + 1e-6f, "fades out monotonically");
+            last = moved;
+        }
+        // The hue wraps: a pin on column 0 moves the colours on both sides of hue 0.
+        GradeWarp wrap;
+        wrap.setPin(WarpGrid::HueSat, 0, 4, 0.03f, 0.0f);
+        const WarpTables wt = WarpTables::bake(wrap);
+        float before[3], after[3];
+        warpColour(0.5f, 0.98f, 1.0f, before);
+        std::copy(before, before + 3, after);
+        applyWarp(wt, after);
+        float h0, h1;
+        warpCoords(before, y, h0, s);
+        warpCoords(after, y, h1, s);
+        const float dh = (h1 - h0) - std::round(h1 - h0); // the hue wraps
+        QVERIFY2(dh > 0.02f && dh < 0.03f, qPrintable(QString::number(dh)));
+        // Chroma - Luma: vertex (2, 2) is chroma 0.5, luma 0.5: it lands on chroma + 0.1, luma - 0.1.
+        GradeWarp cl;
+        cl.setPin(WarpGrid::ChromaLuma, 2, 2, 0.1f, -0.1f);
+        const WarpTables ct = WarpTables::bake(cl);
+        float c2[3];
+        warpColour(0.5f, 0.1f, 0.5f, c2);
+        applyWarp(ct, c2);
+        warpCoords(c2, y, h, s);
+        QVERIFY2(std::abs(y - 0.4f) < 1e-4f, qPrintable(QString::number(y)));
+        QVERIFY2(std::abs(s - 0.6f) < 1e-4f, qPrintable(QString::number(s)));
+        QVERIFY2(std::abs(h - 0.1f) < 1e-4f, qPrintable(QString::number(h))); // the hue is kept
+    }
+
+    void warperKeepsGreysGrey()
+    {
+        GradeWarp warp;
+        for (int row = 0; row < 8; ++row) {
+            for (int col = 0; col < 12; ++col) {
+                warp.setPin(WarpGrid::HueSat, col, row, 0.02f * float((col + row) % 3 - 1), 0.05f);
+                warp.setPin(WarpGrid::ChromaLuma, col % 5, row % 5, 0.05f, 0.04f);
+            }
+        }
+        const WarpTables t = WarpTables::bake(warp);
+        QVERIFY(t.hs && t.cl);
+        for (const float v : {0.0f, 0.2f, 0.5f, 0.8f, 1.0f}) {
+            float grey[3] = {v, v, v};
+            applyWarp(t, grey);
+            QVERIFY2(std::abs(grey[0] - grey[1]) < 1e-5f && std::abs(grey[1] - grey[2]) < 1e-5f,
+                qPrintable(QString::number(v)));
+        }
+        // The grey centre of Hue - Sat and the grey axis of Chroma - Luma ignore stored values.
+        GradeWarp pinned;
+        pinned.setPin(WarpGrid::HueSat, 4, 0, 0.1f, 0.1f);
+        QVERIFY(!WarpTables::bake(pinned).hs);
+        QVERIFY(!pinned.isIdentity(WarpGrid::HueSat)); // stored, but without effect
+    }
+
+    void warperResolutionKeepsTheColours()
+    {
+        GradeWarp warp; // Medium: 12 x 5
+        warp.setPin(WarpGrid::HueSat, 3, 4, 0.02f, -0.1f);
+        warp.setPin(WarpGrid::ChromaLuma, 2, 4, 0.05f, 0.1f);
+        const GradeWarp high = resampleWarp(warp, 2);
+        QCOMPARE(int(high.resolution), 2);
+        // Vertex (3, 4) of the 12 x 5 mesh is vertex (6, 7) of the 24 x 8 mesh (same hue, full sat).
+        const auto [dx, dy] = high.pin(WarpGrid::HueSat, 6, 7);
+        QVERIFY(std::abs(dx - 0.02f) < 1e-5f && std::abs(dy + 0.1f) < 1e-5f);
+        // Back to Low and to the same level: the coarser mesh keeps what its vertices see.
+        QCOMPARE(resampleWarp(warp, 1), warp);
+        const GradeWarp low = resampleWarp(high, 0);
+        QCOMPARE(int(low.resolution), 0);
+        QVERIFY(!low.isIdentity());
+        // A colour on a vertex common to both meshes moves the same.
+        float a[3], b[3];
+        warpColour(0.5f, 3.0f / 12.0f, 1.0f, a);
+        std::copy(a, a + 3, b);
+        applyWarp(WarpTables::bake(warp), a);
+        applyWarp(WarpTables::bake(high), b);
+        QVERIFY(std::abs(a[0] - b[0]) < 1e-3f && std::abs(a[1] - b[1]) < 1e-3f
+            && std::abs(a[2] - b[2]) < 1e-3f);
+        // An untouched warp resamples to an untouched warp.
+        QVERIFY(resampleWarp(GradeWarp {}, 2).isIdentity());
+    }
+
+    void warperNodeAndSerialization()
+    {
+        GradeNode n;
+        QVERIFY(go::isNodeIdentity(n, 0));
+        n.warp.setPin(WarpGrid::HueSat, 2, 3, 0.01f, 0.05f);
+        QVERIFY(!go::isNodeIdentity(n, 0));
+        ClipGrade grade;
+        const quint64 id = go::initialize(grade);
+        QVERIFY(!serialization::gradeToJson(grade).value(QLatin1String("nodes")).toArray().at(0)
+                     .toObject().contains(QLatin1String("warp"))); // not written while unmoved
+        grade.node(id)->warp = n.warp;
+        grade.node(id)->warp.resolution = 2;
+        grade.node(id)->warp.hueSat.clear();
+        grade.node(id)->warp.setPin(WarpGrid::HueSat, 20, 6, -0.01f, 0.02f);
+        grade.node(id)->warp.setPin(WarpGrid::ChromaLuma, 7, 7, 0.01f, -0.02f);
+        QCOMPARE(serialization::gradeFromJson(serialization::gradeToJson(grade)), grade);
+        // A project file keeps it (format 23).
+        QVERIFY(serialization::kFormatVersion >= 23);
+        // Damaged pin lists are dropped instead of guessed.
+        QJsonObject json = serialization::gradeToJson(grade);
+        QJsonArray nodes = json.value(QLatin1String("nodes")).toArray();
+        QJsonObject node = nodes.at(0).toObject();
+        QJsonObject warp = node.value(QLatin1String("warp")).toObject();
+        warp[QLatin1String("hueSat")] = QJsonArray {0.1, 0.2};
+        node[QLatin1String("warp")] = warp;
+        nodes[0] = node;
+        json[QLatin1String("nodes")] = nodes;
+        const ClipGrade damaged = serialization::gradeFromJson(json);
+        QVERIFY(damaged.nodes.at(0).warp.hueSat.isEmpty());
+        QVERIFY(!damaged.nodes.at(0).warp.chromaLuma.isEmpty());
+        // Resetting a node puts the pins back.
+        QVERIFY(go::resetNode(grade, id));
+        QVERIFY(grade.node(id)->warp.isIdentity());
+    }
+
     void agxInputTransfers()
     {
         // The public reference points: 18 % grey encodes to these code values.

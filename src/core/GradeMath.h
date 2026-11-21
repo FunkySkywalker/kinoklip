@@ -166,6 +166,83 @@ inline constexpr float kAutoColorMaxGamma = 0.3f;
 /// from the midtones). The result feeds the Primaries wheels' per-channel values.
 [[nodiscard]] AutoColorResult autoColor(const float* rgb, size_t pixels);
 
+/// Zones of the HDR palette in wheel order: Global, Shadow, Light, Highlight, Specular.
+inline constexpr int kHdrZones = 5;
+/// Tint of a full HDR wheel puck in stops (the wheel's R, G, B delta times this).
+inline constexpr float kHdrTintStops = 4.0f;
+/// Scale of the Black Offset wheel: linear light added to a channel at delta 1 (it fades out
+/// towards white: the offset is multiplied by 1 - the channel).
+inline constexpr float kHdrBlackScale = 0.05f;
+/// Mid grey (linear), the zero of the HDR zone scale in stops.
+inline constexpr float kHdrMidGrey = 0.18f;
+/// Gamma that turns the picture's encoded values into linear light for the HDR palette.
+inline constexpr float kHdrGamma = 2.4f;
+
+/// The HDR palette of a node at one frame. The picture is brought to linear light (gamma 2.4,
+/// signed), its luma in stops from mid grey (e = log2(Y / 0.18)) weights five zones that
+/// partition the picture: Shadow below the Shadow range, Light between the Shadow and Light
+/// ranges, Highlight between the Light and Highlight ranges, Specular above the Highlight
+/// range (every edge a smoothstep of the zone's Falloff width in stops, the edges kept in
+/// order). Each zone scales the colour by 2^(exposure + tint) per channel and its saturation
+/// (about linear luma); Global applies everywhere. Black Offset adds linear light that fades
+/// out towards white. GlGrade.cpp mirrors applyHdr() line by line.
+struct HdrValues
+{
+    float stops[kHdrZones][3] = {}; ///< per zone and channel: exposure + wheel tint, in stops
+    float sat[kHdrZones] = {1, 1, 1, 1, 1};
+    float edge[3] = {-1.5f, 1.0f, 3.0f}; ///< Shadow / Light, Light / Highlight, Highlight / Specular
+    float falloff[3] = {1.5f, 1.5f, 1.5f};
+    float black[3] = {0, 0, 0}; ///< linear light added at black
+
+    /// The values of @p node at frame @p localFrame.
+    [[nodiscard]] static HdrValues at(const GradeNode& node, int64_t localFrame);
+    /// True if applyHdr() changes nothing.
+    [[nodiscard]] bool isIdentity() const;
+};
+
+/// Applies the HDR palette to straight RGB @p rgb in place (not clamped).
+void applyHdr(const HdrValues& v, float rgb[3]);
+
+/// The Color Warper of a node baked for evaluation: the displacements of both meshes in one
+/// table of kWarpTexWidth x kWarpTexHeight (x, y) pairs, the Hue - Sat mesh in rows 0..7 (x =
+/// column, y = row) and the Chroma - Luma mesh in rows 8..15, with the grey axis already held
+/// at 0. The GPU uploads the same table as an RG32F texture and interpolates the same way.
+inline constexpr int kWarpTexWidth = kWarpMaxCols;
+inline constexpr int kWarpTexHeight = 2 * kWarpMaxRows;
+/// Chroma (length of the Cb / Cr vector) of a fully saturated colour, in the warper's
+/// saturation scale: saturation = chroma / this.
+inline constexpr float kWarpChromaMax = 0.5f;
+/// Cb / Cr scale factors of Rec. 709 (B - Y = 1.8556 Cb, R - Y = 1.5748 Cr).
+inline constexpr float kWarpCbScale = 1.8556f;
+inline constexpr float kWarpCrScale = 1.5748f;
+
+struct WarpTables
+{
+    std::vector<float> texels; ///< kWarpTexWidth * kWarpTexHeight * 2 floats
+    int hsCols = 12, hsRows = 5, clCols = 5, clRows = 5;
+    bool hs = false; ///< the Hue - Sat mesh moves colours
+    bool cl = false; ///< the Chroma - Luma mesh moves colours
+
+    /// Bakes @p warp.
+    [[nodiscard]] static WarpTables bake(const GradeWarp& warp);
+    [[nodiscard]] bool isIdentity() const { return !hs && !cl; }
+    /// Displacement of the Hue - Sat mesh at hue @p hue (turns, wraps) and saturation @p sat
+    /// (clamped to 0..1): smoothstep-weighted bilinear between the four nearest vertices.
+    void sampleHueSat(float hue, float sat, float out[2]) const;
+    /// Displacement of the Chroma - Luma mesh at saturation @p sat and luma @p luma (both
+    /// clamped to 0..1).
+    void sampleChromaLuma(float sat, float lum, float out[2]) const;
+};
+
+/// Applies the warper to straight RGB @p rgb in place (not clamped): in Y / Cb / Cr the Hue -
+/// Sat mesh turns the hue and changes the saturation (luma kept), then the Chroma - Luma mesh
+/// changes the saturation and the luma (hue kept). Greys stay grey.
+void applyWarp(const WarpTables& t, float rgb[3]);
+
+/// @p warp at resolution level @p resolution: every new vertex takes the displacement the old
+/// mesh has at its position, so the colours move as before (only coarser or finer).
+[[nodiscard]] GradeWarp resampleWarp(const GradeWarp& warp, int resolution);
+
 /// One lift / gamma / gain transfer: pow(max(gain * (x + lift * (1 - x)), 0), 2^(-2 gamma)).
 [[nodiscard]] float liftGammaGain(float x, float lift, float gamma, float gain);
 

@@ -3275,3 +3275,19 @@ Follows the public Resolve / Fairlight manual (Voice Isolation, frequency analyz
 | 146.5 | Clips strip menu Generate 3D LUT (CUBE) 17 / 33 / 65 points; greyed without a grade. | Done (`test_graderender` gradeLut*, `test_colorpageui` generateLutFromAGrade) |
 | 146.6 | CIE Chromaticity scope; scope Settings button (Scale, Gain) remembered per scope. | Done (`test_scopes`) |
 | 146.7 | Not done: Split Screen modes, Lightbox, Output Blanking, Color Warper, HDR palette. | Open |
+
+## 147. Color page: Color Warper and HDR palettes (1.13 roadmap)
+
+Resolve's Color Warper moves colours by dragging pins on a Hue - Sat grid and a Chroma - Luma grid; its HDR palette grades by zones of the picture's brightness. Both are our own maths (no code of Resolve or any other program): the mesh warp is a smoothstep-weighted displacement field in Y / Cb / Cr, the zones are smoothstep partitions of the luma in stops; the idea of pins on a grid and of exposure zones follows the zone based modules of darktable (colour zones, tone equalizer; GPL-3.0-or-later, nothing copied).
+
+| # | Behaviour | Status |
+|---|-----------|--------|
+| 147.1 | The Color page has a **Color Warper** and an **HDR** palette after Log. The palette bar's Reset puts every pin / every HDR value of the node back. Every control has a tooltip. | Done (`test_colorpageui` warperPalette, hdrPalette) |
+| 147.2 | Color Warper, Hue - Sat: a polar plot (the angle is the hue, the distance from the centre the saturation) with a pin on every vertex of a mesh (Low 8 x 4, Medium 12 x 5, High 24 x 8; the centre row is the grey point and has no pins). Chroma - Luma: a rectangle (chroma to the right, luma up) with 4 x 4, 5 x 5 or 8 x 8 pins. Pin colours move to where the pin is dragged. | Done (`test_grade` warperPinsLandWhereDragged) |
+| 147.3 | Click selects a pin, a drag moves it (at most one cell from its place, so the mesh cannot fold; Shift: a quarter of the mouse travel), arrow keys nudge the selected pin, Delete or a double-click or Reset Pin puts it back, Reset Grid empties the shown grid. A drag is one undo step, every nudge or reset one step. | Done (`test_colorpageui` warperPalette) |
+| 147.4 | Greys stay grey: the hue of a colour without chroma is undefined, so the Hue - Sat centre ignores pins, and the grey column of Chroma - Luma moves only in luma. | Done (`test_grade` warperKeepsGreysGrey) |
+| 147.5 | Resolution Low / Medium / High changes the number of pins; the colours stay where they are (every new vertex takes the old field's value at its place). | Done (`test_grade` warperResolutionKeepsTheColours, `test_colorpageui` warperPalette) |
+| 147.6 | Order inside the node: primaries, RGB Mixer, HDR, curves, Soft Clip, Color Warper, LUT, AgX. Same maths on the CPU (`grademath::applyWarp`, `applyHdr`) and the GPU (`GlGrade.cpp`). | Done (`test_graderender` hdr_* and warp_* cases) |
+| 147.7 | HDR palette: Black Offset, Global, Shadow, Light, Highlight and Specular wheels. The puck tints the zone (a full throw is one stop), the strip is the zone's exposure in stops, the Y R G B fields type them; Sat per zone; Range (the zone's upper edge in stops from mid grey, defaults -1.5, 1, 3) and Falloff (default 1.5 stops) of Shadow, Light and Highlight. All values are keyframeable node params. | Done (`test_grade` hdrZonesAndExposure, hdrNodeParametersAndSerialization) |
+| 147.8 | Project files: format 23. A node may carry `warp` (`{"res": 0..2, "hueSat": [dx, dy, ...], "chromaLuma": [...]}`, only a mesh with a moved pin is written) and the `hdr*` params. A pin list of the wrong length is dropped on load. Files of formats 1 - 22 load unchanged; older builds refuse format 23. | Done (`test_grade` warperNodeAndSerialization) |
+| 147.9 | Not done: keyframes of the warper pins, a viewer overlay with the pins (Resolve draws them on the picture), the warper's own eyedropper, HDR zone pickers and an HDR-specific scope. | Open |

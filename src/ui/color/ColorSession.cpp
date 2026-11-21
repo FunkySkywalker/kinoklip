@@ -430,6 +430,22 @@ bool ColorSession::setQualifier(
     return ok;
 }
 
+bool ColorSession::setWarp(quint64 nodeId, const GradeWarp& warp, const QString& label)
+{
+    if (!hasGrade())
+        return false;
+    quint64 node = 0;
+    ClipGrade g = editableGrade(nodeId, &node);
+    GradeNode* n = g.node(node);
+    if (!n || n->isMixer())
+        return false;
+    n->warp = warp;
+    const bool ok = commit(g, label);
+    if (ok && m_selected != node)
+        selectNode(node);
+    return ok;
+}
+
 bool ColorSession::setLut(quint64 nodeId, const QString& path)
 {
     if (!hasGrade())

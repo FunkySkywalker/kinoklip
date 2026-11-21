@@ -42,6 +42,9 @@ public:
     [[nodiscard]] std::array<double, 3> deltaFor(QPointF puck) const;
     /// Delta of a full puck throw / of the strip's full width.
     [[nodiscard]] double range() const;
+    /// Delta of half the master strip's width: range(), but the HDR wheels' master is an exposure
+    /// in stops (1) and the Black Offset's a small light level (0.25).
+    [[nodiscard]] double masterRange() const;
     /// The disc and the master strip (widget pixels; tests).
     [[nodiscard]] QRectF discRect() const;
     [[nodiscard]] QRectF stripRect() const;
@@ -178,6 +181,33 @@ private:
     QStackedWidget* m_modes = nullptr;
     QToolButton* m_wheelsButton = nullptr;
     QToolButton* m_barsButton = nullptr;
+    QVector<std::pair<QString, ValueField*>> m_fields;
+    bool m_refreshing = false;
+};
+
+/// The HDR palette: the Black Offset, Global, Shadow, Light, Highlight and Specular wheels (the
+/// puck tints the zone, the strip under it is its exposure in stops), each with Y R G B fields,
+/// a saturation per zone and the Range / Falloff of the Shadow, Light and Highlight zones.
+/// Wheel drags are one undo step; every value is keyframeable like the Primaries.
+class HdrPanel : public QWidget
+{
+    Q_OBJECT
+public:
+    explicit HdrPanel(ColorSession* session, QWidget* parent = nullptr);
+
+    [[nodiscard]] ColorWheel* wheel(gradekeys::Wheel w) const { return m_wheels[size_t(w)]; }
+    /// The field of an HDR key (hdrGlobalY, hdrShadowSat, hdrLightRange, ...), or nullptr.
+    [[nodiscard]] ValueField* field(const QString& key) const;
+    /// Sets every HDR value of the selected node back to its default (the palette's Reset).
+    void resetAll();
+
+private:
+    void refresh();
+    void bindField(ValueField* field, const QString& key);
+    void resetWheel(gradekeys::Wheel w);
+
+    QPointer<ColorSession> m_session;
+    std::array<ColorWheel*, gradekeys::kWheelCount> m_wheels {};
     QVector<std::pair<QString, ValueField*>> m_fields;
     bool m_refreshing = false;
 };

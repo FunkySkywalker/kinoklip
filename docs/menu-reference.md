@@ -1,4 +1,4 @@
-368 menu entries in 13 menus; 58 panels
+368 menu entries in 13 menus; 60 panels
 
 # Menu and panel reference
 
@@ -498,8 +498,10 @@ Shortcuts are the defaults of the Resolve keymap (Windows); another keyboard pro
 | AgX | Tone map the current node with AgX, Blender's view transform. |
 | Blur | Blur, Sharpen and Mist the current node's picture; windows and the qualifier limit it. |
 | Clips | Every clip of the timeline as a thumbnail; click one to grade it. |
+| Color Warper | Drag pins on the Hue - Sat and Chroma - Luma grids to move colours smoothly. |
 | Curves | Curve adjustments of the current node. |
 | Gallery | The stills grabbed from graded clips; use one to compare in the viewer or copy its grade. |
+| HDR | Colour wheels and exposure for the Shadow, Light, Highlight and Specular zones of the picture, Global and a Black Offset. |
 | Key | The key output gain of the current node, qualifier invert and a small view of the key. |
 | Log | Log wheels of the current node: Shadow, Midtone, Highlight and Offset with the Low and High Range of the zones. |
 | LUTs | Browser of .cube look-up tables; apply one to the current node. |

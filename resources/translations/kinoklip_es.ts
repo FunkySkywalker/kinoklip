@@ -10249,6 +10249,22 @@ Gracias por ver</translation>
         <source>grades bypassed</source>
         <translation>correcciones omitidas</translation>
     </message>
+    <message>
+        <source>Color Warper</source>
+        <translation>Deformador de color</translation>
+    </message>
+    <message>
+        <source>Drag pins on the Hue - Sat and Chroma - Luma grids to move colours smoothly.</source>
+        <translation>Arrastra pines en las cuadrículas Tono - Saturación y Croma - Luma para mover los colores con suavidad.</translation>
+    </message>
+    <message>
+        <source>HDR</source>
+        <translation>HDR</translation>
+    </message>
+    <message>
+        <source>Colour wheels and exposure for the Shadow, Light, Highlight and Specular zones of the picture, Global and a Black Offset.</source>
+        <translation>Ruedas de color y exposición para las zonas Sombra, Luz, Resaltado y Especular de la imagen, Global y un Desfase del negro.</translation>
+    </message>
 </context>
 <context>
     <name>kk::ColorPickOverlay</name>
@@ -10746,6 +10762,22 @@ Gracias por ver</translation>
     <message>
         <source>%1: drag the centre to balance the colour, drag the bar below for the master level; Shift for fine control; the arrow at the top right or a double-click resets</source>
         <translation>%1: arrastrar el centro para equilibrar el color, arrastrar la barra de abajo para el nivel maestro; Mayús para control fino; la flecha arriba a la derecha o un doble clic restablece</translation>
+    </message>
+    <message>
+        <source>Global</source>
+        <translation>Global</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <translation>Luz</translation>
+    </message>
+    <message>
+        <source>Specular</source>
+        <translation>Especular</translation>
+    </message>
+    <message>
+        <source>Black Offset</source>
+        <translation>Desfase del negro</translation>
     </message>
 </context>
 <context>
@@ -18146,6 +18178,37 @@ Transición estándar de este proyecto</translation>
     <message>
         <source>Remove</source>
         <translation>Quitar</translation>
+    </message>
+</context>
+<context>
+    <name>kk::HdrPanel</name>
+    <message>
+        <source>Reset %1</source>
+        <translation>Restablecer %1</translation>
+    </message>
+    <message>
+        <source>%1 level</source>
+        <translation>Nivel de %1</translation>
+    </message>
+    <message>
+        <source>%1 exposure (stops)</source>
+        <translation>Exposición de %1 (pasos)</translation>
+    </message>
+    <message>
+        <source>Sat</source>
+        <translation>Sat</translation>
+    </message>
+    <message>
+        <source>Range</source>
+        <translation>Rango</translation>
+    </message>
+    <message>
+        <source>Fall</source>
+        <translation>Caída</translation>
+    </message>
+    <message>
+        <source>Reset HDR</source>
+        <translation>Restablecer HDR</translation>
     </message>
 </context>
 <context>
@@ -34539,6 +34602,92 @@ Abrir un clip multicámara del panel de medios o mover el cabezal de reproducci�
     </message>
 </context>
 <context>
+    <name>kk::WarperGrid</name>
+    <message>
+        <source>Click a pin to select it and drag it to move that colour; double-click or Delete puts it back; arrow keys nudge it; Shift while dragging is fine control</source>
+        <translation>Haz clic en un pin para seleccionarlo y arrástralo para mover ese color; doble clic o Supr lo devuelve a su sitio; las flechas lo desplazan un poco; Mayús al arrastrar: control fino</translation>
+    </message>
+    <message>
+        <source>Reset Pin</source>
+        <translation>Restablecer pin</translation>
+    </message>
+    <message>
+        <source>Warp Hue - Sat</source>
+        <translation>Deformar Tono - Saturación</translation>
+    </message>
+    <message>
+        <source>Warp Chroma - Luma</source>
+        <translation>Deformar Croma - Luma</translation>
+    </message>
+</context>
+<context>
+    <name>kk::WarperPanel</name>
+    <message>
+        <source>Hue - Sat</source>
+        <translation>Tono - Saturación</translation>
+    </message>
+    <message>
+        <source>Chroma - Luma</source>
+        <translation>Croma - Luma</translation>
+    </message>
+    <message>
+        <source>Move colours by hue and saturation: the angle is the hue, the distance from the centre the saturation</source>
+        <translation>Mueve los colores por tono y saturación: el ángulo es el tono, la distancia al centro la saturación</translation>
+    </message>
+    <message>
+        <source>Move colours by chroma and luma: chroma to the right, brightness up</source>
+        <translation>Mueve los colores por croma y luma: croma hacia la derecha, brillo hacia arriba</translation>
+    </message>
+    <message>
+        <source>Resolution</source>
+        <translation>Resolución</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>Bajo</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Medio</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>Alto</translation>
+    </message>
+    <message>
+        <source>How many pins the grids have: more pins give finer control. Changing it keeps the colours where they are.</source>
+        <translation>Cuántos pines tienen las cuadrículas: más pines dan un control más fino. Al cambiarlo, los colores se quedan donde están.</translation>
+    </message>
+    <message>
+        <source>Reset Pin</source>
+        <translation>Restablecer pin</translation>
+    </message>
+    <message>
+        <source>Put the selected pin back (also Delete or a double-click)</source>
+        <translation>Devuelve el pin seleccionado a su sitio (también Supr o doble clic)</translation>
+    </message>
+    <message>
+        <source>Reset Grid</source>
+        <translation>Restablecer cuadrícula</translation>
+    </message>
+    <message>
+        <source>Put every pin of the shown grid back</source>
+        <translation>Devuelve todos los pines de la cuadrícula mostrada a su sitio</translation>
+    </message>
+    <message>
+        <source>Color Warper</source>
+        <translation>Deformador de color</translation>
+    </message>
+    <message>
+        <source>Warper Resolution</source>
+        <translation>Resolución del deformador</translation>
+    </message>
+    <message>
+        <source>Reset Color Warper</source>
+        <translation>Restablecer deformador de color</translation>
+    </message>
+</context>
+<context>
     <name>kk::WelcomeDialog</name>
     <message>
         <source>Welcome to %1</source>
@@ -35410,6 +35559,74 @@ Abrir un clip multicámara del panel de medios o mover el cabezal de reproducci�
     <message>
         <source>High Range</source>
         <translation>Rango alto</translation>
+    </message>
+    <message>
+        <source>HDR Global</source>
+        <translation>HDR Global</translation>
+    </message>
+    <message>
+        <source>HDR Shadow</source>
+        <translation>HDR Sombra</translation>
+    </message>
+    <message>
+        <source>HDR Light</source>
+        <translation>HDR Luz</translation>
+    </message>
+    <message>
+        <source>HDR Highlight</source>
+        <translation>HDR Resaltado</translation>
+    </message>
+    <message>
+        <source>HDR Specular</source>
+        <translation>HDR Especular</translation>
+    </message>
+    <message>
+        <source>Black Offset</source>
+        <translation>Desfase del negro</translation>
+    </message>
+    <message>
+        <source>HDR Global Saturation</source>
+        <translation>HDR Global Saturación</translation>
+    </message>
+    <message>
+        <source>HDR Shadow Saturation</source>
+        <translation>HDR Sombra Saturación</translation>
+    </message>
+    <message>
+        <source>HDR Light Saturation</source>
+        <translation>HDR Luz Saturación</translation>
+    </message>
+    <message>
+        <source>HDR Highlight Saturation</source>
+        <translation>HDR Resaltado Saturación</translation>
+    </message>
+    <message>
+        <source>HDR Specular Saturation</source>
+        <translation>HDR Especular Saturación</translation>
+    </message>
+    <message>
+        <source>HDR Shadow Range</source>
+        <translation>HDR Sombra Rango</translation>
+    </message>
+    <message>
+        <source>HDR Shadow Falloff</source>
+        <translation>HDR Sombra Caída</translation>
+    </message>
+    <message>
+        <source>HDR Light Range</source>
+        <translation>HDR Luz Rango</translation>
+    </message>
+    <message>
+        <source>HDR Light Falloff</source>
+        <translation>HDR Luz Caída</translation>
+    </message>
+    <message>
+        <source>HDR Highlight Range</source>
+        <translation>HDR Resaltado Rango</translation>
+    </message>
+    <message>
+        <source>HDR Highlight Falloff</source>
+        <translation>HDR Resaltado Caída</translation>
     </message>
 </context>
 <context>

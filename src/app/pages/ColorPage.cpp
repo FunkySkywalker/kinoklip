@@ -430,13 +430,21 @@ QWidget* ColorPage::buildPalettes()
     m_agx = new AgxPanel(m_session);
     setPanelInfo(m_agx, tr("AgX"),
         tr("Tone map the current node with AgX, Blender's view transform."));
+    m_warper = new WarperPanel(m_session);
+    setPanelInfo(m_warper, tr("Color Warper"),
+        tr("Drag pins on the Hue - Sat and Chroma - Luma grids to move colours smoothly."));
+    m_hdr = new HdrPanel(m_session);
+    setPanelInfo(m_hdr, tr("HDR"),
+        tr("Colour wheels and exposure for the Shadow, Light, Highlight and Specular zones of the "
+           "picture, Global and a Black Offset."));
     m_paletteStack = new QStackedWidget;
     m_paletteStack->setObjectName(QStringLiteral("ColorPaletteStack"));
     for (QWidget* w : {static_cast<QWidget*>(m_primaries), static_cast<QWidget*>(m_curves),
              static_cast<QWidget*>(m_qualifier), static_cast<QWidget*>(m_windows),
              static_cast<QWidget*>(m_luts), static_cast<QWidget*>(m_blur),
              static_cast<QWidget*>(m_tracker), static_cast<QWidget*>(m_rgbMixer),
-             static_cast<QWidget*>(m_agx), static_cast<QWidget*>(m_log)})
+             static_cast<QWidget*>(m_agx), static_cast<QWidget*>(m_log),
+             static_cast<QWidget*>(m_warper), static_cast<QWidget*>(m_hdr)})
         m_paletteStack->addWidget(w);
     auto* box = new QWidget;
     box->setObjectName(QStringLiteral("ColorPalettes"));
@@ -446,7 +454,7 @@ QWidget* ColorPage::buildPalettes()
     m_paletteButtons = new QButtonGroup(this);
     QWidget* bar = tabRow(m_paletteButtons,
         {tr("Primaries"), tr("Curves"), tr("Qualifier"), tr("Windows"), tr("LUTs"), tr("Blur"), tr("Tracker"),
-            tr("RGB Mixer"), tr("AgX"), tr("Log")},
+            tr("RGB Mixer"), tr("AgX"), tr("Log"), tr("Color Warper"), tr("HDR")},
         QStringLiteral("ColorPaletteTab_"), box);
     // The primaries reset sits at the right of the bar (like Resolve's palette reset).
     auto* reset = new QToolButton(bar);
@@ -462,6 +470,12 @@ QWidget* ColorPage::buildPalettes()
             break;
         case Palette::Log:
             m_log->resetAll();
+            break;
+        case Palette::Warper:
+            m_warper->resetAll();
+            break;
+        case Palette::Hdr:
+            m_hdr->resetAll();
             break;
         case Palette::Curves:
             m_curves->resetCurve();
@@ -986,7 +1000,7 @@ void ColorPage::restoreLayout(const QSettings& settings)
     m_rows->restoreState(settings.value(QStringLiteral("rows")).toByteArray());
     m_top->restoreState(settings.value(QStringLiteral("top")).toByteArray());
     m_bottom->restoreState(settings.value(QStringLiteral("bottom")).toByteArray());
-    showPalette(Palette(std::clamp(settings.value(QStringLiteral("palette"), 0).toInt(), 0, 9)));
+    showPalette(Palette(std::clamp(settings.value(QStringLiteral("palette"), 0).toInt(), 0, 11)));
     m_primaries->setBarsMode(settings.value(QStringLiteral("bars"), false).toBool());
     const int right = std::clamp(settings.value(QStringLiteral("rightTab"), 0).toInt(), 0, 1);
     m_rightStack->setCurrentIndex(right);

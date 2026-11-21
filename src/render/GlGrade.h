@@ -40,6 +40,8 @@ private:
         GLint logOn = -1, logS = -1, logM = -1, logH = -1, logO = -1, logRange = -1, shadHi = -1,
             boost = -1;
         GLint lumMix = -1, hue = -1, curveMask = -1, mixer = -1, mixM = -1, mixGrey = -1;
+        GLint hdr = -1, hdrStops = -1, hdrSat = -1, hdrEdge = -1, hdrFall = -1, hdrBlack = -1;
+        GLint warpOn = -1, warpSize = -1;
         GLint agx = -1, agxIn = -1, agxLook = -1, agxOut = -1, agxExp = -1;
         GLint lutMode = -1, lutN = -1, lutMin = -1, lutMax = -1;
         GLint keyed = -1, mix = -1;
@@ -61,6 +63,7 @@ private:
     void drawCorrector(
         GlKit& kit, const PreparedGradeNode& node, GLuint input, int mode, GLuint matte = 0);
     void uploadCurves(GlFunctions* gl, const grademath::CurveTables& tables);
+    void uploadWarp(GlFunctions* gl, const grademath::WarpTables& tables);
     void uploadLut(GlFunctions* gl, const std::shared_ptr<const CubeLut>& lut);
     /// Uploads the polygon points of @p node's windows; fills @p ranges (start, count) per window.
     void uploadPoints(GlFunctions* gl, const PreparedGradeNode& node, std::vector<int>& ranges);
@@ -80,6 +83,7 @@ private:
     GLint m_combineMix = -1, m_combineSharp = -1, m_combineCoring = -1, m_combineMid = -1;
 
     GLuint m_curveTex = 0; ///< kCurveTableSize x kGradeCurveCount, R32F
+    GLuint m_warpTex = 0; ///< Color Warper meshes, RG32F, kWarpTexWidth x kWarpTexHeight
     GLuint m_lut3d = 0;
     GLuint m_lut1d = 0;
     std::shared_ptr<const CubeLut> m_uploadedLut; ///< the table in the textures (kept alive)

@@ -21,6 +21,7 @@
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
+#include <QKeyEvent>
 #include <QLineEdit>
 #include <QListWidget>
 #include <QMouseEvent>
@@ -1650,6 +1651,472 @@ void AgxPanel::refresh()
     m_output->setCurrentIndex(int(v.output));
     if (!m_exposure->isScrubbing())
         m_exposure->setValue(double(v.exposure));
+    m_refreshing = false;
+}
+
+
+// ---- WarperGrid ----
+
+namespace {
+constexpr double kPinRadius = 5.0;
+constexpr double kPinPick = 9.0;
+constexpr double kTwoPi = 6.283185307179586;
+
+/// Colour of the Hue - Sat disc at hue @p h (turns) and saturation @p s (0..1).
+QColor warpDiscColour(double h, double s)
+{
+    const double y = 0.6;
+    const double ch = s * grademath::kWarpChromaMax;
+    const double cb = ch * std::cos(kTwoPi * h);
+    const double cr = ch * std::sin(kTwoPi * h);
+    const double r = y + grademath::kWarpCrScale * cr;
+    const double b = y + grademath::kWarpCbScale * cb;
+    const double g = (y - grademath::kLumaR * r - grademath::kLumaB * b) / grademath::kLumaG;
+    return QColor::fromRgbF(
+        float(std::clamp(r, 0.0, 1.0)), float(std::clamp(g, 0.0, 1.0)), float(std::clamp(b, 0.0, 1.0)));
+}
+} // namespace
+
+WarperGrid::WarperGrid(QWidget* parent)
+    : QWidget(parent)
+{
+    setObjectName(QStringLiteral("WarperGrid"));
+    setFocusPolicy(Qt::StrongFocus);
+    setToolTip(tr("Click a pin to select it and drag it to move that colour; double-click or "
+                  "Delete puts it back; arrow keys nudge it; Shift while dragging is fine "
+                  "control"));
+}
+
+void WarperGrid::setGrid(WarpGrid grid)
+{
+    if (grid == m_grid)
+        return;
+    m_grid = grid;
+    m_selected = {-1, -1};
+    m_dragging = false;
+    update();
+    Q_EMIT selectionChanged();
+}
+
+void WarperGrid::setWarp(const GradeWarp& warp)
+{
+    if (warp == m_warp)
+        return;
+    m_warp = warp;
+    update();
+}
+
+void WarperGrid::selectPin(int col, int row)
+{
+    const QPoint p = isMovable(col, row) ? QPoint(col, row) : QPoint(-1, -1);
+    if (p == m_selected)
+        return;
+    m_selected = p;
+    update();
+    Q_EMIT selectionChanged();
+}
+
+bool WarperGrid::isMovable(int col, int row) const
+{
+    const auto [cols, rows] = warpGridSize(m_grid, m_warp.resolution);
+    if (col < 0 || row < 0 || col >= cols || row >= rows)
+        return false;
+    return m_grid == WarpGrid::ChromaLuma || row > 0; // Hue - Sat row 0 is the grey centre
+}
+
+QRectF WarperGrid::plotRect() const
+{
+    const QRectF area = QRectF(rect()).adjusted(10, 10, -10, -10);
+    if (m_grid == WarpGrid::ChromaLuma)
+        return area;
+    const double side = std::max(10.0, std::min(area.width(), area.height()));
+    return QRectF(area.center().x() - side / 2, area.center().y() - side / 2, side, side);
+}
+
+QPointF WarperGrid::baseUnit(int col, int row) const
+{
+    const auto [cols, rows] = warpGridSize(m_grid, m_warp.resolution);
+    if (m_grid == WarpGrid::HueSat)
+        return QPointF(double(col) / cols, double(row) / (rows - 1));
+    return QPointF(double(col) / (cols - 1), double(row) / (rows - 1));
+}
+
+QPointF WarperGrid::unitToPixel(QPointF u) const
+{
+    const QRectF r = plotRect();
+    if (m_grid == WarpGrid::HueSat) {
+        const double radius = r.width() / 2;
+        const double a = kTwoPi * u.x();
+        // x = Cb to the right, y = Cr up: the same orientation as the colour wheels.
+        return QPointF(r.center().x() + radius * u.y() * std::cos(a),
+            r.center().y() - radius * u.y() * std::sin(a));
+    }
+    return QPointF(r.left() + u.x() * r.width(), r.bottom() - u.y() * r.height());
+}
+
+QPointF WarperGrid::pixelToUnit(QPointF p) const
+{
+    const QRectF r = plotRect();
+    if (m_grid == WarpGrid::HueSat) {
+        const double radius = r.width() / 2;
+        const double dx = p.x() - r.center().x();
+        const double dy = r.center().y() - p.y();
+        double h = std::atan2(dy, dx) / kTwoPi;
+        h -= std::floor(h);
+        return QPointF(h, std::hypot(dx, dy) / radius);
+    }
+    return QPointF((p.x() - r.left()) / r.width(), (r.bottom() - p.y()) / r.height());
+}
+
+QPointF WarperGrid::maxDisplacement() const
+{
+    const auto [cols, rows] = warpGridSize(m_grid, m_warp.resolution);
+    return m_grid == WarpGrid::HueSat ? QPointF(1.0 / cols, 1.0 / (rows - 1))
+                                       : QPointF(1.0 / (cols - 1), 1.0 / (rows - 1));
+}
+
+QPointF WarperGrid::pinPosition(int col, int row) const
+{
+    const auto [dx, dy] = m_warp.pin(m_grid, col, row);
+    const QPointF b = baseUnit(col, row);
+    return unitToPixel(QPointF(b.x() + dx, b.y() + dy));
+}
+
+QPoint WarperGrid::pinAt(QPointF pos) const
+{
+    const auto [cols, rows] = warpGridSize(m_grid, m_warp.resolution);
+    QPoint best(-1, -1);
+    double bestDist = kPinPick;
+    for (int row = 0; row < rows; ++row) {
+        for (int col = 0; col < cols; ++col) {
+            if (!isMovable(col, row))
+                continue;
+            const QPointF d = pinPosition(col, row) - pos;
+            const double dist = std::hypot(d.x(), d.y());
+            if (dist <= bestDist) {
+                bestDist = dist;
+                best = QPoint(col, row);
+            }
+        }
+    }
+    return best;
+}
+
+void WarperGrid::setDisplacement(int col, int row, QPointF d, const QString& label)
+{
+    if (!isMovable(col, row))
+        return;
+    const QPointF m = maxDisplacement();
+    d.setX(m_grid == WarpGrid::ChromaLuma && col == 0 ? 0.0 : std::clamp(d.x(), -m.x(), m.x()));
+    d.setY(std::clamp(d.y(), -m.y(), m.y()));
+    const auto [ox, oy] = m_warp.pin(m_grid, col, row);
+    if (float(d.x()) == ox && float(d.y()) == oy)
+        return;
+    m_warp.setPin(m_grid, col, row, float(d.x()), float(d.y()));
+    update();
+    Q_EMIT warpChanged(m_warp, label);
+}
+
+void WarperGrid::resetSelectedPin()
+{
+    if (m_selected.x() >= 0)
+        setDisplacement(m_selected.x(), m_selected.y(), QPointF(0, 0), tr("Reset Pin"));
+}
+
+void WarperGrid::paintEvent(QPaintEvent*)
+{
+    QPainter p(this);
+    p.setRenderHint(QPainter::Antialiasing);
+    const QRectF r = plotRect();
+    const auto [cols, rows] = warpGridSize(m_grid, m_warp.resolution);
+    if (m_grid == WarpGrid::HueSat) {
+        const int side = int(r.width());
+        if (m_disc.width() != side) {
+            m_disc = QImage(side, side, QImage::Format_ARGB32_Premultiplied);
+            m_disc.fill(Qt::transparent);
+            for (int y = 0; y < side; ++y) {
+                for (int x = 0; x < side; ++x) {
+                    const double dx = (x + 0.5) - side / 2.0;
+                    const double dy = side / 2.0 - (y + 0.5);
+                    const double s = std::hypot(dx, dy) / (side / 2.0);
+                    if (s > 1.0)
+                        continue;
+                    double h = std::atan2(dy, dx) / kTwoPi;
+                    h -= std::floor(h);
+                    QColor c = warpDiscColour(h, s);
+                    c.setAlphaF(0.55);
+                    m_disc.setPixelColor(x, y, c);
+                }
+            }
+        }
+        p.drawImage(r.topLeft(), m_disc);
+        p.setPen(QPen(palette().color(QPalette::Mid), 1));
+        p.setBrush(Qt::NoBrush);
+        p.drawEllipse(r);
+    } else {
+        QLinearGradient g(r.bottomLeft(), r.topLeft());
+        g.setColorAt(0.0, QColor(10, 10, 10));
+        g.setColorAt(1.0, QColor(235, 235, 235));
+        p.fillRect(r, g);
+        p.setPen(QPen(palette().color(QPalette::Mid), 1));
+        p.drawRect(r);
+    }
+    // The undisplaced mesh, faint, then the displaced one.
+    const auto vertex = [&](int col, int row, bool moved) {
+        if (!moved)
+            return unitToPixel(baseUnit(col, row));
+        return pinPosition(col, row);
+    };
+    for (const bool moved : {false, true}) {
+        QColor line = palette().color(QPalette::Text);
+        line.setAlphaF(moved ? 0.8 : 0.22);
+        p.setPen(QPen(line, 1));
+        if (!moved && m_warp.isIdentity(m_grid))
+            continue; // the displaced mesh is the same: draw it once
+        for (int row = 0; row < rows; ++row) {
+            for (int col = 0; col < cols; ++col) {
+                const QPointF a = vertex(col, row, moved);
+                if (col + 1 < cols || m_grid == WarpGrid::HueSat) {
+                    const int nc = (col + 1) % cols;
+                    if (row > 0 || m_grid == WarpGrid::ChromaLuma)
+                        p.drawLine(a, vertex(nc, row, moved));
+                }
+                if (row + 1 < rows)
+                    p.drawLine(a, vertex(col, row + 1, moved));
+            }
+        }
+    }
+    for (int row = 0; row < rows; ++row) {
+        for (int col = 0; col < cols; ++col) {
+            if (!isMovable(col, row))
+                continue;
+            const bool selected = m_selected == QPoint(col, row);
+            const auto [dx, dy] = m_warp.pin(m_grid, col, row);
+            const bool moved = dx != 0.0f || dy != 0.0f;
+            p.setPen(QPen(selected ? palette().color(QPalette::Highlight) : QColor(20, 20, 20), selected ? 2 : 1));
+            p.setBrush(moved ? palette().color(QPalette::Highlight) : palette().color(QPalette::Base));
+            p.drawEllipse(pinPosition(col, row), kPinRadius, kPinRadius);
+        }
+    }
+}
+
+void WarperGrid::mousePressEvent(QMouseEvent* event)
+{
+    if (event->button() != Qt::LeftButton)
+        return;
+    setFocus();
+    const QPoint hit = pinAt(event->position());
+    selectPin(hit.x(), hit.y());
+    if (hit.x() < 0)
+        return;
+    m_dragging = true;
+    m_pressPos = event->position();
+    m_grabOffset = event->position() - pinPosition(hit.x(), hit.y());
+    const auto [dx, dy] = m_warp.pin(m_grid, hit.x(), hit.y());
+    m_pressDisplacement = QPointF(dx, dy);
+    Q_EMIT dragStarted();
+}
+
+void WarperGrid::mouseMoveEvent(QMouseEvent* event)
+{
+    if (!m_dragging || m_selected.x() < 0)
+        return;
+    const bool fine = event->modifiers() & Qt::ShiftModifier;
+    // The pin follows the mouse (a quarter of the travel with Shift).
+    const QPointF pressedPin = m_pressPos - m_grabOffset;
+    const QPointF pos = pressedPin + (event->position() - m_pressPos) * (fine ? 0.25 : 1.0);
+    const QPointF b = baseUnit(m_selected.x(), m_selected.y());
+    QPointF target = pixelToUnit(pos);
+    double dx = target.x() - b.x();
+    if (m_grid == WarpGrid::HueSat) {
+        dx -= std::round(dx); // the hue wraps: the short way round
+    }
+    setDisplacement(m_selected.x(), m_selected.y(), QPointF(dx, target.y() - b.y()),
+        m_grid == WarpGrid::HueSat ? tr("Warp Hue - Sat") : tr("Warp Chroma - Luma"));
+}
+
+void WarperGrid::mouseReleaseEvent(QMouseEvent* event)
+{
+    if (event->button() != Qt::LeftButton || !m_dragging)
+        return;
+    m_dragging = false;
+    Q_EMIT dragFinished();
+}
+
+void WarperGrid::mouseDoubleClickEvent(QMouseEvent* event)
+{
+    if (event->button() != Qt::LeftButton)
+        return;
+    const QPoint hit = pinAt(event->position());
+    if (hit.x() < 0)
+        return;
+    selectPin(hit.x(), hit.y());
+    resetSelectedPin();
+}
+
+void WarperGrid::keyPressEvent(QKeyEvent* event)
+{
+    if (m_selected.x() < 0) {
+        QWidget::keyPressEvent(event);
+        return;
+    }
+    const QPointF m = maxDisplacement();
+    const double step = (event->modifiers() & Qt::ShiftModifier) ? 0.25 : 0.05;
+    QPointF delta;
+    switch (event->key()) {
+    case Qt::Key_Delete:
+    case Qt::Key_Backspace:
+        resetSelectedPin();
+        return;
+    case Qt::Key_Left:
+        delta = QPointF(-step * m.x(), 0);
+        break;
+    case Qt::Key_Right:
+        delta = QPointF(step * m.x(), 0);
+        break;
+    case Qt::Key_Up:
+        delta = QPointF(0, step * m.y());
+        break;
+    case Qt::Key_Down:
+        delta = QPointF(0, -step * m.y());
+        break;
+    default:
+        QWidget::keyPressEvent(event);
+        return;
+    }
+    const auto [dx, dy] = m_warp.pin(m_grid, m_selected.x(), m_selected.y());
+    setDisplacement(m_selected.x(), m_selected.y(), QPointF(dx, dy) + delta,
+        m_grid == WarpGrid::HueSat ? tr("Warp Hue - Sat") : tr("Warp Chroma - Luma"));
+}
+
+// ---- WarperPanel ----
+
+WarperPanel::WarperPanel(ColorSession* session, QWidget* parent)
+    : QWidget(parent)
+    , m_session(session)
+{
+    markVimForm(this);
+    setObjectName(QStringLiteral("WarperPanel"));
+    auto* row = new QHBoxLayout(this);
+    row->setContentsMargins(6, 4, 6, 4);
+    row->setSpacing(8);
+    m_gridWidget = new WarperGrid(this);
+    row->addWidget(m_gridWidget, 1);
+    auto* side = new QVBoxLayout;
+    side->setSpacing(4);
+    const auto tab = [this](const QString& text, const QString& name) {
+        auto* b = new QToolButton(this);
+        b->setObjectName(name);
+        b->setText(text);
+        b->setCheckable(true);
+        b->setAutoRaise(true);
+        b->setToolButtonStyle(Qt::ToolButtonTextOnly);
+        b->setProperty("kkTab", true);
+        return b;
+    };
+    m_hueSat = tab(tr("Hue - Sat"), QStringLiteral("WarperHueSat"));
+    m_chromaLuma = tab(tr("Chroma - Luma"), QStringLiteral("WarperChromaLuma"));
+    m_hueSat->setToolTip(tr("Move colours by hue and saturation: the angle is the hue, the "
+                            "distance from the centre the saturation"));
+    m_chromaLuma->setToolTip(
+        tr("Move colours by chroma and luma: chroma to the right, brightness up"));
+    auto* group = new QButtonGroup(this);
+    group->addButton(m_hueSat, 0);
+    group->addButton(m_chromaLuma, 1);
+    m_hueSat->setChecked(true);
+    auto* tabs = new QHBoxLayout;
+    tabs->addWidget(m_hueSat);
+    tabs->addWidget(m_chromaLuma);
+    side->addLayout(tabs);
+    auto* resolutionRow = new QHBoxLayout;
+    auto* resolutionLabel = new QLabel(tr("Resolution"), this);
+    m_resolution = new QComboBox(this);
+    m_resolution->setObjectName(QStringLiteral("WarperResolution"));
+    for (const QString& n : {tr("Low"), tr("Medium"), tr("High")})
+        m_resolution->addItem(n);
+    const QString resolutionTip
+        = tr("How many pins the grids have: more pins give finer control. Changing it keeps "
+             "the colours where they are.");
+    resolutionLabel->setToolTip(resolutionTip);
+    m_resolution->setToolTip(resolutionTip);
+    resolutionRow->addWidget(resolutionLabel);
+    resolutionRow->addWidget(m_resolution, 1);
+    side->addLayout(resolutionRow);
+    m_resetPin = new QToolButton(this);
+    m_resetPin->setObjectName(QStringLiteral("WarperResetPin"));
+    m_resetPin->setText(tr("Reset Pin"));
+    m_resetPin->setToolTip(tr("Put the selected pin back (also Delete or a double-click)"));
+    m_resetGrid = new QToolButton(this);
+    m_resetGrid->setObjectName(QStringLiteral("WarperResetGrid"));
+    m_resetGrid->setText(tr("Reset Grid"));
+    m_resetGrid->setToolTip(tr("Put every pin of the shown grid back"));
+    for (QToolButton* b : {m_resetPin, m_resetGrid}) {
+        b->setAutoRaise(true);
+        side->addWidget(b);
+    }
+    side->addStretch(1);
+    row->addLayout(side);
+
+    connect(group, &QButtonGroup::idClicked, this, [this](int id) {
+        m_gridWidget->setGrid(id == 0 ? WarpGrid::HueSat : WarpGrid::ChromaLuma);
+    });
+    connect(m_gridWidget, &WarperGrid::selectionChanged, this,
+        [this] { m_resetPin->setEnabled(m_gridWidget->selectedPin().x() >= 0); });
+    connect(m_gridWidget, &WarperGrid::dragStarted, this, [this] {
+        if (m_session)
+            m_session->beginGesture(tr("Color Warper"));
+    });
+    connect(m_gridWidget, &WarperGrid::dragFinished, this, [this] {
+        if (m_session)
+            m_session->endGesture();
+    });
+    connect(m_gridWidget, &WarperGrid::warpChanged, this,
+        [this](const GradeWarp& warp, const QString& label) { commit(warp, label); });
+    connect(m_resolution, &QComboBox::activated, this, [this](int i) {
+        if (m_refreshing || !m_session)
+            return;
+        commit(grademath::resampleWarp(m_gridWidget->warp(), i), tr("Warper Resolution"));
+    });
+    connect(m_resetPin, &QToolButton::clicked, this, [this] { m_gridWidget->resetSelectedPin(); });
+    connect(m_resetGrid, &QToolButton::clicked, this, [this] {
+        GradeWarp w = m_gridWidget->warp();
+        w.pins(m_gridWidget->grid()).clear();
+        commit(w, tr("Reset Grid"));
+    });
+    if (m_session) {
+        connect(m_session, &ColorSession::gradeChanged, this, &WarperPanel::refresh);
+        connect(m_session, &ColorSession::selectedNodeChanged, this, &WarperPanel::refresh);
+        connect(m_session, &ColorSession::clipChanged, this, &WarperPanel::refresh);
+    }
+    m_resetPin->setEnabled(false);
+    refresh();
+}
+
+void WarperPanel::commit(const GradeWarp& warp, const QString& label)
+{
+    if (m_refreshing || !m_session)
+        return;
+    m_session->setWarp(0, warp, label);
+}
+
+void WarperPanel::resetAll()
+{
+    const GradeNode* n = m_session ? m_session->currentNode() : nullptr;
+    if (!n || n->warp.isIdentity())
+        return;
+    GradeWarp w = n->warp;
+    w.hueSat.clear();
+    w.chromaLuma.clear();
+    m_session->setWarp(0, w, tr("Reset Color Warper"));
+}
+
+void WarperPanel::refresh()
+{
+    m_refreshing = true;
+    const GradeNode* n = m_session ? m_session->currentNode() : nullptr;
+    setEnabled(m_session && m_session->hasGrade() && (!n || !n->isMixer()));
+    m_gridWidget->setWarp(n ? n->warp : GradeWarp {});
+    m_resolution->setCurrentIndex(m_gridWidget->warp().resolution);
     m_refreshing = false;
 }
 
