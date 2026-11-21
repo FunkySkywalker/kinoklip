@@ -24366,6 +24366,10 @@ Import files with %1 or drop them here.</source>
         <translation>Кадр входу, який показується зараз. Анімуйте його ключами: 0 на першому кадрі й 100 на останньому програє 100 кадрів входу; чим крутіша крива, тим швидше</translation>
     </message>
     <message>
+        <source>Text in a 3D scene; flat, or extruded with bevelled edges</source>
+        <translation>Текст у 3D-сцені; плаский або видавлений зі скошеними краями</translation>
+    </message>
+    <message>
         <source>Patterns</source>
         <translation>Шаблони</translation>
     </message>
@@ -25134,10 +25138,6 @@ Import files with %1 or drop them here.</source>
         <translation>Text3D</translation>
     </message>
     <message>
-        <source>Flat text on a plane in a 3D scene</source>
-        <translation>Плоский текст на площині в 3D-сцені</translation>
-    </message>
-    <message>
         <source>The words to show</source>
         <translation>Слова, що показуються</translation>
     </message>
@@ -25192,6 +25192,86 @@ Import files with %1 or drop them here.</source>
     <message>
         <source>How solid the text is; 0 makes it invisible</source>
         <translation>Наскільки текст непрозорий; 0 робить його невидимим</translation>
+    </message>
+    <message>
+        <source>Extrusion Depth</source>
+        <translation>Глибина видавлювання</translation>
+    </message>
+    <message>
+        <source>The thickness of the letters in scene units; 0 keeps the text flat</source>
+        <translation>Товщина літер в одиницях сцени; 0 залишає текст пласким</translation>
+    </message>
+    <message>
+        <source>Bevel Depth</source>
+        <translation>Глибина фаски</translation>
+    </message>
+    <message>
+        <source>How far the rounded or cut edge reaches into the thickness; at most half of the Extrusion Depth</source>
+        <translation>Наскільки заокруглений або зрізаний край заходить у товщину; не більше половини глибини видавлювання</translation>
+    </message>
+    <message>
+        <source>Bevel Width</source>
+        <translation>Ширина фаски</translation>
+    </message>
+    <message>
+        <source>How far the rounded or cut edge reaches into the front and back of the letters; thin strokes make it smaller by itself</source>
+        <translation>Наскільки заокруглений або зрізаний край заходить у лицьову та задню сторони літер; на тонких штрихах він зменшується сам</translation>
+    </message>
+    <message>
+        <source>Bevel Style</source>
+        <translation>Стиль фаски</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Гладка</translation>
+    </message>
+    <message>
+        <source>Flat</source>
+        <translation>Плоска</translation>
+    </message>
+    <message>
+        <source>Smooth rounds the edge; Flat cuts it in one slanted face</source>
+        <translation>Гладка заокруглює край; Плоска зрізає його однією похилою гранню</translation>
+    </message>
+    <message>
+        <source>Bevel Segments</source>
+        <translation>Сегменти фаски</translation>
+    </message>
+    <message>
+        <source>How many steps a smooth bevel is cut into; more look rounder and cost more</source>
+        <translation>На скільки кроків розбито гладку фаску; чим більше, тим округліше й тим дорожче</translation>
+    </message>
+    <message>
+        <source>Separate Colors</source>
+        <translation>Окремі кольори</translation>
+    </message>
+    <message>
+        <source>Give the bevel, the sides and the back their own colours; off uses Color everywhere</source>
+        <translation>Дає фасці, бокам і задній стороні свої кольори; вимкнено — скрізь колір Color</translation>
+    </message>
+    <message>
+        <source>Bevel Color</source>
+        <translation>Колір фаски</translation>
+    </message>
+    <message>
+        <source>The colour of the bevelled edges, with Separate Colors on</source>
+        <translation>Колір скошених країв при ввімкнених окремих кольорах</translation>
+    </message>
+    <message>
+        <source>Side Color</source>
+        <translation>Колір боків</translation>
+    </message>
+    <message>
+        <source>The colour of the sides of the letters, with Separate Colors on</source>
+        <translation>Колір бокових сторін літер при ввімкнених окремих кольорах</translation>
+    </message>
+    <message>
+        <source>Back Color</source>
+        <translation>Колір задньої сторони</translation>
+    </message>
+    <message>
+        <source>The colour of the back of the letters, with Separate Colors on</source>
+        <translation>Колір задньої сторони літер при ввімкнених окремих кольорах</translation>
     </message>
     <message>
         <source>Merge3D</source>

@@ -24348,6 +24348,10 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
         <translation>Das Bild des Eingangs, das jetzt gezeigt wird. Setzen Sie Keyframes: 0 im ersten und 100 im letzten Bild spielt 100 Bilder des Eingangs ab; je steiler die Kurve, desto schneller</translation>
     </message>
     <message>
+        <source>Text in a 3D scene; flat, or extruded with bevelled edges</source>
+        <translation>Text in einer 3D-Szene; flach oder extrudiert mit abgeschrägten Kanten</translation>
+    </message>
+    <message>
         <source>Patterns</source>
         <translation>Muster</translation>
     </message>
@@ -25116,10 +25120,6 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
         <translation>Text3D</translation>
     </message>
     <message>
-        <source>Flat text on a plane in a 3D scene</source>
-        <translation>Flacher Text auf einer Ebene in einer 3D-Szene</translation>
-    </message>
-    <message>
         <source>The words to show</source>
         <translation>Die anzuzeigenden Wörter</translation>
     </message>
@@ -25174,6 +25174,86 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
     <message>
         <source>How solid the text is; 0 makes it invisible</source>
         <translation>Wie deckend der Text ist; 0 macht ihn unsichtbar</translation>
+    </message>
+    <message>
+        <source>Extrusion Depth</source>
+        <translation>Extrusionstiefe</translation>
+    </message>
+    <message>
+        <source>The thickness of the letters in scene units; 0 keeps the text flat</source>
+        <translation>Die Dicke der Buchstaben in Szeneneinheiten; 0 lässt den Text flach</translation>
+    </message>
+    <message>
+        <source>Bevel Depth</source>
+        <translation>Fasentiefe</translation>
+    </message>
+    <message>
+        <source>How far the rounded or cut edge reaches into the thickness; at most half of the Extrusion Depth</source>
+        <translation>Wie weit die gerundete oder geschnittene Kante in die Dicke reicht; höchstens die Hälfte der Extrusionstiefe</translation>
+    </message>
+    <message>
+        <source>Bevel Width</source>
+        <translation>Fasenbreite</translation>
+    </message>
+    <message>
+        <source>How far the rounded or cut edge reaches into the front and back of the letters; thin strokes make it smaller by itself</source>
+        <translation>Wie weit die gerundete oder geschnittene Kante in Vorder- und Rückseite der Buchstaben reicht; bei dünnen Strichen wird sie von selbst kleiner</translation>
+    </message>
+    <message>
+        <source>Bevel Style</source>
+        <translation>Fasenstil</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Rund</translation>
+    </message>
+    <message>
+        <source>Flat</source>
+        <translation>Flach</translation>
+    </message>
+    <message>
+        <source>Smooth rounds the edge; Flat cuts it in one slanted face</source>
+        <translation>Rund rundet die Kante ab; Flach schneidet sie mit einer schrägen Fläche</translation>
+    </message>
+    <message>
+        <source>Bevel Segments</source>
+        <translation>Fasensegmente</translation>
+    </message>
+    <message>
+        <source>How many steps a smooth bevel is cut into; more look rounder and cost more</source>
+        <translation>In wie viele Schritte eine runde Fase unterteilt wird; mehr sieht runder aus und kostet mehr</translation>
+    </message>
+    <message>
+        <source>Separate Colors</source>
+        <translation>Getrennte Farben</translation>
+    </message>
+    <message>
+        <source>Give the bevel, the sides and the back their own colours; off uses Color everywhere</source>
+        <translation>Gibt Fase, Seiten und Rückseite eigene Farben; aus nimmt überall Farbe</translation>
+    </message>
+    <message>
+        <source>Bevel Color</source>
+        <translation>Fasenfarbe</translation>
+    </message>
+    <message>
+        <source>The colour of the bevelled edges, with Separate Colors on</source>
+        <translation>Die Farbe der abgeschrägten Kanten, bei eingeschalteten getrennten Farben</translation>
+    </message>
+    <message>
+        <source>Side Color</source>
+        <translation>Seitenfarbe</translation>
+    </message>
+    <message>
+        <source>The colour of the sides of the letters, with Separate Colors on</source>
+        <translation>Die Farbe der Seiten der Buchstaben, bei eingeschalteten getrennten Farben</translation>
+    </message>
+    <message>
+        <source>Back Color</source>
+        <translation>Rückseitenfarbe</translation>
+    </message>
+    <message>
+        <source>The colour of the back of the letters, with Separate Colors on</source>
+        <translation>Die Farbe der Rückseite der Buchstaben, bei eingeschalteten getrennten Farben</translation>
     </message>
     <message>
         <source>Merge3D</source>

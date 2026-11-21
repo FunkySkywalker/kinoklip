@@ -791,6 +791,57 @@ private slots:
         QVERIFY(litTilted > 100 && litTilted < lit);
     }
 
+    void extrudedBevelledTextRendersWithItsSidesLit()
+    {
+        Composition c = co::defaultComposition();
+        const quint64 tx = co::addNode(c, nodetypes::Text3D, {});
+        ParamSet& p = c.node(tx)->params;
+        p.setStatic(k::Text, QStringLiteral("MOA"));
+        p.setBase(k::FontSize, 90);
+        p.setStatic(k::Bold, true);
+        p.setBase(k::ExtrudeDepth, 0.08);
+        p.setBase(k::BevelDepth, 0.015);
+        p.setBase(k::BevelWidth, 0.008);
+        p.setStatic(k::SeparateColors, true);
+        p.setStatic(k::Color, QColor(255, 0, 0));
+        p.setStatic(k::BevelColor, QColor(0, 0, 255));
+        p.setStatic(k::SideColor, QColor(0, 255, 0));
+        p.setBase(k::RotateY, 38);
+        p.setBase(k::RotateX, -14);
+        const quint64 sun = addLight(c, nodetypes::DirectionalLight, 1.0);
+        c.node(sun)->params.setBase(k::RotateY, 20);
+        c.node(sun)->params.setBase(k::RotateX, -25);
+        const quint64 amb = addLight(c, nodetypes::AmbientLight, 0.35);
+        const quint64 rn = addRenderer(c, addMerge(c, {tx, sun, amb}), 2);
+        co::connect(c, rn, 0, c.mediaOutId, nodeports::Input);
+        const TimelineData tl = compTimeline(c);
+        QImage img;
+        QVERIFY(sameOnBoth(tl, rn, 0, &img, 3));
+        int red = 0, green = 0, blue = 0;
+        for (int y = 0; y < kH; ++y)
+            for (int x = 0; x < kW; ++x) {
+                const Px q = px(img, x, y);
+                if (q.a < 200)
+                    continue;
+                red += q.r > 60 && q.g < 40 && q.b < 40;
+                green += q.g > 60 && q.r < 40 && q.b < 40;
+                blue += q.b > 60 && q.r < 40 && q.g < 40;
+            }
+        QVERIFY2(red > 400, qPrintable(QString::number(red)));
+        QVERIFY2(green > 40, qPrintable(QString::number(green))); // the sides show when turned
+        QVERIFY2(blue > 10, qPrintable(QString::number(blue))); // and so do the bevels
+        QVERIFY(px(img, 2, 2).a <= 2);
+        const QString still = qEnvironmentVariable("KK_TEXT3D_STILL");
+        if (!still.isEmpty())
+            QVERIFY(img.convertToFormat(QImage::Format_ARGB32).save(still));
+        // The same scene again gives the same picture (the mesh cache changes nothing).
+        QVERIFY(nodeImage(m_cpu.get(), tl, rn, 0) == nodeImage(m_cpu.get(), tl, rn, 0));
+        // With the depth back at 0 it is the flat title again.
+        c.node(tx)->params.setBase(k::ExtrudeDepth, 0);
+        const QImage flat = nodeImage(m_cpu.get(), compTimeline(c), rn, 0);
+        QVERIFY(flat != img);
+    }
+
     void rendererOnBothBackendsAgreeOnACompoundScene()
     {
         Composition c = co::defaultComposition();

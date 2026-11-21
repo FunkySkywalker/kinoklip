@@ -234,6 +234,10 @@ inline const QString Sphere = QStringLiteral("sphere");
 inline const QString Cylinder = QStringLiteral("cylinder");
 inline const QString Cone = QStringLiteral("cone");
 } // namespace shapes3d
+namespace bevelstyles {
+inline const QString Smooth = QStringLiteral("smooth");
+inline const QString Flat = QStringLiteral("flat");
+} // namespace bevelstyles
 namespace cameraviews {
 inline const QString AngleOfView = QStringLiteral("angleOfView");
 inline const QString FocalLength = QStringLiteral("focalLength");
@@ -404,6 +408,15 @@ inline const QString ScaleZ = QStringLiteral("scaleZ");
 inline const QString Shape = QStringLiteral("shape"); ///< Shape3D: choice (shapes3d::)
 inline const QString Subdivisions = QStringLiteral("subdivisions"); ///< Shape3D: segments round / across
 inline const QString SubdivisionsHeight = QStringLiteral("subdivisionsHeight");
+inline const QString ExtrudeDepth = QStringLiteral("extrudeDepth"); ///< Text3D: thickness, scene units
+inline const QString BevelDepth = QStringLiteral("bevelDepth"); ///< Text3D: bevel reach into the thickness
+inline const QString BevelWidth = QStringLiteral("bevelWidth"); ///< Text3D: bevel reach into the face
+inline const QString BevelStyle = QStringLiteral("bevelStyle"); ///< Text3D: choice (bevelstyles::)
+inline const QString BevelSegments = QStringLiteral("bevelSegments"); ///< Text3D: steps of a smooth bevel
+inline const QString SeparateColors = QStringLiteral("separateColors"); ///< Text3D: own colours per part
+inline const QString BevelColor = QStringLiteral("bevelColor");
+inline const QString SideColor = QStringLiteral("sideColor");
+inline const QString BackColor = QStringLiteral("backColor");
 inline const QString Specular = QStringLiteral("specular"); ///< material, 0..1
 inline const QString Shininess = QStringLiteral("shininess"); ///< material, Blinn-Phong exponent
 inline const QString ViewBy = QStringLiteral("viewBy"); ///< Camera3D: choice (cameraviews::)

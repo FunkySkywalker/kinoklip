@@ -24348,6 +24348,10 @@ Importar archivos con %1 o soltarlos aquí.</translation>
         <translation>El fotograma de la entrada que se muestra ahora. Póngale fotogramas clave: 0 en el primer fotograma y 100 en el último reproduce 100 fotogramas de la entrada; cuanto más empinada la curva, más rápido</translation>
     </message>
     <message>
+        <source>Text in a 3D scene; flat, or extruded with bevelled edges</source>
+        <translation>Texto en una escena 3D; plano o extruido con bordes biselados</translation>
+    </message>
+    <message>
         <source>Patterns</source>
         <translation>Patrones</translation>
     </message>
@@ -25116,10 +25120,6 @@ Importar archivos con %1 o soltarlos aquí.</translation>
         <translation>Text3D</translation>
     </message>
     <message>
-        <source>Flat text on a plane in a 3D scene</source>
-        <translation>Texto plano sobre un plano en una escena 3D</translation>
-    </message>
-    <message>
         <source>The words to show</source>
         <translation>Las palabras que se muestran</translation>
     </message>
@@ -25174,6 +25174,86 @@ Importar archivos con %1 o soltarlos aquí.</translation>
     <message>
         <source>How solid the text is; 0 makes it invisible</source>
         <translation>Cuán sólido es el texto; 0 lo hace invisible</translation>
+    </message>
+    <message>
+        <source>Extrusion Depth</source>
+        <translation>Profundidad de extrusión</translation>
+    </message>
+    <message>
+        <source>The thickness of the letters in scene units; 0 keeps the text flat</source>
+        <translation>El grosor de las letras en unidades de escena; 0 deja el texto plano</translation>
+    </message>
+    <message>
+        <source>Bevel Depth</source>
+        <translation>Profundidad del bisel</translation>
+    </message>
+    <message>
+        <source>How far the rounded or cut edge reaches into the thickness; at most half of the Extrusion Depth</source>
+        <translation>Hasta dónde llega el borde redondeado o cortado dentro del grosor; como máximo la mitad de la profundidad de extrusión</translation>
+    </message>
+    <message>
+        <source>Bevel Width</source>
+        <translation>Ancho del bisel</translation>
+    </message>
+    <message>
+        <source>How far the rounded or cut edge reaches into the front and back of the letters; thin strokes make it smaller by itself</source>
+        <translation>Hasta dónde llega el borde redondeado o cortado dentro del frente y la parte trasera de las letras; con trazos finos se reduce sola</translation>
+    </message>
+    <message>
+        <source>Bevel Style</source>
+        <translation>Estilo del bisel</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Suave</translation>
+    </message>
+    <message>
+        <source>Flat</source>
+        <translation>Plano</translation>
+    </message>
+    <message>
+        <source>Smooth rounds the edge; Flat cuts it in one slanted face</source>
+        <translation>Suave redondea el borde; Plano lo corta en una sola cara inclinada</translation>
+    </message>
+    <message>
+        <source>Bevel Segments</source>
+        <translation>Segmentos del bisel</translation>
+    </message>
+    <message>
+        <source>How many steps a smooth bevel is cut into; more look rounder and cost more</source>
+        <translation>En cuántos pasos se divide un bisel suave; más pasos se ven más redondos y cuestan más</translation>
+    </message>
+    <message>
+        <source>Separate Colors</source>
+        <translation>Colores separados</translation>
+    </message>
+    <message>
+        <source>Give the bevel, the sides and the back their own colours; off uses Color everywhere</source>
+        <translation>Da al bisel, los lados y la parte trasera sus propios colores; desactivado usa Color en todas partes</translation>
+    </message>
+    <message>
+        <source>Bevel Color</source>
+        <translation>Color del bisel</translation>
+    </message>
+    <message>
+        <source>The colour of the bevelled edges, with Separate Colors on</source>
+        <translation>El color de los bordes biselados, con Colores separados activado</translation>
+    </message>
+    <message>
+        <source>Side Color</source>
+        <translation>Color de los lados</translation>
+    </message>
+    <message>
+        <source>The colour of the sides of the letters, with Separate Colors on</source>
+        <translation>El color de los lados de las letras, con Colores separados activado</translation>
+    </message>
+    <message>
+        <source>Back Color</source>
+        <translation>Color de la parte trasera</translation>
+    </message>
+    <message>
+        <source>The colour of the back of the letters, with Separate Colors on</source>
+        <translation>El color de la parte trasera de las letras, con Colores separados activado</translation>
     </message>
     <message>
         <source>Merge3D</source>

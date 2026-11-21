@@ -114,6 +114,8 @@ target_compile_options(kk_rnnoise PRIVATE -w -O2)
 set_target_properties(kk_rnnoise PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(kinoklip_core PUBLIC kk_rnnoise)
 target_include_directories(kinoklip_core PUBLIC ${CMAKE_SOURCE_DIR}/src)
+# earcut.hpp (ISC, third_party/earcut/readme.md): triangulates the caps of extruded 3D text.
+target_include_directories(kinoklip_core PRIVATE ${CMAKE_SOURCE_DIR}/third_party/earcut)
 
 # qt-libadwaita (GPL-2.0-or-later, third_party/qt-libadwaita/readme.md): the optional
 # "Libadwaita (GNOME look)" widget style, built in so it needs no plugin path.

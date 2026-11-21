@@ -174,7 +174,7 @@ New default look that follows DaVinci Resolve 21 (Kinoklip widget style and colo
 - [x] Compositing: Ultra Keyer, Delta Keyer advanced tabs (Pre-Matte Blur, Erode / Dilate, Matte Blur, Fringe, Replace Mode), Matte Control (Garbage and Solid masks, Restore Fringe) and a Clean Plate input
 - [x] Compositing: Light Wrap and Soft Glow nodes
 - [x] Compositing: particles: pEmitter, pRender, pMerge, pGravity, pTurbulence (2D output; more forces, mask regions and 3D output are open, spec 129.10)
-- [x] Compositing: 3D: Image Plane 3D, Text3D (flat), Shape3D, Merge3D, Camera3D, lights, Renderer3D and a 3D viewer (software rasterizer on both renderers; extruded text, shadows, 3D particles, importing models are open, spec 130.11)
+- [x] Compositing: 3D: Image Plane 3D, Text3D (flat or extruded with bevelled edges, Fusion-style Extrusion Depth / Bevel controls, separate front / bevel / side / back colours), Shape3D, Merge3D, Camera3D, lights, Renderer3D and a 3D viewer (software rasterizer on both renderers; shadows, 3D particles, importing models are open, spec 130.11)
 - [x] Compositing: Paint node (Stroke, Clone, Eraser, Smear tools, brush size / softness / opacity / colour, stroke duration, strokes saved as vector points with pressure, drawn in the viewer; Fill, Stroke mode and Emboss are open, spec 131.10)
 - [x] Compositing: modifiers (Perturb, Wiggle, Offset, Expression, Cycle, XY Path), parameter links with Connect To and Publish, and expressions in value fields
 - [x] Compositing: Group, Macro (Make Macro, published controls, save as a title in the Effects Library), Underlay and Instance nodes

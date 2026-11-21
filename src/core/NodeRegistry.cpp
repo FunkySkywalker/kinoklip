@@ -743,7 +743,7 @@ NodeRegistry::NodeRegistry()
     {
         NodeDescriptor d = node(nodetypes::Text3D, tr("Text3D"), QStringLiteral("Tx3"),
             QStringLiteral("Text3D"), C::ThreeD,
-            tr("Flat text on a plane in a 3D scene"));
+            tr("Text in a 3D scene; flat, or extruded with bevelled edges"));
         d.outputKind = PortKind::Scene3D;
         d.params = {tip(text(k::Text, tr("Text"), tr("Custom Title")), tr("The words to show")),
             tip(text(k::Font, tr("Font"), QStringLiteral("Sans Serif")), tr("The font family")),
@@ -764,7 +764,30 @@ NodeRegistry::NodeRegistry()
             tip(number(k::LineSpacing, tr("Line Spacing"), 10, 500, 100, 0.5, QStringLiteral("%")),
                 tr("The space between lines; 100 is the normal space")),
             tip(number(k::Opacity, tr("Opacity"), 0, 1, 1, 0.01),
-                tr("How solid the text is; 0 makes it invisible"))};
+                tr("How solid the text is; 0 makes it invisible")),
+            tip(number(k::ExtrudeDepth, tr("Extrusion Depth"), 0, 10, 0, 0.005),
+                tr("The thickness of the letters in scene units; 0 keeps the text flat")),
+            tip(number(k::BevelDepth, tr("Bevel Depth"), 0, 5, 0.01, 0.0025),
+                tr("How far the rounded or cut edge reaches into the thickness; at most half of the Extrusion Depth")),
+            tip(number(k::BevelWidth, tr("Bevel Width"), 0, 5, 0.01, 0.0025),
+                tr("How far the rounded or cut edge reaches into the front and back of the letters; thin strokes make it smaller by itself")),
+            tip(choice(k::BevelStyle, tr("Bevel Style"), {bevelstyles::Smooth, bevelstyles::Flat},
+                    {tr("Smooth"), tr("Flat")}, bevelstyles::Smooth),
+                tr("Smooth rounds the edge; Flat cuts it in one slanted face")),
+            tip(integer(k::BevelSegments, tr("Bevel Segments"), 1, 16, 4),
+                tr("How many steps a smooth bevel is cut into; more look rounder and cost more")),
+            tip(number(k::Specular, tr("Specular"), 0, 1, 0, 0.01),
+                tr("The strength of the shiny highlight when the Renderer3D uses Blinn-Phong shading")),
+            tip(number(k::Shininess, tr("Shininess"), 1, 256, 32, 1),
+                tr("How small and sharp the highlight is; a high number is a small, hard highlight")),
+            tip(boolean(k::SeparateColors, tr("Separate Colors"), false),
+                tr("Give the bevel, the sides and the back their own colours; off uses Color everywhere")),
+            tip(color(k::BevelColor, tr("Bevel Color"), QColor(255, 255, 255)),
+                tr("The colour of the bevelled edges, with Separate Colors on")),
+            tip(color(k::SideColor, tr("Side Color"), QColor(255, 255, 255)),
+                tr("The colour of the sides of the letters, with Separate Colors on")),
+            tip(color(k::BackColor, tr("Back Color"), QColor(255, 255, 255)),
+                tr("The colour of the back of the letters, with Separate Colors on"))};
         d.params += transform3D();
         add(d);
     }

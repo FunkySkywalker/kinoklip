@@ -97,7 +97,7 @@ general knowledge of node compositors, our own drawing, names and icons; never R
   a pure function of the graph, seed and frame (`src/render/CompParticles.*`): every batch has its own random sequence and a
   particle's place is the integral of the forces over its life, so scrubbing equals playing and nothing is cached. Both renderers
   call `particles::renderNode()` (the GPU uploads the CPU picture, like the Loader).
-- **3D** (spec 130): **Image Plane 3D**, **Shape3D**, **Text3D** (flat), **Merge3D**, **Camera3D**, four lights and **Renderer3D**
+- **3D** (spec 130): **Image Plane 3D**, **Shape3D**, **Text3D** (flat, or extruded with a bevel: Extrusion Depth, Bevel Depth / Width / Style / Segments, Separate Colors; `src/render/TextMesh3D.*`), **Merge3D**, **Camera3D**, four lights and **Renderer3D**
   on a new port kind `PortKind::Scene3D` (connects only to 3D inputs); Renderer3D turns the scene into a picture. Scene building,
   matrices and a small software rasterizer are in `src/render/CompScene3D.*`; both renderers call `scene3d::renderNode()` (the GPU
   reads the texture pictures back and uploads the result). A 3D node in a viewer shows an orbit view with a grid (`CompViewer`

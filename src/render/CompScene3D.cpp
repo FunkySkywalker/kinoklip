@@ -4,9 +4,14 @@
 
 #include "core/NodeRegistry.h"
 #include "render/CompMath.h"
+#include "render/TextMesh3D.h"
 #include "render/TitleRenderer.h"
 
 #include <QColor>
+#include <QFont>
+#include <QFontMetricsF>
+#include <QPainterPath>
+#include <QTextStream>
 #include <QHash>
 #include <QPainter>
 #include <QPen>
@@ -170,6 +175,119 @@ Material materialOf(const ParamSet& p, int64_t frame, bool withColor)
     return m;
 }
 
+// ---- Extruded text ----
+
+/// The outline of a Text3D's letters in pixels of the canvas (y down), laid out like the Text
+/// node's plain block: lines of the style's font, aligned, the block centred on the canvas.
+QPainterPath textOutline(const TitleStyle& s)
+{
+    QPainterPath path;
+    path.setFillRule(Qt::WindingFill);
+    QFont font(s.font);
+    const double pixelSize = s.size * s.scale;
+    font.setPixelSize(std::max(1, int(std::lround(pixelSize))));
+    font.setBold(s.bold);
+    font.setItalic(s.italic);
+    font.setLetterSpacing(QFont::PercentageSpacing, std::max(1.0, 100.0 + s.tracking));
+    font.setHintingPreference(QFont::PreferNoHinting);
+    const QFontMetricsF fm(font);
+    const QStringList lines = s.text.split(QLatin1Char('\n'));
+    const double lineStep = fm.lineSpacing() * s.lineSpacing / 100.0;
+    double blockWidth = 0;
+    for (const QString& line : lines)
+        blockWidth = std::max(blockWidth, fm.horizontalAdvance(line));
+    const double blockHeight = fm.ascent() + fm.descent() + (lines.size() - 1) * lineStep;
+    const double left = s.canvas.width() * 0.5 - blockWidth * 0.5;
+    const double top = s.canvas.height() * 0.5 - blockHeight * 0.5;
+    for (int i = 0; i < lines.size(); ++i) {
+        const double w = fm.horizontalAdvance(lines[i]);
+        const double x = s.align == 0 ? 0.0 : s.align == 2 ? blockWidth - w : (blockWidth - w) * 0.5;
+        const double baseline = top + fm.ascent() + i * lineStep;
+        path.addPath(textDecorations(fm, left + x, baseline, w, s.underline, s.strikethrough));
+        path.addText(left + x, baseline, font, lines[i]);
+    }
+    if (s.rotation != 0.0) {
+        QTransform turn;
+        turn.translate(left + blockWidth / 2, top + blockHeight / 2);
+        turn.rotate(s.rotation);
+        turn.translate(-(left + blockWidth / 2), -(top + blockHeight / 2));
+        path = turn.map(path);
+    }
+    return path;
+}
+
+TextExtrusion extrusionOf(const ParamSet& p, int64_t frame)
+{
+    TextExtrusion e;
+    e.depth = std::max(0.0, num(p, k::ExtrudeDepth, frame, 0.0));
+    e.bevelDepth = std::clamp(num(p, k::BevelDepth, frame, 0.01), 0.0, e.depth / 2);
+    e.bevelWidth = std::max(0.0, num(p, k::BevelWidth, frame, 0.01));
+    e.style = p.staticValue(k::BevelStyle, bevelstyles::Smooth).toString() == bevelstyles::Flat
+        ? BevelStyle::Flat
+        : BevelStyle::Smooth;
+    e.segments = std::clamp(int(std::lround(num(p, k::BevelSegments, frame, 4))), 1, 16);
+    return e;
+}
+
+/// The mesh of extruded text, cached: a title that only moves or changes colour is built once.
+ExtrudedText cachedExtrusion(const TitleStyle& style, const TextExtrusion& e)
+{
+    static std::mutex lock;
+    static QList<QPair<QString, ExtrudedText>> cache;
+    QString key;
+    QTextStream(&key) << style.text << '|' << style.font << '|' << style.bold << style.italic
+                      << style.underline << style.strikethrough << '|' << style.size << '|'
+                      << style.scale << '|' << style.tracking << '|' << style.lineSpacing << '|'
+                      << style.align << '|' << style.rotation << '|' << style.canvas.width() << 'x'
+                      << style.canvas.height() << '|' << e.depth << '|' << e.bevelDepth << '|'
+                      << e.bevelWidth << '|' << int(e.style) << '|' << e.segments << '|'
+                      << currentFontGeneration();
+    {
+        const std::lock_guard<std::mutex> g(lock);
+        for (const auto& entry : std::as_const(cache))
+            if (entry.first == key)
+                return entry.second;
+    }
+    // Pixels of the canvas (y down) -> scene units, the canvas one unit wide.
+    const double w = std::max(1, style.canvas.width());
+    QTransform toScene;
+    toScene.translate(-0.5, 0.5 * style.canvas.height() / w);
+    toScene.scale(1.0 / w, -1.0 / w);
+    ExtrudedText mesh = extrudeText(textOutline(style), toScene, e);
+    const std::lock_guard<std::mutex> g(lock);
+    cache.prepend({key, mesh});
+    while (cache.size() > 6)
+        cache.removeLast();
+    return mesh;
+}
+
+void addExtrudedText(BuildCtx& cx, const CompNode& n, const TitleStyle& style, const QPointF& offset,
+    const QMatrix4x4& parent, const TextExtrusion& e)
+{
+    ExtrudedText t = cachedExtrusion(style, e);
+    if (t.isEmpty())
+        return;
+    const double W = std::max(1, cx.size.width());
+    QMatrix4x4 model = parent * transformMatrix(n.params, cx.frame);
+    model.translate(float(offset.x() / W), float(-offset.y() / W), 0);
+    const ParamSet& p = n.params;
+    const bool separate = p.staticValue(k::SeparateColors, false).toBool();
+    const Material base = materialOf(p, cx.frame, true);
+    const auto add = [&](Mesh m, const QString& colorKey) {
+        if (m.positions.isEmpty())
+            return;
+        m.model = model;
+        m.material = base;
+        if (separate)
+            m.material.color = colorOf(p, colorKey, QColor(Qt::white));
+        cx.scene.meshes << m;
+    };
+    add(std::move(t.front), k::Color);
+    add(std::move(t.bevel), k::BevelColor);
+    add(std::move(t.side), k::SideColor);
+    add(std::move(t.back), k::BackColor);
+}
+
 void collect(BuildCtx& cx, quint64 id, const QMatrix4x4& parent, int depth)
 {
     const CompNode* n = cx.comp.node(id);
@@ -216,6 +334,11 @@ void collect(BuildCtx& cx, quint64 id, const QMatrix4x4& parent, int depth)
             n->params, f, cx.size, cx.scale, cx.frameSize, &offset, nullptr);
         if (style.text.isEmpty())
             return;
+        const TextExtrusion extrusion = extrusionOf(n->params, f);
+        if (extrusion.depth > 0) {
+            addExtrudedText(cx, *n, style, offset, parent, extrusion);
+            return;
+        }
         const TitleImage t = renderTitle(style);
         if (t.image.isNull())
             return;
