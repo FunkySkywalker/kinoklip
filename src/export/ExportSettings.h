@@ -47,6 +47,40 @@ enum class RangeMode {
     Custom ///< ExportSettings::rangeIn / rangeOut
 };
 
+/// Deliver > Advanced Settings > Color space tag: the primaries and matrix of the file.
+enum class ColorSpaceTag {
+    Rec709, ///< BT.709 (the default; sRGB for RGB image formats)
+    Rec2020 ///< BT.2020 wide gamut (10-bit H.265 / AV1 only)
+};
+
+/// Deliver > Advanced Settings > Gamma tag: the transfer function of the file.
+enum class GammaTag {
+    Rec709, ///< BT.709 / sRGB-ish SDR (the default)
+    Pq, ///< SMPTE ST 2084 (HDR10); needs Rec.2020
+    Hlg ///< ARIB STD-B67 hybrid log-gamma; needs Rec.2020
+};
+
+/// Stable ids ("rec709", "rec2020" / "rec709", "pq", "hlg"); parsers fall back to @p fallback.
+[[nodiscard]] QString colorSpaceTagId(ColorSpaceTag tag);
+[[nodiscard]] ColorSpaceTag colorSpaceTagFromId(const QString& id, ColorSpaceTag fallback);
+[[nodiscard]] QString gammaTagId(GammaTag tag);
+[[nodiscard]] GammaTag gammaTagFromId(const QString& id, GammaTag fallback);
+
+/// True for the codecs that can carry Rec.2020 / PQ / HLG in Kinoklip (10-bit H.265 and AV1).
+[[nodiscard]] bool codecCarriesHdr(const QString& codecId);
+
+/// HDR10 static metadata written with PQ renders (SMPTE ST 2086 and CTA-861.3). The mastering
+/// display primaries are fixed to P3-D65, the usual grading monitor.
+struct HdrMetadata
+{
+    double masterMaxNits = 1000.0; ///< mastering display peak luminance
+    double masterMinNits = 0.0001; ///< mastering display black level
+    int maxCll = 1000; ///< MaxCLL: brightest pixel of the programme, nits
+    int maxFall = 400; ///< MaxFALL: highest frame-average light level, nits
+
+    friend bool operator==(const HdrMetadata&, const HdrMetadata&) = default;
+};
+
 /// Video stream settings.
 struct VideoExportSettings
 {
@@ -71,6 +105,17 @@ struct VideoExportSettings
     /// Favour decoding speed over compression (H.264: libx264 "tune fastdecode" = CAVLC, no
     /// deblocking / weighted prediction; VAAPI: CAVLC). Proxy media; not in the JSON form.
     bool fastDecode = false;
+    ColorSpaceTag colorSpace = ColorSpaceTag::Rec709;
+    GammaTag gamma = GammaTag::Rec709;
+    HdrMetadata hdr; ///< written when gamma is PQ
+
+    /// True if the file is Rec.2020 and/or PQ / HLG, which the encoder writes as 10-bit.
+    [[nodiscard]] bool wideGamut() const
+    {
+        return colorSpace == ColorSpaceTag::Rec2020 || gamma != GammaTag::Rec709;
+    }
+    /// True for PQ and HLG (high dynamic range output).
+    [[nodiscard]] bool isHdr() const { return gamma != GammaTag::Rec709; }
 
     friend bool operator==(const VideoExportSettings&, const VideoExportSettings&) = default;
 };

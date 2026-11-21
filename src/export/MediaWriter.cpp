@@ -3,6 +3,7 @@
 #include "export/MediaWriter.h"
 
 extern "C" {
+#include <libavutil/mem.h>
 #include <libavutil/opt.h>
 }
 
@@ -50,6 +51,20 @@ int MediaWriter::addStream(const AVCodecContext* encoder, QString* error)
             *error = QStringLiteral("stream parameters: %1").arg(avError(err));
         }
         return -1;
+    }
+    // HDR10 metadata: newer FFmpeg copies the context's coded side data in the call above;
+    // add what is missing for versions that do not.
+    for (int i = 0; i < encoder->nb_coded_side_data; ++i) {
+        const AVPacketSideData& sd = encoder->coded_side_data[i];
+        if (!av_packet_side_data_get(stream->codecpar->coded_side_data,
+                stream->codecpar->nb_coded_side_data, sd.type)) {
+            if (uint8_t* copy = static_cast<uint8_t*>(av_memdup(sd.data, sd.size))) {
+                if (!av_packet_side_data_add(&stream->codecpar->coded_side_data,
+                        &stream->codecpar->nb_coded_side_data, sd.type, copy, sd.size, 0)) {
+                    av_free(copy);
+                }
+            }
+        }
     }
     stream->time_base = encoder->time_base; // a hint; the muxer may change it in writeHeader
     if (encoder->codec_type == AVMEDIA_TYPE_VIDEO) {

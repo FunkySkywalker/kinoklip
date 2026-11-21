@@ -8,6 +8,7 @@
 #include "core/Rational.h"
 #include "export/ExportFFmpeg.h"
 #include "export/ExportSettings.h"
+#include "export/HdrConvert.h"
 
 #include <QImage>
 #include <QSize>
@@ -93,6 +94,8 @@ private:
     bool m_fastYuv = false; ///< use rgb32ToYuv420() instead of swscale
     std::unique_ptr<QThreadPool> m_pool; ///< conversion bands (fast path)
     std::vector<float> m_srgbToLinear; ///< EXR: 256-entry sRGB → linear table
+    std::unique_ptr<SdrToHdr> m_hdr; ///< Rec.2020 / PQ / HLG output: SDR to HDR conversion
+    std::vector<uint16_t> m_rgb48; ///< its RGB48 output (swscale input)
     QImage m_straight; ///< alpha outputs: un-premultiplied copy of the input (reused)
     double m_convertMs = 0.0;
     double m_encodeMs = 0.0;

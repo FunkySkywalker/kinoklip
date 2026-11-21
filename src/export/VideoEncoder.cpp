@@ -4,6 +4,7 @@
 #include "export/VideoEncoder.h"
 
 #include "export/ExportLog.h"
+#include "export/HdrConvert.h"
 #include "export/RgbToYuv.h"
 
 #include <QElapsedTimer>
@@ -13,6 +14,7 @@
 extern "C" {
 #include <libavfilter/buffersink.h>
 #include <libavfilter/buffersrc.h>
+#include <libavutil/mastering_display_metadata.h>
 #include <libavutil/opt.h>
 #include <libavutil/pixdesc.h>
 }
@@ -52,8 +54,13 @@ bool isYuvCodec(const QString& codec)
 std::vector<AVPixelFormat> preferredFormats(const VideoEncoderConfig& c)
 {
     const QString& codec = c.settings.codec;
+    // TODO(1.13 HDR): NVENC / VAAPI / QSV 10-bit (P010) for HDR renders; today ExportJob only
+    // offers software encoders when the file is Rec.2020 / PQ / HLG.
     if (c.backend == EncoderBackend::Vaapi || c.backend == EncoderBackend::Qsv) {
         return {AV_PIX_FMT_NV12};
+    }
+    if (c.settings.wideGamut() && codecCarriesHdr(codec)) {
+        return {AV_PIX_FMT_YUV420P10LE}; // Main 10 / AV1 10-bit
     }
     if (codec == QLatin1String("prores")) {
         if (c.settings.profile.startsWith(QLatin1String("4444"))) {
@@ -119,6 +126,42 @@ void setOpt(AVDictionary** dict, const char* key, long long value)
     av_dict_set_int(dict, key, value, 0);
 }
 
+/// HDR10 static metadata (ST 2086 mastering display, CTA-861.3 content light) as coded side
+/// data of the context; MediaWriter carries it to the stream (mp4 mdcv + clli boxes, Matroska
+/// Colour element). The encoder-side copies are in x265HdrParams() / svtAv1HdrParams(), as
+/// libx265.c / libsvtav1.c need them at init time.
+void addHdr10SideData(AVCodecContext* ctx, const HdrMetadata& hdr)
+{
+    if (auto* m = av_mastering_display_metadata_alloc()) {
+        // P3-D65, same as x265MasterDisplay(); order is R, G, B.
+        m->display_primaries[0][0] = av_d2q(0.680, 50000);
+        m->display_primaries[0][1] = av_d2q(0.320, 50000);
+        m->display_primaries[1][0] = av_d2q(0.265, 50000);
+        m->display_primaries[1][1] = av_d2q(0.690, 50000);
+        m->display_primaries[2][0] = av_d2q(0.150, 50000);
+        m->display_primaries[2][1] = av_d2q(0.060, 50000);
+        m->white_point[0] = av_d2q(0.3127, 50000);
+        m->white_point[1] = av_d2q(0.3290, 50000);
+        m->max_luminance = av_d2q(hdr.masterMaxNits, 10000);
+        m->min_luminance = av_d2q(hdr.masterMinNits, 10000);
+        m->has_primaries = 1;
+        m->has_luminance = 1;
+        if (!av_packet_side_data_add(&ctx->coded_side_data, &ctx->nb_coded_side_data,
+                AV_PKT_DATA_MASTERING_DISPLAY_METADATA, m, sizeof(*m), 0)) {
+            av_free(m);
+        }
+    }
+    size_t size = 0;
+    if (AVContentLightMetadata* l = av_content_light_metadata_alloc(&size)) {
+        l->MaxCLL = unsigned(hdr.maxCll);
+        l->MaxFALL = unsigned(hdr.maxFall);
+        if (!av_packet_side_data_add(&ctx->coded_side_data, &ctx->nb_coded_side_data,
+                AV_PKT_DATA_CONTENT_LIGHT_LEVEL, l, size, 0)) {
+            av_free(l);
+        }
+    }
+}
+
 /// Encoder-specific options: speed preset, rate control, profile. The generic fields
 /// (bit_rate, gop, colour) are set on the context directly.
 void configureEncoder(AVCodecContext* ctx, AVDictionary** opts, const VideoEncoderConfig& c)
@@ -147,7 +190,10 @@ void configureEncoder(AVCodecContext* ctx, AVDictionary** opts, const VideoEncod
             setOpt(opts, "tune", QByteArray("fastdecode"));
         }
         if (name == QLatin1String("libx265")) {
-            setOpt(opts, "x265-params", QByteArray("log-level=error"));
+            QByteArray params = "log-level=error";
+            if (const QByteArray hdr = x265HdrParams(s); !hdr.isEmpty())
+                params += ":" + hdr; // hdr10, master-display, max-cll, VUI colour tags
+            setOpt(opts, "x265-params", params);
             ctx->codec_tag = MKTAG('h', 'v', 'c', '1'); // what Apple players require in MP4/MOV
         }
     } else if (name.endsWith(QLatin1String("_nvenc"))) {
@@ -191,6 +237,8 @@ void configureEncoder(AVCodecContext* ctx, AVDictionary** opts, const VideoEncod
         if (quality) {
             setOpt(opts, "crf", s.quality);
         }
+        if (const QByteArray hdr = svtAv1HdrParams(s); !hdr.isEmpty())
+            setOpt(opts, "svtav1-params", hdr); // CICP tags, mastering display, content light
         // SVT-AV1 prints its banner straight to stderr unless SVT_LOG says otherwise.
         if (qEnvironmentVariableIsEmpty("SVT_LOG")) {
             qputenv("SVT_LOG", "1");
@@ -280,7 +328,38 @@ bool VideoEncoder::open(const VideoEncoderConfig& config, QString* error)
     // convention; RGB codecs carry no matrix.
     const QString& codecId = config.settings.codec;
     const bool jpeg = codecId == QLatin1String("mjpeg");
-    if (isYuvCodec(codecId)) {
+    const bool hdrOut = config.settings.wideGamut() && codecCarriesHdr(codecId)
+        && config.backend == EncoderBackend::Software;
+    if (config.settings.wideGamut() && !hdrOut) {
+        return fail(QStringLiteral("%1 cannot write Rec.2020 / PQ / HLG (needs a software "
+                                   "H.265 or AV1 encoder)")
+                        .arg(config.encoderName));
+    }
+    if (hdrOut) {
+        // What FFmpeg's -color_primaries bt2020 -color_trc smpte2084|arib-std-b67 -colorspace
+        // bt2020nc sets; the muxer copies them into the stream (mp4 colr box, mkv Colour).
+        ctx->color_range = AVCOL_RANGE_MPEG;
+        ctx->colorspace = AVCOL_SPC_BT2020_NCL;
+        ctx->color_primaries = AVCOL_PRI_BT2020;
+        HdrTransfer transfer = HdrTransfer::Sdr;
+        switch (config.settings.gamma) {
+        case GammaTag::Pq:
+            ctx->color_trc = AVCOL_TRC_SMPTE2084;
+            transfer = HdrTransfer::Pq;
+            break;
+        case GammaTag::Hlg:
+            ctx->color_trc = AVCOL_TRC_ARIB_STD_B67;
+            transfer = HdrTransfer::Hlg;
+            break;
+        case GammaTag::Rec709:
+            ctx->color_trc = AVCOL_TRC_BT2020_10;
+            break;
+        }
+        if (config.settings.gamma == GammaTag::Pq)
+            addHdr10SideData(ctx, config.settings.hdr);
+        m_hdr = std::make_unique<SdrToHdr>(transfer, true);
+        m_rgb48.resize(size_t(ctx->width) * size_t(ctx->height) * 3);
+    } else if (isYuvCodec(codecId)) {
         ctx->color_range = jpeg ? AVCOL_RANGE_JPEG : AVCOL_RANGE_MPEG;
         ctx->colorspace = jpeg ? AVCOL_SPC_BT470BG : AVCOL_SPC_BT709;
         ctx->color_primaries = AVCOL_PRI_BT709;
@@ -360,7 +439,7 @@ bool VideoEncoder::open(const VideoEncoderConfig& config, QString* error)
         return true;
     }
 
-    m_fastYuv = (m_swFormat == AV_PIX_FMT_YUV420P || m_swFormat == AV_PIX_FMT_NV12) && !jpeg
+    m_fastYuv = !hdrOut && (m_swFormat == AV_PIX_FMT_YUV420P || m_swFormat == AV_PIX_FMT_NV12) && !jpeg
         && !config.alpha && ctx->width % 2 == 0 && ctx->height % 2 == 0;
     if (m_fastYuv) {
         m_pool = std::make_unique<QThreadPool>();
@@ -371,7 +450,7 @@ bool VideoEncoder::open(const VideoEncoderConfig& config, QString* error)
     SwsContext* sws = sws_alloc_context();
     av_opt_set_int(sws, "srcw", ctx->width, 0);
     av_opt_set_int(sws, "srch", ctx->height, 0);
-    av_opt_set_int(sws, "src_format", kImageFormat, 0);
+    av_opt_set_int(sws, "src_format", hdrOut ? AV_PIX_FMT_RGB48LE : kImageFormat, 0);
     av_opt_set_int(sws, "dstw", ctx->width, 0);
     av_opt_set_int(sws, "dsth", ctx->height, 0);
     av_opt_set_int(sws, "dst_format", m_swFormat, 0);
@@ -387,7 +466,8 @@ bool VideoEncoder::open(const VideoEncoderConfig& config, QString* error)
     m_sws.reset(sws);
     if (isYuvCodec(codecId)) {
         const int* srcMatrix = sws_getCoefficients(SWS_CS_DEFAULT);
-        const int* dstMatrix = sws_getCoefficients(jpeg ? SWS_CS_ITU601 : SWS_CS_ITU709);
+        const int* dstMatrix = sws_getCoefficients(
+            hdrOut ? SWS_CS_BT2020 : jpeg ? SWS_CS_ITU601 : SWS_CS_ITU709);
         // brightness 0, contrast 1.0, saturation 1.0 in 16.16 fixed point
         sws_setColorspaceDetails(sws, srcMatrix, 1, dstMatrix, jpeg ? 1 : 0, 0, 1 << 16, 1 << 16);
     }
@@ -481,6 +561,25 @@ bool VideoEncoder::convert(const QImage& input)
         rgb32ToYuv420(bits, stride, width, 0, std::min(height, bandRows), planes);
         m_pool->waitForDone();
         return true;
+    }
+    if (m_hdr) {
+        // SDR picture into the PQ / HLG container: 8-bit sRGB-ish RGB -> 16-bit RGB in the
+        // output primaries and transfer; swscale then makes BT.2020 10-bit YUV of it.
+        // TODO(1.13 HDR): with the half-float render path feed linear scene-referred pixels
+        // here (HDR footage stays HDR instead of being squeezed to 203 nits white); the
+        // conversion below becomes "linear float -> output transfer" only.
+        const int w = source->width();
+        for (int y = 0; y < source->height(); ++y) {
+            m_hdr->convertRow(reinterpret_cast<const QRgb*>(source->constScanLine(y)),
+                m_rgb48.data() + size_t(y) * size_t(w) * 3, w);
+        }
+        AVFrame rgb {};
+        rgb.format = AV_PIX_FMT_RGB48LE;
+        rgb.width = w;
+        rgb.height = source->height();
+        rgb.data[0] = reinterpret_cast<uint8_t*>(m_rgb48.data());
+        rgb.linesize[0] = w * 6;
+        return sws_scale_frame(m_sws.get(), m_frame.get(), &rgb) >= 0;
     }
     // Wrap the QImage memory in an AVFrame without copying.
     AVFrame src {};

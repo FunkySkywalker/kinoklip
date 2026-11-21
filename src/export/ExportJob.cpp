@@ -274,8 +274,10 @@ ExportResult ExportJob::runStreams(const ProgressCallback& progress)
     // ---- Video encoder: first candidate that opens at the real size ----
     VideoEncoder video;
     if (s.hasVideo()) {
-        const QList<EncoderChoice> choices
-            = EncoderCatalog::candidates(s.video.codec, s.video.encoder);
+        // Rec.2020 / PQ / HLG are 10-bit: software encoders only for now (hardware encoders
+        // write 8-bit NV12; 10-bit P010 is a later slice of the 1.13 HDR export).
+        const QList<EncoderChoice> choices = EncoderCatalog::candidates(
+            s.video.codec, s.video.wideGamut() ? EncoderBackend::Software : s.video.encoder);
         if (choices.isEmpty()) {
             result.error = tr("No encoder for %1 is available.").arg(s.video.codec);
             return result;

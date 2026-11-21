@@ -233,6 +233,13 @@ bool ExportSettings::validate(QString* error) const
             || video.height > kMaxDimension) {
             return fail(tr("Invalid output resolution %1x%2.").arg(video.width).arg(video.height));
         }
+        if (video.wideGamut() && !codecCarriesHdr(video.codec)) {
+            return fail(tr("%1 cannot carry Rec.2020, PQ or HLG; use H.265 or AV1.")
+                            .arg(codec->name));
+        }
+        if (video.isHdr() && video.colorSpace != ColorSpaceTag::Rec2020) {
+            return fail(tr("PQ and HLG need the Rec.2020 color space."));
+        }
         if (video.rateControl == RateControl::Bitrate && codec->hasBitrate
             && video.bitrateKbps <= 0) {
             return fail(tr("The video bitrate must be positive."));
@@ -269,6 +276,14 @@ void ExportSettings::normalize()
     if (!info->audioCodecs.isEmpty() && !info->audioCodecs.contains(audio.codec)) {
         audio.codec = info->audioCodecs.first();
     }
+    // Rec.2020 / PQ / HLG only exist for codecs that can be 10-bit (the Deliver page greys the
+    // choices out); PQ and HLG imply the Rec.2020 primaries.
+    if (!codecCarriesHdr(video.codec)) {
+        video.colorSpace = ColorSpaceTag::Rec709;
+        video.gamma = GammaTag::Rec709;
+    } else if (video.isHdr()) {
+        video.colorSpace = ColorSpaceTag::Rec2020;
+    }
     if (const VideoCodecInfo* codec = findVideoCodec(video.codec)) {
         if (!codec->profiles.isEmpty() && !codec->profiles.contains(video.profile)) {
             video.profile = codec->profiles.first();
@@ -292,6 +307,49 @@ void ExportSettings::normalize()
     }
 }
 
+QString colorSpaceTagId(ColorSpaceTag tag)
+{
+    return tag == ColorSpaceTag::Rec2020 ? QStringLiteral("rec2020") : QStringLiteral("rec709");
+}
+
+ColorSpaceTag colorSpaceTagFromId(const QString& id, ColorSpaceTag fallback)
+{
+    if (id == QLatin1String("rec2020"))
+        return ColorSpaceTag::Rec2020;
+    if (id == QLatin1String("rec709"))
+        return ColorSpaceTag::Rec709;
+    return fallback;
+}
+
+QString gammaTagId(GammaTag tag)
+{
+    switch (tag) {
+    case GammaTag::Pq:
+        return QStringLiteral("pq");
+    case GammaTag::Hlg:
+        return QStringLiteral("hlg");
+    case GammaTag::Rec709:
+        break;
+    }
+    return QStringLiteral("rec709");
+}
+
+GammaTag gammaTagFromId(const QString& id, GammaTag fallback)
+{
+    if (id == QLatin1String("pq"))
+        return GammaTag::Pq;
+    if (id == QLatin1String("hlg"))
+        return GammaTag::Hlg;
+    if (id == QLatin1String("rec709"))
+        return GammaTag::Rec709;
+    return fallback;
+}
+
+bool codecCarriesHdr(const QString& codecId)
+{
+    return codecId == QLatin1String("hevc") || codecId == QLatin1String("av1");
+}
+
 QJsonObject ExportSettings::toJson() const
 {
     QJsonObject v;
@@ -309,6 +367,19 @@ QJsonObject ExportSettings::toJson() const
     v[QStringLiteral("alpha")] = video.alpha;
     v[QStringLiteral("keyframeInterval")] = video.keyframeInterval;
     v[QStringLiteral("frameReordering")] = video.frameReordering;
+    // Colour tags only when they differ from the default: files written before 1.13 (and
+    // older versions reading new ones) never see the keys.
+    if (video.colorSpace != ColorSpaceTag::Rec709)
+        v[QStringLiteral("colorSpace")] = colorSpaceTagId(video.colorSpace);
+    if (video.gamma != GammaTag::Rec709) {
+        v[QStringLiteral("gamma")] = gammaTagId(video.gamma);
+        QJsonObject h;
+        h[QStringLiteral("masterMaxNits")] = video.hdr.masterMaxNits;
+        h[QStringLiteral("masterMinNits")] = video.hdr.masterMinNits;
+        h[QStringLiteral("maxCll")] = video.hdr.maxCll;
+        h[QStringLiteral("maxFall")] = video.hdr.maxFall;
+        v[QStringLiteral("hdr")] = h;
+    }
     QJsonObject a;
     a[QStringLiteral("enabled")] = audio.enabled;
     a[QStringLiteral("codec")] = audio.codec;
@@ -381,6 +452,18 @@ ExportSettings ExportSettings::fromJson(const QJsonObject& o, const ExportSettin
     s.video.keyframeInterval
         = std::max(0, int(num(v, "keyframeInterval", s.video.keyframeInterval)));
     s.video.frameReordering = boolean(v, "frameReordering", s.video.frameReordering);
+    s.video.colorSpace
+        = colorSpaceTagFromId(str(v, "colorSpace", {}), s.video.colorSpace);
+    s.video.gamma = gammaTagFromId(str(v, "gamma", {}), s.video.gamma);
+    if (v.contains(QLatin1String("hdr"))) {
+        const QJsonObject h = v.value(QLatin1String("hdr")).toObject();
+        s.video.hdr.masterMaxNits
+            = std::clamp(num(h, "masterMaxNits", s.video.hdr.masterMaxNits), 1.0, 10000.0);
+        s.video.hdr.masterMinNits
+            = std::clamp(num(h, "masterMinNits", s.video.hdr.masterMinNits), 0.0, 10.0);
+        s.video.hdr.maxCll = std::clamp(int(num(h, "maxCll", s.video.hdr.maxCll)), 0, 10000);
+        s.video.hdr.maxFall = std::clamp(int(num(h, "maxFall", s.video.hdr.maxFall)), 0, 10000);
+    }
     const QJsonObject a = o.value(QLatin1String("audio")).toObject();
     s.audio.enabled = boolean(a, "enabled", s.audio.enabled);
     s.audio.codec = str(a, "codec", s.audio.codec);
