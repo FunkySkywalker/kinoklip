@@ -133,12 +133,12 @@ jobs:
         run: |
           set -eu
           cd "$KK_DIST_DIR"
-          export APPIMAGE_EXTRACT_AND_RUN=1
-          ./KinoklipDev-x86_64.AppImage --version | tee version.txt
+          IMG=./KinoklipDev-x86_64.AppImage
+          $IMG --appimage-extract-and-run --version | tee version.txt
           grep -q 'dev (' version.txt
-          ./KinoklipDev-x86_64.AppImage --appimage-updateinformation
+          $IMG --appimage-updateinformation
           xvfb-run -a -s '-screen 0 1920x1080x24' \
-            ./KinoklipDev-x86_64.AppImage --screenshot edit "$PWD/smoke-edit.png"
+            $IMG --appimage-extract-and-run --screenshot edit "$PWD/smoke-edit.png"
           file smoke-edit.png | grep -q 'PNG image data, 1920 x 1080'
 
       - name: Tests
