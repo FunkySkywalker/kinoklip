@@ -111,6 +111,8 @@ ClipData makeNestedClip(const TimelineData& nested, const QString& mediaId)
     c.duration = std::max<int64_t>(1, nested.duration());
     c.sourceInUs = 0;
     c.sourceDurationUs = nestedDurationUs(nested);
+    if (nested.fusion)
+        c.composition = nested.fusionComposition; // every instance shows the shared graph
     return c;
 }
 

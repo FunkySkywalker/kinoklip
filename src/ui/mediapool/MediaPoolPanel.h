@@ -310,6 +310,13 @@ public:
     /// Create New Multicam Clip Using Selected Clips: the options dialog, then
     /// createMulticamClip().
     void newMulticamClipWithDialog();
+    // ---- Fusion clips (MediaPoolFusion.cpp) ----
+
+    /// Media files among @p ids that New Fusion Clip can use.
+    [[nodiscard]] QStringList fusionSourceIds(const QStringList& ids) const;
+    /// New Fusion Composition (no @p ids) or New Fusion Clip from the media files @p ids: a
+    /// Fusion clip in the current bin, selected in the pool. Returns the uid of its timeline.
+    quint64 createFusionClip(const QStringList& ids);
     /// Sync and Place on Timeline: @p ids synced by @p sync on new tracks of the active
     /// timeline from its playhead (one undo step). Returns the number of clips placed.
     int syncAndPlaceOnTimeline(const QStringList& ids, multicam::SyncMethod sync);
@@ -318,6 +325,8 @@ private:
     void buildToolbar(QWidget* host);
     void connectActions();
     void addMulticamMenu(QMenu& menu, const QStringList& ids);
+    void addFusionEntries(QMenu& menu, const QStringList& ids);
+    void connectFusionActions();
     void connectMulticamActions();
     void applyAutoBins();
     /// Shrinks, then hides, the thumbnail size slider when the toolbar is too narrow to keep

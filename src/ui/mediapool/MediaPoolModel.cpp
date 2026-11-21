@@ -68,6 +68,8 @@ int typeRank(MediaPoolModel::MediaKind kind)
         return 4;
     case MediaPoolModel::CompoundKind:
         return 5;
+    case MediaPoolModel::FusionKind:
+        return 5;
     case MediaPoolModel::MulticamKind:
         return 6;
     case MediaPoolModel::SubtitleKind:
@@ -262,7 +264,7 @@ void MediaPoolModel::recheckOffline()
 {
     for (int r = m_folderCount; r < m_rows.size(); ++r) {
         if (m_rows[r].kind == TimelineKind || m_rows[r].kind == CompoundKind
-            || m_rows[r].kind == MulticamKind)
+            || m_rows[r].kind == FusionKind || m_rows[r].kind == MulticamKind)
             continue; // no file behind them
         const bool offline = !media::mediaExists(m_rows[r].path);
         if (offline != m_rows[r].offline) {
@@ -433,9 +435,11 @@ MediaPoolModel::Row MediaPoolModel::makeRow(const MediaItem& item, bool power)
               .toLower();
     if (item.isTimeline()) {
         row.kind = item.kind == MediaItemKind::MulticamClip ? MulticamKind
+            : item.kind == MediaItemKind::FusionClip        ? FusionKind
             : item.kind == MediaItemKind::CompoundClip      ? CompoundKind
                                                             : TimelineKind;
         row.codecText = item.kind == MediaItemKind::MulticamClip ? tr("Multicam Clip")
+            : item.kind == MediaItemKind::FusionClip             ? tr("Fusion Clip")
             : item.kind == MediaItemKind::CompoundClip           ? tr("Compound Clip")
                                                                  : tr("Timeline");
         row.audioText.clear();
@@ -581,7 +585,7 @@ int MediaPoolModel::columnCount(const QModelIndex& parent) const
 QPixmap MediaPoolModel::poster(const Row& row) const
 {
     if (row.kind == AudioKind || row.kind == TimelineKind || row.kind == CompoundKind
-        || row.kind == MulticamKind || row.kind == SubtitleKind || row.kind == FolderKind
+        || row.kind == FusionKind || row.kind == MulticamKind || row.kind == SubtitleKind || row.kind == FolderKind
         || !m_provider)
         return {};
     if (const QPixmap* cached = m_posters.object(row.path))
@@ -650,7 +654,9 @@ QVariant MediaPoolModel::displayText(const Row& row, int column) const
     case FileNameColumn:
         return row.fileName;
     case PathColumn:
-        return row.kind == TimelineKind || row.kind == CompoundKind ? QString() : row.path;
+        return row.kind == TimelineKind || row.kind == CompoundKind || row.kind == FusionKind
+            ? QString()
+            : row.path;
     case DateAddedColumn:
         return row.addedText;
     case DateModifiedColumn:
@@ -691,6 +697,8 @@ QVariant MediaPoolModel::displayText(const Row& row, int column) const
             return tr("Still");
         case CompoundKind:
             return tr("Compound Clip");
+        case FusionKind:
+            return tr("Fusion Clip");
         case MulticamKind:
             return tr("Multicam Clip");
         case SubtitleKind:
@@ -768,6 +776,8 @@ QVariant MediaPoolModel::data(const QModelIndex& index, int role) const
             return icon(QStringLiteral("timeline"));
         case CompoundKind:
             return icon(QStringLiteral("compound_clip"));
+        case FusionKind:
+            return icon(QStringLiteral("fusion_clip"));
         case MulticamKind:
             return icon(QStringLiteral("multicam_clip"));
         case SubtitleKind:
@@ -783,6 +793,10 @@ QVariant MediaPoolModel::data(const QModelIndex& index, int role) const
         QString tip;
         if (row.kind == MulticamKind)
             tip = tr("%1\nMulticam clip: double-click to show its angles in the source viewer")
+                      .arg(row.name);
+        else if (row.kind == FusionKind)
+            tip = tr("%1\nFusion clip: double-click to open it in a tab, drag it onto the "
+                     "timeline (every instance shares its graph)")
                       .arg(row.name);
         else if (row.kind == TimelineKind || row.kind == CompoundKind)
             tip = row.kind == TimelineKind

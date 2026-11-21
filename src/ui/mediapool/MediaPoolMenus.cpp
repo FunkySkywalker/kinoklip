@@ -365,6 +365,8 @@ void MediaPoolPanel::fillStreamlinedItemMenu(QMenu& menu)
     add->addAction(icon(QStringLiteral("smart_bin")), tr("New Smart Bin…"), this,
         &MediaPoolPanel::newSmartBinWithDialog);
     addRegistered(*add, reg, "timeline.new");
+    if (!power)
+        addFusionEntries(*add, ids);
     QMenu* tools = menu.addMenu(tr("Media Tools"));
     tools->setObjectName(QStringLiteral("MediaToolsMenu"));
     if (onItem && currentItem && !currentItem->isTimeline())
@@ -405,6 +407,7 @@ void MediaPoolPanel::showItemMenu(const QPoint& globalPos)
         menu.addAction(tr("Open in Timeline"), this, [this, uid] { openTimeline(uid); });
         menu.addAction(currentItem->kind == MediaItemKind::MulticamClip
                 ? tr("Duplicate Multicam Clip")
+                : currentItem->kind == MediaItemKind::FusionClip ? tr("Duplicate Fusion Clip")
                 : currentItem->kind == MediaItemKind::CompoundClip ? tr("Duplicate Compound Clip")
                                                                    : tr("Duplicate Timeline"),
             this, [this, uid] { m_ctx.project->duplicateTimeline(uid); });
@@ -495,6 +498,8 @@ void MediaPoolPanel::showItemMenu(const QPoint& globalPos)
     menu.addAction(icon(QStringLiteral("smart_bin")), tr("New Smart Bin…"), this,
         &MediaPoolPanel::newSmartBinWithDialog);
     addRegistered(menu, reg, "timeline.new");
+    if (!power)
+        addFusionEntries(menu, ids);
     menu.addSeparator();
     if (reg && reg->contains(QStringLiteral("mediapool.remove_unused")))
         addRegistered(menu, reg, "mediapool.remove_unused");

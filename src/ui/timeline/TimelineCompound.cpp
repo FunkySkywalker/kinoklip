@@ -7,6 +7,7 @@
 #include "core/Project.h"
 #include "core/SelectionModel.h"
 #include "core/Timeline.h"
+#include "ui/common/ActionRegistry.h"
 #include "ui/common/AppContext.h"
 #include "ui/timeline/TimelineController.h"
 #include "ui/timeline/TimelineEditUtil.h"
@@ -26,16 +27,34 @@ QString binOf(const std::function<QString()>& provider)
 
 quint64 TimelineController::newCompoundClip(const QString& name)
 {
+    return createCompound(name, false);
+}
+
+quint64 TimelineController::newFusionClip(const QString& name)
+{
+    const quint64 uid = createCompound(name, true);
+    // Resolve opens the new Fusion clip on the Fusion page: here, the Compositing page.
+    if (uid && m_ctx.actions && m_ctx.actions->contains(QStringLiteral("clip.open_in_compositing")))
+        m_ctx.actions->action(QStringLiteral("clip.open_in_compositing"))->trigger();
+    return uid;
+}
+
+quint64 TimelineController::createCompound(const QString& name, bool fusion)
+{
     Project* p = project();
     const QVector<quint64> ids = effectiveSelection();
     if (ids.isEmpty() || p->isEditing())
         return 0;
     QString finalName = name;
     if (finalName.isEmpty()) {
-        const QString suggestion = p->uniqueTimelineName(tr("Compound Clip"));
+        const QString suggestion
+            = p->uniqueTimelineName(fusion ? tr("Fusion Clip") : tr("Compound Clip"));
         if (m_namePrompt) {
-            const std::optional<QString> answer = m_namePrompt(
-                tr("New Compound Clip"), tr("Compound clip name"), suggestion, tr("Create"));
+            const std::optional<QString> answer = fusion
+                ? m_namePrompt(
+                    tr("New Fusion Clip"), tr("Fusion clip name"), suggestion, tr("Create"))
+                : m_namePrompt(
+                    tr("New Compound Clip"), tr("Compound clip name"), suggestion, tr("Create"));
             if (!answer)
                 return 0;
             finalName = answer->trimmed().isEmpty() ? suggestion : answer->trimmed();
@@ -44,10 +63,12 @@ quint64 TimelineController::newCompoundClip(const QString& name)
         }
     }
     QString error;
-    const quint64 uid = p->createCompoundClip(ids, finalName, binOf(m_binProvider), &error);
+    const quint64 uid = fusion
+        ? p->createFusionClip(ids, finalName, binOf(m_binProvider), &error)
+        : p->createCompoundClip(ids, finalName, binOf(m_binProvider), &error);
     if (uid == 0) {
         if (m_messageSink && !error.isEmpty())
-            m_messageSink(tr("New Compound Clip"), error);
+            m_messageSink(fusion ? tr("New Fusion Clip") : tr("New Compound Clip"), error);
         return 0;
     }
     // Select the new instance(s), like after any edit that creates clips.

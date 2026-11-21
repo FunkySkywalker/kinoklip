@@ -141,7 +141,12 @@ namespace kk::serialization {
 ///   Optional keys added without a bump (an older build ignores them and loses only the feature): a
 ///   timeline's "outputBlanking" (the aspect ratio of Timeline > Output Blanking, a number; absent =
 ///   Off), shown by an older build with the full picture.
-inline constexpr int kFormatVersion = 23;
+/// - 24 (1.13): Fusion clips. A timeline may carry "fusion": true (always with
+///   "compound") and "fusionComposition" (the Compositing page graph all instances share), and
+///   a media pool item may have the kind "fusion". Files of versions 1 - 23 have none and load
+///   unchanged; older builds refuse version 24 instead of listing a Fusion clip as a plain
+///   compound clip without its graph.
+inline constexpr int kFormatVersion = 24;
 
 /// The "toneMap" object of a project or timeline, and back (unknown or missing = none).
 [[nodiscard]] QJsonObject toneMapToJson(const ToneMap& map);

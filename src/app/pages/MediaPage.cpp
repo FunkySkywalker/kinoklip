@@ -63,6 +63,7 @@ MediaPage::MediaPage(AppContext& ctx, QWidget* parent)
     // takes I / O and the other mark keys itself while it has focus.
     new TimelineCommandSuspension(this, ctx.actions,
         {QStringLiteral("clip.attributes"), QStringLiteral("mediapool.new_multicam"),
+            QStringLiteral("mediapool.new_fusion_composition"), QStringLiteral("mediapool.new_fusion_clip"),
             QStringLiteral("mediapool.sync_waveform"), QStringLiteral("mediapool.sync_timecode"),
             QStringLiteral("mediapool.sync_in_points")});
 }

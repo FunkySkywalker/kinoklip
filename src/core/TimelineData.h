@@ -381,6 +381,12 @@ struct TimelineData
     /// as a regular timeline): video track k and audio track k are angle k (core/Multicam.h),
     /// listed in the media pool as a multicam clip.
     bool multicam = false;
+    /// True for the timeline behind a Fusion clip (also `compound`): the clips it holds are
+    /// what the clip's MediaIn shows, `fusionComposition` is the Compositing page graph shared
+    /// by every instance (Project::setClipComposition() keeps the instances in step), and the
+    /// media pool lists it as a Fusion clip.
+    bool fusion = false;
+    std::optional<Composition> fusionComposition;
     /// Resolution and frame rate follow the project settings (Project::setSettings()).
     bool useProjectSettings = true;
     QString name;

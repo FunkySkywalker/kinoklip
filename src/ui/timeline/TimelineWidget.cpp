@@ -999,6 +999,7 @@ void TimelineWidget::streamlinedClipMenu(QMenu& menu, const TimelineHit& hit)
     if (editable)
         add(menu, "timeline.add_transition", tr("Add Transition"));
     add(menu, "clip.new_compound", tr("New Compound Clip…"));
+    add(menu, "clip.new_fusion", tr("New Fusion Clip…"));
     menu.addSeparator();
     // Clip properties.
     QMenu* speed = menu.addMenu(tr("Speed and Duration"));
@@ -1225,6 +1226,7 @@ void TimelineWidget::contextMenuEvent(QContextMenuEvent* event)
         const ClipData* clip = editops::clipById(data, id);
         // Compound clips (spec 26): create from the selection; open / decompose an instance.
         addAction("clip.new_compound");
+        addAction("clip.new_fusion");
         const auto lookup = m_ctx.project->timelineLookup();
         if (clip && multicam::isMulticamClip(*clip, lookup)) {
             addMulticamAngleMenu(menu, id);

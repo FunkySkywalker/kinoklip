@@ -424,6 +424,7 @@ MediaPoolPanel::MediaPoolPanel(AppContext& ctx, QWidget* parent)
 
     rebuildBins();
     connectMulticamActions();
+    connectFusionActions();
     const QVariant binsChoice = QSettings().value(QLatin1String(kBinsVisibleKey));
     if (binsChoice.isValid())
         setBinsVisible(binsChoice.toBool());

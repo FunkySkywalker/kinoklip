@@ -126,6 +126,7 @@ public:
         ImageKind,
         TimelineKind, ///< a timeline of the project (double-click opens it in a tab)
         CompoundKind, ///< a compound clip (its timeline)
+        FusionKind, ///< a Fusion clip (its timeline, its graph on the Compositing page)
         MulticamKind, ///< a multicam clip (its timeline; opens in the source viewer)
         SubtitleKind, ///< an imported subtitle file (drag onto the timeline for captions)
         FolderKind ///< a folder row (a sub-bin; double-click opens it)

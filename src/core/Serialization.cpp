@@ -816,6 +816,11 @@ QJsonObject timelineToJson(const TimelineData& data)
         o[QLatin1String("compound")] = true;
     if (data.multicam)
         o[QLatin1String("multicam")] = true;
+    if (data.fusion) {
+        o[QLatin1String("fusion")] = true;
+        if (data.fusionComposition)
+            o[QLatin1String("fusionComposition")] = compositionToJson(*data.fusionComposition);
+    }
     if (!data.useProjectSettings)
         o[QLatin1String("useProjectSettings")] = false;
     o[QLatin1String("name")] = data.name;
@@ -868,7 +873,11 @@ bool timelineFromJson(
     data.compound = o.value(QLatin1String("compound")).toBool(false);
     // A multicam timeline is always a compound one too (never counted as a regular timeline).
     data.multicam = o.value(QLatin1String("multicam")).toBool(false);
-    data.compound = data.compound || data.multicam;
+    data.fusion = o.value(QLatin1String("fusion")).toBool(false) && !data.multicam;
+    data.compound = data.compound || data.multicam || data.fusion;
+    if (data.fusion && o.contains(QLatin1String("fusionComposition")))
+        data.fusionComposition
+            = compositionFromJson(o.value(QLatin1String("fusionComposition")).toObject());
     data.useProjectSettings = o.value(QLatin1String("useProjectSettings")).toBool(true);
     data.name = o.value(QLatin1String("name")).toString();
     const QJsonObject fps = o.value(QLatin1String("fps")).toObject();
@@ -1150,6 +1159,7 @@ QJsonObject mediaPoolToJson(const MediaPoolState& state, const QDir& projectDir)
             QJsonObject o {{QLatin1String("id"), m.id},
                 {QLatin1String("kind"),
                     m.kind == MediaItemKind::MulticamClip       ? QStringLiteral("multicam")
+                        : m.kind == MediaItemKind::FusionClip   ? QStringLiteral("fusion")
                         : m.kind == MediaItemKind::CompoundClip ? QStringLiteral("compound")
                                                                 : QStringLiteral("timeline")},
                 {QLatin1String("timelineUid"), qint64(m.timelineUid)},
@@ -1201,8 +1211,9 @@ MediaPoolState mediaPoolFromJson(const QJsonObject& json, const QDir& projectDir
         m.id = o.value(QLatin1String("id")).toString();
         const QString kind = o.value(QLatin1String("kind")).toString();
         if (kind == QLatin1String("timeline") || kind == QLatin1String("compound")
-            || kind == QLatin1String("multicam")) {
+            || kind == QLatin1String("multicam") || kind == QLatin1String("fusion")) {
             m.kind = kind == QLatin1String("multicam") ? MediaItemKind::MulticamClip
+                : kind == QLatin1String("fusion")      ? MediaItemKind::FusionClip
                 : kind == QLatin1String("compound")    ? MediaItemKind::CompoundClip
                                                        : MediaItemKind::Timeline;
             m.timelineUid = quint64(o.value(QLatin1String("timelineUid")).toInteger());

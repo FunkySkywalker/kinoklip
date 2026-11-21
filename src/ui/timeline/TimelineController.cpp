@@ -1537,6 +1537,7 @@ void TimelineController::connectActions()
     on("transport.next_marker", &TimelineController::goToNextMarker);
     // Timelines and compound clips (TimelineCompound.cpp).
     on("clip.new_compound", [this] { newCompoundClip(); });
+    on("clip.new_fusion", [this] { newFusionClip(); });
     on("clip.decompose", &TimelineController::decomposeSelection);
     on("clip.open_in_timeline", &TimelineController::openSelectedInTimeline);
     on("timeline.new", [this] { newTimeline(); });

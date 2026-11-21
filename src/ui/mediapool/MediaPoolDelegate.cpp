@@ -84,6 +84,17 @@ void paintPlaceholder(QPainter* p, const QRect& r, int kind, const QPalette& pal
         }
         break;
     }
+    case MediaPoolModel::FusionKind: {
+        // Two input nodes joined into one output, in a clip outline.
+        p->drawRoundedRect(QRectF(c.x() - 22, c.y() - 14, 44, 28), 2, 2);
+        const QPointF a(c.x() - 11, c.y() - 6), b(c.x() - 11, c.y() + 6), o(c.x() + 11, c.y());
+        p->drawLine(a, o);
+        p->drawLine(b, o);
+        p->setBrush(ink);
+        for (const QPointF& n : {a, b, o})
+            p->drawEllipse(n, 3.0, 3.0);
+        break;
+    }
     case MediaPoolModel::SubtitleKind: {
         // A caption box with two text lines.
         p->drawRoundedRect(QRectF(c.x() - 20, c.y() - 14, 40, 28), 3, 3);

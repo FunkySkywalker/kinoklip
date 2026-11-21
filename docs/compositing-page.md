@@ -327,3 +327,18 @@ Insert on links (Shift-drag of a connected tile; library drops already did), til
 Settings (Ctrl+Shift+V, panel-local) and Shift-drag on a link to disconnect it. Colour and
 picture flag are written only when set; the project format stays 19. Fit Nodes to View is
 Shift+F now (Ctrl+F is Find).
+
+## Fusion clips (1.13)
+
+A Fusion clip is a compound clip (a nested timeline) whose picture goes through a Compositing page graph.
+Clip > New Fusion Clip... (also in the timeline clip menu, right after New Compound Clip...) nests the selected
+clips like New Compound Clip, puts a graph MediaIn -> MediaOut on the new clip and opens it on the Compositing
+page. There is one MediaIn, the merged nested picture (the layers inside are composited in track order); per-layer MediaIn nodes are not offered yet. The Media Pool
+lists it with its own icon; Media Pool > New Fusion Composition adds an empty one (a transparent five second
+solid), New Fusion Clip on selected media files puts them in as layers, one per video track.
+
+Every instance of a Fusion clip shares one graph, like Resolve: `TimelineData::fusionComposition` holds it and
+`Project::setClipComposition()` copies each change to all instances in all timelines in the same undo step.
+New instances (drag from the pool, Append at End) start with the shared graph. Reset Composition resets all of
+them; Decompose in Place drops the graph. Projects store it from format version 24 ("fusion", "fusionComposition"
+of the timeline, item kind "fusion"). Delete in the pool warns when instances are on a timeline.

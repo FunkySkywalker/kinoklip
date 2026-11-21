@@ -51,7 +51,7 @@ set(KK_TESTS_QUICK
   test_masksui test_mattefinesse test_mattemodel test_matteservice test_mcp test_mediacache test_mediahover
   test_medialinks test_mediaorganize test_mediapool test_mediapoolpanel test_membudget test_memoryguard
   test_memoryreport test_mergecontrols test_mixerdata test_mixerdsp test_mixergraph
-  test_multicam test_multicamrender test_multicamui test_nested test_nodeeditor test_otio
+  test_fusionclip test_fusionclipui test_multicam test_multicamrender test_multicamui test_nested test_nodeeditor test_otio
   test_panelscreens test_parity test_parity_edit test_pasteaudio test_planartracker
   test_planartrackernode test_playbackengine test_playbacklogic test_playheadscrub test_polish2
   test_polish3 test_polish3shots test_polish4 test_poolfolders test_poolnavigation

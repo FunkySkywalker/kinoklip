@@ -371,6 +371,7 @@ Menu clipMenu()
         }),
         M("Compound", {
             A("clip.new_compound", "New Compound Clip…"),
+            A("clip.new_fusion", "New Fusion Clip…"),
             A("clip.open_in_timeline", "Open in Timeline"),
             A("clip.decompose", "Decompose in Place"),
         }),

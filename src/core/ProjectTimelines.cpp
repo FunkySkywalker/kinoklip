@@ -33,6 +33,7 @@ QVector<QPair<quint64, QString>> signature(const Project::TimelineSet& set)
 MediaItemKind itemKindOf(const TimelineData& data)
 {
     return data.multicam ? MediaItemKind::MulticamClip
+        : data.fusion    ? MediaItemKind::FusionClip
         : data.compound  ? MediaItemKind::CompoundClip
                          : MediaItemKind::Timeline;
 }
@@ -645,7 +646,9 @@ bool Project::deleteTimeline(quint64 uid)
         if (next == 0 || !setActiveTimeline(next))
             return false;
     }
-    beginEdit(data->compound ? tr("Delete Compound Clip") : tr("Delete Timeline"));
+    beginEdit(data->fusion ? tr("Delete Fusion Clip")
+                : data->compound ? tr("Delete Compound Clip")
+                                 : tr("Delete Timeline"));
     m_slots.erase(std::remove_if(m_slots.begin(), m_slots.end(),
                       [uid](const TimelineSlot& s) { return s.uid == uid; }),
         m_slots.end());

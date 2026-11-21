@@ -8,6 +8,31 @@ namespace kk {
 bool Project::setClipComposition(quint64 timelineUid, quint64 clipId,
     std::optional<Composition> composition, const QString& label)
 {
+    // An instance of a Fusion clip shares its graph with the other instances (Resolve's
+    // Fusion clips): the change goes to all of them in the same undo step.
+    if (const auto owner = timelineData(timelineUid)) {
+        const ClipData* clip = editops::clipById(*owner, clipId);
+        if (clip && clip->kind == ClipKind::Nested && isFusionClip(clip->nestedUid)) {
+            if (clip->composition == composition)
+                return true;
+            const quint64 nestedUid = clip->nestedUid;
+            beginEdit(label);
+            const bool ok = [&] {
+                if (timelineUid == m_activeUid)
+                    return editops::setClipComposition(
+                        m_timeline->mutableData(), clipId, composition);
+                auto copy = std::make_shared<TimelineData>(*owner);
+                const bool set = editops::setClipComposition(*copy, clipId, composition);
+                if (set)
+                    replaceTimeline(timelineUid, std::move(copy));
+                return set;
+            }();
+            if (ok)
+                syncFusionInstances(nestedUid, composition);
+            endEdit();
+            return ok;
+        }
+    }
     if (timelineUid == m_activeUid) {
         const ClipData* clip = editops::clipById(m_timeline->data(), clipId);
         if (!clip)

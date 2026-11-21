@@ -387,6 +387,8 @@ QString itemType(const MediaItem& item)
         return QStringLiteral("compound");
     case MediaItemKind::MulticamClip:
         return QStringLiteral("multicam");
+    case MediaItemKind::FusionClip:
+        return QStringLiteral("fusion");
     case MediaItemKind::Subtitle:
         return QStringLiteral("subtitle");
     case MediaItemKind::File:

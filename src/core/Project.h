@@ -259,6 +259,20 @@ public:
     /// the clips linked to it that show the same timeline). One undo step. Returns the ids of
     /// the restored clips, or nothing with @p error set.
     std::optional<QVector<quint64>> decomposeCompoundClip(quint64 clipId, QString* error = nullptr);
+    /// Clip > New Fusion Clip: like createCompoundClip(), but the compound clip is a Fusion clip
+    /// whose Compositing page graph (MediaIn -> MediaOut, the nested picture in MediaIn) is set
+    /// on every instance. One undo step. Returns the uid, or 0 with @p error set.
+    quint64 createFusionClip(const QVector<quint64>& clipIds, const QString& name,
+        const QString& binId = {}, QString* error = nullptr);
+    /// Media Pool > New Fusion Composition: an empty Fusion clip (a transparent five second
+    /// solid inside) in bin @p binId. One undo step. Returns the uid of its timeline.
+    /// With @p mediaIds (Media Pool > New Fusion Clip on selected media) the clips of those
+    /// items are placed at frame 0, one per video track in the order given (their sound on the
+    /// audio tracks) instead of the solid; items that are not media files are skipped.
+    quint64 createFusionComposition(const QString& name = {}, const QString& binId = {},
+        const QStringList& mediaIds = {});
+    /// True if timeline @p timelineUid is the content of a Fusion clip.
+    [[nodiscard]] bool isFusionClip(quint64 timelineUid) const;
     /// Looks any timeline of the project up by uid (the active one included); valid while
     /// the project lives. For the pure functions of CompoundOps / Multicam.
     [[nodiscard]] compound::TimelineLookup timelineLookup() const;
@@ -518,6 +532,9 @@ private:
     TimelineSet currentSet() const;
     /// Replaces the data of an inactive timeline (or the active one through m_timeline).
     void replaceTimeline(quint64 uid, std::shared_ptr<const TimelineData> data);
+    /// Inside an open edit: gives the Fusion clip @p nestedUid and every instance of it (in any
+    /// timeline) the graph @p comp, so editing one instance updates all.
+    void syncFusionInstances(quint64 nestedUid, const std::optional<Composition>& comp);
     /// Adds a timeline + media pool item (inside an open edit).
     void addTimeline(TimelineData data, const QString& binId);
     /// Derived data after every edit: nested clip lengths, media pool items of timelines.

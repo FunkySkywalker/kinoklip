@@ -294,6 +294,12 @@ public:
     /// selection is on) into a compound clip named @p name (empty: asks, suggesting
     /// "Compound Clip N"). One undo step. Returns the compound timeline's uid, or 0.
     quint64 newCompoundClip(const QString& name = {});
+    /// Clip > New Fusion Clip: like newCompoundClip(), but the compound clip is a Fusion clip
+    /// (Project::createFusionClip()); then fusionClipCreated() asks the window to open the
+    /// new instance on the Compositing page. Returns the uid, 0 when cancelled or refused.
+    quint64 newFusionClip(const QString& name = {});
+    /// Shared part of newCompoundClip() / newFusionClip().
+    quint64 createCompound(const QString& name, bool fusion);
     /// Clip > Decompose in Place for the selected compound clip(s) / nested timelines. One
     /// undo step per instance pair. Returns whether anything was decomposed.
     bool decomposeSelection();
