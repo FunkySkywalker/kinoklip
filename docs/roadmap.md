@@ -229,6 +229,12 @@ Still to do:
 - [ ] Media: New Fusion Clip, and Fusion / compound clips as Media Pool entries you can drag to the timeline
 - [x] Titles: underline and strikethrough (Title and Text node Inspector, drawn as bars under spaces too, Write On and Text+ aware, saved with the project; spec 145.3; test_titledecor)
 
+## Version 1.13 (planned)
+
+User requests first; the open lines of the section above carry over.
+
+- [ ] Deliver: HDR export (user request). Rec. 2020 colour space with PQ (ST 2084) and HLG gamma in Render Settings' Color space and Gamma tags; the render path keeps HDR footage HDR instead of mapping it to SDR (half-float or 10-bit pipeline); 10-bit H.265 (Main 10) and AV1 with the colour tags and HDR10 metadata (mastering display, MaxCLL / MaxFALL); the timeline colour space in Project Settings; a viewer that shows the HDR picture on an HDR monitor (Wayland colour management) or tone-maps it for SDR; scopes in nits (PQ scale)
+
 ## Next big release
 
 A large feature, so it gets its own big release. Smaller fix releases will come out before it.
