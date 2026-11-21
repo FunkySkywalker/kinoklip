@@ -406,7 +406,12 @@ void KinoklipStyle::drawPrimitive(PrimitiveElement element, const QStyleOption* 
         return;
     }
     case PE_PanelButtonTool: {
-        const bool frameless = flag(widget, "kkFrameless") || flag(widget, "kkTab") || flag(widget, "kkPage");
+        // Page bar buttons have no hover or pressed plate (Resolve): the current page's square
+        // block and underline, and the brighter text on hover, are all they show. A rounded
+        // plate here put dark corners on the current page's square block.
+        if (flag(widget, "kkPage"))
+            return;
+        const bool frameless = flag(widget, "kkFrameless") || flag(widget, "kkTab");
         if (!(hover || pressed || (on(o, State_On) && !frameless)))
             return;
         p->save();
