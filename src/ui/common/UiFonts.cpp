@@ -7,6 +7,7 @@
 #include <QDir>
 #include <QFile>
 #include <QProcess>
+#include <optional>
 #include <QRegularExpression>
 #include <QStandardPaths>
 #include <QFontDatabase>
@@ -184,16 +185,16 @@ void loadBundledFonts()
         QFontDatabase::addApplicationFont(QStringLiteral(":/fonts/OpenSans-%1.ttf").arg(QLatin1String(file)));
 }
 
-QFont parseKdeFont(const QString& value)
+std::optional<QFont> parseKdeFont(const QString& value)
 {
     // "Noto Sans,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1" (QFont::toString format, as KDE writes it)
     QFont f;
     if (value.trimmed().isEmpty() || !f.fromString(value.trimmed()) || f.family().isEmpty())
-        return {};
+        return std::nullopt;
     return f;
 }
 
-QFont parseGnomeFont(const QString& value)
+std::optional<QFont> parseGnomeFont(const QString& value)
 {
     // gsettings prints 'Cantarell 11' or 'Inter Variable Semi-Bold 11' (Pango description)
     QString v = value.trimmed();
@@ -202,7 +203,7 @@ QFont parseGnomeFont(const QString& value)
     static const QRegularExpression re(QStringLiteral("^(.*?)\\s+([0-9]+(?:\\.[0-9]+)?)$"));
     const auto m = re.match(v);
     if (!m.hasMatch())
-        return {};
+        return std::nullopt;
     QString family = m.captured(1).trimmed();
     QFont::Weight weight = QFont::Normal;
     bool italic = false;
@@ -219,7 +220,7 @@ QFont parseGnomeFont(const QString& value)
         family.truncate(sm.capturedStart(0));
     }
     if (family.isEmpty())
-        return {};
+        return std::nullopt;
     QFont f(family);
     f.setPointSizeF(m.captured(2).toDouble());
     f.setWeight(weight);
@@ -236,10 +237,9 @@ QFont desktopFont()
         const QString file = QDir(dir).filePath(QStringLiteral("kdeglobals"));
         if (!QFile::exists(file))
             continue;
-        const QFont f = parseKdeFont(
-            QSettings(file, QSettings::IniFormat).value(QStringLiteral("General/font")).toString());
-        if (!f.family().isEmpty())
-            return f;
+        if (const auto f = parseKdeFont(QSettings(file, QSettings::IniFormat)
+                                            .value(QStringLiteral("General/font")).toString()))
+            return *f;
     }
     if (!kde) { // GNOME and the other gsettings desktops
         QProcess p;
@@ -247,9 +247,8 @@ QFont desktopFont()
             {QStringLiteral("get"), QStringLiteral("org.gnome.desktop.interface"),
                 QStringLiteral("font-name")});
         if (p.waitForFinished(700) && p.exitStatus() == QProcess::NormalExit && p.exitCode() == 0) {
-            const QFont f = parseGnomeFont(QString::fromUtf8(p.readAllStandardOutput()));
-            if (!f.family().isEmpty())
-                return f;
+            if (const auto f = parseGnomeFont(QString::fromUtf8(p.readAllStandardOutput())))
+                return *f;
         }
     }
     return QFontDatabase::systemFont(QFontDatabase::GeneralFont);

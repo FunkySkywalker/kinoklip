@@ -8,6 +8,7 @@
 #include <QString>
 
 #include <functional>
+#include <optional>
 
 class QApplication;
 
@@ -60,10 +61,10 @@ void setSessionOverride(const QString& id);
 
 /// Registers the bundled Open Sans files (once).
 void loadBundledFonts();
-/// Font from a kdeglobals [General] font= value; a null font when it cannot be read.
-[[nodiscard]] QFont parseKdeFont(const QString& value);
-/// Font from a gsettings font-name value ("'Cantarell 11'"); a null font when unreadable.
-[[nodiscard]] QFont parseGnomeFont(const QString& value);
+/// Font from a kdeglobals [General] font= value; nothing when it cannot be read.
+[[nodiscard]] std::optional<QFont> parseKdeFont(const QString& value);
+/// Font from a gsettings font-name value ("'Cantarell 11'"); nothing when unreadable.
+[[nodiscard]] std::optional<QFont> parseGnomeFont(const QString& value);
 /// The desktop's general font: kdeglobals, then gsettings, then QFontDatabase::systemFont.
 [[nodiscard]] QFont desktopFont();
 /// The application font as the platform gave it, captured before the first change.

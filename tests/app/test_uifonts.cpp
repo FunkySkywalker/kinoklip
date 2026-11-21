@@ -40,16 +40,16 @@ private slots:
 
     void desktopFontParsing()
     {
-        const QFont k = parseKdeFont(QStringLiteral("Noto Sans,11,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"));
+        const QFont k = parseKdeFont(QStringLiteral("Noto Sans,11,-1,5,400,0,0,0,0,0,0,0,0,0,0,1")).value();
         QCOMPARE(k.family(), QStringLiteral("Noto Sans"));
         QCOMPARE(k.pointSizeF(), 11.0);
-        QVERIFY(parseKdeFont(QString()).family().isEmpty());
-        const QFont g = parseGnomeFont(QStringLiteral("'Inter Variable Semi-Bold 12'\n"));
+        QVERIFY(!parseKdeFont(QString()));
+        const QFont g = parseGnomeFont(QStringLiteral("'Inter Variable Semi-Bold 12'\n")).value();
         QCOMPARE(g.family(), QStringLiteral("Inter Variable"));
         QCOMPARE(g.pointSizeF(), 12.0);
         QCOMPARE(g.weight(), QFont::DemiBold);
-        QCOMPARE(parseGnomeFont(QStringLiteral("'Cantarell 11'")).family(), QStringLiteral("Cantarell"));
-        QVERIFY(parseGnomeFont(QStringLiteral("garbage")).family().isEmpty());
+        QCOMPARE(parseGnomeFont(QStringLiteral("'Cantarell 11'")).value().family(), QStringLiteral("Cantarell"));
+        QVERIFY(!parseGnomeFont(QStringLiteral("garbage")));
         QVERIFY(!desktopFont().family().isEmpty());
     }
 
