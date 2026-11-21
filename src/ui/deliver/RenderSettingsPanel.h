@@ -151,6 +151,8 @@ private:
     QComboBox* m_dataLevels = nullptr;
     QComboBox* m_colorSpace = nullptr;
     QComboBox* m_gamma = nullptr;
+    QSpinBox* m_maxCll = nullptr; ///< HDR10 MaxCLL (PQ only)
+    QSpinBox* m_maxFall = nullptr; ///< HDR10 MaxFALL (PQ only)
     QCheckBox* m_alpha = nullptr;
     // Audio
     QFormLayout* m_audioForm = nullptr;

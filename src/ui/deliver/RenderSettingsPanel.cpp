@@ -447,12 +447,32 @@ QWidget* RenderSettingsPanel::buildVideoTab()
              "levels. Choosing the levels is coming in a later version.");
     m_dataLevels = fixedCombo(tr("Auto"), levelsWhy);
     m_videoForm->addRow(tr("Data levels"), m_dataLevels);
-    const QString tagWhy = tr("Renders are tagged Rec.709 (sRGB for RGB image formats). Other "
-                              "colour spaces are coming in a later version.");
-    m_colorSpace = fixedCombo(tr("Rec.709"), tagWhy);
+    // Resolve's Color Space Tag / Gamma Tag. Rec.2020 with PQ or HLG is the HDR10 / HLG
+    // delivery: 10-bit H.265 or AV1 only (the combos are greyed out with a reason otherwise).
+    m_colorSpace = new QComboBox;
+    m_colorSpace->setObjectName(QStringLiteral("RenderColorSpace"));
+    m_colorSpace->addItem(tr("Rec.709"), colorSpaceTagId(ColorSpaceTag::Rec709));
+    m_colorSpace->addItem(tr("Rec.2020"), colorSpaceTagId(ColorSpaceTag::Rec2020));
     m_videoForm->addRow(tr("Color space tag"), m_colorSpace);
-    m_gamma = fixedCombo(tr("Rec.709"), tagWhy);
+    m_gamma = new QComboBox;
+    m_gamma->setObjectName(QStringLiteral("RenderGamma"));
+    m_gamma->addItem(tr("Rec.709"), gammaTagId(GammaTag::Rec709));
+    m_gamma->addItem(tr("ST 2084 (PQ)"), gammaTagId(GammaTag::Pq));
+    m_gamma->addItem(tr("HLG"), gammaTagId(GammaTag::Hlg));
     m_videoForm->addRow(tr("Gamma tag"), m_gamma);
+    m_maxCll = new QSpinBox;
+    m_maxCll->setObjectName(QStringLiteral("RenderMaxCll"));
+    m_maxCll->setRange(0, 10000);
+    m_maxCll->setSuffix(tr(" nits"));
+    m_maxCll->setToolTip(tr("MaxCLL: the brightest pixel of the programme (HDR10 metadata)"));
+    m_videoForm->addRow(tr("MaxCLL"), m_maxCll);
+    m_maxFall = new QSpinBox;
+    m_maxFall->setObjectName(QStringLiteral("RenderMaxFall"));
+    m_maxFall->setRange(0, 10000);
+    m_maxFall->setSuffix(tr(" nits"));
+    m_maxFall->setToolTip(
+        tr("MaxFALL: the highest frame-average light level of the programme (HDR10 metadata)"));
+    m_videoForm->addRow(tr("MaxFALL"), m_maxFall);
     m_alpha = new QCheckBox(tr("Export alpha"));
     m_alpha->setToolTip(tr("Keep transparency (ProRes 4444, PNG, TIFF, OpenEXR)"));
     m_videoForm->addRow(QString(), m_alpha);
@@ -462,7 +482,8 @@ QWidget* RenderSettingsPanel::buildVideoTab()
              m_videoEnabled, m_alpha, m_qualityAuto, m_keyframesAuto, m_frameReordering}) {
         connect(button, &QAbstractButton::toggled, this, changed);
     }
-    for (QComboBox* combo : {m_format, m_codec, m_encoder, m_profile, m_resolution, m_speed})
+    for (QComboBox* combo : {m_format, m_codec, m_encoder, m_profile, m_resolution, m_speed,
+             m_colorSpace, m_gamma})
         connect(combo, &QComboBox::currentIndexChanged, this, changed);
     connect(m_qualityLevel, &QComboBox::currentIndexChanged, this, [this] {
         // A named level writes its value into the spin box (the value is what is stored).
@@ -472,7 +493,8 @@ QWidget* RenderSettingsPanel::buildVideoTab()
             m_quality->setValue(value);
         refresh();
     });
-    for (QSpinBox* spin : {m_width, m_height, m_quality, m_bitrate, m_keyframeInterval})
+    for (QSpinBox* spin :
+        {m_width, m_height, m_quality, m_bitrate, m_keyframeInterval, m_maxCll, m_maxFall})
         connect(spin, &QSpinBox::valueChanged, this, changed);
     return page;
 }
@@ -739,6 +761,11 @@ ExportSettings RenderSettingsPanel::settings() const
     s.video.keyframeInterval = m_keyframesEvery->isChecked() ? m_keyframeInterval->value() : 0;
     s.video.frameReordering = m_frameReordering->isChecked();
     s.video.alpha = m_alpha->isChecked();
+    s.video.colorSpace
+        = colorSpaceTagFromId(m_colorSpace->currentData().toString(), ColorSpaceTag::Rec709);
+    s.video.gamma = gammaTagFromId(m_gamma->currentData().toString(), GammaTag::Rec709);
+    s.video.hdr.maxCll = m_maxCll->value(); // the mastering display values stay as loaded
+    s.video.hdr.maxFall = m_maxFall->value();
     s.audio.enabled = m_audioEnabled->isChecked();
     s.audio.codec = m_audioCodec->currentData().toString();
     s.audio.bitrateKbps = m_audioBitrate->currentData().toInt();
@@ -845,6 +872,10 @@ void RenderSettingsPanel::setSettings(const ExportSettings& input)
         m_keyframeInterval->setValue(s.video.keyframeInterval);
     m_frameReordering->setChecked(s.video.frameReordering);
     m_alpha->setChecked(s.video.alpha);
+    selectData(m_colorSpace, colorSpaceTagId(s.video.colorSpace));
+    selectData(m_gamma, gammaTagId(s.video.gamma));
+    m_maxCll->setValue(s.video.hdr.maxCll);
+    m_maxFall->setValue(s.video.hdr.maxFall);
 
     m_audioCodec->clear();
     if (container) {
@@ -971,6 +1002,20 @@ void RenderSettingsPanel::updateVisibility()
     m_videoForm->setRowVisible(m_dataLevels, videoOn);
     m_videoForm->setRowVisible(m_colorSpace, videoOn);
     m_videoForm->setRowVisible(m_gamma, videoOn);
+    const bool hdrCodec = codec && codecCarriesHdr(codec->id);
+    const QString hdrWhy = hdrCodec
+        ? QString()
+        : tr("Rec.2020, PQ and HLG need 10-bit H.265 or AV1; this codec renders Rec.709 "
+             "(sRGB for RGB image formats).");
+    for (QComboBox* combo : {m_colorSpace, m_gamma}) {
+        combo->setEnabled(hdrCodec);
+        combo->setToolTip(hdrWhy);
+    }
+    m_colorSpace->setEnabled(hdrCodec && !s.video.isHdr()); // PQ and HLG are Rec.2020
+    if (hdrCodec && s.video.isHdr())
+        m_colorSpace->setToolTip(tr("PQ and HLG are always Rec.2020"));
+    m_videoForm->setRowVisible(m_maxCll, videoOn && hdrCodec && s.video.gamma == GammaTag::Pq);
+    m_videoForm->setRowVisible(m_maxFall, videoOn && hdrCodec && s.video.gamma == GammaTag::Pq);
     bool alphaPossible = codec && codec->alphaCapable;
     if (codec && codec->id == QLatin1String("prores"))
         alphaPossible = s.video.profile.startsWith(QLatin1String("4444"));
