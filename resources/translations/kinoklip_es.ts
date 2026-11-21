@@ -17922,6 +17922,14 @@ Transición estándar de este proyecto</translation>
         <source>VAAPI (Intel/AMD)</source>
         <translation>VAAPI (Intel/AMD)</translation>
     </message>
+    <message>
+        <source>%1 cannot carry Rec.2020, PQ or HLG; use H.265 or AV1.</source>
+        <translation>%1 no puede guardar Rec.2020, PQ ni HLG; usa H.265 o AV1.</translation>
+    </message>
+    <message>
+        <source>PQ and HLG need the Rec.2020 color space.</source>
+        <translation>PQ y HLG necesitan el espacio de color Rec.2020.</translation>
+    </message>
 </context>
 <context>
     <name>kk::FaderWidget</name>
@@ -29488,10 +29496,6 @@ Las líneas de tiempo que usan los ajustes del proyecto se convierten: los clips
         <translation>Niveles de datos</translation>
     </message>
     <message>
-        <source>Renders are tagged Rec.709 (sRGB for RGB image formats). Other colour spaces are coming in a later version.</source>
-        <translation>Los renderizados se etiquetan como Rec.709 (sRGB para formatos de imagen RGB). Otros espacios de color llegarán en una versión posterior.</translation>
-    </message>
-    <message>
         <source>Rec.709</source>
         <translation>Rec.709</translation>
     </message>
@@ -29746,6 +29750,50 @@ Las líneas de tiempo que usan los ajustes del proyecto se convierten: los clips
     <message>
         <source>True peak limit</source>
         <translation>Límite de pico real</translation>
+    </message>
+    <message>
+        <source>Rec.2020</source>
+        <translation>Rec.2020</translation>
+    </message>
+    <message>
+        <source>ST 2084 (PQ)</source>
+        <translation>ST 2084 (PQ)</translation>
+    </message>
+    <message>
+        <source>HLG</source>
+        <translation>HLG</translation>
+    </message>
+    <message>
+        <source> nits</source>
+        <translation> nits</translation>
+    </message>
+    <message>
+        <source>MaxCLL: the brightest pixel of the programme (HDR10 metadata)</source>
+        <translation>MaxCLL: el píxel más brillante del programa (metadatos HDR10)</translation>
+    </message>
+    <message>
+        <source>MaxCLL</source>
+        <translation>MaxCLL</translation>
+    </message>
+    <message>
+        <source>MaxFALL: the highest frame-average light level of the programme (HDR10 metadata)</source>
+        <translation>MaxFALL: el nivel de luz medio más alto de un fotograma del programa (metadatos HDR10)</translation>
+    </message>
+    <message>
+        <source>MaxFALL</source>
+        <translation>MaxFALL</translation>
+    </message>
+    <message>
+        <source>Rec.2020, PQ and HLG need 10-bit H.265 or AV1; this codec renders Rec.709 (sRGB for RGB image formats).</source>
+        <translation>Rec.2020, PQ y HLG necesitan H.265 o AV1 de 10 bits; este códec renderiza Rec.709 (sRGB en formatos de imagen RGB).</translation>
+    </message>
+    <message>
+        <source>PQ and HLG are Rec.2020; choosing Rec.709 switches the gamma back to Rec.709</source>
+        <translation>PQ y HLG son Rec.2020; al elegir Rec.709 el gamma vuelve a Rec.709</translation>
+    </message>
+    <message>
+        <source> (not for HDR)</source>
+        <translation> (no para HDR)</translation>
     </message>
 </context>
 <context>

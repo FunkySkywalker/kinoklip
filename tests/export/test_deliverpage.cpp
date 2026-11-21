@@ -78,6 +78,26 @@ private Q_SLOTS:
         cll->setValue(800);
         QCOMPARE(panel->settings().video.hdr.maxCll, 800);
 
+        // Rec.709 colour space with PQ goes back to the SDR gamma; PQ selects Rec.2020 again.
+        space->setCurrentIndex(space->findData(colorSpaceTagId(ColorSpaceTag::Rec709)));
+        QCOMPARE(panel->settings().video.gamma, GammaTag::Rec709);
+        QCOMPARE(panel->settings().video.colorSpace, ColorSpaceTag::Rec709);
+        gamma->setCurrentIndex(gamma->findData(gammaTagId(GammaTag::Hlg)));
+        QCOMPARE(panel->settings().video.colorSpace, ColorSpaceTag::Rec2020);
+        QCOMPARE(space->currentData().toString(), colorSpaceTagId(ColorSpaceTag::Rec2020));
+
+        // Hardware encoders are disabled while HDR is on, and a saved choice becomes Software.
+        auto* enc = panel->findChild<QComboBox*>(QStringLiteral("RenderEncoder"));
+        QVERIFY(enc);
+        s = panel->settings();
+        s.video.encoder = EncoderBackend::Nvenc;
+        panel->setSettings(s);
+        QCOMPARE(panel->settings().video.encoder, EncoderBackend::Software);
+        const int nv = enc->findData(int(EncoderBackend::Nvenc));
+        QVERIFY(nv >= 0);
+        QVERIFY(enc->itemText(nv).contains(QStringLiteral("HDR")));
+        QVERIFY(!(enc->model()->flags(enc->model()->index(nv, 0)) & Qt::ItemIsEnabled));
+
         // Back to H.264: the HDR tags are dropped again.
         s = panel->settings();
         s.video.codec = QStringLiteral("h264");

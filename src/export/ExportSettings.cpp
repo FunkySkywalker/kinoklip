@@ -284,6 +284,13 @@ void ExportSettings::normalize()
     } else if (video.isHdr()) {
         video.colorSpace = ColorSpaceTag::Rec2020;
     }
+    // Hardware encoders write 8-bit NV12, so Rec.2020 / PQ / HLG renders use the software
+    // encoder; the Deliver page shows that (the hardware choices are disabled), never a silent
+    // switch at render time.
+    if (video.wideGamut() && video.encoder != EncoderBackend::Auto
+        && video.encoder != EncoderBackend::Software) {
+        video.encoder = EncoderBackend::Software;
+    }
     if (const VideoCodecInfo* codec = findVideoCodec(video.codec)) {
         if (!codec->profiles.isEmpty() && !codec->profiles.contains(video.profile)) {
             video.profile = codec->profiles.first();

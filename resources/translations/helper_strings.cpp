@@ -1398,6 +1398,7 @@ QCoreApplication::translate("kk::ExportJob", "Nothing to render: the render rang
 QCoreApplication::translate("kk::ExportJob", "Rendering frame %1 failed.");
 QCoreApplication::translate("kk::ExportJob", "Subtitle encoding failed: %1");
 QCoreApplication::translate("kk::ExportJob", "Video encoding failed: %1");
+QCoreApplication::translate("kk::ExportSettings", "%1 cannot carry Rec.2020, PQ or HLG; use H.265 or AV1.");
 QCoreApplication::translate("kk::ExportSettings", "%1 cannot contain %2 audio.");
 QCoreApplication::translate("kk::ExportSettings", "%1 cannot contain %2 video.");
 QCoreApplication::translate("kk::ExportSettings", "%1 does not support %2 Hz.");
@@ -1407,6 +1408,7 @@ QCoreApplication::translate("kk::ExportSettings", "Invalid output resolution %1x
 QCoreApplication::translate("kk::ExportSettings", "NVIDIA NVENC");
 QCoreApplication::translate("kk::ExportSettings", "Neither video nor audio is enabled.");
 QCoreApplication::translate("kk::ExportSettings", "No output file name was given.");
+QCoreApplication::translate("kk::ExportSettings", "PQ and HLG need the Rec.2020 color space.");
 QCoreApplication::translate("kk::ExportSettings", "Software");
 QCoreApplication::translate("kk::ExportSettings", "The audio bitrate must be positive.");
 QCoreApplication::translate("kk::ExportSettings", "The render range is empty.");

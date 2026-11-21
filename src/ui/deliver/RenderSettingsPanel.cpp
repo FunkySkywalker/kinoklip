@@ -31,6 +31,7 @@
 #include <QScrollArea>
 #include <QSettings>
 #include <QSpinBox>
+#include <QStandardItemModel>
 #include <QStandardPaths>
 #include <QTabWidget>
 #include <QToolButton>
@@ -946,6 +947,12 @@ void RenderSettingsPanel::refresh()
     m_presetRow->setCurrent(QString());
     m_presetName->setText(tr("Custom Export"));
     ExportSettings next = settings();
+    // Colour space and gamma stay consistent: choosing Rec.709 while the gamma is PQ / HLG goes
+    // back to the SDR gamma (PQ / HLG themselves select Rec.2020 in ExportSettings::normalize).
+    if (next.video.colorSpace == ColorSpaceTag::Rec709 && next.video.isHdr()
+        && m_settings.video.colorSpace == ColorSpaceTag::Rec2020
+        && m_settings.video.gamma == next.video.gamma)
+        next.video.gamma = GammaTag::Rec709;
     // A named quality level ("High") follows a codec change with that codec's value.
     const auto level = QualityLevel(m_qualityLevel->currentData().toInt());
     if (level != QualityLevel::Custom && next.video.codec != m_settings.video.codec) {
@@ -1011,9 +1018,9 @@ void RenderSettingsPanel::updateVisibility()
         combo->setEnabled(hdrCodec);
         combo->setToolTip(hdrWhy);
     }
-    m_colorSpace->setEnabled(hdrCodec && !s.video.isHdr()); // PQ and HLG are Rec.2020
     if (hdrCodec && s.video.isHdr())
-        m_colorSpace->setToolTip(tr("PQ and HLG are always Rec.2020"));
+        m_colorSpace->setToolTip(
+            tr("PQ and HLG are Rec.2020; choosing Rec.709 switches the gamma back to Rec.709"));
     m_videoForm->setRowVisible(m_maxCll, videoOn && hdrCodec && s.video.gamma == GammaTag::Pq);
     m_videoForm->setRowVisible(m_maxFall, videoOn && hdrCodec && s.video.gamma == GammaTag::Pq);
     bool alphaPossible = codec && codec->alphaCapable;
@@ -1073,6 +1080,16 @@ void RenderSettingsPanel::updateVisibility()
                 available |= hw.backend == backend && hw.codecId == s.video.codec && hw.available;
             if (!available)
                 text += tr(" (not available)");
+        }
+        // HDR (Rec.2020 / PQ / HLG) is 10-bit: only the software encoder can write it.
+        const bool hardware
+            = backend != EncoderBackend::Auto && backend != EncoderBackend::Software;
+        const bool blocked = hardware && s.video.wideGamut();
+        if (blocked)
+            text += tr(" (not for HDR)");
+        if (auto* model = qobject_cast<QStandardItemModel*>(m_encoder->model())) {
+            if (QStandardItem* item = model->item(i))
+                item->setEnabled(!blocked);
         }
         m_encoder->setItemText(i, text);
     }
