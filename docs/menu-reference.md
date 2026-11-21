@@ -1,4 +1,4 @@
-368 menu entries in 13 menus; 57 panels
+368 menu entries in 13 menus; 58 panels
 
 # Menu and panel reference
 
@@ -501,6 +501,7 @@ Shortcuts are the defaults of the Resolve keymap (Windows); another keyboard pro
 | Curves | Curve adjustments of the current node. |
 | Gallery | The stills grabbed from graded clips; use one to compare in the viewer or copy its grade. |
 | Key | The key output gain of the current node, qualifier invert and a small view of the key. |
+| Log | Log wheels of the current node: Shadow, Midtone, Highlight and Offset with the Low and High Range of the zones. |
 | LUTs | Browser of .cube look-up tables; apply one to the current node. |
 | Nodes | The node graph of the grade of the current clip. |
 | Primaries | Primary colour correction of the current node. |
