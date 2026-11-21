@@ -3285,6 +3285,58 @@ Das Programm wurde wahrscheinlich vom System beendet, weil der Arbeitsspeicher d
         <translation>Farbe-Seite: Teilt den Viewer, um mit dem ausgewählten Galerie-Standbild zu vergleichen.</translation>
     </message>
     <message>
+        <source>Color page: turns the viewer&apos;s split screen on or off, in the mode last used.</source>
+        <translation>Farbe-Seite: Schaltet den geteilten Bildschirm des Viewers ein oder aus, im zuletzt verwendeten Modus.</translation>
+    </message>
+    <message>
+        <source>Color page: shows the graded frames of the clips selected in the clips strip side by side in the viewer.</source>
+        <translation>Farbe-Seite: Zeigt die korrigierten Bilder der im Clip-Streifen gewählten Clips nebeneinander im Viewer.</translation>
+    </message>
+    <message>
+        <source>Color page: shows the clip under the playhead and its neighbours on the timeline in vertical strips, to match shots.</source>
+        <translation>Farbe-Seite: Zeigt den Clip unter dem Abspielkopf und seine Nachbarn auf der Timeline in senkrechten Streifen, um Einstellungen anzugleichen.</translation>
+    </message>
+    <message>
+        <source>Color page: replaces the viewer with a grid of the graded thumbnails of every clip on the timeline; click one to go to it.</source>
+        <translation>Farbe-Seite: Ersetzt den Viewer durch ein Raster der korrigierten Vorschaubilder aller Clips der Timeline; ein Klick springt zum Clip.</translation>
+    </message>
+    <message>
+        <source>Removes the Output Blanking bars of the current timeline.</source>
+        <translation>Entfernt die Ausgabe-Maskierungsbalken der aktuellen Timeline.</translation>
+    </message>
+    <message>
+        <source>Draws black bars over the viewer, renders and exports of the current timeline so the visible picture has the 1.33:1 aspect ratio.</source>
+        <translation>Zeichnet schwarze Balken über Viewer, Renderings und Exporte der aktuellen Timeline, sodass das sichtbare Bild das Seitenverhältnis 1.33:1 hat.</translation>
+    </message>
+    <message>
+        <source>Draws black bars over the viewer, renders and exports of the current timeline so the visible picture has the 1.66:1 aspect ratio.</source>
+        <translation>Zeichnet schwarze Balken über Viewer, Renderings und Exporte der aktuellen Timeline, sodass das sichtbare Bild das Seitenverhältnis 1.66:1 hat.</translation>
+    </message>
+    <message>
+        <source>Draws black bars over the viewer, renders and exports of the current timeline so the visible picture has the 1.78:1 aspect ratio.</source>
+        <translation>Zeichnet schwarze Balken über Viewer, Renderings und Exporte der aktuellen Timeline, sodass das sichtbare Bild das Seitenverhältnis 1.78:1 hat.</translation>
+    </message>
+    <message>
+        <source>Draws black bars over the viewer, renders and exports of the current timeline so the visible picture has the 1.85:1 aspect ratio.</source>
+        <translation>Zeichnet schwarze Balken über Viewer, Renderings und Exporte der aktuellen Timeline, sodass das sichtbare Bild das Seitenverhältnis 1.85:1 hat.</translation>
+    </message>
+    <message>
+        <source>Draws black bars over the viewer, renders and exports of the current timeline so the visible picture has the 2.00:1 aspect ratio.</source>
+        <translation>Zeichnet schwarze Balken über Viewer, Renderings und Exporte der aktuellen Timeline, sodass das sichtbare Bild das Seitenverhältnis 2.00:1 hat.</translation>
+    </message>
+    <message>
+        <source>Draws black bars over the viewer, renders and exports of the current timeline so the visible picture has the 2.35:1 aspect ratio.</source>
+        <translation>Zeichnet schwarze Balken über Viewer, Renderings und Exporte der aktuellen Timeline, sodass das sichtbare Bild das Seitenverhältnis 2.35:1 hat.</translation>
+    </message>
+    <message>
+        <source>Draws black bars over the viewer, renders and exports of the current timeline so the visible picture has the 2.39:1 aspect ratio.</source>
+        <translation>Zeichnet schwarze Balken über Viewer, Renderings und Exporte der aktuellen Timeline, sodass das sichtbare Bild das Seitenverhältnis 2.39:1 hat.</translation>
+    </message>
+    <message>
+        <source>Draws black bars over the viewer, renders and exports of the current timeline so the visible picture has the 2.40:1 aspect ratio.</source>
+        <translation>Zeichnet schwarze Balken über Viewer, Renderings und Exporte der aktuellen Timeline, sodass das sichtbare Bild das Seitenverhältnis 2.40:1 hat.</translation>
+    </message>
+    <message>
         <source>Color page: shows in the viewer what the current node&apos;s key selects.</source>
         <translation>Farbe-Seite: Zeigt im Viewer, was der Key des aktuellen Nodes auswählt.</translation>
     </message>
@@ -9938,6 +9990,52 @@ Danke fürs Zuschauen</translation>
     </message>
 </context>
 <context>
+    <name>kk::ColorLightbox</name>
+    <message>
+        <source>Thumbnail size</source>
+        <translation>Vorschaugröße</translation>
+    </message>
+    <message>
+        <source>Small</source>
+        <translation>Klein</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Mittel</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>Groß</translation>
+    </message>
+    <message>
+        <source>Clip labels</source>
+        <translation>Clip-Beschriftung</translation>
+    </message>
+    <message>
+        <source>Grade info</source>
+        <translation>Korrektur-Info</translation>
+    </message>
+    <message>
+        <source>Click a clip to grade it, double-click to return to the viewer</source>
+        <translation>Klick auf einen Clip korrigiert ihn, Doppelklick kehrt zum Viewer zurück</translation>
+    </message>
+</context>
+<context>
+    <name>kk::ColorLightboxGrid</name>
+    <message>
+        <source>Ungraded</source>
+        <translation>Nicht korrigiert</translation>
+    </message>
+    <message>
+        <source>Nodes: %1</source>
+        <translation>Nodes: %1</translation>
+    </message>
+    <message>
+        <source>, LUT</source>
+        <translation>, LUT</translation>
+    </message>
+</context>
+<context>
     <name>kk::ColorMiniTimeline</name>
     <message>
         <source>Click or drag to move the playhead</source>
@@ -10116,6 +10214,18 @@ Danke fürs Zuschauen</translation>
     <message>
         <source>Split the viewer with the selected gallery still</source>
         <translation>Den Viewer mit dem gewählten Galerie-Standbild teilen</translation>
+    </message>
+    <message>
+        <source>Split</source>
+        <translation>Teilen</translation>
+    </message>
+    <message>
+        <source>Show several clips side by side in the viewer (View &gt; Split Screen)</source>
+        <translation>Mehrere Clips nebeneinander im Viewer zeigen (Ansicht &gt; Geteilter Bildschirm)</translation>
+    </message>
+    <message>
+        <source>Split screen mode</source>
+        <translation>Modus des geteilten Bildschirms</translation>
     </message>
     <message>
         <source>Bypass</source>
@@ -10401,6 +10511,13 @@ Danke fürs Zuschauen</translation>
     <message>
         <source>Copy Grade</source>
         <translation>Farbkorrektur kopieren</translation>
+    </message>
+</context>
+<context>
+    <name>kk::ColorSplitScreen</name>
+    <message>
+        <source>Rendering…</source>
+        <translation>Wird berechnet …</translation>
     </message>
 </context>
 <context>
@@ -21652,6 +21769,22 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
         <translation>&amp;Ansicht</translation>
     </message>
     <message>
+        <source>1.33</source>
+        <translation>1.33</translation>
+    </message>
+    <message>
+        <source>1.66</source>
+        <translation>1.66</translation>
+    </message>
+    <message>
+        <source>1.78</source>
+        <translation>1.78</translation>
+    </message>
+    <message>
+        <source>1.85</source>
+        <translation>1.85</translation>
+    </message>
+    <message>
         <source>1.85:1</source>
         <translation>1.85:1</translation>
     </message>
@@ -21660,8 +21793,24 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
         <translation>1:1</translation>
     </message>
     <message>
+        <source>2.00</source>
+        <translation>2.00</translation>
+    </message>
+    <message>
+        <source>2.35</source>
+        <translation>2.35</translation>
+    </message>
+    <message>
+        <source>2.39</source>
+        <translation>2.39</translation>
+    </message>
+    <message>
         <source>2.39:1</source>
         <translation>2.39:1</translation>
+    </message>
+    <message>
+        <source>2.40</source>
+        <translation>2.40</translation>
     </message>
     <message>
         <source>4 x 4 Grid</source>
@@ -22252,6 +22401,10 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
         <translation>Mehrere Bilder nach links</translation>
     </message>
     <message>
+        <source>Lightbox</source>
+        <translation>Leuchtkasten</translation>
+    </message>
+    <message>
         <source>Linear</source>
         <translation>Linear</translation>
     </message>
@@ -22420,6 +22573,10 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
         <translation>Verschieben</translation>
     </message>
     <message>
+        <source>Off</source>
+        <translation>Aus</translation>
+    </message>
+    <message>
         <source>On-Screen Controls</source>
         <translation>Bildschirmsteuerung</translation>
     </message>
@@ -22442,6 +22599,10 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
     <message>
         <source>Out</source>
         <translation>Aus</translation>
+    </message>
+    <message>
+        <source>Output Blanking</source>
+        <translation>Ausgabe-Maskierung</translation>
     </message>
     <message>
         <source>Overlays</source>
@@ -22790,6 +22951,18 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
     <message>
         <source>Speed and Duration</source>
         <translation>Geschwindigkeit und Dauer</translation>
+    </message>
+    <message>
+        <source>Split Screen</source>
+        <translation>Geteilter Bildschirm</translation>
+    </message>
+    <message>
+        <source>Split Screen: Selected Clips</source>
+        <translation>Geteilter Bildschirm: Gewählte Clips</translation>
+    </message>
+    <message>
+        <source>Split Screen: Timeline</source>
+        <translation>Geteilter Bildschirm: Timeline</translation>
     </message>
     <message>
         <source>Split at Playhead</source>
@@ -30959,6 +31132,42 @@ Kinoklip neu starten, um sie anzuwenden.</translation>
         <translation>Timeline-&amp;Einstellungen…</translation>
     </message>
     <message>
+        <source>Output Blanking Off</source>
+        <translation>Ausgabe-Maskierung aus</translation>
+    </message>
+    <message>
+        <source>Output Blanking 1.33</source>
+        <translation>Ausgabe-Maskierung 1.33</translation>
+    </message>
+    <message>
+        <source>Output Blanking 1.66</source>
+        <translation>Ausgabe-Maskierung 1.66</translation>
+    </message>
+    <message>
+        <source>Output Blanking 1.78</source>
+        <translation>Ausgabe-Maskierung 1.78</translation>
+    </message>
+    <message>
+        <source>Output Blanking 1.85</source>
+        <translation>Ausgabe-Maskierung 1.85</translation>
+    </message>
+    <message>
+        <source>Output Blanking 2.00</source>
+        <translation>Ausgabe-Maskierung 2.00</translation>
+    </message>
+    <message>
+        <source>Output Blanking 2.35</source>
+        <translation>Ausgabe-Maskierung 2.35</translation>
+    </message>
+    <message>
+        <source>Output Blanking 2.39</source>
+        <translation>Ausgabe-Maskierung 2.39</translation>
+    </message>
+    <message>
+        <source>Output Blanking 2.40</source>
+        <translation>Ausgabe-Maskierung 2.40</translation>
+    </message>
+    <message>
         <source>Ne&amp;xt Timeline Tab</source>
         <translation>&amp;Nächster Timeline-Reiter</translation>
     </message>
@@ -31859,6 +32068,22 @@ Kinoklip neu starten, um sie anzuwenden.</translation>
         <translation>&amp;Highlight</translation>
     </message>
     <message>
+        <source>&amp;Split Screen</source>
+        <translation>&amp;Geteilter Bildschirm</translation>
+    </message>
+    <message>
+        <source>Split Screen: Selected &amp;Clips</source>
+        <translation>Geteilter Bildschirm: Gewählte &amp;Clips</translation>
+    </message>
+    <message>
+        <source>Split Screen: &amp;Timeline</source>
+        <translation>Geteilter Bildschirm: &amp;Timeline</translation>
+    </message>
+    <message>
+        <source>&amp;Lightbox</source>
+        <translation>&amp;Leuchtkasten</translation>
+    </message>
+    <message>
         <source>&amp;Copy Grade</source>
         <translation>Farbkorrektur &amp;kopieren</translation>
     </message>
@@ -32502,6 +32727,14 @@ Kinoklip neu starten, um sie anzuwenden.</translation>
     <message>
         <source>Sync Lock On</source>
         <translation>Sync-Sperre ein</translation>
+    </message>
+    <message>
+        <source>Output Blanking %1</source>
+        <translation>Ausgabe-Maskierung %1</translation>
+    </message>
+    <message>
+        <source>Output Blanking Off</source>
+        <translation>Ausgabe-Maskierung aus</translation>
     </message>
     <message>
         <source>Marker %1</source>

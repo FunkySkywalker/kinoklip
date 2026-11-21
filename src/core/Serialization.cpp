@@ -853,6 +853,10 @@ QJsonObject timelineToJson(const TimelineData& data)
         o[QLatin1String("guides")] = guides::toJson(data.guides);
     if (!data.grade.isEmpty()) // format 16; omitted when ungraded
         o[QLatin1String("grade")] = gradeToJson(data.grade);
+    // Output Blanking: an optional number, omitted while Off (no format bump: an older build
+    // ignores it and shows the full picture).
+    if (data.outputBlanking > 0.0)
+        o[QLatin1String("outputBlanking")] = data.outputBlanking;
     return o;
 }
 
@@ -905,6 +909,7 @@ bool timelineFromJson(
     repairRoutes(data.mixer, data.audioTracks);
     // Format 14: viewer guides (absent = none, what every older timeline has).
     data.guides = guides::fromJson(o.value(QLatin1String("guides")).toArray());
+    data.outputBlanking = std::clamp(o.value(QLatin1String("outputBlanking")).toDouble(0.0), 0.0, 10.0);
     // Format 16: the timeline grade (absent = ungraded).
     if (o.contains(QLatin1String("grade")))
         data.grade = gradeFromJson(o.value(QLatin1String("grade")).toObject());

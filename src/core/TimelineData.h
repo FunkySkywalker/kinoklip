@@ -413,6 +413,10 @@ struct TimelineData
     /// Timeline grade (Color page): applied to the composite of every video track, after the
     /// clip grades and before the captions and the output. Keyframes in timeline frames.
     ClipGrade grade;
+    /// Timeline > Output Blanking: aspect ratio (width / height) of the picture left visible,
+    /// black bars outside it (core/OutputBlanking.h); 0 = Off. Per timeline, saved with it,
+    /// drawn by every renderer last (viewers, renders, exports).
+    double outputBlanking = 0.0;
     /// Render snapshots only (Timeline::snapshot()): every timeline the nested clips of this
     /// one reach, directly or indirectly. Empty in editable data; never serialized.
     NestedTimelines nested;

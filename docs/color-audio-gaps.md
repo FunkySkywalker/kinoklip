@@ -59,9 +59,9 @@ Every missing piece has a line in [roadmap.md](roadmap.md) under "Next version (
 | C43 | Copy a grade to other clips (Ctrl+C / Ctrl+V, middle-click, Apply Grade) | works | |
 | C44 | Dynamic grade with keyframes | partly | Add / Remove Keyframe works; no Keyframes palette / strip on the Color page, no Dynamic interpolation |
 | C45 | Sizing palette (Zoom, Pan, Tilt, Rotate, Flip, Input / Output sizing) | partly | Edit page Transform does it; no Sizing palette on the Color page |
-| C46 | Compare shots: Gallery wipe, Split Screen, Lightbox, Highlight | partly | Wipe and Highlight work; no Split Screen modes (Selected Clips, Timeline), no Lightbox |
+| C46 | Compare shots: Gallery wipe, Split Screen, Lightbox, Highlight | works | Split Screen (Selected Clips, Timeline), Lightbox (spec 44b.32, 44b.33) |
 | C47 | Timeline grade and Adjustment clips | works | |
-| C48 | Output blanking / letterbox bars | missing | Output Blanking in Project Settings and on the Color page |
+| C48 | Output blanking / letterbox bars | works | Timeline > Output Blanking presets (spec 44b.34) |
 
 ## Audio page (Fairlight)
 

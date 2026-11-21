@@ -11,6 +11,7 @@
 #include "playback/PlaybackEngine.h"
 #include "ui/color/ColorBrowsers.h"
 #include "ui/color/ColorFrameSource.h"
+#include "ui/color/ColorLightbox.h"
 #include "ui/color/ColorTracker.h"
 #include "ui/color/ColorNodeEditor.h"
 #include "ui/color/ColorPalettes.h"
@@ -40,6 +41,7 @@
 #include <QKeyEvent>
 #include <QLabel>
 #include <QLineEdit>
+#include <QMenu>
 #include <QPlainTextEdit>
 #include <QSettings>
 #include <QShowEvent>
@@ -272,6 +274,9 @@ ColorPage::ColorPage(AppContext& ctx, QWidget* parent)
     connect(m_qualifier->highlightButton(), &QToolButton::toggled, this, &ColorPage::setHighlight);
     connect(m_highlightButton, &QToolButton::toggled, this, &ColorPage::setHighlight);
     connect(m_wipeButton, &QToolButton::toggled, this, &ColorPage::setWipe);
+    connect(m_splitButton, &QToolButton::toggled, this, [this](bool on) {
+        setSplitMode(on ? m_lastSplit : ColorSplitScreen::Mode::Off);
+    });
     connectActions();
     updateHeader();
     updateTimecode();
@@ -329,6 +334,32 @@ QWidget* ColorPage::buildViewer()
     m_wipeButton = headerButton(tr("Wipe"), QStringLiteral("ColorWipeButton"), nullptr);
     toolTipWithKey(
         m_ctx, m_wipeButton, "color.wipe", tr("Split the viewer with the selected gallery still"));
+    // Split Screen: the button toggles it in the mode last used, the arrow picks the mode
+    // (Selected Clips, Timeline) or the gallery wipe.
+    auto* splitBox = new QWidget;
+    auto* splitLayout = new QHBoxLayout(splitBox);
+    splitLayout->setContentsMargins(0, 0, 0, 0);
+    splitLayout->setSpacing(0);
+    m_splitButton = headerButton(tr("Split"), QStringLiteral("ColorSplitButton"), splitBox);
+    toolTipWithKey(m_ctx, m_splitButton, "color.split_screen",
+        tr("Show several clips side by side in the viewer (View > Split Screen)"));
+    m_splitMenuButton = new QToolButton(splitBox);
+    m_splitMenuButton->setObjectName(QStringLiteral("ColorSplitMenuButton"));
+    m_splitMenuButton->setAutoRaise(true);
+    m_splitMenuButton->setPopupMode(QToolButton::InstantPopup);
+    m_splitMenuButton->setToolTip(tr("Split screen mode"));
+    auto* splitMenu = new QMenu(m_splitMenuButton);
+    for (const char* id : {"color.split_selected", "color.split_timeline"}) {
+        if (QAction* a = registryAction(m_ctx, QLatin1String(id)))
+            splitMenu->addAction(a);
+    }
+    splitMenu->addSeparator();
+    if (QAction* a = registryAction(m_ctx, QStringLiteral("color.wipe")))
+        splitMenu->addAction(a);
+    m_splitMenuButton->setMenu(splitMenu);
+    splitLayout->addWidget(m_splitButton);
+    splitLayout->addWidget(m_splitMenuButton);
+    m_viewerFrame->addTitleBarWidget(splitBox);
     m_bypassButton = headerButton(tr("Bypass"), QStringLiteral("ColorBypassButton"), nullptr);
     toolTipWithKey(
         m_ctx, m_bypassButton, "color.bypass_all", tr("Bypass every grade in the viewers"));
@@ -345,10 +376,18 @@ QWidget* ColorPage::buildViewer()
     m_title->hide();
     bl->addWidget(m_title);
     m_surface = ViewerSurface::create(body);
-    bl->addWidget(m_surface->widget(), 1);
+    // The viewer area is a stack: the picture, or the Lightbox grid.
+    m_viewerStack = new QStackedWidget(body);
+    m_viewerStack->setObjectName(QStringLiteral("ColorViewerStack"));
+    m_viewerStack->addWidget(m_surface->widget());
+    m_lightbox = new ColorLightbox(m_session, m_ctx.project, m_frames, m_viewerStack);
+    m_viewerStack->addWidget(m_lightbox);
+    connect(m_lightbox, &ColorLightbox::closeRequested, this, [this] { setLightbox(false); });
+    bl->addWidget(m_viewerStack, 1);
     const TimelineData& data = m_ctx.project->timeline()->data();
     m_surface->setAspect(QSize(data.width, data.height));
     m_overlay = new ColorViewerOverlay(m_session, m_ctx.project, m_surface);
+    m_split = new ColorSplitScreen(m_session, m_ctx.project, m_frames, m_surface);
 
     // Transport.
     auto* transport = new QWidget;
@@ -592,6 +631,29 @@ void ColorPage::connectActions()
         [](QAction*) {}); // updateHeader() keeps it in step with the target
     checkable("color.highlight", [this](bool b) { setHighlight(b); }, [](QAction*) {});
     checkable("color.wipe", [this](bool b) { setWipe(b); }, [](QAction*) {});
+    checkable(
+        "color.split_screen",
+        [this](bool b) { setSplitMode(b ? m_lastSplit : ColorSplitScreen::Mode::Off); },
+        [](QAction*) {});
+    checkable(
+        "color.split_selected",
+        [this](bool b) {
+            if (b)
+                setSplitMode(ColorSplitScreen::Mode::SelectedClips);
+            else if (splitMode() == ColorSplitScreen::Mode::SelectedClips)
+                setSplitMode(ColorSplitScreen::Mode::Off);
+        },
+        [](QAction*) {});
+    checkable(
+        "color.split_timeline",
+        [this](bool b) {
+            if (b)
+                setSplitMode(ColorSplitScreen::Mode::Timeline);
+            else if (splitMode() == ColorSplitScreen::Mode::Timeline)
+                setSplitMode(ColorSplitScreen::Mode::Off);
+        },
+        [](QAction*) {});
+    checkable("color.lightbox", [this](bool b) { setLightbox(b); }, [](QAction*) {});
     // Disabled until the page is shown (the Color menu is in the Edit menu of every page).
     if (m_ctx.actions) {
         for (const QString& id : commandIds(*m_ctx.actions))
@@ -616,8 +678,62 @@ void ColorPage::setHighlight(bool on)
     refreshPictures();
 }
 
+ColorSplitScreen::Mode ColorPage::splitMode() const
+{
+    return m_split ? m_split->mode() : ColorSplitScreen::Mode::Off;
+}
+
+void ColorPage::setSplitMode(ColorSplitScreen::Mode mode)
+{
+    if (mode != ColorSplitScreen::Mode::Off) {
+        m_lastSplit = mode;
+        if (m_wipeOn)
+            setWipe(false); // one comparison at a time
+        if (m_lightboxOn)
+            setLightbox(false);
+    }
+    m_split->setMode(mode);
+    syncSplitControls();
+}
+
+void ColorPage::syncSplitControls()
+{
+    const ColorSplitScreen::Mode mode = splitMode();
+    const bool on = mode != ColorSplitScreen::Mode::Off;
+    {
+        const QSignalBlocker block(m_splitButton);
+        m_splitButton->setChecked(on);
+    }
+    const std::pair<const char*, bool> states[] = {{"color.split_screen", on},
+        {"color.split_selected", mode == ColorSplitScreen::Mode::SelectedClips},
+        {"color.split_timeline", mode == ColorSplitScreen::Mode::Timeline},
+        {"color.lightbox", m_lightboxOn}};
+    for (const auto& [id, checked] : states) {
+        if (QAction* a = registryAction(m_ctx, QLatin1String(id))) {
+            const QSignalBlocker block(a);
+            a->setChecked(checked);
+        }
+    }
+}
+
+void ColorPage::setLightbox(bool on)
+{
+    if (on == m_lightboxOn)
+        return;
+    m_lightboxOn = on;
+    if (on && splitMode() != ColorSplitScreen::Mode::Off)
+        setSplitMode(ColorSplitScreen::Mode::Off);
+    m_viewerStack->setCurrentWidget(on ? static_cast<QWidget*>(m_lightbox)
+                                       : static_cast<QWidget*>(m_surface->widget()));
+    if (!on)
+        m_split->updateWanted();
+    syncSplitControls();
+}
+
 void ColorPage::setWipe(bool on)
 {
+    if (on && splitMode() != ColorSplitScreen::Mode::Off)
+        setSplitMode(ColorSplitScreen::Mode::Off);
     if (on && !m_gallery->wipeStill()) {
         // Wipe against the selected still, else the newest one.
         quint64 id = m_gallery->currentStill();

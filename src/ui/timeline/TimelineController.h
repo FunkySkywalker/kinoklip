@@ -118,6 +118,8 @@ public:
     /// Connects the tool.*, trim.*, edit.*, timeline.*, clip.*, mark.* and the navigation
     /// transport.prev_edit/next_edit/go_to_start/go_to_end actions. Safe without a registry.
     void connectActions();
+    /// Timeline > Output Blanking actions (core/OutputBlanking.h); called by connectActions().
+    void connectOutputBlanking();
 
     // ---- Editor state ----
 

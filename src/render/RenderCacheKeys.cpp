@@ -279,6 +279,9 @@ std::vector<CacheChunk> renderCacheChunks(
     // The output tone mapping changes every picture (absent while off: older keys stay).
     if (timeline.toneMap.agx)
         header.addData(QByteArrayLiteral(":agx:") + QByteArray::number(int(timeline.toneMap.look)));
+    // Output Blanking changes every picture (absent while Off: older keys stay).
+    if (timeline.outputBlanking > 0.0)
+        header.addData(":blank:" + QByteArray::number(timeline.outputBlanking, 'f', 4));
     // The timeline grade (Color page) changes every picture.
     if (!timeline.grade.isEmpty()) {
         header.addData(QByteArrayLiteral(":grade:"));

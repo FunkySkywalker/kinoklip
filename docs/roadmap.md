@@ -224,7 +224,7 @@ Still to do:
 - [ ] Color: Face Refinement, Depth Map, Relight and Sky Replacement effects (optional local open models)
 - [ ] Color: Resolve FX palette: put an effect (Glow, Lens Blur, Film Grain, Halation, Film Look) on a node so its window or qualifier limits it
 - [ ] Color: Keyframes palette and strip on the Color page with Dynamic interpolation, and a Sizing palette (Zoom, Pan, Tilt, Rotate, Flip, Input / Output sizing)
-- [ ] Color: Split Screen modes (Selected Clips, Timeline), Lightbox and Output Blanking
+- [x] Color: Split Screen modes (Selected Clips, Timeline), Lightbox and Output Blanking
 - [ ] Background Removal: Keep / Remove brush to correct the model by hand
 - [ ] Media: New Fusion Clip, and Fusion / compound clips as Media Pool entries you can drag to the timeline
 - [x] Titles: underline and strikethrough (Title and Text node Inspector, drawn as bars under spaces too, Write On and Text+ aware, saved with the project; spec 145.3; test_titledecor)

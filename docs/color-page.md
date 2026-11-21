@@ -162,7 +162,7 @@ Owner request 2026-11-04 (second agent, branch colorui): the full Resolve-style 
 engine's API, replacing the minimal page (node list, curve picker, gallery strip).
 
 ```
-| Gallery | viewer: Clip / Timeline, clip name, Highlight, Wipe, Bypass   | Nodes |
+| Gallery | viewer: Clip / Timeline, clip name, Highlight, Split, Wipe, Bypass | Nodes |
 |         | the picture + on-screen controls; transport, timecode         |       |
 |-----------------------------------------------------------------------------------|
 | clips strip: numbered thumbnails, timecode, track; the graded clip outlined     |
@@ -177,6 +177,25 @@ engine's API, replacing the minimal page (node list, curve picker, gallery strip
 - **Viewer**: the program picture (graded); `ColorViewerOverlay` on top draws the window
   controls, the highlight picture and the wipe. The transport buttons are the registry's
   transport.* commands (they act on the program engine here).
+- **Split Screen** (View > Split Screen, Ctrl+Alt+W; the viewer's Split button, its arrow picks the mode;
+  `ColorSplitScreen`, spec 44b.32). Selected Clips: the clips selected in the clips strip, each whole in a
+  tile of a grid (one selected clip gets the clip under the playhead as its partner). Timeline: the clip
+  under the playhead and up to two neighbours on each side (clips strip order) in vertical strips, each
+  strip its part of its clip's picture, so a grade difference shows as a hard edge. The pictures are
+  graded (`ColorFrameSource::detail()`; a clip's middle frame, the playhead frame for the graded clip),
+  the graded clip is framed in the highlight colour, a click on a tile grades that clip. The gallery wipe
+  (Wipe) is the third comparison; turning one on turns the other off. Not saved with the project.
+- **Lightbox** (View > Lightbox, Ctrl+Alt+L; `ColorLightbox`, spec 44b.33): the viewer area becomes a grid
+  of every clip's graded thumbnail in clips strip order, scrolling. Click grades the clip (the playhead
+  goes there), Ctrl / Shift-click toggles it in the selected clips, double-click returns to the viewer.
+  Options (remembered): Thumbnail size (Small, Medium, Large), Clip labels (number, track, timecode,
+  name), Grade info (nodes, LUT or "Ungraded"). It and the split screen exclude each other.
+- **Output Blanking** (Timeline > Output Blanking: Off, 1.33, 1.66, 1.78, 1.85, 2.00, 2.35, 2.39, 2.40;
+  spec 44b.34): black bars centred over the output so the visible picture has that aspect (bars above and
+  below for a wider aspect, at the sides for a narrower one). A timeline setting (`TimelineData::outputBlanking`,
+  `core/OutputBlanking.h`), one undo step, saved with the timeline as the optional `"outputBlanking"`
+  number (absent = Off; no format bump, an older build ignores it). Drawn last by both renderers (over
+  the captions), so the viewers, renders, exports, proxies and the render cache all show it.
 - **Node editor** (`ColorNodeEditor`): corrector tiles with their number ("01", the label if
   set; only correctors are numbered, mixers are not, as in Resolve; an ungraded clip shows a
   node 01 that the first edit creates), markers (Q qualifier, W windows, LUT) and a thumbnail of the node's output; Parallel
@@ -279,6 +298,5 @@ Decisions (colorui):
 Tracking of windows, polygon shape keyframes and Bezier windows, Midtone Detail, soft clip,
 HDR / log wheels, key mixer / splitter / outside nodes, node presets and versions, ColorTrace
 and grade groups, keyframe strip on the Color page, Sizing palette, node labels typed in the
-editor, the lightbox, split-screen modes other than the
-split wipe, relative LUT paths and packing LUTs into single-file projects, thumbnails of the
+editor, relative LUT paths and packing LUTs into single-file projects, thumbnails of the
 clip itself when a higher track covers it.

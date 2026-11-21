@@ -5,6 +5,7 @@
 // every command goes through ColorSession (src/ui/color), the maths is in core and render.
 #pragma once
 
+#include "ui/color/ColorSplitScreen.h"
 #include "ui/common/Page.h"
 
 #include <QList>
@@ -27,6 +28,7 @@ class ColorClipStrip;
 class ColorCurvesPanel;
 class ColorFrameSource;
 class ColorGallery;
+class ColorLightbox;
 class ColorMiniTimeline;
 class ColorNodeEditor;
 class ColorSession;
@@ -119,6 +121,8 @@ public:
     [[nodiscard]] ColorMiniTimeline* miniTimeline() const { return m_mini; }
     [[nodiscard]] ViewerSurface* viewer() const { return m_surface; }
     [[nodiscard]] ColorViewerOverlay* overlay() const { return m_overlay; }
+    [[nodiscard]] ColorSplitScreen* splitScreen() const { return m_split; }
+    [[nodiscard]] ColorLightbox* lightbox() const { return m_lightbox; }
 
     /// Shows palette @p palette (the tab buttons do the same).
     void showPalette(Palette palette);
@@ -131,6 +135,13 @@ public:
     void setHighlight(bool on);
     /// Wipe on (the viewer splits with the gallery's wipe still).
     void setWipe(bool on);
+    /// View > Split Screen: the viewer shows several clips side by side (ColorSplitScreen);
+    /// Off ends it. It and the gallery wipe exclude each other (one comparison at a time).
+    void setSplitMode(ColorSplitScreen::Mode mode);
+    [[nodiscard]] ColorSplitScreen::Mode splitMode() const;
+    /// View > Lightbox: the viewer area shows the grid of every clip's graded thumbnail.
+    void setLightbox(bool on);
+    [[nodiscard]] bool isLightbox() const { return m_lightboxOn; }
     /// Picks qualifier colours inside @p frameRect (fractions of the program frame) with the
     /// qualifier palette's eyedropper mode (Pick when none is active); the overlay's
     /// pickRequested() lands here.
@@ -157,6 +168,8 @@ private:
     void updateHeader();
     void updateTimecode();
     void updateWipe();
+    /// Keeps the Split buttons and the split / lightbox actions in step with their state.
+    void syncSplitControls();
     /// The color.* action bound to the key of @p event, or nullptr.
     [[nodiscard]] QAction* actionForKey(const QKeyEvent* event) const;
     [[nodiscard]] QWidget* panelWidget(PanelId id) const;
@@ -166,6 +179,13 @@ private:
     ColorFrameSource* m_frames = nullptr;
     ViewerSurface* m_surface = nullptr;
     ColorViewerOverlay* m_overlay = nullptr;
+    ColorSplitScreen* m_split = nullptr;
+    ColorLightbox* m_lightbox = nullptr;
+    QStackedWidget* m_viewerStack = nullptr;
+    QToolButton* m_splitButton = nullptr;
+    QToolButton* m_splitMenuButton = nullptr;
+    ColorSplitScreen::Mode m_lastSplit = ColorSplitScreen::Mode::SelectedClips;
+    bool m_lightboxOn = false;
     PanelFrame* m_viewerFrame = nullptr;
     QLabel* m_title = nullptr;
     QLabel* m_timecode = nullptr;

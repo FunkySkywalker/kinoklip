@@ -10,7 +10,7 @@ Resolve's documentation).
 - **likely**: believed correct, not verified against a running Resolve;
 - **unsure**: best guess; please correct in the keymap file (and here) if it differs.
 
-Counts: 363 commands; sure 106, likely 115, unsure 142.
+Counts: 376 commands; sure 106, likely 117, unsure 153.
 
 Mouse (EditBehaviour, Preferences > Editing): wheel scrolls the tracks vertically, Ctrl+wheel
 scrolls the timeline horizontally, Alt+wheel zooms the timeline (around the playhead by default;
@@ -126,8 +126,8 @@ that every command has an entry and that no key is used twice.
 | Duplicate Timeline | `timeline.duplicate` | (none) | likely | media pool / Timeline menu command without a default key |
 | Delete Timeline | `timeline.delete` | (none) | likely | media pool command without a default key (Delete in the media pool deletes the selected timeline item) |
 | Timeline Settings | `timeline.settings` | (none) | unsure | no known default key |
-| Next Timeline Tab | `timeline.next_tab` | Ctrl+Tab | unsure | Kinoklip addition (browser-style); no known Resolve default |
-| Previous Timeline Tab | `timeline.prev_tab` | Ctrl+Shift+Tab | unsure | Kinoklip addition (browser-style); no known Resolve default |
+| Next Timeline Tab | `timeline.next_tab` | `Ctrl+Tab` | unsure | Kinoklip addition (browser-style); no known Resolve default |
+| Previous Timeline Tab | `timeline.prev_tab` | `Ctrl+Shift+Tab` | unsure | Kinoklip addition (browser-style); no known Resolve default |
 | Close Timeline Tab | `timeline.close_tab` | (none) | unsure | no known Resolve default; the tab's close button or its context menu |
 
 ## Track destination and auto track selectors
@@ -442,6 +442,19 @@ that every command has an entry and that no key is used twice.
 | Paste Grade (to the selected clips of the clips strip) | `color.paste_grade` | `Ctrl+V` | likely | acts on the Color page; middle-click on a thumbnail copies that clip's grade to the selected clips |
 | Highlight (show the current node's key in the viewer) | `color.highlight` | `Shift+H` | likely | acts on the Color page |
 | Wipe with Still (split the viewer with the selected gallery still) | `color.wipe` | `Ctrl+W` | likely | acts on the Color page; Ctrl+W toggles the viewer wipe in Resolve's Color page |
+| Split Screen (turn the viewer's split screen on or off, in the mode last used) | `color.split_screen` | `Ctrl+Alt+W` | likely | acts on the Color page; View > Split Screen in Resolve |
+| Split Screen: Selected Clips (the clips selected in the clips strip, graded, side by side) | `color.split_selected` | (none) | unsure | acts on the Color page; Resolve picks the mode from the viewer's split screen menu; no default key known |
+| Split Screen: Timeline (the clip under the playhead and its neighbours in vertical strips) | `color.split_timeline` | (none) | unsure | acts on the Color page; Resolve picks the mode from the viewer's split screen menu; no default key known |
+| Lightbox (a grid of the graded thumbnails of every clip on the timeline) | `color.lightbox` | `Ctrl+Alt+L` | likely | acts on the Color page; View > Lightbox in Resolve |
+| Output Blanking: Off | `timeline.blanking_off` | (none) | unsure | Timeline > Output Blanking in Resolve; no default key known |
+| Output Blanking: 1.33 | `timeline.blanking_1_33` | (none) | unsure | Timeline > Output Blanking in Resolve; no default key known |
+| Output Blanking: 1.66 | `timeline.blanking_1_66` | (none) | unsure | Timeline > Output Blanking in Resolve; no default key known |
+| Output Blanking: 1.78 | `timeline.blanking_1_78` | (none) | unsure | Timeline > Output Blanking in Resolve; no default key known |
+| Output Blanking: 1.85 | `timeline.blanking_1_85` | (none) | unsure | Timeline > Output Blanking in Resolve; no default key known |
+| Output Blanking: 2.00 | `timeline.blanking_2_00` | (none) | unsure | Timeline > Output Blanking in Resolve; no default key known |
+| Output Blanking: 2.35 | `timeline.blanking_2_35` | (none) | unsure | Timeline > Output Blanking in Resolve; no default key known |
+| Output Blanking: 2.39 | `timeline.blanking_2_39` | (none) | unsure | Timeline > Output Blanking in Resolve; no default key known |
+| Output Blanking: 2.40 | `timeline.blanking_2_40` | (none) | unsure | Timeline > Output Blanking in Resolve; no default key known |
 
 ## Audio page
 

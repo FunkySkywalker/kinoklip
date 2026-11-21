@@ -3293,6 +3293,58 @@ The program was probably closed by the system because the computer ran out of me
         <translation>Сторінка «Колір»: розділяє вікно перегляду для порівняння з вибраним стоп-кадром галереї.</translation>
     </message>
     <message>
+        <source>Color page: turns the viewer&apos;s split screen on or off, in the mode last used.</source>
+        <translation>Сторінка «Колір»: вмикає або вимикає розділений екран перегляду в останньому використаному режимі.</translation>
+    </message>
+    <message>
+        <source>Color page: shows the graded frames of the clips selected in the clips strip side by side in the viewer.</source>
+        <translation>Сторінка «Колір»: показує в перегляді поряд кадри з грейдом кліпів, вибраних у стрічці кліпів.</translation>
+    </message>
+    <message>
+        <source>Color page: shows the clip under the playhead and its neighbours on the timeline in vertical strips, to match shots.</source>
+        <translation>Сторінка «Колір»: показує кліп під курсором і його сусідів на таймлайні вертикальними смугами, щоб вирівнювати плани.</translation>
+    </message>
+    <message>
+        <source>Color page: replaces the viewer with a grid of the graded thumbnails of every clip on the timeline; click one to go to it.</source>
+        <translation>Сторінка «Колір»: замінює перегляд сіткою мініатюр усіх кліпів таймлайна з грейдом; клік переходить до кліпу.</translation>
+    </message>
+    <message>
+        <source>Removes the Output Blanking bars of the current timeline.</source>
+        <translation>Прибирає чорні смуги Output Blanking поточного таймлайна.</translation>
+    </message>
+    <message>
+        <source>Draws black bars over the viewer, renders and exports of the current timeline so the visible picture has the 1.33:1 aspect ratio.</source>
+        <translation>Малює чорні смуги поверх перегляду, рендерів та експорту поточного таймлайна, щоб видима картинка мала співвідношення сторін 1.33:1.</translation>
+    </message>
+    <message>
+        <source>Draws black bars over the viewer, renders and exports of the current timeline so the visible picture has the 1.66:1 aspect ratio.</source>
+        <translation>Малює чорні смуги поверх перегляду, рендерів та експорту поточного таймлайна, щоб видима картинка мала співвідношення сторін 1.66:1.</translation>
+    </message>
+    <message>
+        <source>Draws black bars over the viewer, renders and exports of the current timeline so the visible picture has the 1.78:1 aspect ratio.</source>
+        <translation>Малює чорні смуги поверх перегляду, рендерів та експорту поточного таймлайна, щоб видима картинка мала співвідношення сторін 1.78:1.</translation>
+    </message>
+    <message>
+        <source>Draws black bars over the viewer, renders and exports of the current timeline so the visible picture has the 1.85:1 aspect ratio.</source>
+        <translation>Малює чорні смуги поверх перегляду, рендерів та експорту поточного таймлайна, щоб видима картинка мала співвідношення сторін 1.85:1.</translation>
+    </message>
+    <message>
+        <source>Draws black bars over the viewer, renders and exports of the current timeline so the visible picture has the 2.00:1 aspect ratio.</source>
+        <translation>Малює чорні смуги поверх перегляду, рендерів та експорту поточного таймлайна, щоб видима картинка мала співвідношення сторін 2.00:1.</translation>
+    </message>
+    <message>
+        <source>Draws black bars over the viewer, renders and exports of the current timeline so the visible picture has the 2.35:1 aspect ratio.</source>
+        <translation>Малює чорні смуги поверх перегляду, рендерів та експорту поточного таймлайна, щоб видима картинка мала співвідношення сторін 2.35:1.</translation>
+    </message>
+    <message>
+        <source>Draws black bars over the viewer, renders and exports of the current timeline so the visible picture has the 2.39:1 aspect ratio.</source>
+        <translation>Малює чорні смуги поверх перегляду, рендерів та експорту поточного таймлайна, щоб видима картинка мала співвідношення сторін 2.39:1.</translation>
+    </message>
+    <message>
+        <source>Draws black bars over the viewer, renders and exports of the current timeline so the visible picture has the 2.40:1 aspect ratio.</source>
+        <translation>Малює чорні смуги поверх перегляду, рендерів та експорту поточного таймлайна, щоб видима картинка мала співвідношення сторін 2.40:1.</translation>
+    </message>
+    <message>
         <source>Color page: shows in the viewer what the current node&apos;s key selects.</source>
         <translation>Сторінка «Колір»: показує у вікні перегляду, що вибирає ключ поточної ноди.</translation>
     </message>
@@ -9948,6 +10000,52 @@ Thank you for watching</source>
     </message>
 </context>
 <context>
+    <name>kk::ColorLightbox</name>
+    <message>
+        <source>Thumbnail size</source>
+        <translation>Розмір мініатюр</translation>
+    </message>
+    <message>
+        <source>Small</source>
+        <translation>Мала</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Середній</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>Велика</translation>
+    </message>
+    <message>
+        <source>Clip labels</source>
+        <translation>Підписи кліпів</translation>
+    </message>
+    <message>
+        <source>Grade info</source>
+        <translation>Відомості про грейд</translation>
+    </message>
+    <message>
+        <source>Click a clip to grade it, double-click to return to the viewer</source>
+        <translation>Клік на кліпі відкриває його для корекції, подвійний клік повертає до перегляду</translation>
+    </message>
+</context>
+<context>
+    <name>kk::ColorLightboxGrid</name>
+    <message>
+        <source>Ungraded</source>
+        <translation>Без грейду</translation>
+    </message>
+    <message>
+        <source>Nodes: %1</source>
+        <translation>Нод: %1</translation>
+    </message>
+    <message>
+        <source>, LUT</source>
+        <translation>, LUT</translation>
+    </message>
+</context>
+<context>
     <name>kk::ColorMiniTimeline</name>
     <message>
         <source>Click or drag to move the playhead</source>
@@ -10126,6 +10224,18 @@ Thank you for watching</source>
     <message>
         <source>Split the viewer with the selected gallery still</source>
         <translation>Розділити вікно перегляду з вибраним кадром галереї</translation>
+    </message>
+    <message>
+        <source>Split</source>
+        <translation>Розділення</translation>
+    </message>
+    <message>
+        <source>Show several clips side by side in the viewer (View &gt; Split Screen)</source>
+        <translation>Показати в перегляді кілька кліпів поряд (Вигляд &gt; Розділений екран)</translation>
+    </message>
+    <message>
+        <source>Split screen mode</source>
+        <translation>Режим розділеного екрана</translation>
     </message>
     <message>
         <source>Bypass</source>
@@ -10411,6 +10521,13 @@ Thank you for watching</source>
     <message>
         <source>Copy Grade</source>
         <translation>Копіювати корекцію</translation>
+    </message>
+</context>
+<context>
+    <name>kk::ColorSplitScreen</name>
+    <message>
+        <source>Rendering…</source>
+        <translation>Розрахунок…</translation>
     </message>
 </context>
 <context>
@@ -21667,6 +21784,22 @@ Import files with %1 or drop them here.</source>
         <translation>&amp;Вигляд</translation>
     </message>
     <message>
+        <source>1.33</source>
+        <translation>1.33</translation>
+    </message>
+    <message>
+        <source>1.66</source>
+        <translation>1.66</translation>
+    </message>
+    <message>
+        <source>1.78</source>
+        <translation>1.78</translation>
+    </message>
+    <message>
+        <source>1.85</source>
+        <translation>1.85</translation>
+    </message>
+    <message>
         <source>1.85:1</source>
         <translation>1.85:1</translation>
     </message>
@@ -21675,8 +21808,24 @@ Import files with %1 or drop them here.</source>
         <translation>1:1</translation>
     </message>
     <message>
+        <source>2.00</source>
+        <translation>2.00</translation>
+    </message>
+    <message>
+        <source>2.35</source>
+        <translation>2.35</translation>
+    </message>
+    <message>
+        <source>2.39</source>
+        <translation>2.39</translation>
+    </message>
+    <message>
         <source>2.39:1</source>
         <translation>2.39:1</translation>
+    </message>
+    <message>
+        <source>2.40</source>
+        <translation>2.40</translation>
     </message>
     <message>
         <source>4 x 4 Grid</source>
@@ -22267,6 +22416,10 @@ Import files with %1 or drop them here.</source>
         <translation>Ліворуч на кілька кадрів</translation>
     </message>
     <message>
+        <source>Lightbox</source>
+        <translation>Лайтбокс</translation>
+    </message>
+    <message>
         <source>Linear</source>
         <translation>Лінійна</translation>
     </message>
@@ -22435,6 +22588,10 @@ Import files with %1 or drop them here.</source>
         <translation>Зсув</translation>
     </message>
     <message>
+        <source>Off</source>
+        <translation>Вимк.</translation>
+    </message>
+    <message>
         <source>On-Screen Controls</source>
         <translation>Елементи керування на екрані</translation>
     </message>
@@ -22457,6 +22614,10 @@ Import files with %1 or drop them here.</source>
     <message>
         <source>Out</source>
         <translation>Вихід</translation>
+    </message>
+    <message>
+        <source>Output Blanking</source>
+        <translation>Output Blanking</translation>
     </message>
     <message>
         <source>Overlays</source>
@@ -22805,6 +22966,18 @@ Import files with %1 or drop them here.</source>
     <message>
         <source>Speed and Duration</source>
         <translation>Швидкість і тривалість</translation>
+    </message>
+    <message>
+        <source>Split Screen</source>
+        <translation>Розділений екран</translation>
+    </message>
+    <message>
+        <source>Split Screen: Selected Clips</source>
+        <translation>Розділений екран: вибрані кліпи</translation>
+    </message>
+    <message>
+        <source>Split Screen: Timeline</source>
+        <translation>Розділений екран: таймлайн</translation>
     </message>
     <message>
         <source>Split at Playhead</source>
@@ -30979,6 +31152,42 @@ Restart Kinoklip to apply them.</source>
         <translation>&amp;Налаштування таймлайну…</translation>
     </message>
     <message>
+        <source>Output Blanking Off</source>
+        <translation>Output Blanking вимк.</translation>
+    </message>
+    <message>
+        <source>Output Blanking 1.33</source>
+        <translation>Output Blanking 1.33</translation>
+    </message>
+    <message>
+        <source>Output Blanking 1.66</source>
+        <translation>Output Blanking 1.66</translation>
+    </message>
+    <message>
+        <source>Output Blanking 1.78</source>
+        <translation>Output Blanking 1.78</translation>
+    </message>
+    <message>
+        <source>Output Blanking 1.85</source>
+        <translation>Output Blanking 1.85</translation>
+    </message>
+    <message>
+        <source>Output Blanking 2.00</source>
+        <translation>Output Blanking 2.00</translation>
+    </message>
+    <message>
+        <source>Output Blanking 2.35</source>
+        <translation>Output Blanking 2.35</translation>
+    </message>
+    <message>
+        <source>Output Blanking 2.39</source>
+        <translation>Output Blanking 2.39</translation>
+    </message>
+    <message>
+        <source>Output Blanking 2.40</source>
+        <translation>Output Blanking 2.40</translation>
+    </message>
+    <message>
         <source>Ne&amp;xt Timeline Tab</source>
         <translation>&amp;Наступна вкладка таймлайну</translation>
     </message>
@@ -31879,6 +32088,22 @@ Restart Kinoklip to apply them.</source>
         <translation>&amp;Підсвічування</translation>
     </message>
     <message>
+        <source>&amp;Split Screen</source>
+        <translation>&amp;Розділений екран</translation>
+    </message>
+    <message>
+        <source>Split Screen: Selected &amp;Clips</source>
+        <translation>Розділений екран: вибрані &amp;кліпи</translation>
+    </message>
+    <message>
+        <source>Split Screen: &amp;Timeline</source>
+        <translation>Розділений екран: &amp;таймлайн</translation>
+    </message>
+    <message>
+        <source>&amp;Lightbox</source>
+        <translation>&amp;Лайтбокс</translation>
+    </message>
+    <message>
         <source>&amp;Copy Grade</source>
         <translation>&amp;Копіювати корекцію</translation>
     </message>
@@ -32522,6 +32747,14 @@ Restart Kinoklip to apply them.</source>
     <message>
         <source>Sync Lock On</source>
         <translation>Синхроблокування увімк.</translation>
+    </message>
+    <message>
+        <source>Output Blanking %1</source>
+        <translation>Output Blanking %1</translation>
+    </message>
+    <message>
+        <source>Output Blanking Off</source>
+        <translation>Output Blanking вимк.</translation>
     </message>
     <message>
         <source>Marker %1</source>

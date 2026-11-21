@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Project: the Color page's undoable entry points (clip grades, the timeline grade).
+#include <algorithm>
 #include "core/EditOps.h"
 #include "core/Project.h"
 
@@ -108,6 +109,34 @@ ClipGrade Project::timelineGrade(quint64 timelineUid) const
 {
     const auto data = timelineData(timelineUid);
     return data ? data->grade : ClipGrade {};
+}
+
+bool Project::setOutputBlanking(quint64 timelineUid, double aspect, const QString& label)
+{
+    const auto source = timelineData(timelineUid);
+    if (!source)
+        return false;
+    aspect = aspect > 0.0 ? std::min(aspect, 10.0) : 0.0;
+    if (source->outputBlanking == aspect)
+        return true;
+    if (timelineUid == m_activeUid) {
+        beginEdit(label);
+        m_timeline->mutableData().outputBlanking = aspect;
+        endEdit();
+        return true;
+    }
+    auto copy = std::make_shared<TimelineData>(*source);
+    copy->outputBlanking = aspect;
+    beginEdit(label);
+    replaceTimeline(timelineUid, std::move(copy));
+    endEdit();
+    return true;
+}
+
+double Project::outputBlanking(quint64 timelineUid) const
+{
+    const auto data = timelineData(timelineUid);
+    return data ? data->outputBlanking : 0.0;
 }
 
 } // namespace kk

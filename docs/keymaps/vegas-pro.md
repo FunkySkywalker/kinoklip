@@ -14,9 +14,9 @@ the page keys keep Kinoklip's (Resolve's) keys.
 - **likely**: believed correct, not checked against the program;
 - **unsure**: best guess; please correct it in `scripts/keymap-presets.py` if it differs.
 
-Counts: 362 commands; 39 mapped to Vegas Pro's key (sure 17, likely 20,
-unsure 2); 143 keep the default (Resolve) key; 7 have no key because
-Vegas Pro uses it for something else; 173 have no key in either.
+Counts: 376 commands; 39 mapped to Vegas Pro's key (sure 17, likely 20,
+unsure 2); 147 keep the default (Resolve) key; 7 have no key because
+Vegas Pro uses it for something else; 183 have no key in either.
 
 To change a key: edit the preset's section in `scripts/keymap-presets.py` and run it (it writes
 the JSON file and this page and stops when a key is used twice in one scope);
@@ -124,6 +124,8 @@ shares with a Vegas Pro command was removed, see the note).
 | Add Default Transition | `timeline.add_transition` | `Ctrl+T` |  |
 | Audio Scrubbing (a short sound while the playhead is dragged or stepped) | `timeline.audio_scrubbing` | `Shift+S` |  |
 | Zoom to Fit | `timeline.zoom_fit` | `Shift+Z` |  |
+| Next Timeline Tab | `timeline.next_tab` | `Ctrl+Tab` |  |
+| Previous Timeline Tab | `timeline.prev_tab` | `Ctrl+Shift+Tab` |  |
 | Video Destination V1 | `timeline.target_video_1` | `Alt+1` |  |
 | Video Destination V2 | `timeline.target_video_2` | `Alt+2` |  |
 | Video Destination V3 | `timeline.target_video_3` | `Alt+3` |  |
@@ -229,6 +231,8 @@ shares with a Vegas Pro command was removed, see the note).
 | Paste Grade (to the selected clips of the clips strip) | `color.paste_grade` | `Ctrl+V` |  |
 | Highlight (show the current node's key in the viewer) | `color.highlight` | `Shift+H` |  |
 | Wipe with Still (split the viewer with the selected gallery still) | `color.wipe` | `Ctrl+W` |  |
+| Split Screen (turn the viewer's split screen on or off, in the mode last used) | `color.split_screen` | `Ctrl+Alt+W` |  |
+| Lightbox (a grid of the graded thumbnails of every clip on the timeline) | `color.lightbox` | `Ctrl+Alt+L` |  |
 | Help for This (opens the user guide's article for the effect, panel or page you are on) | `help.guide_context` | `F1` |  |
 
 ## Vegas Pro commands Kinoklip does not have (gaps)

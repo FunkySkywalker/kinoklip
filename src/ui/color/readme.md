@@ -22,4 +22,6 @@ through ColorSession (one undo step per command or gesture).
 - **QualifierPick**: HSL ranges from picked colours (pick, add, remove).
 - **ColorViewerOverlay**: window outlines and handles, the eyedropper rectangle, the highlight
   picture and the split wipe over the viewer.
+- **ColorSplitScreen**: View > Split Screen over the viewer (Selected Clips grid, Timeline strips).
+- **ColorLightbox**: View > Lightbox, the grid of every clip's graded thumbnail (`ColorLightboxGrid`).
 - **ColorBrowsers**: `ColorGallery`, `ColorClipStrip`, `ColorMiniTimeline`.

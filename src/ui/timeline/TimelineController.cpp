@@ -6,6 +6,7 @@
 #include "core/EditBehaviour.h"
 #include "core/EffectRegistry.h"
 #include "core/MediaPool.h"
+#include "core/OutputBlanking.h"
 #include "core/Preferences.h"
 #include "core/Project.h"
 #include "core/SelectionModel.h"
@@ -21,6 +22,7 @@
 
 #include <QAction>
 #include <QApplication>
+#include <QSignalBlocker>
 #include <QWidget>
 
 #include <algorithm>
@@ -1349,6 +1351,49 @@ void TimelineController::toggleTrackFlag(TrackRef ref, int flag)
 
 // ---- Actions ----
 
+void TimelineController::connectOutputBlanking()
+{
+    ActionRegistry* reg = m_ctx.actions;
+    if (!reg || !project())
+        return;
+    // Timeline > Output Blanking: Off and the presets; one check mark follows the active
+    // timeline's setting (also after undo, a project load or a tab switch).
+    struct Entry
+    {
+        QString id;
+        double aspect;
+    };
+    auto entries = std::make_shared<QVector<Entry>>();
+    entries->append({QStringLiteral("timeline.blanking_off"), 0.0});
+    for (const outputblanking::Preset& p : outputblanking::presets())
+        entries->append({QStringLiteral("timeline.blanking_") + QLatin1String(p.id), p.aspect});
+    auto sync = [this, reg, entries] {
+        const double aspect = project()->outputBlanking(project()->activeTimelineUid());
+        for (const Entry& e : std::as_const(*entries)) {
+            if (QAction* a = reg->action(e.id)) {
+                const QSignalBlocker block(a);
+                a->setChecked(std::abs(e.aspect - aspect) < 1e-6);
+            }
+        }
+    };
+    for (const Entry& e : std::as_const(*entries)) {
+        QAction* a = reg->action(e.id);
+        if (!a)
+            continue;
+        connect(a, &QAction::triggered, this, [this, e, sync] {
+            const QString label = e.aspect > 0.0
+                ? tr("Output Blanking %1").arg(outputblanking::aspectLabel(e.aspect))
+                : tr("Output Blanking Off");
+            project()->setOutputBlanking(project()->activeTimelineUid(), e.aspect, label);
+            sync();
+        });
+    }
+    connect(timeline(), &Timeline::changed, this, sync);
+    connect(project(), &Project::activeTimelineChanged, this, sync);
+    connect(project(), &Project::projectReset, this, sync);
+    sync();
+}
+
 void TimelineController::connectActions()
 {
     ActionRegistry* reg = m_ctx.actions;
@@ -1501,6 +1546,7 @@ void TimelineController::connectActions()
         if (m_timelineSettingsPrompt)
             m_timelineSettingsPrompt(project()->activeTimelineUid());
     });
+    connectOutputBlanking();
     on("timeline.next_tab", [this] { cycleTab(1); });
     on("timeline.prev_tab", [this] { cycleTab(-1); });
     on("timeline.close_tab", &TimelineController::closeActiveTab);

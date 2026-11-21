@@ -69,5 +69,5 @@ set(KK_TESTS_QUICK
   test_videoeffects test_videoeffects2 test_viewerguides test_viewerpanel test_viewmenu
   test_vimforms test_vimgrammar test_vimkeyframes test_vimkeymap test_vimkeystab test_vimmacros
   test_vimnodes test_vimtransitions test_waveforms test_wayland test_windowtrack test_writeon
-  test_kinoklipstyle
+  test_kinoklipstyle test_outputblanking test_colorviewer
 )

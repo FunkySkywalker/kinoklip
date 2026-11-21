@@ -51,12 +51,17 @@ ColorFrameSource::ColorFrameSource(
         &ColorFrameSource::onRendered);
     Timeline* timeline = project->timeline();
     connect(timeline, &Timeline::playheadChanged, this, &ColorFrameSource::refreshInput);
+    connect(timeline, &Timeline::playheadChanged, this, [this] {
+        if (!m_detailIds.isEmpty())
+            m_thumbTimer->start(); // the clip under the playhead shows the playhead frame
+    });
     connect(timeline, &Timeline::changed, this, [this] {
         refreshInput();
         refreshThumbnails();
     });
     connect(project, &Project::projectReset, this, [this] {
         m_thumbs.clear();
+        m_details.clear();
         refreshInput();
         refreshThumbnails();
     });
@@ -186,6 +191,68 @@ void ColorFrameSource::renderThumbnailsNow()
                 return; // changed again meanwhile; a newer job follows
             t.image = image;
             emit thumbnailChanged(id);
+        };
+        enqueue(std::move(job));
+    }
+    renderDetailsNow();
+}
+
+void ColorFrameSource::setDetailClips(const QVector<quint64>& clipIds, int width)
+{
+    width = std::clamp(width, 64, 1920);
+    if (clipIds == m_detailIds && width == m_detailWidth)
+        return;
+    m_detailIds = clipIds;
+    m_detailWidth = width;
+    for (auto it = m_details.begin(); it != m_details.end();) {
+        if (!clipIds.contains(it.key()))
+            it = m_details.erase(it);
+        else
+            ++it;
+    }
+    if (!clipIds.isEmpty())
+        m_thumbTimer->start();
+}
+
+void ColorFrameSource::setDetailImage(quint64 clipId, const QImage& image)
+{
+    m_details[clipId].image = image;
+    emit detailChanged(clipId);
+}
+
+void ColorFrameSource::renderDetailsNow()
+{
+    if (m_detailIds.isEmpty() || !m_engine || !m_engine->compositor())
+        return;
+    const TimelineData& data = m_project->timeline()->data();
+    if (data.width <= 0 || data.height <= 0)
+        return;
+    const QSize size(m_detailWidth,
+        std::max(1, int(std::lround(double(m_detailWidth) * data.height / data.width))));
+    const int64_t playhead = m_project->timeline()->playhead();
+    const quint64 current = m_session ? m_session->clipId() : 0;
+    for (const quint64 id : std::as_const(m_detailIds)) {
+        const ClipData* c = editops::clipById(data, id);
+        if (!c)
+            continue;
+        int64_t frame = c->start + std::max<int64_t>(0, c->duration / 2);
+        if (id == current && playhead >= c->start && playhead < c->end())
+            frame = playhead;
+        const QByteArray sig = signature(id) + ":d" + QByteArray::number(m_detailWidth) + ":"
+            + QByteArray::number(qint64(frame));
+        if (m_details.value(id).signature == sig)
+            continue;
+        m_details[id].signature = sig;
+        Job job;
+        job.frame = frame;
+        job.size = size;
+        job.grades = PlaybackEngine::ImageGrades::All;
+        job.done = [this, id, sig](const QImage& image) {
+            Thumb& t = m_details[id];
+            if (t.signature != sig)
+                return;
+            t.image = image;
+            emit detailChanged(id);
         };
         enqueue(std::move(job));
     }

@@ -14,9 +14,9 @@ X extracts, V splices in, B overwrites) and M , . / trim. I and O mark too.
 - **likely**: believed correct, not checked against the program;
 - **unsure**: best guess; please correct it in `scripts/keymap-presets.py` if it differs.
 
-Counts: 362 commands; 43 mapped to Media Composer's key (sure 35, likely 6,
-unsure 2); 131 keep the default (Resolve) key; 13 have no key because
-Media Composer uses it for something else; 175 have no key in either.
+Counts: 376 commands; 43 mapped to Media Composer's key (sure 35, likely 6,
+unsure 2); 135 keep the default (Resolve) key; 13 have no key because
+Media Composer uses it for something else; 185 have no key in either.
 
 To change a key: edit the preset's section in `scripts/keymap-presets.py` and run it (it writes
 the JSON file and this page and stops when a key is used twice in one scope);
@@ -130,6 +130,8 @@ shares with a Media Composer command was removed, see the note).
 | Linked Selection | `timeline.linked_selection` | `Ctrl+Shift+L` |  |
 | Audio Scrubbing (a short sound while the playhead is dragged or stepped) | `timeline.audio_scrubbing` | `Shift+S` |  |
 | Zoom to Fit | `timeline.zoom_fit` | `Shift+Z` |  |
+| Next Timeline Tab | `timeline.next_tab` | `Ctrl+Tab` |  |
+| Previous Timeline Tab | `timeline.prev_tab` | `Ctrl+Shift+Tab` |  |
 | Video Destination V1 | `timeline.target_video_1` | `Alt+1` |  |
 | Video Destination V2 | `timeline.target_video_2` | `Alt+2` |  |
 | Video Destination V3 | `timeline.target_video_3` | `Alt+3` |  |
@@ -227,6 +229,8 @@ shares with a Media Composer command was removed, see the note).
 | Paste Grade (to the selected clips of the clips strip) | `color.paste_grade` | `Ctrl+V` |  |
 | Highlight (show the current node's key in the viewer) | `color.highlight` | `Shift+H` |  |
 | Wipe with Still (split the viewer with the selected gallery still) | `color.wipe` | `Ctrl+W` |  |
+| Split Screen (turn the viewer's split screen on or off, in the mode last used) | `color.split_screen` | `Ctrl+Alt+W` |  |
+| Lightbox (a grid of the graded thumbnails of every clip on the timeline) | `color.lightbox` | `Ctrl+Alt+L` |  |
 | Help for This (opens the user guide's article for the effect, panel or page you are on) | `help.guide_context` | `F1` |  |
 
 ## Media Composer commands Kinoklip does not have (gaps)

@@ -16,6 +16,7 @@
 
 #include "core/CompLinks.h"
 #include "core/CompOps.h"
+#include "core/OutputBlanking.h"
 #include "core/NodeRegistry.h"
 #include "core/ParamKeys.h"
 #include "core/Retime.h"
@@ -724,6 +725,11 @@ void GlRenderer::render(RenderJob& job)
         }
         if (fc.subtitles && !tl.subtitleTracks.empty())
             drawSubtitles(fc, *accumulator);
+        // Output Blanking (Timeline menu): black bars over everything, last.
+        if (outputblanking::blanks(fc.outSize, tl.outputBlanking)) {
+            m_kit->bindTarget(*accumulator);
+            m_kit->blankOutside(outputblanking::pictureRect(fc.outSize, tl.outputBlanking), fc.outSize);
+        }
     }
     m_nested.clear(); // the nested composites were consumed by the draws above
     m_generated.clear();

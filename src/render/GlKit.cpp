@@ -399,6 +399,28 @@ void GlKit::clearTransparent()
     m_gl->glClear(GL_COLOR_BUFFER_BIT);
 }
 
+void GlKit::blankOutside(QRect keep, QSize targetSize)
+{
+    const int w = targetSize.width();
+    const int h = targetSize.height();
+    m_gl->glDisable(GL_BLEND);
+    m_gl->glEnable(GL_SCISSOR_TEST);
+    m_gl->glClearColor(0.f, 0.f, 0.f, 1.f);
+    const QRect bars[4] = {
+        QRect(0, 0, w, keep.top()), // rows above
+        QRect(0, keep.bottom() + 1, w, h - keep.bottom() - 1), // rows below
+        QRect(0, keep.top(), keep.left(), keep.height()), // left
+        QRect(keep.right() + 1, keep.top(), w - keep.right() - 1, keep.height()), // right
+    };
+    for (const QRect& bar : bars) {
+        if (bar.width() <= 0 || bar.height() <= 0)
+            continue;
+        m_gl->glScissor(bar.x(), bar.y(), bar.width(), bar.height()); // the kit's row 0 is the picture top
+        m_gl->glClear(GL_COLOR_BUFFER_BIT);
+    }
+    m_gl->glDisable(GL_SCISSOR_TEST);
+}
+
 void GlKit::setBlendOver(bool enabled)
 {
     if (enabled)

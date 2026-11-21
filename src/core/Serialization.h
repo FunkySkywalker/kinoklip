@@ -138,6 +138,9 @@ namespace kk::serialization {
 ///   "chromaLuma": [...]}, the pin displacements) and the "hdr..." parameters of the HDR palette.
 ///   Files of versions 1 - 22 have none and look exactly as before; older builds refuse version
 ///   23 instead of silently dropping the warped colours.
+///   Optional keys added without a bump (an older build ignores them and loses only the feature): a
+///   timeline's "outputBlanking" (the aspect ratio of Timeline > Output Blanking, a number; absent =
+///   Off), shown by an older build with the full picture.
 inline constexpr int kFormatVersion = 23;
 
 /// The "toneMap" object of a project or timeline, and back (unknown or missing = none).

@@ -358,6 +358,11 @@ public:
     bool setTimelineGrade(quint64 timelineUid, const ClipGrade& grade, const QString& label);
     /// The timeline grade of @p timelineUid (empty when ungraded or unknown).
     [[nodiscard]] ClipGrade timelineGrade(quint64 timelineUid) const;
+    /// Timeline > Output Blanking: sets the blanking aspect of @p timelineUid (0 = Off) as one
+    /// undo step (nothing happens when unchanged or the timeline is unknown).
+    bool setOutputBlanking(quint64 timelineUid, double aspect, const QString& label);
+    /// The blanking aspect of @p timelineUid (0 = Off or unknown).
+    [[nodiscard]] double outputBlanking(quint64 timelineUid) const;
 
     // ---- Editing protocol ----
 

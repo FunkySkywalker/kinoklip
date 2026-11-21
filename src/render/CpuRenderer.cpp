@@ -9,6 +9,7 @@
 // (maskMatte()).
 #include "core/CompLinks.h"
 #include "core/CompOps.h"
+#include "core/OutputBlanking.h"
 #include "core/ParamKeys.h"
 #include "core/Retime.h"
 #include "render/CaptionRenderer.h"
@@ -88,6 +89,17 @@ public:
                 applyGrade(gradeops::toneMapGrade(tl.toneMap), rq.frame, image);
             if (rq.subtitles && !tl.subtitleTracks.empty())
                 drawSubtitles(image, tl, rq.frame);
+            // Output Blanking (Timeline menu): black bars over everything, last.
+            if (outputblanking::blanks(out, tl.outputBlanking)) {
+                const QRect keep = outputblanking::pictureRect(out, tl.outputBlanking);
+                QPainter p(&image);
+                p.setCompositionMode(QPainter::CompositionMode_Source);
+                const QColor black(0, 0, 0, 255);
+                p.fillRect(QRect(0, 0, out.width(), keep.top()), black);
+                p.fillRect(QRect(0, keep.bottom() + 1, out.width(), out.height() - keep.bottom() - 1), black);
+                p.fillRect(QRect(0, keep.top(), keep.left(), keep.height()), black);
+                p.fillRect(QRect(keep.right() + 1, keep.top(), out.width() - keep.right() - 1, keep.height()), black);
+            }
         }
         m_decoders.collectIdle();
         frame->size = out;

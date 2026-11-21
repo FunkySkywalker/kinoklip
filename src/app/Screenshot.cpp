@@ -1115,7 +1115,8 @@ int runScreenshot(MainWindow& window, const QString& target, const QString& pngP
         // =<n,m> selects those clips of the clips strip (1-based) and grades the first,
         // KK_SCREENSHOT_COLOR_GRAB=1 grabs a still into the gallery,
         // KK_SCREENSHOT_COLOR_WINDOW=<circle|linear|polygon|curve|gradient> adds that window to the
-        // node (a curve gets an uneven shape with handles).
+        // node (a curve gets an uneven shape with handles), KK_SCREENSHOT_COLOR_SPLIT=<selected|
+        // timeline>, KK_SCREENSHOT_COLOR_LIGHTBOX=1 and KK_SCREENSHOT_BLANKING=<aspect, e.g. 2.39>.
         ColorPage* color = window.colorPage();
         if (!color || !window.setCurrentPage(QStringLiteral("color"))) {
             std::fprintf(stderr, "color: no Color page\n");
@@ -1135,7 +1136,7 @@ int runScreenshot(MainWindow& window, const QString& target, const QString& pngP
         const QString scope = qEnvironmentVariable("KK_SCREENSHOT_SCOPE");
         if (!scope.isEmpty())
             color->scopes()->setType(scopes::scopeTypeFromId(scope));
-        QTimer::singleShot(0, color, [color] {
+        QTimer::singleShot(0, color, [color, project = ctx.project] {
             ColorSession* session = color->session();
             const QStringList rows = qEnvironmentVariable("KK_SCREENSHOT_COLOR_SELECT")
                                          .split(QLatin1Char(','), Qt::SkipEmptyParts);
@@ -1169,6 +1170,18 @@ int runScreenshot(MainWindow& window, const QString& target, const QString& pngP
                 color->qualifier()->setPickMode(qualifierpick::Mode::Pick);
             if (qEnvironmentVariableIntValue("KK_SCREENSHOT_COLOR_HIGHLIGHT") == 1)
                 color->setHighlight(true);
+            // Split Screen (selected | timeline), Lightbox and Output Blanking (an aspect such
+            // as 2.39) of the Color page viewer.
+            const QString split = qEnvironmentVariable("KK_SCREENSHOT_COLOR_SPLIT");
+            if (split == QLatin1String("selected"))
+                color->setSplitMode(ColorSplitScreen::Mode::SelectedClips);
+            else if (split == QLatin1String("timeline"))
+                color->setSplitMode(ColorSplitScreen::Mode::Timeline);
+            if (qEnvironmentVariableIntValue("KK_SCREENSHOT_COLOR_LIGHTBOX") == 1)
+                color->setLightbox(true);
+            if (const double aspect = qEnvironmentVariable("KK_SCREENSHOT_BLANKING").toDouble();
+                aspect > 0.0)
+                project->setOutputBlanking(project->activeTimelineUid(), aspect, QString());
         });
         // KK_SCREENSHOT_COLOR_GRAB=1: Grab Still once the picture is there (the gallery shot).
         if (qEnvironmentVariableIntValue("KK_SCREENSHOT_COLOR_GRAB") == 1) {

@@ -4,6 +4,7 @@
 #pragma once
 
 #include <QOpenGLFunctions_3_3_Core>
+#include <QRect>
 #include <QRectF>
 #include <QSize>
 #include <QString>
@@ -174,6 +175,9 @@ public:
     void bindTarget(const RenderTarget& target);
     /// Clears the bound target to transparent black.
     void clearTransparent();
+    /// Clears the bound target to opaque black outside @p keep (Output Blanking's bars); the
+    /// picture inside it is untouched. @p keep is in target pixels.
+    void blankOutside(QRect keep, QSize targetSize);
     /// Enables premultiplied "over" blending (src + dst·(1 − src.a)), or disables blending.
     void setBlendOver(bool enabled);
     /// Draws the unit quad (two triangles) with the current program.

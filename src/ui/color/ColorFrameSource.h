@@ -40,6 +40,11 @@ struct RenderedFrame;
 /// composite there), kThumbSize, graded also while the viewers bypass the grades (Shift+D);
 /// refreshed when the clip, its grade or the timeline grade change.
 ///
+/// **Detail pictures.** For the split screen and the Lightbox: setDetailClips() names the clips
+/// whose graded picture is wanted at a given width (the clip's middle frame; the clip under the
+/// playhead at the playhead), detail() returns them once rendered. Nothing is rendered for an
+/// empty list; a new list drops the pictures of clips that left it.
+///
 /// Thread-safety: GUI thread only (the renders complete on the compositor's threads).
 class ColorFrameSource : public QObject
 {
@@ -89,9 +94,18 @@ public:
     /// Re-renders the thumbnails whose clip or grade changed (debounced).
     void refreshThumbnails();
 
+    /// The clips whose detail picture is wanted, @p width pixels wide (the timeline's aspect).
+    void setDetailClips(const QVector<quint64>& clipIds, int width);
+    [[nodiscard]] QVector<quint64> detailClips() const { return m_detailIds; }
+    /// The graded detail picture of @p clipId (null until rendered or not wanted).
+    [[nodiscard]] QImage detail(quint64 clipId) const { return m_details.value(clipId).image; }
+    /// Sets a detail picture directly (tests, and engines without a compositor).
+    void setDetailImage(quint64 clipId, const QImage& image);
+
 Q_SIGNALS:
     void inputChanged();
     void thumbnailChanged(quint64 clipId);
+    void detailChanged(quint64 clipId);
 
 private:
     struct Thumb
@@ -113,6 +127,7 @@ private:
     [[nodiscard]] QByteArray signature(quint64 clipId) const;
     void renderInputNow();
     void renderThumbnailsNow();
+    void renderDetailsNow();
     void enqueue(Job job);
     void runNext();
     void onRendered();
@@ -123,6 +138,9 @@ private:
     bool m_active = false;
     QImage m_input;
     QHash<quint64, Thumb> m_thumbs;
+    QHash<quint64, Thumb> m_details;
+    QVector<quint64> m_detailIds;
+    int m_detailWidth = 480;
     QTimer* m_inputTimer = nullptr;
     QTimer* m_thumbTimer = nullptr;
     QVector<Job> m_queue;

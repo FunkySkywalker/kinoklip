@@ -161,6 +161,18 @@ with the **middle mouse button** (the mouse wheel). The selected clips get its g
 
 Stills are saved with the project.
 
+**Compare shots** so a scene looks like one place:
+- **Split Screen** (**View > Split Screen**, **Ctrl+Alt+W**, or **Split** above the viewer; its
+  arrow picks the mode). **Selected Clips** shows the clips you selected in the clips strip side
+  by side; **Timeline** shows the clip under the playhead and its neighbours in vertical strips,
+  so a difference in colour shows as a hard edge. Click a picture to grade that clip.
+- **Lightbox** (**View > Lightbox**, **Ctrl+Alt+L**) fills the viewer with a grid of every
+  clip's graded picture. Click a clip to go to it, double-click to go back to the viewer. The
+  options choose the thumbnail size and whether clip labels and grade information show.
+- **Output Blanking** (**Timeline > Output Blanking**) puts black bars over the picture for a
+  wider look such as 2.39 or 2.35. It is part of the timeline: the viewers and every export show
+  the bars, and **Off** takes them away again.
+
 ## Tips
 
 - **Start over:** choose **Color > Reset Node Grade** to reset the selected node, or
