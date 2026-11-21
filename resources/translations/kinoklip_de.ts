@@ -33081,6 +33081,10 @@ Die Clips trimmen, damit die Medien den Übergang abdecken?</translation>
         <translation>Clip deaktivieren</translation>
     </message>
     <message>
+        <source>Speed and Duration</source>
+        <translation>Geschwindigkeit und Dauer</translation>
+    </message>
+    <message>
         <source>Change Speed…</source>
         <translation>Geschwindigkeit ändern…</translation>
     </message>
@@ -33099,6 +33103,10 @@ Die Clips trimmen, damit die Medien den Übergang abdecken?</translation>
     <message>
         <source>Link</source>
         <translation>Koppeln</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <translation>Mehr</translation>
     </message>
     <message>
         <source>Multicam Angle</source>

@@ -33081,6 +33081,10 @@ Trim the clips so the media covers the transition?</source>
         <translation>Desactivar clip</translation>
     </message>
     <message>
+        <source>Speed and Duration</source>
+        <translation>Velocidad y duración</translation>
+    </message>
+    <message>
         <source>Change Speed…</source>
         <translation>Cambiar velocidad…</translation>
     </message>
@@ -33099,6 +33103,10 @@ Trim the clips so the media covers the transition?</source>
     <message>
         <source>Link</source>
         <translation>Vincular</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <translation>Más</translation>
     </message>
     <message>
         <source>Multicam Angle</source>

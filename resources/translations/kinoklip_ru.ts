@@ -33101,6 +33101,10 @@ Trim the clips so the media covers the transition?</source>
         <translation>Выключить клип</translation>
     </message>
     <message>
+        <source>Speed and Duration</source>
+        <translation>Скорость и длительность</translation>
+    </message>
+    <message>
         <source>Change Speed…</source>
         <translation>Изменить скорость…</translation>
     </message>
@@ -33119,6 +33123,10 @@ Trim the clips so the media covers the transition?</source>
     <message>
         <source>Link</source>
         <translation>Связать</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <translation>Еще</translation>
     </message>
     <message>
         <source>Multicam Angle</source>
