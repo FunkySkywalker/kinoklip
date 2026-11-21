@@ -36177,11 +36177,11 @@ Abrir un clip multicámara del panel de medios o mover el cabezal de reproducci�
         <translation>Libadwaita (aspecto de GNOME)</translation>
     </message>
     <message>
-        <source>System (the desktop's style)</source>
+        <source>System (the desktop&apos;s style)</source>
         <translation>Sistema (el estilo del escritorio)</translation>
     </message>
     <message>
-        <source>The desktop's style "%1" cannot be loaded here (the AppImage only loads styles built for its own Qt). Breeze or Fusion is used instead.</source>
+        <source>The desktop&apos;s style &quot;%1&quot; cannot be loaded here (the AppImage only loads styles built for its own Qt). Breeze or Fusion is used instead.</source>
         <translation>El estilo del escritorio «%1» no se puede cargar aquí (el AppImage solo carga estilos compilados para su propia Qt). Se usa Breeze o Fusion en su lugar.</translation>
     </message>
     <message>

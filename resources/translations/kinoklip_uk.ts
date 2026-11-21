@@ -36198,11 +36198,11 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
         <translation>Libadwaita (вигляд GNOME)</translation>
     </message>
     <message>
-        <source>System (the desktop's style)</source>
+        <source>System (the desktop&apos;s style)</source>
         <translation>Системний (стиль робочого столу)</translation>
     </message>
     <message>
-        <source>The desktop's style "%1" cannot be loaded here (the AppImage only loads styles built for its own Qt). Breeze or Fusion is used instead.</source>
+        <source>The desktop&apos;s style &quot;%1&quot; cannot be loaded here (the AppImage only loads styles built for its own Qt). Breeze or Fusion is used instead.</source>
         <translation>Стиль робочого столу «%1» не вдається завантажити (AppImage завантажує лише стилі, зібрані для його власної Qt). Замість нього використовується Breeze або Fusion.</translation>
     </message>
     <message>

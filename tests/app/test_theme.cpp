@@ -17,6 +17,7 @@
 #include <QAbstractItemView>
 #include <QAction>
 #include <QApplication>
+#include <QProxyStyle>
 #include <QComboBox>
 #include <QMenu>
 #include <QPushButton>
@@ -153,6 +154,18 @@ private slots:
         QCOMPARE(theme::styleActionId(theme::currentStyle()), wantedStyle);
     }
 
+    /// The style's own name, looking through proxies (Kinoklip wraps styles for menu metrics).
+    static QString baseStyleName()
+    {
+        QStyle* style = QApplication::style();
+        while (auto* proxy = qobject_cast<QProxyStyle*>(style)) {
+            if (!proxy->name().isEmpty())
+                return proxy->name();
+            style = proxy->baseStyle();
+        }
+        return style ? style->name() : QString();
+    }
+
     void systemStyleFollowsTheDesktopAndFallsBackWithANote()
     {
         QVERIFY(theme::availableStyles().contains(QStringLiteral("System")));
@@ -163,12 +176,12 @@ private slots:
         QCOMPARE(theme::currentStyle(), QStringLiteral("System"));
         QVERIFY(!theme::styleNote().isEmpty());
         QVERIFY(theme::styleNote().contains(QStringLiteral("NoSuchStyleXyz")));
-        QVERIFY(!QApplication::style()->name().isEmpty());
+        QVERIFY(!baseStyleName().isEmpty());
         // one that exists is used without a note
         qputenv("QT_STYLE_OVERRIDE", "Fusion");
         theme::setStyle(QStringLiteral("System"));
         QVERIFY(theme::styleNote().isEmpty());
-        QCOMPARE(QApplication::style()->name().toLower(), QStringLiteral("fusion"));
+        QCOMPARE(baseStyleName().toLower(), QStringLiteral("fusion"));
         qunsetenv("QT_STYLE_OVERRIDE");
         theme::setStyle(QStringLiteral("Kinoklip"));
     }

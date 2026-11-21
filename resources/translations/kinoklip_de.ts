@@ -36177,11 +36177,11 @@ Einen Multicam-Clip aus dem Medienpool öffnen oder den Abspielkopf über einen 
         <translation>Libadwaita (GNOME-Look)</translation>
     </message>
     <message>
-        <source>System (the desktop's style)</source>
+        <source>System (the desktop&apos;s style)</source>
         <translation>System (Stil des Desktops)</translation>
     </message>
     <message>
-        <source>The desktop's style "%1" cannot be loaded here (the AppImage only loads styles built for its own Qt). Breeze or Fusion is used instead.</source>
+        <source>The desktop&apos;s style &quot;%1&quot; cannot be loaded here (the AppImage only loads styles built for its own Qt). Breeze or Fusion is used instead.</source>
         <translation>Der Stil des Desktops „%1“ kann hier nicht geladen werden (das AppImage lädt nur Stile, die für seine eigene Qt gebaut sind). Stattdessen wird Breeze oder Fusion verwendet.</translation>
     </message>
     <message>
