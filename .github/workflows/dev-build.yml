@@ -13,8 +13,6 @@ name: Dev build
 # arm64-release.yml; see packaging/linux/readme.md, "Dev builds on GitHub".
 
 on:
-  push:
-    branches: [ci-dev-build] # TEMP: test trigger, removed before merge
   workflow_dispatch:
     inputs:
       ref:

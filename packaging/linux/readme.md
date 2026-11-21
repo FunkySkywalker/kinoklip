@@ -365,7 +365,9 @@ x86_64 release stays local (dev builds: [Dev builds on GitHub](#dev-builds-on-gi
 `ubuntu-24.04` runner in the same Debian trixie container as the ARM64 workflow (ONNX Runtime `linux-x64`
 from the NuGet package, ccache in `actions/cache`), with `KK_DEV_BUILD` so the update information points at
 the dev channel. It runs `check_bundle.sh`, a smoke test and the chosen tests, and always uploads the files
-as a workflow artifact.
+as a workflow artifact. A run takes about 25 minutes with a warm ccache (35 to 45 cold). Five tests that expect
+the Arch build's KDE Frameworks, Breeze, fonts and image libraries (`test_theme`, `test_translations`, `test_formats`,
+`test_titlelayers`, `test_textfit`) are skipped there; run them locally.
 
 ```sh
 gh workflow run dev-build.yml --ref main                  # build + quick tests, artifact only
