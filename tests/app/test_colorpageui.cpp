@@ -1138,6 +1138,7 @@ private slots:
         // window is hit there, and a drag there edits the stored window by the same amount).
         f.project.timeline()->setPlayhead(30);
         QCoreApplication::processEvents();
+        n = f.session()->currentNode(); // moving the playhead may replace the grade it pointed into
         ColorViewerOverlay* ov = page->overlay();
         const GradeWindow shownWindow = ov->shown(n->windows[0]);
         QVERIFY(std::abs(shownWindow.value(wk::CenterX, 30) - g.cx) < 1e-9);

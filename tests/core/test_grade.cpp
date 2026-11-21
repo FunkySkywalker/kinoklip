@@ -436,7 +436,8 @@ private slots:
             {QLatin1String("points"), QJsonArray {QJsonArray {0.0, 0.0}}}}};
         node[QLatin1String("windows")] = QJsonArray {window};
         root[QLatin1String("nodes")] = QJsonArray {node};
-        const GradeWindow* clamped = serialization::gradeFromJson(root).window(5);
+        const ClipGrade parsed = serialization::gradeFromJson(root);
+        const GradeWindow* clamped = parsed.window(5);
         QCOMPARE(clamped->points.size(), kMaxWindowPoints);
         QVERIFY(clamped->shapeKeys.isEmpty());
     }
