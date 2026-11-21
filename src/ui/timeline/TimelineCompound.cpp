@@ -12,6 +12,8 @@
 #include "ui/timeline/TimelineController.h"
 #include "ui/timeline/TimelineEditUtil.h"
 
+#include <QAction>
+
 #include <algorithm>
 
 namespace kk {
