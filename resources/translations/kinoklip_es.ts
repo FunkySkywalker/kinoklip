@@ -878,6 +878,14 @@ Probablemente el sistema cerró el programa porque el equipo se quedó sin memor
         <translation>Cursiva</translation>
     </message>
     <message>
+        <source>Underline</source>
+        <translation>Subrayado</translation>
+    </message>
+    <message>
+        <source>Strikethrough</source>
+        <translation>Tachado</translation>
+    </message>
+    <message>
         <source>Alignment</source>
         <translation>Alineación</translation>
     </message>
@@ -5843,6 +5851,10 @@ Cargo o lugar</translation>
         <translation>Escalones</translation>
     </message>
     <message>
+        <source>Strikethrough</source>
+        <translation>Tachado</translation>
+    </message>
+    <message>
         <source>Stroke Color</source>
         <translation>Color del trazo</translation>
     </message>
@@ -5971,6 +5983,10 @@ Gracias por ver</translation>
     <message>
         <source>Typewriter</source>
         <translation>Máquina de escribir</translation>
+    </message>
+    <message>
+        <source>Underline</source>
+        <translation>Subrayado</translation>
     </message>
     <message>
         <source>Unsharp-mask sharpening</source>
@@ -24959,6 +24975,22 @@ Importar archivos con %1 o soltarlos aquí.</translation>
     <message>
         <source>Slanted letters</source>
         <translation>Letras inclinadas</translation>
+    </message>
+    <message>
+        <source>Underline</source>
+        <translation>Subrayado</translation>
+    </message>
+    <message>
+        <source>A line under the letters</source>
+        <translation>Una línea bajo las letras</translation>
+    </message>
+    <message>
+        <source>Strikethrough</source>
+        <translation>Tachado</translation>
+    </message>
+    <message>
+        <source>A line through the letters</source>
+        <translation>Una línea que cruza las letras</translation>
     </message>
     <message>
         <source>The colour of the letters</source>

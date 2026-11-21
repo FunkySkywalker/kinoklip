@@ -886,6 +886,14 @@ The program was probably closed by the system because the computer ran out of me
         <translation>Курсив</translation>
     </message>
     <message>
+        <source>Underline</source>
+        <translation>Подчёркивание</translation>
+    </message>
+    <message>
+        <source>Strikethrough</source>
+        <translation>Зачёркивание</translation>
+    </message>
+    <message>
         <source>Alignment</source>
         <translation>Выравнивание</translation>
     </message>
@@ -5851,6 +5859,10 @@ Role or place</source>
         <translation>Шаги</translation>
     </message>
     <message>
+        <source>Strikethrough</source>
+        <translation>Зачёркивание</translation>
+    </message>
+    <message>
         <source>Stroke Color</source>
         <translation>Цвет обводки</translation>
     </message>
@@ -5979,6 +5991,10 @@ Thank you for watching</source>
     <message>
         <source>Typewriter</source>
         <translation>Пишущая машинка</translation>
+    </message>
+    <message>
+        <source>Underline</source>
+        <translation>Подчёркивание</translation>
     </message>
     <message>
         <source>Unsharp-mask sharpening</source>
@@ -24977,6 +24993,22 @@ Import files with %1 or drop them here.</source>
     <message>
         <source>Slanted letters</source>
         <translation>Наклонные буквы</translation>
+    </message>
+    <message>
+        <source>Underline</source>
+        <translation>Подчёркивание</translation>
+    </message>
+    <message>
+        <source>A line under the letters</source>
+        <translation>Линия под буквами</translation>
+    </message>
+    <message>
+        <source>Strikethrough</source>
+        <translation>Зачёркивание</translation>
+    </message>
+    <message>
+        <source>A line through the letters</source>
+        <translation>Линия через буквы</translation>
     </message>
     <message>
         <source>The colour of the letters</source>

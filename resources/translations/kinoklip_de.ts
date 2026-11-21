@@ -878,6 +878,14 @@ Das Programm wurde wahrscheinlich vom System beendet, weil der Arbeitsspeicher d
         <translation>Kursiv</translation>
     </message>
     <message>
+        <source>Underline</source>
+        <translation>Unterstrichen</translation>
+    </message>
+    <message>
+        <source>Strikethrough</source>
+        <translation>Durchgestrichen</translation>
+    </message>
+    <message>
         <source>Alignment</source>
         <translation>Ausrichtung</translation>
     </message>
@@ -5843,6 +5851,10 @@ Funktion oder Ort</translation>
         <translation>Stufen</translation>
     </message>
     <message>
+        <source>Strikethrough</source>
+        <translation>Durchgestrichen</translation>
+    </message>
+    <message>
         <source>Stroke Color</source>
         <translation>Strichfarbe</translation>
     </message>
@@ -5971,6 +5983,10 @@ Danke fürs Zuschauen</translation>
     <message>
         <source>Typewriter</source>
         <translation>Schreibmaschine</translation>
+    </message>
+    <message>
+        <source>Underline</source>
+        <translation>Unterstrichen</translation>
     </message>
     <message>
         <source>Unsharp-mask sharpening</source>
@@ -24959,6 +24975,22 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
     <message>
         <source>Slanted letters</source>
         <translation>Kursive Buchstaben</translation>
+    </message>
+    <message>
+        <source>Underline</source>
+        <translation>Unterstrichen</translation>
+    </message>
+    <message>
+        <source>A line under the letters</source>
+        <translation>Eine Linie unter den Buchstaben</translation>
+    </message>
+    <message>
+        <source>Strikethrough</source>
+        <translation>Durchgestrichen</translation>
+    </message>
+    <message>
+        <source>A line through the letters</source>
+        <translation>Eine Linie durch die Buchstaben</translation>
     </message>
     <message>
         <source>The colour of the letters</source>
