@@ -13,6 +13,10 @@
 #include <QProcess>
 #include <QStandardPaths>
 
+extern "C" {
+#include <libavcodec/avcodec.h>
+}
+
 using namespace kk;
 using namespace kk::test;
 
@@ -49,6 +53,12 @@ bool hasSideData(const QJsonObject& stream, const QString& type)
         }
     }
     return false;
+}
+
+/// True when this FFmpeg build has the encoder; the file tests are skipped only for that reason.
+bool hasEncoder(const char* name)
+{
+    return avcodec_find_encoder_by_name(name) != nullptr;
 }
 
 } // namespace
@@ -97,6 +107,8 @@ private Q_SLOTS:
     {
         if (QStandardPaths::findExecutable(QStringLiteral("ffprobe")).isEmpty())
             QSKIP("ffprobe not installed");
+        if (!hasEncoder("libx265"))
+            QSKIP("libx265 is not in this FFmpeg build");
         ExportSettings s = settings(QStringLiteral("hevc"), GammaTag::Pq, QStringLiteral("a.mp4"));
         s.video.encoder = EncoderBackend::Nvenc; // normalize() turns this into Software
         s.normalize();
@@ -104,12 +116,16 @@ private Q_SLOTS:
         s.video.hdr.maxCll = 900;
         s.video.hdr.maxFall = 300;
         const ExportResult r = render(s);
-        if (!r.ok && r.error.contains(QLatin1String("encoder")))
-            QSKIP(qPrintable(r.error));
         QVERIFY2(r.ok, qPrintable(r.error));
         const QJsonObject v = probeVideo(s.outputPath);
         QVERIFY(!v.isEmpty());
         qInfo().noquote() << QJsonDocument(v).toJson(QJsonDocument::Indented);
+        qInfo().noquote() << QStringLiteral("ffprobe: codec=%1 pix_fmt=%2 primaries=%3 transfer=%4 space=%5")
+                                 .arg(v.value(QStringLiteral("codec_name")).toString(),
+                                     v.value(QStringLiteral("pix_fmt")).toString(),
+                                     v.value(QStringLiteral("color_primaries")).toString(),
+                                     v.value(QStringLiteral("color_transfer")).toString(),
+                                     v.value(QStringLiteral("color_space")).toString());
         QCOMPARE(v.value(QStringLiteral("codec_name")).toString(), QStringLiteral("hevc"));
         QCOMPARE(v.value(QStringLiteral("pix_fmt")).toString(), QStringLiteral("yuv420p10le"));
         QCOMPARE(v.value(QStringLiteral("color_primaries")).toString(), QStringLiteral("bt2020"));
@@ -123,11 +139,11 @@ private Q_SLOTS:
     {
         if (QStandardPaths::findExecutable(QStringLiteral("ffprobe")).isEmpty())
             QSKIP("ffprobe not installed");
+        if (!hasEncoder("libx265"))
+            QSKIP("libx265 is not in this FFmpeg build");
         const ExportSettings s
             = settings(QStringLiteral("hevc"), GammaTag::Hlg, QStringLiteral("b.mp4"));
         const ExportResult r = render(s);
-        if (!r.ok && r.error.contains(QLatin1String("encoder")))
-            QSKIP(qPrintable(r.error));
         QVERIFY2(r.ok, qPrintable(r.error));
         const QJsonObject v = probeVideo(s.outputPath);
         QCOMPARE(v.value(QStringLiteral("pix_fmt")).toString(), QStringLiteral("yuv420p10le"));
@@ -141,6 +157,8 @@ private Q_SLOTS:
     {
         if (QStandardPaths::findExecutable(QStringLiteral("ffprobe")).isEmpty())
             QSKIP("ffprobe not installed");
+        if (!hasEncoder("libx265"))
+            QSKIP("libx265 is not in this FFmpeg build");
         ExportSettings s;
         s.container = QStringLiteral("mp4");
         s.video.codec = QStringLiteral("hevc");
@@ -148,8 +166,6 @@ private Q_SLOTS:
         s.audio.enabled = false;
         s.outputPath = m_dir.filePath(QStringLiteral("c.mp4"));
         const ExportResult r = render(s);
-        if (!r.ok && r.error.contains(QLatin1String("encoder")))
-            QSKIP(qPrintable(r.error));
         QVERIFY2(r.ok, qPrintable(r.error));
         const QJsonObject v = probeVideo(s.outputPath);
         QCOMPARE(v.value(QStringLiteral("pix_fmt")).toString(), QStringLiteral("yuv420p"));
