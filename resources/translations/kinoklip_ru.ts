@@ -9772,6 +9772,22 @@ Thank you for watching</source>
         <source>Reset Grade</source>
         <translation>Сбросить цветокоррекцию</translation>
     </message>
+    <message>
+        <source>Generate 3D LUT (CUBE)</source>
+        <translation>Создать 3D LUT (CUBE)</translation>
+    </message>
+    <message>
+        <source>%1 Point Cube</source>
+        <translation>Куб %1 точек</translation>
+    </message>
+    <message>
+        <source>grade</source>
+        <translation>градация</translation>
+    </message>
+    <message>
+        <source>Cube LUT (*.cube)</source>
+        <translation>Cube LUT (*.cube)</translation>
+    </message>
 </context>
 <context>
     <name>kk::ColorCurvesPanel</name>
@@ -9800,6 +9816,18 @@ Thank you for watching</source>
         <translation>Насыщенность — Насыщенность</translation>
     </message>
     <message>
+        <source>Sat vs Lum</source>
+        <translation>Насыщ. и яркость</translation>
+    </message>
+    <message>
+        <source>Pick</source>
+        <translation>Пипетка</translation>
+    </message>
+    <message>
+        <source>Click the viewer to add the picked colour&apos;s (or luma&apos;s) points to the shown curve</source>
+        <translation>Щёлкните по видеоокну, чтобы добавить на показанную кривую точки выбранного цвета (или яркости)</translation>
+    </message>
+    <message>
         <source>Y</source>
         <translation>Y</translation>
     </message>
@@ -9824,8 +9852,36 @@ Thank you for watching</source>
         <translation>Связано: изменение R, G или B меняет все три</translation>
     </message>
     <message>
+        <source>Soft Clip</source>
+        <translation>Мягкое ограничение</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>Низ</translation>
+    </message>
+    <message>
+        <source>L.Soft</source>
+        <translation>Низ мягк.</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>Верх</translation>
+    </message>
+    <message>
+        <source>H.Soft</source>
+        <translation>Верх мягк.</translation>
+    </message>
+    <message>
+        <source>Curve Pick</source>
+        <translation>Точки кривой с пипетки</translation>
+    </message>
+    <message>
         <source>Reset Curve</source>
         <translation>Сбросить кривую</translation>
+    </message>
+    <message>
+        <source>Reset Soft Clip</source>
+        <translation>Сбросить мягкое ограничение</translation>
     </message>
 </context>
 <context>
@@ -10072,6 +10128,14 @@ Thank you for watching</source>
         <translation>Первичная цветокоррекция текущей ноды.</translation>
     </message>
     <message>
+        <source>Log</source>
+        <translation>Лог</translation>
+    </message>
+    <message>
+        <source>Log wheels of the current node: Shadow, Midtone, Highlight and Offset with the Low and High Range of the zones.</source>
+        <translation>Лог-колёса текущего узла: тени, средние тона, света и смещение с нижней и верхней границами зон.</translation>
+    </message>
+    <message>
         <source>Curves</source>
         <translation>Кривые</translation>
     </message>
@@ -10243,6 +10307,22 @@ Thank you for watching</source>
     <message>
         <source>Reset Grade</source>
         <translation>Сбросить цветокоррекцию</translation>
+    </message>
+    <message>
+        <source>The clip is not on the timeline.</source>
+        <translation>Клипа нет на таймлайне.</translation>
+    </message>
+    <message>
+        <source>The clip has no grade.</source>
+        <translation>У клипа нет градации.</translation>
+    </message>
+    <message>
+        <source>Kinoklip grade</source>
+        <translation>Градация Kinoklip</translation>
+    </message>
+    <message>
+        <source>Auto Color</source>
+        <translation>Авто цвет</translation>
     </message>
     <message>
         <source>Remove LUT</source>
@@ -10644,6 +10724,18 @@ Thank you for watching</source>
     <message>
         <source>Offset</source>
         <translation>Смещение</translation>
+    </message>
+    <message>
+        <source>Shadow</source>
+        <translation>Тени</translation>
+    </message>
+    <message>
+        <source>Midtone</source>
+        <translation>Средние тона</translation>
+    </message>
+    <message>
+        <source>Highlight</source>
+        <translation>Света</translation>
     </message>
     <message>
         <source>%1: drag the centre to balance the colour, drag the bar below for the master level; Shift for fine control; the arrow at the top right or a double-click resets</source>
@@ -26889,6 +26981,18 @@ Auto: Full, switching to Half only while playback cannot keep up (paused: Full).
         <translation>Поворот</translation>
     </message>
     <message>
+        <source>MD</source>
+        <translation>MD</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>Авто</translation>
+    </message>
+    <message>
+        <source>Auto Color: balance the node&apos;s lift, gamma and gain from the picture (black and white points, colour cast)</source>
+        <translation>Авто цвет: подбирает lift, gamma и gain узла по картинке (чёрная и белая точки, цветовой оттенок)</translation>
+    </message>
+    <message>
         <source>Wheels</source>
         <translation>Колёса</translation>
     </message>
@@ -26899,6 +27003,26 @@ Auto: Full, switching to Half only while playback cannot keep up (paused: Full).
     <message>
         <source>Reset %1</source>
         <translation>Сбросить %1</translation>
+    </message>
+    <message>
+        <source>Boost</source>
+        <translation>Буст</translation>
+    </message>
+    <message>
+        <source>Shad</source>
+        <translation>Тени</translation>
+    </message>
+    <message>
+        <source>Hi</source>
+        <translation>Света</translation>
+    </message>
+    <message>
+        <source>Low Range</source>
+        <translation>Нижняя граница</translation>
+    </message>
+    <message>
+        <source>High Range</source>
+        <translation>Верхняя граница</translation>
     </message>
     <message>
         <source>Mix</source>
@@ -29682,6 +29806,46 @@ The timelines that use the project settings are converted: clips, markers and ef
     <message>
         <source>Histogram</source>
         <translation>Гистограмма</translation>
+    </message>
+    <message>
+        <source>CIE Chromaticity</source>
+        <translation>Цветность CIE</translation>
+    </message>
+    <message>
+        <source>Settings</source>
+        <translation>Настройки</translation>
+    </message>
+    <message>
+        <source>Scope settings: scale and gain</source>
+        <translation>Настройки скопа: шкала и усиление</translation>
+    </message>
+    <message>
+        <source>0 - 1023</source>
+        <translation>0 - 1023</translation>
+    </message>
+    <message>
+        <source>0 - 255</source>
+        <translation>0 - 255</translation>
+    </message>
+    <message>
+        <source>Percent</source>
+        <translation>Проценты</translation>
+    </message>
+    <message>
+        <source>0.0 - 1.0</source>
+        <translation>0,0 - 1,0</translation>
+    </message>
+    <message>
+        <source>Gain: trace brightness</source>
+        <translation>Усиление: яркость трассы</translation>
+    </message>
+    <message>
+        <source>Scale</source>
+        <translation>Шкала</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>Усиление</translation>
     </message>
 </context>
 <context>
@@ -34957,6 +35121,22 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
         <translation>Смещение</translation>
     </message>
     <message>
+        <source>Log Shadow</source>
+        <translation>Лог тени</translation>
+    </message>
+    <message>
+        <source>Log Midtone</source>
+        <translation>Лог средние тона</translation>
+    </message>
+    <message>
+        <source>Log Highlight</source>
+        <translation>Лог света</translation>
+    </message>
+    <message>
+        <source>Log Offset</source>
+        <translation>Лог смещение</translation>
+    </message>
+    <message>
         <source>Blur Radius R</source>
         <translation>Добро пожаловать в %1</translation>
     </message>
@@ -35127,6 +35307,46 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
     <message>
         <source>Key Output Mix</source>
         <translation>Смешивание выхода ключа</translation>
+    </message>
+    <message>
+        <source>Color Boost</source>
+        <translation>Цветовой буст</translation>
+    </message>
+    <message>
+        <source>Shadows</source>
+        <translation>Тени</translation>
+    </message>
+    <message>
+        <source>Highlights</source>
+        <translation>Света</translation>
+    </message>
+    <message>
+        <source>Midtone Detail</source>
+        <translation>Детали средних тонов</translation>
+    </message>
+    <message>
+        <source>Soft Clip Low</source>
+        <translation>Мягкое ограничение: низ</translation>
+    </message>
+    <message>
+        <source>Soft Clip Low Soft</source>
+        <translation>Мягкое ограничение: мягкость низа</translation>
+    </message>
+    <message>
+        <source>Soft Clip High</source>
+        <translation>Мягкое ограничение: верх</translation>
+    </message>
+    <message>
+        <source>Soft Clip High Soft</source>
+        <translation>Мягкое ограничение: мягкость верха</translation>
+    </message>
+    <message>
+        <source>Low Range</source>
+        <translation>Нижняя граница</translation>
+    </message>
+    <message>
+        <source>High Range</source>
+        <translation>Верхняя граница</translation>
     </message>
 </context>
 <context>

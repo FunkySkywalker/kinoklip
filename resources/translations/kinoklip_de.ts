@@ -9763,6 +9763,22 @@ Danke fürs Zuschauen</translation>
         <source>Reset Grade</source>
         <translation>Farbkorrektur zurücksetzen</translation>
     </message>
+    <message>
+        <source>Generate 3D LUT (CUBE)</source>
+        <translation>3D-LUT erzeugen (CUBE)</translation>
+    </message>
+    <message>
+        <source>%1 Point Cube</source>
+        <translation>%1-Punkte-Cube</translation>
+    </message>
+    <message>
+        <source>grade</source>
+        <translation>Korrektur</translation>
+    </message>
+    <message>
+        <source>Cube LUT (*.cube)</source>
+        <translation>Cube-LUT (*.cube)</translation>
+    </message>
 </context>
 <context>
     <name>kk::ColorCurvesPanel</name>
@@ -9791,6 +9807,18 @@ Danke fürs Zuschauen</translation>
         <translation>Sat vs Sat</translation>
     </message>
     <message>
+        <source>Sat vs Lum</source>
+        <translation>Sät. vs. Helligkeit</translation>
+    </message>
+    <message>
+        <source>Pick</source>
+        <translation>Aufnehmen</translation>
+    </message>
+    <message>
+        <source>Click the viewer to add the picked colour&apos;s (or luma&apos;s) points to the shown curve</source>
+        <translation>Im Viewer klicken, um die Punkte der gewählten Farbe (oder Helligkeit) zur angezeigten Kurve hinzuzufügen</translation>
+    </message>
+    <message>
         <source>Y</source>
         <translation>Y</translation>
     </message>
@@ -9815,8 +9843,36 @@ Danke fürs Zuschauen</translation>
         <translation>Gekoppelt: Bearbeiten von R, G oder B ändert alle drei</translation>
     </message>
     <message>
+        <source>Soft Clip</source>
+        <translation>Soft Clip</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>Tief</translation>
+    </message>
+    <message>
+        <source>L.Soft</source>
+        <translation>T.Weich</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>Hoch</translation>
+    </message>
+    <message>
+        <source>H.Soft</source>
+        <translation>H.Weich</translation>
+    </message>
+    <message>
+        <source>Curve Pick</source>
+        <translation>Kurvenpunkt aufnehmen</translation>
+    </message>
+    <message>
         <source>Reset Curve</source>
         <translation>Kurve zurücksetzen</translation>
+    </message>
+    <message>
+        <source>Reset Soft Clip</source>
+        <translation>Soft Clip zurücksetzen</translation>
     </message>
 </context>
 <context>
@@ -10062,6 +10118,14 @@ Danke fürs Zuschauen</translation>
         <translation>Primäre Farbkorrektur der aktuellen Node.</translation>
     </message>
     <message>
+        <source>Log</source>
+        <translation>Log</translation>
+    </message>
+    <message>
+        <source>Log wheels of the current node: Shadow, Midtone, Highlight and Offset with the Low and High Range of the zones.</source>
+        <translation>Log-Räder des aktuellen Nodes: Tiefen, Mitten, Lichter und Offset mit unterem und oberem Bereich der Zonen.</translation>
+    </message>
+    <message>
         <source>Curves</source>
         <translation>Kurven</translation>
     </message>
@@ -10233,6 +10297,22 @@ Danke fürs Zuschauen</translation>
     <message>
         <source>Reset Grade</source>
         <translation>Farbkorrektur zurücksetzen</translation>
+    </message>
+    <message>
+        <source>The clip is not on the timeline.</source>
+        <translation>Der Clip liegt nicht auf der Timeline.</translation>
+    </message>
+    <message>
+        <source>The clip has no grade.</source>
+        <translation>Der Clip hat keine Korrektur.</translation>
+    </message>
+    <message>
+        <source>Kinoklip grade</source>
+        <translation>Kinoklip-Korrektur</translation>
+    </message>
+    <message>
+        <source>Auto Color</source>
+        <translation>Auto-Farbe</translation>
     </message>
     <message>
         <source>Remove LUT</source>
@@ -10634,6 +10714,18 @@ Danke fürs Zuschauen</translation>
     <message>
         <source>Offset</source>
         <translation>Offset</translation>
+    </message>
+    <message>
+        <source>Shadow</source>
+        <translation>Tiefen</translation>
+    </message>
+    <message>
+        <source>Midtone</source>
+        <translation>Mitten</translation>
+    </message>
+    <message>
+        <source>Highlight</source>
+        <translation>Lichter</translation>
     </message>
     <message>
         <source>%1: drag the centre to balance the colour, drag the bar below for the master level; Shift for fine control; the arrow at the top right or a double-click resets</source>
@@ -26870,6 +26962,18 @@ Auto: Voll, wechselt nur zu Halb, solange die Wiedergabe nicht mithält (pausier
         <translation>Pivot</translation>
     </message>
     <message>
+        <source>MD</source>
+        <translation>MD</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>Auto</translation>
+    </message>
+    <message>
+        <source>Auto Color: balance the node&apos;s lift, gamma and gain from the picture (black and white points, colour cast)</source>
+        <translation>Auto-Farbe: Lift, Gamma und Gain des Nodes aus dem Bild abgleichen (Schwarz- und Weißpunkt, Farbstich)</translation>
+    </message>
+    <message>
         <source>Wheels</source>
         <translation>Räder</translation>
     </message>
@@ -26880,6 +26984,26 @@ Auto: Voll, wechselt nur zu Halb, solange die Wiedergabe nicht mithält (pausier
     <message>
         <source>Reset %1</source>
         <translation>%1 zurücksetzen</translation>
+    </message>
+    <message>
+        <source>Boost</source>
+        <translation>Boost</translation>
+    </message>
+    <message>
+        <source>Shad</source>
+        <translation>Tief.</translation>
+    </message>
+    <message>
+        <source>Hi</source>
+        <translation>Lich.</translation>
+    </message>
+    <message>
+        <source>Low Range</source>
+        <translation>Unterer Bereich</translation>
+    </message>
+    <message>
+        <source>High Range</source>
+        <translation>Oberer Bereich</translation>
     </message>
     <message>
         <source>Mix</source>
@@ -29663,6 +29787,46 @@ Die Timelines, die die Projekteinstellungen verwenden, werden umgerechnet: Clips
     <message>
         <source>Histogram</source>
         <translation>Histogramm</translation>
+    </message>
+    <message>
+        <source>CIE Chromaticity</source>
+        <translation>CIE-Farbart</translation>
+    </message>
+    <message>
+        <source>Settings</source>
+        <translation>Einstellungen</translation>
+    </message>
+    <message>
+        <source>Scope settings: scale and gain</source>
+        <translation>Scope-Einstellungen: Skala und Verstärkung</translation>
+    </message>
+    <message>
+        <source>0 - 1023</source>
+        <translation>0 - 1023</translation>
+    </message>
+    <message>
+        <source>0 - 255</source>
+        <translation>0 - 255</translation>
+    </message>
+    <message>
+        <source>Percent</source>
+        <translation>Prozent</translation>
+    </message>
+    <message>
+        <source>0.0 - 1.0</source>
+        <translation>0,0 - 1,0</translation>
+    </message>
+    <message>
+        <source>Gain: trace brightness</source>
+        <translation>Verstärkung: Helligkeit der Kurve</translation>
+    </message>
+    <message>
+        <source>Scale</source>
+        <translation>Skala</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>Verstärkung</translation>
     </message>
 </context>
 <context>
@@ -34936,6 +35100,22 @@ Einen Multicam-Clip aus dem Medienpool öffnen oder den Abspielkopf über einen 
         <translation>Offset</translation>
     </message>
     <message>
+        <source>Log Shadow</source>
+        <translation>Log Tiefen</translation>
+    </message>
+    <message>
+        <source>Log Midtone</source>
+        <translation>Log Mitten</translation>
+    </message>
+    <message>
+        <source>Log Highlight</source>
+        <translation>Log Lichter</translation>
+    </message>
+    <message>
+        <source>Log Offset</source>
+        <translation>Log Offset</translation>
+    </message>
+    <message>
         <source>Blur Radius R</source>
         <translation>Willkommen bei %1</translation>
     </message>
@@ -35106,6 +35286,46 @@ Einen Multicam-Clip aus dem Medienpool öffnen oder den Abspielkopf über einen 
     <message>
         <source>Key Output Mix</source>
         <translation>Key-Ausgangsmischung</translation>
+    </message>
+    <message>
+        <source>Color Boost</source>
+        <translation>Color Boost</translation>
+    </message>
+    <message>
+        <source>Shadows</source>
+        <translation>Tiefen</translation>
+    </message>
+    <message>
+        <source>Highlights</source>
+        <translation>Lichter</translation>
+    </message>
+    <message>
+        <source>Midtone Detail</source>
+        <translation>Mitteldetail</translation>
+    </message>
+    <message>
+        <source>Soft Clip Low</source>
+        <translation>Soft Clip unten</translation>
+    </message>
+    <message>
+        <source>Soft Clip Low Soft</source>
+        <translation>Soft Clip unten weich</translation>
+    </message>
+    <message>
+        <source>Soft Clip High</source>
+        <translation>Soft Clip oben</translation>
+    </message>
+    <message>
+        <source>Soft Clip High Soft</source>
+        <translation>Soft Clip oben weich</translation>
+    </message>
+    <message>
+        <source>Low Range</source>
+        <translation>Unterer Bereich</translation>
+    </message>
+    <message>
+        <source>High Range</source>
+        <translation>Oberer Bereich</translation>
     </message>
 </context>
 <context>

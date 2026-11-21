@@ -9763,6 +9763,22 @@ Gracias por ver</translation>
         <source>Reset Grade</source>
         <translation>Restablecer corrección</translation>
     </message>
+    <message>
+        <source>Generate 3D LUT (CUBE)</source>
+        <translation>Generar LUT 3D (CUBE)</translation>
+    </message>
+    <message>
+        <source>%1 Point Cube</source>
+        <translation>Cubo de %1 puntos</translation>
+    </message>
+    <message>
+        <source>grade</source>
+        <translation>corrección</translation>
+    </message>
+    <message>
+        <source>Cube LUT (*.cube)</source>
+        <translation>LUT Cube (*.cube)</translation>
+    </message>
 </context>
 <context>
     <name>kk::ColorCurvesPanel</name>
@@ -9791,6 +9807,18 @@ Gracias por ver</translation>
         <translation>Sat vs sat</translation>
     </message>
     <message>
+        <source>Sat vs Lum</source>
+        <translation>Sat vs Lum</translation>
+    </message>
+    <message>
+        <source>Pick</source>
+        <translation>Muestrear</translation>
+    </message>
+    <message>
+        <source>Click the viewer to add the picked colour&apos;s (or luma&apos;s) points to the shown curve</source>
+        <translation>Haga clic en el visor para añadir a la curva mostrada los puntos del color (o luma) elegido</translation>
+    </message>
+    <message>
         <source>Y</source>
         <translation>Y</translation>
     </message>
@@ -9815,8 +9843,36 @@ Gracias por ver</translation>
         <translation>Vinculado: editar R, G o B edita los tres</translation>
     </message>
     <message>
+        <source>Soft Clip</source>
+        <translation>Soft Clip</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>Bajo</translation>
+    </message>
+    <message>
+        <source>L.Soft</source>
+        <translation>B.Suave</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>Alto</translation>
+    </message>
+    <message>
+        <source>H.Soft</source>
+        <translation>A.Suave</translation>
+    </message>
+    <message>
+        <source>Curve Pick</source>
+        <translation>Muestreo de curva</translation>
+    </message>
+    <message>
         <source>Reset Curve</source>
         <translation>Restablecer curva</translation>
+    </message>
+    <message>
+        <source>Reset Soft Clip</source>
+        <translation>Restablecer Soft Clip</translation>
     </message>
 </context>
 <context>
@@ -10062,6 +10118,14 @@ Gracias por ver</translation>
         <translation>Corrección de color primaria del nodo actual.</translation>
     </message>
     <message>
+        <source>Log</source>
+        <translation>Log</translation>
+    </message>
+    <message>
+        <source>Log wheels of the current node: Shadow, Midtone, Highlight and Offset with the Low and High Range of the zones.</source>
+        <translation>Ruedas Log del nodo actual: sombras, medios tonos, luces y offset con el rango bajo y alto de las zonas.</translation>
+    </message>
+    <message>
         <source>Curves</source>
         <translation>Curvas</translation>
     </message>
@@ -10233,6 +10297,22 @@ Gracias por ver</translation>
     <message>
         <source>Reset Grade</source>
         <translation>Restablecer corrección</translation>
+    </message>
+    <message>
+        <source>The clip is not on the timeline.</source>
+        <translation>El clip no está en la línea de tiempo.</translation>
+    </message>
+    <message>
+        <source>The clip has no grade.</source>
+        <translation>El clip no tiene corrección.</translation>
+    </message>
+    <message>
+        <source>Kinoklip grade</source>
+        <translation>Corrección de Kinoklip</translation>
+    </message>
+    <message>
+        <source>Auto Color</source>
+        <translation>Color automático</translation>
     </message>
     <message>
         <source>Remove LUT</source>
@@ -10634,6 +10714,18 @@ Gracias por ver</translation>
     <message>
         <source>Offset</source>
         <translation>Offset</translation>
+    </message>
+    <message>
+        <source>Shadow</source>
+        <translation>Sombras</translation>
+    </message>
+    <message>
+        <source>Midtone</source>
+        <translation>Medios tonos</translation>
+    </message>
+    <message>
+        <source>Highlight</source>
+        <translation>Luces</translation>
     </message>
     <message>
         <source>%1: drag the centre to balance the colour, drag the bar below for the master level; Shift for fine control; the arrow at the top right or a double-click resets</source>
@@ -26870,6 +26962,18 @@ Automática: Completa, pasando a Mitad solo mientras la reproducción no pueda s
         <translation>Pivote</translation>
     </message>
     <message>
+        <source>MD</source>
+        <translation>MD</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>Auto</translation>
+    </message>
+    <message>
+        <source>Auto Color: balance the node&apos;s lift, gamma and gain from the picture (black and white points, colour cast)</source>
+        <translation>Color automático: equilibra lift, gamma y gain del nodo según la imagen (puntos negro y blanco, dominante de color)</translation>
+    </message>
+    <message>
         <source>Wheels</source>
         <translation>Ruedas</translation>
     </message>
@@ -26880,6 +26984,26 @@ Automática: Completa, pasando a Mitad solo mientras la reproducción no pueda s
     <message>
         <source>Reset %1</source>
         <translation>Restablecer %1</translation>
+    </message>
+    <message>
+        <source>Boost</source>
+        <translation>Boost</translation>
+    </message>
+    <message>
+        <source>Shad</source>
+        <translation>Somb.</translation>
+    </message>
+    <message>
+        <source>Hi</source>
+        <translation>Luc.</translation>
+    </message>
+    <message>
+        <source>Low Range</source>
+        <translation>Rango bajo</translation>
+    </message>
+    <message>
+        <source>High Range</source>
+        <translation>Rango alto</translation>
     </message>
     <message>
         <source>Mix</source>
@@ -29663,6 +29787,46 @@ Las líneas de tiempo que usan los ajustes del proyecto se convierten: los clips
     <message>
         <source>Histogram</source>
         <translation>Histograma</translation>
+    </message>
+    <message>
+        <source>CIE Chromaticity</source>
+        <translation>Cromaticidad CIE</translation>
+    </message>
+    <message>
+        <source>Settings</source>
+        <translation>Ajustes</translation>
+    </message>
+    <message>
+        <source>Scope settings: scale and gain</source>
+        <translation>Ajustes del scope: escala y ganancia</translation>
+    </message>
+    <message>
+        <source>0 - 1023</source>
+        <translation>0 - 1023</translation>
+    </message>
+    <message>
+        <source>0 - 255</source>
+        <translation>0 - 255</translation>
+    </message>
+    <message>
+        <source>Percent</source>
+        <translation>Porcentaje</translation>
+    </message>
+    <message>
+        <source>0.0 - 1.0</source>
+        <translation>0,0 - 1,0</translation>
+    </message>
+    <message>
+        <source>Gain: trace brightness</source>
+        <translation>Ganancia: brillo de la traza</translation>
+    </message>
+    <message>
+        <source>Scale</source>
+        <translation>Escala</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>Ganancia</translation>
     </message>
 </context>
 <context>
@@ -34936,6 +35100,22 @@ Abrir un clip multicámara del panel de medios o mover el cabezal de reproducci�
         <translation>Offset</translation>
     </message>
     <message>
+        <source>Log Shadow</source>
+        <translation>Log sombras</translation>
+    </message>
+    <message>
+        <source>Log Midtone</source>
+        <translation>Log medios tonos</translation>
+    </message>
+    <message>
+        <source>Log Highlight</source>
+        <translation>Log luces</translation>
+    </message>
+    <message>
+        <source>Log Offset</source>
+        <translation>Log offset</translation>
+    </message>
+    <message>
         <source>Blur Radius R</source>
         <translation>Bienvenido a %1</translation>
     </message>
@@ -35106,6 +35286,46 @@ Abrir un clip multicámara del panel de medios o mover el cabezal de reproducci�
     <message>
         <source>Key Output Mix</source>
         <translation>Mezcla de salida de clave</translation>
+    </message>
+    <message>
+        <source>Color Boost</source>
+        <translation>Color Boost</translation>
+    </message>
+    <message>
+        <source>Shadows</source>
+        <translation>Sombras</translation>
+    </message>
+    <message>
+        <source>Highlights</source>
+        <translation>Luces</translation>
+    </message>
+    <message>
+        <source>Midtone Detail</source>
+        <translation>Detalle de medios tonos</translation>
+    </message>
+    <message>
+        <source>Soft Clip Low</source>
+        <translation>Soft Clip bajo</translation>
+    </message>
+    <message>
+        <source>Soft Clip Low Soft</source>
+        <translation>Soft Clip bajo suave</translation>
+    </message>
+    <message>
+        <source>Soft Clip High</source>
+        <translation>Soft Clip alto</translation>
+    </message>
+    <message>
+        <source>Soft Clip High Soft</source>
+        <translation>Soft Clip alto suave</translation>
+    </message>
+    <message>
+        <source>Low Range</source>
+        <translation>Rango bajo</translation>
+    </message>
+    <message>
+        <source>High Range</source>
+        <translation>Rango alto</translation>
     </message>
 </context>
 <context>
