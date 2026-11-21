@@ -41,6 +41,51 @@ private Q_SLOTS:
         initResources();
     }
 
+    /// Color space / Gamma tags (1.13 HDR export): Rec.2020 with PQ or HLG for H.265 and AV1,
+    /// greyed out with a reason for every other codec.
+    void hdrColorTags()
+    {
+        PanelFixture fx;
+        QSettings().remove(QStringLiteral("deliver"));
+        ExportPresets presets;
+        auto* panel = new RenderSettingsPanel(fx.ctx, &presets);
+        std::unique_ptr<QWidget> owner(panel);
+        auto* space = panel->findChild<QComboBox*>(QStringLiteral("RenderColorSpace"));
+        auto* gamma = panel->findChild<QComboBox*>(QStringLiteral("RenderGamma"));
+        auto* cll = panel->findChild<QSpinBox*>(QStringLiteral("RenderMaxCll"));
+        QVERIFY(space && gamma && cll);
+
+        // H.264: the tags stay Rec.709 and the combos say why.
+        panel->applyPreset(QStringLiteral("youtube_1080p"));
+        QCOMPARE(panel->settings().video.codec, QStringLiteral("h264"));
+        QVERIFY(!space->isEnabled());
+        QVERIFY(!gamma->isEnabled());
+        QVERIFY(!gamma->toolTip().isEmpty());
+        QCOMPARE(panel->settings().video.gamma, GammaTag::Rec709);
+
+        // H.265: PQ switches the colour space to Rec.2020 and shows MaxCLL / MaxFALL.
+        ExportSettings s = panel->settings();
+        s.video.codec = QStringLiteral("hevc");
+        panel->setSettings(s);
+        QVERIFY(space->isEnabled());
+        QVERIFY(gamma->isEnabled());
+        gamma->setCurrentIndex(gamma->findData(gammaTagId(GammaTag::Pq)));
+        s = panel->settings();
+        QCOMPARE(s.video.gamma, GammaTag::Pq);
+        QCOMPARE(s.video.colorSpace, ColorSpaceTag::Rec2020);
+        QCOMPARE(s.video.hdr.maxCll, 1000);
+        QCOMPARE(s.video.hdr.maxFall, 400);
+        cll->setValue(800);
+        QCOMPARE(panel->settings().video.hdr.maxCll, 800);
+
+        // Back to H.264: the HDR tags are dropped again.
+        s = panel->settings();
+        s.video.codec = QStringLiteral("h264");
+        panel->setSettings(s);
+        QCOMPARE(panel->settings().video.gamma, GammaTag::Rec709);
+        QCOMPARE(panel->settings().video.colorSpace, ColorSpaceTag::Rec709);
+    }
+
     /// The Resolve-style form: every option reaches ExportSettings, file naming options
     /// persist, unsupported options are disabled with a reason.
     void renderSettingsForm()

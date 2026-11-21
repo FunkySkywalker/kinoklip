@@ -233,7 +233,7 @@ Still to do:
 
 User requests first; the open lines of the section above carry over.
 
-- [ ] Deliver: HDR export (user request). Rec. 2020 colour space with PQ (ST 2084) and HLG gamma in Render Settings' Color space and Gamma tags; the render path keeps HDR footage HDR instead of mapping it to SDR (half-float or 10-bit pipeline); 10-bit H.265 (Main 10) and AV1 with the colour tags and HDR10 metadata (mastering display, MaxCLL / MaxFALL); the timeline colour space in Project Settings; a viewer that shows the HDR picture on an HDR monitor (Wayland colour management) or tone-maps it for SDR; scopes in nits (PQ scale)
+- [ ] Deliver: HDR export (user request). First slice written (untested build): Color space tag Rec.2020 and Gamma tag PQ / HLG in Render Settings, 10-bit H.265 / AV1 (software encoders) with colour tags and HDR10 mastering display + MaxCLL / MaxFALL, saved in settings and presets (test_hdrexport); an SDR picture is placed in the PQ / HLG container (203 nits white), the half-float render path that keeps HDR footage HDR is still open. Rec. 2020 colour space with PQ (ST 2084) and HLG gamma in Render Settings' Color space and Gamma tags; the render path keeps HDR footage HDR instead of mapping it to SDR (half-float or 10-bit pipeline); 10-bit H.265 (Main 10) and AV1 with the colour tags and HDR10 metadata (mastering display, MaxCLL / MaxFALL); the timeline colour space in Project Settings; a viewer that shows the HDR picture on an HDR monitor (Wayland colour management) or tone-maps it for SDR; scopes in nits (PQ scale)
 
 ## Next big release
 
