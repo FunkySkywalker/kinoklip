@@ -131,6 +131,14 @@ bool insetFits(const std::vector<Contour>& cs, double w)
         const double o = cs[i].area;
         if (a * o <= 0 || selfIntersects(in[i]))
             return false;
+        // No edge may turn round or vanish: a thin stroke inset past its middle has that.
+        const size_t n = in[i].size();
+        for (size_t e = 0; e < n; ++e) {
+            const P2 now = in[i][(e + 1) % n] - in[i][e];
+            const P2 was = cs[i].pts[(e + 1) % n] - cs[i].pts[e];
+            if (P2::dotProduct(now, was) <= 1e-12f * was.lengthSquared() + 1e-14f)
+                return false;
+        }
         if (cs[i].depth % 2 == 0 ? std::abs(a) >= std::abs(o) : std::abs(a) <= std::abs(o))
             return false;
     }

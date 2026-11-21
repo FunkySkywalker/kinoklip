@@ -42,6 +42,16 @@ QPainterPath textPath(const QString& text)
     return p;
 }
 
+/// The letter H as a polygon, 1 wide and 1 high, bars 0.3 thick.
+QPainterPath hShape()
+{
+    QPainterPath p;
+    p.addPolygon(QPolygonF({{0, 0}, {0.3, 0}, {0.3, 0.35}, {0.7, 0.35}, {0.7, 0}, {1, 0}, {1, 1},
+        {0.7, 1}, {0.7, 0.65}, {0.3, 0.65}, {0.3, 1}, {0, 1}}));
+    p.closeSubpath();
+    return p;
+}
+
 QTransform pixelsToScene()
 {
     QTransform t;
@@ -277,11 +287,9 @@ private slots:
 
     void bevelPullsTheCapsInButKeepsTheOutline()
     {
-        const QPainterPath path = textPath(QStringLiteral("HOME"));
-        if (path.isEmpty())
-            QSKIP("no font that can draw the test letters");
-        const ExtrudedText plain = extrudeText(path, pixelsToScene(), extrusion(0.2, 0, 0));
-        const ExtrudedText bev = extrudeText(path, pixelsToScene(), extrusion(0.2, 0.05, 0.02));
+        const QPainterPath path = hShape();
+        const ExtrudedText plain = extrudeText(path, QTransform(), extrusion(0.2, 0, 0));
+        const ExtrudedText bev = extrudeText(path, QTransform(), extrusion(0.2, 0.05, 0.02));
         const Bounds bp = boundsOf(plain), bb = boundsOf(bev);
         // The outline (the widest and tallest part) is the same, the depth too.
         for (int i = 0; i < 3; ++i) {
@@ -290,16 +298,19 @@ private slots:
         }
         // The front face is smaller: by the bevel width on every side.
         const Bounds fp = boundsOf(plain.front), fb = boundsOf(bev.front);
-        QVERIFY(fb.lo.x() > fp.lo.x() + 0.01f);
-        QVERIFY(fb.hi.x() < fp.hi.x() - 0.01f);
+        QVERIFY(std::abs(fb.lo.x() - (fp.lo.x() + 0.02f)) < 1e-4f);
+        QVERIFY(std::abs(fb.hi.x() - (fp.hi.x() - 0.02f)) < 1e-4f);
         QVERIFY(areaOf(bev.front) < areaOf(plain.front));
+        QVERIFY(std::abs(bev.bevelWidthUsed - 0.02) < 1e-6);
         // A wider bevel pulls it in further.
-        const ExtrudedText wide = extrudeText(path, pixelsToScene(), extrusion(0.2, 0.05, 0.04));
+        const ExtrudedText wide = extrudeText(path, QTransform(), extrusion(0.2, 0.05, 0.04));
         QVERIFY(areaOf(wide.front) < areaOf(bev.front));
-        QVERIFY(bev.bevelWidthUsed > 0.019);
         // A deeper bevel leaves a shorter wall.
-        const ExtrudedText deep = extrudeText(path, pixelsToScene(), extrusion(0.2, 0.09, 0.02));
+        const ExtrudedText deep = extrudeText(path, QTransform(), extrusion(0.2, 0.09, 0.02));
         QVERIFY(areaOf(deep.side) < areaOf(bev.side));
+        QString why;
+        QVERIFY2(isClosed(bev, &why), qPrintable(why));
+        QVERIFY2(isClosed(deep, &why), qPrintable(why));
     }
 
     void bevelDepthIsLimitedToHalfTheThickness()
@@ -314,14 +325,23 @@ private slots:
 
     void tooWideABevelShrinksToFitThinStrokes()
     {
-        const QPainterPath path = textPath(QStringLiteral("Il"));
-        if (path.isEmpty())
-            QSKIP("no font that can draw the test letters");
-        const ExtrudedText t = extrudeText(path, pixelsToScene(), extrusion(0.2, 0.05, 1.0));
-        QVERIFY(t.bevelWidthUsed < 0.2);
+        // Two bars 0.04 thick: a bevel of 0.5 cannot be wider than half of that.
+        QPainterPath p;
+        p.addRect(0, 0, 0.04, 1);
+        p.addRect(0.3, 0, 0.04, 1);
+        const ExtrudedText t = extrudeText(p, QTransform(), extrusion(0.2, 0.05, 0.5));
+        QVERIFY(t.bevelWidthUsed > 0.005);
+        QVERIFY(t.bevelWidthUsed < 0.02);
         QString why;
         QVERIFY2(isClosed(t, &why), qPrintable(why));
-        QVERIFY(areaOf(t.front) > 1e-4);
+        QVERIFY(areaOf(t.front) > 1e-3);
+        // The same with real letters, whatever the font draws.
+        const QPainterPath letters = textPath(QStringLiteral("Il"));
+        if (!letters.isEmpty()) {
+            const ExtrudedText l = extrudeText(letters, pixelsToScene(), extrusion(0.2, 0.05, 1.0));
+            QVERIFY2(isClosed(l, &why), qPrintable(why));
+            QVERIFY(areaOf(l.front) > 1e-4);
+        }
     }
 
     void flatBevelHasOneNormalPerFaceSmoothHasMany()
