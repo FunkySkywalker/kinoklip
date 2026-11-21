@@ -5,6 +5,8 @@
 #
 # Usage: scripts/publish_dev.sh [notes-file]
 #        scripts/publish_dev.sh --notes-only   (rewrites the page text of the current dev release)
+#        scripts/publish_dev.sh --from DIR     (GitHub Actions, .github/workflows/dev-build.yml: the
+#                                               files come from DIR, the commit is already on GitHub)
 #
 # The release keeps one set of files (KinoklipDev-x86_64.AppImage, its .zsync, SHA256SUMS-dev.txt),
 # replaced on every publish, and the "dev" tag moves to the build's commit. A dev copy opened
@@ -16,19 +18,27 @@ set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 OUT=dist/dev
-IMAGE="$OUT/KinoklipDev-x86_64.AppImage"
 TAG=dev
 
 log() { echo "publish_dev: $*" >&2; }
 NOTES_ONLY=
+FROM_CI=
 if [ "${1:-}" = --notes-only ]; then NOTES_ONLY=1; shift; fi
+if [ "${1:-}" = --from ]; then
+    [ -n "${2:-}" ] || { log "--from needs a directory"; exit 2; }
+    OUT="$2"
+    FROM_CI=1
+    shift 2
+    export APPIMAGE_EXTRACT_AND_RUN=1 # no FUSE on a CI runner
+fi
+IMAGE="$OUT/KinoklipDev-x86_64.AppImage"
 [ -f "$IMAGE" ] && [ -f "$IMAGE.zsync" ] || { log "no $IMAGE (+ .zsync): run scripts/dev_build.sh"; exit 1; }
 
 STAMP="$("$IMAGE" --version 2>/dev/null | tail -n1)" # "Kinoklip 1.9.0 dev (abc1234)"
 COMMIT="$(sed -n 's/.*dev (\([0-9a-f]*\)).*/\1/p' <<<"$STAMP")"
 [ -n "$COMMIT" ] || { log "cannot read the commit from: $STAMP"; exit 1; }
 git cat-file -e "$COMMIT^{commit}" || { log "unknown commit $COMMIT"; exit 1; }
-git merge-base --is-ancestor "$COMMIT" origin/main 2>/dev/null || {
+[ -n "$FROM_CI" ] || git merge-base --is-ancestor "$COMMIT" origin/main 2>/dev/null || {
     log "pushing main (the dev build's commit must be on GitHub)"
     git push -q origin main
 }

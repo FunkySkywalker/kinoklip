@@ -1,7 +1,8 @@
 name: ARM64 release
 
 # Builds Kinoklip-aarch64.AppImage on GitHub's free ARM runners. Only the release ARM64 file is
-# built here; x86_64 releases and all dev builds are made on the maintainer's machine.
+# built here; x86_64 releases are made on the maintainer's machine, dev builds on GitHub
+# (dev-build.yml).
 #
 #   gh workflow run arm64-release.yml -f tag=v1.8.3     build that tag, upload to its release
 #   gh workflow run arm64-release.yml --ref <branch>    test run: workflow artifact only

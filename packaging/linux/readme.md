@@ -335,7 +335,7 @@ Nothing is built locally: start it with `gh workflow run flatpak.yml -f ref=main
 
 Every release also has `Kinoklip-aarch64.AppImage` (+ `.zsync`), for ARM64 computers (Raspberry Pi 5,
 Ampere, Apple-silicon Linux VMs, Snapdragon laptops). It is the only file built on GitHub; the
-x86_64 release and every dev build stay local.
+x86_64 release stays local (dev builds: [Dev builds on GitHub](#dev-builds-on-github)).
 
 - **Workflow:** `.github/workflows/arm64-release.yml`, runner `ubuntu-24.04-arm` (free for public
   repositories). `scripts/publish_release.sh` starts it after publishing:
@@ -358,6 +358,26 @@ x86_64 release and every dev build stay local.
   (`AArch64`) from the bundle itself. `--run` (the legacy self-extracting file) is x86_64 only.
 - **Update information:** `gh-releases-zsync|SeniorMatt|kinoklip|latest-all|Kinoklip-*aarch64.AppImage.zsync`.
 - **Caching:** ccache in `actions/cache`, so a release after the first one rebuilds only what changed.
+
+## Dev builds on GitHub
+
+`.github/workflows/dev-build.yml` builds `KinoklipDev-x86_64.AppImage` (+ `.zsync`) on a free
+`ubuntu-24.04` runner in the same Debian trixie container as the ARM64 workflow (ONNX Runtime `linux-x64`
+from the NuGet package, ccache in `actions/cache`), with `KK_DEV_BUILD` so the update information points at
+the dev channel. It runs `check_bundle.sh`, a smoke test and the chosen tests, and always uploads the files
+as a workflow artifact.
+
+```sh
+gh workflow run dev-build.yml --ref main                  # build + quick tests, artifact only
+gh workflow run dev-build.yml --ref main -f tests=full    # tests: none | quick | full
+gh workflow run dev-build.yml --ref main -f tests=quick -f publish=true   # also replace the "dev" release
+```
+
+`publish=true` runs `scripts/publish_dev.sh --from <dir>` in a second job (the only one with
+`contents: write`) after the build and tests passed: same files, tag move and notes as a local publish.
+The Flatpak nightly is not started from there (the token cannot start workflows); run
+`gh workflow run flatpak.yml --ref main -f ref=<commit> -f manifest_ref=main -f branch=nightly`.
+`scripts/dev_build.sh` still works for a local dev build.
 
 ## The AppImage
 

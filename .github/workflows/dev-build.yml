@@ -1,0 +1,183 @@
+name: Dev build
+
+# Builds KinoklipDev-x86_64.AppImage on GitHub's free x86_64 runners (replaces scripts/dev_build.sh
+# on the maintainer's laptop), optionally runs the tests, optionally publishes the rolling "dev" pre-release.
+#
+#   gh workflow run dev-build.yml --ref main                       build + quick tests, workflow artifact only
+#   gh workflow run dev-build.yml --ref main -f tests=full         the full test group
+#   gh workflow run dev-build.yml --ref main -f tests=none -f publish=true
+#                                                                  also replace the files of the "dev" release
+#   gh workflow run dev-build.yml -f ref=<branch-or-commit>        build another ref
+#
+# Publishing runs scripts/publish_dev.sh --from <artifact dir>. Base image: Debian 13 (trixie), like
+# arm64-release.yml; see packaging/linux/readme.md, "Dev builds on GitHub".
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Branch, tag or commit to build (empty = the branch the workflow runs on)"
+        required: false
+        default: ""
+      tests:
+        description: "Tests to run after building"
+        type: choice
+        options: [none, quick, full]
+        default: quick
+      publish:
+        description: "Replace the files of the rolling dev pre-release with this build"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dev-build
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    container:
+      image: debian:trixie
+      env:
+        DEBIAN_FRONTEND: noninteractive
+    outputs:
+      sha: ${{ steps.rev.outputs.sha }}
+    env:
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+      CCACHE_MAXSIZE: 1G
+      CMAKE_CXX_COMPILER_LAUNCHER: ccache
+      CMAKE_C_COMPILER_LAUNCHER: ccache
+      KK_BUILD_DIR: ${{ github.workspace }}/build-x86_64
+      KK_DIST_DIR: ${{ github.workspace }}/dist/dev
+      KK_JOBS: 4
+      CMAKE_PREFIX_PATH: /opt/onnxruntime
+    steps:
+      - name: Install build tools and libraries
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential cmake ninja-build pkg-config git ca-certificates curl unzip file patchelf \
+            zstd xz-utils ccache binutils bsdextrautils appstream xvfb xauth \
+            qt6-base-dev qt6-base-dev-tools qt6-base-private-dev qt6-multimedia-dev qt6-svg-dev \
+            qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools qt6-wayland libqt6opengl6-dev \
+            libqt6svg6 qt6-image-formats-plugins qt6-translations-l10n fonts-noto-color-emoji \
+            libgl-dev libegl-dev libxkbcommon-dev libwayland-dev libva-dev \
+            libkf6colorscheme-dev libkf6iconthemes-dev breeze breeze-icon-theme \
+            libavformat-dev libavcodec-dev libavutil-dev libswscale-dev libswresample-dev \
+            libavfilter-dev libheif-dev libraw-dev
+          # ONNX Runtime (Background Removal): Microsoft's release (MIT, CPU), pinned and checked.
+          # Debian's libonnxruntime-dev loads onnx twice (libonnx.so + its own copy) and aborts at
+          # start with a protobuf descriptor error, so it is not used.
+          # The GitHub release files went away with the microsoft/onnxruntime repository (404 since
+          # 2026-11), so the same 1.22.0 build comes from Microsoft's NuGet package, laid out like the tarball.
+          ORT=1.22.0
+          ORT_SHA256=d571e63a2329baacb713f441e65ad75284de354db6e1ac435fe4bebbb417986a
+          curl -fsSL --retry 3 -o /tmp/ort.nupkg \
+            "https://api.nuget.org/v3-flatcontainer/microsoft.ml.onnxruntime/$ORT/microsoft.ml.onnxruntime.$ORT.nupkg"
+          echo "$ORT_SHA256  /tmp/ort.nupkg" | sha256sum -c -
+          rm -rf /tmp/ort && mkdir -p /tmp/ort && unzip -q /tmp/ort.nupkg -d /tmp/ort
+          mkdir -p /opt/onnxruntime/include /opt/onnxruntime/lib
+          cp /tmp/ort/build/native/include/*.h /opt/onnxruntime/include/
+          cp /tmp/ort/runtimes/linux-x64/native/libonnxruntime.so /opt/onnxruntime/lib/libonnxruntime.so.$ORT
+          ln -sf libonnxruntime.so.$ORT /opt/onnxruntime/lib/libonnxruntime.so.1
+          ln -sf libonnxruntime.so.1 /opt/onnxruntime/lib/libonnxruntime.so
+          cp /tmp/ort/LICENSE /tmp/ort/ThirdPartyNotices.txt /opt/onnxruntime/
+          echo "$ORT" > /opt/onnxruntime/VERSION_NUMBER
+          gcc --version | head -1; cmake --version | head -1; qtpaths6 --version || true
+          pkg-config --modversion libavcodec libheif libraw_r
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+          fetch-depth: 1
+
+      - name: Commit
+        id: rev
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "KK_DEV_BUILD=$(git rev-parse --short=7 HEAD)" >> "$GITHUB_ENV"
+
+      - name: Restore ccache
+        uses: actions/cache/restore@v4
+        with:
+          path: .ccache
+          key: ccache-x86_64-${{ github.sha }}
+          restore-keys: ccache-x86_64-
+
+      - name: Build and package
+        run: |
+          ccache -z
+          scripts/package_linux.sh
+          rm -rf "$KK_DIST_DIR/kinoklip-x86_64"
+          ccache -s | head -8
+          ls -l "$KK_DIST_DIR"
+
+      - name: Save ccache
+        if: ${{ always() }}
+        uses: actions/cache/save@v4
+        with:
+          path: .ccache
+          key: ccache-x86_64-${{ github.sha }}
+
+      - name: Check the bundle
+        run: scripts/check_bundle.sh "$KK_DIST_DIR/KinoklipDev-x86_64.AppImage"
+
+      - name: Smoke test
+        run: |
+          set -eu
+          cd "$KK_DIST_DIR"
+          export APPIMAGE_EXTRACT_AND_RUN=1
+          ./KinoklipDev-x86_64.AppImage --version | tee version.txt
+          grep -q 'dev (' version.txt
+          ./KinoklipDev-x86_64.AppImage --appimage-updateinformation
+          xvfb-run -a -s '-screen 0 1920x1080x24' \
+            ./KinoklipDev-x86_64.AppImage --screenshot edit "$PWD/smoke-edit.png"
+          file smoke-edit.png | grep -q 'PNG image data, 1920 x 1080'
+
+      - name: Tests
+        if: ${{ inputs.tests != 'none' }}
+        run: |
+          cmake --build "$KK_BUILD_DIR" -j"$KK_JOBS"
+          if [ "${{ inputs.tests }}" = full ]; then SEL="-LE release"; else SEL="-L quick"; fi
+          QT_QPA_PLATFORM=offscreen ctest --test-dir "$KK_BUILD_DIR" $SEL -j2 --output-on-failure
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: KinoklipDev-x86_64
+          path: |
+            dist/dev/KinoklipDev-x86_64.AppImage
+            dist/dev/KinoklipDev-x86_64.AppImage.zsync
+            dist/dev/version.txt
+            dist/dev/smoke-edit.png
+          if-no-files-found: warn
+          retention-days: 14
+
+  publish:
+    # Only with publish=true and green build and tests: the rolling dev pre-release gets this build.
+    if: ${{ inputs.publish }}
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.build.outputs.sha }}
+          fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          name: KinoklipDev-x86_64
+          path: out
+      - name: Publish
+        run: |
+          chmod +x out/KinoklipDev-x86_64.AppImage
+          scripts/publish_dev.sh --from out
