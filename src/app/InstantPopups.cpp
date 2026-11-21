@@ -45,10 +45,15 @@ public:
 
     bool eventFilter(QObject* watched, QEvent* event) override
     {
-        if (event->type() == QEvent::Show && watched->isWidgetType()) {
+        // Marked per native window: a style can recreate a popup's window (Libadwaita does,
+        // to give a menu shown before a live style switch an alpha channel), and the new
+        // window needs the hint again. WinIdChange arrives while it is still unmapped.
+        if ((event->type() == QEvent::Show || event->type() == QEvent::WinIdChange)
+            && watched->isWidgetType()) {
             auto* w = static_cast<QWidget*>(watched);
-            if (isPopupWindow(w) && !w->property(kMarked).toBool()) {
-                w->setProperty(kMarked, true);
+            const auto id = qulonglong(w->internalWinId());
+            if (id != 0 && isPopupWindow(w) && w->property(kMarked).toULongLong() != id) {
+                w->setProperty(kMarked, id);
                 markWindow(w);
             }
         }

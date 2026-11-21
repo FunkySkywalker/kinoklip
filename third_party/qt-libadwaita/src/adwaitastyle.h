@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
+#include <QFont>
 #include "adwaitatokens.h"
 #include <QCommonStyle>
+#include <QIcon>
 #include <QImage>
 #include <QPainter>
 
@@ -22,9 +24,12 @@
     bool F##_styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w, QStyleHintReturn *ret, int &out) const; \
     void F##_polish(QWidget *w); \
     void F##_unpolish(QWidget *w);
-#define ADW_FAMILIES(X) X(scroll) X(range) X(menus) X(tabs) X(views)
+#define ADW_FAMILIES(X) X(widgets) X(scroll) X(range) X(menus) X(tabs) X(views)
 
 qreal adwSpacingScale();  // user spacing option (1 = libadwaita)
+// Button, tab and drop-down labels: libadwaita draws them bold (700, grayscale AA). Option bold-labels /
+// ADWAITA_BOLD_LABELS: 1 (default) | semibold (600) | 0 (keep the widget's own weight and antialiasing).
+QFont adwLabelFont(QFont f);
 
 class AdwaitaStyle : public QCommonStyle
 {
@@ -50,6 +55,7 @@ public:
     int pixelMetric(PixelMetric pm, const QStyleOption *opt, const QWidget *w) const override;
     QSize sizeFromContents(ContentsType ct, const QStyleOption *opt, const QSize &sz, const QWidget *w) const override;
     int styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w, QStyleHintReturn *ret) const override;
+    QIcon standardIcon(StandardPixmap sp, const QStyleOption *opt = nullptr, const QWidget *w = nullptr) const override;
 
     const AdwaitaTokens &tokens() const { return m_tokens; }
 
@@ -63,8 +69,13 @@ public:
     static bool isPillButton(const QWidget *w);
     static bool focusVisible(const QStyleOption *opt, const QWidget *w);
     QColor withDisabled(const QColor &c, const QStyleOption *opt) const;
-    void drawFocusRing(QPainter *p, const QRectF &r, qreal radius) const;  // ring drawn on r's outline
-    QColor buttonFill(ButtonKind k, const QStyleOption *opt) const;
+    void drawFocusRing(QPainter *p, const QRectF &r, qreal radius, qreal f = 1.0) const;  // ring drawn on r's outline; f = fade-in 0..1
+    // Ring that fades in/out (outline transition, 200 ms) as `on` changes; paints nothing while off and faded out.
+    void drawFocus(QPainter *p, const QRectF &r, qreal radius, bool on, const QWidget *w, quint32 idx = 0) const;
+    // With a widget the fill follows hover / press with a 200 ms transition; idx separates sub-parts of one widget.
+    QColor buttonFill(ButtonKind k, const QStyleOption *opt, const QWidget *w = nullptr, quint32 idx = 0) const;
+    // *-symbolic icons are monochrome masks: GTK paints them in the foreground colour. Returns icon unchanged otherwise.
+    QIcon symbolicIcon(const QIcon &icon, const QColor &fg) const;
 
     // per widget family (adwaitastyle_*.cpp); return true if handled
     bool drawButtonBevel(const QStyleOption *opt, QPainter *p, const QWidget *w) const;
@@ -98,5 +109,6 @@ private slots:
 
 private:
     void reload();
+    void syncKdeColorScheme() const;
     AdwaitaTokens m_tokens;
 };

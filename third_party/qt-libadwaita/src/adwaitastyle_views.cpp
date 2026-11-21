@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Widget family: item views (list, tree, table), header views, tree branches
 #include "adwaitastyle.h"
+#include "adwaitaanimations.h"
 
 #include <QAbstractItemView>
 #include <QPointer>
@@ -39,6 +40,13 @@ bool inComboPopup(const QWidget *w)
 // (Never replace that delegate: KIO casts view->itemDelegate() to its own class without a check and crashes.)
 static constexpr int kPlacesShift = 6;
 
+static bool s_rowInner = false;  // QCommonStyle re-enters PE_PanelItemViewItem with the state stripped: no transition then
+
+static quint32 indexKey(const QModelIndex &ix)
+{
+    return quint32(ix.row()) * 2654435761u ^ quint32(ix.column() + 1) * 40503u ^ quint32(quintptr(ix.internalId()) * 2246822519u);
+}
+
 bool AdwaitaStyle::views_drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p, const QWidget *w) const
 {
     const AdwaitaTokens &t = m_tokens;
@@ -64,8 +72,28 @@ bool AdwaitaStyle::views_drawPrimitive(PrimitiveElement pe, const QStyleOption *
             const auto pos = v->viewItemPosition;
             const bool left = pos == QStyleOptionViewItem::Beginning || pos == QStyleOptionViewItem::OnlyOne;
             const bool right = pos == QStyleOptionViewItem::End || pos == QStyleOptionViewItem::OnlyOne;
-            const bool table = qobject_cast<const QTableView *>(w);
-            if (table || pos == QStyleOptionViewItem::Invalid) { shape.addRect(r); }
+            const auto *tv = qobject_cast<const QTableView *>(w);
+            const bool table = tv;
+            if (table && !tv->showGrid()) {
+                // Table cells without grid lines are rounded like list rows (9 px), squared on the sides where the
+                // neighbouring cell is selected too, so a row selection reads as one bar. Tables with grid lines
+                // stay square: rounded fills would break the lines they sit between.
+                r.adjust(0, 1, 0, -1);
+                bool selL = false, selR = false;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+                if (sel && tv->selectionModel() && v->index.isValid()) {
+                    const QModelIndex ix = v->index;
+                    selL = tv->selectionModel()->isSelected(ix.sibling(ix.row(), ix.column() - 1)) && ix.column() > 0;
+                    selR = tv->selectionModel()->isSelected(ix.sibling(ix.row(), ix.column() + 1));
+                }
+#endif
+                shape.addRoundedRect(r, rad, rad);
+                if (selL) shape.addRect(QRectF(r.left(), r.top(), qMin(rad, r.width()), r.height()));
+                if (selR) shape.addRect(QRectF(r.right() - qMin(rad, r.width()), r.top(), qMin(rad, r.width()), r.height()));
+                shape.setFillRule(Qt::WindingFill);
+                shape = shape.simplified();
+            }
+            else if (table || pos == QStyleOptionViewItem::Invalid) { shape.addRect(r); }
             else {
                 // rounded rect, then square off the inner ends
                 shape.addRoundedRect(r, rad, rad);
@@ -96,7 +124,10 @@ bool AdwaitaStyle::views_drawPrimitive(PrimitiveElement pe, const QStyleOption *
         } else if (hover) {
             fill = alpha(t.view_fg, 0.08);  // .04 was too faint to notice
         }
-        if (fill.isValid()) {
+        // row background fades between hover / selected states (200 ms), one entry per model index
+        if (w && !s_rowInner && v->index.isValid() && (v->state & State_Enabled))
+            fill = AdwAnim::color(w, AdwAnim::key(AdwAnim::Row, indexKey(v->index)), fill.isValid() ? fill : QColor(Qt::transparent));
+        if (fill.isValid() && fill.alpha() > 0) {
             p->setBrush(fill);
             p->drawPath(shape);
         }
@@ -108,10 +139,15 @@ bool AdwaitaStyle::views_drawPrimitive(PrimitiveElement pe, const QStyleOption *
         const QRect r = opt->rect;
         const bool sel = opt->state & State_Selected;
         const bool hover = opt->state & State_MouseOver;
+        // the model index of this row (branch area = left part of column 0), for per-row transitions
+        quint32 ik = 0;
+        const QTreeView *tv = qobject_cast<const QTreeView *>(w);
+        if (tv) { const QModelIndex ix = tv->indexAt(QPoint(tv->columnViewportPosition(0) + 1, r.center().y())); if (ix.isValid()) ik = indexKey(ix); }
         p->save();
         p->setRenderHint(QPainter::Antialiasing);
-        if (sel) p->fillRect(r, alpha(t.accent_bg, hover ? 0.32 : 0.25));
-        else if (hover) p->fillRect(r, alpha(t.view_fg, 0.08));
+        QColor bg = sel ? alpha(t.accent_bg, hover ? 0.32 : 0.25) : hover ? alpha(t.view_fg, 0.08) : QColor(Qt::transparent);
+        if (ik) bg = AdwAnim::color(w, AdwAnim::key(AdwAnim::Branch, ik), bg);
+        if (bg.alpha() > 0) p->fillRect(r, bg);
         if (opt->state & State_Children) {
             const bool open = opt->state & State_Open;
             QColor c = t.view_fg;
@@ -119,7 +155,12 @@ bool AdwaitaStyle::views_drawPrimitive(PrimitiveElement pe, const QStyleOption *
             p->setPen(QPen(c, 1.6, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
             p->setBrush(Qt::NoBrush);
             const QPointF m = QRectF(r).center();
-            if (open) p->drawPolyline(QPolygonF({m + QPointF(-3.5, -1.5), m + QPointF(0, 2), m + QPointF(3.5, -1.5)}));
+            const qreal ex = ik ? AdwAnim::running(w, AdwAnim::key(AdwAnim::Expand, ik), open ? 1.0 : 0.0) : (open ? 1.0 : 0.0);
+            if (ex > 0 && ex < 1) {  // expander arrow turning (right -> down) while a row opens / closes
+                p->translate(m);
+                p->rotate(90 * ex);
+                p->drawPolyline(QPolygonF({QPointF(-1.5, -3.5), QPointF(2, 0), QPointF(-1.5, 3.5)}));
+            } else if (open) p->drawPolyline(QPolygonF({m + QPointF(-3.5, -1.5), m + QPointF(0, 2), m + QPointF(3.5, -1.5)}));
             else p->drawPolyline(QPolygonF({m + QPointF(-1.5, -3.5), m + QPointF(2, 0), m + QPointF(-1.5, 3.5)}));
         }
         p->restore();
@@ -169,13 +210,16 @@ bool AdwaitaStyle::views_drawControl(ControlElement ce, const QStyleOption *opt,
         const bool combo = inComboPopup(w);
         o.state &= ~(State_Selected | State_MouseOver);
         o.backgroundBrush = Qt::NoBrush;
+        if (!o.icon.isNull()) o.icon = symbolicIcon(o.icon, combo ? t.popover_fg : t.view_fg);
         const QPalette::ColorGroup g = (o.state & State_Enabled) ? QPalette::Normal : QPalette::Disabled;
         o.palette.setColor(g, QPalette::Text, combo ? t.popover_fg : t.view_fg);
         if (combo && (v->state & State_Selected)) o.state |= State_Selected;  // keep the combo's current-item look
         if (combo) o.state &= ~State_Selected;
         const bool ring = focusVisible(opt, w) && (v->state & State_HasFocus);
         o.state &= ~State_HasFocus;
+        s_rowInner = true;
         QCommonStyle::drawControl(CE_ItemViewItem, &o, p, w);
+        s_rowInner = false;
         if (ring) drawFocusRing(p, QRectF(v->rect).adjusted(0, 0, 0, 0), 0);
         return true;
     }
@@ -185,13 +229,21 @@ bool AdwaitaStyle::views_drawControl(ControlElement ce, const QStyleOption *opt,
         const QRect r = opt->rect;
         p->save();
         p->fillRect(r, t.view_bg);
-        if (opt->state & State_MouseOver && (opt->state & State_Enabled)) p->fillRect(r, alpha(t.view_fg, 0.04));
-        if (opt->state & State_Sunken) p->fillRect(r, alpha(t.view_fg, 0.08));
+        const quint32 sec = quint32(h->section + 1);
+        const QColor hov = AdwAnim::color(w, AdwAnim::key(AdwAnim::Fill, sec),
+                                          (opt->state & State_MouseOver && (opt->state & State_Enabled)) ? alpha(t.view_fg, 0.04) : QColor(Qt::transparent));
+        const QColor prs = AdwAnim::color(w, AdwAnim::key(AdwAnim::Fill2, sec),
+                                          (opt->state & State_Sunken) ? alpha(t.view_fg, 0.08) : QColor(Qt::transparent));
+        if (hov.alpha() > 0) p->fillRect(r, hov);
+        if (prs.alpha() > 0) p->fillRect(r, prs);
         const bool horizontal = h->orientation == Qt::Horizontal;
         if (horizontal) {
             p->fillRect(QRect(r.left(), r.bottom(), r.width(), 1), t.border);
-            if (h->position != QStyleOptionHeader::End && h->position != QStyleOptionHeader::OnlyOneSection)
-                p->fillRect(QRect(r.right(), r.top() + 6, 1, r.height() - 13), t.border);
+            // libadwaita column headers have no separators at rest; the section edge shows a short subtle one while the
+            // section is hovered or pressed (resize affordance)
+            if (h->position != QStyleOptionHeader::End && h->position != QStyleOptionHeader::OnlyOneSection
+                && (opt->state & (State_MouseOver | State_Sunken)) && (opt->state & State_Enabled))
+                p->fillRect(QRect(r.right(), r.top() + 8, 1, r.height() - 17), t.border);
         } else {
             p->fillRect(QRect(r.right(), r.top(), 1, r.height()), t.border);
             p->fillRect(QRect(r.left() + 6, r.bottom(), r.width() - 13, 1), t.border);
@@ -265,14 +317,15 @@ bool AdwaitaStyle::views_subElementRect(SubElement se, const QStyleOption *opt, 
 }
 bool AdwaitaStyle::views_subControlRect(ComplexControl, const QStyleOptionComplex *, SubControl, const QWidget *, QRect &) const { return false; }
 
-bool AdwaitaStyle::views_pixelMetric(PixelMetric pm, const QStyleOption *, const QWidget *, int &out) const
+bool AdwaitaStyle::views_pixelMetric(PixelMetric pm, const QStyleOption *, const QWidget *w, int &out) const
 {
     switch (pm) {
     case PM_HeaderMargin: out = 9; return true;
     case PM_HeaderMarkSize: out = 10; return true;
     case PM_HeaderGripMargin: out = 4; return true;
-    case PM_TreeViewIndentation: out = 20; return true;
-    case PM_FocusFrameHMargin:
+    case PM_TreeViewIndentation: out = 16; return true;
+    case PM_FocusFrameHMargin:  // item views: Qt's text margin is this + 1, it is also the gap between check box, icon and text
+        out = (qobject_cast<const QAbstractItemView *>(w) && !inComboPopup(w)) ? 2 : 0; return true;
     case PM_FocusFrameVMargin: out = 0; return true;
     default: return false;
     }
@@ -320,10 +373,22 @@ void AdwaitaStyle::views_polish(QWidget *w)
         v->viewport()->setAttribute(Qt::WA_Hover, true);
         v->setMouseTracking(true);
         if (auto *tv = qobject_cast<QTableView *>(v)) tv->setShowGrid(false);
+        if (auto *tr = qobject_cast<QTreeView *>(v)) {
+            static const char kExp[] = "adwExpanderAnim";
+            if (!tr->findChild<QObject *>(kExp, Qt::FindDirectChildrenOnly)) {  // plain QObject: found by name
+                auto *ctx = new QObject(tr);
+                ctx->setObjectName(kExp);
+                auto start = [tr](const QModelIndex &ix, bool open) {
+                    AdwAnim::kick(tr, AdwAnim::key(AdwAnim::Expand, indexKey(ix)), open ? 0.0 : 1.0, open ? 1.0 : 0.0);
+                };
+                connect(tr, &QTreeView::expanded, ctx, [start](const QModelIndex &ix) { start(ix, true); });
+                connect(tr, &QTreeView::collapsed, ctx, [start](const QModelIndex &ix) { start(ix, false); });
+            }
+        }
     }
 }
 
 void AdwaitaStyle::views_unpolish(QWidget *w)
 {
-    Q_UNUSED(w);
+    if (auto *tr = qobject_cast<QTreeView *>(w)) delete tr->findChild<QObject *>("adwExpanderAnim", Qt::FindDirectChildrenOnly);
 }

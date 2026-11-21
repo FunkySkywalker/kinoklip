@@ -45,6 +45,17 @@
 
 #include <algorithm>
 
+// The qt-libadwaita resource (its KDE colour schemes) lives in a static library, so it has
+// to be registered by hand once (Q_INIT_RESOURCE must be used outside any namespace).
+static void initAdwaitaResources()
+{
+    static const bool done = [] {
+        Q_INIT_RESOURCE(kdecolors);
+        return true;
+    }();
+    Q_UNUSED(done);
+}
+
 namespace kk::theme {
 
 namespace {
@@ -129,6 +140,16 @@ QString applyStyle(const QString& wanted)
         return KinoklipStyle::key();
     }
     if (isAdwaita(wanted)) { // built in (third_party/qt-libadwaita), not the factory plugin
+        // Labels keep Kinoklip's interface font weight: libadwaita's bold 700 with greyscale
+        // antialiasing looks heavy in Open Sans at Kinoklip's sizes. The style reads this once
+        // per process; a value the user set (environment or qt-libadwaita.conf) wins.
+        if (!qEnvironmentVariableIsSet("ADWAITA_BOLD_LABELS")
+            && !QSettings(QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation)
+                              + QStringLiteral("/qt-libadwaita.conf"),
+                QSettings::IniFormat)
+                    .contains(QStringLiteral("bold-labels")))
+            qputenv("ADWAITA_BOLD_LABELS", "0");
+        initAdwaitaResources();
         QApplication::setStyle(new MenuMetricsStyle(new AdwaitaStyle));
         return QStringLiteral("Libadwaita");
     }

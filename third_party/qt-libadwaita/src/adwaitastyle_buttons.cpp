@@ -13,7 +13,7 @@ bool AdwaitaStyle::drawButtonBevel(const QStyleOption *opt, QPainter *p, const Q
     p->save();
     p->setRenderHint(QPainter::Antialiasing);
     p->setPen(Qt::NoPen);
-    p->setBrush(buttonFill(k, opt));
+    p->setBrush(buttonFill(k, opt, w));
     p->drawRoundedRect(r, rad, rad);
     // high contrast: inset 1px border in currentColor at 50%; suggested has none (same colour as its fill),
     // flat only while hovered/pressed; destructive uses its red text colour.
@@ -26,7 +26,7 @@ bool AdwaitaStyle::drawButtonBevel(const QStyleOption *opt, QPainter *p, const Q
         p->drawRoundedRect(r.adjusted(.5, .5, -.5, -.5), rad, rad);
     }
     p->restore();
-    if (focusVisible(opt, w)) drawFocusRing(p, r, rad);
+    drawFocus(p, r, rad, focusVisible(opt, w), w);
     return true;
 }
 
@@ -36,8 +36,10 @@ bool AdwaitaStyle::drawButtonLabel(const QStyleOption *opt, QPainter *p, const Q
     QStyleOptionButton b = *qstyleoption_cast<const QStyleOptionButton *>(opt);
     if (k == Suggested) b.palette.setColor(QPalette::ButtonText, withDisabled(m_tokens.accent_fg, opt));
     else if (k == Destructive) b.palette.setColor(QPalette::ButtonText, withDisabled(m_tokens.destructive_color, opt));
+    if (!b.icon.isNull()) b.icon = symbolicIcon(b.icon, k == Suggested ? m_tokens.accent_fg : k == Destructive ? m_tokens.destructive_color
+                                                      : b.palette.color(QPalette::Normal, QPalette::ButtonText));
     p->save();
-    QFont bf = p->font(); bf.setBold(true); bf.setStyleStrategy(QFont::NoSubpixelAntialias); p->setFont(bf);  // libadwaita button label weight 700
+    QFont bf = adwLabelFont(p->font()); p->setFont(bf);  // libadwaita button label weight 700
     b.fontMetrics = QFontMetrics(bf);
     QCommonStyle::drawControl(CE_PushButtonLabel, &b, p, w);
     p->restore();
@@ -56,7 +58,7 @@ bool AdwaitaStyle::drawComboBox(const QStyleOptionComplex *opt, QPainter *p, con
     p->save();
     p->setRenderHint(QPainter::Antialiasing);
     p->setPen(Qt::NoPen);
-    p->setBrush(buttonFill(Normal, &o));
+    p->setBrush(buttonFill(Normal, &o, w));
     p->drawRoundedRect(r, t.radius, t.radius);
     if (t.variant.startsWith("hc-")) {
         p->setBrush(Qt::NoBrush);
@@ -71,7 +73,7 @@ bool AdwaitaStyle::drawComboBox(const QStyleOptionComplex *opt, QPainter *p, con
     p->setPen(QPen(fg, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
     p->drawPolyline(QPolygonF({c + QPointF(-4.5, -1.5), c + QPointF(0, 3), c + QPointF(4.5, -1.5)}));
     p->restore();
-    if (focusVisible(opt, w)) drawFocusRing(p, r, t.radius);
+    drawFocus(p, r, t.radius, focusVisible(opt, w), w);
     return true;
 }
 
@@ -81,14 +83,15 @@ bool AdwaitaStyle::drawComboLabel(const QStyleOption *opt, QPainter *p, const QW
     if (!cb || cb->editable) return false;
     QRect r = subControlRect(CC_ComboBox, cb, SC_ComboBoxEditField, w);
     p->save();
-    QFont bf = p->font(); bf.setBold(true); bf.setStyleStrategy(QFont::NoSubpixelAntialias); p->setFont(bf);
+    QFont bf = adwLabelFont(p->font()); p->setFont(bf);
     if (!cb->currentIcon.isNull()) {
+        const QIcon icon = symbolicIcon(cb->currentIcon, m_tokens.window_fg);
         const QIcon::Mode im = (cb->state & State_Enabled) ? QIcon::Normal : QIcon::Disabled;
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-        const QPixmap pm = cb->currentIcon.pixmap(cb->iconSize, p->device()->devicePixelRatio(), im);
+        const QPixmap pm = icon.pixmap(cb->iconSize, p->device()->devicePixelRatio(), im);
 #else
         const qreal dpr = p->device()->devicePixelRatioF();
-        QPixmap pm = cb->currentIcon.pixmap(cb->iconSize * dpr, im);
+        QPixmap pm = icon.pixmap(cb->iconSize * dpr, im);
         pm.setDevicePixelRatio(dpr);
 #endif
         p->drawPixmap(QRect(r.left(), r.top() + (r.height() - cb->iconSize.height()) / 2, cb->iconSize.width(), cb->iconSize.height()), pm);

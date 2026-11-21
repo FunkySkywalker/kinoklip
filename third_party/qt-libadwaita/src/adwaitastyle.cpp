@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "adwaitastyle.h"
 #include "adwaitasettings.h"
+#include "adwaitaanimations.h"
 
 #include <QAbstractButton>
 #include <QAbstractScrollArea>
@@ -8,14 +9,20 @@
 #include <QKeyEvent>
 #include <QStandardPaths>
 #include <QSettings>
+#include <QFileInfo>
 #include <QFontInfo>
 #include <QComboBox>
 #include <QEvent>
 #include <QLineEdit>
 #include <QPainter>
 #include <QPainterPath>
+#include <QIconEngine>
+#include <QPixmapCache>
 #include <QPointer>
 #include <QStyleOption>
+#include <QDir>
+#include <QFile>
+#include <QSaveFile>
 #include <QWidget>
 
 AdwaitaStyle::AdwaitaStyle()
@@ -63,6 +70,19 @@ qreal adwSpacingScale()
     }();
     return f;
 }
+QFont adwLabelFont(QFont f)
+{
+    static const int weight = [] {  // 0 = keep
+        const QString v = adwOption("ADWAITA_BOLD_LABELS", "bold-labels").toString().trimmed().toLower();
+        if (v == "0" || v == "false" || v == "no" || v == "off") return 0;
+        if (v == "semibold" || v == "600") return 600;
+        return 700;
+    }();
+    if (weight == 0) return f;
+    f.setWeight(weight == 600 ? QFont::DemiBold : QFont::Bold);
+    f.setStyleStrategy(QFont::StyleStrategy(f.styleStrategy() | QFont::NoSubpixelAntialias));  // GTK labels are grayscale
+    return f;
+}
 static int adwFontSize()
 {
     const QVariant v = adwOption("ADWAITA_FONT_SIZE", "font-size");
@@ -79,9 +99,41 @@ static void applyAppPalette(const QPalette &p)
     s_applyingPalette = false;
 }
 
+// KDE code that builds a KColorScheme without a config (Dolphin's view background, Kirigami, ...) reads the colour
+// scheme file named by the application property KDE_COLOR_SCHEME_PATH, which KColorSchemeManager sets to a Breeze scheme
+// when the scheme in kdeglobals cannot be found: a Flatpak app does not see ~/.local/share/color-schemes. A dark libadwaita
+// then gets Breeze Light view colours (pure white) under light text. Point the property at our own scheme, written from
+// the copy built into the plugin to the user's cache (writable in a sandbox, too).
+void AdwaitaStyle::syncKdeColorScheme() const
+{
+    if (qEnvironmentVariableIntValue("ADWAITA_KEEP_APP_PALETTE") || !qApp) return;
+    const QString cur = qApp->property("KDE_COLOR_SCHEME_PATH").toString();
+    // Only replace KColorSchemeManager's Breeze fallback: a scheme an app picked on purpose (Kate's scheme menu,
+    // Kinoklip's own schemes) is left alone.
+    if (cur.isEmpty() || !QFileInfo(cur).fileName().startsWith(QLatin1String("Breeze"))) return;
+    const QString v = m_tokens.variant;
+    const QString name = QLatin1String("Libadwaita") + (v.startsWith("hc") ? "HighContrast" : "") + (v.endsWith("dark") ? "Dark" : "");
+    QString dir = QStandardPaths::writableLocation(QStandardPaths::GenericCacheLocation) + QLatin1String("/qt-libadwaita");
+    if (!QDir().mkpath(dir)) return;
+    const QString path = dir + QLatin1Char('/') + name + QLatin1String(".colors");
+    QFile src(QLatin1String(":/qt-libadwaita/kde-colors/") + name + QLatin1String(".colors"));
+    if (!src.open(QIODevice::ReadOnly)) return;
+    const QByteArray data = src.readAll();
+    QFile cached(path);
+    if (!cached.open(QIODevice::ReadOnly) || cached.readAll() != data) {
+        cached.close();
+        QSaveFile dst(path);  // temp file + rename: other apps may be reading it right now
+        if (!dst.open(QIODevice::WriteOnly)) return;
+        dst.write(data);
+        if (!dst.commit()) return;
+    }
+    qApp->setProperty("KDE_COLOR_SCHEME_PATH", path);
+}
+
 void AdwaitaStyle::polish(QApplication *app)
 {
     QCommonStyle::polish(app);
+    syncKdeColorScheme();
     if (!qEnvironmentVariableIntValue("ADWAITA_KEEP_APP_FONT") && adwFontSize() > 0) {
         QFont f(QStringLiteral("Adwaita Sans"), adwFontSize());
         if (QFontInfo(f).family() == QLatin1String("Adwaita Sans")) {
@@ -148,7 +200,7 @@ bool AdwaitaStyle::eventFilter(QObject *o, QEvent *e)
     if (o == qApp && e->type() == QEvent::ApplicationPaletteChange && !s_applyingPalette
         && QApplication::palette() != standardPalette()) {
         const QPalette p = standardPalette();
-        QMetaObject::invokeMethod(this, [p] { applyAppPalette(p); }, Qt::QueuedConnection);
+        QMetaObject::invokeMethod(this, [this, p] { applyAppPalette(p); syncKdeColorScheme(); }, Qt::QueuedConnection);
     }
     return QCommonStyle::eventFilter(o, e);
 }
@@ -158,6 +210,7 @@ void AdwaitaStyle::settingsChanged()
     reload();
     if (!qApp) return;
     applyAppPalette(standardPalette());
+    syncKdeColorScheme();
     // Re-polish every widget so cached state follows the new variant.
     QList<QPointer<QWidget>> all;
     for (QWidget *w : QApplication::allWidgets()) all.append(w);
@@ -190,8 +243,12 @@ QPalette AdwaitaStyle::standardPalette() const
     p.setColor(QPalette::Button, opaque(t.button_bg, t.window_bg));
     p.setColor(QPalette::ButtonText, fg);
     p.setColor(QPalette::BrightText, Qt::white);
-    p.setColor(QPalette::Highlight, t.accent_bg);
-    p.setColor(QPalette::HighlightedText, t.accent_fg);
+    // Selections are a translucent accent tint (list rows 25 %, text 30 %) and libadwaita keeps the view foreground
+    // on them, so Highlight is the tint flattened onto the view and HighlightedText stays the normal text colour
+    // (custom delegates and text selections that paint HighlightedText on Highlight stay readable).
+    QColor sel = t.accent_bg; sel.setAlphaF(0.30);
+    p.setColor(QPalette::Highlight, opaque(sel, t.view_bg));
+    p.setColor(QPalette::HighlightedText, vfg);
     p.setColor(QPalette::ToolTipBase, opaque(t.tooltip_bg, t.window_bg));
     p.setColor(QPalette::ToolTipText, t.tooltip_fg);
     p.setColor(QPalette::Link, t.accent_color);
@@ -207,7 +264,7 @@ QPalette AdwaitaStyle::standardPalette() const
     p.setColor(QPalette::Disabled, QPalette::WindowText, dis(fg, t.window_bg));
     p.setColor(QPalette::Disabled, QPalette::ButtonText, dis(fg, t.window_bg));
     p.setColor(QPalette::Disabled, QPalette::Text, dis(vfg, t.view_bg));
-    p.setColor(QPalette::Disabled, QPalette::HighlightedText, dis(t.accent_fg, t.accent_bg));
+    p.setColor(QPalette::Disabled, QPalette::HighlightedText, dis(vfg, t.view_bg));
     return p;
 }
 
@@ -289,16 +346,82 @@ QColor AdwaitaStyle::withDisabled(const QColor &c, const QStyleOption *opt) cons
     return r;
 }
 
-void AdwaitaStyle::drawFocusRing(QPainter *p, const QRectF &r, qreal radius) const
+void AdwaitaStyle::drawFocus(QPainter *p, const QRectF &r, qreal radius, bool on, const QWidget *w, quint32 idx) const
+{
+    const qreal f = w ? AdwAnim::value(w, AdwAnim::key(AdwAnim::Ring, idx), on ? 1.0 : 0.0) : (on ? 1.0 : 0.0);
+    if (f > 0) drawFocusRing(p, r, radius, f);
+}
+
+void AdwaitaStyle::drawFocusRing(QPainter *p, const QRectF &r, qreal radius, qreal f) const
 {
     p->save();
     p->setRenderHint(QPainter::Antialiasing);
-    const qreal w = m_tokens.focus_ring_width;
-    QPen pen(m_tokens.focus_ring, w);
+    const qreal w = m_tokens.focus_ring_width * f;  // libadwaita animates outline colour and width
+    QColor rc = m_tokens.focus_ring;
+    if (f < 1) rc.setAlphaF(rc.alphaF() * f);
+    QPen pen(rc, w);
     p->setPen(pen);
     p->setBrush(Qt::NoBrush);
     p->drawRoundedRect(r.adjusted(w / 2, w / 2, -w / 2, -w / 2), radius - w / 2, radius - w / 2);
     p->restore();
+}
+
+// ---- symbolic icons ---------------------------------------------------------------------------------------
+
+namespace {
+// Wraps a "*-symbolic" icon: the source pixmap is only an alpha mask, painted in one colour (disabled: x opacity).
+class SymbolicEngine : public QIconEngine
+{
+public:
+    SymbolicEngine(const QIcon &src, const QColor &fg, qreal disabledOpacity) : m_src(src), m_fg(fg), m_dis(disabledOpacity) {}
+    QIconEngine *clone() const override { return new SymbolicEngine(m_src, m_fg, m_dis); }
+    QString key() const override { return QStringLiteral("adwaita-symbolic"); }
+    QSize actualSize(const QSize &size, QIcon::Mode mode, QIcon::State state) override { return m_src.actualSize(size, mode, state); }
+    // constness of these two differs between Qt 5.15 / 6.x releases: declare both forms, whichever matches overrides
+    QList<QSize> availableSizes(QIcon::Mode mode, QIcon::State state) const { return m_src.availableSizes(mode, state); }
+    QList<QSize> availableSizes(QIcon::Mode mode, QIcon::State state) { return m_src.availableSizes(mode, state); }
+    QString iconName() const { return m_src.name(); }
+    QString iconName() { return m_src.name(); }
+    QPixmap pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state) override { return scaledPixmap(size, mode, state, 1.0); }
+    QPixmap scaledPixmap(const QSize &size, QIcon::Mode mode, QIcon::State state, qreal scale)
+    {
+        QColor c = m_fg;
+        if (mode == QIcon::Disabled) c.setAlphaF(c.alphaF() * m_dis);
+        const QString k = QStringLiteral("adwsym-%1-%2-%3x%4-%5-%6").arg(m_src.cacheKey()).arg(c.rgba(), 0, 16).arg(size.width())
+                              .arg(size.height()).arg(scale).arg(int(state));
+        QPixmap out;
+        if (QPixmapCache::find(k, &out)) return out;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        QPixmap pm = m_src.pixmap(size, scale, QIcon::Normal, state);
+#else
+        QPixmap pm = m_src.pixmap(size * scale, QIcon::Normal, state);
+        pm.setDevicePixelRatio(scale);
+#endif
+        if (pm.isNull()) return pm;
+        QPainter ip(&pm);  // keep the alpha of the mask, replace the colour
+        ip.setCompositionMode(QPainter::CompositionMode_SourceIn);
+        ip.fillRect(pm.rect(), c);
+        ip.end();
+        QPixmapCache::insert(k, pm);
+        return pm;
+    }
+    void paint(QPainter *painter, const QRect &rect, QIcon::Mode mode, QIcon::State state) override
+    {
+        const qreal dpr = painter->device()->devicePixelRatioF();
+        QPixmap pm = scaledPixmap(rect.size(), mode, state, dpr);
+        painter->drawPixmap(rect.topLeft(), pm);
+    }
+private:
+    QIcon m_src;
+    QColor m_fg;
+    qreal m_dis;
+};
+}  // namespace
+
+QIcon AdwaitaStyle::symbolicIcon(const QIcon &icon, const QColor &fg) const
+{
+    if (icon.isNull() || !icon.name().endsWith(QLatin1String("-symbolic"))) return icon;
+    return QIcon(new SymbolicEngine(icon, fg, m_tokens.disabled_opacity));
 }
 
 // ---- dispatch -------------------------------------------------------------------------------------------
@@ -356,6 +479,8 @@ void AdwaitaStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         }
         break;
     }
+    case PE_FrameStatusBarItem:  // libadwaita has no item frames in a status area
+        return;
     case PE_FrameFocusRect:
         // Controls draw their own ring; the generic dotted rect is suppressed.
         return;
@@ -407,7 +532,8 @@ QRect AdwaitaStyle::subElementRect(SubElement se, const QStyleOption *opt, const
     case SE_PushButtonContents:
     case SE_PushButtonFocusRect:
         return opt->rect;
-    case SE_LineEditContents:
+    case SE_LineEditContents:  // the embedded field of a spin box gets its padding from the spin box itself
+        if (w && w->parentWidget() && w->parentWidget()->inherits("QAbstractSpinBox")) return opt->rect;
         return opt->rect.adjusted(int(t.entry_pad_x), 0, -int(t.entry_pad_x), 0);
     case SE_CheckBoxFocusRect:
     case SE_RadioButtonFocusRect:
@@ -433,7 +559,7 @@ QRect AdwaitaStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
         case SC_ComboBoxFrame: return r;
         case SC_ComboBoxArrow: return QRect(r.right() - arrowW + 1, r.top(), arrowW, r.height());
         case SC_ComboBoxEditField: return QRect(r.left() + lp, r.top() + 1, r.width() - arrowW - lp - 6, r.height() - 2);
-        case SC_ComboBoxListBoxPopup: return r;
+        case SC_ComboBoxListBoxPopup: return r.adjusted(0, 0, 0, 4);  // popover: a small gap below the field
         default: break;
         }
     }
@@ -449,7 +575,9 @@ int AdwaitaStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QWi
     }
     const AdwaitaTokens &t = m_tokens;
     switch (pm) {
-    case PM_DefaultFrameWidth: return qobject_cast<const QLineEdit *>(w) ? 0 : QCommonStyle::pixelMetric(pm, opt, w);
+    // 1px frames: with Qt's default of 2 the viewport sits one pixel inside the border line and the gap (window
+    // colour) reads as a second, double outline around lists, tables and text edits.
+    case PM_DefaultFrameWidth: return qobject_cast<const QLineEdit *>(w) ? 0 : 1;
     // Layout gaps follow the libadwaita 6px grid (6 between controls, 12 window margins), times the user's spacing.
     case PM_LayoutHorizontalSpacing:
     case PM_LayoutVerticalSpacing: return qRound(6 * adwSpacingScale());
@@ -484,7 +612,7 @@ QSize AdwaitaStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, c
         const int padX = pill ? 32 : int(t.button_pad_x);  // .pill: padding 10px 32px
         int extra = 0;  // the label is drawn bold
         if (auto *b = qstyleoption_cast<const QStyleOptionButton *>(opt)) if (!b->text.isEmpty()) {
-            QFont bf = w ? w->font() : QApplication::font(); bf.setBold(true);
+            QFont bf = adwLabelFont(w ? w->font() : QApplication::font());
             extra = QFontMetrics(bf).horizontalAdvance(b->text) - b->fontMetrics.horizontalAdvance(b->text);
         }
         return QSize(qMax(sz.width() + extra + 2 * padX, int(t.button_min_height)),
@@ -495,7 +623,7 @@ QSize AdwaitaStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, c
     case CT_ComboBox: {
         auto *cb = qobject_cast<const QComboBox *>(w);
         if (cb && !cb->isEditable()) {  // GtkDropDown: padding 10, bold label, 6 gap, 16px chevron
-            QFont bf = cb->font(); bf.setBold(true);
+            QFont bf = adwLabelFont(cb->font());
             const QFontMetrics fm(bf);
             int tw = 0;
             for (int i = 0; i < cb->count(); ++i) tw = qMax(tw, fm.horizontalAdvance(cb->itemText(i)));

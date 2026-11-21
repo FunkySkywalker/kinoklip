@@ -118,8 +118,9 @@ target_include_directories(kinoklip_core PUBLIC ${CMAKE_SOURCE_DIR}/src)
 # qt-libadwaita (GPL-2.0-or-later, third_party/qt-libadwaita/readme.md): the optional
 # "Libadwaita (GNOME look)" widget style, built in so it needs no plugin path.
 file(GLOB KK_ADWAITA_SOURCES CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/third_party/qt-libadwaita/src/*.cpp)
-add_library(kk_adwaita STATIC ${KK_ADWAITA_SOURCES})
-set_target_properties(kk_adwaita PROPERTIES AUTOMOC ON POSITION_INDEPENDENT_CODE ON)
+add_library(kk_adwaita STATIC ${KK_ADWAITA_SOURCES}
+    ${CMAKE_SOURCE_DIR}/third_party/qt-libadwaita/data/kde-colors/kdecolors.qrc)
+set_target_properties(kk_adwaita PROPERTIES AUTOMOC ON AUTORCC ON POSITION_INDEPENDENT_CODE ON)
 target_include_directories(kk_adwaita PUBLIC ${CMAKE_SOURCE_DIR}/third_party/qt-libadwaita/src)
 target_compile_options(kk_adwaita PRIVATE -w)
 target_link_libraries(kk_adwaita PUBLIC Qt6::Widgets Qt6::DBus)

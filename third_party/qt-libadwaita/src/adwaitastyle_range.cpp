@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Widget family: sliders, progress bars, spin boxes (libadwaita 1.10 look)
 #include "adwaitastyle.h"
+#include "adwaitaanimations.h"
 #include "adwaitasettings.h"
 
 #include <QAbstractSpinBox>
@@ -22,6 +23,16 @@ constexpr int kSpinTextPad = 6;     // text min width 28 + padding 6
 constexpr int kTrough = 4;          // measured: scale trough is 4px thick (SCSS token says 10, pixels win)
 constexpr int kTickLen = 6, kTickDist = 6;
 constexpr int kProgressTextGap = 6;
+
+// libadwaita progress bars are a bare thin bar: widget bars (QProgressBar) drop the percentage text. Bars painted for
+// item-view cells (delegates pass the view, not a QProgressBar) keep it, since there it is the only readout;
+// an app can ask for it on a widget with the property adwaita-progress-text = true.
+bool showProgressText(const QStyleOptionProgressBar *pb, const QWidget *w)
+{
+    if (!pb || !pb->textVisible) return false;
+    if (!qobject_cast<const QProgressBar *>(w)) return true;
+    return w->property("adwaita-progress-text").toBool();
+}
 
 QColor mixOver(const QColor &top, const QColor &bottom, qreal a)  // top at alpha a over bottom
 {
@@ -58,23 +69,24 @@ static void sliderRects(const AdwaitaTokens &t, const QStyleOptionSlider *s, QRe
 
 bool AdwaitaStyle::range_drawPrimitive(PrimitiveElement, const QStyleOption *, QPainter *, const QWidget *) const { return false; }
 
-bool AdwaitaStyle::range_drawControl(ControlElement ce, const QStyleOption *opt, QPainter *p, const QWidget *) const
+bool AdwaitaStyle::range_drawControl(ControlElement ce, const QStyleOption *opt, QPainter *p, const QWidget *w) const
 {
     if (ce != CE_ProgressBar) return false;
     auto *pb = qstyleoption_cast<const QStyleOptionProgressBar *>(opt);
     if (!pb) return false;
     const AdwaitaTokens &t = m_tokens;
+    const bool showText = showProgressText(pb, w);
     const bool horiz = bool(pb->state & State_Horizontal);
     const int thick = int(t.progress_thickness);
     const bool hc = t.variant.startsWith("hc-");
     QRectF bar;
     QRect textRect;
     if (horiz) {
-        int h = pb->textVisible ? thick + kProgressTextGap + pb->fontMetrics.height() : thick;
+        int h = showText ? thick + kProgressTextGap + pb->fontMetrics.height() : thick;
         QRect r = opt->rect;
         const int top = r.top() + (r.height() - h) / 2;
         bar = QRectF(r.left(), top + h - thick, r.width(), thick);
-        if (pb->textVisible) textRect = QRect(r.left(), top, r.width(), h - thick - kProgressTextGap);
+        if (showText) textRect = QRect(r.left(), top, r.width(), h - thick - kProgressTextGap);
     } else {
         bar = QRectF(opt->rect.left() + (opt->rect.width() - thick) / 2, opt->rect.top(), thick, opt->rect.height());
     }
@@ -126,7 +138,7 @@ bool AdwaitaStyle::range_drawControl(ControlElement ce, const QStyleOption *opt,
         p->drawRoundedRect(fill, rad, rad);
     }
     p->restore();
-    if (pb->textVisible && horiz && !pb->text.isEmpty()) {  // smaller, dimmed text above the bar
+    if (showText && horiz && !pb->text.isEmpty()) {  // smaller, dimmed text above the bar
         p->save();
         QFont f = p->font();
         f.setPointSizeF(f.pointSizeF() * 0.83);
@@ -166,7 +178,7 @@ bool AdwaitaStyle::range_drawComplexControl(ComplexControl cc, const QStyleOptio
         p->setPen(Qt::NoPen);
         p->setOpacity(enabled ? 1.0 : t.disabled_opacity);
         // trough
-        p->setBrush(alphaOf(t.window_fg, grooveHover ? t.scale_trough_hover_op : t.scale_trough_op));
+        p->setBrush(AdwAnim::color(w, AdwAnim::key(AdwAnim::Trough), alphaOf(t.window_fg, grooveHover ? t.scale_trough_hover_op : t.scale_trough_op)));
         p->drawRoundedRect(QRectF(g), rad, rad);
         if (hc) {
             p->setBrush(Qt::NoBrush);
@@ -188,7 +200,8 @@ bool AdwaitaStyle::range_drawComplexControl(ComplexControl cc, const QStyleOptio
         p->setClipPath(clip);
         p->setBrush(t.accent_bg);
         p->drawRect(fill);
-        if (hover || active) { p->setBrush(alphaOf(t.window_fg, 0.10)); p->drawRect(fill); }
+        const QColor hl = AdwAnim::color(w, AdwAnim::key(AdwAnim::Fill), (hover || active) ? alphaOf(t.window_fg, 0.10) : QColor(Qt::transparent));
+        if (hl.alpha() > 0) { p->setBrush(hl); p->drawRect(fill); }
         p->restore();
         // tick marks
         if (s->tickPosition != QSlider::NoTicks && s->tickInterval > 0) {
@@ -219,7 +232,7 @@ bool AdwaitaStyle::range_drawComplexControl(ComplexControl cc, const QStyleOptio
             p->drawEllipse(kr.adjusted(-1, -1, 1, 1));
         }
         const QColor white(255, 255, 255);
-        p->setBrush((hover || active) ? white : mixOver(white, t.view_bg, 0.8));
+        p->setBrush(AdwAnim::color(w, AdwAnim::key(AdwAnim::Knob), (hover || active) ? white : mixOver(white, t.view_bg, 0.8)));
         p->drawEllipse(kr);
         p->restore();
         if (focusVisible(opt, w)) {
@@ -259,12 +272,14 @@ bool AdwaitaStyle::range_drawComplexControl(ComplexControl cc, const QStyleOptio
                 const bool on = (sb->stepEnabled & (b.isUp ? QAbstractSpinBox::StepUpEnabled : QAbstractSpinBox::StepDownEnabled)) != 0;
                 const bool hov = enabled && (opt->state & State_MouseOver) && (opt->activeSubControls & sc);
                 const bool prs = enabled && (opt->state & State_Sunken) && (opt->activeSubControls & sc);
-                if (hov || prs) {  // hover/active overlay, outer corners keep the entry radius
+                const QColor ov = AdwAnim::color(w, AdwAnim::key(AdwAnim::Fill, b.isUp ? 1 : 2),
+                                                 (hov || prs) ? alphaOf(t.window_fg, prs ? 0.16 : 0.07) : QColor(Qt::transparent));
+                if (ov.alpha() > 0) {  // hover/active overlay (200 ms), outer corners keep the entry radius
                     QPainterPath path;
                     path.addRoundedRect(r, t.radius, t.radius);
                     QPainterPath cell;
                     cell.addRect(b.r);
-                    p->setBrush(alphaOf(t.window_fg, prs ? 0.16 : 0.07));
+                    p->setBrush(ov);
                     p->drawPath(path.intersected(cell));
                 }
                 // 1px separator on the inner (left) edge
@@ -281,7 +296,7 @@ bool AdwaitaStyle::range_drawComplexControl(ComplexControl cc, const QStyleOptio
             }
         }
         p->restore();
-        if (opt->state & State_HasFocus) drawFocusRing(p, r, t.radius);
+        drawFocus(p, r, t.radius, opt->state & State_HasFocus, w);
         return true;
     }
     return false;
@@ -353,7 +368,7 @@ bool AdwaitaStyle::range_pixelMetric(PixelMetric pm, const QStyleOption *, const
     }
 }
 
-bool AdwaitaStyle::range_sizeFromContents(ContentsType ct, const QStyleOption *opt, const QSize &sz, const QWidget *, QSize &out) const
+bool AdwaitaStyle::range_sizeFromContents(ContentsType ct, const QStyleOption *opt, const QSize &sz, const QWidget *w, QSize &out) const
 {
     const AdwaitaTokens &t = m_tokens;
     if (ct == CT_ProgressBar) {
@@ -362,7 +377,7 @@ bool AdwaitaStyle::range_sizeFromContents(ContentsType ct, const QStyleOption *o
         const int thick = int(t.progress_thickness);
         if (horiz) {
             int h = thick;
-            if (pb && pb->textVisible) h += kProgressTextGap + sz.height();
+            if (showProgressText(pb, w)) h += kProgressTextGap + sz.height();
             out = QSize(qMax(int(t.progress_min_length), sz.width()), h);
         } else {
             out = QSize(thick, 80);  // vertical min length (progressbar.min_length_v)
