@@ -3,10 +3,12 @@
 #include "ui/color/ColorSession.h"
 
 #include "core/EditOps.h"
+#include "core/GradeMath.h"
 #include "core/GradeGallery.h"
 #include "core/Project.h"
 #include "core/Timeline.h"
 #include "playback/PlaybackEngine.h"
+#include "render/GradeLut.h"
 #include "render/RenderTypes.h"
 #include "ui/common/AppContext.h"
 
@@ -334,6 +336,57 @@ bool ColorSession::setParams(
     if (ok && m_selected != node)
         selectNode(node);
     return ok;
+}
+
+bool ColorSession::generateLut(quint64 clipId, int size, const QString& path, QString* error)
+{
+    const ClipData* clip = editops::clipById(m_ctx.project->timeline()->data(), clipId);
+    if (!clip) {
+        if (error)
+            *error = tr("The clip is not on the timeline.");
+        return false;
+    }
+    const ClipGrade grade = m_ctx.project->clipGrade(m_ctx.project->activeTimelineUid(), clipId);
+    if (grade.isEmpty()) {
+        if (error)
+            *error = tr("The clip has no grade.");
+        return false;
+    }
+    const int64_t frame = clipId == m_clipId ? gradeFrame() : 0;
+    QString name = clip->name;
+    if (name.isEmpty())
+        name = tr("Kinoklip grade");
+    return render::writeGradeCube(grade, frame, size, name, path, error);
+}
+
+bool ColorSession::autoColor(quint64 nodeId, const QImage& picture)
+{
+    if (picture.isNull())
+        return false;
+    const QImage image = picture.convertToFormat(QImage::Format_ARGB32);
+    std::vector<float> rgb;
+    rgb.reserve(size_t(image.width()) * size_t(image.height()) * 3);
+    for (int y = 0; y < image.height(); ++y) {
+        const auto* line = reinterpret_cast<const QRgb*>(image.constScanLine(y));
+        for (int x = 0; x < image.width(); ++x) {
+            if (qAlpha(line[x]) == 0)
+                continue;
+            rgb.push_back(float(qRed(line[x])) / 255.0f);
+            rgb.push_back(float(qGreen(line[x])) / 255.0f);
+            rgb.push_back(float(qBlue(line[x])) / 255.0f);
+        }
+    }
+    const grademath::AutoColorResult r = grademath::autoColor(rgb.data(), rgb.size() / 3);
+    if (!r.valid)
+        return false;
+    namespace gk = gradekeys;
+    QVector<std::pair<QString, double>> values;
+    for (int ch = 0; ch < 3; ++ch) {
+        values.append({gk::wheelKey(gk::Wheel::Lift, ch), double(r.lift[ch])});
+        values.append({gk::wheelKey(gk::Wheel::Gamma, ch), double(r.gamma[ch])});
+        values.append({gk::wheelKey(gk::Wheel::Gain, ch), double(r.gain[ch])});
+    }
+    return setParams(nodeId, values, tr("Auto Color"));
 }
 
 bool ColorSession::setCurve(

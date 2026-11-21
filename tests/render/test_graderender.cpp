@@ -9,7 +9,9 @@
 #include "core/GradeMath.h"
 #include "core/VideoEffectKeys.h"
 #include "render/Compositor.h"
+#include "render/CubeLut.h"
 #include "render/GradeEval.h"
+#include "render/GradeLut.h"
 #include "render/RenderCacheKeys.h"
 #include "render/TimelineEval.h"
 
@@ -372,10 +374,98 @@ class TestGradeRender : public QObject
             g.node(off)->enabled = false;
             out.append({QStringLiteral("layer"), g});
         }
+        {
+            // Primaries extras, Log palette, Soft Clip and Sat vs Lum (roadmap: Color 1.12).
+            out.append({QStringLiteral("boost"),
+                primariesGrade({{gk::Saturation, 0.5}, {gk::ColorBoost, 100.0}})});
+            out.append({QStringLiteral("boost_negative"),
+                primariesGrade({{gk::Saturation, 0.5}, {gk::ColorBoost, -100.0}})});
+            out.append({QStringLiteral("shadows_highlights"),
+                primariesGrade({{gk::Shadows, 70.0}, {gk::Highlights, -60.0}})});
+            out.append({QStringLiteral("shadows_crush"),
+                primariesGrade({{gk::Shadows, -80.0}, {gk::Highlights, 80.0}})});
+            out.append({QStringLiteral("midtone_detail"),
+                primariesGrade({{gk::MidtoneDetail, 100.0}, {gk::Contrast, 1.25}})});
+            out.append({QStringLiteral("midtone_soften"),
+                primariesGrade({{gk::MidtoneDetail, -100.0}, {gk::Contrast, 1.2}})});
+            out.append({QStringLiteral("log_wheels"),
+                primariesGrade({{gk::LogShadowR, 0.15}, {gk::LogMidB, -0.1}, {gk::LogHighG, 0.12},
+                    {gk::LogHighY, -0.05}, {gk::LogOffsetR, 0.04}, {gk::LogLowRange, 0.4},
+                    {gk::LogHighRange, 0.7}})});
+            out.append({QStringLiteral("soft_clip"),
+                primariesGrade({{gk::SoftClipLow, 0.15}, {gk::SoftClipLowSoft, 0.3},
+                    {gk::SoftClipHigh, 0.8}, {gk::SoftClipHighSoft, 0.4}})});
+            ClipGrade g = primariesGrade({});
+            g.nodes[0].curves[GradeCurve::SatLum] = {{0.3, 0.3}, {0.9, 0.7}};
+            g.nodes[0].curves[GradeCurve::HueLum] = {{0.2, 0.6}};
+            out.append({QStringLiteral("sat_vs_lum"), g});
+        }
         return out;
     }
 
 private slots:
+    void gradeLutMatchesTheGrade()
+    {
+        // Generate 3D LUT: the table, read back with the CUBE reader, gives the grade's colours
+        // (windows and qualifiers left out).
+        ClipGrade grade = primariesGrade({{gk::Saturation, 1.3}, {gk::Contrast, 1.2},
+            {gk::GainR, 1.1}, {gk::ColorBoost, 40.0}, {gk::Shadows, 30.0}, {gk::LogMidB, 0.05}});
+        grade.nodes[0].curves[GradeCurve::Luma] = {{0.25, 0.2}, {0.75, 0.8}};
+        go::addWindow(grade, grade.nodes[0].id, GradeWindowShape::Circle);
+        const QByteArray text = gradeToCube(grade, 0, 33, QStringLiteral("test \"grade\""));
+        CubeLut lut;
+        QString error;
+        QVERIFY2(lut.parse(text, &error), qPrintable(error));
+        QVERIFY(lut.is3d());
+        QCOMPARE(lut.size(), 33);
+        QCOMPARE(lut.title(), QStringLiteral("test grade"));
+        ClipGrade flat = grade;
+        flat.nodes[0].windows.clear();
+        const PreparedGrade prepared = prepareGrade(flat, 0, grademath::PictureGeometry {});
+        std::vector<float> scratch;
+        double worst = 0.0;
+        for (const std::array<float, 3> c : {std::array {0.1f, 0.5f, 0.9f},
+                 std::array {0.8f, 0.3f, 0.2f}, std::array {0.5f, 0.5f, 0.5f},
+                 std::array {0.05f, 0.1f, 0.02f}}) {
+            float want[3] = {c[0], c[1], c[2]};
+            gradePixel(prepared, want, 0.5f, 0.5f, scratch);
+            float got[3] = {c[0], c[1], c[2]};
+            lut.applyTetrahedral(got);
+            for (int ch = 0; ch < 3; ++ch)
+                worst = std::max(worst, double(std::abs(got[ch] - std::clamp(want[ch], 0.0f, 1.0f))));
+        }
+        QVERIFY2(worst < 0.02, qPrintable(QString::number(worst)));
+        // An empty grade is the identity.
+        CubeLut id;
+        QVERIFY(id.parse(gradeToCube(ClipGrade {}, 0, 17, QStringLiteral("id")), &error));
+        float c[3] = {0.3f, 0.6f, 0.9f};
+        id.applyTetrahedral(c);
+        QVERIFY(std::abs(c[0] - 0.3f) < 1e-4f && std::abs(c[1] - 0.6f) < 1e-4f
+            && std::abs(c[2] - 0.9f) < 1e-4f);
+        // Written to a file and loaded back like a LUT node does.
+        const QString path = m_dir.filePath(QStringLiteral("generated.cube"));
+        QVERIFY2(writeGradeCube(grade, 0, 17, QStringLiteral("file"), path, &error),
+            qPrintable(error));
+        QVERIFY(loadCubeLut(path, &error));
+    }
+
+    void gradeLutAppliedAsLutNodeMatchesGradeOnGpu()
+    {
+        if (!gpuReady())
+            QSKIP("no OpenGL");
+        const ClipGrade grade = primariesGrade({{gk::Saturation, 1.3}, {gk::Contrast, 1.15},
+            {gk::GainB, 0.9}, {gk::LogHighG, 0.05}});
+        const QString path = m_dir.filePath(QStringLiteral("baked.cube"));
+        QString error;
+        QVERIFY2(writeGradeCube(grade, 0, 33, QStringLiteral("baked"), path, &error),
+            qPrintable(error));
+        ClipGrade lutGrade = primariesGrade({});
+        lutGrade.nodes[0].lutPath = path;
+        const QImage direct = render(*m_gpu, timelineWith(grade));
+        const QImage viaLut = render(*m_gpu, timelineWith(lutGrade));
+        QVERIFY2(maxDiff(direct, viaLut) <= 4, qPrintable(QString::number(maxDiff(direct, viaLut))));
+    }
+
     void initTestCase()
     {
         QVERIFY(m_dir.isValid());

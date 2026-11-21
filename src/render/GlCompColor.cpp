@@ -86,9 +86,9 @@ void main()
 }
 )";
 
-// The Color page curve stage (GlGrade.cpp) on straight colour: rows 0 to 8 of uCurves are the
-// Grade tables (Y, R, G, B, hue vs hue, hue vs sat, hue vs lum, lum vs sat, sat vs sat), row 9
-// the alpha table.
+// The Color page curve stage (GlGrade.cpp) on straight colour: rows 0 to 9 of uCurves are the
+// Grade tables (Y, R, G, B, hue vs hue, hue vs sat, hue vs lum, lum vs sat, sat vs sat, sat vs
+// lum), row 10 the alpha table.
 const char* const kCurvesFragment = R"(
 uniform sampler2D uTex;
 uniform sampler2D uCurves;
@@ -156,10 +156,11 @@ vec3 curves(vec3 c)
             v = curve(ch + 1, v);
         c[ch] = v;
     }
-    if ((uCurveMask & 0x1f0) == 0)
+    if ((uCurveMask & 0x3f0) == 0)
         return c;
     vec3 hsl = rgbToHsl(c);
     float h = hsl.x;
+    float s0 = hsl.y;
     float y = clamp(luma(c), 0.0, 1.0);
     float factor = 1.0;
     if (curveOn(5))
@@ -174,9 +175,14 @@ vec3 curves(vec3 c)
     }
     hsl.y = clamp(hsl.y * factor, 0.0, 1.0);
     c = hslToRgb(hsl);
-    if (curveOn(6)) {
+    if (curveOn(6) || curveOn(9)) {
+        float lumFactor = 1.0;
+        if (curveOn(6))
+            lumFactor *= curve(6, h);
+        if (curveOn(9))
+            lumFactor *= curve(9, s0);
         float y2 = luma(c);
-        c += y2 * (curve(6, h) - 1.0);
+        c += y2 * (lumFactor - 1.0);
     }
     return c;
 }
@@ -185,12 +191,13 @@ void main()
     vec4 c = kk_straight(texelFetch(uTex, ivec2(floor(vUv * vec2(textureSize(uTex, 0)))), 0));
     c.rgb = curves(c.rgb);
     if (uAlphaOn != 0)
-        c.a = curve(9, c.a);
+        c.a = curve(10, c.a);
     fragColor = kk_premult(c.rgb, c.a);
 }
 )";
 
-constexpr int kCurveRows = 10;
+static_assert(kGradeCurveCount == 10, "the alpha row of the curve texture follows the grade rows");
+constexpr int kCurveRows = kGradeCurveCount + 1;
 
 QByteArray customSource(const QString& body)
 {

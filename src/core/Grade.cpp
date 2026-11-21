@@ -198,13 +198,17 @@ namespace gradekeys {
 
 const QString& wheelKey(Wheel wheel, int channel)
 {
-    static const QString* const table[4][4] = {
+    static const QString* const table[kWheelCount][4] = {
         {&LiftR, &LiftG, &LiftB, &LiftY},
         {&GammaR, &GammaG, &GammaB, &GammaY},
         {&GainR, &GainG, &GainB, &GainY},
         {&OffsetR, &OffsetG, &OffsetB, &OffsetY},
+        {&LogShadowR, &LogShadowG, &LogShadowB, &LogShadowY},
+        {&LogMidR, &LogMidG, &LogMidB, &LogMidY},
+        {&LogHighR, &LogHighG, &LogHighB, &LogHighY},
+        {&LogOffsetR, &LogOffsetG, &LogOffsetB, &LogOffsetY},
     };
-    return *table[std::clamp(int(wheel), 0, 3)][std::clamp(channel, 0, 3)];
+    return *table[std::clamp(int(wheel), 0, kWheelCount - 1)][std::clamp(channel, 0, 3)];
 }
 
 double defaultValue(QStringView key)
@@ -215,6 +219,12 @@ double defaultValue(QStringView key)
         return 1.0;
     if (key == Pivot)
         return 0.435; // Resolve's default contrast pivot (log-ish mid grey)
+    if (key == SoftClipHigh)
+        return 1.0;
+    if (key == LogLowRange)
+        return 0.33; // Resolve's default Low Range of the Log palette
+    if (key == LogHighRange)
+        return 0.55; // and High Range
     if (key.startsWith(u"agx"))
         return 0.0;
     if (key.startsWith(u"mixer")) {
@@ -234,6 +244,11 @@ double defaultValue(QStringView key)
         return 0.5; // radii, ratios, scalings, sharpen level, mist mix
     }
     return 0.0;
+}
+
+bool isLogKey(QStringView key)
+{
+    return key.startsWith(u"log");
 }
 
 const QVector<QString>& blurKeys()
@@ -276,7 +291,11 @@ const QVector<QString>& allKeys()
 {
     static const QVector<QString> keys = {LiftR, LiftG, LiftB, LiftY, GammaR, GammaG, GammaB,
         GammaY, GainR, GainG, GainB, GainY, OffsetR, OffsetG, OffsetB, OffsetY, Contrast, Pivot,
-        Saturation, Hue, Temperature, Tint, LumMix, Mix, BlurRadiusR, BlurRadiusG, BlurRadiusB,
+        Saturation, Hue, Temperature, Tint, LumMix, Mix, ColorBoost, Shadows, Highlights, MidtoneDetail, SoftClipLow, SoftClipLowSoft,
+        SoftClipHigh, SoftClipHighSoft,
+        LogShadowR, LogShadowG, LogShadowB, LogShadowY, LogMidR, LogMidG, LogMidB, LogMidY,
+        LogHighR, LogHighG, LogHighB, LogHighY, LogOffsetR, LogOffsetG, LogOffsetB, LogOffsetY,
+        LogLowRange, LogHighRange, BlurRadiusR, BlurRadiusG, BlurRadiusB,
         BlurRatio, BlurScaling, SharpRadiusR, SharpRadiusG, SharpRadiusB, SharpRatio, SharpScaling,
         SharpCoring, SharpLevel, MistRadius, MistRatio, MistScaling, MistMix, MixerRR, MixerRG, MixerRB,
         MixerGR, MixerGG, MixerGB, MixerBR, MixerBG, MixerBB, MixerMonoR, MixerMonoG, MixerMonoB,
@@ -286,11 +305,15 @@ const QVector<QString>& allKeys()
 
 QString label(const QString& key)
 {
-    static const char* const wheelNames[4] = {QT_TRANSLATE_NOOP("kk::gradekeys", "Lift"),
+    static const char* const wheelNames[kWheelCount] = {QT_TRANSLATE_NOOP("kk::gradekeys", "Lift"),
         QT_TRANSLATE_NOOP("kk::gradekeys", "Gamma"), QT_TRANSLATE_NOOP("kk::gradekeys", "Gain"),
-        QT_TRANSLATE_NOOP("kk::gradekeys", "Offset")};
+        QT_TRANSLATE_NOOP("kk::gradekeys", "Offset"),
+        QT_TRANSLATE_NOOP("kk::gradekeys", "Log Shadow"),
+        QT_TRANSLATE_NOOP("kk::gradekeys", "Log Midtone"),
+        QT_TRANSLATE_NOOP("kk::gradekeys", "Log Highlight"),
+        QT_TRANSLATE_NOOP("kk::gradekeys", "Log Offset")};
     static const char* const channels[4] = {"R", "G", "B", "Y"};
-    for (int w = 0; w < 4; ++w) {
+    for (int w = 0; w < kWheelCount; ++w) {
         for (int ch = 0; ch < 4; ++ch) {
             if (key == wheelKey(Wheel(w), ch))
                 return QCoreApplication::translate("kk::gradekeys", wheelNames[w])
@@ -341,6 +364,16 @@ QString label(const QString& key)
         {&Tint, QT_TRANSLATE_NOOP("kk::gradekeys", "Tint")},
         {&LumMix, QT_TRANSLATE_NOOP("kk::gradekeys", "Lum Mix")},
         {&Mix, QT_TRANSLATE_NOOP("kk::gradekeys", "Key Output Mix")},
+        {&ColorBoost, QT_TRANSLATE_NOOP("kk::gradekeys", "Color Boost")},
+        {&Shadows, QT_TRANSLATE_NOOP("kk::gradekeys", "Shadows")},
+        {&Highlights, QT_TRANSLATE_NOOP("kk::gradekeys", "Highlights")},
+        {&MidtoneDetail, QT_TRANSLATE_NOOP("kk::gradekeys", "Midtone Detail")},
+        {&SoftClipLow, QT_TRANSLATE_NOOP("kk::gradekeys", "Soft Clip Low")},
+        {&SoftClipLowSoft, QT_TRANSLATE_NOOP("kk::gradekeys", "Soft Clip Low Soft")},
+        {&SoftClipHigh, QT_TRANSLATE_NOOP("kk::gradekeys", "Soft Clip High")},
+        {&SoftClipHighSoft, QT_TRANSLATE_NOOP("kk::gradekeys", "Soft Clip High Soft")},
+        {&LogLowRange, QT_TRANSLATE_NOOP("kk::gradekeys", "Low Range")},
+        {&LogHighRange, QT_TRANSLATE_NOOP("kk::gradekeys", "High Range")},
     };
     for (const auto& [k, text] : named) {
         if (key == *k)
@@ -354,11 +387,14 @@ std::pair<double, double> range(const QString& key)
     if (key.startsWith(QLatin1String("gain")))
         return {0.0, 4.0};
     if (key.startsWith(QLatin1String("lift")) || key.startsWith(QLatin1String("gamma"))
-        || key.startsWith(QLatin1String("offset")))
-        return {-1.0, 1.0};
+        || key.startsWith(QLatin1String("offset")) || isLogKey(key))
+        return key == LogLowRange || key == LogHighRange ? std::pair {0.0, 1.0}
+                                                         : std::pair {-1.0, 1.0};
+    if (key == ColorBoost || key == Shadows || key == Highlights || key == MidtoneDetail)
+        return {-100.0, 100.0};
     if (key == Contrast || key == Saturation)
         return {0.0, 4.0};
-    if (key == Pivot || key == LumMix || key == Mix || isBlurKey(key))
+    if (key == Pivot || key == LumMix || key == Mix || isBlurKey(key) || key.startsWith(QLatin1String("softClip")))
         return {0.0, 1.0};
     if (key == MixerMono || key == MixerPreserve || key == AgxOn)
         return {0.0, 1.0};
@@ -647,6 +683,7 @@ bool isNodeIdentity(const GradeNode& node, int64_t localFrame)
         return false;
     for (const QString& key : gradekeys::allKeys()) {
         if (key == gradekeys::Pivot || key == gradekeys::LumMix || key == gradekeys::Mix
+            || key == gradekeys::LogLowRange || key == gradekeys::LogHighRange
             || gradekeys::isBlurKey(key) || gradekeys::isRgbMixerKey(key)
             || gradekeys::isAgxKey(key))
             continue; // only matter together with another value (blur, mixer, AgX: below)

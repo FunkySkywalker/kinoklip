@@ -79,8 +79,12 @@ PreparedGrade prepareGrade(const ClipGrade& grade, int64_t frame, const PictureG
                     if (!p.lut)
                         warnLut(n.lutPath, why);
                 }
+                p.softClip = SoftClipValues::at(n, frame);
+                p.softClips = !p.softClip.isIdentity();
                 p.tetrahedral = n.lutInterpolation == LutInterpolation::Tetrahedral;
-                p.corrects = p.mix > 0.0f && (!p.primariesIdentity || p.mixes || p.agxOn || p.curves || p.lut);
+                p.corrects = p.mix > 0.0f
+                    && (!p.primariesIdentity || p.mixes || p.agxOn || p.curves || p.softClips
+                        || p.lut);
                 p.blur = BlurValues::at(n, frame, geometry.height);
                 p.blurs = p.mix > 0.0f && p.blur.active();
                 p.qualifier = n.qualifier;
@@ -149,6 +153,8 @@ void evalNode(const PreparedGrade& g, size_t i, const float rgb[3], float px, fl
             applyMixer(n.mixer, c);
         if (n.curves)
             applyCurves(*n.curves, c);
+        if (n.softClips)
+            applySoftClip(n.softClip, c);
         if (n.lut) {
             if (n.tetrahedral)
                 n.lut->applyTetrahedral(c);
@@ -302,13 +308,15 @@ void applyBlurStage(const BlurStage& stage, std::vector<float>& rgb,
         for (size_t i = size_t(y0) * size_t(w); i < size_t(y1) * size_t(w); ++i) {
             if (alpha[i] <= 0.0f)
                 continue;
+            const float weight = stage.midWeight ? midtoneWeight(luma(&rgb[i * 3])) : 1.0f;
+            float out[3];
             for (int ch = 0; ch < 3; ++ch) {
                 const float* b = &(uniform ? blurred[0] : blurred[ch])[i * 4];
                 const float c = rgb[i * 3 + size_t(ch)];
                 const float bc = b[3] > 0.0f ? b[ch] / b[3] : c;
-                rgb[i * 3 + size_t(ch)]
-                    = blurCombine(c, bc, stage.mix[ch], stage.sharp[ch], stage.coring);
+                out[ch] = blurCombine(c, bc, stage.mix[ch], stage.sharp[ch], stage.coring, weight);
             }
+            std::copy(out, out + 3, &rgb[i * 3]);
         }
     });
 }
@@ -380,6 +388,8 @@ void applyGradeBlurred(const PreparedGrade& g, QImage& image)
                                 applyMixer(n.mixer, c);
                             if (n.curves)
                                 applyCurves(*n.curves, c);
+                            if (n.softClips)
+                                applySoftClip(n.softClip, c);
                             if (n.lut) {
                                 if (n.tetrahedral)
                                     n.lut->applyTetrahedral(c);

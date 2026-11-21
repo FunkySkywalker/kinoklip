@@ -45,6 +45,8 @@ constexpr double kMasterThrowPx = 400.0;
 /// Pick radius of curve points (px).
 constexpr double kPointRadius = 6.0;
 constexpr Wheel kWheels[] = {Wheel::Lift, Wheel::Gamma, Wheel::Gain, Wheel::Offset};
+constexpr Wheel kLogWheels[] = {
+    Wheel::LogShadow, Wheel::LogMidtone, Wheel::LogHighlight, Wheel::LogOffset};
 
 QString wheelName(Wheel w)
 {
@@ -56,9 +58,22 @@ QString wheelName(Wheel w)
     case Wheel::Gain:
         return ColorWheel::tr("Gain");
     case Wheel::Offset:
+    case Wheel::LogOffset:
         return ColorWheel::tr("Offset");
+    case Wheel::LogShadow:
+        return ColorWheel::tr("Shadow");
+    case Wheel::LogMidtone:
+        return ColorWheel::tr("Midtone");
+    case Wheel::LogHighlight:
+        return ColorWheel::tr("Highlight");
     }
     return {};
+}
+
+/// Name for object names: unique across both palettes.
+QString wheelId(Wheel w)
+{
+    return int(w) >= int(Wheel::LogShadow) ? QStringLiteral("Log") + wheelName(w) : wheelName(w);
 }
 
 double neutralOf(Wheel w)
@@ -100,7 +115,7 @@ ColorWheel::ColorWheel(Wheel wheel, QWidget* parent)
     : QWidget(parent)
     , m_wheel(wheel)
 {
-    setObjectName(QStringLiteral("ColorWheel_") + wheelName(wheel));
+    setObjectName(QStringLiteral("ColorWheel_") + wheelId(wheel));
     setToolTip(tr("%1: drag the centre to balance the colour, drag the bar below for the master "
                   "level; Shift for fine control; the arrow at the top right or a "
                   "double-click resets")
@@ -351,7 +366,7 @@ PrimaryBars::PrimaryBars(Wheel wheel, QWidget* parent)
     : QWidget(parent)
     , m_wheel(wheel)
 {
-    setObjectName(QStringLiteral("PrimaryBars_") + wheelName(wheel));
+    setObjectName(QStringLiteral("PrimaryBars_") + wheelId(wheel));
     setToolTip(tr("%1: drag a bar up or down; double-click resets it").arg(wheelName(wheel)));
 }
 
@@ -461,12 +476,17 @@ void PrimaryBars::mouseDoubleClickEvent(QMouseEvent* event)
 
 // ---- PrimariesPanel ----
 
-PrimariesPanel::PrimariesPanel(ColorSession* session, QWidget* parent)
+PrimariesPanel::PrimariesPanel(ColorSession* session, QWidget* parent, Kind kind)
     : QWidget(parent)
     , m_session(session)
+    , m_kind(kind)
 {
     markVimForm(this);
-    setObjectName(QStringLiteral("PrimariesPanel"));
+    const bool log = kind == Kind::Log;
+    const std::array<Wheel, 4> wheelSet = log ? std::array<Wheel, 4> {kLogWheels[0], kLogWheels[1], kLogWheels[2], kLogWheels[3]}
+                                              : std::array<Wheel, 4> {kWheels[0], kWheels[1], kWheels[2], kWheels[3]};
+    const QString prefix = log ? QStringLiteral("LogPalette_") : QStringLiteral("Primaries_");
+    setObjectName(log ? QStringLiteral("LogPanel") : QStringLiteral("PrimariesPanel"));
     auto* layout = new QVBoxLayout(this);
     layout->setContentsMargins(6, 2, 6, 4);
     layout->setSpacing(2);
@@ -478,13 +498,13 @@ PrimariesPanel::PrimariesPanel(ColorSession* session, QWidget* parent)
         int decimals;
     };
     // A label + value pair; pairs are spread over the row with stretches between them.
-    auto makeField = [this](const Spec& s, const QString& label, QHBoxLayout* row) {
+    auto makeField = [this, &prefix](const Spec& s, const QString& label, QHBoxLayout* row) {
         if (row->count() > 0)
             row->addStretch(1);
         auto* name = new QLabel(label, this);
         name->setObjectName(QStringLiteral("PrimariesLabel"));
         auto* f = new ValueField(this);
-        f->setObjectName(QStringLiteral("Primaries_") + *s.key);
+        f->setObjectName(prefix + *s.key);
         f->setRange(s.min, s.max);
         f->setStep(s.step);
         f->setDecimals(s.decimals);
@@ -504,8 +524,19 @@ PrimariesPanel::PrimariesPanel(ColorSession* session, QWidget* parent)
     makeField({&gk::Tint, -1, 1, 0.005, 3}, tr("Tint"), top);
     makeField({&gk::Contrast, 0, 4, 0.005, 3}, tr("Contrast"), top);
     makeField({&gk::Pivot, 0, 1, 0.002, 3}, tr("Pivot"), top);
+    makeField({&gk::MidtoneDetail, -100, 100, 0.5, 2}, tr("MD"), top);
     auto* topRow = new QHBoxLayout;
     topRow->setSpacing(4);
+    if (!log) {
+        m_autoButton = new QToolButton(this);
+        m_autoButton->setObjectName(QStringLiteral("PrimariesAutoButton"));
+        m_autoButton->setText(tr("Auto"));
+        m_autoButton->setAutoRaise(true);
+        m_autoButton->setToolTip(tr("Auto Color: balance the node's lift, gamma and gain from "
+                                    "the picture (black and white points, colour cast)"));
+        connect(m_autoButton, &QToolButton::clicked, this, &PrimariesPanel::autoColorRequested);
+        topRow->addWidget(m_autoButton);
+    }
     topRow->addLayout(top, 1);
     topRow->addSpacing(24);
     m_wheelsButton = modeButton(tr("Wheels"), this);
@@ -530,7 +561,7 @@ PrimariesPanel::PrimariesPanel(ColorSession* session, QWidget* parent)
         row->setContentsMargins(0, 0, 0, 0);
         row->setSpacing(6);
     }
-    for (const Wheel w : kWheels) {
+    for (const Wheel w : wheelSet) {
         const QString label = wheelName(w);
         auto* wheel = new ColorWheel(w, wheelsPage);
         m_wheels[size_t(w)] = wheel;
@@ -591,13 +622,13 @@ PrimariesPanel::PrimariesPanel(ColorSession* session, QWidget* parent)
     // Y R G B fields under each wheel (shared by both views).
     auto* fieldsRow = new QHBoxLayout;
     fieldsRow->setSpacing(6);
-    for (const Wheel w : kWheels) {
+    for (const Wheel w : wheelSet) {
         auto* grid = new QHBoxLayout;
         grid->setSpacing(1);
         for (const int c : {3, 0, 1, 2}) {
             auto* f = new ValueField(this);
             const QString& key = gk::wheelKey(w, c);
-            f->setObjectName(QStringLiteral("Primaries_") + key);
+            f->setObjectName(prefix + key);
             const auto [lo, hi] = gk::range(key);
             f->setRange(lo, hi);
             f->setStep(0.001);
@@ -617,10 +648,20 @@ PrimariesPanel::PrimariesPanel(ColorSession* session, QWidget* parent)
     // ---- Bottom adjustment row ----
     auto* bottom = new QHBoxLayout;
     bottom->setSpacing(0);
-    makeField({&gk::Mix, 0, 1, 0.005, 2}, tr("Mix"), bottom);
+    if (!log) {
+        makeField({&gk::ColorBoost, -100, 100, 0.5, 2}, tr("Boost"), bottom);
+        makeField({&gk::Shadows, -100, 100, 0.5, 2}, tr("Shad"), bottom);
+        makeField({&gk::Highlights, -100, 100, 0.5, 2}, tr("Hi"), bottom);
+    }
     makeField({&gk::Saturation, 0, 4, 0.005, 2}, tr("Sat"), bottom);
     makeField({&gk::Hue, -180, 180, 0.5, 1}, tr("Hue"), bottom);
     makeField({&gk::LumMix, 0, 1, 0.005, 2}, tr("Lum Mix"), bottom);
+    if (log) {
+        makeField({&gk::LogLowRange, 0, 1, 0.005, 2}, tr("Low Range"), bottom);
+        makeField({&gk::LogHighRange, 0, 1, 0.005, 2}, tr("High Range"), bottom);
+    } else {
+        makeField({&gk::Mix, 0, 1, 0.005, 2}, tr("Mix"), bottom);
+    }
     layout->addLayout(bottom);
 
     if (m_session) {
@@ -702,7 +743,7 @@ void PrimariesPanel::refresh()
     const int64_t frame = m_session ? m_session->gradeFrame() : 0;
     auto value
         = [&](const QString& key) { return n ? n->value(key, frame) : gk::defaultValue(key); };
-    for (const Wheel w : kWheels) {
+    for (const Wheel w : (m_kind == Kind::Log ? kLogWheels : kWheels)) {
         const double neutral = neutralOf(w);
         const std::array<double, 4> d
             = {value(gk::wheelKey(w, 0)) - neutral, value(gk::wheelKey(w, 1)) - neutral,
@@ -973,7 +1014,8 @@ ColorCurvesPanel::ColorCurvesPanel(ColorSession* session, QWidget* parent)
     const std::pair<GradeCurve, QString> modes[]
         = {{GradeCurve::Luma, tr("Custom")}, {GradeCurve::HueHue, tr("Hue vs Hue")},
             {GradeCurve::HueSat, tr("Hue vs Sat")}, {GradeCurve::HueLum, tr("Hue vs Lum")},
-            {GradeCurve::LumSat, tr("Lum vs Sat")}, {GradeCurve::SatSat, tr("Sat vs Sat")}};
+            {GradeCurve::LumSat, tr("Lum vs Sat")}, {GradeCurve::SatSat, tr("Sat vs Sat")},
+            {GradeCurve::SatLum, tr("Sat vs Lum")}};
     for (const auto& [curve, text] : modes) {
         QToolButton* b = modeButton(text, this);
         b->setObjectName(QStringLiteral("CurveMode_") + QString::number(int(curve)));
@@ -982,6 +1024,12 @@ ColorCurvesPanel::ColorCurvesPanel(ColorSession* session, QWidget* parent)
     }
     m_modes->button(int(GradeCurve::Luma))->setChecked(true);
     bar->addStretch(1);
+    m_pick = modeButton(tr("Pick"), this);
+    m_pick->setObjectName(QStringLiteral("CurvePick"));
+    m_pick->setToolTip(tr("Click the viewer to add the picked colour's (or luma's) points to the "
+                          "shown curve"));
+    connect(m_pick, &QToolButton::toggled, this, &ColorCurvesPanel::pickModeChanged);
+    bar->addWidget(m_pick);
     layout->addLayout(bar);
 
     auto* body = new QHBoxLayout;
@@ -1017,6 +1065,48 @@ ColorCurvesPanel::ColorCurvesPanel(ColorSession* session, QWidget* parent)
     body->addWidget(m_editor, 1);
     layout->addLayout(body, 1);
 
+    // Soft Clip (Custom curves): Low / Low Soft / High / High Soft.
+    m_softRow = new QWidget(this);
+    auto* soft = new QHBoxLayout(m_softRow);
+    soft->setContentsMargins(0, 0, 0, 0);
+    soft->setSpacing(4);
+    auto* softTitle = new QLabel(tr("Soft Clip"), m_softRow);
+    soft->addWidget(softTitle);
+    const std::pair<const QString*, QString> softKeys[]
+        = {{&gk::SoftClipLow, tr("Low")}, {&gk::SoftClipLowSoft, tr("L.Soft")},
+            {&gk::SoftClipHigh, tr("High")}, {&gk::SoftClipHighSoft, tr("H.Soft")}};
+    for (const auto& [keyPtr, text] : softKeys) {
+        const QString key = *keyPtr;
+        soft->addStretch(1);
+        soft->addWidget(new QLabel(text, m_softRow));
+        auto* f = new ValueField(m_softRow);
+        f->setObjectName(QStringLiteral("SoftClip_") + key);
+        f->setRange(0.0, 1.0);
+        f->setStep(0.005);
+        f->setDecimals(3);
+        f->setToolTip(gk::label(key));
+        f->setFixedWidth(std::max(52, f->sizeHint().width()));
+        soft->addWidget(f);
+        connect(f, &ValueField::scrubStarted, this, [this, key] {
+            if (m_session)
+                m_session->beginGesture(gk::label(key));
+        });
+        connect(f, &ValueField::valueScrubbed, this, [this, key](double v) {
+            if (!m_refreshing && m_session)
+                m_session->setParam(0, key, v, gk::label(key));
+        });
+        connect(f, &ValueField::scrubFinished, this, [this] {
+            if (m_session)
+                m_session->endGesture();
+        });
+        connect(f, &ValueField::valueCommitted, this, [this, key](double v) {
+            if (!m_refreshing && m_session)
+                m_session->setParam(0, key, v, gk::label(key));
+        });
+        m_softFields.append({key, f});
+    }
+    layout->addWidget(m_softRow);
+
     connect(m_modes, &QButtonGroup::idClicked, this, [this](int id) {
         GradeCurve c = GradeCurve(id);
         if (c == GradeCurve::Luma)
@@ -1033,8 +1123,49 @@ ColorCurvesPanel::ColorCurvesPanel(ColorSession* session, QWidget* parent)
         auto enable = [this] { setEnabled(m_session->hasGrade()); };
         connect(m_session, &ColorSession::clipChanged, this, enable);
         enable();
+        connect(m_session, &ColorSession::gradeChanged, this, &ColorCurvesPanel::refreshSoftClip);
+        connect(m_session, &ColorSession::selectedNodeChanged, this,
+            &ColorCurvesPanel::refreshSoftClip);
+        connect(m_session, &ColorSession::clipChanged, this, &ColorCurvesPanel::refreshSoftClip);
     }
     updateButtons();
+    refreshSoftClip();
+}
+
+void ColorCurvesPanel::refreshSoftClip()
+{
+    m_refreshing = true;
+    const GradeNode* n = m_session ? m_session->currentNode() : nullptr;
+    const int64_t frame = m_session ? m_session->gradeFrame() : 0;
+    for (const auto& [key, f] : std::as_const(m_softFields)) {
+        if (!f->isScrubbing())
+            f->setValue(n ? n->value(key, frame) : gk::defaultValue(key));
+    }
+    m_refreshing = false;
+}
+
+ValueField* ColorCurvesPanel::softClipField(const QString& key) const
+{
+    for (const auto& [k, f] : m_softFields) {
+        if (k == key)
+            return f;
+    }
+    return nullptr;
+}
+
+bool ColorCurvesPanel::pickActive() const
+{
+    return m_pick->isChecked();
+}
+
+void ColorCurvesPanel::pickColor(const float rgb[3])
+{
+    if (!m_session || !m_session->hasGrade())
+        return;
+    const GradeNode* n = m_session->currentNode();
+    CurvePoints pts = n ? n->curves[m_editor->curve()] : CurvePoints {};
+    grademath::addCurvePickPoints(pts, m_editor->curve(), rgb);
+    m_session->setCurve(0, m_editor->curve(), pts, tr("Curve Pick"));
 }
 
 void ColorCurvesPanel::showCurve(GradeCurve curve)
@@ -1062,11 +1193,20 @@ void ColorCurvesPanel::resetCurve()
     } else {
         m_session->setCurve(0, c, {}, tr("Reset Curve"));
     }
+    if (isChannelCurve(c)) {
+        m_session->setParams(0,
+            {{gk::SoftClipLow, gk::defaultValue(gk::SoftClipLow)},
+                {gk::SoftClipLowSoft, gk::defaultValue(gk::SoftClipLowSoft)},
+                {gk::SoftClipHigh, gk::defaultValue(gk::SoftClipHigh)},
+                {gk::SoftClipHighSoft, gk::defaultValue(gk::SoftClipHighSoft)}},
+            tr("Reset Soft Clip"));
+    }
 }
 
 void ColorCurvesPanel::updateButtons()
 {
     m_channelRow->setVisible(isChannelCurve(m_editor->curve()));
+    m_softRow->setVisible(isChannelCurve(m_editor->curve()));
 }
 
 } // namespace kk

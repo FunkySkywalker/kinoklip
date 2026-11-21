@@ -131,13 +131,23 @@ private:
 };
 
 /// The Primaries palette: Lift, Gamma, Gain and Offset as wheels or bars, each with its Y R G
-/// B fields, and the adjustment rows (Temp, Tint, Contrast, Pivot above; Mix, Saturation, Hue,
-/// Lum Mix below), bound to the session's selected node at the playhead.
+/// B fields, and the adjustment rows (Temp, Tint, Contrast, Pivot, MD above; Boost, Shad, Hi,
+/// Sat, Hue, Lum Mix, Mix below), bound to the session's selected node at the playhead. The
+/// Log kind is the Log palette: Shadow, Midtone, Highlight and Offset wheels with the Low and
+/// High Range fields; it shares the adjustment fields with the Primaries kind.
 class PrimariesPanel : public QWidget
 {
     Q_OBJECT
 public:
-    explicit PrimariesPanel(ColorSession* session, QWidget* parent = nullptr);
+    enum class Kind {
+        Primaries,
+        Log
+    };
+    explicit PrimariesPanel(
+        ColorSession* session, QWidget* parent = nullptr, Kind kind = Kind::Primaries);
+    [[nodiscard]] Kind kind() const { return m_kind; }
+    /// The Auto Color button (Primaries kind only; nullptr for Log).
+    [[nodiscard]] QToolButton* autoButton() const { return m_autoButton; }
 
     [[nodiscard]] ColorWheel* wheel(gradekeys::Wheel w) const { return m_wheels[size_t(w)]; }
     [[nodiscard]] PrimaryBars* bars(gradekeys::Wheel w) const { return m_bars[size_t(w)]; }
@@ -150,6 +160,10 @@ public:
     /// Resets every primary of the selected node (the palette's reset button).
     void resetAll();
 
+Q_SIGNALS:
+    /// The Auto Color button was pressed; the page analyses the node's input picture.
+    void autoColorRequested();
+
 private:
     void refresh();
     /// Binds @p field to @p key: drags are one undo step, typed values one each.
@@ -157,8 +171,10 @@ private:
     void resetWheel(gradekeys::Wheel w);
 
     QPointer<ColorSession> m_session;
-    std::array<ColorWheel*, 4> m_wheels {};
-    std::array<PrimaryBars*, 4> m_bars {};
+    Kind m_kind = Kind::Primaries;
+    QToolButton* m_autoButton = nullptr;
+    std::array<ColorWheel*, gradekeys::kWheelCount> m_wheels {};
+    std::array<PrimaryBars*, gradekeys::kWheelCount> m_bars {};
     QStackedWidget* m_modes = nullptr;
     QToolButton* m_wheelsButton = nullptr;
     QToolButton* m_barsButton = nullptr;
@@ -208,8 +224,9 @@ private:
 };
 
 /// The Curves palette: mode buttons (Custom, Hue vs Hue, Hue vs Sat, Hue vs Lum, Lum vs Sat,
-/// Sat vs Sat), for Custom the Y / R / G / B channel buttons and the link toggle, and the
-/// editor; resetCurve() is the palette bar's Reset.
+/// Sat vs Sat, Sat vs Lum), for Custom the Y / R / G / B channel buttons, the link toggle and
+/// the Soft Clip fields, the eyedropper (Pick: a click in the viewer adds the picked colour's
+/// points to the shown curve) and the editor; resetCurve() is the palette bar's Reset.
 class ColorCurvesPanel : public QWidget
 {
     Q_OBJECT
@@ -219,11 +236,24 @@ public:
     [[nodiscard]] GradeCurveEditor* editor() const { return m_editor; }
     /// Shows curve @p curve (selects the matching mode and channel button).
     void showCurve(GradeCurve curve);
-    /// Resets the shown curve (Custom with link: R, G and B together).
+    /// Resets the shown curve (Custom with link: R, G and B together) and, in Custom mode, the
+    /// Soft Clip values.
     void resetCurve();
+    /// The eyedropper button (checkable) and whether it is on.
+    [[nodiscard]] QToolButton* pickButton() const { return m_pick; }
+    [[nodiscard]] bool pickActive() const;
+    /// Adds the points of picked colour @p rgb (straight, 0..1) to the shown curve in one undo
+    /// step (grademath::addCurvePickPoints()).
+    void pickColor(const float rgb[3]);
+    /// The Soft Clip field of @p key (gradekeys::SoftClipLow ...), or nullptr.
+    [[nodiscard]] ValueField* softClipField(const QString& key) const;
+
+Q_SIGNALS:
+    void pickModeChanged();
 
 private:
     void updateButtons();
+    void refreshSoftClip();
 
     QPointer<ColorSession> m_session;
     GradeCurveEditor* m_editor = nullptr;
@@ -231,6 +261,10 @@ private:
     QButtonGroup* m_channels = nullptr;
     QWidget* m_channelRow = nullptr;
     QToolButton* m_link = nullptr;
+    QToolButton* m_pick = nullptr;
+    QWidget* m_softRow = nullptr;
+    QVector<std::pair<QString, ValueField*>> m_softFields;
+    bool m_refreshing = false;
 };
 
 } // namespace kk

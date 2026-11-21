@@ -38,6 +38,13 @@ uniform int uPrimaries;
 uniform vec4 uLift, uGamma, uGain, uOffset;
 uniform float uContrast, uPivot, uSaturation, uTemperature, uTint, uLumMix;
 uniform mat3 uHue;
+uniform int uSoftClipOn;
+uniform vec4 uSoftClip;   // low, low soft, high, high soft
+uniform int uLogOn;       // Log palette: 1 when any wheel is off neutral
+uniform vec4 uLogS, uLogM, uLogH, uLogO;   // Shadow, Midtone, Highlight, Offset wheels (rgb, master)
+uniform vec2 uLogRange;   // low, high boundary
+uniform vec2 uShadHi;     // Shad, Hi (fractions)
+uniform float uBoost;     // Color Boost (fraction)
 uniform int uMixer;       // RGB Mixer: 0 off, else bit 0 on, bit 1 Monochrome, bit 2 Preserve Luminance
 uniform mat3 uMixM;       // row-major on the CPU (out = M * in)
 uniform vec3 uMixGrey;
@@ -78,6 +85,8 @@ const float kTintRange = )"
 const float kGammaRange = )"
     + std::to_string(kGammaRange) + R"(;
 const float kMinSoft = 1e-4;
+const float kLogRamp = )" + std::to_string(kLogRamp) + R"(;
+const float kShadHi = )" + std::to_string(kShadHiStrength) + R"(;
 
 float luma(vec3 c) { return dot(c, kLuma); }
 
@@ -94,10 +103,17 @@ vec3 lgg3(vec3 x, vec3 lift, vec3 gamma, vec3 gain)
 
 vec3 primaries(vec3 c)
 {
-    c += uOffset.rgb + uOffset.a;
+    c += uOffset.rgb + uOffset.a + uLogO.rgb + uLogO.a;
     c.r *= 1.0 + kTempRange * uTemperature;
     c.b *= 1.0 - kTempRange * uTemperature;
     c.g *= 1.0 - kTintRange * uTint;
+    if (uLogOn != 0) {
+        float ly = clamp(luma(c), 0.0, 1.0);
+        float wS = 1.0 - smoothstep(uLogRange.x - kLogRamp, uLogRange.x + kLogRamp, ly);
+        float wH = smoothstep(uLogRange.y - kLogRamp, uLogRange.y + kLogRamp, ly);
+        float wM = max(1.0 - wS - wH, 0.0);
+        c += wS * (uLogS.rgb + uLogS.a) + wM * (uLogM.rgb + uLogM.a) + wH * (uLogH.rgb + uLogH.a);
+    }
     c = lgg3(c, uLift.rgb, uGamma.rgb, uGain.rgb);
     float y = luma(c);
     float y2 = lgg(y, uLift.a, uGamma.a, uGain.a);
@@ -105,9 +121,26 @@ vec3 primaries(vec3 c)
     vec3 lumaMaster = c + (y2 - y);
     c = rgbMaster + (lumaMaster - rgbMaster) * uLumMix;
     c = (c - uPivot) * uContrast + uPivot;
+    if (uShadHi.x != 0.0 || uShadHi.y != 0.0) {
+        float sy = clamp(luma(c), 0.0, 1.0);
+        float wShadow = 1.0 - smoothstep(0.0, 0.5, sy);
+        float wHigh = smoothstep(0.5, 1.0, sy);
+        vec3 x = clamp(c, 0.0, 1.0);
+        c += uShadHi.x * wShadow * kShadHi * (uShadHi.x > 0.0 ? 1.0 - x : x);
+        c += uShadHi.y * wHigh * kShadHi * (uShadHi.y > 0.0 ? 1.0 - x : x);
+    }
     c = uHue * c;
     float y3 = luma(c);
-    return y3 + (c - y3) * uSaturation;
+    c = y3 + (c - y3) * uSaturation;
+    if (uBoost != 0.0) {
+        float mx = max(c.r, max(c.g, c.b));
+        float mn = min(c.r, min(c.g, c.b));
+        float s = mx > 1e-5 ? clamp((mx - mn) / mx, 0.0, 1.0) : 0.0;
+        float factor = 1.0 + uBoost * (1.0 - s);
+        float y4 = luma(c);
+        c = y4 + (c - y4) * factor;
+    }
+    return c;
 }
 
 // Mirrors grademath::applyMixer (CPU); darktable channelmixer.c process_gray for Monochrome.
@@ -271,10 +304,11 @@ vec3 curves(vec3 c)
         c[ch] = v;
     }
     // 4 hue-hue, 5 hue-sat, 6 hue-lum, 7 lum-sat, 8 sat-sat
-    if ((uCurveMask & 0x1f0) == 0)
+    if ((uCurveMask & 0x3f0) == 0)
         return c;
     vec3 hsl = rgbToHsl(c);
     float h = hsl.x;
+    float s0 = hsl.y;
     float y = clamp(luma(c), 0.0, 1.0);
     float factor = 1.0;
     if (curveOn(5))
@@ -289,12 +323,46 @@ vec3 curves(vec3 c)
     }
     hsl.y = clamp(hsl.y * factor, 0.0, 1.0);
     c = hslToRgb(hsl);
-    if (curveOn(6)) {
+    if (curveOn(6) || curveOn(9)) {
+        float lumFactor = 1.0;
+        if (curveOn(6))
+            lumFactor *= curve(6, h);
+        if (curveOn(9))
+            lumFactor *= curve(9, s0);
         float y2 = luma(c);
-        c += y2 * (curve(6, h) - 1.0);
+        c += y2 * (lumFactor - 1.0);
     }
     return c;
 }
+
+// Mirrors grademath::softClip.
+float softClip1(float x)
+{
+    float wl = uSoftClip.y * 0.5;
+    if (wl <= 0.0) {
+        x = max(x, uSoftClip.x);
+    } else if (x < uSoftClip.x + wl) {
+        if (x <= uSoftClip.x - wl) {
+            x = uSoftClip.x;
+        } else {
+            float t = (uSoftClip.x + wl) - x;
+            x = (uSoftClip.x + wl) - t + t * t / (4.0 * wl);
+        }
+    }
+    float wh = uSoftClip.w * 0.5;
+    if (wh <= 0.0) {
+        x = min(x, uSoftClip.z);
+    } else if (x > uSoftClip.z - wh) {
+        if (x >= uSoftClip.z + wh) {
+            x = uSoftClip.z;
+        } else {
+            float t = x - (uSoftClip.z - wh);
+            x = (uSoftClip.z - wh) + t - t * t / (4.0 * wh);
+        }
+    }
+    return x;
+}
+vec3 softClip(vec3 c) { return vec3(softClip1(c.r), softClip1(c.g), softClip1(c.b)); }
 
 vec3 lutAt(ivec3 i) { return texelFetch(uLut3d, i, 0).rgb; }
 vec3 lut(vec3 c)
@@ -456,6 +524,8 @@ vec3 correct(vec3 c)
             g = mixer(g);
         if (uCurveMask != 0)
             g = curves(g);
+        if (uSoftClipOn != 0)
+            g = softClip(g);
         if (uLutMode != 0)
             g = lut(g);
         if (uAgx != 0)
@@ -573,6 +643,7 @@ const std::string kBlurCombineSource = std::string(R"(
 uniform sampler2D uSrc, uB0, uB1, uB2;
 uniform vec3 uMix, uSharp;
 uniform float uCoring;
+uniform float uMidWeight;   // 1 for Midtone Detail: scale the correction by 4 y (1 - y)
 void main()
 {
     ivec2 p = ivec2(gl_FragCoord.xy);
@@ -589,7 +660,12 @@ void main()
         q2.a > 0.0 ? q2.b / q2.a : c.b);
     vec3 d = c - b;
     vec3 core = uCoring > 0.0 ? smoothstep(vec3(0.0), vec3(uCoring * )") + std::to_string(kCoringRange) + R"(), abs(d)) : vec3(1.0);
-    vec3 o = c + (b - c) * uMix + d * uSharp * core;
+    float wgt = 1.0;
+    if (uMidWeight > 0.5) {
+        float my = clamp(dot(c, vec3(0.2126, 0.7152, 0.0722)), 0.0, 1.0);
+        wgt = 4.0 * my * (1.0 - my);
+    }
+    vec3 o = c + ((b - c) * uMix + d * uSharp * core) * wgt;
     fragColor = vec4(o * s.a, s.a);
 }
 )";
@@ -722,6 +798,16 @@ bool GlGrade::initialize(GlKit& kit, QString* why)
     m_u.tint = u("uTint");
     m_u.lumMix = u("uLumMix");
     m_u.hue = u("uHue");
+    m_u.softClipOn = u("uSoftClipOn");
+    m_u.softClip = u("uSoftClip");
+    m_u.logOn = u("uLogOn");
+    m_u.logS = u("uLogS");
+    m_u.logM = u("uLogM");
+    m_u.logH = u("uLogH");
+    m_u.logO = u("uLogO");
+    m_u.logRange = u("uLogRange");
+    m_u.shadHi = u("uShadHi");
+    m_u.boost = u("uBoost");
     m_u.mixer = u("uMixer");
     m_u.mixM = u("uMixM");
     m_u.mixGrey = u("uMixGrey");
@@ -793,6 +879,7 @@ bool GlGrade::initialize(GlKit& kit, QString* why)
     m_combineMix = m_blurCombine.uniform(gl, "uMix");
     m_combineSharp = m_blurCombine.uniform(gl, "uSharp");
     m_combineCoring = m_blurCombine.uniform(gl, "uCoring");
+    m_combineMid = m_blurCombine.uniform(gl, "uMidWeight");
     gl->glUseProgram(m_blurMix.id);
     gl->glUniform1i(m_blurMix.uniform(gl, "uIn"), 0);
     gl->glUniform1i(m_blurMix.uniform(gl, "uGraded"), 1);
@@ -924,6 +1011,17 @@ void GlGrade::drawCorrector(
     gl->glUniform1f(m_u.tint, p.tint);
     gl->glUniform1f(m_u.lumMix, p.lumMix);
     gl->glUniformMatrix3fv(m_u.hue, 1, GL_TRUE, p.hueMatrix); // row-major on the CPU
+    gl->glUniform1i(m_u.softClipOn, n.softClips ? 1 : 0);
+    gl->glUniform4f(m_u.softClip, n.softClip.low, n.softClip.lowSoft, n.softClip.high,
+        n.softClip.highSoft);
+    gl->glUniform1i(m_u.logOn, p.logActive() ? 1 : 0);
+    gl->glUniform4f(m_u.logS, p.logShadow[0], p.logShadow[1], p.logShadow[2], p.logShadow[3]);
+    gl->glUniform4f(m_u.logM, p.logMid[0], p.logMid[1], p.logMid[2], p.logMid[3]);
+    gl->glUniform4f(m_u.logH, p.logHigh[0], p.logHigh[1], p.logHigh[2], p.logHigh[3]);
+    gl->glUniform4f(m_u.logO, p.logOffset[0], p.logOffset[1], p.logOffset[2], p.logOffset[3]);
+    gl->glUniform2f(m_u.logRange, p.logLowRange, p.logHighRange);
+    gl->glUniform2f(m_u.shadHi, p.shadows, p.highlights);
+    gl->glUniform1f(m_u.boost, p.colorBoost);
     gl->glUniform1i(m_u.mixer,
         n.mixes ? (1 | (n.mixer.mono ? 2 : 0) | (n.mixer.preserveLum ? 4 : 0)) : 0);
     gl->glUniformMatrix3fv(m_u.mixM, 1, GL_TRUE, n.mixer.m); // row-major on the CPU
@@ -1044,6 +1142,7 @@ PooledTarget GlGrade::blurStage(
     gl->glUniform3f(m_combineMix, stage.mix[0], stage.mix[1], stage.mix[2]);
     gl->glUniform3f(m_combineSharp, stage.sharp[0], stage.sharp[1], stage.sharp[2]);
     gl->glUniform1f(m_combineCoring, stage.coring);
+    gl->glUniform1f(m_combineMid, stage.midWeight ? 1.0f : 0.0f);
     kit.bindTexture(0, source);
     for (int ch = 0; ch < 3; ++ch)
         kit.bindTexture(1 + ch, blurred[groups == 1 ? 0 : ch]->texture);

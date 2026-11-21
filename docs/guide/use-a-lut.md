@@ -80,6 +80,19 @@ suits a camera LUT.
   does not copy it. If you move, rename or delete the file, or open the project on another
   computer, the clip shows without the LUT until the file is back in the same place.
 
+## Make a LUT from your grade
+
+A finished grade can be saved as a LUT and used on other footage, in another project or in
+another program. In the clips strip of the Color page, right-click the graded clip and choose
+**Generate 3D LUT (CUBE)**, then **17 Point Cube**, **33 Point Cube** or **65 Point Cube** (more
+points follow the grade more exactly; 33 is the usual choice). Pick a name and a folder; the
+LUTs folder shown in the LUTs palette is suggested, so the LUT appears in the list after
+**Refresh**. The menu entry is greyed out for a clip without a grade.
+
+Only what changes every colour in the same way goes into a LUT: the wheels, curves, RGB Mixer,
+LUT and AgX of every node. Windows, qualifiers, Blur and Midtone Detail depend on where a pixel
+is, so they are left out. Values are kept between 0 and 1.
+
 ## If something goes wrong
 
 - **The list says "(no .cube files)".** The folder has no files ending in .cube. Kinoklip reads

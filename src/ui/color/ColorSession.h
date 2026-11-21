@@ -6,6 +6,7 @@
 
 #include "core/Grade.h"
 
+#include <QImage>
 #include <QObject>
 #include <QPointer>
 #include <QString>
@@ -99,6 +100,14 @@ public:
     /// Several parameters of one node in one commit (a wheel's R, G and B).
     bool setParams(
         quint64 nodeId, const QVector<std::pair<QString, double>>& values, const QString& label);
+    /// Generate 3D LUT (CUBE): writes the grade of clip @p clipId as a @p size point .cube file
+    /// (render::writeGradeCube() at the playhead's frame of that clip, or its first frame).
+    /// @return false with a reason in @p error (no grade, unwritable path).
+    bool generateLut(quint64 clipId, int size, const QString& path, QString* error = nullptr);
+    /// Auto Color on node @p nodeId (0: selected): sets its per-channel lift, gamma and gain from
+    /// @p picture (the node's input), grademath::autoColor(), in one undo step. False without
+    /// a grade, with a mixer, or when the picture is too flat to analyse.
+    bool autoColor(quint64 nodeId, const QImage& picture);
     /// Replaces curve @p curve of node @p nodeId (0: selected).
     bool setCurve(
         quint64 nodeId, GradeCurve curve, const CurvePoints& points, const QString& label);

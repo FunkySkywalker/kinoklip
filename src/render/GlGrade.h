@@ -36,6 +36,9 @@ private:
         GLint mode = -1, corrects = -1, primaries = -1;
         GLint lift = -1, gamma = -1, gain = -1, offset = -1;
         GLint contrast = -1, pivot = -1, saturation = -1, temperature = -1, tint = -1;
+        GLint softClipOn = -1, softClip = -1;
+        GLint logOn = -1, logS = -1, logM = -1, logH = -1, logO = -1, logRange = -1, shadHi = -1,
+            boost = -1;
         GLint lumMix = -1, hue = -1, curveMask = -1, mixer = -1, mixM = -1, mixGrey = -1;
         GLint agx = -1, agxIn = -1, agxLook = -1, agxOut = -1, agxExp = -1;
         GLint lutMode = -1, lutN = -1, lutMin = -1, lutMax = -1;
@@ -74,7 +77,7 @@ private:
     GlProgram m_matteMorph, m_matteMedian, m_matteRatio;
     GLint m_morphDir = -1, m_morphRadius = -1, m_morphDilate = -1, m_medianRadius = -1,
         m_ratioValue = -1;
-    GLint m_combineMix = -1, m_combineSharp = -1, m_combineCoring = -1;
+    GLint m_combineMix = -1, m_combineSharp = -1, m_combineCoring = -1, m_combineMid = -1;
 
     GLuint m_curveTex = 0; ///< kCurveTableSize x kGradeCurveCount, R32F
     GLuint m_lut3d = 0;

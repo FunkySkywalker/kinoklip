@@ -21,8 +21,26 @@ enum class ScopeType : quint8 {
     WaveformRgb, ///< R, G and B levels per column, overlaid
     Parade, ///< R, G and B waveforms side by side
     Vectorscope, ///< Cb / Cr scatter (colour hue and saturation)
-    Histogram ///< R, G, B and luma value counts
+    Histogram, ///< R, G, B and luma value counts
+    CieChromaticity ///< CIE 1931 xy chromaticity of every pixel on the spectral locus
 };
+
+/// The numbers beside the waveforms' and the histogram's levels (the scope settings' Scale).
+enum class ScopeScale : quint8 {
+    TenBit, ///< 0 - 1023 (the default)
+    EightBit, ///< 0 - 255
+    Percent, ///< 0 - 100
+    Float ///< 0.0 - 1.0
+};
+/// Stable ids ("10bit", "8bit", "percent", "float").
+[[nodiscard]] const char* scopeScaleId(ScopeScale scale);
+[[nodiscard]] ScopeScale scopeScaleFromId(const QString& id);
+/// The label of graticule line @p step (0 .. 4, black to white in quarters) on @p scale.
+[[nodiscard]] QString scaleLabel(ScopeScale scale, int step);
+/// Range of the scope settings' Gain (a multiplier of the trace brightness) and its default.
+inline constexpr double kMinScopeGain = 0.25;
+inline constexpr double kMaxScopeGain = 4.0;
+inline constexpr double kDefaultScopeGain = 1.0;
 
 /// Stable string ids ("waveform", "waveformRgb", "parade", "vectorscope", "histogram").
 [[nodiscard]] const char* scopeTypeId(ScopeType type);
@@ -68,6 +86,37 @@ struct VectorscopeData
 [[nodiscard]] QPointF vectorscopeCell(QPointF cbCr, int size);
 /// Vectorscope of @p image on a @p size grid.
 [[nodiscard]] VectorscopeData vectorscope(const QImage& image, int size = 256);
+
+/// Largest x and y of the CIE scope's grid (the plot shows 0 .. kCieMax on both axes).
+inline constexpr double kCieMax = 0.85;
+/// CIE 1931 chromaticity counts on a size x size grid, row 0 at the top (y up).
+struct CieData
+{
+    int size = 0;
+    std::vector<uint32_t> counts;
+    [[nodiscard]] uint32_t at(int x, int y) const
+    {
+        return counts[size_t(y) * size_t(size) + size_t(x)];
+    }
+};
+/// CIE 1931 xy chromaticity of gamma-encoded Rec. 709 RGB (0..1): decoded with the BT.1886
+/// display gamma 2.4, mapped to XYZ with the Rec. 709 primaries (D65). False in @p valid (and
+/// the white point) for black, which has no chromaticity.
+[[nodiscard]] QPointF xyChromaticity(double r, double g, double b, bool* valid = nullptr);
+/// Grid cell (fractional, 0..size - 1) of chromaticity @p xy on a CIE scope of @p size.
+[[nodiscard]] QPointF cieCell(QPointF xy, int size);
+/// CIE chromaticity scope of @p image on a @p size grid (black pixels are skipped).
+[[nodiscard]] CieData cieChromaticity(const QImage& image, int size = 256);
+/// The spectral locus of the CIE 1931 2 degree observer, 380 to 700 nm in steps of 10 nm (the
+/// closing purple line joins the last point to the first).
+[[nodiscard]] const std::vector<QPointF>& cieSpectralLocus();
+/// Red, green and blue primaries of a gamut the scope can outline: Rec. 709, DCI-P3 (D65) and
+/// Rec. 2020.
+[[nodiscard]] std::array<QPointF, 3> gamutPrimaries(int gamut);
+inline constexpr int kGamutCount = 3;
+/// D65 white point.
+inline constexpr double kD65x = 0.3127;
+inline constexpr double kD65y = 0.3290;
 
 /// Histogram: `bins` counters per channel (R, G, B, luma), value v in bin round(v (bins - 1)).
 struct HistogramData
