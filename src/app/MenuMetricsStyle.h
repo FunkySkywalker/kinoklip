@@ -21,13 +21,21 @@ class MenuMetricsStyle : public QProxyStyle
 {
     Q_OBJECT
 public:
-    /// Wraps @p base (takes ownership, as QProxyStyle does).
-    explicit MenuMetricsStyle(QStyle* base);
+    /// Wraps @p base (takes ownership, as QProxyStyle does). With @p centerBesideIconLabels
+    /// (Libadwaita only), tool buttons with the text beside the icon draw icon and text as one
+    /// centred group: Libadwaita widens such buttons but its base drawing puts the content at
+    /// the left, so all the spare room ended up on the right (owner feedback, interface bar).
+    explicit MenuMetricsStyle(QStyle* base, bool centerBesideIconLabels = false);
+    void drawControl(ControlElement element, const QStyleOption* option, QPainter* painter,
+        const QWidget* widget = nullptr) const override;
 
     QSize sizeFromContents(ContentsType type, const QStyleOption* option, const QSize& size,
         const QWidget* widget) const override;
     int styleHint(StyleHint hint, const QStyleOption* option = nullptr,
         const QWidget* widget = nullptr, QStyleHintReturn* returnData = nullptr) const override;
+
+private:
+    bool m_centerBesideIconLabels = false;
 };
 
 } // namespace kk

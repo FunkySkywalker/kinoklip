@@ -33101,10 +33101,6 @@ Trim the clips so the media covers the transition?</source>
         <translation>Выключить клип</translation>
     </message>
     <message>
-        <source>Speed and Duration</source>
-        <translation>Скорость и длительность</translation>
-    </message>
-    <message>
         <source>Change Speed…</source>
         <translation>Изменить скорость…</translation>
     </message>
@@ -33125,6 +33121,14 @@ Trim the clips so the media covers the transition?</source>
         <translation>Связать</translation>
     </message>
     <message>
+        <source>Multicam Angle</source>
+        <translation>Ракурс мультикамеры</translation>
+    </message>
+    <message>
+        <source>Flatten Multicam Clip</source>
+        <translation>Свести многокамерный клип</translation>
+    </message>
+    <message>
         <source>Attributes…</source>
         <translation>Атрибуты…</translation>
     </message>
@@ -33135,10 +33139,6 @@ Trim the clips so the media covers the transition?</source>
     <message>
         <source>Ripple Delete</source>
         <translation>Удалить со сдвигом</translation>
-    </message>
-    <message>
-        <source>More</source>
-        <translation>Еще</translation>
     </message>
     <message>
         <source>Normalize Audio…</source>
@@ -33153,10 +33153,6 @@ Trim the clips so the media covers the transition?</source>
         <translation>Найти в медиапуле</translation>
     </message>
     <message>
-        <source>Compound</source>
-        <translation>Составной</translation>
-    </message>
-    <message>
         <source>New Compound Clip…</source>
         <translation>Новый составной клип…</translation>
     </message>
@@ -33169,28 +33165,12 @@ Trim the clips so the media covers the transition?</source>
         <translation>Разложить на месте</translation>
     </message>
     <message>
-        <source>Multicam</source>
-        <translation>Мультикамера</translation>
-    </message>
-    <message>
-        <source>Flatten</source>
-        <translation>Сплющить</translation>
-    </message>
-    <message>
-        <source>Composition</source>
-        <translation>Композиция</translation>
-    </message>
-    <message>
         <source>Open in Compositing Page</source>
         <translation>Открыть на странице Композитинг</translation>
     </message>
     <message>
         <source>Reset Composition</source>
         <translation>Сбросить композицию</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Удалить</translation>
     </message>
     <message>
         <source>Rename Track…</source>

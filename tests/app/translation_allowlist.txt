@@ -12,6 +12,10 @@ Breeze
 Breeze Classic
 Breeze Dark
 Breeze Light
+Libadwaita
+Libadwaita Dark
+Libadwaita High Contrast
+Libadwaita High Contrast Dark
 Fusion
 Kinoklip
 Union

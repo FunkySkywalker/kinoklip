@@ -150,7 +150,7 @@ QString applyStyle(const QString& wanted)
                     .contains(QStringLiteral("bold-labels")))
             qputenv("ADWAITA_BOLD_LABELS", "0");
         initAdwaitaResources();
-        QApplication::setStyle(new MenuMetricsStyle(new AdwaitaStyle));
+        QApplication::setStyle(new MenuMetricsStyle(new AdwaitaStyle, true));
         return QStringLiteral("Libadwaita");
     }
     for (const QString& candidate :
@@ -183,14 +183,21 @@ QString storedScheme()
         .toString();
 }
 
-/// Schemes compiled into the app (resources/color-schemes): id -> resource path.
+/// Schemes compiled into the app (resources/color-schemes, qt-libadwaita's kde-colors): id ->
+/// resource path.
 [[maybe_unused]] QHash<QString, QString> bundledSchemes()
 {
     QHash<QString, QString> paths;
-    const QFileInfoList files = QDir(QStringLiteral(":/color-schemes"))
-                                    .entryInfoList({QStringLiteral("*.colors")}, QDir::Files);
-    for (const QFileInfo& file : files)
-        paths.insert(file.completeBaseName(), file.filePath());
+    // Ours, then qt-libadwaita's (Libadwaita, Libadwaita Dark and their high-contrast forms),
+    // so the Adwaita look has its own colours built in.
+    initAdwaitaResources();
+    for (const QString& dir :
+        {QStringLiteral(":/color-schemes"), QStringLiteral(":/qt-libadwaita/kde-colors")}) {
+        const QFileInfoList files
+            = QDir(dir).entryInfoList({QStringLiteral("*.colors")}, QDir::Files);
+        for (const QFileInfo& file : files)
+            paths.insert(file.completeBaseName(), file.filePath());
+    }
     return paths;
 }
 

@@ -9869,7 +9869,7 @@ Thank you for watching</source>
     </message>
     <message>
         <source>Soft Clip</source>
-        <translation>М'яке обмеження</translation>
+        <translation>М&apos;яке обмеження</translation>
     </message>
     <message>
         <source>Low</source>
@@ -9877,7 +9877,7 @@ Thank you for watching</source>
     </message>
     <message>
         <source>L.Soft</source>
-        <translation>Низ м'як.</translation>
+        <translation>Низ м&apos;як.</translation>
     </message>
     <message>
         <source>High</source>
@@ -9885,7 +9885,7 @@ Thank you for watching</source>
     </message>
     <message>
         <source>H.Soft</source>
-        <translation>Верх м'як.</translation>
+        <translation>Верх м&apos;як.</translation>
     </message>
     <message>
         <source>Curve Pick</source>
@@ -9897,7 +9897,7 @@ Thank you for watching</source>
     </message>
     <message>
         <source>Reset Soft Clip</source>
-        <translation>Скинути м'яке обмеження</translation>
+        <translation>Скинути м&apos;яке обмеження</translation>
     </message>
 </context>
 <context>
@@ -33101,10 +33101,6 @@ Trim the clips so the media covers the transition?</source>
         <translation>Вимкнути кліп</translation>
     </message>
     <message>
-        <source>Speed and Duration</source>
-        <translation>Швидкість і тривалість</translation>
-    </message>
-    <message>
         <source>Change Speed…</source>
         <translation>Змінити швидкість…</translation>
     </message>
@@ -33125,6 +33121,14 @@ Trim the clips so the media covers the transition?</source>
         <translation>Зв’язати</translation>
     </message>
     <message>
+        <source>Multicam Angle</source>
+        <translation>Ракурс мультикамери</translation>
+    </message>
+    <message>
+        <source>Flatten Multicam Clip</source>
+        <translation>Розгорнути кліп мультикамери</translation>
+    </message>
+    <message>
         <source>Attributes…</source>
         <translation>Атрибути…</translation>
     </message>
@@ -33135,10 +33139,6 @@ Trim the clips so the media covers the transition?</source>
     <message>
         <source>Ripple Delete</source>
         <translation>Видалення зі зсувом</translation>
-    </message>
-    <message>
-        <source>More</source>
-        <translation>Більше</translation>
     </message>
     <message>
         <source>Normalize Audio…</source>
@@ -33153,10 +33153,6 @@ Trim the clips so the media covers the transition?</source>
         <translation>Знайти в медіапулі</translation>
     </message>
     <message>
-        <source>Compound</source>
-        <translation>Складений</translation>
-    </message>
-    <message>
         <source>New Compound Clip…</source>
         <translation>Новий складений кліп…</translation>
     </message>
@@ -33169,28 +33165,12 @@ Trim the clips so the media covers the transition?</source>
         <translation>Розкласти на місці</translation>
     </message>
     <message>
-        <source>Multicam</source>
-        <translation>Мультикамера</translation>
-    </message>
-    <message>
-        <source>Flatten</source>
-        <translation>Розгорнути</translation>
-    </message>
-    <message>
-        <source>Composition</source>
-        <translation>Композиція</translation>
-    </message>
-    <message>
         <source>Open in Compositing Page</source>
         <translation>Відкрити на сторінці Композитинг</translation>
     </message>
     <message>
         <source>Reset Composition</source>
         <translation>Скинути композицію</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Видалити</translation>
     </message>
     <message>
         <source>Rename Track…</source>
@@ -35374,19 +35354,19 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
     </message>
     <message>
         <source>Soft Clip Low</source>
-        <translation>М'яке обмеження: низ</translation>
+        <translation>М&apos;яке обмеження: низ</translation>
     </message>
     <message>
         <source>Soft Clip Low Soft</source>
-        <translation>М'яке обмеження: м'якість низу</translation>
+        <translation>М&apos;яке обмеження: м&apos;якість низу</translation>
     </message>
     <message>
         <source>Soft Clip High</source>
-        <translation>М'яке обмеження: верх</translation>
+        <translation>М&apos;яке обмеження: верх</translation>
     </message>
     <message>
         <source>Soft Clip High Soft</source>
-        <translation>М'яке обмеження: м'якість верху</translation>
+        <translation>М&apos;яке обмеження: м&apos;якість верху</translation>
     </message>
     <message>
         <source>Low Range</source>

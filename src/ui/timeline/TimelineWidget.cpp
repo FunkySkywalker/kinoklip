@@ -953,11 +953,16 @@ void TimelineWidget::streamlinedClipMenu(QMenu& menu, const TimelineHit& hit)
         return menulayout::addCommand(&into, *reg, QLatin1String(actionId), label);
     };
 
+    // One level only (owner feedback: "More" > "Compound" was two submenus deep for a command
+    // used all the time). Groups follow Resolve's clip menu; only lists (clip colours, flags,
+    // multicam angles) keep a submenu, and entries the clip cannot use are left out.
     // Clipboard.
     add(menu, "edit.cut");
     add(menu, "edit.copy");
-    if (clipboardFull)
+    if (clipboardFull) {
         add(menu, "edit.paste");
+        add(menu, "edit.paste_attributes", tr("Paste Attributes…"));
+    }
     menu.addSeparator();
     // Edit.
     add(menu, "edit.split", tr("Split at Playhead"));
@@ -965,73 +970,61 @@ void TimelineWidget::streamlinedClipMenu(QMenu& menu, const TimelineHit& hit)
         clip && !clip->enabled ? tr("Enable Clip") : tr("Disable Clip"));
     if (editable)
         add(menu, "timeline.add_transition", tr("Add Transition"));
-    menu.addSeparator();
-    // Clip properties.
-    QMenu* speed = menu.addMenu(tr("Speed and Duration"));
-    speed->setObjectName(QStringLiteral("SpeedAndDurationMenu"));
-    add(*speed, "clip.change_speed", tr("Change Speed…"));
-    add(*speed, "clip.change_duration", tr("Change Duration…"));
-    speed->addSeparator();
-    add(*speed, "clip.retime_controls", tr("Retime Controls"));
-    add(*speed, "clip.retime_curve", tr("Retime Curve"));
-    add(*speed, "clip.freeze_frame", tr("Freeze Frame"));
     if (clip && clip->linkGroup != 0)
         add(menu, "clip.unlink", tr("Unlink"));
     else if (multi)
         add(menu, "clip.link", tr("Link"));
-    if (clip && clip->kind == ClipKind::Media)
-        add(menu, "clip.attributes", tr("Attributes…"));
-    if (editable) {
-        menu.addSeparator();
-        add(menu, "edit.delete", tr("Delete"));
-        add(menu, "edit.ripple_delete", tr("Ripple Delete"));
-    }
-
-    // The rest, in one submenu so the menu stays short.
-    QMenu* more = menu.addMenu(tr("More"));
-    more->setObjectName(QStringLiteral("MoreClipMenu"));
-    addClipColorMenus(*more, m_ctx, m_ctx.selection->clips(), this);
-    if (hit.track.type == TrackType::Audio || (clip && clip->linkGroup != 0))
-        add(*more, "clip.normalize_audio", tr("Normalize Audio…"));
-    if (clipboardFull)
-        add(*more, "edit.paste_attributes", tr("Paste Attributes…"));
-    if (clip && clip->kind == ClipKind::Media)
-        add(*more, "timeline.find_in_media_pool", tr("Find in Media Pool"));
-    more->addSeparator();
-    QMenu* compound = more->addMenu(tr("Compound"));
-    compound->setObjectName(QStringLiteral("CompoundMenu"));
-    add(*compound, "clip.new_compound", tr("New Compound Clip…"));
+    menu.addSeparator();
+    // Compound clips and compositions.
+    add(menu, "clip.new_compound", tr("New Compound Clip…"));
     if (clip && clip->kind == ClipKind::Nested) {
-        add(*compound, "clip.open_in_timeline", tr("Open in Timeline"));
+        add(menu, "clip.open_in_timeline", tr("Open in Timeline"));
         if (!isMulticam)
-            add(*compound, "clip.decompose", tr("Decompose in Place"));
+            add(menu, "clip.decompose", tr("Decompose in Place"));
     }
     if (isMulticam) {
-        QMenu* multicamMenu = more->addMenu(tr("Multicam"));
+        QMenu* multicamMenu = menu.addMenu(tr("Multicam Angle"));
         multicamMenu->setObjectName(QStringLiteral("MulticamMenu"));
         addMulticamAngleMenu(*multicamMenu, id);
-        add(*multicamMenu, "multicam.flatten", tr("Flatten"));
+        add(menu, "multicam.flatten", tr("Flatten Multicam Clip"));
     }
     if (clip && hit.track.type == TrackType::Video) {
-        QMenu* composition = more->addMenu(tr("Composition"));
-        composition->setObjectName(QStringLiteral("CompositionMenu"));
-        add(*composition, "clip.open_in_compositing", tr("Open in Compositing Page"));
-        add(*composition, "clip.reset_composition", tr("Reset Composition"));
+        add(menu, "clip.open_in_compositing", tr("Open in Compositing Page"));
+        add(menu, "clip.reset_composition", tr("Reset Composition"));
     }
-    // Remove: only what the clip has.
+    menu.addSeparator();
+    // Speed and duration.
+    add(menu, "clip.change_speed", tr("Change Speed…"));
+    add(menu, "clip.change_duration", tr("Change Duration…"));
+    add(menu, "clip.retime_controls", tr("Retime Controls"));
+    add(menu, "clip.retime_curve", tr("Retime Curve"));
+    add(menu, "clip.freeze_frame", tr("Freeze Frame"));
+    menu.addSeparator();
+    // Clip properties.
+    addClipColorMenus(menu, m_ctx, m_ctx.selection->clips(), this);
+    if (hit.track.type == TrackType::Audio || (clip && clip->linkGroup != 0))
+        add(menu, "clip.normalize_audio", tr("Normalize Audio…"));
+    if (clip && clip->kind == ClipKind::Media) {
+        add(menu, "timeline.find_in_media_pool", tr("Find in Media Pool"));
+        add(menu, "clip.attributes", tr("Attributes…"));
+    }
+    // Remove: only what the clip has, as plain entries.
     QMenu remove;
     addRemoveTransitionsEntry(remove, id, hit.track);
     addRemoveEffectsEntry(remove, id, hit.track);
     const QList<QAction*> removals = remove.actions();
     if (!removals.isEmpty()) {
-        more->addSeparator();
-        QMenu* removeMenu = more->addMenu(tr("Remove"));
-        removeMenu->setObjectName(QStringLiteral("RemoveMenu"));
+        menu.addSeparator();
         for (QAction* a : removals) {
-            a->setParent(removeMenu);
-            removeMenu->addAction(a);
+            a->setParent(&menu);
+            menu.addAction(a);
         }
-        addTransitionAlignmentMenus(*more, id, hit.track);
+        addTransitionAlignmentMenus(menu, id, hit.track);
+    }
+    if (editable) {
+        menu.addSeparator();
+        add(menu, "edit.delete", tr("Delete"));
+        add(menu, "edit.ripple_delete", tr("Ripple Delete"));
     }
 }
 

@@ -33081,10 +33081,6 @@ Die Clips trimmen, damit die Medien den Übergang abdecken?</translation>
         <translation>Clip deaktivieren</translation>
     </message>
     <message>
-        <source>Speed and Duration</source>
-        <translation>Geschwindigkeit und Dauer</translation>
-    </message>
-    <message>
         <source>Change Speed…</source>
         <translation>Geschwindigkeit ändern…</translation>
     </message>
@@ -33105,6 +33101,14 @@ Die Clips trimmen, damit die Medien den Übergang abdecken?</translation>
         <translation>Koppeln</translation>
     </message>
     <message>
+        <source>Multicam Angle</source>
+        <translation>Multicam-Kamerawinkel</translation>
+    </message>
+    <message>
+        <source>Flatten Multicam Clip</source>
+        <translation>Multicam-Clip verflachen</translation>
+    </message>
+    <message>
         <source>Attributes…</source>
         <translation>Attribute…</translation>
     </message>
@@ -33115,10 +33119,6 @@ Die Clips trimmen, damit die Medien den Übergang abdecken?</translation>
     <message>
         <source>Ripple Delete</source>
         <translation>Ripple-Löschen</translation>
-    </message>
-    <message>
-        <source>More</source>
-        <translation>Mehr</translation>
     </message>
     <message>
         <source>Normalize Audio…</source>
@@ -33133,10 +33133,6 @@ Die Clips trimmen, damit die Medien den Übergang abdecken?</translation>
         <translation>Im Medienpool suchen</translation>
     </message>
     <message>
-        <source>Compound</source>
-        <translation>Verschachtelt</translation>
-    </message>
-    <message>
         <source>New Compound Clip…</source>
         <translation>Neuer verschachtelter Clip…</translation>
     </message>
@@ -33149,28 +33145,12 @@ Die Clips trimmen, damit die Medien den Übergang abdecken?</translation>
         <translation>An Ort und Stelle auflösen</translation>
     </message>
     <message>
-        <source>Multicam</source>
-        <translation>Multicam</translation>
-    </message>
-    <message>
-        <source>Flatten</source>
-        <translation>Verflachen</translation>
-    </message>
-    <message>
-        <source>Composition</source>
-        <translation>Composition</translation>
-    </message>
-    <message>
         <source>Open in Compositing Page</source>
         <translation>Auf Compositing-Seite öffnen</translation>
     </message>
     <message>
         <source>Reset Composition</source>
         <translation>Composition zurücksetzen</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Entfernen</translation>
     </message>
     <message>
         <source>Rename Track…</source>

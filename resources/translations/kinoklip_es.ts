@@ -33081,10 +33081,6 @@ Trim the clips so the media covers the transition?</source>
         <translation>Desactivar clip</translation>
     </message>
     <message>
-        <source>Speed and Duration</source>
-        <translation>Velocidad y duración</translation>
-    </message>
-    <message>
         <source>Change Speed…</source>
         <translation>Cambiar velocidad…</translation>
     </message>
@@ -33105,6 +33101,14 @@ Trim the clips so the media covers the transition?</source>
         <translation>Vincular</translation>
     </message>
     <message>
+        <source>Multicam Angle</source>
+        <translation>Ángulo multicámara</translation>
+    </message>
+    <message>
+        <source>Flatten Multicam Clip</source>
+        <translation>Aplanar clip multicámara</translation>
+    </message>
+    <message>
         <source>Attributes…</source>
         <translation>Atributos…</translation>
     </message>
@@ -33115,10 +33119,6 @@ Trim the clips so the media covers the transition?</source>
     <message>
         <source>Ripple Delete</source>
         <translation>Borrado ripple</translation>
-    </message>
-    <message>
-        <source>More</source>
-        <translation>Más</translation>
     </message>
     <message>
         <source>Normalize Audio…</source>
@@ -33133,10 +33133,6 @@ Trim the clips so the media covers the transition?</source>
         <translation>Buscar en el panel de medios</translation>
     </message>
     <message>
-        <source>Compound</source>
-        <translation>Compuesto</translation>
-    </message>
-    <message>
         <source>New Compound Clip…</source>
         <translation>Nuevo clip compuesto…</translation>
     </message>
@@ -33149,28 +33145,12 @@ Trim the clips so the media covers the transition?</source>
         <translation>Descomponer en el sitio</translation>
     </message>
     <message>
-        <source>Multicam</source>
-        <translation>Multicámara</translation>
-    </message>
-    <message>
-        <source>Flatten</source>
-        <translation>Aplanar</translation>
-    </message>
-    <message>
-        <source>Composition</source>
-        <translation>Composición</translation>
-    </message>
-    <message>
         <source>Open in Compositing Page</source>
         <translation>Abrir en la página de composición</translation>
     </message>
     <message>
         <source>Reset Composition</source>
         <translation>Restablecer composición</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Quitar</translation>
     </message>
     <message>
         <source>Rename Track…</source>
