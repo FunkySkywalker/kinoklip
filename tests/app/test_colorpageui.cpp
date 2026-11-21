@@ -1126,6 +1126,11 @@ private slots:
         QCOMPARE(tab->text(), QStringLiteral("Color Warper"));
         tab->click();
         QCOMPARE(page->currentPalette(), ColorPage::Palette::Warper);
+        // An all-identity grade may leave no node behind: read the warp through this.
+        const auto warpNow = [&f]() {
+            const GradeNode* node = f.session()->currentNode();
+            return node ? node->warp : GradeWarp {};
+        };
         WarperPanel* warper = page->warper();
         QVERIFY(warper && warper->isVisible());
         WarperGrid* grid = warper->gridWidget();
@@ -1172,19 +1177,19 @@ private slots:
         const int beforeKeys = f.steps();
         QTest::keyClick(grid, Qt::Key_Right);
         QCOMPARE(f.steps(), beforeKeys + 1);
-        QVERIFY(f.session()->currentNode()->warp.pin(WarpGrid::HueSat, 3, 4).first != dx);
+        QVERIFY(warpNow().pin(WarpGrid::HueSat, 3, 4).first != dx);
         QTest::keyClick(grid, Qt::Key_Delete);
         QCOMPARE(f.steps(), beforeKeys + 2);
-        QVERIFY(f.session()->currentNode()->warp.isIdentity());
+        QVERIFY(warpNow().isIdentity());
         // A double-click on a moved pin puts it back; Reset Pin does the same for the selection.
         drag(grid, grid->pinPosition(2, 3), grid->pinPosition(2, 3) + QPointF(3, 3));
-        QVERIFY(!f.session()->currentNode()->warp.isIdentity());
+        QVERIFY(!warpNow().isIdentity());
         QTest::mouseDClick(grid, Qt::LeftButton, {}, grid->pinPosition(2, 3).toPoint());
-        QVERIFY(f.session()->currentNode()->warp.isIdentity());
+        QVERIFY(warpNow().isIdentity());
         drag(grid, grid->pinPosition(5, 2), grid->pinPosition(5, 2) + QPointF(3, 3));
-        QVERIFY(!f.session()->currentNode()->warp.isIdentity());
+        QVERIFY(!warpNow().isIdentity());
         warper->resetPinButton()->click();
-        QVERIFY(f.session()->currentNode()->warp.isIdentity());
+        QVERIFY(warpNow().isIdentity());
         // Chroma - Luma: its own grid; the grey axis only moves up and down.
         warper->chromaLumaButton()->click();
         QCOMPARE(grid->grid(), WarpGrid::ChromaLuma);
@@ -1192,34 +1197,34 @@ private slots:
         QVERIFY(grid->isMovable(0, 2));
         const QPointF p0 = grid->pinPosition(0, 2);
         drag(grid, p0, p0 + QPointF(8, -5));
-        const auto [gx, gy] = f.session()->currentNode()->warp.pin(WarpGrid::ChromaLuma, 0, 2);
+        const auto [gx, gy] = warpNow().pin(WarpGrid::ChromaLuma, 0, 2);
         QCOMPARE(gx, 0.0f);
         QVERIFY(gy != 0.0f);
         const QPointF p1 = grid->pinPosition(3, 3);
         drag(grid, p1, p1 + QPointF(-6, 4));
-        const auto [hx, hy] = f.session()->currentNode()->warp.pin(WarpGrid::ChromaLuma, 3, 3);
+        const auto [hx, hy] = warpNow().pin(WarpGrid::ChromaLuma, 3, 3);
         QVERIFY(hx != 0.0f && hy != 0.0f);
-        QVERIFY(f.session()->currentNode()->warp.isIdentity(WarpGrid::HueSat));
+        QVERIFY(warpNow().isIdentity(WarpGrid::HueSat));
         // Resolution keeps the colours: the moved pin's vertex exists in the finer mesh as well.
         warper->hueSatButton()->click();
         drag(grid, grid->pinPosition(3, 4), grid->pinPosition(3, 4) + QPointF(4, -3));
-        const auto before = f.session()->currentNode()->warp.pin(WarpGrid::HueSat, 3, 4);
+        const auto before = warpNow().pin(WarpGrid::HueSat, 3, 4);
         const int beforeRes = f.steps();
         Q_EMIT warper->resolutionBox()->activated(2);
         QCOMPARE(f.steps(), beforeRes + 1);
-        const GradeWarp fine = f.session()->currentNode()->warp;
+        const GradeWarp fine = warpNow();
         QCOMPARE(int(fine.resolution), 2);
         QVERIFY(std::abs(fine.pin(WarpGrid::HueSat, 6, 7).first - before.first) < 1e-6f);
         QVERIFY(std::abs(fine.pin(WarpGrid::HueSat, 6, 7).second - before.second) < 1e-6f);
         QCOMPARE(warper->resolutionBox()->currentIndex(), 2);
         // Reset Grid empties the shown grid only; the palette's Reset empties everything.
         warper->resetGridButton()->click();
-        QVERIFY(f.session()->currentNode()->warp.isIdentity(WarpGrid::HueSat));
-        QVERIFY(!f.session()->currentNode()->warp.isIdentity(WarpGrid::ChromaLuma));
+        QVERIFY(warpNow().isIdentity(WarpGrid::HueSat));
+        QVERIFY(!warpNow().isIdentity(WarpGrid::ChromaLuma));
         auto* reset = page->findChild<QToolButton*>(QStringLiteral("ColorPaletteReset"));
         QVERIFY(reset);
         reset->click();
-        QVERIFY(f.session()->currentNode()->warp.isIdentity());
+        QVERIFY(warpNow().isIdentity());
     }
 
     void trackerPalette()

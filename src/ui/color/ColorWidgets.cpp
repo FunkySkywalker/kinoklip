@@ -901,6 +901,7 @@ HdrPanel::HdrPanel(ColorSession* session, QWidget* parent)
         }
         column->addLayout(rangeRow);
         fieldsRow->addLayout(column, 1);
+        fieldsRow->setAlignment(column, Qt::AlignTop); // the Y R G B rows line up
     }
     layout->addLayout(wheelsRow, 1);
     layout->addLayout(fieldsRow);

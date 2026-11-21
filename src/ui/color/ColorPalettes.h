@@ -365,6 +365,9 @@ Q_SIGNALS:
     void selectionChanged();
 
 protected:
+    /// Claims the arrow keys, Delete and Backspace while a pin is selected, so the page's
+    /// shortcuts (step the playhead, delete the node) do not take them first.
+    bool event(QEvent* event) override;
     void paintEvent(QPaintEvent* event) override;
     void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
