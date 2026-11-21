@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="900" height="460" viewBox="0 0 900 460" font-family="Segoe UI, Helvetica, Arial, sans-serif" role="img" aria-label="Roadmap items 79.09% done (227 of 287); effects library entries 92.90% done (170 of 183)">
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="460" viewBox="0 0 900 460" font-family="Segoe UI, Helvetica, Arial, sans-serif" role="img" aria-label="Roadmap items 79.79% done (229 of 287); effects library entries 92.90% done (170 of 183)">
 <rect width="900" height="460" rx="8" fill="#16181d"/>
-<g transform="translate(12,12)" font-size="11" font-weight="600"><rect width="62" height="20" rx="3" fill="#555"/><rect x="62" width="54" height="20" rx="3" fill="#97ca00"/><rect x="59" width="6" height="20" fill="#97ca00"/><text x="8" y="14" fill="#fff">roadmap</text><text x="69" y="14" fill="#fff">79.09%</text></g>
+<g transform="translate(12,12)" font-size="11" font-weight="600"><rect width="62" height="20" rx="3" fill="#555"/><rect x="62" width="54" height="20" rx="3" fill="#97ca00"/><rect x="59" width="6" height="20" fill="#97ca00"/><text x="8" y="14" fill="#fff">roadmap</text><text x="69" y="14" fill="#fff">79.79%</text></g>
 <g transform="translate(138,12)" font-size="11" font-weight="600"><rect width="115" height="20" rx="3" fill="#555"/><rect x="115" width="54" height="20" rx="3" fill="#4c1"/><rect x="112" width="6" height="20" fill="#4c1"/><text x="8" y="14" fill="#fff">effects library</text><text x="122" y="14" fill="#fff">92.90%</text></g>
-<text x="12" y="70" font-size="13" fill="#e6e6ea">Roadmap items: 79.09% (227/287)</text>
+<text x="12" y="70" font-size="13" fill="#e6e6ea">Roadmap items: 79.79% (229/287)</text>
 <text x="458.0" y="70" font-size="13" fill="#e6e6ea">Effects library: 92.90% (170/183)</text>
 <rect x="12.0" y="78.0" width="25.2" height="22.0" fill="#2ea043" stroke="#1b7f32" stroke-width="1"/>
 <rect x="12.0" y="100.0" width="25.2" height="22.0" fill="#2ea043" stroke="#1b7f32" stroke-width="1"/>
@@ -59,8 +59,8 @@
 <rect x="55.9" y="258.0" width="21.7" height="25.6" fill="#2ea043" stroke="#1b7f32" stroke-width="1"/>
 <rect x="55.9" y="283.6" width="21.7" height="25.6" fill="#2ea043" stroke="#1b7f32" stroke-width="1"/>
 <rect x="55.9" y="309.1" width="21.7" height="25.6" fill="#2ea043" stroke="#1b7f32" stroke-width="1"/>
-<rect x="77.6" y="232.4" width="27.1" height="20.5" fill="#3a3d44" stroke="#2a2c31" stroke-width="1"/>
-<rect x="104.7" y="232.4" width="27.1" height="20.5" fill="#3a3d44" stroke="#2a2c31" stroke-width="1"/>
+<rect x="77.6" y="232.4" width="27.1" height="20.5" fill="#2ea043" stroke="#1b7f32" stroke-width="1"/>
+<rect x="104.7" y="232.4" width="27.1" height="20.5" fill="#2ea043" stroke="#1b7f32" stroke-width="1"/>
 <rect x="131.7" y="232.4" width="27.1" height="20.5" fill="#3a3d44" stroke="#2a2c31" stroke-width="1"/>
 <rect x="77.6" y="252.9" width="27.1" height="20.5" fill="#3a3d44" stroke="#2a2c31" stroke-width="1"/>
 <rect x="104.7" y="252.9" width="27.1" height="20.5" fill="#3a3d44" stroke="#2a2c31" stroke-width="1"/>
