@@ -1236,18 +1236,18 @@ void paintFilmGlyph(QPainter& p, const QRect& r, const QColor& color)
     const QRectF f = QRectF(r).adjusted(3.5, 4.5, -3.5, -4.5);
     p.save();
     p.setRenderHint(QPainter::Antialiasing, true);
+    // Resolve's enable glyph is drawn in outline: the strip's edge, the frame window, and
+    // the perforations as small dots down both sides.
+    p.setPen(QPen(color, 1.1));
+    p.setBrush(Qt::NoBrush);
+    p.drawRoundedRect(f, 1.5, 1.5);
+    p.drawRect(QRectF(f.left() + 3.0, f.top() + 1.6, f.width() - 6.0, f.height() - 3.2));
     p.setPen(Qt::NoPen);
     p.setBrush(color);
-    p.drawRoundedRect(f, 1.5, 1.5);
-    // Punch the frame window and the perforation holes out in the plate colour.
-    const QColor hole
-        = p.brush().color().lightness() > 128 ? QColor(0, 0, 0, 110) : QColor(255, 255, 255, 90);
-    p.setBrush(hole);
-    p.drawRect(QRectF(f.left() + 3.2, f.top() + 2.2, f.width() - 6.4, f.height() - 4.4));
     for (int i = 0; i < 3; ++i) {
-        const double y = f.top() + 1.1 + i * (f.height() - 2.6) / 2.0;
-        p.drawRect(QRectF(f.left() + 0.9, y, 1.4, 1.1));
-        p.drawRect(QRectF(f.right() - 2.3, y, 1.4, 1.1));
+        const double y = f.top() + 1.4 + i * (f.height() - 3.2) / 2.0;
+        p.drawRect(QRectF(f.left() + 0.9, y, 1.2, 0.9));
+        p.drawRect(QRectF(f.right() - 2.1, y, 1.2, 0.9));
     }
     p.restore();
 }
@@ -1374,13 +1374,21 @@ void TimelinePainter::paintHeaders(QPainter& p, const TimelinePaintInput& in)
             }
             // The painted toggles (enable, auto select, sync lock) show their state by the
             // glyph's brightness; their plate only lifts a little when active.
+            // Like Resolve, lock, auto select, enable and sync lock are bare glyphs on the
+            // header (no plate); only the lettered buttons (S, M, R) and the automation
+            // button sit on a small rounded tile.
             const bool painted = b == HeaderButton::Visible || b == HeaderButton::SyncLock
                 || b == HeaderButton::AutoSelect;
+            const bool bare = painted || b == HeaderButton::Lock;
             const bool active = b == HeaderButton::Visible ? !on : on;
-            p.fillRect(br,
-                painted  ? (active ? toggledFace : buttonFace)
-                    : on ? onColor
-                         : buttonFace);
+            if (!bare) {
+                p.setRenderHint(QPainter::Antialiasing, true);
+                p.setPen(Qt::NoPen);
+                p.setBrush(on ? onColor : buttonFace);
+                p.drawRoundedRect(QRectF(br).adjusted(0.5, 0.5, -0.5, -0.5), 3.0, 3.0);
+                p.setBrush(Qt::NoBrush);
+                p.setRenderHint(QPainter::Antialiasing, false);
+            }
             const QColor glyph = active ? m_text : mixColors(m_window, m_text, 0.42);
             if (icon && !icon->isNull()) {
                 const double dpr = icon->devicePixelRatio();
