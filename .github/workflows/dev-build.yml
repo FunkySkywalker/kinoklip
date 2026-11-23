@@ -33,7 +33,9 @@ permissions:
   contents: read
 
 concurrency:
-  group: dev-build
+  # One queue per branch, so test runs of different branches don't cancel each other's
+  # pending runs; publishing runs share one queue (they replace the same pre-release).
+  group: dev-build-${{ inputs.publish && 'publish' || github.ref }}
   cancel-in-progress: false
 
 jobs:
