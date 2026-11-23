@@ -22,6 +22,17 @@ frame at that place, the left edge being the first frame and the right edge the 
 and goes back to what it showed when the pointer leaves. A picture shows itself. Nothing changes
 while the viewer plays. Turn this **Live Media Preview** off in the media pool's **...** menu.
 
+## Show everything in a file (Metadata panel)
+
+The **Metadata** panel shows the usual details of the selected clip. Open its **...** menu and
+turn on **Show All Metadata** to list everything the file contains: the container and each stream
+(codec, colour range, transfer, frame rate and so on), all tags including the ones only a camera
+writes (for example `com.dji.camera.ColorGammaSxS : D-Log`, which tells you the clip was filmed
+in D-Log), chapters, and stream side data such as the rotation or HDR mastering values. Type in
+the search field to narrow the list. Right-click a row, or press **Ctrl+C**, to copy its value or
+its name and value; **Copy All** (right-click, or the **...** menu) copies the whole list. The
+view is read only, and Kinoklip remembers that you turned it on.
+
 ## Put a LUT on a clip before you grade it
 
 Footage shot in a log profile needs a LUT to look normal. Right-click the clip in the media pool

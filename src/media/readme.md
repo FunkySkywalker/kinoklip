@@ -23,6 +23,7 @@ contains *t* (exact for VFR too); requests before the first / after the last fra
 | File | What |
 |---|---|
 | `MediaSource.h` | Where a media path's bytes are: a file, or an entry inside a single-file project (`film.kinoklip/media/<id>/clip.mp4`, see `src/pack`). Every open, stat and cache identity in this module goes through it: FFmpeg reads entries through a custom `AVIOContext` (own handle, pread), Qt image readers through a `RangeDevice`, libheif / LibRaw from memory. `mediaExists(path)` replaces `QFileInfo::isFile()`. |
+| `MediaMetadataDump.*` | `readAllMetadata(path)`: every container / stream property, tag (also non-standard ones such as QuickTime mdta keys), chapter and stream side data libavformat reports, as group / key / value rows for the Metadata panel's full view; `filterMetadata()`, `metadataToText()` |
 | `MediaInfo.h` | `MediaInfo` struct + `probe(path)` (synchronous, any thread). Stills report `isStillImage`, `durationUs = 0`. |
 | `VideoDecoder.h` | `decodeFrame(timeUs)` → `shared_ptr<const VideoFrame>` (raw planes, GPU compositor path); `frameAt(timeUs, maxSize)` → `QImage` ARGB32_Premultiplied (thumbnails, tests). `Accuracy::{Exact, NearestKeyframe}`. Not thread-safe; one per thread. |
 | `VideoFrame.h` | Raw frame: `PixelFormat` (NV12, P010, YUV420P/422P/444P, 10-bit planar, BGRA premultiplied), plane pointers/strides, colour matrix/range/transfer, pts, duration, SAR, rotation. Immutable, refcounted, may outlive the decoder. |

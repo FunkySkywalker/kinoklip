@@ -23329,6 +23329,66 @@ Importar archivos con %1 o soltarlos aquí.</translation>
         <translation>Nombre</translation>
     </message>
     <message>
+        <source>Metadata options</source>
+        <translation>Opciones de metadatos</translation>
+    </message>
+    <message>
+        <source>Show All Metadata</source>
+        <translation>Mostrar todos los metadatos</translation>
+    </message>
+    <message>
+        <source>List everything in the file: all container and stream tags (also non-standard ones) and side data</source>
+        <translation>Muestra todo lo que hay en el archivo: todas las etiquetas del contenedor y de los flujos (también las no estándar) y los datos laterales</translation>
+    </message>
+    <message>
+        <source>Copy All Metadata</source>
+        <translation>Copiar todos los metadatos</translation>
+    </message>
+    <message>
+        <source>Search metadata</source>
+        <translation>Buscar en los metadatos</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation>Valor</translation>
+    </message>
+    <message>
+        <source>%n clip selected</source>
+        <translation>%n clip seleccionado</translation>
+    </message>
+    <message>
+        <source>%n clips selected</source>
+        <translation>%n clips seleccionados</translation>
+    </message>
+    <message>
+        <source>Select one clip to see all of its metadata.</source>
+        <translation>Seleccione un clip para ver todos sus metadatos.</translation>
+    </message>
+    <message>
+        <source>This item has no media file.</source>
+        <translation>Este elemento no tiene archivo multimedia.</translation>
+    </message>
+    <message>
+        <source>Reading the file...</source>
+        <translation>Leyendo el archivo...</translation>
+    </message>
+    <message>
+        <source>%1 of %2 entries</source>
+        <translation>%1 de %2 entradas</translation>
+    </message>
+    <message>
+        <source>Copy Value</source>
+        <translation>Copiar valor</translation>
+    </message>
+    <message>
+        <source>Copy Name and Value</source>
+        <translation>Copiar nombre y valor</translation>
+    </message>
+    <message>
+        <source>Copy All</source>
+        <translation>Copiar todo</translation>
+    </message>
+    <message>
         <source>File</source>
         <translation>Archivo</translation>
     </message>

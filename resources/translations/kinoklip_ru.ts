@@ -23345,6 +23345,66 @@ Import files with %1 or drop them here.</source>
         <translation>Название</translation>
     </message>
     <message>
+        <source>Metadata options</source>
+        <translation>Параметры метаданных</translation>
+    </message>
+    <message>
+        <source>Show All Metadata</source>
+        <translation>Показать все метаданные</translation>
+    </message>
+    <message>
+        <source>List everything in the file: all container and stream tags (also non-standard ones) and side data</source>
+        <translation>Показать всё, что есть в файле: все теги контейнера и потоков (в том числе нестандартные) и побочные данные</translation>
+    </message>
+    <message>
+        <source>Copy All Metadata</source>
+        <translation>Копировать все метаданные</translation>
+    </message>
+    <message>
+        <source>Search metadata</source>
+        <translation>Поиск по метаданным</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation>Значение</translation>
+    </message>
+    <message>
+        <source>%n clip selected</source>
+        <translation>Выбран %n клип</translation>
+    </message>
+    <message>
+        <source>%n clips selected</source>
+        <translation>Выбрано клипов: %n</translation>
+    </message>
+    <message>
+        <source>Select one clip to see all of its metadata.</source>
+        <translation>Выберите один клип, чтобы увидеть все его метаданные.</translation>
+    </message>
+    <message>
+        <source>This item has no media file.</source>
+        <translation>У этого элемента нет медиафайла.</translation>
+    </message>
+    <message>
+        <source>Reading the file...</source>
+        <translation>Чтение файла...</translation>
+    </message>
+    <message>
+        <source>%1 of %2 entries</source>
+        <translation>%1 из %2 записей</translation>
+    </message>
+    <message>
+        <source>Copy Value</source>
+        <translation>Копировать значение</translation>
+    </message>
+    <message>
+        <source>Copy Name and Value</source>
+        <translation>Копировать имя и значение</translation>
+    </message>
+    <message>
+        <source>Copy All</source>
+        <translation>Копировать всё</translation>
+    </message>
+    <message>
         <source>File</source>
         <translation>Файл</translation>
     </message>

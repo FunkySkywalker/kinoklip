@@ -23345,6 +23345,66 @@ Import files with %1 or drop them here.</source>
         <translation>Назва</translation>
     </message>
     <message>
+        <source>Metadata options</source>
+        <translation>Параметри метаданих</translation>
+    </message>
+    <message>
+        <source>Show All Metadata</source>
+        <translation>Показати всі метадані</translation>
+    </message>
+    <message>
+        <source>List everything in the file: all container and stream tags (also non-standard ones) and side data</source>
+        <translation>Показати все, що є у файлі: усі теги контейнера й потоків (зокрема нестандартні) та побічні дані</translation>
+    </message>
+    <message>
+        <source>Copy All Metadata</source>
+        <translation>Копіювати всі метадані</translation>
+    </message>
+    <message>
+        <source>Search metadata</source>
+        <translation>Пошук у метаданих</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation>Значення</translation>
+    </message>
+    <message>
+        <source>%n clip selected</source>
+        <translation>Вибрано %n кліп</translation>
+    </message>
+    <message>
+        <source>%n clips selected</source>
+        <translation>Вибрано кліпів: %n</translation>
+    </message>
+    <message>
+        <source>Select one clip to see all of its metadata.</source>
+        <translation>Виберіть один кліп, щоб побачити всі його метадані.</translation>
+    </message>
+    <message>
+        <source>This item has no media file.</source>
+        <translation>У цього елемента немає медіафайлу.</translation>
+    </message>
+    <message>
+        <source>Reading the file...</source>
+        <translation>Читання файлу...</translation>
+    </message>
+    <message>
+        <source>%1 of %2 entries</source>
+        <translation>%1 з %2 записів</translation>
+    </message>
+    <message>
+        <source>Copy Value</source>
+        <translation>Копіювати значення</translation>
+    </message>
+    <message>
+        <source>Copy Name and Value</source>
+        <translation>Копіювати назву та значення</translation>
+    </message>
+    <message>
+        <source>Copy All</source>
+        <translation>Копіювати все</translation>
+    </message>
+    <message>
         <source>File</source>
         <translation>Файл</translation>
     </message>

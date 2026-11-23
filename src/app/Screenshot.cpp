@@ -46,6 +46,7 @@
 #include "ui/keyframes/KeyframesPanel.h"
 #include "ui/mediapool/MediaBrowserPanel.h"
 #include "ui/mediapool/MediaPoolPanel.h"
+#include "ui/mediapool/MetadataPanel.h"
 #include "ui/mediapool/MulticamSync.h"
 #include "ui/projects/NewProjectDialog.h"
 #include "ui/projects/ProjectManagerWindow.h"
@@ -1200,6 +1201,26 @@ int runScreenshot(MainWindow& window, const QString& target, const QString& pngP
         delayMs = std::max(delayMs, kCompositingSettleDelayMs);
     } else if (target == QLatin1String("import-dialog")) {
         return grabImportDialog(window, pngPath);
+    } else if (base == QLatin1String("metadata-full")) {
+        // "metadata-full[:<search>]": the Media page with the Metadata panel's full view of the
+        // first file that exists (options menu > Show All Metadata), the search field filled.
+        window.setCurrentPage(QStringLiteral("media"));
+        MetadataPanel* metadata = window.mediaPage()->metadata();
+        const MediaItem* item = nullptr;
+        for (const MediaItem& m : ctx.project->mediaPool()->items()) {
+            if (!item && m.kind == MediaItemKind::File && QFileInfo::exists(m.path))
+                item = &m;
+        }
+        if (!metadata || !item) {
+            std::fprintf(stderr, "metadata-full: needs a project with a media file\n");
+            return 2;
+        }
+        metadata->setFullView(true);
+        metadata->showMedia(item->id);
+        if (!section.isEmpty())
+            metadata->fullFilter()->setText(section);
+        panel = metadata;
+        delayMs = std::max(delayMs, kDialogSettleDelayMs);
     } else if (base == QLatin1String("input-lut")) {
         // "input-lut": every video file of the project gets a warm look as its input LUT (Media
         // Pool > 3D LUT), the media pool shows it in its thumbnails, and the 3D LUT submenu is
@@ -1255,7 +1276,7 @@ int runScreenshot(MainWindow& window, const QString& target, const QString& pngP
             "multicam[:viewer|timeline], "
             "keyframes-panel[:dope|curves|absolute|float], "
             "mediapool, levels, stacked, clip-attributes[:audio|timecode], "
-            "input-lut, "
+            "metadata-full[:<search>], input-lut, "
             "effects[:<id>], fx:<id>[:inspector|viewer], change-speed, timeline, "
             "deliver:inout|queue, import-dialog, project-manager, new-project, menu-color-theme "
             "or "

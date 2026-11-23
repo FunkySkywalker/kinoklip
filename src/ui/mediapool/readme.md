@@ -12,7 +12,7 @@ Owned by the panels agent.
 | `MediaPoolDelegate.h` | grid tile painter (poster or placeholder glyph, duration badge, offline marker, name) |
 | `MediaHoverPreview.h` | Live Media Preview: the pointer over a thumbnail (grid) or film strip shows the frame at that place in a source viewer (`MediaCache::frame()`, one request in flight, latest wins, temporary picture; `MediaPoolPanel::showLivePreviewIn()`, option in the panel's "..." menu) |
 | `MediaBrowserPanel.h` | Media page file browser: places, folder tree, media-only file list, "Add to Media Pool"; the folder tree's menu adds a whole folder (with or without subfolders as bins, `ui/common/FolderImport.h`) |
-| `MetadataPanel.h` | Clip Details (read-only) + editable Shot and Scene / Notes fields; batch editing of several items (`attach()` follows a MediaPoolPanel) |
+| `MetadataPanel.h` | Clip Details (read-only) + editable Shot and Scene / Notes fields; batch editing of several items (`attach()` follows a MediaPoolPanel); options menu > Show All Metadata: the searchable, copyable full view of `media::readAllMetadata()` (read on a worker thread) |
 
 ## Contracts for other modules
 - `MediaPoolPanel::openInSourceViewer(QString mediaId)` — emitted on double-click / context
