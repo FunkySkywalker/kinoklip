@@ -289,6 +289,7 @@ Menu timelineMenu()
             A("timeline.blanking_1_66", "1.66"),
             A("timeline.blanking_1_78", "1.78"),
             A("timeline.blanking_1_85", "1.85"),
+            S(),
             A("timeline.blanking_2_00", "2.00"),
             A("timeline.blanking_2_35", "2.35"),
             A("timeline.blanking_2_39", "2.39"),
