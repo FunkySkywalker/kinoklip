@@ -126,11 +126,18 @@ Params (Resolve units -100..100, divided by 100 in the maths): Color Boost (vibr
   keyframe editors list a "Color 01" group per keyed node.
 - **Gallery** (`core/GradeGallery.h`, `Project::gallery()`): stills = a small JPEG picture and
   the grade at grab time; saved with the project, not undoable (a still store), changes mark
-  the project modified.
+  the project modified. Stills sit in **albums** and the gallery holds the **memories** A to Z
+  (spec 151); the **PowerGrade** albums are a second `GradeGallery` in `core/PowerGradeStore.h`
+  (`Project::powerGrades()`), a file in the user data folder shared by every project.
 
 ## Format (project format 16)
 - Clips and timelines may carry `"grade"`; the project may carry `"gallery"`. Only non-default
   values are written; an ungraded project's file differs from format 15 only in its version.
+- Albums and memories need no new version: the optional project key `"galleryExtra"`
+  (`{"albums": [{"id", "name"}], "memories": [{"i", "grade", "image"}]}`, absent while there is
+  only the first album and no memory) and the optional `"album"` of a still (absent = the first
+  album). Older builds ignore them and list every still. PowerGrade albums are not in the
+  project file: `<AppDataLocation>/powergrades.json` (`formatVersion` 1, same still form).
 - Files of versions 1 - 15 load unchanged (nothing graded, empty gallery); older builds refuse
   format 16 instead of silently dropping grades.
 - Damaged data is repaired on load: duplicate or zero node ids dropped, unknown inputs read the
@@ -242,9 +249,25 @@ engine's API, replacing the minimal page (node list, curve picker, gallery strip
 - **LUTs**: a browser of the .cube files in the LUT folders (the user's LUT folder in the
   application data plus "Add Folder..."), double-click applies to the current node, "Load
   File...", Remove, interpolation.
-- **Gallery**: Grab Still (title bar, Ctrl+Alt+G); middle-click applies a still to the graded
+- **Gallery**: the **album list** on the left (Stills with its albums, PowerGrade with its
+  albums, Memories; right-click: New Album, Rename Album, Delete Album, Import Still), the
+  stills of the chosen album on the right. Grab Still (title bar, Ctrl+Alt+G) puts the still into
+  the album being shown; middle-click applies a still to the graded
   clip, a double-click wipes the viewer with it (bughunt5, as in Resolve); its menu applies it
-  to the clips selected in the strip, wipes, renames, deletes. **Wipe** (Ctrl+W, the header's Wipe): the still left of a vertical line, drag the
+  (Apply Grade, Apply Grade to Selected Clips), appends its node graph after the clip's nodes
+  (Append Node Graph, also on the selected clips, one undo step), shows its node graph
+  (Display Node Graph), wipes, moves it to another album, copies it to any album (also a
+  PowerGrade one), imports and exports stills, renames, deletes. Dragging stills onto an album
+  moves them within their list and copies them into the other list (drop on PowerGrade).
+  **PowerGrade** stills are the user's, kept in a file next to the settings, so they are there in
+  every project; they apply, wipe and copy like the others. **Memories**: tiles A to Z;
+  **Alt+1 to Alt+8** save the current grade into A to H, **Ctrl+1 to Ctrl+8** give it to the
+  clip being graded (to the clips selected in the strip, when there are some; one undo step);
+  I to Z have a tile menu only (Save, Apply, Apply to Selected Clips, Clear), as A to H do.
+  **Export Still** writes the picture as PNG, TIFF, JPEG or DPX (FFmpeg's encoder) and the grade
+  file `<name>.kkgrade` (JSON) beside it; a path ending in `.kkgrade` writes the grade file
+  alone. **Import Still** reads a picture (the grade file beside it gives the grade, name and
+  time) or a grade file; our own format, not Resolve's `.drx`. **Wipe** (Ctrl+W, the header's Wipe): the still left of a vertical line, drag the
   line; the selected still, else the newest.
 - **Clips strip**: every video clip of the timeline in order (start, then track). Click grades a
   clip (the playhead moves to its first frame when it is elsewhere; a lower-track clip is

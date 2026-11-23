@@ -715,6 +715,13 @@ bool removeWindow(ClipGrade& grade, quint64 windowId);
 /// output node, else the last node; 0 for an empty grade.
 [[nodiscard]] quint64 defaultSelection(const ClipGrade& grade);
 
+/// Appends the node graph of @p source to @p target (Resolve's Append Node Graph): the source's
+/// nodes get fresh ids and are placed after the target's nodes; what read the source's input
+/// picture now reads the target's output, and the source's output becomes the output. An empty
+/// target simply becomes a copy of the source; an empty source changes nothing. True if the
+/// target changed.
+bool appendGraph(ClipGrade& target, const ClipGrade& source);
+
 } // namespace gradeops
 
 } // namespace kk

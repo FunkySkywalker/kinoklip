@@ -3325,6 +3325,82 @@ The program was probably closed by the system because the computer ran out of me
         <translation>Сторінка «Колір»: надає поточному кліпу грейд вибраного стоп-кадру галереї.</translation>
     </message>
     <message>
+        <source>Color page: adds the node graph of the selected gallery still after the nodes of the clip (the selected clips).</source>
+        <translation>Сторінка «Колір»: додає граф нод вибраного кадру галереї після нод кліпу (вибраних кліпів).</translation>
+    </message>
+    <message>
+        <source>Color page: adds a picture or a Kinoklip grade file to the gallery album being shown.</source>
+        <translation>Сторінка «Колір»: додає зображення або файл корекції Kinoklip до показаного альбому галереї.</translation>
+    </message>
+    <message>
+        <source>Color page: saves the selected gallery still as a picture (PNG, TIFF, JPEG or DPX) with its grade file beside it.</source>
+        <translation>Сторінка «Колір»: зберігає вибраний кадр галереї як зображення (PNG, TIFF, JPEG або DPX) із файлом корекції поруч.</translation>
+    </message>
+    <message>
+        <source>Color page: saves the current grade into gallery memory A.</source>
+        <translation>Сторінка «Колір»: зберігає поточну корекцію в комірку пам'яті A галереї.</translation>
+    </message>
+    <message>
+        <source>Color page: saves the current grade into gallery memory B.</source>
+        <translation>Сторінка «Колір»: зберігає поточну корекцію в комірку пам'яті B галереї.</translation>
+    </message>
+    <message>
+        <source>Color page: saves the current grade into gallery memory C.</source>
+        <translation>Сторінка «Колір»: зберігає поточну корекцію в комірку пам'яті C галереї.</translation>
+    </message>
+    <message>
+        <source>Color page: saves the current grade into gallery memory D.</source>
+        <translation>Сторінка «Колір»: зберігає поточну корекцію в комірку пам'яті D галереї.</translation>
+    </message>
+    <message>
+        <source>Color page: saves the current grade into gallery memory E.</source>
+        <translation>Сторінка «Колір»: зберігає поточну корекцію в комірку пам'яті E галереї.</translation>
+    </message>
+    <message>
+        <source>Color page: saves the current grade into gallery memory F.</source>
+        <translation>Сторінка «Колір»: зберігає поточну корекцію в комірку пам'яті F галереї.</translation>
+    </message>
+    <message>
+        <source>Color page: saves the current grade into gallery memory G.</source>
+        <translation>Сторінка «Колір»: зберігає поточну корекцію в комірку пам'яті G галереї.</translation>
+    </message>
+    <message>
+        <source>Color page: saves the current grade into gallery memory H.</source>
+        <translation>Сторінка «Колір»: зберігає поточну корекцію в комірку пам'яті H галереї.</translation>
+    </message>
+    <message>
+        <source>Color page: gives the current clip (the selected clips) the grade saved in gallery memory A.</source>
+        <translation>Сторінка «Колір»: застосовує до поточного кліпу (вибраних кліпів) корекцію з комірки пам'яті A галереї.</translation>
+    </message>
+    <message>
+        <source>Color page: gives the current clip (the selected clips) the grade saved in gallery memory B.</source>
+        <translation>Сторінка «Колір»: застосовує до поточного кліпу (вибраних кліпів) корекцію з комірки пам'яті B галереї.</translation>
+    </message>
+    <message>
+        <source>Color page: gives the current clip (the selected clips) the grade saved in gallery memory C.</source>
+        <translation>Сторінка «Колір»: застосовує до поточного кліпу (вибраних кліпів) корекцію з комірки пам'яті C галереї.</translation>
+    </message>
+    <message>
+        <source>Color page: gives the current clip (the selected clips) the grade saved in gallery memory D.</source>
+        <translation>Сторінка «Колір»: застосовує до поточного кліпу (вибраних кліпів) корекцію з комірки пам'яті D галереї.</translation>
+    </message>
+    <message>
+        <source>Color page: gives the current clip (the selected clips) the grade saved in gallery memory E.</source>
+        <translation>Сторінка «Колір»: застосовує до поточного кліпу (вибраних кліпів) корекцію з комірки пам'яті E галереї.</translation>
+    </message>
+    <message>
+        <source>Color page: gives the current clip (the selected clips) the grade saved in gallery memory F.</source>
+        <translation>Сторінка «Колір»: застосовує до поточного кліпу (вибраних кліпів) корекцію з комірки пам'яті F галереї.</translation>
+    </message>
+    <message>
+        <source>Color page: gives the current clip (the selected clips) the grade saved in gallery memory G.</source>
+        <translation>Сторінка «Колір»: застосовує до поточного кліпу (вибраних кліпів) корекцію з комірки пам'яті G галереї.</translation>
+    </message>
+    <message>
+        <source>Color page: gives the current clip (the selected clips) the grade saved in gallery memory H.</source>
+        <translation>Сторінка «Колір»: застосовує до поточного кліпу (вибраних кліпів) корекцію з комірки пам'яті H галереї.</translation>
+    </message>
+    <message>
         <source>Color page: splits the viewer to compare with the selected gallery still.</source>
         <translation>Сторінка «Колір»: розділяє вікно перегляду для порівняння з вибраним стоп-кадром галереї.</translation>
     </message>
@@ -10003,12 +10079,116 @@ Thank you for watching</source>
         <translation>Застосувати корекцію</translation>
     </message>
     <message>
+        <source>Append Node Graph</source>
+        <translation>Додати граф нод</translation>
+    </message>
+    <message>
+        <source>No such still</source>
+        <translation>Такого кадру немає</translation>
+    </message>
+    <message>
+        <source>Node Graph of Still %1</source>
+        <translation>Граф нод кадру %1</translation>
+    </message>
+    <message>
+        <source>Import Still</source>
+        <translation>Імпорт кадру</translation>
+    </message>
+    <message>
+        <source>Stills (*.png *.jpg *.jpeg *.tif *.tiff *.dpx *.exr *.bmp *.webp *.%1);;All files (*)</source>
+        <translation>Кадри (*.png *.jpg *.jpeg *.tif *.tiff *.dpx *.exr *.bmp *.webp *.%1);;Усі файли (*)</translation>
+    </message>
+    <message>
+        <source>%1 picture (*.%2)</source>
+        <translation>Зображення %1 (*.%2)</translation>
+    </message>
+    <message>
+        <source>Kinoklip grade file (*.%1)</source>
+        <translation>Файл корекції Kinoklip (*.%1)</translation>
+    </message>
+    <message>
+        <source>Export Still</source>
+        <translation>Експорт кадру</translation>
+    </message>
+    <message>
+        <source>New Album…</source>
+        <translation>Новий альбом…</translation>
+    </message>
+    <message>
+        <source>New Album</source>
+        <translation>Новий альбом</translation>
+    </message>
+    <message>
+        <source>Album</source>
+        <translation>Альбом</translation>
+    </message>
+    <message>
+        <source>Rename Album…</source>
+        <translation>Перейменувати альбом…</translation>
+    </message>
+    <message>
+        <source>Rename Album</source>
+        <translation>Перейменувати альбом</translation>
+    </message>
+    <message>
+        <source>Delete Album</source>
+        <translation>Видалити альбом</translation>
+    </message>
+    <message>
+        <source>Delete the album &quot;%1&quot; and its stills?</source>
+        <translation>Видалити альбом «%1» та його кадри?</translation>
+    </message>
+    <message>
+        <source>Import Still…</source>
+        <translation>Імпорт кадру…</translation>
+    </message>
+    <message>
+        <source>Save Memory %1</source>
+        <translation>Зберегти в пам'ять %1</translation>
+    </message>
+    <message>
+        <source>Apply Memory %1</source>
+        <translation>Застосувати пам'ять %1</translation>
+    </message>
+    <message>
+        <source>Apply Memory %1 to Selected Clips</source>
+        <translation>Застосувати пам'ять %1 до вибраних кліпів</translation>
+    </message>
+    <message>
+        <source>Clear Memory %1</source>
+        <translation>Очистити пам'ять %1</translation>
+    </message>
+    <message>
         <source>Apply Grade to Selected Clips</source>
         <translation>Застосувати корекцію до вибраних кліпів</translation>
     </message>
     <message>
+        <source>Display Node Graph</source>
+        <translation>Показати граф нод</translation>
+    </message>
+    <message>
         <source>Wipe with This Still</source>
         <translation>Шторка з цим кадром</translation>
+    </message>
+    <message>
+        <source>Move to Album</source>
+        <translation>Перемістити в альбом</translation>
+    </message>
+    <message>
+        <source>Copy to Album</source>
+        <translation>Копіювати в альбом</translation>
+    </message>
+    <message>
+        <source>Stills</source>
+        <translation>Кадри</translation>
+    </message>
+    <message>
+        <source>PowerGrade</source>
+        <translation>PowerGrade</translation>
+    </message>
+    <message>
+        <source>Export Still…</source>
+        <translation>Експорт кадру…</translation>
     </message>
     <message>
         <source>Rename…</source>
@@ -10023,8 +10203,44 @@ Thank you for watching</source>
         <translation>Назва</translation>
     </message>
     <message>
+        <source>The albums: Stills and its albums, PowerGrade (the same in every project) and Memories; right-click for more, drop stills on an album</source>
+        <translation>Альбоми: «Кадри» та їхні альбоми, PowerGrade (однаковий у всіх проєктах) і «Пам'ять»; права кнопка для більшого, перетягніть кадри на альбом</translation>
+    </message>
+    <message>
         <source>Delete Still</source>
         <translation>Видалити кадр</translation>
+    </message>
+    <message>
+        <source>Memories</source>
+        <translation>Пам'ять</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n node(s)</source>
+        <translation>
+            <numerusform>%n нода</numerusform>
+            <numerusform>%n ноди</numerusform>
+            <numerusform>%n нод</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Memory %1: %n node(s)</source>
+        <translation>
+            <numerusform>Пам'ять %1: %n нода</numerusform>
+            <numerusform>Пам'ять %1: %n ноди</numerusform>
+            <numerusform>Пам'ять %1: %n нод</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Memory %1 is empty; right-click to save the current grade%2</source>
+        <translation>Пам'ять %1 порожня; права кнопка, щоб зберегти поточну корекцію%2</translation>
+    </message>
+    <message>
+        <source> (Alt+%1)</source>
+        <translation> (Alt+%1)</translation>
+    </message>
+    <message>
+        <source>Memories A to Z hold a grade each: Alt+1 to 8 save the current grade into A to H, Ctrl+1 to 8 apply them; middle-click or double-click a memory to apply it, right-click for more</source>
+        <translation>Комірки пам'яті від A до Z зберігають по одній корекції: Alt+1–8 зберігають поточну в A–H, Ctrl+1–8 застосовують їх; клік середньою кнопкою або подвійний клік по комірці застосовує її, права кнопка для більшого</translation>
     </message>
     <message>
         <source>(wipe)</source>
@@ -10316,10 +10532,6 @@ Thank you for watching</source>
         <translation>Галерея</translation>
     </message>
     <message>
-        <source>The stills grabbed from graded clips; use one to compare in the viewer or copy its grade.</source>
-        <translation>Кадри, захоплені зі скоригованих кліпів; використовуйте їх для порівняння у вікні перегляду або копіювання корекції.</translation>
-    </message>
-    <message>
         <source>Nodes</source>
         <translation>Ноди</translation>
     </message>
@@ -10544,6 +10756,10 @@ Thank you for watching</source>
         <translation>Деформація кольору</translation>
     </message>
     <message>
+        <source>The stills grabbed from graded clips, in albums (Stills, PowerGrade for every project, Memories A to Z); use one to compare in the viewer or copy its grade.</source>
+        <translation>Кадри, зняті з опрацьованих кліпів, в альбомах («Кадри», PowerGrade для всіх проєктів, «Пам'ять» A–Z); використовуйте кадр для порівняння у вʼюері або щоб скопіювати його корекцію.</translation>
+    </message>
+    <message>
         <source>Drag pins on the Hue - Sat and Chroma - Luma grids to move colours smoothly.</source>
         <translation>Перетягуйте точки на сітках «Відтінок - Насиченість» і «Колірність - Яскравість», щоб плавно зсувати кольори.</translation>
     </message>
@@ -10701,8 +10917,16 @@ Thank you for watching</source>
         <translation>Вставити корекцію</translation>
     </message>
     <message>
+        <source>Apply Memory %1</source>
+        <translation>Застосувати пам'ять %1</translation>
+    </message>
+    <message>
         <source>Apply Grade</source>
         <translation>Застосувати корекцію</translation>
+    </message>
+    <message>
+        <source>Append Node Graph</source>
+        <translation>Додати граф нод</translation>
     </message>
     <message>
         <source>Copy Grade</source>
@@ -18493,6 +18717,17 @@ Standard transition of this project</source>
     </message>
 </context>
 <context>
+    <name>kk::GradeGallery</name>
+    <message>
+        <source>Stills</source>
+        <translation>Кадри</translation>
+    </message>
+    <message>
+        <source>Album</source>
+        <translation>Альбом</translation>
+    </message>
+</context>
+<context>
     <name>kk::GuideDialog</name>
     <message>
         <source>Guide</source>
@@ -22196,6 +22431,10 @@ Import files with %1 or drop them here.</source>
         <translation>Додати в кінець</translation>
     </message>
     <message>
+        <source>Append Node Graph</source>
+        <translation>Додати граф нод</translation>
+    </message>
+    <message>
         <source>Append at End</source>
         <translation>Додати в кінець</translation>
     </message>
@@ -22746,6 +22985,42 @@ Import files with %1 or drop them here.</source>
     <message>
         <source>Media…</source>
         <translation>Медіа…</translation>
+    </message>
+    <message>
+        <source>Memories</source>
+        <translation>Пам'ять</translation>
+    </message>
+    <message>
+        <source>Memory A</source>
+        <translation>Пам'ять A</translation>
+    </message>
+    <message>
+        <source>Memory B</source>
+        <translation>Пам'ять B</translation>
+    </message>
+    <message>
+        <source>Memory C</source>
+        <translation>Пам'ять C</translation>
+    </message>
+    <message>
+        <source>Memory D</source>
+        <translation>Пам'ять D</translation>
+    </message>
+    <message>
+        <source>Memory E</source>
+        <translation>Пам'ять E</translation>
+    </message>
+    <message>
+        <source>Memory F</source>
+        <translation>Пам'ять F</translation>
+    </message>
+    <message>
+        <source>Memory G</source>
+        <translation>Пам'ять G</translation>
+    </message>
+    <message>
+        <source>Memory H</source>
+        <translation>Пам'ять H</translation>
     </message>
     <message>
         <source>Mixer</source>
@@ -24411,6 +24686,13 @@ Import files with %1 or drop them here.</source>
     <message>
         <source>Note</source>
         <translation>Примітка</translation>
+    </message>
+</context>
+<context>
+    <name>kk::NodeGraphPreview</name>
+    <message>
+        <source>No nodes</source>
+        <translation>Немає нод</translation>
     </message>
 </context>
 <context>
@@ -27700,6 +27982,21 @@ Auto: Full, switching to Half only while playback cannot keep up (paused: Full).
     </message>
 </context>
 <context>
+    <name>kk::PowerGradeStore</name>
+    <message>
+        <source>PowerGrade</source>
+        <translation>PowerGrade</translation>
+    </message>
+    <message>
+        <source>%1 is not a valid PowerGrade file</source>
+        <translation>%1 не є дійсним файлом PowerGrade</translation>
+    </message>
+    <message>
+        <source>Cannot write %1</source>
+        <translation>Не вдалося записати %1</translation>
+    </message>
+</context>
+<context>
     <name>kk::PreferencesDialog</name>
     <message>
         <source> s</source>
@@ -27826,6 +28123,10 @@ Auto: Full, switching to Half only while playback cannot keep up (paused: Full).
 </context>
 <context>
     <name>kk::Project</name>
+    <message>
+        <source>Stills</source>
+        <translation>Кадри</translation>
+    </message>
     <message>
         <source>Set as Standard Transition</source>
         <translation>Зробити стандартним переходом</translation>
@@ -32606,6 +32907,82 @@ Restart Kinoklip to apply them.</source>
         <translation>&amp;Застосувати корекцію з кадру</translation>
     </message>
     <message>
+        <source>Appen&amp;d Node Graph from Still</source>
+        <translation>Додати граф нод із ка&amp;дру</translation>
+    </message>
+    <message>
+        <source>&amp;Import Still…</source>
+        <translation>&amp;Імпорт кадру…</translation>
+    </message>
+    <message>
+        <source>&amp;Export Still…</source>
+        <translation>&amp;Експорт кадру…</translation>
+    </message>
+    <message>
+        <source>Save Memory A</source>
+        <translation>Зберегти в пам'ять A</translation>
+    </message>
+    <message>
+        <source>Save Memory B</source>
+        <translation>Зберегти в пам'ять B</translation>
+    </message>
+    <message>
+        <source>Save Memory C</source>
+        <translation>Зберегти в пам'ять C</translation>
+    </message>
+    <message>
+        <source>Save Memory D</source>
+        <translation>Зберегти в пам'ять D</translation>
+    </message>
+    <message>
+        <source>Save Memory E</source>
+        <translation>Зберегти в пам'ять E</translation>
+    </message>
+    <message>
+        <source>Save Memory F</source>
+        <translation>Зберегти в пам'ять F</translation>
+    </message>
+    <message>
+        <source>Save Memory G</source>
+        <translation>Зберегти в пам'ять G</translation>
+    </message>
+    <message>
+        <source>Save Memory H</source>
+        <translation>Зберегти в пам'ять H</translation>
+    </message>
+    <message>
+        <source>Apply Memory A</source>
+        <translation>Застосувати пам'ять A</translation>
+    </message>
+    <message>
+        <source>Apply Memory B</source>
+        <translation>Застосувати пам'ять B</translation>
+    </message>
+    <message>
+        <source>Apply Memory C</source>
+        <translation>Застосувати пам'ять C</translation>
+    </message>
+    <message>
+        <source>Apply Memory D</source>
+        <translation>Застосувати пам'ять D</translation>
+    </message>
+    <message>
+        <source>Apply Memory E</source>
+        <translation>Застосувати пам'ять E</translation>
+    </message>
+    <message>
+        <source>Apply Memory F</source>
+        <translation>Застосувати пам'ять F</translation>
+    </message>
+    <message>
+        <source>Apply Memory G</source>
+        <translation>Застосувати пам'ять G</translation>
+    </message>
+    <message>
+        <source>Apply Memory H</source>
+        <translation>Застосувати пам'ять H</translation>
+    </message>
+    <message>
         <source>&amp;Wipe with Still</source>
         <translation>&amp;Шторка з кадром</translation>
     </message>
@@ -36324,6 +36701,33 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
     <message>
         <source>Subtitle encoding failed: %1</source>
         <translation>Помилка кодування субтитрів: %1</translation>
+    </message>
+</context>
+<context>
+    <name>kk::gallerystills</name>
+    <message>
+        <source>Cannot write %1</source>
+        <translation>Не вдалося записати %1</translation>
+    </message>
+    <message>
+        <source>The still has no picture</source>
+        <translation>У кадру немає зображення</translation>
+    </message>
+    <message>
+        <source>%1 does not exist</source>
+        <translation>%1 не існує</translation>
+    </message>
+    <message>
+        <source>Cannot read %1</source>
+        <translation>Не вдалося прочитати %1</translation>
+    </message>
+    <message>
+        <source>%1 is not a Kinoklip grade file</source>
+        <translation>%1 не є файлом корекції Kinoklip</translation>
+    </message>
+    <message>
+        <source>Cannot read the picture %1</source>
+        <translation>Не вдалося прочитати зображення %1</translation>
     </message>
 </context>
 <context>

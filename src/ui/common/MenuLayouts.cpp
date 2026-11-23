@@ -639,7 +639,33 @@ Menu pageMenu(const QString& pageId)
             M("Stills", {
                 A("color.grab_still", "Grab"),
                 A("color.apply_still", "Apply"),
+                A("color.append_still", "Append Node Graph"),
                 A("color.wipe", "Wipe"),
+                S(),
+                A("color.import_still", "Import"),
+                A("color.export_still", "Export"),
+            }),
+            M("Memories", {
+                M("Save", {
+                    A("color.memory_save_a", "Memory A"),
+                    A("color.memory_save_b", "Memory B"),
+                    A("color.memory_save_c", "Memory C"),
+                    A("color.memory_save_d", "Memory D"),
+                    A("color.memory_save_e", "Memory E"),
+                    A("color.memory_save_f", "Memory F"),
+                    A("color.memory_save_g", "Memory G"),
+                    A("color.memory_save_h", "Memory H"),
+                }),
+                M("Apply", {
+                    A("color.memory_apply_a", "Memory A"),
+                    A("color.memory_apply_b", "Memory B"),
+                    A("color.memory_apply_c", "Memory C"),
+                    A("color.memory_apply_d", "Memory D"),
+                    A("color.memory_apply_e", "Memory E"),
+                    A("color.memory_apply_f", "Memory F"),
+                    A("color.memory_apply_g", "Memory G"),
+                    A("color.memory_apply_h", "Memory H"),
+                }),
             }),
             A("color.keyframe", "Add / Remove Keyframe"),
         });

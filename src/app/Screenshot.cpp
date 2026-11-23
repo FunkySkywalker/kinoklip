@@ -27,6 +27,7 @@
 #include "playback/PlaybackEngine.h"
 #include "projects/ProjectLibrary.h"
 #include "ui/color/ColorPalettes.h"
+#include "ui/color/ColorBrowsers.h"
 #include "ui/color/ColorSession.h"
 #include "ui/common/ActionRegistry.h"
 #include "ui/common/AppContext.h"
@@ -1121,6 +1122,8 @@ int runScreenshot(MainWindow& window, const QString& target, const QString& pngP
         // KK_SCREENSHOT_COLOR_WINDOW=<circle|linear|polygon|curve|gradient> adds that window to the
         // node (a curve gets an uneven shape with handles), KK_SCREENSHOT_COLOR_SPLIT=<selected|
         // timeline>, KK_SCREENSHOT_COLOR_LIGHTBOX=1 and KK_SCREENSHOT_BLANKING=<aspect, e.g. 2.39>.
+        // KK_SCREENSHOT_COLOR_GALLERY=<stills|powergrade|memories> fills the gallery (albums,
+        // PowerGrade, memories A to C) and shows that list; set KK_POWERGRADE_FILE to a temp file.
         ColorPage* color = window.colorPage();
         if (!color || !window.setCurrentPage(QStringLiteral("color"))) {
             std::fprintf(stderr, "color: no Color page\n");
@@ -1196,6 +1199,49 @@ int runScreenshot(MainWindow& window, const QString& target, const QString& pngP
                 if (qEnvironmentVariableIntValue("KK_SCREENSHOT_SAVE") == 1) {
                     if (QAction* save = ctx.actions->action(QStringLiteral("file.save")))
                         save->trigger();
+                }
+            });
+        }
+        if (const QString gallery = qEnvironmentVariable("KK_SCREENSHOT_COLOR_GALLERY");
+            !gallery.isEmpty()) {
+            QTimer::singleShot(1500, color, [color, gallery] {
+                ColorGallery* g = color->gallery();
+                ColorSession* session = color->session();
+                auto look = [session](double saturation, double contrast, const QString& name) {
+                    ClipGrade grade;
+                    const quint64 node = gradeops::initialize(grade);
+                    grade.node(node)->params.setBase(gradekeys::Saturation, saturation);
+                    grade.node(node)->params.setBase(gradekeys::Contrast, contrast);
+                    session->commit(grade, name);
+                };
+                look(0.3, 1.0, QStringLiteral("Mono"));
+                g->grabStill();
+                look(1.5, 1.1, QStringLiteral("Vivid"));
+                g->grabStill();
+                look(1.0, 1.0, QStringLiteral("Plain"));
+                g->grabStill();
+                g->newAlbum(ColorGallery::Source::Project, QStringLiteral("Night"));
+                look(0.7, 1.3, QStringLiteral("Dusk"));
+                g->grabStill();
+                g->newAlbum(ColorGallery::Source::PowerGrade, QStringLiteral("Film Looks"));
+                for (const double sat : {0.5, 1.3, 1.8}) {
+                    look(sat, 1.0 + sat / 10, QStringLiteral("PG"));
+                    g->grabStill();
+                }
+                g->selectAlbum(ColorGallery::Source::PowerGrade, 1);
+                look(1.2, 1.2, QStringLiteral("PowerGrade"));
+                g->grabStill();
+                for (int i = 0; i < 3; ++i) {
+                    look(0.4 + 0.5 * i, 1.0 + 0.1 * i, QStringLiteral("Memory"));
+                    session->saveMemory(i);
+                }
+                look(1.0, 1.0, QStringLiteral("Reset"));
+                if (gallery == QLatin1String("memories")) {
+                    g->selectAlbum(ColorGallery::Source::Memories);
+                } else if (gallery == QLatin1String("powergrade")) {
+                    g->selectAlbum(ColorGallery::Source::PowerGrade, 1);
+                } else {
+                    g->selectAlbum(ColorGallery::Source::Project, 1);
                 }
             });
         }

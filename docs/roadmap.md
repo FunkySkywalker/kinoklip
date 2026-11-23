@@ -217,7 +217,7 @@ Still to do:
 - [ ] Color: Color Match palette: Shot Match to another clip, and a colour chart
 - [x] Color: Generate 3D LUT (CUBE) from a grade, in the clip strip's context menu with 17, 33 and 65 point cubes (spec 146; windows, qualifiers and blur are not part of a LUT)
 - [ ] Color: node types Outside, Key Mixer, Splitter / Combiner and Compound Node, typed node labels, and an Alpha Output node with key input and output ports
-- [ ] Color: Gallery albums, Memories A to Z, Power Grade albums, Import Still and Export Still (DRX and image)
+- [x] Color: Gallery albums, Memories A to Z, Power Grade albums, Import Still and Export Still (image and our own grade file; Resolve DRX is not read; spec 151)
 - [ ] Color: Versions of a grade (Local and Remote), Groups with Pre-Clip and Post-Clip grades
 - [x] Color: CIE Chromaticity scope (spectral locus, Rec. 709 / DCI-P3 / Rec. 2020 triangles, D65) and scope settings (Scale 0 - 1023 / 0 - 255 / percent / 0.0 - 1.0, Gain), remembered per scope (spec 146)
 - [ ] Color: Color Space Transform, ACES Transform, Gamut Mapping and Chromatic Adaptation effects, Color Management in Project Settings and Input Color Space in Clip Attributes

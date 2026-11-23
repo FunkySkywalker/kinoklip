@@ -138,8 +138,8 @@ ColorPage::ColorPage(AppContext& ctx, QWidget* parent)
     // ---- Top: gallery | viewer | nodes ----
     m_gallery = new ColorGallery(m_session, ctx.project);
     setPanelInfo(m_gallery, tr("Gallery"),
-        tr("The stills grabbed from graded clips; use one to compare in the viewer or copy its "
-           "grade."));
+        tr("The stills grabbed from graded clips, in albums (Stills, PowerGrade for every project, "
+           "Memories A to Z); use one to compare in the viewer or copy its grade."));
     m_galleryFrame = new PanelFrame(tr("Gallery"));
     m_galleryFrame->setContentWidget(m_gallery);
     if (QAction* grab = registryAction(ctx, QStringLiteral("color.grab_still")))
@@ -266,6 +266,8 @@ ColorPage::ColorPage(AppContext& ctx, QWidget* parent)
         updateWipe();
     });
     connect(m_ctx.project->gallery(), &GradeGallery::changed, this, &ColorPage::updateWipe);
+    connect(m_ctx.project->powerGrades()->gallery(), &GradeGallery::changed, this,
+        &ColorPage::updateWipe);
     connect(m_overlay, &ColorViewerOverlay::pickRequested, this, &ColorPage::pickFromViewer);
     auto syncPickMode = [this] {
         m_overlay->setPickMode(m_qualifier->pickMode().has_value() || m_curves->pickActive());
@@ -615,15 +617,28 @@ void ColorPage::connectActions()
     on("color.reset_node", [this] { m_session->resetNode(); });
     on("color.reset_grade", [this] { m_session->resetGrade(); });
     on("color.keyframe", [this] { m_session->toggleKeyframe(); });
-    on("color.grab_still", [this] {
-        const quint64 id = m_session->grabStill();
-        if (id)
-            m_gallery->setCurrentStill(id);
-    });
+    on("color.grab_still", [this] { m_gallery->grabStill(); });
     on("color.apply_still", [this] {
         if (const quint64 id = m_gallery->currentStill())
-            m_session->applyStill(id, m_session->selectedClips());
+            m_gallery->applyStill(id, m_session->selectedClips());
     });
+    on("color.append_still", [this] {
+        if (const quint64 id = m_gallery->currentStill())
+            m_gallery->applyStill(id, m_session->selectedClips(), true);
+    });
+    on("color.import_still", [this] { m_gallery->importDialog(); });
+    on("color.export_still", [this] {
+        if (const quint64 id = m_gallery->currentStill())
+            m_gallery->exportDialog(id);
+    });
+    // Memories A to H: Alt+1..8 save the current grade, Ctrl+1..8 apply it (to the selected
+    // clips of the strip, else the current clip).
+    for (int i = 0; i < kGalleryKeyedMemories; ++i) {
+        const QByteArray letter = QByteArray(1, char('a' + i));
+        on(("color.memory_save_" + letter).constData(), [this, i] { m_session->saveMemory(i); });
+        on(("color.memory_apply_" + letter).constData(),
+            [this, i] { m_session->applyMemory(i, m_session->selectedClips()); });
+    }
     on("color.copy_grade", [this] { m_session->copyCurrentGrade(); });
     on("color.paste_grade", [this] { m_session->pasteGrade(); });
     auto checkable = [this](const char* id, auto&& setter, auto&& changed) {
@@ -782,8 +797,7 @@ void ColorPage::setWipe(bool on)
 
 void ColorPage::updateWipe()
 {
-    const GalleryStill* s
-        = m_wipeOn ? m_ctx.project->gallery()->still(m_gallery->wipeStill()) : nullptr;
+    const GalleryStill* s = m_wipeOn ? m_gallery->stillFor(m_gallery->wipeStill()) : nullptr;
     m_overlay->setWipeImage(s ? s->image : QImage());
 }
 

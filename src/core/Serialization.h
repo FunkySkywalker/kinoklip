@@ -100,7 +100,11 @@ namespace kk::serialization {
 ///   ({"nodes": [...], "output": node id}, see gradeToJson()); the project may carry
 ///   "gallery" (stills: {"id", "name", "created" (ms), "grade", "image" (base64 JPEG)}). Files
 ///   of versions 1 - 15 have neither and load unchanged (nothing graded, empty gallery); older
-///   builds refuse version 16 instead of silently dropping the grades.
+///   builds refuse version 16 instead of silently dropping the grades. Without a format bump
+///   the project may also carry "galleryExtra" ({"albums": [{"id", "name"}], "memories":
+///   [{"i" 0..25, "grade", "image"}]}) and stills may carry "album" (an album id; absent =
+///   the first album): the Color page's gallery albums and memories (spec 151). Older builds
+///   ignore these keys and show every still in one list.
 /// - 17 (bughunt3 branch): starting timecodes and composite modes. Timelines may carry
 ///   "startTimecode" (frames of the timeline rate, the record timecode of frame 0; absent =
 ///   00:00:00:00), the project "timelineStart" (the same for new timelines; absent = 0, so

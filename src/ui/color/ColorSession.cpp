@@ -842,6 +842,27 @@ quint64 ColorSession::grabStill()
 {
     if (!hasGrade())
         return 0;
+    return m_ctx.project->gallery()->addStill(currentPicture(), m_grade);
+}
+
+bool ColorSession::saveMemory(int index)
+{
+    if (!hasGrade())
+        return false;
+    return m_ctx.project->gallery()->setMemory(index, m_grade, currentPicture());
+}
+
+int ColorSession::applyMemory(int index, const QVector<quint64>& clipIds)
+{
+    const GalleryMemory& m = m_ctx.project->gallery()->memory(index);
+    if (!m.used)
+        return 0;
+    return applyGrade(m.grade,
+        clipIds, tr("Apply Memory %1").arg(GradeGallery::memoryLetter(index)));
+}
+
+QImage ColorSession::currentPicture()
+{
     QImage picture;
     if (m_ctx.playback && m_ctx.playback->compositor()) {
         const TimelineData& data = m_ctx.project->timeline()->data();
@@ -854,19 +875,50 @@ quint64 ColorSession::grabStill()
                 picture = frame->image;
         }
     }
-    return m_ctx.project->gallery()->addStill(picture, m_grade);
+    return picture;
 }
 
 int ColorSession::applyStill(quint64 stillId, const QVector<quint64>& clipIds)
 {
     const GalleryStill* still = m_ctx.project->gallery()->still(stillId);
-    if (!still)
+    return still ? applyGrade(still->grade, clipIds, tr("Apply Grade")) : 0;
+}
+
+int ColorSession::appendStill(quint64 stillId, const QVector<quint64>& clipIds)
+{
+    const GalleryStill* still = m_ctx.project->gallery()->still(stillId);
+    return still ? applyGrade(still->grade, clipIds, tr("Append Node Graph"), true) : 0;
+}
+
+int ColorSession::applyGrade(
+    const ClipGrade& grade, const QVector<quint64>& clipIds, const QString& label, bool append)
+{
+    if (grade.isEmpty() && append)
         return 0;
-    if (clipIds.isEmpty() && m_target == Target::Timeline)
-        return commit(still->grade, tr("Apply Grade")) ? 1 : 0;
+    Project* p = m_ctx.project;
+    const quint64 uid = p->activeTimelineUid();
+    if (clipIds.isEmpty() && m_target == Target::Timeline) {
+        ClipGrade g = grade;
+        if (append) {
+            g = p->timelineGrade(uid);
+            gradeops::appendGraph(g, grade);
+        }
+        return commit(g, label) ? 1 : 0;
+    }
     const QVector<quint64> targets = clipIds.isEmpty() ? QVector<quint64> {m_clipId} : clipIds;
-    const int n = m_ctx.project->setClipGrades(
-        m_ctx.project->activeTimelineUid(), targets, still->grade, tr("Apply Grade"));
+    int n = 0;
+    if (!append) {
+        n = p->setClipGrades(uid, targets, grade, label);
+    } else {
+        // Each clip keeps its own nodes, so the grades differ: one step for all of them.
+        beginGesture(label);
+        for (const quint64 id : targets) {
+            ClipGrade g = p->clipGrade(uid, id);
+            if (gradeops::appendGraph(g, grade) && p->setClipGrades(uid, {id}, g, label) == 1)
+                ++n;
+        }
+        endGesture();
+    }
     reload();
     return n;
 }

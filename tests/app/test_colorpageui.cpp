@@ -9,6 +9,7 @@
 #include "app/MainWindow.h"
 #include "app/pages/ColorPage.h"
 #include "core/EditOps.h"
+#include "core/GalleryStillFiles.h"
 #include "core/GradeGallery.h"
 #include "core/GradeKeyframes.h"
 #include "core/GradeMath.h"
@@ -40,6 +41,7 @@
 #include <QApplication>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QDialog>
 #include <QFile>
 #include <QLabel>
 #include <QLineEdit>
@@ -70,6 +72,7 @@ namespace {
 struct Fixture
 {
     Project project;
+    QTemporaryDir powerDir; ///< the PowerGrade file of the test, never the user's
     SelectionModel selection;
     ActionRegistry actions;
     AppContext ctx;
@@ -80,6 +83,7 @@ struct Fixture
     {
         actions.loadDefaultKeymap();
         registerStandardActions(actions);
+        project.setPowerGradeFile(powerDir.filePath(QStringLiteral("powergrades.json")));
         ctx.project = &project;
         ctx.selection = &selection;
         ctx.actions = &actions;
@@ -668,6 +672,263 @@ private slots:
         f.project.gallery()->removeStill(id);
         QCoreApplication::processEvents();
         QVERIFY(!f.page()->overlay()->isWiping());
+    }
+
+    // Spec 151: albums of the gallery and the PowerGrade albums shared by every project.
+    void galleryAlbumsAndPowerGrade()
+    {
+        Fixture f;
+        f.showPage();
+        ColorGallery* gal = f.page()->gallery();
+        QTreeWidget* tree = gal->albums();
+        // Stills (with its albums), PowerGrade and Memories, like Resolve's album list.
+        QCOMPARE(tree->topLevelItemCount(), 3);
+        QCOMPARE(tree->topLevelItem(0)->text(0), QStringLiteral("Stills"));
+        QCOMPARE(tree->topLevelItem(1)->text(0), QStringLiteral("PowerGrade"));
+        QCOMPARE(tree->topLevelItem(2)->text(0), QStringLiteral("Memories"));
+        QVERIFY(gal->source() == ColorGallery::Source::Project);
+
+        ClipGrade look;
+        const quint64 node = gradeops::initialize(look);
+        look.node(node)->params.animated(gk::Saturation, 1.0).setValue(0, 0.2);
+        QImage img(64, 36, QImage::Format_RGB32);
+        img.fill(QColor(90, 90, 90));
+        const quint64 id = f.project.gallery()->addStill(img, look);
+
+        // A new album is shown at once and empty; the still stays in its own album.
+        const quint64 album = gal->newAlbum(ColorGallery::Source::Project, QStringLiteral("Night"));
+        QVERIFY(album > 1);
+        QCOMPARE(gal->album(), album);
+        QCOMPARE(tree->topLevelItem(0)->childCount(), 1);
+        QCOMPARE(tree->topLevelItem(0)->child(0)->text(0), QStringLiteral("Night"));
+        QCOMPARE(gal->list()->count(), 0);
+        // Moving between albums (what dropping a still on an album does).
+        QCOMPARE(gal->dropStill(id, ColorGallery::Source::Project, album), id);
+        QCOMPARE(gal->list()->count(), 0); // the list shows the album being viewed
+        gal->selectAlbum(ColorGallery::Source::Project, album);
+        QCOMPARE(gal->list()->count(), 1);
+        gal->selectAlbum(ColorGallery::Source::Project, 1);
+        QCOMPARE(gal->list()->count(), 0);
+
+        // The menu moves and copies, also into the PowerGrade album.
+        gal->selectAlbum(ColorGallery::Source::Project, album);
+        std::unique_ptr<QMenu> menu(gal->buildMenu(id, gal));
+        auto* move = menu->findChild<QMenu*>(QStringLiteral("GalleryMoveMenu"));
+        QVERIFY(move && move->findChild<QAction*>(QStringLiteral("GalleryMove_1")));
+        QVERIFY(!move->findChild<QAction*>(QStringLiteral("GalleryMove_%1").arg(album))); // it is there
+        auto* copy = menu->findChild<QMenu*>(QStringLiteral("GalleryCopyMenu"));
+        QVERIFY(copy);
+        copy->findChild<QAction*>(QStringLiteral("GalleryCopy_G1"))->trigger();
+        QCOMPARE(f.project.gallery()->stills().size(), 2);
+        copy->findChild<QAction*>(QStringLiteral("GalleryCopy_P1"))->trigger();
+        const auto* pg = f.project.powerGrades()->gallery();
+        QCOMPARE(pg->stills().size(), 1);
+        QCOMPARE(pg->stills().first().grade, look);
+        QVERIFY(QFile::exists(f.project.powerGrades()->filePath()));
+        QCOMPARE(f.project.gallery()->stills().size(), 2); // the project keeps its own
+        move->findChild<QAction*>(QStringLiteral("GalleryMove_1"))->trigger();
+        QCOMPARE(gal->list()->count(), 0);
+
+        // PowerGrade stills are listed, applied (one undo step) and wiped like the others.
+        gal->selectAlbum(ColorGallery::Source::PowerGrade, 1);
+        QCOMPARE(gal->list()->count(), 1);
+        const quint64 pgId = gal->list()->item(0)->data(Qt::UserRole).toULongLong();
+        QVERIFY(pgId & ColorGallery::kPowerGradeBit);
+        QVERIFY(gal->stillFor(pgId));
+        const int base = f.steps();
+        const QPoint at = gal->list()->visualItemRect(gal->list()->item(0)).center();
+        QTest::mouseClick(gal->list()->viewport(), Qt::MiddleButton, {}, at);
+        QCOMPARE(f.grade(f.clips[0]), look);
+        QCOMPARE(f.steps(), base + 1);
+        gal->setWipeStill(pgId);
+        QVERIFY(f.page()->overlay()->isWiping());
+        // Dropping a PowerGrade still on a project album copies it (the original stays).
+        const quint64 back = gal->dropStill(pgId, ColorGallery::Source::Project, 1);
+        QVERIFY(back && !(back & ColorGallery::kPowerGradeBit));
+        QCOMPARE(pg->stills().size(), 1);
+
+        // Albums are renamed and deleted from their menu; the first one cannot go.
+        std::unique_ptr<QMenu> first(gal->buildAlbumMenu(ColorGallery::Source::Project, 1, gal));
+        QVERIFY(!first->findChild<QAction*>(QStringLiteral("GalleryDeleteAlbum"))->isEnabled());
+        QVERIFY(first->findChild<QAction*>(QStringLiteral("GalleryNewAlbum")));
+        QVERIFY(first->findChild<QAction*>(QStringLiteral("GalleryImport")));
+        const quint64 empty = gal->newAlbum(ColorGallery::Source::PowerGrade, QStringLiteral("Empty"));
+        std::unique_ptr<QMenu> custom(
+            gal->buildAlbumMenu(ColorGallery::Source::PowerGrade, empty, gal));
+        QVERIFY(custom->findChild<QAction*>(QStringLiteral("GalleryDeleteAlbum"))->isEnabled());
+        custom->findChild<QAction*>(QStringLiteral("GalleryDeleteAlbum"))->trigger();
+        QVERIFY(!pg->album(empty));
+        QVERIFY(gal->source() == ColorGallery::Source::Project); // fell back to the first album
+        QCOMPARE(tree->topLevelItem(1)->childCount(), 0);
+
+        // The PowerGrade store is the user's, not the project's: another project sees it.
+        Project other;
+        other.setPowerGradeFile(f.project.powerGrades()->filePath());
+        QCOMPARE(other.powerGrades()->gallery()->stills().size(), 1);
+        QVERIFY(other.gallery()->stills().isEmpty());
+    }
+
+    // Spec 151: memories A to Z, Alt+1..8 save and Ctrl+1..8 apply.
+    void galleryMemories()
+    {
+        Fixture f;
+        f.showPage();
+        ColorGallery* gal = f.page()->gallery();
+        QCOMPARE(f.action("color.memory_save_a")->shortcut(), QKeySequence(QStringLiteral("Alt+1")));
+        QCOMPARE(f.action("color.memory_save_h")->shortcut(), QKeySequence(QStringLiteral("Alt+8")));
+        QCOMPARE(f.action("color.memory_apply_a")->shortcut(), QKeySequence(QStringLiteral("Ctrl+1")));
+        QCOMPARE(f.action("color.memory_apply_h")->shortcut(), QKeySequence(QStringLiteral("Ctrl+8")));
+
+        // Grade clip 1, save it into memory A with Alt+1 and clip 2's (empty) grade into B.
+        ClipGrade look;
+        const quint64 node = gradeops::initialize(look);
+        look.node(node)->params.setBase(gk::Saturation, 0.4);
+        f.session()->gradeClip(f.clips[0]);
+        QVERIFY(f.session()->commit(look, QStringLiteral("Look")));
+        f.key(Qt::Key_1, Qt::AltModifier);
+        QVERIFY(f.project.gallery()->memory(0).used);
+        QCOMPARE(f.project.gallery()->memory(0).grade, look);
+        QVERIFY(f.project.isDirty()); // memories are saved with the project
+        f.session()->gradeClip(f.clips[1]);
+        f.action("color.memory_save_b")->trigger();
+        QVERIFY(f.project.gallery()->memory(1).used);
+
+        // Ctrl+1 gives the clip being graded the grade of A: one undo step.
+        QVERIFY(f.grade(f.clips[1]).isEmpty());
+        const int base = f.steps();
+        f.key(Qt::Key_1, Qt::ControlModifier);
+        QCOMPARE(f.grade(f.clips[1]), look);
+        QCOMPARE(f.steps(), base + 1);
+        f.project.undoStack()->undo();
+        QVERIFY(f.grade(f.clips[1]).isEmpty());
+        // An empty memory does nothing; selected clips all get it in one step.
+        f.key(Qt::Key_3, Qt::ControlModifier);
+        QCOMPARE(f.steps(), base); // (the undone step stays on the stack)
+        f.session()->setSelectedClips({f.clips[1], f.clips[2]});
+        f.key(Qt::Key_1, Qt::ControlModifier);
+        QCOMPARE(f.grade(f.clips[1]), look);
+        QCOMPARE(f.grade(f.clips[2]), look);
+        f.project.undoStack()->undo();
+        QVERIFY(f.grade(f.clips[1]).isEmpty() && f.grade(f.clips[2]).isEmpty());
+
+        // The Memories album: tiles A to Z, used ones filled; middle-click applies, the menu clears.
+        gal->selectAlbum(ColorGallery::Source::Memories);
+        QCOMPARE(gal->list()->count(), kGalleryMemoryCount);
+        QCOMPARE(gal->list()->item(0)->text(), QStringLiteral("A"));
+        QCOMPARE(gal->list()->item(25)->text(), QStringLiteral("Z"));
+        QCOMPARE(gal->currentStill(), quint64(0));
+        f.session()->setSelectedClips({});
+        f.session()->gradeClip(f.clips[2]);
+        const QPoint at = gal->list()->visualItemRect(gal->list()->item(0)).center();
+        QTest::mouseClick(gal->list()->viewport(), Qt::MiddleButton, {}, at);
+        QCOMPARE(f.grade(f.clips[2]), look);
+        std::unique_ptr<QMenu> tile(gal->buildMemoryMenu(0, gal));
+        QVERIFY(tile->findChild<QAction*>(QStringLiteral("MemoryApply"))->isEnabled());
+        tile->findChild<QAction*>(QStringLiteral("MemoryClear"))->trigger();
+        QVERIFY(!f.project.gallery()->memory(0).used);
+        std::unique_ptr<QMenu> emptyTile(gal->buildMemoryMenu(0, gal));
+        QVERIFY(!emptyTile->findChild<QAction*>(QStringLiteral("MemoryApply"))->isEnabled());
+        // Memories beyond H have no key but a tile menu.
+        std::unique_ptr<QMenu> zTile(gal->buildMemoryMenu(25, gal));
+        zTile->findChild<QAction*>(QStringLiteral("MemorySave"))->trigger();
+        QVERIFY(f.project.gallery()->memory(25).used);
+    }
+
+    // Spec 151: Append Node Graph and Display Node Graph.
+    void galleryAppendNodeGraph()
+    {
+        Fixture f;
+        f.showPage();
+        ColorGallery* gal = f.page()->gallery();
+        ClipGrade look;
+        const quint64 node = gradeops::initialize(look);
+        look.node(node)->label = QStringLiteral("Warm");
+        gradeops::addSerialNode(look, node);
+        const quint64 id = f.project.gallery()->addStill(QImage(32, 18, QImage::Format_RGB32), look);
+
+        ClipGrade own;
+        gradeops::initialize(own);
+        own.nodes[0].label = QStringLiteral("Mine");
+        QVERIFY(f.session()->commit(own, QStringLiteral("Mine")));
+        const int base = f.steps();
+        std::unique_ptr<QMenu> menu(gal->buildMenu(id, gal));
+        menu->findChild<QAction*>(QStringLiteral("GalleryAppend"))->trigger();
+        QCOMPARE(f.grade(f.clips[0]).nodes.size(), qsizetype(3));
+        QCOMPARE(f.grade(f.clips[0]).nodes[0].label, QStringLiteral("Mine"));
+        QCOMPARE(f.steps(), base + 1);
+        f.project.undoStack()->undo();
+        QCOMPARE(f.grade(f.clips[0]).nodes.size(), qsizetype(1));
+
+        // Selected clips: each keeps its own nodes, one undo step for all.
+        f.session()->setSelectedClips({f.clips[0], f.clips[1]});
+        const int before = f.steps();
+        QCOMPARE(gal->applyStill(id, f.session()->selectedClips(), true), 2);
+        QCOMPARE(f.grade(f.clips[0]).nodes.size(), qsizetype(3));
+        QCOMPARE(f.grade(f.clips[1]).nodes.size(), qsizetype(2)); // had none: a copy
+        QCOMPARE(f.steps(), before + 1);
+        f.project.undoStack()->undo();
+        QVERIFY(f.grade(f.clips[1]).isEmpty());
+        QCOMPARE(f.grade(f.clips[0]).nodes.size(), qsizetype(1));
+
+        // The timeline grade can be appended to as well (Timeline target).
+        f.session()->setSelectedClips({});
+        f.session()->setTarget(ColorSession::Target::Timeline);
+        QCOMPARE(gal->applyStill(id, {}, true), 1);
+        QCOMPARE(f.project.timelineGrade(f.project.activeTimelineUid()).nodes.size(), qsizetype(2));
+        f.session()->setTarget(ColorSession::Target::Clip);
+
+        // Display Node Graph opens a window that paints the nodes.
+        menu->findChild<QAction*>(QStringLiteral("GalleryDisplayGraph"))->trigger();
+        auto* graph = gal->findChild<QDialog*>(QStringLiteral("GalleryNodeGraphDialog"));
+        QVERIFY(graph);
+        QVERIFY(graph->findChild<QWidget*>(QStringLiteral("GalleryNodeGraph")));
+        QVERIFY(!graph->grab().isNull());
+        graph->close();
+    }
+
+    // Spec 151: Import Still and Export Still (picture plus grade file).
+    void galleryImportExport()
+    {
+        Fixture f;
+        f.showPage();
+        ColorGallery* gal = f.page()->gallery();
+        QTemporaryDir dir;
+        ClipGrade look;
+        const quint64 node = gradeops::initialize(look);
+        look.node(node)->params.setBase(gk::Saturation, 1.7);
+        QImage img(160, 90, QImage::Format_RGB32);
+        img.fill(QColor(30, 120, 60));
+        const quint64 id = f.project.gallery()->addStill(img, look);
+        f.project.gallery()->renameStill(id, QStringLiteral("Forest"));
+
+        const QString png = dir.filePath(QStringLiteral("forest.png"));
+        QString error;
+        QVERIFY2(gal->exportStill(id, png, &error), qPrintable(error));
+        QVERIFY(QFile::exists(png));
+        QVERIFY(QFile::exists(gallerystills::gradeFileFor(png)));
+        QVERIFY(!gal->exportStill(0, png, &error));
+
+        // Imported into the album being shown (here a new one), also a PowerGrade album.
+        const quint64 album = gal->newAlbum(ColorGallery::Source::Project, QStringLiteral("In"));
+        const quint64 in = gal->importStill(png, &error);
+        QVERIFY2(in, qPrintable(error));
+        QCOMPARE(gal->list()->count(), 1);
+        QCOMPARE(f.project.gallery()->still(in)->album, album);
+        QCOMPARE(f.project.gallery()->still(in)->grade, look);
+        QCOMPARE(f.project.gallery()->still(in)->name, QStringLiteral("Forest"));
+        gal->selectAlbum(ColorGallery::Source::PowerGrade, 1);
+        const quint64 pgIn = gal->importStill(png, &error);
+        QVERIFY(pgIn & ColorGallery::kPowerGradeBit);
+        QCOMPARE(f.project.powerGrades()->gallery()->stills().size(), 1);
+        QCOMPARE(gal->stillFor(pgIn)->grade, look);
+        QVERIFY(!gal->importStill(dir.filePath(QStringLiteral("none.png")), &error));
+        QVERIFY(!error.isEmpty());
+        // The still's context menu has both commands.
+        std::unique_ptr<QMenu> menu(gal->buildMenu(pgIn, gal));
+        QVERIFY(menu->findChild<QAction*>(QStringLiteral("GalleryImport")));
+        QVERIFY(menu->findChild<QAction*>(QStringLiteral("GalleryExport")));
+        QVERIFY(gal->deleteStill(pgIn));
+        QVERIFY(f.project.powerGrades()->gallery()->stills().isEmpty());
     }
 
     void clipStripSelectsTheGradedClip()

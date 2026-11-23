@@ -282,6 +282,23 @@ public:
     /// Gives clips @p clipIds (empty: the current clip) the grade of still @p stillId, one undo
     /// step. Returns the number of clips changed.
     int applyStill(quint64 stillId, const QVector<quint64>& clipIds = {});
+    /// Gives clips @p clipIds (empty: the current clip; the timeline grade while the timeline is
+    /// the target) @p grade as one undo step labelled @p label: replacing their grade, or with
+    /// @p append adding its node graph after the nodes they have (Append Node Graph). Returns
+    /// the number of clips changed.
+    int applyGrade(const ClipGrade& grade, const QVector<quint64>& clipIds, const QString& label,
+        bool append = false);
+    /// Append Node Graph: applyGrade() of still @p stillId with append.
+    int appendStill(quint64 stillId, const QVector<quint64>& clipIds = {});
+    /// The picture of the current frame as the viewer shows it (null when nothing is open or the
+    /// render is not ready in time).
+    [[nodiscard]] QImage currentPicture();
+    /// Saves the current grade into gallery memory @p index (0 = A, at most 25); false when
+    /// there is nothing to save.
+    bool saveMemory(int index);
+    /// Gives clips @p clipIds (empty: the current clip) the grade of memory @p index, one undo
+    /// step. Returns the number of clips changed (0 for an empty memory).
+    int applyMemory(int index, const QVector<quint64>& clipIds = {});
     /// Copies the grade of clip @p fromClipId to clips @p toClipIds (empty: the current clip),
     /// one undo step ("copy grade" between clips). Returns the number of clips changed.
     int copyGrade(quint64 fromClipId, const QVector<quint64>& toClipIds = {});

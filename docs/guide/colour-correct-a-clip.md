@@ -153,13 +153,23 @@ with the **middle mouse button** (the mouse wheel). The selected clips get its g
 **Gallery stills** keep a grade for later, even after you have changed the clip again:
 1. Click the corrected clip, then click **Grab Still** in the Gallery's title bar
    (**Ctrl+Alt+G**). A small picture with the grade appears in the Gallery.
-2. Click another clip in the clips strip and double-click the still (or middle-click it). The
-   clip gets that grade.
-3. Right-click a still for more: **Apply Grade to Selected Clips**, **Wipe with This Still**
-   (compare the current clip with the still side by side; drag the line in the viewer),
-   **Rename…** and **Delete Still**.
+2. Click another clip in the clips strip and middle-click the still (a double-click shows it as
+   a wipe in the viewer instead). The clip gets that grade.
+3. Right-click a still for more: **Apply Grade to Selected Clips**, **Append Node Graph** (adds
+   the still's nodes after the clip's own instead of replacing them), **Display Node Graph**,
+   **Wipe with This Still** (compare the current clip with the still side by side; drag the line
+   in the viewer), **Move to Album**, **Copy to Album**, **Import Still…**, **Export Still…**
+   (a PNG, TIFF, JPEG or DPX picture and a `.kkgrade` grade file beside it), **Rename…** and
+   **Delete Still**.
 
-Stills are saved with the project.
+The list on the left of the Gallery holds the **albums**: **Stills** (right-click for **New
+Album…**, **Rename Album…**, **Delete Album**), **PowerGrade** and **Memories**. Drag stills onto
+an album to move them. The **PowerGrade** albums belong to you, not to the project: a still
+dropped there is in every project you open. **Memories** A to Z keep a grade each: **Alt+1** to
+**Alt+8** save the current grade into A to H, **Ctrl+1** to **Ctrl+8** give it to the clip (or to
+the clips selected in the strip); right-click a tile for the same and for I to Z.
+
+Stills and memories are saved with the project; PowerGrade albums are saved with your settings.
 
 **Compare shots** so a scene looks like one place:
 - **Split Screen** (**View > Split Screen**, **Ctrl+Alt+W**, or **Split** above the viewer; its

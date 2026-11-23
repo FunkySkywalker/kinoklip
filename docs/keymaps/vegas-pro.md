@@ -14,9 +14,9 @@ the page keys keep Kinoklip's (Resolve's) keys.
 - **likely**: believed correct, not checked against the program;
 - **unsure**: best guess; please correct it in `scripts/keymap-presets.py` if it differs.
 
-Counts: 376 commands; 39 mapped to Vegas Pro's key (sure 17, likely 20,
-unsure 2); 147 keep the default (Resolve) key; 7 have no key because
-Vegas Pro uses it for something else; 183 have no key in either.
+Counts: 395 commands; 39 mapped to Vegas Pro's key (sure 17, likely 20,
+unsure 2); 163 keep the default (Resolve) key; 7 have no key because
+Vegas Pro uses it for something else; 186 have no key in either.
 
 To change a key: edit the preset's section in `scripts/keymap-presets.py` and run it (it writes
 the JSON file and this page and stops when a key is used twice in one scope);
@@ -227,6 +227,22 @@ shares with a Vegas Pro command was removed, see the note).
 | Reset Node Grade (the current node's corrections) | `color.reset_node` | `Shift+Home` |  |
 | Reset Clip Grade (back to one empty node 01) | `color.reset_grade` | `Ctrl+Home` |  |
 | Grab Still (the current frame and grade into the gallery) | `color.grab_still` | `Ctrl+Alt+G` |  |
+| Save Memory A (the current grade) | `color.memory_save_a` | `Alt+1` |  |
+| Save Memory B (the current grade) | `color.memory_save_b` | `Alt+2` |  |
+| Save Memory C (the current grade) | `color.memory_save_c` | `Alt+3` |  |
+| Save Memory D (the current grade) | `color.memory_save_d` | `Alt+4` |  |
+| Save Memory E (the current grade) | `color.memory_save_e` | `Alt+5` |  |
+| Save Memory F (the current grade) | `color.memory_save_f` | `Alt+6` |  |
+| Save Memory G (the current grade) | `color.memory_save_g` | `Alt+7` |  |
+| Save Memory H (the current grade) | `color.memory_save_h` | `Alt+8` |  |
+| Apply Memory A (to the clip) | `color.memory_apply_a` | `Ctrl+1` |  |
+| Apply Memory B (to the clip) | `color.memory_apply_b` | `Ctrl+2` |  |
+| Apply Memory C (to the clip) | `color.memory_apply_c` | `Ctrl+3` |  |
+| Apply Memory D (to the clip) | `color.memory_apply_d` | `Ctrl+4` |  |
+| Apply Memory E (to the clip) | `color.memory_apply_e` | `Ctrl+5` |  |
+| Apply Memory F (to the clip) | `color.memory_apply_f` | `Ctrl+6` |  |
+| Apply Memory G (to the clip) | `color.memory_apply_g` | `Ctrl+7` |  |
+| Apply Memory H (to the clip) | `color.memory_apply_h` | `Ctrl+8` |  |
 | Copy Grade (of the current clip) | `color.copy_grade` | `Ctrl+C` |  |
 | Paste Grade (to the selected clips of the clips strip) | `color.paste_grade` | `Ctrl+V` |  |
 | Highlight (show the current node's key in the viewer) | `color.highlight` | `Shift+H` |  |

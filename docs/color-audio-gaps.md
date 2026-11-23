@@ -46,7 +46,7 @@ Every missing piece has a line in [roadmap.md](roadmap.md) under "Next version (
 | C30 | Node types: Outside, Key Mixer, Splitter / Combiner, compound node, typed node labels | missing | Add Outside Node (Alt+O), Add Key Mixer, Splitter / Combiner, Compound Node, Node Label field |
 | C31 | Alpha output and key: node Key tab, Key Output, Alpha Output | partly | Key tab has gain, invert and matte; no Alpha Output node, no key input / output ports, a grade cannot make the clip transparent |
 | C32 | Gallery stills: Grab Still, apply, wipe, rename, delete | works | |
-| C33 | Gallery albums, Power Grade albums, Memories, import and export stills (DRX), export a still as an image | missing | Album list in the Gallery, Memories A to Z, Export Still / Import Still |
+| C33 | Gallery albums, Power Grade albums, Memories, import and export stills (DRX), export a still as an image | works | Album list, PowerGrade albums shared by all projects, Memories A to Z (Alt+1..8 save, Ctrl+1..8 apply), Append Node Graph, Import / Export Still with a `.kkgrade` file (not Resolve's `.drx`) |
 | C34 | Versions of a grade (Local / Remote, Create New Version) | missing | Versions menu on the clip |
 | C35 | Groups with Pre-Clip and Post-Clip grades; Timeline grade | partly | Timeline grade works; Groups, Pre-Clip and Post-Clip grades, ColorTrace missing |
 | C36 | Scopes: Waveform, RGB Waveform, Parade, Vectorscope, Histogram | works | |

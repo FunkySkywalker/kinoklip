@@ -163,7 +163,7 @@ Project::Project(QObject* parent)
     : QObject(parent)
     , m_mediaPool(new MediaPool(this))
     , m_links(new MediaLinks(this))
-    , m_gallery(new GradeGallery(this))
+    , m_gallery(new GradeGallery(this, tr("Stills")))
     , m_timeline(new Timeline(this))
     , m_undoStack(new QUndoStack(this))
 {
@@ -178,6 +178,20 @@ Project::Project(QObject* parent)
 }
 
 Project::~Project() = default;
+
+PowerGradeStore* Project::powerGrades() const
+{
+    if (!m_powerGrades)
+        m_powerGrades = new PowerGradeStore(m_powerGradeFile, const_cast<Project*>(this));
+    return m_powerGrades;
+}
+
+void Project::setPowerGradeFile(const QString& filePath)
+{
+    m_powerGradeFile = filePath;
+    delete m_powerGrades;
+    m_powerGrades = nullptr;
+}
 
 // ---- Settings & document state ----
 
@@ -400,6 +414,7 @@ Project::SaveSnapshot Project::captureSave() const
     snap.mediaLinks = m_links->toJson(snap.pool);
     if (!m_gallery->stills().isEmpty())
         snap.gallery = m_gallery->toJson();
+    snap.galleryExtra = m_gallery->extraToJson();
     snap.cacheSettings = m_cacheSettings.toJson();
     snap.binViews = m_binViews;
     return snap;
@@ -458,6 +473,8 @@ QJsonObject Project::toJson(const SaveSnapshot& snap, const QString& path)
     root[QLatin1String("mediaLinks")] = snap.mediaLinks;
     if (!snap.gallery.isEmpty()) // format 16; omitted when empty (older files identical)
         root[QLatin1String("gallery")] = snap.gallery;
+    if (!snap.galleryExtra.isEmpty()) // optional key (albums, memories): no format bump
+        root[QLatin1String("galleryExtra")] = snap.galleryExtra;
     root[QLatin1String("cacheSettings")] = snap.cacheSettings;
     if (!snap.binViews.isEmpty()) {
         QJsonArray binViews;
@@ -619,6 +636,8 @@ bool Project::fromJson(const QJsonObject& root, int version, const QDir& project
     {
         // Version <= 15: no "gallery" (an empty array).
         const QScopedValueRollback guard(m_galleryLoading, true);
+        // The optional "galleryExtra" (albums, memories) comes first: stills name their album.
+        m_gallery->extraFromJson(root.value(QLatin1String("galleryExtra")).toObject());
         m_gallery->fromJson(root.value(QLatin1String("gallery")).toArray());
     }
     m_cacheSettings

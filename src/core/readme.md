@@ -36,7 +36,9 @@ The heart of Kinoklip. No widgets, no FFmpeg calls (only the `media::MediaInfo` 
 | `CompOps.h` | pure graph operations: default composition, add / add after (auto-merge) / remove / connect / disconnect / insert into link / paste, cycle and kind checks, evaluation order |
 | `Grade.h` | Color page grade of a clip or timeline: `ClipGrade`, `GradeNode` (corrector / Parallel / Layer), curves, qualifier, power windows, LUT; parameter keys (`gradekeys`, `gradewindowkeys`); pure graph operations (`gradeops`). `Project::setClipGrade()` / `setTimelineGrade()` (ProjectGrades.cpp) are the undoable entry points (docs/color-page.md) |
 | `GradeMath.h` | the grading maths shared by the CPU evaluator and mirrored in GLSL: primaries, curves (monotone cubic, HSL curves), qualifier key, window coverage, layer formula |
-| `GradeGallery.h` | gallery stills (picture + grade), saved with the project, `Project::gallery()` |
+| `GradeGallery.h` | gallery stills (picture + grade) in albums and the memories A to Z, saved with the project, `Project::gallery()` |
+| `PowerGradeStore.h` | the PowerGrade albums: a `GradeGallery` kept in `powergrades.json` in the user data folder, the same in every project, `Project::powerGrades()` |
+| `GalleryStillFiles.h` | Import Still / Export Still: picture (PNG, TIFF, JPEG, DPX) plus the `.kkgrade` grade file |
 | `Stabilization.h` | Stabilization of a clip (spec 58): `Settings`, the measured camera path `Data` (one entry per source frame; Smooth / Camera Lock / Strength / Zoom worked out from it lazily), `ClipStabilization` (`ClipData::stabilization`), `transform()` for the compositor, JSON form |
 | `Generators.h` | ids and parameter keys of the built-in generators and the adjustment clip |
 | `TitlePresets.h` | ids of the Effects library titles (Text, Left / Middle / Right Lower Third, Scroll, Text Box): one Title parameter set with each preset's defaults; `titles::descriptorOf()` finds the preset a Title clip shows (`ClipData::generator`) |

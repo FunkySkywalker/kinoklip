@@ -855,6 +855,11 @@
         "action:color.timeline_grade",
         "action:color.grab_still",
         "action:color.apply_still",
+        "action:color.append_still",
+        "action:color.import_still",
+        "action:color.export_still",
+        "action:color.memory_save_a",
+        "action:color.memory_apply_a",
         "action:color.wipe",
         "action:color.copy_grade",
         "action:color.paste_grade"

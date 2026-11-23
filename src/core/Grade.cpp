@@ -1090,6 +1090,36 @@ quint64 defaultSelection(const ClipGrade& grade)
     return grade.nodes.back().id;
 }
 
+bool appendGraph(ClipGrade& target, const ClipGrade& source)
+{
+    if (source.isEmpty())
+        return false;
+    if (target.isEmpty()) {
+        target = source;
+        return true;
+    }
+    // Every id (nodes and windows share one space) moves up by the target's largest id.
+    const quint64 shift = target.allocateId() - 1;
+    double maxX = 0.0;
+    for (const GradeNode& n : std::as_const(target.nodes))
+        maxX = std::max(maxX, n.pos.x());
+    double minX = source.nodes.first().pos.x();
+    for (const GradeNode& n : source.nodes)
+        minX = std::min(minX, n.pos.x());
+    const quint64 attach = target.output; // 0 = the target's output is disconnected
+    for (GradeNode n : source.nodes) {
+        n.id += shift;
+        for (GradeWindow& w : n.windows)
+            w.id += shift;
+        for (quint64& in : n.inputs)
+            in = in == 0 ? attach : in + shift;
+        n.pos.rx() += maxX + kNodeSpacingX - minX;
+        target.nodes.append(n);
+    }
+    target.output = source.output ? source.output + shift : 0;
+    return true;
+}
+
 void placeNode(ClipGrade& grade, quint64 id)
 {
     GradeNode* n = grade.node(id);

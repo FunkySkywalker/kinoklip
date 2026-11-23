@@ -3,6 +3,7 @@
 #pragma once
 
 #include "core/GradeGallery.h"
+#include "core/PowerGradeStore.h"
 #include "core/MediaLinks.h"
 #include "core/MediaPool.h"
 #include "core/Multicam.h"
@@ -132,6 +133,11 @@ public:
     /// The Color page gallery (stills with grades); saved with the project, not undoable
     /// (like a still store). Changing it marks the project modified.
     [[nodiscard]] GradeGallery* gallery() const { return m_gallery; }
+    /// The PowerGrade albums, shared by every project (file in the user data folder, created on
+    /// first use; not part of the project and never marks it modified).
+    [[nodiscard]] PowerGradeStore* powerGrades() const;
+    /// Uses @p filePath for the PowerGrade store from now on (tests; empty: the default file).
+    void setPowerGradeFile(const QString& filePath);
     /// Optimized media, proxy and render cache settings + Playback menu modes.
     [[nodiscard]] const MediaCacheSettings& cacheSettings() const { return m_cacheSettings; }
     /// Applies new cache settings (not undoable, marks the project modified); emits
@@ -471,6 +477,7 @@ public:
         QVector<quint64> tabs;
         QJsonArray mediaLinks; ///< MediaLinks::toJson() (small; built at capture time)
         QJsonArray gallery; ///< GradeGallery::toJson() (empty = no stills)
+        QJsonObject galleryExtra; ///< GradeGallery::extraToJson() (empty = no albums, memories)
         QJsonObject cacheSettings;
         QHash<QString, BinViewState> binViews;
     };
@@ -569,6 +576,8 @@ private:
     MediaPool* m_mediaPool = nullptr;
     MediaLinks* m_links = nullptr;
     GradeGallery* m_gallery = nullptr;
+    mutable PowerGradeStore* m_powerGrades = nullptr;
+    QString m_powerGradeFile;
     bool m_galleryLoading = false; ///< gallery reset by new / load: not a user change
     MediaCacheSettings m_cacheSettings;
     Timeline* m_timeline = nullptr;

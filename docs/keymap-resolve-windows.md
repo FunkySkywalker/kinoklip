@@ -10,7 +10,7 @@ Resolve's documentation).
 - **likely**: believed correct, not verified against a running Resolve;
 - **unsure**: best guess; please correct in the keymap file (and here) if it differs.
 
-Counts: 376 commands; sure 106, likely 117, unsure 153.
+Counts: 395 commands; sure 106, likely 117, unsure 172.
 
 Mouse (EditBehaviour, Preferences > Editing): wheel scrolls the tracks vertically, Ctrl+wheel
 scrolls the timeline horizontally, Alt+wheel zooms the timeline (around the playhead by default;
@@ -438,6 +438,25 @@ that every command has an entry and that no key is used twice.
 | Grade the Timeline (edit the timeline grade instead of the clip's) | `color.timeline_grade` | (none) | unsure | Resolve switches between clip and timeline nodes in the node editor; no default key known |
 | Grab Still (the current frame and grade into the gallery) | `color.grab_still` | `Ctrl+Alt+G` | sure | acts on the Color page |
 | Apply Grade from Still (the selected gallery still to the clip) | `color.apply_still` | (none) | unsure | middle-click on a still in Resolve; no default key known |
+| Append Node Graph from Still (the selected gallery still's nodes after the clip's) | `color.append_still` | (none) | unsure | context menu of a still in Resolve; no default key known |
+| Import Still (a picture or grade file into the gallery album) | `color.import_still` | (none) | unsure | context menu of the gallery in Resolve; no default key known |
+| Export Still (the selected still as a picture with its grade file) | `color.export_still` | (none) | unsure | context menu of a still in Resolve; no default key known |
+| Save Memory A (the current grade) | `color.memory_save_a` | `Alt+1` | unsure | acts on the Color page; Resolve saves memories A to H with a number key; the exact modifier is not confirmed |
+| Save Memory B (the current grade) | `color.memory_save_b` | `Alt+2` | unsure | acts on the Color page; Resolve saves memories A to H with a number key; the exact modifier is not confirmed |
+| Save Memory C (the current grade) | `color.memory_save_c` | `Alt+3` | unsure | acts on the Color page; Resolve saves memories A to H with a number key; the exact modifier is not confirmed |
+| Save Memory D (the current grade) | `color.memory_save_d` | `Alt+4` | unsure | acts on the Color page; Resolve saves memories A to H with a number key; the exact modifier is not confirmed |
+| Save Memory E (the current grade) | `color.memory_save_e` | `Alt+5` | unsure | acts on the Color page; Resolve saves memories A to H with a number key; the exact modifier is not confirmed |
+| Save Memory F (the current grade) | `color.memory_save_f` | `Alt+6` | unsure | acts on the Color page; Resolve saves memories A to H with a number key; the exact modifier is not confirmed |
+| Save Memory G (the current grade) | `color.memory_save_g` | `Alt+7` | unsure | acts on the Color page; Resolve saves memories A to H with a number key; the exact modifier is not confirmed |
+| Save Memory H (the current grade) | `color.memory_save_h` | `Alt+8` | unsure | acts on the Color page; Resolve saves memories A to H with a number key; the exact modifier is not confirmed |
+| Apply Memory A (to the clip) | `color.memory_apply_a` | `Ctrl+1` | unsure | acts on the Color page; Resolve applies memories A to H with a number key; the exact modifier is not confirmed |
+| Apply Memory B (to the clip) | `color.memory_apply_b` | `Ctrl+2` | unsure | acts on the Color page; Resolve applies memories A to H with a number key; the exact modifier is not confirmed |
+| Apply Memory C (to the clip) | `color.memory_apply_c` | `Ctrl+3` | unsure | acts on the Color page; Resolve applies memories A to H with a number key; the exact modifier is not confirmed |
+| Apply Memory D (to the clip) | `color.memory_apply_d` | `Ctrl+4` | unsure | acts on the Color page; Resolve applies memories A to H with a number key; the exact modifier is not confirmed |
+| Apply Memory E (to the clip) | `color.memory_apply_e` | `Ctrl+5` | unsure | acts on the Color page; Resolve applies memories A to H with a number key; the exact modifier is not confirmed |
+| Apply Memory F (to the clip) | `color.memory_apply_f` | `Ctrl+6` | unsure | acts on the Color page; Resolve applies memories A to H with a number key; the exact modifier is not confirmed |
+| Apply Memory G (to the clip) | `color.memory_apply_g` | `Ctrl+7` | unsure | acts on the Color page; Resolve applies memories A to H with a number key; the exact modifier is not confirmed |
+| Apply Memory H (to the clip) | `color.memory_apply_h` | `Ctrl+8` | unsure | acts on the Color page; Resolve applies memories A to H with a number key; the exact modifier is not confirmed |
 | Copy Grade (of the current clip) | `color.copy_grade` | `Ctrl+C` | likely | acts on the Color page; the Edit page's Copy rests while the Color page is shown |
 | Paste Grade (to the selected clips of the clips strip) | `color.paste_grade` | `Ctrl+V` | likely | acts on the Color page; middle-click on a thumbnail copies that clip's grade to the selected clips |
 | Highlight (show the current node's key in the viewer) | `color.highlight` | `Shift+H` | likely | acts on the Color page |

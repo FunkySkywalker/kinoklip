@@ -3317,6 +3317,82 @@ Das Programm wurde wahrscheinlich vom System beendet, weil der Arbeitsspeicher d
         <translation>Farbe-Seite: Überträgt die Korrektur des ausgewählten Galerie-Standbilds auf den aktuellen Clip.</translation>
     </message>
     <message>
+        <source>Color page: adds the node graph of the selected gallery still after the nodes of the clip (the selected clips).</source>
+        <translation>Farbe-Seite: Hängt den Node-Graph des ausgewählten Galerie-Standbilds hinter die Nodes des Clips (der ausgewählten Clips).</translation>
+    </message>
+    <message>
+        <source>Color page: adds a picture or a Kinoklip grade file to the gallery album being shown.</source>
+        <translation>Farbe-Seite: Fügt ein Bild oder eine Kinoklip-Korrekturdatei dem angezeigten Galerie-Album hinzu.</translation>
+    </message>
+    <message>
+        <source>Color page: saves the selected gallery still as a picture (PNG, TIFF, JPEG or DPX) with its grade file beside it.</source>
+        <translation>Farbe-Seite: Speichert das ausgewählte Galerie-Standbild als Bild (PNG, TIFF, JPEG oder DPX) mit seiner Korrekturdatei daneben.</translation>
+    </message>
+    <message>
+        <source>Color page: saves the current grade into gallery memory A.</source>
+        <translation>Farbe-Seite: Sichert die aktuelle Korrektur in Galerie-Speicher A.</translation>
+    </message>
+    <message>
+        <source>Color page: saves the current grade into gallery memory B.</source>
+        <translation>Farbe-Seite: Sichert die aktuelle Korrektur in Galerie-Speicher B.</translation>
+    </message>
+    <message>
+        <source>Color page: saves the current grade into gallery memory C.</source>
+        <translation>Farbe-Seite: Sichert die aktuelle Korrektur in Galerie-Speicher C.</translation>
+    </message>
+    <message>
+        <source>Color page: saves the current grade into gallery memory D.</source>
+        <translation>Farbe-Seite: Sichert die aktuelle Korrektur in Galerie-Speicher D.</translation>
+    </message>
+    <message>
+        <source>Color page: saves the current grade into gallery memory E.</source>
+        <translation>Farbe-Seite: Sichert die aktuelle Korrektur in Galerie-Speicher E.</translation>
+    </message>
+    <message>
+        <source>Color page: saves the current grade into gallery memory F.</source>
+        <translation>Farbe-Seite: Sichert die aktuelle Korrektur in Galerie-Speicher F.</translation>
+    </message>
+    <message>
+        <source>Color page: saves the current grade into gallery memory G.</source>
+        <translation>Farbe-Seite: Sichert die aktuelle Korrektur in Galerie-Speicher G.</translation>
+    </message>
+    <message>
+        <source>Color page: saves the current grade into gallery memory H.</source>
+        <translation>Farbe-Seite: Sichert die aktuelle Korrektur in Galerie-Speicher H.</translation>
+    </message>
+    <message>
+        <source>Color page: gives the current clip (the selected clips) the grade saved in gallery memory A.</source>
+        <translation>Farbe-Seite: Überträgt die in Galerie-Speicher A gesicherte Korrektur auf den aktuellen Clip (die ausgewählten Clips).</translation>
+    </message>
+    <message>
+        <source>Color page: gives the current clip (the selected clips) the grade saved in gallery memory B.</source>
+        <translation>Farbe-Seite: Überträgt die in Galerie-Speicher B gesicherte Korrektur auf den aktuellen Clip (die ausgewählten Clips).</translation>
+    </message>
+    <message>
+        <source>Color page: gives the current clip (the selected clips) the grade saved in gallery memory C.</source>
+        <translation>Farbe-Seite: Überträgt die in Galerie-Speicher C gesicherte Korrektur auf den aktuellen Clip (die ausgewählten Clips).</translation>
+    </message>
+    <message>
+        <source>Color page: gives the current clip (the selected clips) the grade saved in gallery memory D.</source>
+        <translation>Farbe-Seite: Überträgt die in Galerie-Speicher D gesicherte Korrektur auf den aktuellen Clip (die ausgewählten Clips).</translation>
+    </message>
+    <message>
+        <source>Color page: gives the current clip (the selected clips) the grade saved in gallery memory E.</source>
+        <translation>Farbe-Seite: Überträgt die in Galerie-Speicher E gesicherte Korrektur auf den aktuellen Clip (die ausgewählten Clips).</translation>
+    </message>
+    <message>
+        <source>Color page: gives the current clip (the selected clips) the grade saved in gallery memory F.</source>
+        <translation>Farbe-Seite: Überträgt die in Galerie-Speicher F gesicherte Korrektur auf den aktuellen Clip (die ausgewählten Clips).</translation>
+    </message>
+    <message>
+        <source>Color page: gives the current clip (the selected clips) the grade saved in gallery memory G.</source>
+        <translation>Farbe-Seite: Überträgt die in Galerie-Speicher G gesicherte Korrektur auf den aktuellen Clip (die ausgewählten Clips).</translation>
+    </message>
+    <message>
+        <source>Color page: gives the current clip (the selected clips) the grade saved in gallery memory H.</source>
+        <translation>Farbe-Seite: Überträgt die in Galerie-Speicher H gesicherte Korrektur auf den aktuellen Clip (die ausgewählten Clips).</translation>
+    </message>
+    <message>
         <source>Color page: splits the viewer to compare with the selected gallery still.</source>
         <translation>Farbe-Seite: Teilt den Viewer, um mit dem ausgewählten Galerie-Standbild zu vergleichen.</translation>
     </message>
@@ -9994,12 +10070,116 @@ Danke fürs Zuschauen</translation>
         <translation>Farbkorrektur anwenden</translation>
     </message>
     <message>
+        <source>Append Node Graph</source>
+        <translation>Node-Graph anhängen</translation>
+    </message>
+    <message>
+        <source>No such still</source>
+        <translation>Kein solches Standbild</translation>
+    </message>
+    <message>
+        <source>Node Graph of Still %1</source>
+        <translation>Node-Graph von Standbild %1</translation>
+    </message>
+    <message>
+        <source>Import Still</source>
+        <translation>Standbild importieren</translation>
+    </message>
+    <message>
+        <source>Stills (*.png *.jpg *.jpeg *.tif *.tiff *.dpx *.exr *.bmp *.webp *.%1);;All files (*)</source>
+        <translation>Standbilder (*.png *.jpg *.jpeg *.tif *.tiff *.dpx *.exr *.bmp *.webp *.%1);;Alle Dateien (*)</translation>
+    </message>
+    <message>
+        <source>%1 picture (*.%2)</source>
+        <translation>%1-Bild (*.%2)</translation>
+    </message>
+    <message>
+        <source>Kinoklip grade file (*.%1)</source>
+        <translation>Kinoklip-Korrekturdatei (*.%1)</translation>
+    </message>
+    <message>
+        <source>Export Still</source>
+        <translation>Standbild exportieren</translation>
+    </message>
+    <message>
+        <source>New Album…</source>
+        <translation>Neues Album…</translation>
+    </message>
+    <message>
+        <source>New Album</source>
+        <translation>Neues Album</translation>
+    </message>
+    <message>
+        <source>Album</source>
+        <translation>Album</translation>
+    </message>
+    <message>
+        <source>Rename Album…</source>
+        <translation>Album umbenennen…</translation>
+    </message>
+    <message>
+        <source>Rename Album</source>
+        <translation>Album umbenennen</translation>
+    </message>
+    <message>
+        <source>Delete Album</source>
+        <translation>Album löschen</translation>
+    </message>
+    <message>
+        <source>Delete the album &quot;%1&quot; and its stills?</source>
+        <translation>Das Album „%1“ und seine Standbilder löschen?</translation>
+    </message>
+    <message>
+        <source>Import Still…</source>
+        <translation>Standbild importieren…</translation>
+    </message>
+    <message>
+        <source>Save Memory %1</source>
+        <translation>Speicher %1 sichern</translation>
+    </message>
+    <message>
+        <source>Apply Memory %1</source>
+        <translation>Speicher %1 anwenden</translation>
+    </message>
+    <message>
+        <source>Apply Memory %1 to Selected Clips</source>
+        <translation>Speicher %1 auf ausgewählte Clips anwenden</translation>
+    </message>
+    <message>
+        <source>Clear Memory %1</source>
+        <translation>Speicher %1 leeren</translation>
+    </message>
+    <message>
         <source>Apply Grade to Selected Clips</source>
         <translation>Farbkorrektur auf gewählte Clips anwenden</translation>
     </message>
     <message>
+        <source>Display Node Graph</source>
+        <translation>Node-Graph anzeigen</translation>
+    </message>
+    <message>
         <source>Wipe with This Still</source>
         <translation>Mit diesem Standbild wischen</translation>
+    </message>
+    <message>
+        <source>Move to Album</source>
+        <translation>In Album verschieben</translation>
+    </message>
+    <message>
+        <source>Copy to Album</source>
+        <translation>In Album kopieren</translation>
+    </message>
+    <message>
+        <source>Stills</source>
+        <translation>Standbilder</translation>
+    </message>
+    <message>
+        <source>PowerGrade</source>
+        <translation>PowerGrade</translation>
+    </message>
+    <message>
+        <source>Export Still…</source>
+        <translation>Standbild exportieren…</translation>
     </message>
     <message>
         <source>Rename…</source>
@@ -10014,8 +10194,42 @@ Danke fürs Zuschauen</translation>
         <translation>Name</translation>
     </message>
     <message>
+        <source>The albums: Stills and its albums, PowerGrade (the same in every project) and Memories; right-click for more, drop stills on an album</source>
+        <translation>Die Alben: Standbilder mit seinen Alben, PowerGrade (in jedem Projekt gleich) und Speicher; Rechtsklick für mehr, Standbilder auf ein Album ziehen</translation>
+    </message>
+    <message>
         <source>Delete Still</source>
         <translation>Standbild löschen</translation>
+    </message>
+    <message>
+        <source>Memories</source>
+        <translation>Speicher</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n node(s)</source>
+        <translation>
+            <numerusform>%n Node</numerusform>
+            <numerusform>%n Nodes</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Memory %1: %n node(s)</source>
+        <translation>
+            <numerusform>Speicher %1: %n Node</numerusform>
+            <numerusform>Speicher %1: %n Nodes</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Memory %1 is empty; right-click to save the current grade%2</source>
+        <translation>Speicher %1 ist leer; Rechtsklick, um die aktuelle Korrektur zu sichern%2</translation>
+    </message>
+    <message>
+        <source> (Alt+%1)</source>
+        <translation> (Alt+%1)</translation>
+    </message>
+    <message>
+        <source>Memories A to Z hold a grade each: Alt+1 to 8 save the current grade into A to H, Ctrl+1 to 8 apply them; middle-click or double-click a memory to apply it, right-click for more</source>
+        <translation>Die Speicher A bis Z halten je eine Korrektur: Alt+1 bis 8 sichern die aktuelle Korrektur in A bis H, Strg+1 bis 8 wenden sie an; Mittelklick oder Doppelklick auf einen Speicher wendet ihn an, Rechtsklick für mehr</translation>
     </message>
     <message>
         <source>(wipe)</source>
@@ -10306,10 +10520,6 @@ Danke fürs Zuschauen</translation>
         <translation>Galerie</translation>
     </message>
     <message>
-        <source>The stills grabbed from graded clips; use one to compare in the viewer or copy its grade.</source>
-        <translation>Die aus korrigierten Clips aufgenommenen Standbilder; damit im Viewer vergleichen oder deren Farbkorrektur kopieren.</translation>
-    </message>
-    <message>
         <source>Nodes</source>
         <translation>Nodes</translation>
     </message>
@@ -10534,6 +10744,10 @@ Danke fürs Zuschauen</translation>
         <translation>Farbverzerrer</translation>
     </message>
     <message>
+        <source>The stills grabbed from graded clips, in albums (Stills, PowerGrade for every project, Memories A to Z); use one to compare in the viewer or copy its grade.</source>
+        <translation>Die von korrigierten Clips aufgenommenen Standbilder in Alben (Standbilder, PowerGrade für jedes Projekt, Speicher A bis Z); mit einem im Viewer vergleichen oder seine Korrektur übernehmen.</translation>
+    </message>
+    <message>
         <source>Drag pins on the Hue - Sat and Chroma - Luma grids to move colours smoothly.</source>
         <translation>Ziehen Sie Pins auf den Gittern Farbton - Sättigung und Chroma - Luma, um Farben weich zu verschieben.</translation>
     </message>
@@ -10691,8 +10905,16 @@ Danke fürs Zuschauen</translation>
         <translation>Farbkorrektur einfügen</translation>
     </message>
     <message>
+        <source>Apply Memory %1</source>
+        <translation>Speicher %1 anwenden</translation>
+    </message>
+    <message>
         <source>Apply Grade</source>
         <translation>Farbkorrektur anwenden</translation>
+    </message>
+    <message>
+        <source>Append Node Graph</source>
+        <translation>Node-Graph anhängen</translation>
     </message>
     <message>
         <source>Copy Grade</source>
@@ -18482,6 +18704,17 @@ Standardübergang dieses Projekts</translation>
     </message>
 </context>
 <context>
+    <name>kk::GradeGallery</name>
+    <message>
+        <source>Stills</source>
+        <translation>Standbilder</translation>
+    </message>
+    <message>
+        <source>Album</source>
+        <translation>Album</translation>
+    </message>
+</context>
+<context>
     <name>kk::GuideDialog</name>
     <message>
         <source>Guide</source>
@@ -22181,6 +22414,10 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
         <translation>Anhängen</translation>
     </message>
     <message>
+        <source>Append Node Graph</source>
+        <translation>Node-Graph anhängen</translation>
+    </message>
+    <message>
         <source>Append at End</source>
         <translation>Am Ende anhängen</translation>
     </message>
@@ -22731,6 +22968,42 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
     <message>
         <source>Media…</source>
         <translation>Medien…</translation>
+    </message>
+    <message>
+        <source>Memories</source>
+        <translation>Speicher</translation>
+    </message>
+    <message>
+        <source>Memory A</source>
+        <translation>Speicher A</translation>
+    </message>
+    <message>
+        <source>Memory B</source>
+        <translation>Speicher B</translation>
+    </message>
+    <message>
+        <source>Memory C</source>
+        <translation>Speicher C</translation>
+    </message>
+    <message>
+        <source>Memory D</source>
+        <translation>Speicher D</translation>
+    </message>
+    <message>
+        <source>Memory E</source>
+        <translation>Speicher E</translation>
+    </message>
+    <message>
+        <source>Memory F</source>
+        <translation>Speicher F</translation>
+    </message>
+    <message>
+        <source>Memory G</source>
+        <translation>Speicher G</translation>
+    </message>
+    <message>
+        <source>Memory H</source>
+        <translation>Speicher H</translation>
     </message>
     <message>
         <source>Mixer</source>
@@ -24393,6 +24666,13 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
     <message>
         <source>Note</source>
         <translation>Notiz</translation>
+    </message>
+</context>
+<context>
+    <name>kk::NodeGraphPreview</name>
+    <message>
+        <source>No nodes</source>
+        <translation>Keine Nodes</translation>
     </message>
 </context>
 <context>
@@ -27681,6 +27961,21 @@ Auto: Voll, wechselt nur zu Halb, solange die Wiedergabe nicht mithält (pausier
     </message>
 </context>
 <context>
+    <name>kk::PowerGradeStore</name>
+    <message>
+        <source>PowerGrade</source>
+        <translation>PowerGrade</translation>
+    </message>
+    <message>
+        <source>%1 is not a valid PowerGrade file</source>
+        <translation>%1 ist keine gültige PowerGrade-Datei</translation>
+    </message>
+    <message>
+        <source>Cannot write %1</source>
+        <translation>%1 kann nicht geschrieben werden</translation>
+    </message>
+</context>
+<context>
     <name>kk::PreferencesDialog</name>
     <message>
         <source> s</source>
@@ -27807,6 +28102,10 @@ Auto: Voll, wechselt nur zu Halb, solange die Wiedergabe nicht mithält (pausier
 </context>
 <context>
     <name>kk::Project</name>
+    <message>
+        <source>Stills</source>
+        <translation>Standbilder</translation>
+    </message>
     <message>
         <source>Set as Standard Transition</source>
         <translation>Als Standardübergang festlegen</translation>
@@ -32586,6 +32885,82 @@ Kinoklip neu starten, um sie anzuwenden.</translation>
         <translation>Farbkorrektur von Standbild &amp;anwenden</translation>
     </message>
     <message>
+        <source>Appen&amp;d Node Graph from Still</source>
+        <translation>Node-Graph vom Stan&amp;dbild anhängen</translation>
+    </message>
+    <message>
+        <source>&amp;Import Still…</source>
+        <translation>Standbild &amp;importieren…</translation>
+    </message>
+    <message>
+        <source>&amp;Export Still…</source>
+        <translation>Standbild &amp;exportieren…</translation>
+    </message>
+    <message>
+        <source>Save Memory A</source>
+        <translation>Speicher A sichern</translation>
+    </message>
+    <message>
+        <source>Save Memory B</source>
+        <translation>Speicher B sichern</translation>
+    </message>
+    <message>
+        <source>Save Memory C</source>
+        <translation>Speicher C sichern</translation>
+    </message>
+    <message>
+        <source>Save Memory D</source>
+        <translation>Speicher D sichern</translation>
+    </message>
+    <message>
+        <source>Save Memory E</source>
+        <translation>Speicher E sichern</translation>
+    </message>
+    <message>
+        <source>Save Memory F</source>
+        <translation>Speicher F sichern</translation>
+    </message>
+    <message>
+        <source>Save Memory G</source>
+        <translation>Speicher G sichern</translation>
+    </message>
+    <message>
+        <source>Save Memory H</source>
+        <translation>Speicher H sichern</translation>
+    </message>
+    <message>
+        <source>Apply Memory A</source>
+        <translation>Speicher A anwenden</translation>
+    </message>
+    <message>
+        <source>Apply Memory B</source>
+        <translation>Speicher B anwenden</translation>
+    </message>
+    <message>
+        <source>Apply Memory C</source>
+        <translation>Speicher C anwenden</translation>
+    </message>
+    <message>
+        <source>Apply Memory D</source>
+        <translation>Speicher D anwenden</translation>
+    </message>
+    <message>
+        <source>Apply Memory E</source>
+        <translation>Speicher E anwenden</translation>
+    </message>
+    <message>
+        <source>Apply Memory F</source>
+        <translation>Speicher F anwenden</translation>
+    </message>
+    <message>
+        <source>Apply Memory G</source>
+        <translation>Speicher G anwenden</translation>
+    </message>
+    <message>
+        <source>Apply Memory H</source>
+        <translation>Speicher H anwenden</translation>
+    </message>
+    <message>
         <source>&amp;Wipe with Still</source>
         <translation>Mit Standbild &amp;wischen</translation>
     </message>
@@ -36303,6 +36678,33 @@ Einen Multicam-Clip aus dem Medienpool öffnen oder den Abspielkopf über einen 
     <message>
         <source>Subtitle encoding failed: %1</source>
         <translation>Untertitel-Kodierung fehlgeschlagen: %1</translation>
+    </message>
+</context>
+<context>
+    <name>kk::gallerystills</name>
+    <message>
+        <source>Cannot write %1</source>
+        <translation>%1 kann nicht geschrieben werden</translation>
+    </message>
+    <message>
+        <source>The still has no picture</source>
+        <translation>Das Standbild hat kein Bild</translation>
+    </message>
+    <message>
+        <source>%1 does not exist</source>
+        <translation>%1 existiert nicht</translation>
+    </message>
+    <message>
+        <source>Cannot read %1</source>
+        <translation>%1 kann nicht gelesen werden</translation>
+    </message>
+    <message>
+        <source>%1 is not a Kinoklip grade file</source>
+        <translation>%1 ist keine Kinoklip-Korrekturdatei</translation>
+    </message>
+    <message>
+        <source>Cannot read the picture %1</source>
+        <translation>Das Bild %1 kann nicht gelesen werden</translation>
     </message>
 </context>
 <context>
