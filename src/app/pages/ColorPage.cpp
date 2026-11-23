@@ -11,6 +11,8 @@
 #include "playback/PlaybackEngine.h"
 #include "ui/color/ColorBrowsers.h"
 #include "ui/color/ColorFrameSource.h"
+#include "ui/color/ColorKeyframes.h"
+#include "ui/color/ColorSizing.h"
 #include "ui/color/ColorLightbox.h"
 #include "ui/color/ColorTracker.h"
 #include "ui/color/ColorNodeEditor.h"
@@ -476,6 +478,15 @@ QWidget* ColorPage::buildPalettes()
     setPanelInfo(m_hdr, tr("HDR"),
         tr("Colour wheels and exposure for the Shadow, Light, Highlight and Specular zones of the "
            "picture, Global and a Black Offset."));
+    m_sizing = new SizingPanel(m_session);
+    setPanelInfo(m_sizing, tr("Sizing"),
+        tr("Zoom, Pan, Tilt, Rotate, Width, Height and Flip of the clip (Input Sizing, the same "
+           "values as the Edit page Inspector's Transform) or of the whole timeline (Output "
+           "Sizing)."));
+    m_keyframes = new ColorKeyframesPanel(m_session);
+    setPanelInfo(m_keyframes, tr("Keyframes"),
+        tr("The keyframes of the grade's nodes and of the Sizing values; Static keys hold, "
+           "Dynamic keys change smoothly to the next one."));
     m_paletteStack = new QStackedWidget;
     m_paletteStack->setObjectName(QStringLiteral("ColorPaletteStack"));
     for (QWidget* w : {static_cast<QWidget*>(m_primaries), static_cast<QWidget*>(m_curves),
@@ -483,7 +494,8 @@ QWidget* ColorPage::buildPalettes()
              static_cast<QWidget*>(m_luts), static_cast<QWidget*>(m_blur),
              static_cast<QWidget*>(m_tracker), static_cast<QWidget*>(m_rgbMixer),
              static_cast<QWidget*>(m_agx), static_cast<QWidget*>(m_log),
-             static_cast<QWidget*>(m_warper), static_cast<QWidget*>(m_hdr)})
+             static_cast<QWidget*>(m_warper), static_cast<QWidget*>(m_hdr),
+             static_cast<QWidget*>(m_sizing), static_cast<QWidget*>(m_keyframes)})
         m_paletteStack->addWidget(w);
     auto* box = new QWidget;
     box->setObjectName(QStringLiteral("ColorPalettes"));
@@ -493,7 +505,8 @@ QWidget* ColorPage::buildPalettes()
     m_paletteButtons = new QButtonGroup(this);
     QWidget* bar = tabRow(m_paletteButtons,
         {tr("Primaries"), tr("Curves"), tr("Qualifier"), tr("Windows"), tr("LUTs"), tr("Blur"), tr("Tracker"),
-            tr("RGB Mixer"), tr("AgX"), tr("Log"), tr("Color Warper"), tr("HDR")},
+            tr("RGB Mixer"), tr("AgX"), tr("Log"), tr("Color Warper"), tr("HDR"), tr("Sizing"),
+            tr("Keyframes")},
         QStringLiteral("ColorPaletteTab_"), box);
     // The primaries reset sits at the right of the bar (like Resolve's palette reset).
     auto* reset = new QToolButton(bar);
@@ -545,6 +558,12 @@ QWidget* ColorPage::buildPalettes()
             break;
         case Palette::Agx:
             m_agx->resetAll();
+            break;
+        case Palette::Sizing:
+            m_sizing->resetAll();
+            break;
+        case Palette::Keyframes:
+            m_keyframes->resetAll();
             break;
         }
     });
@@ -1116,7 +1135,7 @@ void ColorPage::restoreLayout(const QSettings& settings)
     m_rows->restoreState(settings.value(QStringLiteral("rows")).toByteArray());
     m_top->restoreState(settings.value(QStringLiteral("top")).toByteArray());
     m_bottom->restoreState(settings.value(QStringLiteral("bottom")).toByteArray());
-    showPalette(Palette(std::clamp(settings.value(QStringLiteral("palette"), 0).toInt(), 0, 11)));
+    showPalette(Palette(std::clamp(settings.value(QStringLiteral("palette"), 0).toInt(), 0, 13)));
     m_primaries->setBarsMode(settings.value(QStringLiteral("bars"), false).toBool());
     const int right = std::clamp(settings.value(QStringLiteral("rightTab"), 0).toInt(), 0, 1);
     m_rightStack->setCurrentIndex(right);

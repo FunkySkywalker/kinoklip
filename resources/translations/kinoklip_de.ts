@@ -10030,6 +10030,136 @@ Danke fürs Zuschauen</translation>
     </message>
 </context>
 <context>
+    <name>kk::ColorKeyStrip</name>
+    <message>
+        <source>All</source>
+        <translation>Alle</translation>
+    </message>
+    <message>
+        <source>Input Sizing</source>
+        <translation>Eingangsgröße</translation>
+    </message>
+    <message>
+        <source>Output Sizing</source>
+        <translation>Ausgabegröße</translation>
+    </message>
+    <message>
+        <source>Nothing to key</source>
+        <translation>Nichts zum Animieren</translation>
+    </message>
+    <message>
+        <source>Move Keyframe</source>
+        <translation>Keyframe verschieben</translation>
+    </message>
+    <message>
+        <source>Static</source>
+        <translation>Statisch</translation>
+    </message>
+    <message>
+        <source>Dynamic</source>
+        <translation>Dynamisch</translation>
+    </message>
+    <message>
+        <source>Delete Keyframe</source>
+        <translation>Keyframe löschen</translation>
+    </message>
+    <message>
+        <source>Static Keyframe</source>
+        <translation>Statischer Keyframe</translation>
+    </message>
+    <message>
+        <source>Dynamic Keyframe</source>
+        <translation>Dynamischer Keyframe</translation>
+    </message>
+    <message>
+        <source>Keyframe Dissolve</source>
+        <translation>Keyframe-Übergang</translation>
+    </message>
+    <message>
+        <source>Add Keyframe</source>
+        <translation>Keyframe hinzufügen</translation>
+    </message>
+</context>
+<context>
+    <name>kk::ColorKeyframesPanel</name>
+    <message>
+        <source>Linear</source>
+        <translation>Linear</translation>
+    </message>
+    <message>
+        <source>Ease In</source>
+        <translation>Ease In</translation>
+    </message>
+    <message>
+        <source>Ease Out</source>
+        <translation>Ease Out</translation>
+    </message>
+    <message>
+        <source>Ease In and Out</source>
+        <translation>Ease In und Out</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Weich</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>Auto</translation>
+    </message>
+    <message>
+        <source>Auto Keyframe: an edit of any grade or sizing value sets a keyframe at the playhead</source>
+        <translation>Automatische Keyframes: Jede Änderung eines Korrektur- oder Größenwerts setzt einen Keyframe an der Abspielposition</translation>
+    </message>
+    <message>
+        <source>Go to the previous keyframe</source>
+        <translation>Zum vorherigen Keyframe springen</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Hinzufügen</translation>
+    </message>
+    <message>
+        <source>Add a keyframe at the playhead to the selected row (All: every row)</source>
+        <translation>Keyframe an der Abspielposition zur gewählten Zeile hinzufügen (Alle: jede Zeile)</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Löschen</translation>
+    </message>
+    <message>
+        <source>Delete the selected keyframe</source>
+        <translation>Gewählten Keyframe löschen</translation>
+    </message>
+    <message>
+        <source>Go to the next keyframe</source>
+        <translation>Zum nächsten Keyframe springen</translation>
+    </message>
+    <message>
+        <source>Static</source>
+        <translation>Statisch</translation>
+    </message>
+    <message>
+        <source>Static keyframe: the value is held until the next keyframe</source>
+        <translation>Statischer Keyframe: Der Wert bleibt bis zum nächsten Keyframe erhalten</translation>
+    </message>
+    <message>
+        <source>Dynamic</source>
+        <translation>Dynamisch</translation>
+    </message>
+    <message>
+        <source>Dynamic keyframe: the value changes smoothly to the next keyframe</source>
+        <translation>Dynamischer Keyframe: Der Wert ändert sich fließend bis zum nächsten Keyframe</translation>
+    </message>
+    <message>
+        <source>Dissolve: how a Dynamic keyframe changes to the next one</source>
+        <translation>Übergang: wie ein dynamischer Keyframe zum nächsten wechselt</translation>
+    </message>
+    <message>
+        <source>Reset Keyframes</source>
+        <translation>Keyframes zurücksetzen</translation>
+    </message>
+</context>
+<context>
     <name>kk::ColorLightbox</name>
     <message>
         <source>Thumbnail size</source>
@@ -10415,6 +10545,22 @@ Danke fürs Zuschauen</translation>
         <source>Colour wheels and exposure for the Shadow, Light, Highlight and Specular zones of the picture, Global and a Black Offset.</source>
         <translation>Farbräder und Belichtung für die Zonen Schatten, Licht, Highlight und Glanzlicht des Bildes, Global und ein Schwarzversatz.</translation>
     </message>
+    <message>
+        <source>Sizing</source>
+        <translation>Größe</translation>
+    </message>
+    <message>
+        <source>Zoom, Pan, Tilt, Rotate, Width, Height and Flip of the clip (Input Sizing, the same values as the Edit page Inspector&apos;s Transform) or of the whole timeline (Output Sizing).</source>
+        <translation>Zoom, Pan, Tilt, Drehen, Breite, Höhe und Spiegeln des Clips (Eingangsgröße, dieselben Werte wie die Transformation im Inspektor der Schnittseite) oder der ganzen Timeline (Ausgabegröße).</translation>
+    </message>
+    <message>
+        <source>Keyframes</source>
+        <translation>Keyframes</translation>
+    </message>
+    <message>
+        <source>The keyframes of the grade&apos;s nodes and of the Sizing values; Static keys hold, Dynamic keys change smoothly to the next one.</source>
+        <translation>Die Keyframes der Knoten der Korrektur und der Größenwerte; statische Keyframes halten den Wert, dynamische ändern ihn fließend bis zum nächsten.</translation>
+    </message>
 </context>
 <context>
     <name>kk::ColorPickOverlay</name>
@@ -10551,6 +10697,30 @@ Danke fürs Zuschauen</translation>
     <message>
         <source>Copy Grade</source>
         <translation>Farbkorrektur kopieren</translation>
+    </message>
+    <message>
+        <source>Delete Keyframe</source>
+        <translation>Keyframe löschen</translation>
+    </message>
+    <message>
+        <source>Move Keyframe</source>
+        <translation>Keyframe verschieben</translation>
+    </message>
+    <message>
+        <source>Static Keyframe</source>
+        <translation>Statischer Keyframe</translation>
+    </message>
+    <message>
+        <source>Dynamic Keyframe</source>
+        <translation>Dynamischer Keyframe</translation>
+    </message>
+    <message>
+        <source>Keyframe Dissolve</source>
+        <translation>Keyframe-Übergang</translation>
+    </message>
+    <message>
+        <source>Reset Sizing</source>
+        <translation>Größe zurücksetzen</translation>
     </message>
 </context>
 <context>
@@ -30882,6 +31052,61 @@ Kinoklip neu starten, um sie anzuwenden.</translation>
     <message>
         <source>Press a key combination…</source>
         <translation>Eine Tastenkombination drücken…</translation>
+    </message>
+</context>
+<context>
+    <name>kk::SizingPanel</name>
+    <message>
+        <source>Input Sizing</source>
+        <translation>Eingangsgröße</translation>
+    </message>
+    <message>
+        <source>Output Sizing</source>
+        <translation>Ausgabegröße</translation>
+    </message>
+    <message>
+        <source>Zoom</source>
+        <translation>Zoom</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Pan</translation>
+    </message>
+    <message>
+        <source>Tilt</source>
+        <translation>Tilt</translation>
+    </message>
+    <message>
+        <source>Rotate</source>
+        <translation>Drehen</translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation>Breite</translation>
+    </message>
+    <message>
+        <source>Height</source>
+        <translation>Höhe</translation>
+    </message>
+    <message>
+        <source>Flip H</source>
+        <translation>Spiegeln H</translation>
+    </message>
+    <message>
+        <source>Flip V</source>
+        <translation>Spiegeln V</translation>
+    </message>
+    <message>
+        <source>Flip Vertical</source>
+        <translation>Vertikal spiegeln</translation>
+    </message>
+    <message>
+        <source>Flip Horizontal</source>
+        <translation>Horizontal spiegeln</translation>
+    </message>
+    <message>
+        <source>Sizing</source>
+        <translation>Größe</translation>
     </message>
 </context>
 <context>

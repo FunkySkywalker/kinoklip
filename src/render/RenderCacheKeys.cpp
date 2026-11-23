@@ -294,6 +294,9 @@ std::vector<CacheChunk> renderCacheChunks(
     // Output Blanking changes every picture (absent while Off: older keys stay).
     if (timeline.outputBlanking > 0.0)
         header.addData(":blank:" + QByteArray::number(timeline.outputBlanking, 'f', 4));
+    // Output Sizing (Color page) moves every picture (absent while off: older keys stay).
+    if (timeline.outputSizing != ParamSet {})
+        header.addData(":osize:" + canonicalJson(serialization::paramSetToJson(timeline.outputSizing)));
     // The timeline grade (Color page) changes every picture.
     if (!timeline.grade.isEmpty()) {
         header.addData(QByteArrayLiteral(":grade:"));

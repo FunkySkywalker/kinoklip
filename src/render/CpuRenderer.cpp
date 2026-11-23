@@ -10,6 +10,7 @@
 #include "core/CompLinks.h"
 #include "core/CompOps.h"
 #include "core/OutputBlanking.h"
+#include "core/Sizing.h"
 #include "core/ParamKeys.h"
 #include "core/Retime.h"
 #include "render/CaptionRenderer.h"
@@ -87,6 +88,20 @@ public:
             // grade, before the captions; nothing is touched while it is off.
             if (m_grades && tl.toneMap.agx)
                 applyGrade(gradeops::toneMapGrade(tl.toneMap), rq.frame, image);
+            // Output Sizing (Color page > Sizing): pan, tilt, zoom, rotation and flip of the
+            // whole picture, before the captions; nothing is touched while it is off.
+            if (const QTransform sized = sizing::outputTransform(
+                    tl.outputSizing, rq.frame, QSizeF(out), QSizeF(tl.width, tl.height));
+                !sized.isIdentity()) {
+                QImage moved(image.size(), image.format());
+                moved.fill(Qt::transparent);
+                QPainter p(&moved);
+                p.setRenderHint(QPainter::SmoothPixmapTransform);
+                p.setTransform(sized);
+                p.drawImage(0, 0, image);
+                p.end();
+                image = std::move(moved);
+            }
             if (rq.subtitles && !tl.subtitleTracks.empty())
                 drawSubtitles(image, tl, rq.frame);
             // Output Blanking (Timeline menu): black bars over everything, last.

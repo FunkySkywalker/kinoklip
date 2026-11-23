@@ -378,6 +378,20 @@ public:
     /// The blanking aspect of @p timelineUid (0 = Off or unknown).
     [[nodiscard]] double outputBlanking(quint64 timelineUid) const;
 
+    /// Color page > Sizing > Input Sizing: replaces the transform (Position, Zoom, Rotation,
+    /// Flip, ...: the Inspector's own parameters) of clip @p clipId as one undo step labelled
+    /// @p label; joins an open edit like setClipGrade(). False for an unknown clip or timeline
+    /// or a locked track.
+    bool setClipTransform(
+        quint64 timelineUid, quint64 clipId, const ParamSet& transform, const QString& label);
+    /// The transform of clip @p clipId (empty when unknown).
+    [[nodiscard]] ParamSet clipTransform(quint64 timelineUid, quint64 clipId) const;
+    /// Color page > Sizing > Output Sizing: replaces TimelineData::outputSizing of
+    /// @p timelineUid as one undo step (same rules as setTimelineGrade()).
+    bool setOutputSizing(quint64 timelineUid, const ParamSet& sizing, const QString& label);
+    /// The Output Sizing of @p timelineUid (empty when off or unknown).
+    [[nodiscard]] ParamSet outputSizing(quint64 timelineUid) const;
+
     // ---- Editing protocol ----
 
     /// Starts an undoable edit labelled @p label (shown in Edit ▸ Undo). Nesting-safe.

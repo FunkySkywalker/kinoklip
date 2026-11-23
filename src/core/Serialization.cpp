@@ -865,6 +865,10 @@ QJsonObject timelineToJson(const TimelineData& data)
     // ignores it and shows the full picture).
     if (data.outputBlanking > 0.0)
         o[QLatin1String("outputBlanking")] = data.outputBlanking;
+    // Output Sizing (Color page): an optional parameter set, omitted while empty (no format
+    // bump: an older build ignores it).
+    if (data.outputSizing != ParamSet {})
+        o[QLatin1String("outputSizing")] = paramSetToJson(data.outputSizing);
     return o;
 }
 
@@ -922,6 +926,8 @@ bool timelineFromJson(
     // Format 14: viewer guides (absent = none, what every older timeline has).
     data.guides = guides::fromJson(o.value(QLatin1String("guides")).toArray());
     data.outputBlanking = std::clamp(o.value(QLatin1String("outputBlanking")).toDouble(0.0), 0.0, 10.0);
+    if (o.contains(QLatin1String("outputSizing")))
+        data.outputSizing = paramSetFromJson(o.value(QLatin1String("outputSizing")).toObject());
     // Format 16: the timeline grade (absent = ungraded).
     if (o.contains(QLatin1String("grade")))
         data.grade = gradeFromJson(o.value(QLatin1String("grade")).toObject());

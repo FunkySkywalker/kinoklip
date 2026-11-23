@@ -5,6 +5,7 @@
 #pragma once
 
 #include "core/Grade.h"
+#include "core/KeyRows.h"
 
 #include <QImage>
 #include <QObject>
@@ -131,6 +132,73 @@ public:
     /// frame.
     [[nodiscard]] bool hasKeyframe(quint64 nodeId = 0) const;
 
+    // ---- Keyframes palette: one row per corrector node plus Input / Output Sizing ----
+
+    /// One keyframe row of the Keyframes palette.
+    struct KeyRow
+    {
+        enum class Kind {
+            Node, ///< a corrector node of the grade (and its windows)
+            Input, ///< Input Sizing: the clip's transform (Inspector parameters)
+            Output ///< Output Sizing: the timeline's
+        };
+        Kind kind = Kind::Node;
+        quint64 nodeId = 0; ///< Node rows only
+        friend bool operator==(const KeyRow&, const KeyRow&) = default;
+    };
+    /// The rows in display order: every corrector of the grade, then Input Sizing (a clip is
+    /// open) and Output Sizing.
+    [[nodiscard]] QVector<KeyRow> keyRows() const;
+    /// Frames the strip shows: clip-local for a clip, timeline frames for the timeline target.
+    /// False when nothing is open.
+    bool stripRange(int64_t* firstFrame, int64_t* lastFrame) const;
+    /// The playhead in strip frames (gradeFrame()).
+    [[nodiscard]] int64_t stripPlayhead() const { return gradeFrame(); }
+    /// Moves the playhead to strip frame @p frame (clamped into the range).
+    void seekStrip(int64_t frame);
+    /// Strip frames of the keys of @p row, sorted.
+    [[nodiscard]] QVector<int64_t> rowFrames(const KeyRow& row) const;
+    [[nodiscard]] bool rowHasKey(const KeyRow& row, int64_t frame) const;
+    /// Static or Dynamic (see core/KeyRows.h) and the dissolve type of the Dynamic key.
+    [[nodiscard]] keyrows::Mode rowKeyMode(const KeyRow& row, int64_t frame) const;
+    [[nodiscard]] Interp rowKeyInterp(const KeyRow& row, int64_t frame) const;
+    /// Keys every parameter of @p row at strip frame @p frame. Each of these is one undo step.
+    bool addRowKey(const KeyRow& row, int64_t frame);
+    bool deleteRowKey(const KeyRow& row, int64_t frame);
+    /// Moves the key of @p row from strip frame @p from to @p to.
+    bool moveRowKey(const KeyRow& row, int64_t from, int64_t to);
+    bool setRowKeyMode(const KeyRow& row, int64_t frame, keyrows::Mode mode);
+    /// Dissolve type: Linear, EaseIn, EaseOut, EaseInOut or Smooth.
+    bool setRowKeyInterp(const KeyRow& row, int64_t frame, Interp interp);
+    /// Auto Keyframe (the palette's toggle): while on, an edit of a parameter at the playhead
+    /// sets a key there even when the parameter has none yet. Off by default.
+    [[nodiscard]] bool autoKeyframe() const { return m_autoKey; }
+    void setAutoKeyframe(bool on);
+
+    // ---- Sizing palette ----
+
+    enum class SizingScope {
+        Input, ///< the open clip's transform: the Inspector's own parameters
+        Output ///< the timeline's Output Sizing
+    };
+    /// True when the scope can be edited (Input needs an open clip).
+    [[nodiscard]] bool hasSizing(SizingScope scope) const;
+    /// The parameters of the scope (keys::PosX, ZoomX, ... and the Flip statics).
+    [[nodiscard]] ParamSet sizingOf(SizingScope scope) const;
+    /// The frame the scope's keys are evaluated at: clip-local for Input, the timeline's for
+    /// Output.
+    [[nodiscard]] int64_t sizingFrame(SizingScope scope) const;
+    /// Sets transform parameters (keys::PosX ...) at the playhead; one undo step (inside a
+    /// gesture they join it). A key is set when Auto Keyframe is on or the parameter is keyed.
+    bool setSizing(SizingScope scope, const QVector<std::pair<QString, double>>& values,
+        const QString& label);
+    /// Sets Zoom (Width and Height by the same factor).
+    bool setSizingZoom(SizingScope scope, double zoom, const QString& label);
+    /// Sets keys::FlipH or keys::FlipV.
+    bool setSizingFlip(SizingScope scope, const QString& key, bool on, const QString& label);
+    /// Sets the whole scope back (keys and flips removed).
+    bool resetSizing(SizingScope scope);
+
     // ---- Windows (of the selected node) ----
 
     /// Adds a window of @p shape to the selected corrector (an ungraded clip gets its first
@@ -228,6 +296,9 @@ Q_SIGNALS:
     void selectedWindowChanged(quint64 id);
     void selectedClipsChanged();
     void bypassAllChanged(bool bypass);
+    /// Input / Output Sizing changed (an edit, undo, another clip, or the playhead moved).
+    void sizingChanged();
+    void autoKeyframeChanged(bool on);
 
 private:
     void reload();
@@ -255,6 +326,17 @@ private:
     QVector<quint64> m_selectedClips;
     ClipGrade m_clipboard;
     bool m_hasClipboard = false;
+    bool m_autoKey = false;
+    ParamSet m_inputSizing; ///< of the open clip at the last reload()
+    ParamSet m_outputSizing;
+    int64_t m_playhead = -1;
+    /// Number to add to a strip frame of @p row to get the frame its keys are stored at.
+    [[nodiscard]] int64_t rowOffset(const KeyRow& row) const;
+    /// Applies @p edit(target) to the row (a GradeNode or the sizing ParamSet; frames are the
+    /// stored ones) and commits the result as @p label. @p edit returns the number of changes.
+    template<typename Fn>
+    bool editRow(const KeyRow& row, const QString& label, Fn&& edit);
+    bool commitSizing(SizingScope scope, const ParamSet& params, const QString& label);
 };
 
 } // namespace kk

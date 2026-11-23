@@ -519,6 +519,7 @@ Shortcuts are the defaults of the Resolve keymap (Windows); another keyboard pro
 | Gallery | The stills grabbed from graded clips; use one to compare in the viewer or copy its grade. |
 | HDR | Colour wheels and exposure for the Shadow, Light, Highlight and Specular zones of the picture, Global and a Black Offset. |
 | Key | The key output gain of the current node, qualifier invert and a small view of the key. |
+| Keyframes | The keyframes of the grade's nodes and of the Sizing values; Static keys hold, Dynamic keys change smoothly to the next one. |
 | Log | Log wheels of the current node: Shadow, Midtone, Highlight and Offset with the Low and High Range of the zones. |
 | LUTs | Browser of .cube look-up tables; apply one to the current node. |
 | Nodes | The node graph of the grade of the current clip. |
@@ -526,6 +527,7 @@ Shortcuts are the defaults of the Resolve keymap (Windows); another keyboard pro
 | Qualifier | Selects part of the picture by hue, saturation and luminance for the current node. |
 | RGB Mixer | Mix the red, green and blue channels of the current node, or make it monochrome. |
 | Scopes | A scope of the picture; choose the type from its menu. |
+| Sizing | Zoom, Pan, Tilt, Rotate, Width, Height and Flip of the clip (Input Sizing, the same values as the Edit page Inspector's Transform) or of the whole timeline (Output Sizing). |
 | Timeline | The video tracks fitted to the width; click or drag to move the playhead. |
 | Tracker | Track a window so it follows the subject, or stabilize the clip. |
 | Viewer | The graded picture at the playhead, with transport controls. |

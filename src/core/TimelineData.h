@@ -423,6 +423,10 @@ struct TimelineData
     /// black bars outside it (core/OutputBlanking.h); 0 = Off. Per timeline, saved with it,
     /// drawn by every renderer last (viewers, renders, exports).
     double outputBlanking = 0.0;
+    /// Color page > Sizing > Output Sizing (core/Sizing.h): pan, tilt, zoom, rotation and flip of
+    /// the composite after the timeline grade, before the captions. Keyframes in timeline
+    /// frames. Empty = off (renders exactly as before; omitted from the file).
+    ParamSet outputSizing;
     /// Render snapshots only (Timeline::snapshot()): every timeline the nested clips of this
     /// one reach, directly or indirectly. Empty in editable data; never serialized.
     NestedTimelines nested;

@@ -223,7 +223,7 @@ Still to do:
 - [ ] Color: Color Space Transform, ACES Transform, Gamut Mapping and Chromatic Adaptation effects, Color Management in Project Settings and Input Color Space in Clip Attributes
 - [ ] Color: Face Refinement, Depth Map, Relight and Sky Replacement effects (optional local open models)
 - [ ] Color: Resolve FX palette: put an effect (Glow, Lens Blur, Film Grain, Halation, Film Look) on a node so its window or qualifier limits it
-- [ ] Color: Keyframes palette and strip on the Color page with Dynamic interpolation, and a Sizing palette (Zoom, Pan, Tilt, Rotate, Flip, Input / Output sizing)
+- [x] Color: Keyframes palette and strip on the Color page (a row per node, Input and Output Sizing, Static and Dynamic keys, dissolve types, Auto Keyframe, move / add / delete) and a Sizing palette (Zoom, Width, Height, Pan, Tilt, Rotate, Flip; Input Sizing is the clip's Inspector transform, Output Sizing the timeline's; Pitch and Yaw not yet) (spec 148)
 - [x] Color: Split Screen modes (Selected Clips, Timeline), Lightbox and Output Blanking
 - [ ] Background Removal: Keep / Remove brush to correct the model by hand
 - [x] Media: New Fusion Clip, and Fusion / compound clips as Media Pool entries you can drag to the timeline (one shared graph per Fusion clip, project format 24; test_fusionclip, test_fusionclipui)

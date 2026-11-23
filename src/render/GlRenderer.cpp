@@ -17,6 +17,7 @@
 #include "core/CompLinks.h"
 #include "core/CompOps.h"
 #include "core/OutputBlanking.h"
+#include "core/Sizing.h"
 #include "core/NodeRegistry.h"
 #include "core/ParamKeys.h"
 #include "core/Retime.h"
@@ -722,6 +723,20 @@ void GlRenderer::render(RenderJob& job)
             if (PooledTarget mapped
                 = m_grade.apply(*m_kit, *accumulator, prepareGrade(toneMap, fc.frame, g)))
                 accumulator = std::move(mapped);
+        }
+        // Output Sizing (Color page > Sizing): pan, tilt, zoom, rotation and flip of the whole
+        // picture, before the captions; nothing is touched while it is off.
+        if (const QTransform sized = sizing::outputTransform(tl.outputSizing, fc.frame,
+                QSizeF(fc.outSize), QSizeF(tl.width, tl.height));
+            !sized.isIdentity()) {
+            PooledTarget moved = m_kit->acquire(fc.outSize);
+            m_kit->bindTarget(*moved);
+            m_kit->clearTransparent();
+            m_kit->setBlendOver(false);
+            m_kit->blit(accumulator->texture,
+                QTransform::fromScale(fc.outSize.width(), fc.outSize.height()) * sized
+                    * GlKit::pixelToNdc(fc.outSize));
+            accumulator = std::move(moved);
         }
         if (fc.subtitles && !tl.subtitleTracks.empty())
             drawSubtitles(fc, *accumulator);

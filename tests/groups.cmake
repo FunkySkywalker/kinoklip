@@ -44,7 +44,7 @@ set(KK_TESTS_QUICK
   test_effectslibrary test_effectsui test_embeddedexport test_emoji test_encoderprobe
   test_export test_hdrexport test_hdrfile test_extrapolation test_fadecurves test_filedialogs test_folderimport
   test_folderscan test_fontreload test_formats test_framematch test_framerateconvert test_generators
-  test_glviewer test_grade test_gradeexport test_graderender test_guidedemo test_guideoverlay
+  test_glviewer test_grade test_gradekeyframes test_gradeexport test_graderender test_guidedemo test_guideoverlay
   test_guidesrender test_homography test_hwdecode test_inspector test_keyframedcpu
   test_keyframeeditor test_keyframeops test_keyframespanel test_keypresets test_largeproject
   test_levellines test_levelops test_logexport test_welcome test_looks test_maskrender test_masks

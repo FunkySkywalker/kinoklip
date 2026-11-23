@@ -40,6 +40,8 @@ class RgbMixerPanel;
 class AgxPanel;
 class WarperPanel;
 class HdrPanel;
+class SizingPanel;
+class ColorKeyframesPanel;
 class ColorTrackerPanel;
 class PanelFrame;
 class PrimariesPanel;
@@ -84,7 +86,9 @@ public:
         Agx,
         Log,
         Warper,
-        Hdr
+        Hdr,
+        Sizing,
+        Keyframes
     };
 
     explicit ColorPage(AppContext& ctx, QWidget* parent = nullptr);
@@ -112,6 +116,8 @@ public:
     [[nodiscard]] AgxPanel* agx() const { return m_agx; }
     [[nodiscard]] WarperPanel* warper() const { return m_warper; }
     [[nodiscard]] HdrPanel* hdr() const { return m_hdr; }
+    [[nodiscard]] SizingPanel* sizing() const { return m_sizing; }
+    [[nodiscard]] ColorKeyframesPanel* keyframes() const { return m_keyframes; }
     [[nodiscard]] ColorTrackerPanel* tracker() const { return m_tracker; }
     [[nodiscard]] KeyPanel* keyPanel() const { return m_key; }
     [[nodiscard]] ScopesPanel* scopes() const { return m_scopes; }
@@ -208,6 +214,8 @@ private:
     AgxPanel* m_agx = nullptr;
     WarperPanel* m_warper = nullptr;
     HdrPanel* m_hdr = nullptr;
+    SizingPanel* m_sizing = nullptr;
+    ColorKeyframesPanel* m_keyframes = nullptr;
     ColorTrackerPanel* m_tracker = nullptr;
     KeyPanel* m_key = nullptr;
     ColorGallery* m_gallery = nullptr;

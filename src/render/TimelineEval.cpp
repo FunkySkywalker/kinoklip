@@ -375,7 +375,7 @@ std::vector<const ClipData*> clipsIn(const TrackData* track, int64_t from, int64
 bool samePictures(const TimelineData& a, const TimelineData& b)
 {
     return a.uid == b.uid && a.fps == b.fps && a.width == b.width && a.height == b.height
-        && a.retimeProcess == b.retimeProcess && a.toneMap == b.toneMap && a.outputBlanking == b.outputBlanking && samePictureTracks(a.videoTracks, b.videoTracks)
+        && a.retimeProcess == b.retimeProcess && a.toneMap == b.toneMap && a.outputBlanking == b.outputBlanking && a.outputSizing == b.outputSizing && samePictureTracks(a.videoTracks, b.videoTracks)
         && a.subtitleTracks == b.subtitleTracks && a.grade == b.grade
         && sameNestedTimelines(a.nested, b.nested);
 }

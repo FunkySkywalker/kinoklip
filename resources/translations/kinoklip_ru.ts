@@ -10040,6 +10040,136 @@ Thank you for watching</source>
     </message>
 </context>
 <context>
+    <name>kk::ColorKeyStrip</name>
+    <message>
+        <source>All</source>
+        <translation>Все</translation>
+    </message>
+    <message>
+        <source>Input Sizing</source>
+        <translation>Входной размер</translation>
+    </message>
+    <message>
+        <source>Output Sizing</source>
+        <translation>Выходной размер</translation>
+    </message>
+    <message>
+        <source>Nothing to key</source>
+        <translation>Нечего анимировать</translation>
+    </message>
+    <message>
+        <source>Move Keyframe</source>
+        <translation>Переместить ключевой кадр</translation>
+    </message>
+    <message>
+        <source>Static</source>
+        <translation>Статический</translation>
+    </message>
+    <message>
+        <source>Dynamic</source>
+        <translation>Динамический</translation>
+    </message>
+    <message>
+        <source>Delete Keyframe</source>
+        <translation>Удалить ключевой кадр</translation>
+    </message>
+    <message>
+        <source>Static Keyframe</source>
+        <translation>Статический ключевой кадр</translation>
+    </message>
+    <message>
+        <source>Dynamic Keyframe</source>
+        <translation>Динамический ключевой кадр</translation>
+    </message>
+    <message>
+        <source>Keyframe Dissolve</source>
+        <translation>Переход ключевого кадра</translation>
+    </message>
+    <message>
+        <source>Add Keyframe</source>
+        <translation>Добавить ключевой кадр</translation>
+    </message>
+</context>
+<context>
+    <name>kk::ColorKeyframesPanel</name>
+    <message>
+        <source>Linear</source>
+        <translation>Линейный</translation>
+    </message>
+    <message>
+        <source>Ease In</source>
+        <translation>Плавный вход</translation>
+    </message>
+    <message>
+        <source>Ease Out</source>
+        <translation>Плавный выход</translation>
+    </message>
+    <message>
+        <source>Ease In and Out</source>
+        <translation>Плавный вход и выход</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Сглаженный</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>Авто</translation>
+    </message>
+    <message>
+        <source>Auto Keyframe: an edit of any grade or sizing value sets a keyframe at the playhead</source>
+        <translation>Автоключи: любое изменение значения коррекции или размера ставит ключевой кадр на позиции курсора</translation>
+    </message>
+    <message>
+        <source>Go to the previous keyframe</source>
+        <translation>Перейти к предыдущему ключевому кадру</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Добавить</translation>
+    </message>
+    <message>
+        <source>Add a keyframe at the playhead to the selected row (All: every row)</source>
+        <translation>Добавить ключевой кадр на позиции курсора в выбранную строку (Все: во все строки)</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Удалить</translation>
+    </message>
+    <message>
+        <source>Delete the selected keyframe</source>
+        <translation>Удалить выбранный ключевой кадр</translation>
+    </message>
+    <message>
+        <source>Go to the next keyframe</source>
+        <translation>Перейти к следующему ключевому кадру</translation>
+    </message>
+    <message>
+        <source>Static</source>
+        <translation>Статический</translation>
+    </message>
+    <message>
+        <source>Static keyframe: the value is held until the next keyframe</source>
+        <translation>Статический ключевой кадр: значение сохраняется до следующего ключевого кадра</translation>
+    </message>
+    <message>
+        <source>Dynamic</source>
+        <translation>Динамический</translation>
+    </message>
+    <message>
+        <source>Dynamic keyframe: the value changes smoothly to the next keyframe</source>
+        <translation>Динамический ключевой кадр: значение плавно меняется до следующего ключевого кадра</translation>
+    </message>
+    <message>
+        <source>Dissolve: how a Dynamic keyframe changes to the next one</source>
+        <translation>Переход: как динамический ключевой кадр меняется к следующему</translation>
+    </message>
+    <message>
+        <source>Reset Keyframes</source>
+        <translation>Сбросить ключевые кадры</translation>
+    </message>
+</context>
+<context>
     <name>kk::ColorLightbox</name>
     <message>
         <source>Thumbnail size</source>
@@ -10425,6 +10555,22 @@ Thank you for watching</source>
         <source>Colour wheels and exposure for the Shadow, Light, Highlight and Specular zones of the picture, Global and a Black Offset.</source>
         <translation>Цветовые круги и экспозиция для зон изображения Тень, Свет, Подсветка и Блики, общие настройки и смещение чёрного.</translation>
     </message>
+    <message>
+        <source>Sizing</source>
+        <translation>Размер</translation>
+    </message>
+    <message>
+        <source>Zoom, Pan, Tilt, Rotate, Width, Height and Flip of the clip (Input Sizing, the same values as the Edit page Inspector&apos;s Transform) or of the whole timeline (Output Sizing).</source>
+        <translation>Масштаб, панорама, наклон, поворот, ширина, высота и отражение клипа (входной размер, те же значения, что и в преобразовании инспектора страницы монтажа) или всей монтажной линейки (выходной размер).</translation>
+    </message>
+    <message>
+        <source>Keyframes</source>
+        <translation>Ключевые кадры</translation>
+    </message>
+    <message>
+        <source>The keyframes of the grade&apos;s nodes and of the Sizing values; Static keys hold, Dynamic keys change smoothly to the next one.</source>
+        <translation>Ключевые кадры узлов коррекции и значений размера; статические ключи удерживают значение, динамические плавно меняют его до следующего.</translation>
+    </message>
 </context>
 <context>
     <name>kk::ColorPickOverlay</name>
@@ -10561,6 +10707,30 @@ Thank you for watching</source>
     <message>
         <source>Copy Grade</source>
         <translation>Копировать цветокоррекцию</translation>
+    </message>
+    <message>
+        <source>Delete Keyframe</source>
+        <translation>Удалить ключевой кадр</translation>
+    </message>
+    <message>
+        <source>Move Keyframe</source>
+        <translation>Переместить ключевой кадр</translation>
+    </message>
+    <message>
+        <source>Static Keyframe</source>
+        <translation>Статический ключевой кадр</translation>
+    </message>
+    <message>
+        <source>Dynamic Keyframe</source>
+        <translation>Динамический ключевой кадр</translation>
+    </message>
+    <message>
+        <source>Keyframe Dissolve</source>
+        <translation>Переход ключевого кадра</translation>
+    </message>
+    <message>
+        <source>Reset Sizing</source>
+        <translation>Сбросить размер</translation>
     </message>
 </context>
 <context>
@@ -30902,6 +31072,61 @@ Restart Kinoklip to apply them.</source>
     <message>
         <source>Press a key combination…</source>
         <translation>Нажмите комбинацию клавиш…</translation>
+    </message>
+</context>
+<context>
+    <name>kk::SizingPanel</name>
+    <message>
+        <source>Input Sizing</source>
+        <translation>Входной размер</translation>
+    </message>
+    <message>
+        <source>Output Sizing</source>
+        <translation>Выходной размер</translation>
+    </message>
+    <message>
+        <source>Zoom</source>
+        <translation>Масштаб</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Панорама</translation>
+    </message>
+    <message>
+        <source>Tilt</source>
+        <translation>Наклон</translation>
+    </message>
+    <message>
+        <source>Rotate</source>
+        <translation>Поворот</translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation>Ширина</translation>
+    </message>
+    <message>
+        <source>Height</source>
+        <translation>Высота</translation>
+    </message>
+    <message>
+        <source>Flip H</source>
+        <translation>Отразить Г</translation>
+    </message>
+    <message>
+        <source>Flip V</source>
+        <translation>Отразить В</translation>
+    </message>
+    <message>
+        <source>Flip Vertical</source>
+        <translation>Отразить по вертикали</translation>
+    </message>
+    <message>
+        <source>Flip Horizontal</source>
+        <translation>Отразить по горизонтали</translation>
+    </message>
+    <message>
+        <source>Sizing</source>
+        <translation>Размер</translation>
     </message>
 </context>
 <context>

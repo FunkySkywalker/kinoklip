@@ -5,7 +5,9 @@
 #include "core/EditOps.h"
 #include "core/GradeMath.h"
 #include "core/GradeGallery.h"
+#include "core/GradeKeyframes.h"
 #include "core/Project.h"
+#include "core/Sizing.h"
 #include "core/Timeline.h"
 #include "playback/PlaybackEngine.h"
 #include "render/GradeLut.h"
@@ -140,6 +142,18 @@ void ColorSession::reload()
         emit clipChanged();
     if (changed)
         emit gradeChanged();
+    // Input / Output Sizing: the palette's fields follow edits, undo and the playhead.
+    ParamSet in;
+    if (const ClipData* c = editops::clipById(data, m_clipId))
+        in = c->transform;
+    const int64_t playhead = m_ctx.project->timeline()->playhead();
+    const bool sizingMoved = in != m_inputSizing || data.outputSizing != m_outputSizing
+        || otherClip || playhead != m_playhead;
+    m_inputSizing = std::move(in);
+    m_outputSizing = data.outputSizing;
+    m_playhead = playhead;
+    if (sizingMoved)
+        emit sizingChanged();
 }
 
 void ColorSession::fixWindowSelection()
@@ -330,8 +344,13 @@ bool ColorSession::setParams(
     if (!n || n->isMixer())
         return false;
     const int64_t frame = gradeFrame();
-    for (const auto& [key, value] : values)
-        n->params.animated(key, gradekeys::defaultValue(key)).setValue(frame, value);
+    for (const auto& [key, value] : values) {
+        AnimatedValue& v = n->params.animated(key, gradekeys::defaultValue(key));
+        if (m_autoKey)
+            v.setKey(frame, value);
+        else
+            v.setValue(frame, value);
+    }
     const bool ok = commit(g, label);
     if (ok && m_selected != node)
         selectNode(node);
@@ -579,8 +598,13 @@ bool ColorSession::setWindowParams(
 {
     const int64_t frame = gradeFrame();
     return editWindow(windowId, label, [&](GradeWindow& w) {
-        for (const auto& [key, value] : values)
-            w.params.animated(key, gradewindowkeys::defaultValue(key)).setValue(frame, value);
+        for (const auto& [key, value] : values) {
+            AnimatedValue& v = w.params.animated(key, gradewindowkeys::defaultValue(key));
+            if (m_autoKey)
+                v.setKey(frame, value);
+            else
+                v.setValue(frame, value);
+        }
     });
 }
 
@@ -857,6 +881,256 @@ int ColorSession::copyGrade(quint64 fromClipId, const QVector<quint64>& toClipId
     const int n = m_ctx.project->setClipGrades(uid, targets, grade, tr("Copy Grade"));
     reload();
     return n;
+}
+
+// ---- Keyframes palette ----
+
+namespace {
+
+int doAdd(GradeNode& n, int64_t f) { return gradekeyframes::addKeys(n, f); }
+int doAdd(ParamSet& p, int64_t f) { return sizing::addKeys(p, f); }
+int doDelete(GradeNode& n, int64_t f) { return gradekeyframes::deleteKeys(n, f); }
+int doDelete(ParamSet& p, int64_t f) { return keyrows::deleteKeys(sizing::rowOf(p), f); }
+int doMove(GradeNode& n, int64_t a, int64_t b) { return gradekeyframes::moveKeys(n, a, b); }
+int doMove(ParamSet& p, int64_t a, int64_t b) { return keyrows::moveKeys(sizing::rowOf(p), a, b); }
+int doMode(GradeNode& n, int64_t f, keyrows::Mode m) { return gradekeyframes::setMode(n, f, m); }
+int doMode(ParamSet& p, int64_t f, keyrows::Mode m) { return keyrows::setMode(sizing::rowOf(p), f, m); }
+int doInterp(GradeNode& n, int64_t f, Interp i) { return gradekeyframes::setInterp(n, f, i); }
+int doInterp(ParamSet& p, int64_t f, Interp i) { return keyrows::setInterp(sizing::rowOf(p), f, i); }
+
+ColorSession::SizingScope scopeOf(const ColorSession::KeyRow& row)
+{
+    return row.kind == ColorSession::KeyRow::Kind::Input ? ColorSession::SizingScope::Input
+                                                         : ColorSession::SizingScope::Output;
+}
+
+} // namespace
+
+QVector<ColorSession::KeyRow> ColorSession::keyRows() const
+{
+    QVector<KeyRow> rows;
+    if (!hasGrade())
+        return rows;
+    for (const GradeNode& n : m_grade.nodes) {
+        if (!n.isMixer())
+            rows.append({KeyRow::Kind::Node, n.id});
+    }
+    if (hasSizing(SizingScope::Input))
+        rows.append({KeyRow::Kind::Input, 0});
+    rows.append({KeyRow::Kind::Output, 0});
+    return rows;
+}
+
+bool ColorSession::stripRange(int64_t* firstFrame, int64_t* lastFrame) const
+{
+    return trackRange(firstFrame, lastFrame, nullptr);
+}
+
+void ColorSession::seekStrip(int64_t frame)
+{
+    int64_t first = 0, last = 0, offset = 0;
+    if (!trackRange(&first, &last, &offset))
+        return;
+    m_ctx.project->timeline()->setPlayhead(offset + std::clamp(frame, first, last));
+}
+
+int64_t ColorSession::rowOffset(const KeyRow& row) const
+{
+    // Output Sizing is keyed in timeline frames; the strip of a clip counts from its start.
+    int64_t first = 0, last = 0, offset = 0;
+    if (row.kind == KeyRow::Kind::Output && trackRange(&first, &last, &offset))
+        return offset;
+    return 0;
+}
+
+QVector<int64_t> ColorSession::rowFrames(const KeyRow& row) const
+{
+    QVector<int64_t> frames;
+    const int64_t off = rowOffset(row);
+    if (row.kind == KeyRow::Kind::Node) {
+        if (const GradeNode* n = m_grade.node(row.nodeId))
+            frames = gradekeyframes::frames(*n);
+    } else {
+        const ParamSet p = sizingOf(scopeOf(row));
+        frames = keyrows::frames(sizing::rowOf(p));
+    }
+    for (int64_t& f : frames)
+        f -= off;
+    // Output Sizing keys outside the open clip are not on its strip.
+    int64_t first = 0, last = 0;
+    if (row.kind == KeyRow::Kind::Output && trackRange(&first, &last, nullptr)) {
+        frames.erase(std::remove_if(frames.begin(), frames.end(),
+                         [&](int64_t f) { return f < first || f > last; }),
+            frames.end());
+    }
+    return frames;
+}
+
+bool ColorSession::rowHasKey(const KeyRow& row, int64_t frame) const
+{
+    return rowFrames(row).contains(frame);
+}
+
+keyrows::Mode ColorSession::rowKeyMode(const KeyRow& row, int64_t frame) const
+{
+    const int64_t f = frame + rowOffset(row);
+    if (row.kind == KeyRow::Kind::Node) {
+        const GradeNode* n = m_grade.node(row.nodeId);
+        return n ? gradekeyframes::modeAt(*n, f) : keyrows::Mode::Dynamic;
+    }
+    const ParamSet p = sizingOf(scopeOf(row));
+    return keyrows::modeAt(sizing::rowOf(p), f);
+}
+
+Interp ColorSession::rowKeyInterp(const KeyRow& row, int64_t frame) const
+{
+    const int64_t f = frame + rowOffset(row);
+    if (row.kind == KeyRow::Kind::Node) {
+        const GradeNode* n = m_grade.node(row.nodeId);
+        return n ? gradekeyframes::interpAt(*n, f) : Interp::Custom;
+    }
+    const ParamSet p = sizingOf(scopeOf(row));
+    return keyrows::interpAt(sizing::rowOf(p), f);
+}
+
+template<typename Fn>
+bool ColorSession::editRow(const KeyRow& row, const QString& label, Fn&& edit)
+{
+    if (!hasGrade())
+        return false;
+    if (row.kind == KeyRow::Kind::Node) {
+        ClipGrade g = m_grade;
+        GradeNode* n = g.node(row.nodeId);
+        if (!n || n->isMixer() || edit(*n) <= 0)
+            return false;
+        return commit(g, label);
+    }
+    const SizingScope scope = scopeOf(row);
+    if (!hasSizing(scope))
+        return false;
+    ParamSet p = sizingOf(scope);
+    if (edit(p) <= 0)
+        return false;
+    return commitSizing(scope, p, label);
+}
+
+bool ColorSession::addRowKey(const KeyRow& row, int64_t frame)
+{
+    const int64_t f = frame + rowOffset(row);
+    return editRow(row, tr("Add Keyframe"), [f](auto& t) { return doAdd(t, f); });
+}
+
+bool ColorSession::deleteRowKey(const KeyRow& row, int64_t frame)
+{
+    const int64_t f = frame + rowOffset(row);
+    return editRow(row, tr("Delete Keyframe"), [f](auto& t) { return doDelete(t, f); });
+}
+
+bool ColorSession::moveRowKey(const KeyRow& row, int64_t from, int64_t to)
+{
+    const int64_t off = rowOffset(row);
+    const int64_t a = from + off, b = to + off;
+    return editRow(row, tr("Move Keyframe"), [a, b](auto& t) { return doMove(t, a, b); });
+}
+
+bool ColorSession::setRowKeyMode(const KeyRow& row, int64_t frame, keyrows::Mode mode)
+{
+    const int64_t f = frame + rowOffset(row);
+    return editRow(row,
+        mode == keyrows::Mode::Static ? tr("Static Keyframe") : tr("Dynamic Keyframe"),
+        [f, mode](auto& t) { return doMode(t, f, mode); });
+}
+
+bool ColorSession::setRowKeyInterp(const KeyRow& row, int64_t frame, Interp interp)
+{
+    const int64_t f = frame + rowOffset(row);
+    return editRow(
+        row, tr("Keyframe Dissolve"), [f, interp](auto& t) { return doInterp(t, f, interp); });
+}
+
+void ColorSession::setAutoKeyframe(bool on)
+{
+    if (on == m_autoKey)
+        return;
+    m_autoKey = on;
+    emit autoKeyframeChanged(on);
+}
+
+// ---- Sizing palette ----
+
+bool ColorSession::hasSizing(SizingScope scope) const
+{
+    if (scope == SizingScope::Input)
+        return m_target == Target::Clip && m_clipId != 0;
+    return true;
+}
+
+ParamSet ColorSession::sizingOf(SizingScope scope) const
+{
+    return scope == SizingScope::Input ? m_inputSizing : m_outputSizing;
+}
+
+int64_t ColorSession::sizingFrame(SizingScope scope) const
+{
+    if (scope == SizingScope::Input)
+        return m_target == Target::Clip ? gradeFrameOf(m_clipId) : 0;
+    return m_ctx.project->timeline()->playhead();
+}
+
+bool ColorSession::commitSizing(SizingScope scope, const ParamSet& params, const QString& label)
+{
+    Project* p = m_ctx.project;
+    const quint64 uid = p->activeTimelineUid();
+    const bool ok = scope == SizingScope::Input ? p->setClipTransform(uid, m_clipId, params, label)
+                                                : p->setOutputSizing(uid, params, label);
+    reload(); // inside a gesture Timeline::changed() comes at its end
+    return ok;
+}
+
+bool ColorSession::setSizing(
+    SizingScope scope, const QVector<std::pair<QString, double>>& values, const QString& label)
+{
+    if (!hasSizing(scope))
+        return false;
+    ParamSet p = sizingOf(scope);
+    const int64_t frame = sizingFrame(scope);
+    for (const auto& [key, value] : values)
+        sizing::setAt(p, key, frame, value, m_autoKey);
+    return commitSizing(scope, p, label);
+}
+
+bool ColorSession::setSizingZoom(SizingScope scope, double zoom, const QString& label)
+{
+    if (!hasSizing(scope))
+        return false;
+    ParamSet p = sizingOf(scope);
+    sizing::setZoomAt(p, sizingFrame(scope), zoom, m_autoKey);
+    return commitSizing(scope, p, label);
+}
+
+bool ColorSession::setSizingFlip(
+    SizingScope scope, const QString& key, bool on, const QString& label)
+{
+    if (!hasSizing(scope) || (key != keys::FlipH && key != keys::FlipV))
+        return false;
+    ParamSet p = sizingOf(scope);
+    if (on)
+        p.setStatic(key, true);
+    else
+        p.statics.remove(key);
+    return commitSizing(scope, p, label);
+}
+
+bool ColorSession::resetSizing(SizingScope scope)
+{
+    if (!hasSizing(scope))
+        return false;
+    ParamSet p = sizingOf(scope);
+    for (const QString& key : sizing::sizingKeys())
+        p.values.remove(key);
+    p.statics.remove(keys::FlipH);
+    p.statics.remove(keys::FlipV);
+    return commitSizing(scope, p, tr("Reset Sizing"));
 }
 
 } // namespace kk

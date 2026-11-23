@@ -10,14 +10,18 @@
 #include "app/pages/ColorPage.h"
 #include "core/EditOps.h"
 #include "core/GradeGallery.h"
+#include "core/GradeKeyframes.h"
 #include "core/GradeMath.h"
+#include "core/ParamKeys.h"
 #include "core/Project.h"
 #include "core/SelectionModel.h"
 #include "core/Timeline.h"
 #include "render/GradeEval.h"
 #include "ui/color/ColorBrowsers.h"
 #include "ui/color/ColorFrameSource.h"
+#include "ui/color/ColorKeyframes.h"
 #include "ui/color/ColorNodeEditor.h"
+#include "ui/color/ColorSizing.h"
 #include "ui/color/ColorTracker.h"
 #include "ui/color/ColorPalettes.h"
 #include "ui/color/ColorSession.h"
@@ -1667,6 +1671,235 @@ private slots:
         QCOMPARE(rows, 17 * 17 * 17);
         QVERIFY(!f.session()->generateLut(999999, 17, path, &error)); // not a clip
         QVERIFY(!f.session()->generateLut(f.clips[0], 17, dir.filePath(QStringLiteral("no/such/dir/x.cube")), &error));
+    }
+
+    void sizingPalette()
+    {
+        Fixture f;
+        f.showPage();
+        ColorPage* page = f.page();
+        auto* tab = page->findChild<QAbstractButton*>(QStringLiteral("ColorPaletteTab_12"));
+        QVERIFY(tab);
+        QCOMPARE(tab->text(), QStringLiteral("Sizing"));
+        tab->click();
+        QCOMPARE(page->currentPalette(), ColorPage::Palette::Sizing);
+        SizingPanel* s = page->sizing();
+        QVERIFY(s && s->isVisible());
+        for (const char* name : {"zoom", "pan", "tilt", "rotate", "width", "height"}) {
+            QVERIFY2(s->field(QLatin1String(name)) && s->field(QLatin1String(name))->isVisible(), name);
+        }
+        QVERIFY(s->flipButton(false)->isVisible() && s->flipButton(true)->isVisible());
+        const quint64 uid = f.project.activeTimelineUid();
+        f.project.timeline()->setPlayhead(10);
+        const auto transform = [&] { return f.project.clipTransform(uid, f.clips[0]); };
+        // Zoom is one undo step and lands in the clip's transform: the Inspector's own values.
+        const int steps = f.steps();
+        Q_EMIT s->field(QStringLiteral("zoom"))->valueCommitted(1.5);
+        QCOMPARE(f.steps(), steps + 1);
+        QCOMPARE(transform().value(keys::ZoomX, 10), 1.5);
+        QCOMPARE(transform().value(keys::ZoomY, 10), 1.5);
+        QCOMPARE(s->field(QStringLiteral("width"))->value(), 1.5);
+        // Width changes one axis; Zoom shows the geometric mean.
+        Q_EMIT s->field(QStringLiteral("width"))->valueCommitted(2.0);
+        QCOMPARE(transform().value(keys::ZoomX, 10), 2.0);
+        QCOMPARE(transform().value(keys::ZoomY, 10), 1.5);
+        QVERIFY(std::abs(s->field(QStringLiteral("zoom"))->value() - std::sqrt(3.0)) < 1e-3);
+        Q_EMIT s->field(QStringLiteral("height"))->valueCommitted(2.0);
+        Q_EMIT s->field(QStringLiteral("pan"))->valueCommitted(40.0);
+        Q_EMIT s->field(QStringLiteral("tilt"))->valueCommitted(25.0); // up
+        Q_EMIT s->field(QStringLiteral("rotate"))->valueCommitted(12.0);
+        QCOMPARE(transform().value(keys::PosX, 10), 40.0);
+        QCOMPARE(transform().value(keys::PosY, 10), -25.0);
+        QCOMPARE(transform().value(keys::Rotation, 10), 12.0);
+        s->flipButton(false)->click();
+        QVERIFY(transform().staticValue(keys::FlipH, false).toBool());
+        s->flipButton(false)->click();
+        QVERIFY(!transform().staticValue(keys::FlipH, false).toBool());
+        // The Inspector (the clip's transform) and the palette are the same data.
+        ParamSet t = transform();
+        t.setBase(keys::PosX, 7.0);
+        QVERIFY(f.project.setClipTransform(uid, f.clips[0], t, QStringLiteral("Inspector")));
+        QCOMPARE(s->field(QStringLiteral("pan"))->value(), 7.0);
+        // Undo goes back through the steps.
+        f.project.undoStack()->undo();
+        QCOMPARE(s->field(QStringLiteral("pan"))->value(), 40.0);
+        // A drag is one step.
+        const int before = f.steps();
+        ValueField* pan = s->field(QStringLiteral("pan"));
+        Q_EMIT pan->scrubStarted();
+        Q_EMIT pan->valueScrubbed(50.0);
+        Q_EMIT pan->valueScrubbed(60.0);
+        Q_EMIT pan->scrubFinished();
+        QCOMPARE(f.steps(), before + 1);
+        QCOMPARE(transform().value(keys::PosX, 10), 60.0);
+        // Output Sizing is the timeline's own set: another clip is not touched.
+        s->scopeButton(1)->click();
+        QCOMPARE(s->scope(), ColorSession::SizingScope::Output);
+        Q_EMIT s->field(QStringLiteral("zoom"))->valueCommitted(1.25);
+        QCOMPARE(f.project.outputSizing(uid).value(keys::ZoomX, 10), 1.25);
+        QCOMPARE(f.project.outputSizing(uid).value(keys::ZoomY, 10), 1.25);
+        QCOMPARE(transform().value(keys::PosX, 10), 60.0);
+        QCOMPARE(f.project.clipTransform(uid, f.clips[1]).value(keys::ZoomX, 0), 1.0);
+        s->flipButton(true)->click();
+        QVERIFY(f.project.outputSizing(uid).staticValue(keys::FlipV, false).toBool());
+        // The palette bar's Reset puts the shown scope back as one step.
+        auto* reset = page->findChild<QToolButton*>(QStringLiteral("ColorPaletteReset"));
+        QVERIFY(reset);
+        const int resetSteps = f.steps();
+        reset->click();
+        QCOMPARE(f.steps(), resetSteps + 1);
+        QVERIFY(f.project.outputSizing(uid).values.isEmpty());
+        QVERIFY(!f.project.outputSizing(uid).staticValue(keys::FlipV, false).toBool());
+        QCOMPARE(s->field(QStringLiteral("zoom"))->value(), 1.0);
+        // Input Sizing is unavailable while the timeline grade is open.
+        f.session()->setTarget(ColorSession::Target::Timeline);
+        QVERIFY(!f.session()->hasSizing(ColorSession::SizingScope::Input));
+        QVERIFY(!s->scopeButton(0)->isEnabled());
+        f.session()->setTarget(ColorSession::Target::Clip);
+        // The layout remembers the palette.
+        QSettings settings;
+        settings.beginGroup(QStringLiteral("colorSizingLayoutTest"));
+        page->saveLayout(settings);
+        page->showPalette(ColorPage::Palette::Primaries);
+        page->restoreLayout(settings);
+        QCOMPARE(page->currentPalette(), ColorPage::Palette::Sizing);
+        QVERIFY(!page->grab().isNull());
+    }
+
+    void keyframesPalette()
+    {
+        Fixture f;
+        f.showPage();
+        ColorPage* page = f.page();
+        auto* tab = page->findChild<QAbstractButton*>(QStringLiteral("ColorPaletteTab_13"));
+        QVERIFY(tab);
+        QCOMPARE(tab->text(), QStringLiteral("Keyframes"));
+        tab->click();
+        QCOMPARE(page->currentPalette(), ColorPage::Palette::Keyframes);
+        ColorKeyframesPanel* kf = page->keyframes();
+        QVERIFY(kf && kf->isVisible());
+        ColorKeyStrip* strip = kf->strip();
+        ColorSession* session = f.session();
+        Timeline* timeline = f.project.timeline();
+        // An ungraded clip: node 01 is made by the first edit; rows All, 01, Input, Output.
+        QVERIFY(session->setParam(0, gk::GainY, 1.2, QStringLiteral("Gain")));
+        QCOMPARE(strip->rowCount(), 4);
+        QCOMPARE(strip->rowLabel(0), QStringLiteral("All"));
+        QCOMPARE(strip->rowLabel(1), QStringLiteral("01"));
+        QCOMPARE(strip->rowLabel(2), QStringLiteral("Input Sizing"));
+        QCOMPARE(strip->rowLabel(3), QStringLiteral("Output Sizing"));
+        QVERIFY(strip->isVisible() && strip->laneRect(1).height() > 4);
+        // Add (All): every row gets keys at the playhead, one undo step.
+        timeline->setPlayhead(0);
+        int steps = f.steps();
+        kf->addButton()->click();
+        QCOMPARE(f.steps(), steps + 1);
+        for (int row = 0; row < 4; ++row)
+            QCOMPARE(strip->frames(row), QVector<int64_t> {0});
+        QCOMPARE(strip->selection(), (ColorKeyStrip::Selection {0, 0}));
+        timeline->setPlayhead(20);
+        kf->addButton()->click();
+        for (int row = 0; row < 4; ++row)
+            QCOMPARE(strip->frames(row), (QVector<int64_t> {0, 20}));
+        // Every grade parameter is keyed.
+        for (const QString& key : gk::allKeys())
+            QVERIFY2(session->currentNode()->params.values.value(key).keys.size() == 2, qPrintable(key));
+        // Dynamic keys interpolate: a value edited at frame 20 changes the middle.
+        QVERIFY(session->setParam(0, gk::GainY, 2.0, QStringLiteral("Gain")));
+        QVERIFY(std::abs(session->currentNode()->value(gk::GainY, 10) - 1.6) < 1e-6);
+        // Static holds the value until the next key.
+        strip->select(1, 0);
+        QVERIFY(kf->dynamicButton()->isChecked() && !kf->staticButton()->isChecked());
+        steps = f.steps();
+        kf->staticButton()->click();
+        QCOMPARE(f.steps(), steps + 1);
+        QVERIFY(kf->staticButton()->isChecked() && !kf->dynamicButton()->isChecked());
+        QCOMPARE(int(session->rowKeyMode(session->keyRows()[0], 0)), int(keyrows::Mode::Static));
+        QVERIFY(std::abs(session->currentNode()->value(gk::GainY, 10) - 1.2) < 1e-6);
+        QVERIFY(std::abs(session->currentNode()->value(gk::GainY, 20) - 2.0) < 1e-6);
+        kf->dynamicButton()->click();
+        QVERIFY(std::abs(session->currentNode()->value(gk::GainY, 10) - 1.6) < 1e-6);
+        // Dissolve type: Ease Out leaves the key slowly.
+        QCOMPARE(kf->dissolveCombo()->count(), 5);
+        kf->dissolveCombo()->setCurrentIndex(2);
+        Q_EMIT kf->dissolveCombo()->activated(2);
+        QCOMPARE(int(session->rowKeyInterp(session->keyRows()[0], 0)), int(Interp::EaseOut));
+        QVERIFY(session->currentNode()->value(gk::GainY, 10) < 1.59);
+        kf->dissolveCombo()->setCurrentIndex(0);
+        Q_EMIT kf->dissolveCombo()->activated(0);
+        QVERIFY(std::abs(session->currentNode()->value(gk::GainY, 10) - 1.6) < 1e-6);
+        // Move a key with the mouse: one undo step, the keys of the row move together.
+        strip->clearSelection();
+        steps = f.steps();
+        const int y = strip->laneRect(1).center().y();
+        QTest::mousePress(strip, Qt::LeftButton, Qt::NoModifier,
+            QPoint(int(std::lround(strip->frameToX(20))), y));
+        for (const int64_t frame : {24, 28, 30})
+            QTest::mouseMove(strip, QPoint(int(std::lround(strip->frameToX(frame))), y));
+        QTest::mouseRelease(strip, Qt::LeftButton, Qt::NoModifier,
+            QPoint(int(std::lround(strip->frameToX(30))), y));
+        QCOMPARE(f.steps(), steps + 1);
+        QCOMPARE(strip->frames(1), (QVector<int64_t> {0, 30}));
+        QCOMPARE(strip->frames(2), (QVector<int64_t> {0, 20})); // another row stays
+        QCOMPARE(strip->selection(), (ColorKeyStrip::Selection {1, 30}));
+        QVERIFY(std::abs(session->currentNode()->value(gk::GainY, 30) - 2.0) < 1e-6);
+        // Previous / next keyframe move the playhead.
+        timeline->setPlayhead(10);
+        kf->nextButton()->click();
+        QCOMPARE(session->stripPlayhead(), int64_t(30));
+        kf->previousButton()->click();
+        QCOMPARE(session->stripPlayhead(), int64_t(0));
+        // Delete removes the selected key (this row only); undo brings it back.
+        strip->select(1, 30);
+        steps = f.steps();
+        kf->deleteButton()->click();
+        QCOMPARE(f.steps(), steps + 1);
+        QCOMPARE(strip->frames(1), QVector<int64_t> {0});
+        QCOMPARE(strip->frames(2), (QVector<int64_t> {0, 20}));
+        f.project.undoStack()->undo();
+        QCOMPARE(strip->frames(1), (QVector<int64_t> {0, 30}));
+        // The Master row selects the keys of every row at its frame.
+        strip->select(0, 20);
+        QCOMPARE(strip->targets(strip->selection()).size(), 2); // Input and Output (node moved)
+        kf->deleteButton()->click();
+        QCOMPARE(strip->frames(2), QVector<int64_t> {0});
+        QCOMPARE(strip->frames(3), QVector<int64_t> {0});
+        // Auto Keyframe: another clip, an edit with the toggle on sets a key at the playhead.
+        timeline->setPlayhead(60); // clip 2, local frame 10
+        QVERIFY(session->setParam(0, gk::Contrast, 1.3, QStringLiteral("Contrast")));
+        QVERIFY(!session->currentNode()->params.values.value(gk::Contrast).isAnimated());
+        kf->autoButton()->click();
+        QVERIFY(session->autoKeyframe() && kf->autoButton()->isChecked());
+        QVERIFY(session->setParam(0, gk::Saturation, 1.4, QStringLiteral("Saturation")));
+        const AnimatedValue& sat = session->currentNode()->params.values.value(gk::Saturation);
+        QCOMPARE(sat.keys.size(), 1);
+        QCOMPARE(sat.keys[0].frame, int64_t(10));
+        QVERIFY(session->setSizing(ColorSession::SizingScope::Input, {{keys::PosX, 30.0}}, QStringLiteral("Pan")));
+        QVERIFY(session->sizingOf(ColorSession::SizingScope::Input).values.value(keys::PosX).hasKeyAt(10));
+        // Output Sizing keys are timeline frames; the strip counts from the clip's start.
+        const ColorSession::KeyRow output = session->keyRows().last();
+        QVERIFY(output.kind == ColorSession::KeyRow::Kind::Output);
+        QVERIFY(session->setSizing(ColorSession::SizingScope::Output, {{keys::PosY, 9.0}}, QStringLiteral("Tilt")));
+        QCOMPARE(session->rowFrames(output), QVector<int64_t> {10});
+        const quint64 uid = f.project.activeTimelineUid();
+        QVERIFY(f.project.outputSizing(uid).values.value(keys::PosY).hasKeyAt(60));
+        QVERIFY(session->moveRowKey(output, 10, 15));
+        QVERIFY(f.project.outputSizing(uid).values.value(keys::PosY).hasKeyAt(65));
+        QVERIFY(!f.project.outputSizing(uid).values.value(keys::PosY).hasKeyAt(60));
+        kf->autoButton()->click();
+        QVERIFY(!session->autoKeyframe());
+        // Everything paints.
+        QVERIFY(!kf->grab().isNull());
+        // The palette bar's Reset removes the keys of the selected row, as one step.
+        strip->select(1, 0);
+        steps = f.steps();
+        auto* reset = page->findChild<QToolButton*>(QStringLiteral("ColorPaletteReset"));
+        QVERIFY(reset);
+        timeline->setPlayhead(5);
+        QCOMPARE(strip->frames(1), QVector<int64_t> {10});
+        reset->click();
+        QCOMPARE(f.steps(), steps + 1);
+        QVERIFY(strip->frames(1).isEmpty());
     }
 
     /// Writes a demo project for screenshots when KK_COLOR_DEMO_PROJECT names a file (the

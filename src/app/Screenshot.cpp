@@ -1112,7 +1112,7 @@ int runScreenshot(MainWindow& window, const QString& target, const QString& pngP
         }
     } else if (base == QLatin1String("color")) {
         // Color page (user guide): "color:<palette>" shows primaries | curves | qualifier |
-        // windows | luts | blur | tracker | rgbmixer | agx | log | warper | hdr, and "color:key" the Key tab beside it. KK_SCREENSHOT_COLOR_NODE=<n>
+        // windows | luts | blur | tracker | rgbmixer | agx | log | warper | hdr | sizing | keyframes, and "color:key" the Key tab beside it. KK_SCREENSHOT_COLOR_NODE=<n>
         // selects node n (its number in the node editor), KK_SCREENSHOT_COLOR_HIGHLIGHT=1
         // turns Highlight on, KK_SCREENSHOT_COLOR_PICK=1 arms the qualifier's Pick,
         // KK_SCREENSHOT_SCOPE=<waveform|parade|...> picks the scope, KK_SCREENSHOT_COLOR_SELECT
@@ -1130,7 +1130,7 @@ int runScreenshot(MainWindow& window, const QString& target, const QString& pngP
             QStringLiteral("qualifier"), QStringLiteral("windows"), QStringLiteral("luts"),
             QStringLiteral("blur"), QStringLiteral("tracker"), QStringLiteral("rgbmixer"),
             QStringLiteral("agx"), QStringLiteral("log"), QStringLiteral("warper"),
-            QStringLiteral("hdr")};
+            QStringLiteral("hdr"), QStringLiteral("sizing"), QStringLiteral("keyframes")};
         if (const int p = int(palettes.indexOf(section)); p >= 0)
             color->showPalette(ColorPage::Palette(p));
         if (section == QLatin1String("key")) {

@@ -7,6 +7,7 @@
 #include "RenderTestUtil.h"
 #include "core/EffectRegistry.h"
 #include "core/GradeMath.h"
+#include "core/Sizing.h"
 #include "core/VideoEffectKeys.h"
 #include "render/Compositor.h"
 #include "render/CubeLut.h"
@@ -16,6 +17,7 @@
 #include "render/TimelineEval.h"
 
 #include <QFile>
+#include <QPainter>
 #include <QTemporaryDir>
 
 #include <cmath>
@@ -876,6 +878,104 @@ private slots:
         QVERIFY(renderCacheChunks(lut, keys, options)[0].key != before);
         // samePictures() sees the timeline grade.
         QVERIFY(!render::samePictures(tl, timelineGraded));
+        // Output Sizing (Color page > Sizing) moves every picture.
+        TimelineData sized = timelineWith({});
+        sized.outputSizing.setBase(keys::ZoomX, 1.2);
+        const auto withSizing = renderCacheChunks(sized, keys, options);
+        QVERIFY(withSizing[0].key != plain[0].key);
+        QVERIFY(!render::samePictures(tl, sized));
+    }
+
+    void staticAndDynamicKeysOnBothBackends()
+    {
+        // Color page > Keyframes: a Dynamic key interpolates, a Static key holds until the next
+        // key; GPU, CPU backend and the CPU reference give the same pictures at the playhead.
+        ClipGrade g = primariesGrade({});
+        AnimatedValue& gain = g.nodes[0].params.animated(gk::GainY, 1.0);
+        gain.setKey(0, 0.0, Interp::Linear);
+        gain.setKey(8, 1.0, Interp::Linear);
+        g.nodes[0].params.setBase(gk::LumMix, 0.0);
+        ClipGrade held = g;
+        held.nodes[0].params.values[gk::GainY].keys[0].hold = true;
+        const TimelineData dynamicTl = timelineWith(g);
+        const TimelineData staticTl = timelineWith(held);
+        for (Compositor* c : {m_gpu.get(), m_cpu.get()}) {
+            if (c == m_gpu.get() && !gpuReady())
+                continue;
+            const QImage plain = render(*m_cpu, timelineWith({}), false, 4);
+            const Px dark = px(render(*c, staticTl, false, 4), 30, 30);
+            const Px mid = px(render(*c, dynamicTl, false, 4), 30, 30);
+            const Px lit = px(render(*c, staticTl, false, 8), 30, 30);
+            QVERIFY(dark.r + dark.g + dark.b < 6); // held at the first key's value
+            QVERIFY(mid.r + mid.g + mid.b > 60 && mid.r + mid.g + mid.b < 600); // in between
+            QVERIFY(lit.r + lit.g + lit.b > 200); // the next key reached
+            for (const int64_t frame : {2, 4, 6}) {
+                for (const ClipGrade& grade : {g, held}) {
+                    QImage reference = plain.copy();
+                    applyGrade(grade, frame, reference);
+                    const QImage got = render(*c, timelineWith(grade), false, frame);
+                    QVERIFY2(maxDiff(got, reference) <= 3, qPrintable(QString::number(frame)));
+                }
+            }
+        }
+    }
+
+    void outputSizingOnBothBackends()
+    {
+        // Color page > Sizing > Output Sizing: zoom, pan, rotation and flip of the composite;
+        // the CPU backend equals the transformed plain picture, the GPU stays close to it, and
+        // keys move it over time.
+        TimelineData tl = timelineWith({});
+        tl.outputSizing.setBase(keys::ZoomX, 1.5);
+        tl.outputSizing.setBase(keys::ZoomY, 1.5);
+        tl.outputSizing.setBase(keys::PosX, 6.0);
+        tl.outputSizing.setStatic(keys::FlipH, true);
+        auto meanDiff = [](const QImage& a, const QImage& b) {
+            const QImage x = a.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+            const QImage y = b.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+            if (x.size() != y.size())
+                return 1000.0;
+            double sum = 0;
+            for (int j = 0; j < x.height(); ++j) {
+                for (int i = 0; i < x.width(); ++i) {
+                    const QRgb p = x.pixel(i, j), q = y.pixel(i, j);
+                    sum += std::abs(qRed(p) - qRed(q)) + std::abs(qGreen(p) - qGreen(q))
+                        + std::abs(qBlue(p) - qBlue(q)) + std::abs(qAlpha(p) - qAlpha(q));
+                }
+            }
+            return sum / (4.0 * x.width() * x.height());
+        };
+        const QImage plainCpu = render(*m_cpu, timelineWith({}));
+        const QImage sizedCpu = render(*m_cpu, tl);
+        QVERIFY(meanDiff(plainCpu, sizedCpu) > 8); // the picture really moved
+        QImage reference(plainCpu.size(), plainCpu.format());
+        reference.fill(Qt::transparent);
+        {
+            QPainter p(&reference);
+            p.setRenderHint(QPainter::SmoothPixmapTransform);
+            p.setTransform(sizing::outputTransform(
+                tl.outputSizing, 0, QSizeF(kW, kH), QSizeF(tl.width, tl.height)));
+            p.drawImage(0, 0, plainCpu);
+        }
+        QVERIFY(meanDiff(sizedCpu, reference) < 0.5);
+        if (gpuReady()) {
+            const QImage sizedGpu = render(*m_gpu, tl);
+            qInfo("Output Sizing GPU vs CPU backend: mean diff %.2f", meanDiff(sizedGpu, sizedCpu));
+            QVERIFY(meanDiff(sizedGpu, sizedCpu) < 6.0);
+            QVERIFY(meanDiff(sizedGpu, render(*m_gpu, timelineWith({}))) > 8);
+        }
+        // Keyed over time (timeline frames), on both backends.
+        TimelineData keyed = timelineWith({});
+        sizing::setAt(keyed.outputSizing, keys::PosX, 0, 0.0, true);
+        sizing::setAt(keyed.outputSizing, keys::PosX, 8, 12.0, true);
+        for (Compositor* c : {m_gpu.get(), m_cpu.get()}) {
+            if (c == m_gpu.get() && !gpuReady())
+                continue;
+            const QImage first = render(*c, keyed, false, 0);
+            const QImage last = render(*c, keyed, false, 8);
+            QVERIFY(meanDiff(first, last) > 4);
+            QVERIFY(meanDiff(first, render(*c, timelineWith({}), false, 0)) < 1.0); // key 0 = off
+        }
     }
 
     // ---- Input LUT of the media item (Media Pool > 3D LUT, ClipAttributes::inputLut) ----
