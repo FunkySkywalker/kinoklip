@@ -705,7 +705,7 @@ private slots:
     /// The maths of the node types on single pixels of the CPU reference.
     void nodeTypeMaths()
     {
-        PictureGeometry geo;
+        grademath::PictureGeometry geo;
         geo.width = kW;
         geo.height = kH;
         auto eval = [&](const ClipGrade& g, float x, float y, std::array<float, 3> c,
