@@ -194,16 +194,16 @@ private slots:
         sizing::setAt(p, keys::PosX, 0, 0.0, true);
         sizing::setAt(p, keys::PosX, 20, 100.0, true);
         QVERIFY(same(p.value(keys::PosX, 10), 50.0));
-        QCOMPARE(keyrows::frames(sizing::rowOf(p)), (QVector<int64_t> {0, 20}));
+        QCOMPARE(keyrows::frames(sizing::rowOf(std::as_const(p))), (QVector<int64_t> {0, 20}));
         // The whole row at once: Zoom, Rotation and the rest get keys too.
         QVERIFY(sizing::addKeys(p, 10) > 0);
-        QCOMPARE(keyrows::frames(sizing::rowOf(p)), (QVector<int64_t> {0, 10, 20}));
+        QCOMPARE(keyrows::frames(sizing::rowOf(std::as_const(p))), (QVector<int64_t> {0, 10, 20}));
         QVERIFY(p.values.value(keys::ZoomX).hasKeyAt(10));
         QVERIFY(keyrows::setMode(sizing::rowOf(p), 0, kr::Mode::Static) >= 1);
         QVERIFY(same(p.value(keys::PosX, 5), 0.0)); // held
         QVERIFY(keyrows::moveKeys(sizing::rowOf(p), 10, 12) > 0);
         QVERIFY(keyrows::deleteKeys(sizing::rowOf(p), 12) > 0);
-        QCOMPARE(keyrows::frames(sizing::rowOf(p)), (QVector<int64_t> {0, 20}));
+        QCOMPARE(keyrows::frames(sizing::rowOf(std::as_const(p))), (QVector<int64_t> {0, 20}));
         // Without Auto Keyframe a parameter without keys just changes.
         ParamSet plain;
         sizing::setAt(plain, keys::PosY, 7, 30.0, false);
