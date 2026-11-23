@@ -20,6 +20,7 @@
 #include "ui/common/MenuLayouts.h"
 #include "ui/common/Resources.h"
 #include "ui/common/StandardActions.h"
+#include "ui/comp/CompAdapter.h"
 #include "ui/comp/CompSession.h"
 #include "ui/comp/NodeEditor.h"
 #include "ui/dialogs/PreferencesDialog.h"
@@ -40,6 +41,7 @@
 #include <QMenuBar>
 #include <QSettings>
 #include <QSignalSpy>
+#include <QStyleFactory>
 #include <QStandardPaths>
 #include <QTemporaryDir>
 #include <QTest>
@@ -228,6 +230,7 @@ void collectNodeIds(const QList<menulayout::Node>& nodes, QStringList& out)
 /// everything below, the texts, and whether an entry is disabled.
 struct PopupInfo
 {
+    int height = 0; ///< sizeHint().height() of the menu
     bool seen = false;
     QString problems;
     QStringList texts;
@@ -248,6 +251,7 @@ PopupInfo readPopup(const std::function<void()>& open)
         if (!menu)
             return;
         info.seen = true;
+        info.height = menu->sizeHint().height();
         info.problems = limitProblems(menu, QStringLiteral("popup"), 0);
         for (const QAction* a : menu->actions()) {
             if (a->isSeparator())
@@ -639,6 +643,85 @@ private slots:
         QVERIFY(slim.texts.size() < resolve.texts.size());
         // Nothing to paste: no Paste entry (hidden, not greyed).
         QVERIFY(!slim.texts.contains(QStringLiteral("Paste")));
+    }
+
+    // The clip menu must fit a 1080p screen in both layouts and in other widget styles (a
+    // taller menu scrolls and cuts off its top entries): video, compound and composition clips.
+    void clipMenuHeight()
+    {
+        Fixture f;
+        f.window->resize(1600, 900);
+        f.window->show();
+        QVERIFY(QTest::qWaitForWindowExposed(f.window.get()));
+        f.window->setCurrentPage(QStringLiteral("edit"));
+        TimelineWidget* w = f.window->editPage()->timeline()->timelineWidget();
+        QVERIFY(w);
+        w->setPixelsPerFrame(10.0, 120);
+        w->scrollToFrame(0);
+        QCoreApplication::processEvents();
+        // A second clip: a compound clip.
+        ClipData nested;
+        nested.kind = ClipKind::Nested;
+        nested.name = QStringLiteral("Compound");
+        nested.start = 100;
+        nested.duration = 50;
+        f.project.beginEdit(QStringLiteral("Add Compound"));
+        const quint64 nestedId = editops::overwriteClip(
+            f.project.timeline()->mutableData(), TrackRef {TrackType::Video, 0}, nested);
+        f.project.endEdit();
+        // A third: a clip with a composition.
+        ClipData comp;
+        comp.kind = ClipKind::Solid;
+        comp.name = QStringLiteral("Comp");
+        comp.start = 200;
+        comp.duration = 50;
+        f.project.beginEdit(QStringLiteral("Add Comp"));
+        const quint64 compId = editops::overwriteClip(
+            f.project.timeline()->mutableData(), TrackRef {TrackType::Video, 0}, comp);
+        f.project.endEdit();
+        QVERIFY(compadapter::setClipComposition(
+            f.project, compId, compadapter::defaultComposition(), QStringLiteral("Comp")));
+        QCoreApplication::processEvents();
+
+        const QString defaultStyle = QApplication::style()->objectName();
+        QStringList styles {defaultStyle};
+        for (const QString& name : {QStringLiteral("Fusion"), QStringLiteral("Breeze")}) {
+            for (const QString& key : QStyleFactory::keys()) {
+                if (key.compare(name, Qt::CaseInsensitive) == 0 && !styles.contains(key))
+                    styles.append(key);
+            }
+        }
+        QVERIFY(styles.size() >= 1);
+        const TimelineLayout& layout = w->layout();
+        for (const Layout lay : {Layout::Resolve, Layout::Streamlined}) {
+            menulayout::setLayout(lay);
+            for (const QString& style : styles) {
+                QApplication::setStyle(style);
+                for (const quint64 id : {f.clipId, nestedId, compId}) {
+                    const ClipData* clip = editops::clipById(f.project.timeline()->data(), id);
+                    QVERIFY(clip);
+                    f.selection.setClips({id});
+                    const QRectF rect = layout.clipRect(layout.rowOf({TrackType::Video, 0}), *clip);
+                    QVERIFY(!rect.isEmpty());
+                    const QPoint pos = rect.center().toPoint();
+                    const PopupInfo info = readPopup([&] {
+                        QContextMenuEvent event(
+                            QContextMenuEvent::Mouse, pos, w->viewport()->mapToGlobal(pos));
+                        QCoreApplication::sendEvent(w->viewport(), &event);
+                    });
+                    QVERIFY(info.seen);
+                    qInfo() << "clip menu height" << menulayout::layoutId(lay) << style
+                            << clip->name << info.texts.size() << info.height;
+                    QVERIFY2(info.height > 0 && info.height < 1000,
+                        qPrintable(QStringLiteral("%1 %2 %3: %4 px")
+                                       .arg(menulayout::layoutId(lay), style, clip->name)
+                                       .arg(info.height)));
+                    QCOMPARE(info.texts.contains(QStringLiteral("Reset Composition")), id == compId
+                            && lay == Layout::Resolve);
+                }
+            }
+        }
+        QApplication::setStyle(defaultStyle);
     }
 
     // 82.12: the media pool item and bin menus.

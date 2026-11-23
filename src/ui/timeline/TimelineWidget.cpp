@@ -20,6 +20,7 @@
 #include "ui/common/MenuLayouts.h"
 #include "ui/common/SchemeColors.h"
 #include "ui/common/UiAnimation.h"
+#include "ui/comp/CompAdapter.h"
 #include "ui/dialogs/NormalizeMixDialog.h"
 #include "ui/timeline/ClipColorMenu.h"
 #include "ui/timeline/AutomationLanes.h"
@@ -1209,9 +1210,15 @@ void TimelineWidget::contextMenuEvent(QContextMenuEvent* event)
         menu.addSeparator();
         addAction("clip.change_speed");
         addAction("clip.change_duration");
-        addAction("clip.retime_controls");
-        addAction("clip.freeze_frame");
-        addAction("clip.retime_curve");
+        // Retime tools in one submenu, as the menu would be taller than a screen otherwise.
+        if (QMenu* retime = menu.addMenu(tr("Retime"))) {
+            retime->setObjectName(QStringLiteral("RetimeMenu"));
+            for (const char* id : {"clip.retime_controls", "clip.retime_curve",
+                     "clip.freeze_frame", "clip.speed_increase", "clip.speed_decrease"}) {
+                if (QAction* a = action(id))
+                    retime->addAction(a);
+            }
+        }
         menu.addSeparator();
         addAction("clip.normalize_audio");
         menu.addSeparator();
@@ -1243,7 +1250,9 @@ void TimelineWidget::contextMenuEvent(QContextMenuEvent* event)
         if (clip && hit.track.type == TrackType::Video) {
             menu.addSeparator();
             addAction("clip.open_in_compositing");
-            addAction("clip.reset_composition");
+            // Only a clip that has a composition can be reset (hidden, not greyed).
+            if (compadapter::hasComposition(*m_ctx.project, id))
+                addAction("clip.reset_composition");
         }
         menu.addSeparator();
         addRemoveTransitionsEntry(menu, id, hit.track);
