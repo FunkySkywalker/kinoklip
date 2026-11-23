@@ -1,4 +1,4 @@
-384 menu entries in 13 menus; 62 panels
+411 menu entries in 13 menus; 62 panels
 
 # Menu and panel reference
 
@@ -112,6 +112,14 @@ Shortcuts are the defaults of the Resolve keymap (Windows); another keyboard pro
 | Color Page > Add Parallel Node | Alt+P | Color page: adds a parallel node next to the current node. |
 | Color Page > Add Layer Node | Alt+L | Color page: adds a layer node above the current node. |
 | Color Page > Add Serial Node Before | Shift+S | Color page: adds a serial node before the current node. |
+| Color Page > Add Outside Node | Alt+O | Color page: adds an Outside node after the current node, keyed with the inverse of the current node's key. |
+| Color Page > Add Key Mixer |  | Color page: adds a Key Mixer that combines the keys of several nodes into one key. |
+| Color Page > Add Splitter / Combiner |  | Color page: adds a Splitter and a Combiner after the current node, to grade the red, green and blue channels apart. |
+| Color Page > Add Alpha Output |  | Color page: adds the Alpha Output, whose key becomes the alpha of the clip. |
+| Color Page > Create Compound Node |  | Color page: groups the selected nodes into one Compound node. |
+| Color Page > Decompose Compound Node |  | Color page: dissolves the current Compound node into its nodes. |
+| Color Page > Open Compound Node |  | Color page: shows the nodes inside the current Compound node. |
+| Color Page > Close Compound Node |  | Color page: leaves the open Compound node and shows the level above. |
 | Color Page > Delete Node | Del, Backspace | Color page: deletes the current node. |
 | Color Page > Enable / Disable Current Node | Ctrl+D | Color page: switches the grade of the current node off or on. |
 | Color Page > Bypass All Grades (toggle) | Shift+D | Color page: switches all grades of the clip off or on, to compare with the original. |
@@ -121,6 +129,25 @@ Shortcuts are the defaults of the Resolve keymap (Windows); another keyboard pro
 | Color Page > Add / Remove Keyframe |  | Color page: adds or removes a keyframe at the playhead for the current node. |
 | Color Page > Grab Still | Ctrl+Alt+G | Color page: saves the viewer picture with its grade as a still in the gallery. |
 | Color Page > Apply Grade from Still |  | Color page: gives the current clip the grade of the selected gallery still. |
+| Color Page > Append Node Graph from Still |  | Color page: adds the node graph of the selected gallery still after the nodes of the clip (the selected clips). |
+| Color Page > Import Still… |  | Color page: adds a picture or a Kinoklip grade file to the gallery album being shown. |
+| Color Page > Export Still… |  | Color page: saves the selected gallery still as a picture (PNG, TIFF, JPEG or DPX) with its grade file beside it. |
+| Color Page > Save Memory A | Alt+1 | Color page: saves the current grade into gallery memory A. |
+| Color Page > Save Memory B | Alt+2 | Color page: saves the current grade into gallery memory B. |
+| Color Page > Save Memory C | Alt+3 | Color page: saves the current grade into gallery memory C. |
+| Color Page > Save Memory D | Alt+4 | Color page: saves the current grade into gallery memory D. |
+| Color Page > Save Memory E | Alt+5 | Color page: saves the current grade into gallery memory E. |
+| Color Page > Save Memory F | Alt+6 | Color page: saves the current grade into gallery memory F. |
+| Color Page > Save Memory G | Alt+7 | Color page: saves the current grade into gallery memory G. |
+| Color Page > Save Memory H | Alt+8 | Color page: saves the current grade into gallery memory H. |
+| Color Page > Apply Memory A | Ctrl+1 | Color page: gives the current clip (the selected clips) the grade saved in gallery memory A. |
+| Color Page > Apply Memory B | Ctrl+2 | Color page: gives the current clip (the selected clips) the grade saved in gallery memory B. |
+| Color Page > Apply Memory C | Ctrl+3 | Color page: gives the current clip (the selected clips) the grade saved in gallery memory C. |
+| Color Page > Apply Memory D | Ctrl+4 | Color page: gives the current clip (the selected clips) the grade saved in gallery memory D. |
+| Color Page > Apply Memory E | Ctrl+5 | Color page: gives the current clip (the selected clips) the grade saved in gallery memory E. |
+| Color Page > Apply Memory F | Ctrl+6 | Color page: gives the current clip (the selected clips) the grade saved in gallery memory F. |
+| Color Page > Apply Memory G | Ctrl+7 | Color page: gives the current clip (the selected clips) the grade saved in gallery memory G. |
+| Color Page > Apply Memory H | Ctrl+8 | Color page: gives the current clip (the selected clips) the grade saved in gallery memory H. |
 | Color Page > Wipe with Still (toggle) | Ctrl+W | Color page: splits the viewer to compare with the selected gallery still. |
 | Color Page > Highlight (toggle) | Shift+H | Color page: shows in the viewer what the current node's key selects. |
 | Color Page > Split Screen (toggle) | Ctrl+Alt+W | Color page: turns the viewer's split screen on or off, in the mode last used. |
@@ -516,7 +543,7 @@ Shortcuts are the defaults of the Resolve keymap (Windows); another keyboard pro
 | Clips | Every clip of the timeline as a thumbnail; click one to grade it. |
 | Color Warper | Drag pins on the Hue - Sat and Chroma - Luma grids to move colours smoothly. |
 | Curves | Curve adjustments of the current node. |
-| Gallery | The stills grabbed from graded clips; use one to compare in the viewer or copy its grade. |
+| Gallery | The stills grabbed from graded clips, in albums (Stills, PowerGrade for every project, Memories A to Z); use one to compare in the viewer or copy its grade. |
 | HDR | Colour wheels and exposure for the Shadow, Light, Highlight and Specular zones of the picture, Global and a Black Offset. |
 | Key | The key output gain of the current node, qualifier invert and a small view of the key. |
 | Keyframes | The keyframes of the grade's nodes and of the Sizing values; Static keys hold, Dynamic keys change smoothly to the next one. |
@@ -556,7 +583,7 @@ Shortcuts are the defaults of the Resolve keymap (Windows); another keyboard pro
 
 # Streamlined menu layout
 
-Preferences > UI Settings > Menu layout offers the menus above (Resolve, the default) or this arrangement (Streamlined): 384 commands in 15 tables (menus, page menus and the last table), no menu longer than 12 entries, grouped by task, with plain names. The commands, their keys and descriptions are the same in both. The page menu (Cut, Nodes or Grade) is shown on its page only; the tables below list all three. Commands that are on no menu are in the last table.
+Preferences > UI Settings > Menu layout offers the menus above (Resolve, the default) or this arrangement (Streamlined): 411 commands in 15 tables (menus, page menus and the last table), no menu longer than 12 entries, grouped by task, with plain names. The commands, their keys and descriptions are the same in both. The page menu (Cut, Nodes or Grade) is shown on its page only; the tables below list all three. Commands that are on no menu are in the last table.
 
 ## Streamlined Kinoklip
 
@@ -951,8 +978,16 @@ Preferences > UI Settings > Menu layout offers the menus above (Resolve, the def
 | Add Node > Serial Before | Shift+S | Color page: adds a serial node before the current node. |
 | Add Node > Parallel | Alt+P | Color page: adds a parallel node next to the current node. |
 | Add Node > Layer | Alt+L | Color page: adds a layer node above the current node. |
-| Delete Node | Del, Backspace | Color page: deletes the current node. |
-| Enable Node | Ctrl+D | Color page: switches the grade of the current node off or on. |
+| Add Node > Outside | Alt+O | Color page: adds an Outside node after the current node, keyed with the inverse of the current node's key. |
+| Add Node > Key Mixer |  | Color page: adds a Key Mixer that combines the keys of several nodes into one key. |
+| Add Node > Splitter / Combiner |  | Color page: adds a Splitter and a Combiner after the current node, to grade the red, green and blue channels apart. |
+| Add Node > Alpha Output |  | Color page: adds the Alpha Output, whose key becomes the alpha of the clip. |
+| Node > Delete Node | Del, Backspace | Color page: deletes the current node. |
+| Node > Enable Node | Ctrl+D | Color page: switches the grade of the current node off or on. |
+| Node > Create Compound Node |  | Color page: groups the selected nodes into one Compound node. |
+| Node > Decompose Compound Node |  | Color page: dissolves the current Compound node into its nodes. |
+| Node > Open Compound Node |  | Color page: shows the nodes inside the current Compound node. |
+| Node > Close Compound Node |  | Color page: leaves the open Compound node and shows the level above. |
 | Copy Grade | Ctrl+C | Color page: copies the grade of the current clip. |
 | Paste Grade | Ctrl+V | Color page: pastes the copied grade onto the current clip. |
 | Reset > Node Grade | Shift+Home | Color page: resets the grade of the current node. |
@@ -962,7 +997,26 @@ Preferences > UI Settings > Menu layout offers the menus above (Resolve, the def
 | Grade the Timeline (toggle) |  | Color page: grades the whole timeline instead of the clip. |
 | Stills > Grab | Ctrl+Alt+G | Color page: saves the viewer picture with its grade as a still in the gallery. |
 | Stills > Apply |  | Color page: gives the current clip the grade of the selected gallery still. |
+| Stills > Append Node Graph |  | Color page: adds the node graph of the selected gallery still after the nodes of the clip (the selected clips). |
 | Stills > Wipe (toggle) | Ctrl+W | Color page: splits the viewer to compare with the selected gallery still. |
+| Stills > Import |  | Color page: adds a picture or a Kinoklip grade file to the gallery album being shown. |
+| Stills > Export |  | Color page: saves the selected gallery still as a picture (PNG, TIFF, JPEG or DPX) with its grade file beside it. |
+| Memories > Save > Memory A | Alt+1 | Color page: saves the current grade into gallery memory A. |
+| Memories > Save > Memory B | Alt+2 | Color page: saves the current grade into gallery memory B. |
+| Memories > Save > Memory C | Alt+3 | Color page: saves the current grade into gallery memory C. |
+| Memories > Save > Memory D | Alt+4 | Color page: saves the current grade into gallery memory D. |
+| Memories > Save > Memory E | Alt+5 | Color page: saves the current grade into gallery memory E. |
+| Memories > Save > Memory F | Alt+6 | Color page: saves the current grade into gallery memory F. |
+| Memories > Save > Memory G | Alt+7 | Color page: saves the current grade into gallery memory G. |
+| Memories > Save > Memory H | Alt+8 | Color page: saves the current grade into gallery memory H. |
+| Memories > Apply > Memory A | Ctrl+1 | Color page: gives the current clip (the selected clips) the grade saved in gallery memory A. |
+| Memories > Apply > Memory B | Ctrl+2 | Color page: gives the current clip (the selected clips) the grade saved in gallery memory B. |
+| Memories > Apply > Memory C | Ctrl+3 | Color page: gives the current clip (the selected clips) the grade saved in gallery memory C. |
+| Memories > Apply > Memory D | Ctrl+4 | Color page: gives the current clip (the selected clips) the grade saved in gallery memory D. |
+| Memories > Apply > Memory E | Ctrl+5 | Color page: gives the current clip (the selected clips) the grade saved in gallery memory E. |
+| Memories > Apply > Memory F | Ctrl+6 | Color page: gives the current clip (the selected clips) the grade saved in gallery memory F. |
+| Memories > Apply > Memory G | Ctrl+7 | Color page: gives the current clip (the selected clips) the grade saved in gallery memory G. |
+| Memories > Apply > Memory H | Ctrl+8 | Color page: gives the current clip (the selected clips) the grade saved in gallery memory H. |
 | Add / Remove Keyframe |  | Color page: adds or removes a keyframe at the playhead for the current node. |
 
 ## Streamlined: commands without a menu entry
