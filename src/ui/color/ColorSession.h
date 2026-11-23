@@ -66,6 +66,28 @@ public:
     void selectNode(quint64 id);
     /// The selected node, or nullptr.
     [[nodiscard]] const GradeNode* currentNode() const { return m_grade.node(m_selected); }
+    /// Every selected node: the current node first, then the ones added with Ctrl+click or a
+    /// rubber band (Create Compound Node groups them).
+    [[nodiscard]] QVector<quint64> selectedNodes() const;
+    /// Adds node @p id to the selection, or takes it out (the current node moves on).
+    void toggleNodeSelection(quint64 id);
+    /// Selects @p ids (the first one becomes the current node).
+    void selectNodes(const QVector<quint64>& ids);
+
+    // ---- Compound nodes ----
+
+    /// The Compound node the node editor shows the inside of (0 = the top level).
+    [[nodiscard]] quint64 openCompoundId() const { return m_level; }
+    /// Shows the inside of Compound node @p id (0: the selected one). False if there is none.
+    bool openCompound(quint64 id = 0);
+    /// Back to the level the open Compound node sits on. False at the top level.
+    bool closeCompound();
+    /// The picture the open Compound node's members read (0 = the grade input at the top).
+    [[nodiscard]] quint64 levelSource() const;
+    /// Groups the selected nodes into a Compound node (Create Compound Node). Returns its id.
+    quint64 groupNodes();
+    /// Dissolves Compound node @p id (0: the selected one) into its members.
+    bool ungroupNode(quint64 id = 0);
 
     // ---- Commands (each one undo step) ----
 
@@ -80,6 +102,26 @@ public:
     quint64 addLayerNode();
     /// Shift+S: a corrector before the selected node (before node 01 of an ungraded clip).
     quint64 addSerialNodeBefore();
+    /// Alt+O: an Outside node after the selected node: a corrector keyed with the inverse of
+    /// the selected node's key.
+    quint64 addOutsideNode();
+    /// A Key Mixer fed by the selected node's key.
+    quint64 addKeyMixer();
+    /// A Splitter and a Combiner after the selected node (red, green and blue wired through).
+    quint64 addSplitterCombiner();
+    /// The Alpha Output, keyed by the selected node (an existing one is re-connected).
+    quint64 addAlphaOutput();
+    /// Node editor: connects the key output of @p from to the key input of @p to (input
+    /// @p inputIndex of a Key Mixer); see gradeops::connectKey().
+    bool connectKeys(quint64 from, quint64 to, int inputIndex, bool invert = false);
+    /// Node editor: removes the key link into @p to (Key Mixer input @p inputIndex).
+    bool disconnectKeyInput(quint64 to, int inputIndex);
+    /// Inverts the key link into @p to (Key Mixer input @p inputIndex), or sets @p invert.
+    bool setKeyInverted(quint64 to, int inputIndex, bool invert);
+    /// Sets the gain of Key Mixer @p mixer's input @p inputIndex.
+    bool setKeyGain(quint64 mixer, int inputIndex, double gain);
+    /// Node editor, inside a Compound node: makes @p from (a member) the compound's output.
+    bool setCompoundOutput(quint64 from);
     /// Node editor: connects node @p from (0 = the source picture) to input @p inputIndex of
     /// @p to (0 = the grade output); see gradeops::connect(). One undo step.
     bool connectNodes(quint64 from, quint64 to, int inputIndex);
@@ -310,6 +352,9 @@ Q_SIGNALS:
     /// keyframed grade: its values at the playhead changed).
     void gradeChanged();
     void selectedNodeChanged(quint64 id);
+    /// The set of selected nodes or the open Compound node changed.
+    void selectionChanged();
+    void openCompoundChanged(quint64 id);
     void selectedWindowChanged(quint64 id);
     void selectedClipsChanged();
     void bypassAllChanged(bool bypass);
@@ -336,6 +381,8 @@ private:
     quint64 m_clipId = 0;
     quint64 m_pinned = 0; ///< openClip() choice while the playhead stays on it
     quint64 m_selected = 0;
+    QVector<quint64> m_extraSelected; ///< selected besides m_selected
+    quint64 m_level = 0; ///< the open Compound node (0 = the top level)
     ClipGrade m_grade;
     int64_t m_frame = 0; ///< gradeFrame() at the last reload()
     int m_gesture = 0;

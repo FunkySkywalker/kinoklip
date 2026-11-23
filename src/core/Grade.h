@@ -32,7 +32,27 @@ enum class GradeNodeType : quint8 {
     /// Layer mixer: input 0 at the bottom, every further input laid over the result with its
     /// node's key as alpha (1 for nodes without a key, and for mixers); the last input is on
     /// top.
-    Layer
+    Layer,
+    /// Key Mixer: combines the key outputs of its inputs (nodes that have a key) into one key:
+    /// the sum of every input's key times its gain (inverted inputs count 1 - key), clamped to
+    /// 0..1. It has no picture; its key output feeds the key input of a node, another Key Mixer
+    /// or the Alpha Output. An input of 0 is an unconnected slot and counts nothing.
+    KeyMixer,
+    /// Splitter: splits its input into three outputs (ports 0, 1, 2 = the red, green and blue
+    /// channel, each as a grey picture).
+    Splitter,
+    /// Combiner: three inputs (red, green, blue); the output takes the red channel of input 0,
+    /// the green channel of input 1 and the blue channel of input 2 (the Splitter's inverse).
+    Combiner,
+    /// Compound node: the nodes whose GradeNode::compound is this node's id, shown as one node.
+    /// `inputs[0]` is the picture they read (members read it by naming it themselves), the
+    /// output (and key output) is the output of GradeNode::innerOutput. Bypassed it passes its
+    /// input. The graph is flat: evaluation resolves the compound to its inner output.
+    Compound,
+    /// Alpha Output: the key on its key input becomes the alpha of the graded picture (the
+    /// clip's alpha in the composite). It has no picture ports and does not need the grade
+    /// output to reach it; at most one is used.
+    AlphaOutput
 };
 
 /// One control point of a curve; x and y in 0..1.
@@ -598,6 +618,21 @@ struct GradeNode
     /// Input node ids, 0 = the grade's input picture. Corrector: exactly one; mixers: one or
     /// more (at most kMaxMixerInputs are used), in mixing order.
     QVector<quint64> inputs {0};
+    /// Output port of the node named by input k that is read (parallel to `inputs`, missing
+    /// entries = 0). Only Splitter nodes have more than one port (0 red, 1 green, 2 blue).
+    QVector<quint8> ports;
+    /// Key input: node whose key output limits this corrector (multiplied with its own key) or
+    /// is the key of an Alpha Output; 0 = none.
+    quint64 keyInput = 0;
+    /// The key input is used inverted (an Outside node: the inverse of the previous node's key).
+    bool keyInputInvert = false;
+    /// Key Mixer: gain / invert flag of each input (parallel to `inputs`; missing = 1 / false).
+    QVector<double> keyGains;
+    QVector<bool> keyInverts;
+    /// The Compound node this node is a member of (0 = the top level of the grade).
+    quint64 compound = 0;
+    /// Compound node: the member whose output leaves the compound (0 = the compound's input).
+    quint64 innerOutput = 0;
     QPointF pos; ///< position in the node editor (editor units)
 
     /// Value of parameter @p key at @p localFrame with its documented default.
@@ -605,8 +640,48 @@ struct GradeNode
     {
         return params.value(key, localFrame, gradekeys::defaultValue(key));
     }
-    /// True for Parallel / Layer nodes.
+    /// True for every node that is not a corrector (the palettes do not apply to it).
     [[nodiscard]] bool isMixer() const { return type != GradeNodeType::Corrector; }
+    /// True for nodes whose input list grows and shrinks (Parallel, Layer, Key Mixer).
+    [[nodiscard]] bool hasVariableInputs() const
+    {
+        return type == GradeNodeType::Parallel || type == GradeNodeType::Layer
+            || type == GradeNodeType::KeyMixer;
+    }
+    /// True if the node outputs a key (corrector, Key Mixer, Compound).
+    [[nodiscard]] bool hasKeyOutput() const
+    {
+        return type == GradeNodeType::Corrector || type == GradeNodeType::KeyMixer
+            || type == GradeNodeType::Compound;
+    }
+    /// True if the node outputs a picture (not the Key Mixer and the Alpha Output).
+    [[nodiscard]] bool hasPictureOutput() const
+    {
+        return type != GradeNodeType::KeyMixer && type != GradeNodeType::AlphaOutput;
+    }
+    /// True if the node reads a picture (not the Key Mixer and the Alpha Output).
+    [[nodiscard]] bool hasPictureInput() const { return hasPictureOutput(); }
+    /// True if the node has a key input of its own (a corrector or the Alpha Output).
+    [[nodiscard]] bool hasKeyInput() const
+    {
+        return type == GradeNodeType::Corrector || type == GradeNodeType::AlphaOutput;
+    }
+    /// Number of picture output ports (3 for the Splitter).
+    [[nodiscard]] int outputPortCount() const
+    {
+        return type == GradeNodeType::Splitter ? 3 : (hasPictureOutput() ? 1 : 0);
+    }
+    /// Output port read by input @p k.
+    [[nodiscard]] int portOf(int k) const { return k >= 0 && k < ports.size() ? ports[k] : 0; }
+    /// Key Mixer: gain / invert flag of input @p k.
+    [[nodiscard]] double keyGain(int k) const
+    {
+        return k >= 0 && k < keyGains.size() ? keyGains[k] : 1.0;
+    }
+    [[nodiscard]] bool keyInverted(int k) const
+    {
+        return k >= 0 && k < keyInverts.size() && keyInverts[k];
+    }
     /// True if the node has a key that limits it (enabled qualifier or a renderable window).
     [[nodiscard]] bool hasKey() const;
     /// True if any parameter (node or window) has keyframes.
@@ -650,7 +725,8 @@ struct ClipGrade
 /// of the node list ("01"; mixers are not numbered: empty without a label).
 [[nodiscard]] QString gradeNodeName(const ClipGrade& grade, int index);
 
-/// Stable string id of a node type in project files ("corrector", "parallel", "layer").
+/// Stable string id of a node type in project files ("corrector", "parallel", "layer",
+/// "keymixer", "splitter", "combiner", "compound", "alphaoutput").
 [[nodiscard]] QString gradeNodeTypeToString(GradeNodeType type);
 /// Parses gradeNodeTypeToString(); unknown = Corrector.
 [[nodiscard]] GradeNodeType gradeNodeTypeFromString(const QString& text);
@@ -687,16 +763,55 @@ quint64 addParallelNode(ClipGrade& grade, quint64 node);
 quint64 addLayerNode(ClipGrade& grade, quint64 node);
 /// Deletes node @p id; its consumers (and the output) take its first input instead. Mixer
 /// inputs that end up identical are merged; a mixer left with one input is removed as well.
-/// Returns false if there is no such node.
+/// Returns false if there is no such node. Deleting a Compound node deletes its members.
 bool removeNode(ClipGrade& grade, quint64 id);
-/// Connects the output of node @p from (0 = the input picture) to input @p inputIndex of node
-/// @p to (0 = the grade output; the index is then ignored). For mixers an index equal to the
-/// input count appends an input. Refused (false) when it would create a cycle or the target
-/// does not exist.
-bool connect(ClipGrade& grade, quint64 from, quint64 to, int inputIndex);
+/// Connects the picture output @p fromPort of node @p from (0 = the input picture) to input
+/// @p inputIndex of node @p to (0 = the grade output; the index is then ignored). For Parallel
+/// and Layer mixers an index equal to the input count appends an input. Refused (false) when
+/// it would create a cycle, the target does not exist or takes no picture (Key Mixer, Alpha
+/// Output), or @p from has no picture output.
+bool connect(ClipGrade& grade, quint64 from, quint64 to, int inputIndex, int fromPort = 0);
 /// Removes input @p inputIndex of mixer @p to (keeping at least one), or resets a
 /// corrector's input to the source. Returns false if nothing changed.
 bool disconnect(ClipGrade& grade, quint64 to, int inputIndex);
+/// Connects the key output of node @p from to the key input of node @p to: a corrector's or
+/// the Alpha Output's key input (@p inputIndex ignored) or input @p inputIndex of a Key Mixer
+/// (an index equal to the input count appends an input). @p invert sets the input's invert flag.
+/// Refused when @p from has no key output, on a cycle or a wrong target.
+bool connectKey(
+    ClipGrade& grade, quint64 from, quint64 to, int inputIndex = 0, bool invert = false);
+/// Removes the key link into @p to (a corrector's / Alpha Output's key input, or input
+/// @p inputIndex of a Key Mixer, which keeps at least one slot). False if nothing changed.
+bool disconnectKey(ClipGrade& grade, quint64 to, int inputIndex = 0);
+/// The node a reference to @p id really reads: a Compound node stands for its inner output (its
+/// input while bypassed or empty); 0 = the grade's input picture.
+[[nodiscard]] quint64 resolve(const ClipGrade& grade, quint64 id);
+/// Like evaluationOrder() plus the nodes the (enabled) Alpha Output needs, and the Alpha Output.
+[[nodiscard]] std::vector<int> evaluationOrderWithAlpha(const ClipGrade& grade);
+/// The enabled Alpha Output node, or nullptr.
+[[nodiscard]] const GradeNode* alphaOutput(const ClipGrade& grade);
+/// Adds an Outside node after @p node (Alt+O): a corrector like addSerialNode() whose key input
+/// is @p node's key output, inverted. Returns its id.
+quint64 addOutsideNode(ClipGrade& grade, quint64 node);
+/// Adds a Key Mixer next to @p node; when @p node has a key output it feeds the mixer's first
+/// input. Returns its id.
+quint64 addKeyMixer(ClipGrade& grade, quint64 node);
+/// Adds a Splitter after @p node with a Combiner behind it (the three channels wired through
+/// Combiner inputs 0, 1, 2): the pair replaces @p node's output as the downstream picture. Returns
+/// the Splitter's id.
+quint64 addSplitterCombiner(ClipGrade& grade, quint64 node);
+/// Adds an Alpha Output with its key input connected to @p node's key output. Only one exists:
+/// an existing one is re-connected. Returns its id.
+quint64 addAlphaOutput(ClipGrade& grade, quint64 node);
+/// Groups the nodes @p ids (all at the same level) into a Compound node. They must form one
+/// piece with a single picture source and a single member read from outside (or the grade
+/// output). Returns the Compound's id, 0 when refused.
+quint64 groupIntoCompound(ClipGrade& grade, const QVector<quint64>& ids);
+/// Dissolves Compound node @p id: its members move to its level, whatever read the compound
+/// reads the inner output. False if @p id is no Compound node.
+bool ungroupCompound(ClipGrade& grade, quint64 id);
+/// The members of Compound @p id (direct children), in node list order.
+[[nodiscard]] QVector<quint64> compoundMembers(const ClipGrade& grade, quint64 id);
 /// True if node @p id is upstream of (or equal to) @p of: following inputs from @p of reaches it.
 [[nodiscard]] bool reaches(const ClipGrade& grade, quint64 of, quint64 id);
 /// Resets the corrections of node @p id (primaries, curves, qualifier, windows, LUT, mix)

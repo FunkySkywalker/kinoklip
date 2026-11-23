@@ -645,6 +645,249 @@ private slots:
         QVERIFY(go::isIdentity(g, 0));
     }
 
+    // ---- Node types: Outside, Key Mixer, Splitter / Combiner, Compound, Alpha Output ----
+
+    void outsideNodeTakesTheInvertedKey()
+    {
+        ClipGrade g;
+        const quint64 a = go::initialize(g);
+        const quint64 o = go::addOutsideNode(g, a);
+        QVERIFY(o != 0);
+        const GradeNode* outside = g.node(o);
+        QCOMPARE(outside->type, GradeNodeType::Corrector);
+        QCOMPARE(outside->inputs, QVector<quint64> {a}); // serial, after the node
+        QCOMPARE(outside->keyInput, a);
+        QVERIFY(outside->keyInputInvert);
+        QCOMPARE(g.output, o);
+        // The node a serial node would go after: Outside nodes chain.
+        const quint64 o2 = go::addOutsideNode(g, o);
+        QCOMPARE(g.node(o2)->keyInput, o);
+        QCOMPARE(g.output, o2);
+        // Deleting the keyed-from node ends the key link.
+        QVERIFY(go::removeNode(g, a));
+        QCOMPARE(g.node(o)->keyInput, quint64(0));
+        // An empty grade first gets node 01.
+        ClipGrade empty;
+        QVERIFY(go::addOutsideNode(empty, 0) != 0);
+        QCOMPARE(empty.nodes.size(), 2);
+        // The key input is part of the dependencies: cycles are refused.
+        ClipGrade c;
+        const quint64 x = go::initialize(c);
+        const quint64 y = go::addSerialNode(c, x);
+        QVERIFY(go::connectKey(c, x, y));
+        QVERIFY(!go::connectKey(c, y, x));
+        QVERIFY(go::reaches(c, y, x));
+    }
+
+    void keyMixerConnectsKeys()
+    {
+        ClipGrade g;
+        const quint64 a = go::initialize(g);
+        const quint64 b = go::addParallelNode(g, a);
+        const quint64 mixer = go::addKeyMixer(g, a);
+        QCOMPARE(g.node(mixer)->type, GradeNodeType::KeyMixer);
+        QCOMPARE(g.node(mixer)->inputs, QVector<quint64> {a}); // the selected node's key
+        QVERIFY(go::connectKey(g, b, mixer, int(g.node(mixer)->inputs.size()), true));
+        QCOMPARE(g.node(mixer)->inputs, (QVector<quint64> {a, b}));
+        QVERIFY(g.node(mixer)->keyInverted(1));
+        QVERIFY(!g.node(mixer)->keyInverted(0));
+        QCOMPARE(g.node(mixer)->keyGain(1), 1.0);
+        // The mixer feeds a corrector's key input and the Alpha Output.
+        const quint64 d = go::addSerialNode(g, g.output);
+        QVERIFY(go::connectKey(g, mixer, d));
+        QCOMPARE(g.node(d)->keyInput, mixer);
+        const quint64 alpha = go::addAlphaOutput(g, mixer);
+        QCOMPARE(g.node(alpha)->keyInput, mixer);
+        QCOMPARE(go::addAlphaOutput(g, a), alpha); // one only: it is re-connected
+        QCOMPARE(g.node(alpha)->keyInput, a);
+        // The Alpha Output is evaluated although the output does not reach it.
+        bool found = false;
+        for (const int i : go::evaluationOrderWithAlpha(g))
+            found = found || g.nodes[i].id == alpha;
+        QVERIFY(found);
+        QVERIFY(!go::isIdentity(g, 0));
+        QVERIFY(go::setNodeEnabled(g, alpha, false));
+        QVERIFY(go::alphaOutput(g) == nullptr);
+        // Picture links into and out of key nodes are refused; keys cannot leave key-less nodes.
+        QVERIFY(!go::connect(g, a, mixer, 0));
+        QVERIFY(!go::connect(g, mixer, d, 0));
+        QVERIFY(!go::connect(g, a, alpha, 0));
+        QVERIFY(!go::connectKey(g, a, a));
+        QVERIFY(!go::connectKey(g, 0, d));
+        // Disconnecting: a slot goes, the last one stays (empty).
+        QVERIFY(go::disconnectKey(g, mixer, 1));
+        QCOMPARE(g.node(mixer)->inputs, QVector<quint64> {a});
+        QVERIFY(go::disconnectKey(g, mixer, 0));
+        QCOMPARE(g.node(mixer)->inputs, QVector<quint64> {0});
+        QVERIFY(!go::disconnectKey(g, mixer, 0));
+        QVERIFY(go::disconnectKey(g, d, 0));
+        QCOMPARE(g.node(d)->keyInput, quint64(0));
+        // Deleting the Key Mixer clears the key links to it.
+        QVERIFY(go::connectKey(g, mixer, d));
+        QVERIFY(go::removeNode(g, mixer));
+        QCOMPARE(g.node(d)->keyInput, quint64(0));
+    }
+
+    void splitterCombinerWiring()
+    {
+        ClipGrade g;
+        const quint64 a = go::initialize(g);
+        const quint64 splitter = go::addSplitterCombiner(g, a);
+        const quint64 combiner = g.output;
+        QCOMPARE(g.node(splitter)->type, GradeNodeType::Splitter);
+        QCOMPARE(g.node(combiner)->type, GradeNodeType::Combiner);
+        QCOMPARE(g.node(combiner)->inputs.size(), 3);
+        for (int k = 0; k < 3; ++k) {
+            QCOMPARE(g.node(combiner)->inputs[k], splitter);
+            QCOMPARE(g.node(combiner)->portOf(k), k);
+        }
+        QCOMPARE(g.node(splitter)->outputPortCount(), 3);
+        // A corrector on the green output, fed back into the combiner's green input.
+        GradeNode midNode;
+        midNode.id = g.allocateId();
+        const quint64 mid = midNode.id;
+        g.nodes.append(midNode);
+        QVERIFY(go::connect(g, splitter, mid, 0, 1));
+        QCOMPARE(g.node(mid)->portOf(0), 1);
+        QVERIFY(go::connect(g, mid, combiner, 1));
+        QCOMPARE(g.node(combiner)->inputs[1], mid);
+        QCOMPARE(g.node(combiner)->portOf(1), 0);
+        QVERIFY(!go::connect(g, splitter, mid, 0, 3)); // there is no fourth channel
+        QVERIFY(!go::connect(g, combiner, splitter, 0)); // a cycle
+        // Disconnecting a combiner input leaves the slot (3 inputs stay).
+        QVERIFY(go::disconnect(g, combiner, 1));
+        QCOMPARE(g.node(combiner)->inputs.size(), 3);
+        QCOMPARE(g.node(combiner)->inputs[1], quint64(0));
+        // Deleting the corrector: what read its output now reads its input (the Splitter, port 1).
+        QVERIFY(go::connect(g, mid, combiner, 1));
+        QVERIFY(go::removeNode(g, mid));
+        QCOMPARE(g.node(combiner)->inputs[1], splitter);
+        QCOMPARE(g.node(combiner)->portOf(1), 1);
+        // Round trip.
+        QCOMPARE(serialization::gradeFromJson(serialization::gradeToJson(g)), g);
+    }
+
+    void compoundGroupsAndUngroups()
+    {
+        ClipGrade g;
+        const quint64 a = go::initialize(g);
+        const quint64 b = go::addSerialNode(g, a);
+        const quint64 c = go::addSerialNode(g, b);
+        const quint64 d = go::addSerialNode(g, c);
+        const ClipGrade before = g;
+        const quint64 compound = go::groupIntoCompound(g, {b, c});
+        QVERIFY(compound != 0);
+        QCOMPARE(g.node(compound)->type, GradeNodeType::Compound);
+        QCOMPARE(g.node(compound)->inputs, QVector<quint64> {a});
+        QCOMPARE(g.node(compound)->innerOutput, c);
+        QCOMPARE(g.node(b)->compound, compound);
+        QCOMPARE(g.node(c)->compound, compound);
+        QCOMPARE(g.node(d)->inputs, QVector<quint64> {compound}); // reads the compound
+        QCOMPARE(go::compoundMembers(g, compound), (QVector<quint64> {b, c}));
+        QCOMPARE(go::resolve(g, compound), c);
+        // The compound is an alias: evaluation lists its members, not the compound.
+        const std::vector<int> order = go::evaluationOrder(g);
+        QCOMPARE(order.size(), size_t(4));
+        for (const int i : order)
+            QVERIFY(g.nodes[i].type != GradeNodeType::Compound);
+        // Bypassed, it passes its input: the members drop out.
+        g.node(compound)->enabled = false;
+        QCOMPARE(go::resolve(g, compound), a);
+        QCOMPARE(go::evaluationOrder(g).size(), size_t(2));
+        g.node(compound)->enabled = true;
+        // Rewiring the compound's input moves the members' reads.
+        const quint64 extra = go::addSerialNodeBefore(g, compound);
+        QVERIFY(extra != 0);
+        QCOMPARE(g.node(compound)->inputs, QVector<quint64> {extra});
+        QCOMPARE(g.node(b)->inputs, QVector<quint64> {extra});
+        QVERIFY(!go::connect(g, c, compound, 0)); // its own member
+        // Several readers from outside make the selection a bad group; two sources too.
+        ClipGrade h;
+        const quint64 h1 = go::initialize(h);
+        const quint64 h2 = go::addParallelNode(h, h1);
+        // Both are read from outside (by the mixer): no single output, no group.
+        QCOMPARE(go::groupIntoCompound(h, {h1, h2}), quint64(0));
+        ClipGrade k;
+        const quint64 k1 = go::initialize(k);
+        const quint64 k2 = go::addSerialNode(k, k1);
+        const quint64 k3 = go::addSerialNode(k, k2);
+        GradeNode& n3 = *k.node(k3);
+        n3.keyInput = k1; // k1 is read from outside the group {k2, k3}... fine: key links stay flat
+        QVERIFY(go::groupIntoCompound(k, {k2, k3}) != 0);
+        // Ungroup restores the graph (apart from ids and positions).
+        ClipGrade u = before;
+        const quint64 cn = go::groupIntoCompound(u, {b, c});
+        QVERIFY(go::ungroupCompound(u, cn));
+        QVERIFY(u.node(cn) == nullptr);
+        for (const GradeNode& n : before.nodes) {
+            QCOMPARE(u.node(n.id)->inputs, n.inputs);
+            QCOMPARE(u.node(n.id)->compound, quint64(0));
+        }
+        QCOMPARE(u.output, before.output);
+        QVERIFY(!go::ungroupCompound(u, a));
+        // Deleting a compound deletes its members and reconnects around it.
+        QVERIFY(go::removeNode(g, compound));
+        QVERIFY(g.node(b) == nullptr && g.node(c) == nullptr);
+        QCOMPARE(g.node(d)->inputs, QVector<quint64> {extra});
+        // Compounds nest.
+        ClipGrade n;
+        const quint64 n1 = go::initialize(n);
+        const quint64 n2 = go::addSerialNode(n, n1);
+        const quint64 n3b = go::addSerialNode(n, n2);
+        const quint64 inner = go::groupIntoCompound(n, {n1, n2});
+        const quint64 outer = go::groupIntoCompound(n, {inner, n3b});
+        QVERIFY(outer != 0);
+        QCOMPARE(n.node(inner)->compound, outer);
+        QCOMPARE(n.node(n1)->compound, inner);
+        QCOMPARE(go::resolve(n, outer), n3b);
+        QCOMPARE(go::evaluationOrder(n).size(), size_t(3));
+    }
+
+    void nodeTypesSurviveSerialization()
+    {
+        ClipGrade g;
+        const quint64 a = go::initialize(g);
+        const quint64 o = go::addOutsideNode(g, a);
+        const quint64 mixer = go::addKeyMixer(g, a);
+        go::connectKey(g, o, mixer, 1, true);
+        g.node(mixer)->keyGains = {0.5, 2.0};
+        go::addAlphaOutput(g, mixer);
+        go::addSplitterCombiner(g, o);
+        const quint64 group = go::groupIntoCompound(g, {a});
+        QVERIFY(group != 0);
+        const QJsonObject json = serialization::gradeToJson(g);
+        const ClipGrade back = serialization::gradeFromJson(json);
+        QCOMPARE(back, g);
+        // Optional keys only: a corrector writes none of them.
+        ClipGrade plain;
+        go::initialize(plain);
+        const QJsonObject node = serialization::gradeToJson(plain)
+                                     .value(QLatin1String("nodes"))
+                                     .toArray()
+                                     .at(0)
+                                     .toObject();
+        for (const char* key : {"ports", "keyInput", "keyInputInvert", "keyGains", "keyInverts",
+                 "compound", "innerOutput"})
+            QVERIFY(!node.contains(QLatin1String(key)));
+        // Damaged references fall back: unknown key sources and compounds are dropped.
+        QJsonObject damaged = json;
+        QJsonArray nodes = damaged.value(QLatin1String("nodes")).toArray();
+        for (int i = 0; i < nodes.size(); ++i) {
+            QJsonObject n = nodes[i].toObject();
+            if (n.contains(QLatin1String("keyInput")))
+                n[QLatin1String("keyInput")] = 9999;
+            if (n.contains(QLatin1String("compound")))
+                n[QLatin1String("compound")] = 9999;
+            nodes[i] = n;
+        }
+        damaged[QLatin1String("nodes")] = nodes;
+        const ClipGrade repaired = serialization::gradeFromJson(damaged);
+        for (const GradeNode& n : repaired.nodes) {
+            QCOMPARE(n.keyInput, quint64(0));
+            QCOMPARE(n.compound, quint64(0));
+        }
+    }
+
     void windowsShareTheIdSpace()
     {
         ClipGrade g;

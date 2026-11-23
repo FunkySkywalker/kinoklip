@@ -28,6 +28,34 @@ namespace {
 constexpr auto kStillTimeout = std::chrono::seconds(5);
 /// Width of the picture rendered for a still (the gallery keeps kGalleryImageWidth).
 constexpr int kStillRenderWidth = 640;
+
+/// The ids of the nodes of @p g.
+QVector<quint64> nodeIds(const ClipGrade& g)
+{
+    QVector<quint64> ids;
+    for (const GradeNode& n : g.nodes)
+        ids.append(n.id);
+    return ids;
+}
+
+/// The nodes added to @p g since @p before belong to the open compound @p level; when @p leads
+/// the newest picture node takes over as its output from @p after (a node added at the end).
+void adoptNew(ClipGrade& g, const QVector<quint64>& before, quint64 level, quint64 after, bool leads)
+{
+    if (level == 0 || !g.node(level))
+        return;
+    quint64 newest = 0;
+    for (GradeNode& n : g.nodes) {
+        if (before.contains(n.id))
+            continue;
+        n.compound = level;
+        if (n.hasPictureOutput())
+            newest = std::max(newest, n.id);
+    }
+    GradeNode* c = g.node(level);
+    if (leads && newest && c->innerOutput == after)
+        c->innerOutput = newest;
+}
 } // namespace
 
 ColorSession::ColorSession(AppContext& ctx, QObject* parent)
@@ -133,6 +161,13 @@ void ColorSession::reload()
         }
     }
     fixWindowSelection();
+    m_extraSelected.erase(std::remove_if(m_extraSelected.begin(), m_extraSelected.end(),
+                              [this](quint64 id) { return !m_grade.node(id) || id == m_selected; }),
+        m_extraSelected.end());
+    if (m_level != 0 && (!m_grade.node(m_level) || otherClip)) {
+        m_level = 0;
+        emit openCompoundChanged(0);
+    }
     // The strip selection follows the graded clip: moving to a clip outside the selection
     // (playhead, next clip) drops it, so Ctrl+V pastes to the clip on screen, not to clips
     // selected earlier.
@@ -177,11 +212,124 @@ void ColorSession::selectNode(quint64 id)
 {
     if (id && !m_grade.node(id))
         return;
-    if (id == m_selected)
+    const bool extras = !m_extraSelected.isEmpty();
+    m_extraSelected.clear();
+    if (id == m_selected) {
+        if (extras)
+            emit selectionChanged();
         return;
+    }
     m_selected = id;
     emit selectedNodeChanged(id);
+    emit selectionChanged();
     fixWindowSelection();
+}
+
+QVector<quint64> ColorSession::selectedNodes() const
+{
+    QVector<quint64> out;
+    if (m_selected)
+        out.append(m_selected);
+    out += m_extraSelected;
+    return out;
+}
+
+void ColorSession::toggleNodeSelection(quint64 id)
+{
+    if (!id || !m_grade.node(id))
+        return;
+    if (id == m_selected) {
+        if (m_extraSelected.isEmpty())
+            return; // the last selected node stays
+        const quint64 next = m_extraSelected.takeFirst();
+        m_selected = next;
+        emit selectedNodeChanged(next);
+        fixWindowSelection();
+    } else if (m_extraSelected.contains(id)) {
+        m_extraSelected.removeAll(id);
+    } else {
+        m_extraSelected.append(id);
+    }
+    emit selectionChanged();
+}
+
+void ColorSession::selectNodes(const QVector<quint64>& ids)
+{
+    QVector<quint64> valid;
+    for (const quint64 id : ids) {
+        if (m_grade.node(id) && !valid.contains(id))
+            valid.append(id);
+    }
+    if (valid.isEmpty()) {
+        selectNode(0);
+        return;
+    }
+    const bool otherCurrent = valid.first() != m_selected;
+    m_selected = valid.first();
+    m_extraSelected = valid.mid(1);
+    if (otherCurrent) {
+        emit selectedNodeChanged(m_selected);
+        fixWindowSelection();
+    }
+    emit selectionChanged();
+}
+
+quint64 ColorSession::levelSource() const
+{
+    const GradeNode* c = m_grade.node(m_level);
+    return c ? c->inputs.value(0, 0) : 0;
+}
+
+bool ColorSession::openCompound(quint64 id)
+{
+    const GradeNode* c = m_grade.node(id ? id : m_selected);
+    if (!c || c->type != GradeNodeType::Compound)
+        return false;
+    const quint64 open = c->id;
+    const quint64 inner = c->innerOutput;
+    m_level = open;
+    emit openCompoundChanged(m_level);
+    selectNode(inner);
+    emit selectionChanged();
+    return true;
+}
+
+bool ColorSession::closeCompound()
+{
+    const GradeNode* c = m_grade.node(m_level);
+    if (m_level == 0)
+        return false;
+    const quint64 closed = m_level;
+    m_level = c ? c->compound : 0;
+    emit openCompoundChanged(m_level);
+    selectNode(closed);
+    return true;
+}
+
+quint64 ColorSession::groupNodes()
+{
+    if (!hasGrade() || m_grade.isEmpty())
+        return 0;
+    ClipGrade g = m_grade;
+    const quint64 id = gradeops::groupIntoCompound(g, selectedNodes());
+    if (!id || !commit(g, tr("Create Compound Node")))
+        return 0;
+    selectNode(id);
+    return id;
+}
+
+bool ColorSession::ungroupNode(quint64 id)
+{
+    ClipGrade g = m_grade;
+    const quint64 node = id ? id : m_selected;
+    const GradeNode* c = g.node(node);
+    if (!c || c->type != GradeNodeType::Compound)
+        return false;
+    const quint64 inner = c->innerOutput;
+    if (!gradeops::ungroupCompound(g, node) || !commit(g, tr("Decompose Compound Node")))
+        return false;
+    selectNode(inner);
+    return true;
 }
 
 bool ColorSession::commit(const ClipGrade& grade, const QString& label)
@@ -202,7 +350,9 @@ quint64 ColorSession::addSerialNode()
         return 0;
     quint64 after = m_selected;
     ClipGrade g = withFirstNode(&after);
+    const QVector<quint64> before = nodeIds(g);
     const quint64 id = gradeops::addSerialNode(g, after);
+    adoptNew(g, before, m_level, after, true);
     if (!commit(g, tr("Add Serial Node")))
         return 0;
     selectNode(id);
@@ -215,7 +365,9 @@ quint64 ColorSession::addParallelNode()
         return 0;
     quint64 after = m_selected;
     ClipGrade g = withFirstNode(&after);
+    const QVector<quint64> before = nodeIds(g);
     const quint64 id = gradeops::addParallelNode(g, after);
+    adoptNew(g, before, m_level, after, true);
     if (!commit(g, tr("Add Parallel Node")))
         return 0;
     selectNode(id);
@@ -228,7 +380,9 @@ quint64 ColorSession::addLayerNode()
         return 0;
     quint64 after = m_selected;
     ClipGrade g = withFirstNode(&after);
+    const QVector<quint64> before = nodeIds(g);
     const quint64 id = gradeops::addLayerNode(g, after);
+    adoptNew(g, before, m_level, after, true);
     if (!commit(g, tr("Add Layer Node")))
         return 0;
     selectNode(id);
@@ -241,11 +395,142 @@ quint64 ColorSession::addSerialNodeBefore()
         return 0;
     quint64 before = m_selected;
     ClipGrade g = withFirstNode(&before);
+    const QVector<quint64> ids = nodeIds(g);
     const quint64 id = gradeops::addSerialNodeBefore(g, before);
+    adoptNew(g, ids, m_level, 0, false);
     if (!commit(g, tr("Add Serial Node")))
         return 0;
     selectNode(id);
     return id;
+}
+
+quint64 ColorSession::addOutsideNode()
+{
+    if (!hasGrade())
+        return 0;
+    quint64 after = m_selected;
+    ClipGrade g = withFirstNode(&after);
+    const QVector<quint64> before = nodeIds(g);
+    const quint64 id = gradeops::addOutsideNode(g, after);
+    if (!id)
+        return 0;
+    adoptNew(g, before, m_level, after, true);
+    if (!commit(g, tr("Add Outside Node")))
+        return 0;
+    selectNode(id);
+    return id;
+}
+
+quint64 ColorSession::addKeyMixer()
+{
+    if (!hasGrade())
+        return 0;
+    quint64 after = m_selected;
+    ClipGrade g = withFirstNode(&after);
+    const QVector<quint64> before = nodeIds(g);
+    const quint64 id = gradeops::addKeyMixer(g, after);
+    adoptNew(g, before, m_level, after, false);
+    if (!commit(g, tr("Add Key Mixer")))
+        return 0;
+    selectNode(id);
+    return id;
+}
+
+quint64 ColorSession::addSplitterCombiner()
+{
+    if (!hasGrade())
+        return 0;
+    quint64 after = m_selected;
+    ClipGrade g = withFirstNode(&after);
+    const QVector<quint64> before = nodeIds(g);
+    const quint64 id = gradeops::addSplitterCombiner(g, after);
+    if (!id)
+        return 0;
+    adoptNew(g, before, m_level, after, true);
+    if (!commit(g, tr("Add Splitter / Combiner")))
+        return 0;
+    selectNode(id);
+    return id;
+}
+
+quint64 ColorSession::addAlphaOutput()
+{
+    if (!hasGrade())
+        return 0;
+    quint64 after = m_selected;
+    ClipGrade g = withFirstNode(&after);
+    const QVector<quint64> before = nodeIds(g);
+    const quint64 id = gradeops::addAlphaOutput(g, after);
+    adoptNew(g, before, m_level, after, false);
+    if (!commit(g, tr("Add Alpha Output")))
+        return 0;
+    selectNode(id);
+    return id;
+}
+
+bool ColorSession::connectKeys(quint64 from, quint64 to, int inputIndex, bool invert)
+{
+    ClipGrade g = m_grade;
+    if (!gradeops::connectKey(g, from, to, inputIndex, invert) || g == m_grade)
+        return false;
+    return commit(g, tr("Connect Keys"));
+}
+
+bool ColorSession::disconnectKeyInput(quint64 to, int inputIndex)
+{
+    ClipGrade g = m_grade;
+    if (!gradeops::disconnectKey(g, to, inputIndex))
+        return false;
+    return commit(g, tr("Disconnect Keys"));
+}
+
+bool ColorSession::setKeyInverted(quint64 to, int inputIndex, bool invert)
+{
+    ClipGrade g = m_grade;
+    GradeNode* n = g.node(to);
+    if (!n)
+        return false;
+    if (n->type == GradeNodeType::KeyMixer) {
+        if (inputIndex < 0 || inputIndex >= n->inputs.size())
+            return false;
+        while (n->keyInverts.size() < n->inputs.size())
+            n->keyInverts.append(false);
+        n->keyInverts[inputIndex] = invert;
+    } else if (n->hasKeyInput() && n->keyInput != 0) {
+        n->keyInputInvert = invert;
+    } else {
+        return false;
+    }
+    if (g == m_grade)
+        return false;
+    return commit(g, tr("Invert Key"));
+}
+
+bool ColorSession::setKeyGain(quint64 mixer, int inputIndex, double gain)
+{
+    ClipGrade g = m_grade;
+    GradeNode* n = g.node(mixer);
+    if (!n || n->type != GradeNodeType::KeyMixer || inputIndex < 0
+        || inputIndex >= n->inputs.size())
+        return false;
+    while (n->keyGains.size() < n->inputs.size())
+        n->keyGains.append(1.0);
+    n->keyGains[inputIndex] = std::clamp(gain, -4.0, 4.0);
+    if (g == m_grade)
+        return false;
+    return commit(g, tr("Key Mixer Gain"));
+}
+
+bool ColorSession::setCompoundOutput(quint64 from)
+{
+    ClipGrade g = m_grade;
+    GradeNode* c = g.node(m_level);
+    const GradeNode* source = g.node(from);
+    if (!c || !source || source->compound != m_level || !source->hasPictureOutput()
+        || c->innerOutput == from)
+        return false;
+    c->innerOutput = from;
+    return commit(g, tr("Connect Nodes"));
 }
 
 bool ColorSession::connectNodes(quint64 from, quint64 to, int inputIndex)

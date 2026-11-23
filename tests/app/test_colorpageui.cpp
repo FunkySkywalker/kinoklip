@@ -171,6 +171,203 @@ private slots:
         initResources();
     }
 
+    /// Node types (roadmap 1.13): Outside (Alt+O), Key Mixer, Splitter / Combiner, Compound, Alpha
+    /// Output: add through the commands and the context menu, connect keys by dragging, open a
+    /// compound, all undoable, and saved with the project.
+    void nodeTypesInTheEditor()
+    {
+        Fixture f;
+        f.showPage();
+        ColorNodeEditor* ne = f.page()->nodeEditor();
+        const quint64 clip = f.clips[0];
+        const int base = f.steps();
+        // Alt+O on the ungraded clip: node 01 and an Outside node keyed by it, inverted.
+        f.key(Qt::Key_O, Qt::AltModifier);
+        ClipGrade g = f.grade(clip);
+        QCOMPARE(g.nodes.size(), 2);
+        QCOMPARE(f.steps(), base + 1);
+        const quint64 n1 = g.nodes[0].id, outside = g.nodes[1].id;
+        QCOMPARE(g.node(outside)->keyInput, n1);
+        QVERIFY(g.node(outside)->keyInputInvert);
+        QCOMPARE(g.node(outside)->inputs, QVector<quint64> {n1});
+        QCOMPARE(g.output, outside);
+        QCOMPARE(f.session()->selectedNode(), outside);
+        // The key ports are blue circles below the picture ports; hit tests find them.
+        QCOMPARE(ne->hitTest(ne->keyOutputPos(*g.node(n1))).kind,
+            ColorNodeEditor::Hit::Kind::KeyOutput);
+        QCOMPARE(ne->hitTest(ne->keyInputPos(*g.node(outside))).kind,
+            ColorNodeEditor::Hit::Kind::KeyInput);
+        QVERIFY(ne->keyInputPos(*g.node(outside)).y() > ne->inputPos(*g.node(outside), 0).y());
+        f.action("edit.undo")->trigger();
+        QCOMPARE(f.grade(clip).nodes.size(), 0); // back to the ungraded clip
+        f.action("edit.redo")->trigger();
+        QCOMPARE(f.grade(clip), g);
+
+        // The context menu offers every node type.
+        f.session()->selectNode(n1);
+        std::unique_ptr<QMenu> menu(ne->buildContextMenu(ne->tileRect(*g.node(n1)).center(), ne));
+        for (const char* id : {"color.add_outside", "color.add_key_mixer",
+                 "color.add_splitter_combiner", "color.add_alpha_output", "color.group_nodes",
+                 "color.ungroup_nodes", "color.open_compound", "color.close_compound"})
+            QVERIFY2(menu->findChild<QAction*>(QLatin1String(id)), id);
+        QVERIFY(menu->findChild<QAction*>(QStringLiteral("color.group_nodes"))->isEnabled());
+        QVERIFY(!menu->findChild<QAction*>(QStringLiteral("color.ungroup_nodes"))->isEnabled());
+
+        // Key Mixer: added from node 01 (its key feeds the first input); drag the Outside
+        // node's key output onto the mixer to add a second input.
+        f.session()->selectNode(n1);
+        f.action("color.add_key_mixer")->trigger();
+        g = f.grade(clip);
+        quint64 mixer = 0;
+        for (const GradeNode& n : g.nodes)
+            mixer = n.type == GradeNodeType::KeyMixer ? n.id : mixer;
+        QVERIFY(mixer);
+        QCOMPARE(g.node(mixer)->inputs, QVector<quint64> {n1});
+        const int beforeKey = f.steps();
+        drag(ne, ne->keyOutputPos(*g.node(outside)), ne->tileRect(*g.node(mixer)).center());
+        g = f.grade(clip);
+        QCOMPARE(g.node(mixer)->inputs, (QVector<quint64> {n1, outside}));
+        QCOMPARE(f.steps(), beforeKey + 1);
+        f.action("edit.undo")->trigger();
+        QCOMPARE(f.grade(clip).node(mixer)->inputs, QVector<quint64> {n1});
+        f.action("edit.redo")->trigger();
+        // The mixer's output into the Outside node's key input (replacing the link to 01).
+        g = f.grade(clip);
+        drag(ne, ne->keyOutputPos(*g.node(mixer)), ne->keyInputPos(*g.node(n1)));
+        QCOMPARE(f.grade(clip).node(n1)->keyInput, quint64(0)); // 01 would close a cycle
+        drag(ne, ne->keyOutputPos(*g.node(n1)), ne->inputPos(*g.node(outside), 0));
+        QCOMPARE(f.grade(clip), g); // a key output does not connect to a picture input
+        // Picking up the key link into the Outside node and dropping it into empty space.
+        g = f.grade(clip);
+        drag(ne, ne->keyInputPos(*g.node(outside)), QPointF(ne->width() - 5, 5));
+        QCOMPARE(f.grade(clip).node(outside)->keyInput, quint64(0));
+        f.action("edit.undo")->trigger();
+        QCOMPARE(f.grade(clip).node(outside)->keyInput, n1);
+        // Invert and gain of a mixer input through the menu of its key port.
+        g = f.grade(clip);
+        std::unique_ptr<QMenu> keyMenu(ne->buildContextMenu(ne->keyInputPos(*g.node(mixer), 1), ne));
+        QAction* invert = keyMenu->findChild<QAction*>(QStringLiteral("color.key_invert"));
+        QVERIFY(invert);
+        invert->trigger();
+        QVERIFY(f.grade(clip).node(mixer)->keyInverted(1));
+        f.action("edit.undo")->trigger();
+        QVERIFY(!f.grade(clip).node(mixer)->keyInverted(1));
+        QVERIFY(f.session()->setKeyGain(mixer, 1, 0.5));
+        QCOMPARE(f.grade(clip).node(mixer)->keyGain(1), 0.5);
+
+        // Alpha Output: one only; its key input is the selected node's key.
+        f.session()->selectNode(mixer);
+        f.action("color.add_alpha_output")->trigger();
+        g = f.grade(clip);
+        quint64 alpha = 0;
+        for (const GradeNode& n : g.nodes)
+            alpha = n.type == GradeNodeType::AlphaOutput ? n.id : alpha;
+        QVERIFY(alpha);
+        QCOMPARE(g.node(alpha)->keyInput, mixer);
+        f.session()->selectNode(outside);
+        f.action("color.add_alpha_output")->trigger();
+        QCOMPARE(f.grade(clip).node(alpha)->keyInput, outside);
+        int alphas = 0;
+        for (const GradeNode& n : f.grade(clip).nodes)
+            alphas += n.type == GradeNodeType::AlphaOutput ? 1 : 0;
+        QCOMPARE(alphas, 1);
+        QVERIFY(f.session()->grade().node(alpha) != nullptr);
+
+        // Splitter / Combiner after the Outside node.
+        f.session()->selectNode(outside);
+        f.action("color.add_splitter_combiner")->trigger();
+        g = f.grade(clip);
+        QCOMPARE(g.node(g.output)->type, GradeNodeType::Combiner);
+        quint64 splitter = 0;
+        for (const GradeNode& n : g.nodes)
+            splitter = n.type == GradeNodeType::Splitter ? n.id : splitter;
+        QVERIFY(splitter);
+        QCOMPARE(ne->hitTest(ne->outputPos(*g.node(splitter), 2)).index, 2);
+        QCOMPARE(ne->hitTest(ne->inputPos(*g.node(g.output), 1)).index, 1);
+        // Drag the splitter's green output to the combiner's blue input: one step, port kept.
+        const int beforePort = f.steps();
+        drag(ne, ne->outputPos(*g.node(splitter), 1), ne->inputPos(*g.node(g.output), 2));
+        QCOMPARE(f.grade(clip).node(g.output)->inputs[2], splitter);
+        QCOMPARE(f.grade(clip).node(g.output)->portOf(2), 1);
+        QCOMPARE(f.steps(), beforePort + 1);
+        f.action("edit.undo")->trigger();
+        QCOMPARE(f.grade(clip).node(g.output)->portOf(2), 2);
+
+        // Everything is saved with the project and loads again.
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const QString path = dir.filePath(QStringLiteral("types.kkproj"));
+        QString error;
+        QVERIFY2(f.project.save(path, &error), qPrintable(error));
+        Project loaded;
+        QVERIFY2(loaded.load(path, &error), qPrintable(error));
+        QCOMPARE(loaded.clipGrade(loaded.activeTimelineUid(), clip), f.grade(clip));
+    }
+
+    void compoundNodeInTheEditor()
+    {
+        Fixture f;
+        f.showPage();
+        ColorNodeEditor* ne = f.page()->nodeEditor();
+        const quint64 clip = f.clips[0];
+        f.key(Qt::Key_S, Qt::AltModifier);
+        f.key(Qt::Key_S, Qt::AltModifier);
+        ClipGrade g = f.grade(clip);
+        QCOMPARE(g.nodes.size(), 3);
+        const quint64 n1 = g.nodes[0].id, n2 = g.nodes[1].id, n3 = g.nodes[2].id;
+        // Ctrl+click adds to the selection; the context menu groups the two nodes.
+        QTest::mouseClick(ne, Qt::LeftButton, {}, ne->tileRect(*g.node(n1)).center().toPoint());
+        QTest::mouseClick(ne, Qt::LeftButton, Qt::ControlModifier,
+            ne->tileRect(*g.node(n2)).center().toPoint());
+        QCOMPARE(f.session()->selectedNodes().size(), 2);
+        const int base = f.steps();
+        f.action("color.group_nodes")->trigger();
+        g = f.grade(clip);
+        QCOMPARE(f.steps(), base + 1);
+        quint64 compound = 0;
+        for (const GradeNode& n : g.nodes)
+            compound = n.type == GradeNodeType::Compound ? n.id : compound;
+        QVERIFY(compound);
+        QCOMPARE(g.node(n3)->inputs, QVector<quint64> {compound});
+        QCOMPARE(f.session()->selectedNode(), compound);
+        // The editor shows the compound as one tile; the members are hidden.
+        QCOMPARE(ne->hitTest(ne->tileRect(*g.node(compound)).center()).node, compound);
+        // Double-click opens it: now its two nodes are shown, the compound is not.
+        QTest::mouseDClick(ne, Qt::LeftButton, {}, ne->tileRect(*g.node(compound)).center().toPoint());
+        QCOMPARE(f.session()->openCompoundId(), compound);
+        g = f.grade(clip);
+        QCOMPARE(ne->hitTest(ne->tileRect(*g.node(n1)).center()).node, n1);
+        QVERIFY(ne->hitTest(ne->tileRect(*g.node(n3)).center()).node != n3); // not inside
+        // A node added inside belongs to the compound and leads it when it follows its output.
+        f.session()->selectNode(n2);
+        f.action("color.add_serial")->trigger();
+        g = f.grade(clip);
+        const quint64 inner = f.session()->selectedNode();
+        QCOMPARE(g.node(inner)->compound, compound);
+        QCOMPARE(g.node(compound)->innerOutput, inner);
+        QCOMPARE(g.node(n3)->inputs, QVector<quint64> {compound}); // still reads the compound
+        // Esc closes it.
+        f.key(Qt::Key_Escape);
+        QCOMPARE(f.session()->openCompoundId(), quint64(0));
+        // Decompose gives the nodes back (one step), undo groups them again.
+        f.session()->selectNode(compound);
+        const int beforeUngroup = f.steps();
+        f.action("color.ungroup_nodes")->trigger();
+        QCOMPARE(f.steps(), beforeUngroup + 1);
+        g = f.grade(clip);
+        QVERIFY(g.node(compound) == nullptr);
+        QCOMPARE(g.node(n3)->inputs, QVector<quint64> {inner});
+        f.action("edit.undo")->trigger();
+        QVERIFY(f.grade(clip).node(compound) != nullptr);
+        // Open / close through the commands; closing at the top level does nothing.
+        f.session()->selectNode(compound);
+        f.action("color.open_compound")->trigger();
+        QCOMPARE(f.session()->openCompoundId(), compound);
+        f.action("color.close_compound")->trigger();
+        QCOMPARE(f.session()->openCompoundId(), quint64(0));
+        QVERIFY(!f.session()->closeCompound());
+    }
+
     void nodeEditorAddConnectBypassUndo()
     {
         Fixture f;

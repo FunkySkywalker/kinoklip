@@ -432,6 +432,14 @@ that every command has an entry and that no key is used twice.
 | Add Parallel Node (with a Parallel mixer) | `color.add_parallel` | `Alt+P` | sure | acts on the Color page |
 | Add Layer Node (with a Layer mixer) | `color.add_layer` | `Alt+L` | sure | acts on the Color page |
 | Add Serial Node Before (the current node) | `color.add_serial_before` | `Shift+S` | likely | acts on the Color page |
+| Add Outside Node (keyed with the inverse of the current node's key) | `color.add_outside` | `Alt+O` | sure | acts on the Color page |
+| Add Key Mixer (combines the keys of several nodes) | `color.add_key_mixer` |  | unsure | Kinoklip's menu command; Resolve's Add Node menu has no key for it |
+| Add Splitter / Combiner (red, green and blue graded apart) | `color.add_splitter_combiner` |  | unsure | Kinoklip's menu command; Resolve's Add Node menu has no key for it |
+| Add Alpha Output (its key becomes the clip's alpha) | `color.add_alpha_output` |  | unsure | Kinoklip's menu command; Resolve's Add Node menu has no key for it |
+| Create Compound Node (from the selected nodes) | `color.group_nodes` |  | unsure | Resolve has the command in the node menu, no key |
+| Decompose Compound Node | `color.ungroup_nodes` |  | unsure | Resolve has the command in the node menu, no key |
+| Open Compound Node (show the nodes inside) | `color.open_compound` |  | unsure | Double-click on the node; no key |
+| Close Compound Node (back to the level above) | `color.close_compound` |  | unsure | Esc or double-click on the background in the node editor; no key |
 | Delete Node (the current node) | `color.delete_node` | `Del` / `Backspace` | likely | acts on the Color page; Delete in Resolve's node editor |
 | Enable / Disable Current Node | `color.bypass_node` | `Ctrl+D` | sure | acts on the Color page |
 | Bypass All Grades (viewer only; the render keeps them) | `color.bypass_all` | `Shift+D` | sure | acts on the Color page |

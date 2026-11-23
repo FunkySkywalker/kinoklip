@@ -1158,6 +1158,45 @@ int runScreenshot(MainWindow& window, const QString& target, const QString& pngP
                 session->gradeClip(clips.front());
                 session->setSelectedClips(clips);
             }
+            // KK_SCREENSHOT_COLOR_NODETYPES=<outside|keymixer|splitter|compound|alpha|all|
+            // compound-open>: a demo graph of those node types in the node editor.
+            if (const QString types = qEnvironmentVariable("KK_SCREENSHOT_COLOR_NODETYPES");
+                !types.isEmpty() && session->hasGrade()) {
+                ClipGrade g;
+                const quint64 a = gradeops::initialize(g);
+                const quint64 win = gradeops::addWindow(g, a, GradeWindowShape::Circle);
+                g.window(win)->params.setBase(gradewindowkeys::Width, 0.5);
+                g.node(a)->params.setBase(gradekeys::Saturation, 0.0);
+                const quint64 o = gradeops::addOutsideNode(g, a);
+                g.node(o)->params.setBase(gradekeys::Temperature, 0.4);
+                if (types == QLatin1String("keymixer") || types == QLatin1String("all")) {
+                    const quint64 km = gradeops::addKeyMixer(g, a);
+                    gradeops::connectKey(g, o, km, 1, true);
+                    const quint64 d = gradeops::addSerialNode(g, o);
+                    gradeops::connectKey(g, km, d);
+                    g.node(d)->params.setBase(gradekeys::Contrast, 1.3);
+                    if (types == QLatin1String("all")) {
+                        gradeops::addSplitterCombiner(g, d);
+                        gradeops::addAlphaOutput(g, km);
+                    }
+                } else if (types == QLatin1String("splitter")) {
+                    gradeops::addSplitterCombiner(g, o);
+                } else if (types == QLatin1String("alpha")) {
+                    gradeops::addAlphaOutput(g, a);
+                } else if (types == QLatin1String("compound")
+                    || types == QLatin1String("compound-open")) {
+                    const quint64 c = gradeops::addSerialNode(g, o);
+                    g.node(c)->params.setBase(gradekeys::Contrast, 1.3);
+                    gradeops::groupIntoCompound(g, {a, o});
+                }
+                session->commit(g, QStringLiteral("Demo"));
+                if (types == QLatin1String("compound-open")) {
+                    for (const GradeNode& n : session->grade().nodes) {
+                        if (n.type == GradeNodeType::Compound)
+                            session->openCompound(n.id);
+                    }
+                }
+            }
             const int node = qEnvironmentVariableIntValue("KK_SCREENSHOT_COLOR_NODE") - 1;
             if (node >= 0 && node < int(session->grade().nodes.size()))
                 session->selectNode(session->grade().nodes[node].id);

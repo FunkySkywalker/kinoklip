@@ -612,6 +612,14 @@ void ColorPage::connectActions()
     on("color.add_serial_before", [this] { m_session->addSerialNodeBefore(); });
     on("color.add_parallel", [this] { m_session->addParallelNode(); });
     on("color.add_layer", [this] { m_session->addLayerNode(); });
+    on("color.add_outside", [this] { m_session->addOutsideNode(); });
+    on("color.add_key_mixer", [this] { m_session->addKeyMixer(); });
+    on("color.add_splitter_combiner", [this] { m_session->addSplitterCombiner(); });
+    on("color.add_alpha_output", [this] { m_session->addAlphaOutput(); });
+    on("color.group_nodes", [this] { m_session->groupNodes(); });
+    on("color.ungroup_nodes", [this] { m_session->ungroupNode(); });
+    on("color.open_compound", [this] { m_session->openCompound(); });
+    on("color.close_compound", [this] { m_session->closeCompound(); });
     on("color.delete_node", [this] { m_session->removeNode(); });
     on("color.bypass_node", [this] { m_session->toggleNodeBypass(); });
     on("color.reset_node", [this] { m_session->resetNode(); });

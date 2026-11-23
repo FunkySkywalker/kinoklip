@@ -131,6 +131,135 @@ class TestGradeRender : public QObject
                           : QImage();
     }
 
+    /// A grey node limited to a circle window, then an Outside node (warm, contrast) that
+    /// takes the rest of the picture.
+    static ClipGrade outsideGrade()
+    {
+        ClipGrade g = primariesGrade({{gk::Saturation, 0.0}});
+        const quint64 a = g.nodes[0].id;
+        const quint64 w = go::addWindow(g, a, GradeWindowShape::Circle);
+        g.window(w)->params.setBase(wk::Width, 0.5);
+        g.window(w)->params.setBase(wk::SoftOut, 0.1);
+        const quint64 b = go::addOutsideNode(g, a);
+        g.node(b)->params.setBase(gk::Temperature, 0.5);
+        g.node(b)->params.setBase(gk::Contrast, 1.3);
+        return g;
+    }
+
+    /// Two keys (a circle window, a hue qualifier) mixed (gain 1, and 0.5 inverted) and used as
+    /// the key input of a desaturating node.
+    static ClipGrade keyMixerGrade()
+    {
+        ClipGrade g;
+        GradeNode a;
+        a.id = 1;
+        a.inputs = {0};
+        a.pos = QPointF(0, 0);
+        GradeNode b = a;
+        b.id = 2;
+        GradeNode mixer;
+        mixer.id = 3;
+        mixer.type = GradeNodeType::KeyMixer;
+        mixer.inputs = {1, 2};
+        mixer.keyGains = {1.0, 0.5};
+        mixer.keyInverts = {false, true};
+        GradeNode d = a;
+        d.id = 4;
+        d.keyInput = 3;
+        d.params.setBase(gk::Saturation, 0.0);
+        d.params.setBase(gk::GainR, 1.4);
+        g.nodes = {a, b, mixer, d};
+        g.output = 4;
+        const quint64 w = go::addWindow(g, 1, GradeWindowShape::Circle);
+        g.window(w)->params.setBase(wk::CenterX, 0.35);
+        g.window(w)->params.setBase(wk::Width, 0.5);
+        g.window(w)->params.setBase(wk::SoftOut, 0.2);
+        GradeQualifier& q = g.node(2)->qualifier;
+        q.enabled = true;
+        q.hueCenter = 0.55;
+        q.hueWidth = 0.4;
+        q.hueSoft = 0.1;
+        q.satLow = 0.0;
+        return g;
+    }
+
+    /// Splitter, a different correction on each channel, Combiner.
+    static ClipGrade splitterCombinerGrade()
+    {
+        ClipGrade g = primariesGrade({});
+        const quint64 first = g.nodes[0].id;
+        const quint64 splitter = go::addSplitterCombiner(g, first);
+        const GradeNode* s = g.node(splitter);
+        const quint64 combiner = g.output;
+        GradeNode r, gr, b;
+        r.id = g.allocateId();
+        r.inputs = {splitter};
+        r.params.setBase(gk::GainR, 1.5);
+        gr = r;
+        gr.id = r.id + 1;
+        gr.ports = {1};
+        gr.params = ParamSet {};
+        gr.params.setBase(gk::Contrast, 1.6);
+        b = r;
+        b.id = r.id + 2;
+        b.ports = {2};
+        b.params = ParamSet {};
+        b.params.setBase(gk::OffsetB, 0.15);
+        r.ports.clear();
+        Q_UNUSED(s);
+        g.nodes += {r, gr, b};
+        GradeNode* c = g.node(combiner);
+        c->inputs = {r.id, gr.id, b.id};
+        c->ports.clear();
+        return g;
+    }
+
+    /// Two serial nodes (the second keyed) inside a Compound node, a node after it.
+    static ClipGrade compoundGrade()
+    {
+        ClipGrade g = primariesGrade({{gk::Temperature, 0.4}});
+        const quint64 a = g.nodes[0].id;
+        const quint64 b = go::addSerialNode(g, a);
+        g.node(b)->params.setBase(gk::Saturation, 0.2);
+        go::addWindow(g, b, GradeWindowShape::Circle);
+        const quint64 c = go::addSerialNode(g, b);
+        g.node(c)->params.setBase(gk::Contrast, 1.3);
+        const quint64 group = go::groupIntoCompound(g, {a, b});
+        Q_UNUSED(group);
+        return g;
+    }
+
+    /// A circle window as the clip's alpha.
+    static ClipGrade alphaOutputGrade()
+    {
+        ClipGrade g = primariesGrade({{gk::Contrast, 1.2}});
+        const quint64 a = g.nodes[0].id;
+        const quint64 key = go::addSerialNode(g, a);
+        const quint64 w = go::addWindow(g, key, GradeWindowShape::Circle);
+        g.window(w)->params.setBase(wk::Width, 0.6);
+        g.window(w)->params.setBase(wk::SoftOut, 0.15);
+        const quint64 alpha = go::addAlphaOutput(g, key);
+        Q_UNUSED(alpha);
+        return g;
+    }
+
+    /// A blurring node whose key input is a keyed neighbour.
+    static ClipGrade keyedBlurGrade()
+    {
+        ClipGrade g = primariesGrade({});
+        const quint64 a = g.nodes[0].id;
+        const quint64 w = go::addWindow(g, a, GradeWindowShape::Linear);
+        g.window(w)->params.setBase(wk::CenterX, 0.3);
+        g.window(w)->params.setBase(wk::Width, 0.4);
+        const quint64 b = go::addSerialNode(g, a);
+        for (const QString& key : {gk::BlurRadiusR, gk::BlurRadiusG, gk::BlurRadiusB})
+            g.node(b)->params.setBase(key, 1.0);
+        g.node(b)->params.setBase(gk::BlurScaling, 1.0);
+        g.node(b)->params.setBase(gk::Saturation, 1.5);
+        g.node(b)->keyInput = a;
+        return g;
+    }
+
     /// The grades every renderer test runs: name, grade.
     QVector<std::pair<QString, ClipGrade>> cases()
     {
@@ -439,6 +568,13 @@ class TestGradeRender : public QObject
             g.nodes[0].curves[GradeCurve::HueLum] = {{0.2, 0.6}};
             out.append({QStringLiteral("sat_vs_lum"), g});
         }
+        // Node types (roadmap: Outside, Key Mixer, Splitter / Combiner, Compound, Alpha Output).
+        out.append({QStringLiteral("outside"), outsideGrade()});
+        out.append({QStringLiteral("key_mixer"), keyMixerGrade()});
+        out.append({QStringLiteral("splitter_combiner"), splitterCombinerGrade()});
+        out.append({QStringLiteral("compound"), compoundGrade()});
+        out.append({QStringLiteral("alpha_output"), alphaOutputGrade()});
+        out.append({QStringLiteral("key_input_mix"), keyedBlurGrade()});
         return out;
     }
 
@@ -563,6 +699,121 @@ private slots:
                 qPrintable(name), d, at.x(), at.y(), changed);
             QVERIFY2(d <= 2, qPrintable(name));
             QVERIFY2(changed >= 10, qPrintable(name)); // the case really grades something
+        }
+    }
+
+    /// The maths of the node types on single pixels of the CPU reference.
+    void nodeTypeMaths()
+    {
+        PictureGeometry geo;
+        geo.width = kW;
+        geo.height = kH;
+        auto eval = [&](const ClipGrade& g, float x, float y, std::array<float, 3> c,
+                        float* alpha = nullptr) {
+            const PreparedGrade p = prepareGrade(g, 0, geo);
+            std::vector<float> scratch;
+            float rgb[3] = {c[0], c[1], c[2]};
+            gradePixel(p, rgb, x, y, scratch, alpha);
+            return std::array<float, 3> {rgb[0], rgb[1], rgb[2]};
+        };
+        auto near = [](std::array<float, 3> a, std::array<float, 3> b, float tol = 1e-4f) {
+            return std::abs(a[0] - b[0]) < tol && std::abs(a[1] - b[1]) < tol
+                && std::abs(a[2] - b[2]) < tol;
+        };
+        const std::array<float, 3> c {0.8f, 0.4f, 0.2f};
+
+        {
+            // Outside: the first node (window) inside, the Outside node outside.
+            const ClipGrade g = outsideGrade();
+            ClipGrade first = g;
+            first.output = g.nodes[0].id;
+            ClipGrade second = primariesGrade({{gk::Temperature, 0.5}, {gk::Contrast, 1.3}});
+            const auto inside = eval(g, kW / 2.0f, kH / 2.0f, c);
+            QVERIFY(near(inside, eval(first, kW / 2.0f, kH / 2.0f, c)));
+            QVERIFY(!near(inside, c));
+            const auto outside = eval(g, 0.5f, 0.5f, c);
+            QVERIFY(near(outside, eval(second, 0.5f, 0.5f, c)));
+            QVERIFY(!near(outside, c));
+        }
+        {
+            // Key Mixer: key = 1 * 0.3 + 0.5 * (1 - 0.4) = 0.6; the node mixes by that key.
+            ClipGrade g;
+            GradeNode a;
+            a.id = 1;
+            a.params.setBase(gk::Mix, 0.3);
+            GradeNode b = a;
+            b.id = 2;
+            b.params.setBase(gk::Mix, 0.4);
+            GradeNode mixer;
+            mixer.id = 3;
+            mixer.type = GradeNodeType::KeyMixer;
+            mixer.inputs = {1, 2};
+            mixer.keyGains = {1.0, 0.5};
+            mixer.keyInverts = {false, true};
+            GradeNode d;
+            d.id = 4;
+            d.keyInput = 3;
+            d.params.setBase(gk::Saturation, 0.0);
+            g.nodes = {a, b, mixer, d};
+            g.output = 4;
+            ClipGrade grey = primariesGrade({{gk::Saturation, 0.0}});
+            const auto full = eval(grey, 1, 1, c);
+            const auto got = eval(g, 1, 1, c);
+            for (int ch = 0; ch < 3; ++ch)
+                QVERIFY(std::abs(got[ch] - (c[ch] + (full[ch] - c[ch]) * 0.6f)) < 1e-4f);
+            // Clamped to 1; inverted key input of the node.
+            g.node(3)->keyGains = {1.0, 3.0};
+            QVERIFY(near(eval(g, 1, 1, c), full));
+            g.node(3)->keyGains = {1.0, 0.5};
+            g.node(4)->keyInputInvert = true;
+            for (int ch = 0; ch < 3; ++ch)
+                QVERIFY(std::abs(eval(g, 1, 1, c)[ch] - (c[ch] + (full[ch] - c[ch]) * 0.4f)) < 1e-4f);
+        }
+        {
+            // Splitter / Combiner: plain wiring is the identity; a correction per channel only
+            // changes that channel.
+            ClipGrade g = primariesGrade({});
+            go::addSplitterCombiner(g, g.nodes[0].id);
+            QVERIFY(near(eval(g, 1, 1, c), c));
+            const ClipGrade s = splitterCombinerGrade();
+            const auto out = eval(s, 1, 1, c);
+            ClipGrade redOnly = primariesGrade({{gk::GainR, 1.5}});
+            QVERIFY(std::abs(out[0] - eval(redOnly, 1, 1, c)[0]) < 1e-4f);
+            ClipGrade contrast = primariesGrade({{gk::Contrast, 1.6}});
+            QVERIFY(std::abs(out[1] - eval(contrast, 1, 1, std::array<float, 3> {0.4f, 0.4f, 0.4f})[1]) < 1e-4f);
+            QVERIFY(std::abs(out[2] - (0.2f + 0.15f)) < 1e-4f);
+        }
+        {
+            // Compound: the same pixels as the ungrouped graph; bypassed it passes its input.
+            ClipGrade flat = compoundGrade();
+            ClipGrade grouped = flat;
+            quint64 compound = 0;
+            for (const GradeNode& n : grouped.nodes) {
+                if (n.type == GradeNodeType::Compound)
+                    compound = n.id;
+            }
+            QVERIFY(compound != 0);
+            QVERIFY(go::ungroupCompound(flat, compound));
+            QVERIFY(near(eval(grouped, kW / 2.0f, kH / 2.0f, c), eval(flat, kW / 2.0f, kH / 2.0f, c)));
+            grouped.node(compound)->enabled = false;
+            ClipGrade last = primariesGrade({{gk::Contrast, 1.3}});
+            QVERIFY(near(eval(grouped, 1, 1, c), eval(last, 1, 1, c)));
+        }
+        {
+            // Alpha Output: the key is the alpha.
+            const ClipGrade g = alphaOutputGrade();
+            float inside = -1.0f, outside = -1.0f;
+            eval(g, kW / 2.0f, kH / 2.0f, c, &inside);
+            eval(g, 0.5f, 0.5f, c, &outside);
+            QCOMPARE(inside, 1.0f);
+            QCOMPARE(outside, 0.0f);
+            // An image: the alpha follows the key, the colour is premultiplied by it.
+            QImage image(kW, kH, QImage::Format_ARGB32_Premultiplied);
+            image.fill(qRgb(200, 100, 50));
+            applyGrade(g, 0, image);
+            QCOMPARE(qAlpha(image.pixel(kW / 2, kH / 2)), 255);
+            QCOMPARE(qAlpha(image.pixel(0, 0)), 0);
+            QCOMPARE(qRed(image.pixel(0, 0)), 0);
         }
     }
 

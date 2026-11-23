@@ -289,6 +289,10 @@ void ColorFrameSource::onRendered()
 ClipGrade ColorFrameSource::cutAt(quint64 nodeId, bool includeNode) const
 {
     ClipGrade g = m_session ? m_session->grade() : ClipGrade {};
+    for (GradeNode& other : g.nodes) {
+        if (other.type == GradeNodeType::AlphaOutput)
+            other.enabled = false; // pictures of a node keep the clip's own alpha
+    }
     const GradeNode* n = g.node(nodeId);
     if (!n) {
         g.output = 0;

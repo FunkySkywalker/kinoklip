@@ -692,16 +692,31 @@ QString gradeNodeTypeToString(GradeNodeType type)
         return QStringLiteral("parallel");
     case GradeNodeType::Layer:
         return QStringLiteral("layer");
+    case GradeNodeType::KeyMixer:
+        return QStringLiteral("keymixer");
+    case GradeNodeType::Splitter:
+        return QStringLiteral("splitter");
+    case GradeNodeType::Combiner:
+        return QStringLiteral("combiner");
+    case GradeNodeType::Compound:
+        return QStringLiteral("compound");
+    case GradeNodeType::AlphaOutput:
+        return QStringLiteral("alphaoutput");
     }
     return QStringLiteral("corrector");
 }
 
 GradeNodeType gradeNodeTypeFromString(const QString& text)
 {
-    if (text == QLatin1String("parallel"))
-        return GradeNodeType::Parallel;
-    if (text == QLatin1String("layer"))
-        return GradeNodeType::Layer;
+    static const std::pair<const char*, GradeNodeType> table[] = {
+        {"parallel", GradeNodeType::Parallel}, {"layer", GradeNodeType::Layer},
+        {"keymixer", GradeNodeType::KeyMixer}, {"splitter", GradeNodeType::Splitter},
+        {"combiner", GradeNodeType::Combiner}, {"compound", GradeNodeType::Compound},
+        {"alphaoutput", GradeNodeType::AlphaOutput}};
+    for (const auto& [name, type] : table) {
+        if (text == QLatin1String(name))
+            return type;
+    }
     return GradeNodeType::Corrector;
 }
 
@@ -709,35 +724,110 @@ namespace gradeops {
 
 namespace {
 
+/// The nodes @p n reads: its inputs, its key input; a Compound node reads its inner output
+/// (its input while bypassed or empty).
+QVector<quint64> dependencies(const GradeNode& n)
+{
+    QVector<quint64> out;
+    if (n.type == GradeNodeType::Compound) {
+        if (n.enabled && n.innerOutput != 0)
+            out.append(n.innerOutput);
+        else if (n.inputs.value(0, 0) != 0)
+            out.append(n.inputs[0]);
+        return out;
+    }
+    for (const quint64 in : n.inputs) {
+        if (in != 0)
+            out.append(in);
+    }
+    if (n.keyInput != 0)
+        out.append(n.keyInput);
+    return out;
+}
+
 /// Post-order DFS from node @p index (inputs first). @p state: 0 unvisited, 1 on the stack,
-/// 2 done; a node met while on the stack closes a cycle and is skipped.
+/// 2 done; a node met while on the stack closes a cycle and is skipped. Compound nodes are
+/// walked through but not listed (they are aliases of their inner output).
 void visit(const ClipGrade& g, int index, std::vector<int>& state, std::vector<int>& out)
 {
     if (index < 0 || state[size_t(index)] != 0)
         return;
     state[size_t(index)] = 1;
-    for (const quint64 in : g.nodes[index].inputs) {
-        if (in != 0)
-            visit(g, g.indexOf(in), state, out);
-    }
+    for (const quint64 in : dependencies(g.nodes[index]))
+        visit(g, g.indexOf(in), state, out);
     state[size_t(index)] = 2;
-    out.push_back(index);
+    if (g.nodes[index].type != GradeNodeType::Compound)
+        out.push_back(index);
 }
 
-/// Makes every reference to node @p oldId (consumer inputs and the output) refer to @p newId,
-/// except in node @p except.
-void redirect(ClipGrade& g, quint64 oldId, quint64 newId, quint64 except)
+/// Normalises `ports` of @p n: as long as inputs, or empty when every port is 0.
+void normalizePorts(GradeNode& n)
+{
+    if (n.ports.isEmpty())
+        return;
+    n.ports.resize(n.inputs.size());
+    if (std::all_of(n.ports.cbegin(), n.ports.cend(), [](quint8 p) { return p == 0; }))
+        n.ports.clear();
+}
+
+void setPort(GradeNode& n, int k, int port)
+{
+    if (n.ports.size() < n.inputs.size())
+        n.ports.resize(n.inputs.size());
+    if (k >= 0 && k < n.ports.size())
+        n.ports[k] = quint8(port);
+    normalizePorts(n);
+}
+
+/// Removes input @p k of @p n with its port and Key Mixer settings.
+void removeInputAt(GradeNode& n, int k)
+{
+    n.inputs.remove(k);
+    if (k < n.ports.size())
+        n.ports.remove(k);
+    if (k < n.keyGains.size())
+        n.keyGains.remove(k);
+    if (k < n.keyInverts.size())
+        n.keyInverts.remove(k);
+    normalizePorts(n);
+}
+
+/// Makes every picture reference to node @p oldId (consumer inputs and the output) refer to
+/// output @p newPort of @p newId, except in node @p except.
+void redirect(ClipGrade& g, quint64 oldId, quint64 newId, quint64 except, int newPort = 0)
 {
     for (GradeNode& n : g.nodes) {
-        if (n.id == except)
+        if (n.id == except || n.type == GradeNodeType::KeyMixer)
             continue;
-        for (quint64& in : n.inputs) {
-            if (in == oldId)
-                in = newId;
+        for (int k = 0; k < n.inputs.size(); ++k) {
+            if (n.inputs[k] == oldId) {
+                n.inputs[k] = newId;
+                if (newPort != 0 || k < n.ports.size())
+                    setPort(n, k, newPort);
+            }
         }
     }
     if (g.output == oldId)
         g.output = newId;
+}
+
+/// The node new nodes go after when @p id has no picture output (or is unknown): the last node
+/// of the output chain, else the last node.
+GradeNode* pictureNode(ClipGrade& g, quint64 id)
+{
+    GradeNode* base = g.node(id);
+    if (base && base->hasPictureOutput())
+        return base;
+    const std::vector<int> order = evaluationOrder(g);
+    for (auto it = order.rbegin(); it != order.rend(); ++it) {
+        if (g.nodes[*it].hasPictureOutput())
+            return &g.nodes[*it];
+    }
+    for (int i = int(g.nodes.size()) - 1; i >= 0; --i) {
+        if (g.nodes[i].hasPictureOutput() && g.nodes[i].type != GradeNodeType::Compound)
+            return &g.nodes[i];
+    }
+    return nullptr;
 }
 
 /// Adds a corrector parallel to / layered over @p nodeId through a mixer of @p type.
@@ -745,11 +835,9 @@ quint64 addMixed(ClipGrade& g, quint64 nodeId, GradeNodeType type)
 {
     if (g.isEmpty())
         initialize(g);
-    GradeNode* base = g.node(nodeId);
-    if (!base) {
-        const std::vector<int> order = evaluationOrder(g);
-        base = order.empty() ? &g.nodes.back() : &g.nodes[order.back()];
-    }
+    GradeNode* base = pictureNode(g, nodeId);
+    if (!base)
+        base = &g.nodes.back();
     const quint64 baseId = base->id;
     const quint64 source = base->inputs.value(0, 0);
     // An existing mixer of this type directly after the node takes one more input.
@@ -818,6 +906,8 @@ bool isNodeIdentity(const GradeNode& node, int64_t localFrame)
 
 bool isIdentity(const ClipGrade& grade, int64_t localFrame)
 {
+    if (alphaOutput(grade))
+        return false;
     const std::vector<int> order = evaluationOrder(grade);
     if (order.empty())
         return true;
@@ -855,11 +945,9 @@ quint64 addSerialNode(ClipGrade& grade, quint64 after)
 {
     if (grade.isEmpty())
         return initialize(grade);
-    GradeNode* prev = grade.node(after);
-    if (!prev) {
-        const std::vector<int> order = evaluationOrder(grade);
-        prev = order.empty() ? &grade.nodes.back() : &grade.nodes[order.back()];
-    }
+    GradeNode* prev = pictureNode(grade, after);
+    if (!prev)
+        prev = &grade.nodes.back();
     GradeNode n;
     n.id = grade.allocateId();
     n.inputs = {prev->id};
@@ -885,43 +973,115 @@ quint64 addLayerNode(ClipGrade& grade, quint64 node)
     return addMixed(grade, node, GradeNodeType::Layer);
 }
 
+QVector<quint64> compoundMembers(const ClipGrade& grade, quint64 id)
+{
+    QVector<quint64> out;
+    for (const GradeNode& n : grade.nodes) {
+        if (n.compound == id && id != 0)
+            out.append(n.id);
+    }
+    return out;
+}
+
+namespace {
+
+/// The members of Compound @p id and of the Compounds in it, all levels.
+QVector<quint64> descendants(const ClipGrade& grade, quint64 id)
+{
+    QVector<quint64> out;
+    QVector<quint64> todo {id};
+    while (!todo.isEmpty()) {
+        const quint64 cur = todo.takeLast();
+        for (const quint64 m : compoundMembers(grade, cur)) {
+            if (!out.contains(m)) {
+                out.append(m);
+                todo.append(m);
+            }
+        }
+    }
+    return out;
+}
+
+bool isPictureMixer(const GradeNode& n)
+{
+    return n.type == GradeNodeType::Parallel || n.type == GradeNodeType::Layer;
+}
+
+} // namespace
+
 bool removeNode(ClipGrade& grade, quint64 id)
 {
     const int index = grade.indexOf(id);
     if (index < 0)
         return false;
-    const quint64 replacement = grade.nodes[index].inputs.value(0, 0);
-    grade.nodes.remove(index);
+    const GradeNode removed = grade.nodes[index];
+    const quint64 replacement = removed.inputs.value(0, 0);
+    const int replacementPort = removed.portOf(0);
+    QVector<quint64> doomed {id};
+    if (removed.type == GradeNodeType::Compound)
+        doomed += descendants(grade, id);
+    for (int i = int(grade.nodes.size()) - 1; i >= 0; --i) {
+        if (doomed.contains(grade.nodes[i].id))
+            grade.nodes.remove(i);
+    }
+    // Key links into the deleted nodes end; a Key Mixer slot goes (the last one stays empty).
+    for (GradeNode& n : grade.nodes) {
+        if (doomed.contains(n.keyInput))
+            n.keyInput = 0;
+        if (n.type == GradeNodeType::KeyMixer) {
+            for (int k = int(n.inputs.size()) - 1; k >= 0; --k) {
+                if (!doomed.contains(n.inputs[k]))
+                    continue;
+                if (n.inputs.size() > 1)
+                    removeInputAt(n, k);
+                else
+                    n.inputs[k] = 0;
+            }
+        }
+        if (n.type == GradeNodeType::Compound && doomed.contains(n.innerOutput)) {
+            const GradeNode* r = grade.node(replacement);
+            n.innerOutput = r && r->compound == n.id ? replacement : 0;
+        }
+    }
     // A mixer branch whose input another branch of the same mixer already carries (a deleted
     // parallel / layer node) leaves the mixer instead of feeding it the ungraded picture.
     for (GradeNode& n : grade.nodes) {
-        if (!n.isMixer() || !n.inputs.contains(id))
+        if (!isPictureMixer(n) || !n.inputs.contains(id))
             continue;
         const bool shared = std::any_of(n.inputs.begin(), n.inputs.end(),
             [&](quint64 in) { return in != id && reaches(grade, in, replacement); });
-        if (shared)
-            n.inputs.removeAll(id);
+        if (shared) {
+            for (int k = int(n.inputs.size()) - 1; k >= 0; --k) {
+                if (n.inputs[k] == id)
+                    removeInputAt(n, k);
+            }
+        }
     }
-    redirect(grade, id, replacement, 0);
+    redirect(grade, id, replacement, 0, replacementPort);
     // Tidy the mixers: duplicate inputs merge, a mixer with a single input dissolves.
     bool changed = true;
     while (changed) {
         changed = false;
         for (int i = 0; i < grade.nodes.size(); ++i) {
             GradeNode& n = grade.nodes[i];
-            if (!n.isMixer())
+            if (!isPictureMixer(n))
                 continue;
-            QVector<quint64> unique;
-            for (const quint64 in : n.inputs) {
-                if (!unique.contains(in))
-                    unique.append(in);
+            QVector<std::pair<quint64, int>> seen;
+            for (int k = 0; k < n.inputs.size();) {
+                const std::pair<quint64, int> key {n.inputs[k], n.portOf(k)};
+                if (seen.contains(key)) {
+                    removeInputAt(n, k);
+                } else {
+                    seen.append(key);
+                    ++k;
+                }
             }
-            n.inputs = unique;
             if (n.inputs.size() <= 1) {
                 const quint64 mixerId = n.id;
                 const quint64 only = n.inputs.value(0, 0);
+                const int onlyPort = n.portOf(0);
                 grade.nodes.remove(i);
-                redirect(grade, mixerId, only, 0);
+                redirect(grade, mixerId, only, 0, onlyPort);
                 changed = true;
                 break;
             }
@@ -946,32 +1106,89 @@ bool reaches(const ClipGrade& grade, quint64 of, quint64 id)
             continue;
         seen.append(cur);
         if (const GradeNode* n = grade.node(cur))
-            stack += n->inputs;
+            stack += dependencies(*n);
     }
     return false;
 }
 
-bool connect(ClipGrade& grade, quint64 from, quint64 to, int inputIndex)
+bool connect(ClipGrade& grade, quint64 from, quint64 to, int inputIndex, int fromPort)
 {
-    if (from != 0 && !grade.node(from))
+    const GradeNode* source = from != 0 ? grade.node(from) : nullptr;
+    if (from != 0
+        && (!source || !source->hasPictureOutput() || fromPort < 0
+            || fromPort >= std::max(1, source->outputPortCount())))
         return false;
     if (to == 0) {
         grade.output = from;
         return true;
     }
     GradeNode* target = grade.node(to);
-    if (!target || from == to || (from != 0 && reaches(grade, from, to)))
+    if (!target || !target->hasPictureInput() || from == to
+        || (from != 0 && reaches(grade, from, to)))
         return false; // to is upstream of from: the edge would close a cycle
-    if (!target->isMixer()) {
+    if (target->type == GradeNodeType::Compound) {
+        if (descendants(grade, to).contains(from))
+            return false;
+        // The members that read the old input now read the new one.
+        const quint64 old = target->inputs.value(0, 0);
+        const int oldPort = target->portOf(0);
+        if (old != from || oldPort != fromPort) {
+            for (const quint64 m : descendants(grade, to)) {
+                GradeNode* member = grade.node(m);
+                if (member->type == GradeNodeType::Compound)
+                    continue; // a nested compound's input is one of its own links below
+                for (int k = 0; k < member->inputs.size(); ++k) {
+                    if (member->inputs[k] == old && member->portOf(k) == oldPort
+                        && member->type != GradeNodeType::KeyMixer) {
+                        member->inputs[k] = from;
+                        setPort(*member, k, fromPort);
+                    }
+                }
+                if (member->keyInput == old && old != 0)
+                    member->keyInput = from;
+            }
+            for (const quint64 m : descendants(grade, to)) {
+                GradeNode* member = grade.node(m);
+                if (member->type == GradeNodeType::Compound && member->inputs.value(0, 0) == old
+                    && member->portOf(0) == oldPort) {
+                    member->inputs = {from};
+                    member->ports.clear();
+                    setPort(*member, 0, fromPort);
+                }
+            }
+        }
         target->inputs = {from};
+        target->ports.clear();
+        setPort(*target, 0, fromPort);
         return true;
     }
+    if (target->type == GradeNodeType::Combiner) {
+        while (target->inputs.size() < 3)
+            target->inputs.append(0);
+        if (inputIndex < 0 || inputIndex > 2)
+            return false;
+        target->inputs[inputIndex] = from;
+        setPort(*target, inputIndex, fromPort);
+        return true;
+    }
+    if (!target->hasVariableInputs()) {
+        target->inputs = {from};
+        target->ports.clear();
+        setPort(*target, 0, fromPort);
+        return true;
+    }
+    if (target->type == GradeNodeType::KeyMixer)
+        return false; // its inputs are keys: connectKey()
     if (inputIndex >= 0 && inputIndex < target->inputs.size()) {
         target->inputs[inputIndex] = from;
+        setPort(*target, inputIndex, fromPort);
     } else {
-        if (target->inputs.contains(from))
-            return false;
+        for (int k = 0; k < target->inputs.size(); ++k) {
+            if (target->inputs[k] == from && target->portOf(k) == fromPort)
+                return false;
+        }
         target->inputs.append(from);
+        setPort(*target, int(target->inputs.size()) - 1, fromPort);
     }
     return true;
 }
@@ -985,18 +1202,122 @@ bool disconnect(ClipGrade& grade, quint64 to, int inputIndex)
         return true;
     }
     GradeNode* target = grade.node(to);
-    if (!target || inputIndex < 0 || inputIndex >= target->inputs.size())
+    if (!target || !target->hasPictureInput() || inputIndex < 0
+        || inputIndex >= target->inputs.size())
         return false;
-    if (!target->isMixer()) {
+    if (target->type == GradeNodeType::KeyMixer)
+        return false;
+    if (target->type == GradeNodeType::Compound) {
+        if (target->inputs[0] == 0)
+            return false;
+        return connect(grade, 0, to, 0);
+    }
+    if (target->type == GradeNodeType::Combiner) {
+        if (target->inputs[inputIndex] == 0 && target->portOf(inputIndex) == 0)
+            return false;
+        target->inputs[inputIndex] = 0;
+        setPort(*target, inputIndex, 0);
+        return true;
+    }
+    if (!target->hasVariableInputs()) {
         if (target->inputs[0] == 0)
             return false;
         target->inputs = {0};
+        target->ports.clear();
         return true;
     }
     if (target->inputs.size() <= 1)
         return false;
-    target->inputs.remove(inputIndex);
+    removeInputAt(*target, inputIndex);
     return true;
+}
+
+bool connectKey(ClipGrade& grade, quint64 from, quint64 to, int inputIndex, bool invert)
+{
+    const GradeNode* source = grade.node(from);
+    GradeNode* target = grade.node(to);
+    if (!source || !target || !source->hasKeyOutput() || from == to || reaches(grade, from, to))
+        return false;
+    if (target->type == GradeNodeType::Compound && descendants(grade, to).contains(from))
+        return false;
+    if (target->hasKeyInput()) {
+        target->keyInput = from;
+        target->keyInputInvert = invert;
+        return true;
+    }
+    if (target->type != GradeNodeType::KeyMixer)
+        return false;
+    if (inputIndex >= 0 && inputIndex < target->inputs.size()) {
+        target->inputs[inputIndex] = from;
+    } else {
+        if (target->inputs.contains(from) || target->inputs.size() >= kMaxMixerInputs)
+            return false;
+        if (target->inputs.size() == 1 && target->inputs[0] == 0)
+            target->inputs[0] = from; // the empty first slot
+        else
+            target->inputs.append(from);
+        inputIndex = int(target->inputs.indexOf(from));
+    }
+    // Settings are kept per slot; a new slot starts at gain 1, not inverted.
+    while (target->keyGains.size() < target->inputs.size())
+        target->keyGains.append(1.0);
+    while (target->keyInverts.size() < target->inputs.size())
+        target->keyInverts.append(false);
+    target->keyInverts[inputIndex] = invert;
+    return true;
+}
+
+bool disconnectKey(ClipGrade& grade, quint64 to, int inputIndex)
+{
+    GradeNode* target = grade.node(to);
+    if (!target)
+        return false;
+    if (target->hasKeyInput()) {
+        if (target->keyInput == 0)
+            return false;
+        target->keyInput = 0;
+        target->keyInputInvert = false;
+        return true;
+    }
+    if (target->type != GradeNodeType::KeyMixer || inputIndex < 0
+        || inputIndex >= target->inputs.size() || target->inputs[inputIndex] == 0)
+        return false;
+    if (target->inputs.size() > 1)
+        removeInputAt(*target, inputIndex);
+    else
+        target->inputs[0] = 0;
+    return true;
+}
+
+quint64 resolve(const ClipGrade& grade, quint64 id)
+{
+    for (int guard = 0; guard < 64 && id != 0; ++guard) {
+        const GradeNode* n = grade.node(id);
+        if (!n || n->type != GradeNodeType::Compound)
+            return id;
+        id = n->enabled && n->innerOutput != 0 ? n->innerOutput : n->inputs.value(0, 0);
+    }
+    return id;
+}
+
+const GradeNode* alphaOutput(const ClipGrade& grade)
+{
+    for (const GradeNode& n : grade.nodes) {
+        if (n.type == GradeNodeType::AlphaOutput && n.enabled)
+            return &n;
+    }
+    return nullptr;
+}
+
+std::vector<int> evaluationOrderWithAlpha(const ClipGrade& grade)
+{
+    std::vector<int> out;
+    std::vector<int> state(size_t(grade.nodes.size()), 0);
+    if (grade.output != 0)
+        visit(grade, grade.indexOf(grade.output), state, out);
+    if (const GradeNode* a = alphaOutput(grade))
+        visit(grade, grade.indexOf(a->id), state, out);
+    return out;
 }
 
 bool resetNode(ClipGrade& grade, quint64 id)
@@ -1027,21 +1348,262 @@ bool setNodeEnabled(ClipGrade& grade, quint64 id, bool enabled)
 quint64 addSerialNodeBefore(ClipGrade& grade, quint64 before)
 {
     GradeNode* next = grade.node(before);
-    if (grade.isEmpty() || !next)
+    if (grade.isEmpty() || !next || !next->hasPictureInput())
         return addSerialNode(grade, before);
     GradeNode n;
     n.id = grade.allocateId();
     n.inputs = {next->inputs.value(0, 0)};
+    if (next->portOf(0) != 0)
+        n.ports = {quint8(next->portOf(0))};
     n.pos = next->pos;
-    next->inputs[0] = n.id;
+    n.compound = next->compound;
     const quint64 nextId = next->id;
+    const bool compound = next->type == GradeNodeType::Compound;
+    if (!compound) {
+        next->inputs[0] = n.id;
+        setPort(*next, 0, 0);
+    }
     grade.nodes.append(n);
+    if (compound) // the members reading the compound's input now read the new node
+        connect(grade, n.id, nextId, 0);
     // The node it feeds and everything after it move one step right.
     for (GradeNode& other : grade.nodes) {
         if (other.id != n.id && reaches(grade, other.id, nextId))
             other.pos.rx() += kNodeSpacingX;
     }
     return n.id;
+}
+
+quint64 addOutsideNode(ClipGrade& grade, quint64 node)
+{
+    if (grade.isEmpty())
+        initialize(grade);
+    const GradeNode* prev = pictureNode(grade, node);
+    if (!prev)
+        return 0;
+    // The Outside node reads the picture and the key of the node it follows.
+    const bool keyed = prev->hasKeyOutput();
+    const quint64 prevId = prev->id;
+    const quint64 id = addSerialNode(grade, prevId);
+    GradeNode* n = grade.node(id);
+    if (keyed) {
+        n->keyInput = prevId;
+        n->keyInputInvert = true;
+    }
+    return id;
+}
+
+quint64 addKeyMixer(ClipGrade& grade, quint64 node)
+{
+    if (grade.isEmpty())
+        initialize(grade);
+    const GradeNode* base = grade.node(node);
+    if (!base)
+        base = pictureNode(grade, node);
+    GradeNode mixer;
+    mixer.id = grade.allocateId();
+    mixer.type = GradeNodeType::KeyMixer;
+    mixer.inputs = {base && base->hasKeyOutput() ? base->id : 0};
+    mixer.keyGains = {1.0};
+    mixer.keyInverts = {false};
+    mixer.pos = base ? base->pos + QPointF(kNodeSpacingX, kNodeSpacingY) : QPointF(0, 0);
+    mixer.compound = base ? base->compound : 0;
+    grade.nodes.append(mixer);
+    return mixer.id;
+}
+
+quint64 addSplitterCombiner(ClipGrade& grade, quint64 node)
+{
+    if (grade.isEmpty())
+        initialize(grade);
+    GradeNode* prev = pictureNode(grade, node);
+    if (!prev)
+        return 0;
+    const quint64 prevId = prev->id;
+    GradeNode splitter;
+    splitter.id = grade.allocateId();
+    splitter.type = GradeNodeType::Splitter;
+    splitter.inputs = {prevId};
+    splitter.pos = prev->pos + QPointF(kNodeSpacingX, 0);
+    splitter.compound = prev->compound;
+    GradeNode combiner;
+    combiner.id = splitter.id + 1;
+    combiner.type = GradeNodeType::Combiner;
+    combiner.inputs = {splitter.id, splitter.id, splitter.id};
+    combiner.ports = {0, 1, 2};
+    combiner.pos = splitter.pos + QPointF(kNodeSpacingX, 0);
+    combiner.compound = prev->compound;
+    // Everything that read the node now reads the combiner.
+    redirect(grade, prevId, combiner.id, 0);
+    for (GradeNode& other : grade.nodes) {
+        if (other.pos.x() >= splitter.pos.x() - 1e-9 && reaches(grade, other.id, combiner.id))
+            other.pos.rx() += 2 * kNodeSpacingX;
+    }
+    grade.nodes.append(splitter);
+    grade.nodes.append(combiner);
+    return splitter.id;
+}
+
+quint64 addAlphaOutput(ClipGrade& grade, quint64 node)
+{
+    if (grade.isEmpty())
+        initialize(grade);
+    const GradeNode* base = grade.node(node);
+    if (!base || !base->hasKeyOutput())
+        base = pictureNode(grade, node);
+    const quint64 keyId = base && base->hasKeyOutput() ? base->id : 0;
+    for (GradeNode& n : grade.nodes) {
+        if (n.type == GradeNodeType::AlphaOutput) {
+            n.keyInput = keyId;
+            n.enabled = true;
+            return n.id;
+        }
+    }
+    GradeNode a;
+    a.id = grade.allocateId();
+    a.type = GradeNodeType::AlphaOutput;
+    a.keyInput = keyId;
+    a.pos = base ? base->pos + QPointF(kNodeSpacingX, kNodeSpacingY) : QPointF(0, 0);
+    a.compound = base && base->type != GradeNodeType::Compound ? base->compound : 0;
+    grade.nodes.append(a);
+    return a.id;
+}
+
+quint64 groupIntoCompound(ClipGrade& grade, const QVector<quint64>& ids)
+{
+    if (ids.isEmpty())
+        return 0;
+    quint64 level = 0;
+    bool first = true;
+    for (const quint64 id : ids) {
+        const GradeNode* n = grade.node(id);
+        if (!n || n->type == GradeNodeType::AlphaOutput)
+            return 0;
+        if (first)
+            level = n->compound;
+        else if (n->compound != level)
+            return 0;
+        first = false;
+    }
+    // Everything inside: the chosen nodes and the members of the compounds among them.
+    QVector<quint64> members = ids;
+    for (const quint64 id : ids) {
+        if (grade.node(id)->type == GradeNodeType::Compound)
+            members += descendants(grade, id);
+    }
+    // The picture sources read from outside, and the nodes read from outside.
+    QVector<std::pair<quint64, int>> sources;
+    quint64 outId = 0;
+    int outsideReaders = 0;
+    for (const quint64 id : ids) {
+        const GradeNode* n = grade.node(id);
+        if (n->hasPictureInput()) {
+            for (int k = 0; k < n->inputs.size(); ++k) {
+                const quint64 in = n->inputs[k];
+                if (n->type == GradeNodeType::Compound && k > 0)
+                    break;
+                if (!members.contains(in) && !sources.contains({in, n->portOf(k)}))
+                    sources.append({in, n->portOf(k)});
+            }
+        }
+    }
+    if (sources.size() > 1)
+        return 0;
+    for (const GradeNode& n : grade.nodes) {
+        if (members.contains(n.id))
+            continue;
+        for (const quint64 in : dependencies(n)) {
+            if (ids.contains(in) && in != 0) {
+                if (outId != 0 && outId != in)
+                    return 0; // two members read from outside
+                outId = in;
+                ++outsideReaders;
+            }
+        }
+    }
+    if (ids.contains(grade.output)) {
+        if (outId != 0 && outId != grade.output)
+            return 0;
+        outId = grade.output;
+    }
+    if (outId == 0) {
+        // Nothing reads the selection: its last node (in evaluation order) leaves it.
+        for (const int i : evaluationOrder(grade)) {
+            if (ids.contains(grade.nodes[i].id))
+                outId = grade.nodes[i].id;
+        }
+        if (outId == 0)
+            outId = ids.last();
+    }
+    GradeNode c;
+    c.id = grade.allocateId();
+    c.type = GradeNodeType::Compound;
+    c.inputs = {sources.isEmpty() ? 0 : sources[0].first};
+    if (!sources.isEmpty() && sources[0].second != 0)
+        c.ports = {quint8(sources[0].second)};
+    c.innerOutput = outId;
+    c.compound = level;
+    QPointF sum;
+    for (const quint64 id : ids)
+        sum += grade.node(id)->pos;
+    c.pos = sum / double(ids.size());
+    // Whatever read the output now reads the compound (it is the same picture and key).
+    for (GradeNode& n : grade.nodes) {
+        if (members.contains(n.id))
+            continue;
+        for (int k = 0; k < n.inputs.size(); ++k) {
+            if (n.inputs[k] == outId && n.type != GradeNodeType::KeyMixer) {
+                n.inputs[k] = c.id;
+                setPort(n, k, 0);
+            } else if (n.inputs[k] == outId) {
+                n.inputs[k] = c.id;
+            }
+        }
+        if (n.keyInput == outId)
+            n.keyInput = c.id;
+    }
+    if (grade.output == outId)
+        grade.output = c.id;
+    for (const quint64 id : ids)
+        grade.node(id)->compound = c.id;
+    grade.nodes.append(c);
+    return c.id;
+}
+
+bool ungroupCompound(ClipGrade& grade, quint64 id)
+{
+    GradeNode* c = grade.node(id);
+    if (!c || c->type != GradeNodeType::Compound)
+        return false;
+    const quint64 parent = c->compound;
+    const quint64 inner = c->enabled && c->innerOutput != 0 ? c->innerOutput : c->inputs.value(0, 0);
+    const int innerPort = c->enabled && c->innerOutput != 0 ? 0 : c->portOf(0);
+    const quint64 doomed = id;
+    // A bypassed compound dissolves into its members but keeps passing its input: members
+    // are not reached then, exactly as before.
+    for (GradeNode& n : grade.nodes) {
+        if (n.compound == doomed)
+            n.compound = parent;
+    }
+    for (GradeNode& n : grade.nodes) {
+        if (n.id == doomed)
+            continue;
+        if (n.keyInput == doomed)
+            n.keyInput = inner;
+        if (n.type == GradeNodeType::Compound && n.innerOutput == doomed)
+            n.innerOutput = inner;
+    }
+    redirect(grade, doomed, inner, 0, innerPort);
+    for (GradeNode& n : grade.nodes) { // Key Mixer slots read the key
+        if (n.type == GradeNodeType::KeyMixer) {
+            for (quint64& in : n.inputs) {
+                if (in == doomed)
+                    in = inner;
+            }
+        }
+    }
+    grade.nodes.remove(grade.indexOf(doomed));
+    return true;
 }
 
 quint64 addWindow(ClipGrade& grade, quint64 nodeId, GradeWindowShape shape)

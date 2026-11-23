@@ -222,6 +222,14 @@ pass per mixer); curve tables, LUTs and polygon points are float textures read w
 within 2 levels. `RenderRequest::bypassGrades` (viewer "bypass all") skips both and the render
 cache. Design: docs/color-page.md.
 
+Node types beyond Parallel / Layer (spec 150): a node's key is a texture on the GPU (`keyTargets`,
+else a constant) and a float per node on the CPU (`scratch[4 i + 3]`); a corrector with a key
+input multiplies it in (`PreparedGradeNode::keyIn`), `keyNeeded` marks the nodes whose key is read.
+The Key Mixer sums keys (`kKeyMixSource`), a Splitter becomes three prepared nodes (one per channel),
+the Combiner picks R / G / B of its inputs, and the Alpha Output (`PreparedGrade::alpha`) replaces
+the picture's alpha last. Compound nodes never reach `PreparedGrade`: `gradeops::resolve()` maps a
+reference to the inner output.
+
 The media item's input LUT (`ClipAttributes::inputLut`, Media Pool > 3D LUT) is the first node of
 the clip's grade pass: `prepareClipGrade()` / `prependInputLut()` put a LUT-only corrector in front
 of the prepared grade, so GPU and CPU run it as any LUT node; it does not depend on `grades` (also

@@ -26,8 +26,10 @@ QVector<VimNodeInfo> ColorNodeOps::vimNodes() const
     QVector<VimNodeInfo> out;
     if (!m_editor || !m_session)
         return out;
-    for (const GradeNode& n : m_session->grade().nodes)
-        out.append({n.id, m_editor->tileRect(n), n.label});
+    for (const GradeNode& n : m_session->grade().nodes) {
+        if (n.compound == m_session->openCompoundId())
+            out.append({n.id, m_editor->tileRect(n), n.label});
+    }
     return out;
 }
 
@@ -37,10 +39,14 @@ QVector<std::pair<quint64, quint64>> ColorNodeOps::vimLinks() const
     if (!m_session)
         return out;
     for (const GradeNode& n : m_session->grade().nodes) {
+        if (n.compound != m_session->openCompoundId())
+            continue;
         for (const quint64 from : n.inputs) {
             if (from != 0)
                 out.append({from, n.id});
         }
+        if (n.keyInput != 0)
+            out.append({n.keyInput, n.id});
     }
     return out;
 }
@@ -86,8 +92,16 @@ bool ColorNodeOps::vimConnect(quint64 from, quint64 to)
     const GradeNode* target = m_session->grade().node(to);
     if (!target)
         return false;
-    // A corrector has one input (replaced); a mixer gets one more.
-    const int index = target->isMixer() ? int(target->inputs.size()) : 0;
+    // A corrector has one input (replaced); a mixer gets one more. Key nodes take keys.
+    const GradeNode* source = m_session->grade().node(from);
+    if (source && !source->hasPictureOutput() && target->hasKeyInput() && source->hasKeyOutput())
+        return m_session->connectKeys(from, to, 0);
+    if (target->type == GradeNodeType::KeyMixer)
+        return m_session->connectKeys(from, to, int(target->inputs.size()));
+    const int index
+        = (target->type == GradeNodeType::Parallel || target->type == GradeNodeType::Layer)
+        ? int(target->inputs.size())
+        : 0;
     return m_session->connectNodes(from, to, index);
 }
 

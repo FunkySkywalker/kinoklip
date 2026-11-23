@@ -201,8 +201,14 @@ void animatedPathFromJson(const QJsonObject& o, AnimatedPath& path);
 [[nodiscard]] ClipAttributes attributesFromJson(const QJsonObject& json);
 
 /// Encodes a grade (format 16; core/GradeSerialization.cpp): nodes {"id", "type" ("corrector"
-/// | "parallel" | "layer"), "inputs" (node ids, 0 = the grade's input), "pos": [x, y], and only
-/// when not default: "label", "enabled", "params" (ParamSet of gradekeys), "curves" ({"luma" |
+/// | "parallel" | "layer" | "keymixer" | "splitter" | "combiner" | "compound" | "alphaoutput"),
+/// "inputs" (node ids, 0 = the grade's input; a Key Mixer's are key sources), "pos": [x, y],
+/// and only when not default: "ports" (output port of the node each input reads, Splitter
+/// outputs 0 - 2), "keyInput" / "keyInputInvert" (key link into a corrector or the Alpha
+/// Output), "keyGains" / "keyInverts" (Key Mixer, per input), "compound" (id of the Compound
+/// node the node belongs to), "innerOutput" (Compound: the member that leaves it; no format
+/// bump: the keys are optional, so files without them load as before and an older build reads
+/// the new node types as correctors), "label", "enabled", "params" (ParamSet of gradekeys), "curves" ({"luma" |
 /// "red" | "green" | "blue" | "hueHue" | "hueSat" | "hueLum" | "lumSat" | "satSat": [[x, y],
 /// ...]}), "qualifier" (GradeQualifier fields), "windows" ([{"id", "shape", "enabled",
 /// "invert", "params", "points": [[x, y], ...]}]), "track" ({"first", "pivot", "pan", "tilt",

@@ -25,6 +25,14 @@ struct PreparedGradeNode
     /// Indices into PreparedGrade::nodes of the inputs (-1 = the grade's input picture).
     /// Correctors: one; mixers: 1..kMaxMixerInputs.
     std::vector<int> inputs;
+    /// Corrector / Alpha Output: index of the node whose key is the key input (-1 = none).
+    int keyIn = -1;
+    bool keyInInvert = false;
+    /// Splitter (one prepared node per channel): 0 red, 1 green, 2 blue.
+    int channel = 0;
+    /// Key Mixer: `inputs` are the connected key sources; gain and invert flag of each.
+    std::vector<float> keyGains;
+    std::vector<bool> keyInverts;
     // ---- Corrector ----
     bool bypassed = false; ///< disabled: output = input, layer alpha 0
     bool corrects = false; ///< primaries, curves or LUT change something (else output = input)
@@ -68,6 +76,8 @@ struct PreparedGrade
 {
     std::vector<PreparedGradeNode> nodes; ///< evaluation order
     int output = -1; ///< index of the output node (-1 = the input passes unchanged)
+    /// Index of the Alpha Output node (-1 = none): its key replaces the picture's alpha.
+    int alpha = -1;
     /// True if rendering changes nothing (empty / disconnected grade, every node identity).
     bool identity = true;
 };
@@ -95,8 +105,9 @@ void applyInputLut(const ClipAttributes& attributes, QImage& image);
 
 /// Grades straight colour @p rgb (in place) at pixel centre (@p px, @p py): the whole node
 /// graph for one pixel. @p scratch holds one rgb triple + key per node (resized as needed).
-void gradePixel(
-    const PreparedGrade& grade, float rgb[3], float px, float py, std::vector<float>& scratch);
+/// @p alpha, when given, receives the key of the Alpha Output (1 without one).
+void gradePixel(const PreparedGrade& grade, float rgb[3], float px, float py,
+    std::vector<float>& scratch, float* alpha = nullptr);
 
 /// The qualifier matte of node input @p rgb (w x h x 3 straight floats): qualifierKey() per
 /// pixel, then the Matte Finesse @p finesse. The Highlight view and the CPU grade use it.

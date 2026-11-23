@@ -23,6 +23,7 @@ constexpr int kUnitLut1d = 3;
 constexpr int kUnitPoints = 4;
 constexpr int kUnitMatte = 5;
 constexpr int kUnitWarp = 6;
+constexpr int kUnitKeyIn = 7;
 
 const std::string kCorrectorSource = std::string(R"(
 uniform sampler2D uInput;
@@ -33,6 +34,9 @@ uniform sampler2D uPoints;
 uniform sampler2D uWarp;   // Color Warper meshes (RG32F, kWarpTexWidth x kWarpTexHeight)
 uniform sampler2D uMatte;  // the qualifier matte after Matte Finesse (when uUseMatte)
 uniform int uUseMatte;
+uniform sampler2D uKeyIn;  // the key input (when uUseKeyIn): R = key
+uniform int uUseKeyIn;
+uniform int uKeyInInvert;
 uniform int uMode;        // 0 = graded picture, 1 = the key (alpha for a Layer mixer), 2 = ungated,
                           // 3 = the raw qualifier matte
 uniform int uCorrects;
@@ -657,6 +661,10 @@ void main()
         float q = uUseMatte != 0 ? texelFetch(uMatte, ivec2(gl_FragCoord.xy), 0).r : qualifierKey(c);
         key *= q * windowsMatte(gl_FragCoord.xy);
     }
+    if (uUseKeyIn != 0) {
+        float k = texelFetch(uKeyIn, ivec2(gl_FragCoord.xy), 0).r;
+        key *= uKeyInInvert != 0 ? 1.0 - k : k;
+    }
     if (uMode == 1) {
         fragColor = vec4(key, key, key, 1.0);
         return;
@@ -686,6 +694,85 @@ void main()
     if (uCount > 6) sum += texelFetch(uIn6, p, 0).rgb;
     if (uCount > 7) sum += texelFetch(uIn7, p, 0).rgb;
     fragColor = vec4(sum / float(uCount), first.a);
+}
+)";
+
+// Key Mixer: the clamped sum of the gained (optionally inverted) keys (grademath: evalNode()).
+const char* const kKeyMixSource = R"(
+uniform sampler2D uK0, uK1, uK2, uK3, uK4, uK5, uK6, uK7;
+uniform int uCount;
+uniform float uGain[8];
+uniform int uInv[8];
+float keyAt(sampler2D t, int i)
+{
+    float v = texelFetch(t, ivec2(gl_FragCoord.xy), 0).r;
+    return uGain[i] * (uInv[i] != 0 ? 1.0 - v : v);
+}
+void main()
+{
+    float sum = 0.0;
+    if (uCount > 0) sum += keyAt(uK0, 0);
+    if (uCount > 1) sum += keyAt(uK1, 1);
+    if (uCount > 2) sum += keyAt(uK2, 2);
+    if (uCount > 3) sum += keyAt(uK3, 3);
+    if (uCount > 4) sum += keyAt(uK4, 4);
+    if (uCount > 5) sum += keyAt(uK5, 5);
+    if (uCount > 6) sum += keyAt(uK6, 6);
+    if (uCount > 7) sum += keyAt(uK7, 7);
+    sum = clamp(sum, 0.0, 1.0);
+    fragColor = vec4(sum, sum, sum, 1.0);
+}
+)";
+
+// A key of one value (the key of a node without qualifier or windows).
+const char* const kConstKeySource = R"(
+uniform float uValue;
+void main()
+{
+    fragColor = vec4(uValue, uValue, uValue, 1.0);
+}
+)";
+
+// Splitter: one channel as a grey picture (the alpha stays).
+const char* const kChannelSource = R"(
+uniform sampler2D uIn;
+uniform int uChannel;
+void main()
+{
+    vec4 s = texelFetch(uIn, ivec2(gl_FragCoord.xy), 0);
+    float v = uChannel == 0 ? s.r : (uChannel == 1 ? s.g : s.b);
+    fragColor = vec4(v, v, v, s.a);
+}
+)";
+
+// Combiner: red of the first input, green of the second, blue of the third.
+const char* const kCombineSource = R"(
+uniform sampler2D uR, uG, uB;
+void main()
+{
+    ivec2 p = ivec2(gl_FragCoord.xy);
+    vec4 a = texelFetch(uR, p, 0);
+    fragColor = vec4(a.r, texelFetch(uG, p, 0).g, texelFetch(uB, p, 0).b, a.a);
+}
+)";
+
+// Alpha Output: the key becomes the alpha of the (premultiplied) picture; transparent pixels
+// stay transparent.
+const char* const kAlphaSource = R"(
+uniform sampler2D uIn;
+uniform sampler2D uKey;
+uniform int uInvert;
+void main()
+{
+    ivec2 p = ivec2(gl_FragCoord.xy);
+    vec4 s = texelFetch(uIn, p, 0);
+    if (s.a <= 0.0) {
+        fragColor = vec4(0.0);
+        return;
+    }
+    float k = texelFetch(uKey, p, 0).r;
+    k = clamp(uInvert != 0 ? 1.0 - k : k, 0.0, 1.0);
+    fragColor = vec4(s.rgb / s.a * k, k);
 }
 )";
 
@@ -878,6 +965,11 @@ bool GlGrade::initialize(GlKit& kit, QString* why)
     if (!m_corrector.build(gl, "grade_corrector", kCorrectorSource.c_str(), &log)
         || !m_parallel.build(gl, "grade_parallel", kParallelSource, &log)
         || !m_layer.build(gl, "grade_layer", kLayerSource, &log)
+        || !m_keyMix.build(gl, "grade_keymix", kKeyMixSource, &log)
+        || !m_constKey.build(gl, "grade_constkey", kConstKeySource, &log)
+        || !m_channel.build(gl, "grade_channel", kChannelSource, &log)
+        || !m_combine.build(gl, "grade_combine", kCombineSource, &log)
+        || !m_alpha.build(gl, "grade_alpha", kAlphaSource, &log)
         || !m_blur.build(gl, "grade_blur", kBlurSource, &log)
         || !m_blurCombine.build(gl, "grade_blur_combine", kBlurCombineSource.c_str(), &log)
         || !m_blurMix.build(gl, "grade_blur_mix", kBlurMixSource, &log)
@@ -949,6 +1041,8 @@ bool GlGrade::initialize(GlKit& kit, QString* why)
     m_u.q3 = u("uQ3");
     m_u.q3Range = u("uQ3Range");
     m_u.useMatte = u("uUseMatte");
+    m_u.useKeyIn = u("uUseKeyIn");
+    m_u.keyInInvert = u("uKeyInInvert");
     m_u.winCount = u("uWinCount");
     m_u.winShape = u("uWinShape");
     m_u.winInvert = u("uWinInvert");
@@ -964,6 +1058,7 @@ bool GlGrade::initialize(GlKit& kit, QString* why)
     gl->glUniform1i(u("uPoints"), kUnitPoints);
     gl->glUniform1i(u("uMatte"), kUnitMatte);
     gl->glUniform1i(u("uWarp"), kUnitWarp);
+    gl->glUniform1i(u("uKeyIn"), kUnitKeyIn);
 
     m_parallelCount = m_parallel.uniform(gl, "uCount");
     gl->glUseProgram(m_parallel.id);
@@ -971,6 +1066,26 @@ bool GlGrade::initialize(GlKit& kit, QString* why)
         const QByteArray name = "uIn" + QByteArray::number(i);
         gl->glUniform1i(m_parallel.uniform(gl, name.constData()), i);
     }
+    gl->glUseProgram(m_keyMix.id);
+    for (int i = 0; i < kMaxMixerInputs; ++i) {
+        const QByteArray name = "uK" + QByteArray::number(i);
+        gl->glUniform1i(m_keyMix.uniform(gl, name.constData()), i);
+    }
+    m_keyMixCount = m_keyMix.uniform(gl, "uCount");
+    m_keyMixGain = m_keyMix.uniform(gl, "uGain");
+    m_keyMixInv = m_keyMix.uniform(gl, "uInv");
+    m_constValue = m_constKey.uniform(gl, "uValue");
+    gl->glUseProgram(m_channel.id);
+    gl->glUniform1i(m_channel.uniform(gl, "uIn"), 0);
+    m_channelIndex = m_channel.uniform(gl, "uChannel");
+    gl->glUseProgram(m_combine.id);
+    gl->glUniform1i(m_combine.uniform(gl, "uR"), 0);
+    gl->glUniform1i(m_combine.uniform(gl, "uG"), 1);
+    gl->glUniform1i(m_combine.uniform(gl, "uB"), 2);
+    gl->glUseProgram(m_alpha.id);
+    gl->glUniform1i(m_alpha.uniform(gl, "uIn"), 0);
+    gl->glUniform1i(m_alpha.uniform(gl, "uKey"), 1);
+    m_alphaInvert = m_alpha.uniform(gl, "uInvert");
     gl->glUseProgram(m_layer.id);
     gl->glUniform1i(m_layer.uniform(gl, "uResult"), 0);
     gl->glUniform1i(m_layer.uniform(gl, "uIn"), 1);
@@ -1032,6 +1147,11 @@ void GlGrade::destroy(GlKit& kit)
     m_corrector.destroy(gl);
     m_parallel.destroy(gl);
     m_layer.destroy(gl);
+    m_keyMix.destroy(gl);
+    m_constKey.destroy(gl);
+    m_channel.destroy(gl);
+    m_combine.destroy(gl);
+    m_alpha.destroy(gl);
     m_blur.destroy(gl);
     m_blurCombine.destroy(gl);
     m_blurMix.destroy(gl);
@@ -1111,8 +1231,8 @@ void GlGrade::uploadPoints(GlFunctions* gl, const PreparedGradeNode& node, std::
     gl->glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void GlGrade::drawCorrector(
-    GlKit& kit, const PreparedGradeNode& n, GLuint input, int mode, GLuint matte)
+void GlGrade::drawCorrector(GlKit& kit, const PreparedGradeNode& n, GLuint input, int mode,
+    GLuint matte, GLuint keyIn)
 {
     GlFunctions* gl = kit.gl();
     const PrimaryValues& p = n.primaries;
@@ -1247,6 +1367,9 @@ void GlGrade::drawCorrector(
     kit.bindTexture(kUnitPoints, m_pointsTex);
     kit.bindTexture(kUnitWarp, m_warpTex);
     kit.bindTexture(kUnitMatte, matte ? matte : input);
+    gl->glUniform1i(m_u.useKeyIn, keyIn ? 1 : 0);
+    gl->glUniform1i(m_u.keyInInvert, n.keyInInvert ? 1 : 0);
+    kit.bindTexture(kUnitKeyIn, keyIn ? keyIn : input);
     kit.setBlendOver(false);
     kit.drawQuad();
     gl->glActiveTexture(GL_TEXTURE0 + kUnitLut3d);
@@ -1349,7 +1472,7 @@ PooledTarget GlGrade::matteFinesse(
 
 PooledTarget GlGrade::apply(GlKit& kit, const RenderTarget& input, const PreparedGrade& grade)
 {
-    if (grade.identity || grade.output < 0)
+    if (grade.identity || (grade.output < 0 && grade.alpha < 0))
         return {};
     GlFunctions* gl = kit.gl();
     const QSize size = input.size;
@@ -1361,6 +1484,24 @@ PooledTarget GlGrade::apply(GlKit& kit, const RenderTarget& input, const Prepare
     std::vector<PooledTarget> keyTargets(count);
     std::vector<float> constAlpha(count, 1.0f);
     auto textureOf = [&](int index) { return index < 0 ? input.texture : texture[size_t(index)]; };
+    // The key of node @p index as a texture (R): its key target, else a constant one.
+    std::vector<PooledTarget> constKeys(count);
+    auto keyTextureOf = [&](int index) -> GLuint {
+        if (index < 0)
+            return 0;
+        if (keyTargets[size_t(index)])
+            return keyTargets[size_t(index)]->texture;
+        if (!constKeys[size_t(index)]) {
+            constKeys[size_t(index)] = kit.acquire(size);
+            kit.bindTarget(*constKeys[size_t(index)]);
+            gl->glUseProgram(m_constKey.id);
+            kit.setFullscreen(m_constKey);
+            gl->glUniform1f(m_constValue, constAlpha[size_t(index)]);
+            kit.setBlendOver(false);
+            kit.drawQuad();
+        }
+        return constKeys[size_t(index)]->texture;
+    };
 
     for (size_t i = 0; i < count; ++i) {
         const PreparedGradeNode& n = grade.nodes[i];
@@ -1377,10 +1518,11 @@ PooledTarget GlGrade::apply(GlKit& kit, const RenderTarget& input, const Prepare
             if (n.finesses)
                 matte = matteFinesse(kit, n, in, size);
             const GLuint matteTex = matte ? matte->texture : 0;
-            if ((n.keyed && n.keyNeeded) || n.blurs) {
+            const GLuint keyInTex = n.keyIn >= 0 ? keyTextureOf(n.keyIn) : 0;
+            if (((n.keyed || n.keyIn >= 0) && n.keyNeeded) || n.blurs) {
                 keyTargets[i] = kit.acquire(size);
                 kit.bindTarget(*keyTargets[i]);
-                drawCorrector(kit, n, in, 1, matteTex);
+                drawCorrector(kit, n, in, 1, matteTex, keyInTex);
             }
             if (n.blurs) {
                 // Colour corrections on the whole picture, the blur stages, then the key
@@ -1417,10 +1559,65 @@ PooledTarget GlGrade::apply(GlKit& kit, const RenderTarget& input, const Prepare
                 break;
             owned[i] = kit.acquire(size);
             kit.bindTarget(*owned[i]);
-            drawCorrector(kit, n, in, 0, matteTex);
+            drawCorrector(kit, n, in, 0, matteTex, keyInTex);
             texture[i] = owned[i]->texture;
             break;
         }
+        case GradeNodeType::KeyMixer: {
+            keyTargets[i] = kit.acquire(size);
+            texture[i] = keyTargets[i]->texture; // a grey picture of the key
+            kit.bindTarget(*keyTargets[i]);
+            gl->glUseProgram(m_keyMix.id);
+            kit.setFullscreen(m_keyMix);
+            const int inputs = std::min(int(n.inputs.size()), kMaxMixerInputs);
+            float gains[kMaxMixerInputs] = {};
+            int inverts[kMaxMixerInputs] = {};
+            for (int k = 0; k < kMaxMixerInputs && inputs > 0; ++k) {
+                const int shown = std::min(k, inputs - 1); // spare units repeat the last input
+                if (k < inputs) {
+                    gains[k] = n.keyGains[size_t(k)];
+                    inverts[k] = n.keyInverts[size_t(k)] ? 1 : 0;
+                }
+                kit.bindTexture(k, keyTextureOf(n.inputs[size_t(shown)]));
+            }
+            gl->glUniform1i(m_keyMixCount, inputs);
+            gl->glUniform1fv(m_keyMixGain, kMaxMixerInputs, gains);
+            gl->glUniform1iv(m_keyMixInv, kMaxMixerInputs, inverts);
+            kit.setBlendOver(false);
+            kit.drawQuad();
+            gl->glActiveTexture(GL_TEXTURE0);
+            break;
+        }
+        case GradeNodeType::Splitter: {
+            owned[i] = kit.acquire(size);
+            kit.bindTarget(*owned[i]);
+            gl->glUseProgram(m_channel.id);
+            kit.setFullscreen(m_channel);
+            gl->glUniform1i(m_channelIndex, n.channel);
+            kit.bindTexture(0, textureOf(n.inputs[0]));
+            kit.setBlendOver(false);
+            kit.drawQuad();
+            gl->glActiveTexture(GL_TEXTURE0);
+            texture[i] = owned[i]->texture;
+            break;
+        }
+        case GradeNodeType::Combiner: {
+            owned[i] = kit.acquire(size);
+            kit.bindTarget(*owned[i]);
+            gl->glUseProgram(m_combine.id);
+            kit.setFullscreen(m_combine);
+            for (int k = 0; k < 3; ++k)
+                kit.bindTexture(k, textureOf(n.inputs[size_t(k)]));
+            kit.setBlendOver(false);
+            kit.drawQuad();
+            gl->glActiveTexture(GL_TEXTURE0);
+            texture[i] = owned[i]->texture;
+            break;
+        }
+        case GradeNodeType::AlphaOutput:
+        case GradeNodeType::Compound:
+            texture[i] = input.texture; // applied after the loop
+            break;
         case GradeNodeType::Parallel: {
             owned[i] = kit.acquire(size);
             kit.bindTarget(*owned[i]);
@@ -1472,7 +1669,34 @@ PooledTarget GlGrade::apply(GlKit& kit, const RenderTarget& input, const Prepare
         }
     }
     // The output's picture lives in the target of the last node that changed it.
-    const GLuint result = texture[size_t(grade.output)];
+    const GLuint result = grade.output >= 0 ? texture[size_t(grade.output)] : input.texture;
+    if (grade.alpha >= 0) {
+        // The Alpha Output: its key becomes the alpha of the picture.
+        const PreparedGradeNode& a = grade.nodes[size_t(grade.alpha)];
+        PooledTarget opaque; // no key connected: opaque
+        GLuint keyTex = a.keyIn >= 0 ? keyTextureOf(a.keyIn) : 0;
+        if (keyTex == 0) {
+            opaque = kit.acquire(size);
+            kit.bindTarget(*opaque);
+            gl->glUseProgram(m_constKey.id);
+            kit.setFullscreen(m_constKey);
+            gl->glUniform1f(m_constValue, 1.0f);
+            kit.setBlendOver(false);
+            kit.drawQuad();
+            keyTex = opaque->texture;
+        }
+        PooledTarget out = kit.acquire(size);
+        kit.bindTarget(*out);
+        gl->glUseProgram(m_alpha.id);
+        kit.setFullscreen(m_alpha);
+        gl->glUniform1i(m_alphaInvert, a.keyIn >= 0 && a.keyInInvert ? 1 : 0);
+        kit.bindTexture(0, result);
+        kit.bindTexture(1, keyTex);
+        kit.setBlendOver(false);
+        kit.drawQuad();
+        gl->glActiveTexture(GL_TEXTURE0);
+        return out;
+    }
     for (PooledTarget& t : owned) {
         if (t && t->texture == result)
             return std::move(t);

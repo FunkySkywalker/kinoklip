@@ -362,6 +362,29 @@ QJsonObject gradeToJson(const ClipGrade& grade)
         for (const quint64 in : n.inputs)
             inputs.append(qint64(in));
         o[QLatin1String("inputs")] = inputs;
+        if (!n.ports.isEmpty()) {
+            QJsonArray ports;
+            for (const quint8 port : n.ports)
+                ports.append(int(port));
+            o[QLatin1String("ports")] = ports;
+        }
+        if (n.keyInput != 0)
+            o[QLatin1String("keyInput")] = qint64(n.keyInput);
+        if (n.keyInputInvert)
+            o[QLatin1String("keyInputInvert")] = true;
+        if (n.type == GradeNodeType::KeyMixer) {
+            QJsonArray gains, inverts;
+            for (int k = 0; k < n.inputs.size(); ++k) {
+                gains.append(n.keyGain(k));
+                inverts.append(n.keyInverted(k));
+            }
+            o[QLatin1String("keyGains")] = gains;
+            o[QLatin1String("keyInverts")] = inverts;
+        }
+        if (n.compound != 0)
+            o[QLatin1String("compound")] = qint64(n.compound);
+        if (n.innerOutput != 0)
+            o[QLatin1String("innerOutput")] = qint64(n.innerOutput);
         if (!n.label.isEmpty())
             o[QLatin1String("label")] = n.label;
         if (!n.enabled)
@@ -421,8 +444,22 @@ ClipGrade gradeFromJson(const QJsonObject& json)
         n.inputs.clear();
         for (const QJsonValue& in : o.value(QLatin1String("inputs")).toArray())
             n.inputs.append(quint64(in.toInteger()));
-        if (n.inputs.isEmpty() || (!n.isMixer() && n.inputs.size() > 1))
+        if (n.inputs.isEmpty() || (!n.hasVariableInputs() && n.type != GradeNodeType::Combiner
+                && n.inputs.size() > 1))
             n.inputs.resize(1);
+        if (n.type == GradeNodeType::Combiner)
+            n.inputs.resize(3);
+        for (const QJsonValue& port : o.value(QLatin1String("ports")).toArray())
+            n.ports.append(quint8(std::clamp(port.toInt(), 0, 2)));
+        n.ports.resize(n.ports.isEmpty() ? 0 : n.inputs.size());
+        n.keyInput = quint64(o.value(QLatin1String("keyInput")).toInteger());
+        n.keyInputInvert = o.value(QLatin1String("keyInputInvert")).toBool();
+        for (const QJsonValue& gain : o.value(QLatin1String("keyGains")).toArray())
+            n.keyGains.append(gain.toDouble(1.0));
+        for (const QJsonValue& inv : o.value(QLatin1String("keyInverts")).toArray())
+            n.keyInverts.append(inv.toBool());
+        n.compound = quint64(o.value(QLatin1String("compound")).toInteger());
+        n.innerOutput = quint64(o.value(QLatin1String("innerOutput")).toInteger());
         const QJsonArray pos = o.value(QLatin1String("pos")).toArray();
         n.pos = QPointF(pos.at(0).toDouble(), pos.at(1).toDouble());
         g.nodes.append(n);
@@ -433,6 +470,18 @@ ClipGrade gradeFromJson(const QJsonObject& json)
         for (quint64& in : n.inputs) {
             if (in != 0 && !used.contains(in))
                 in = 0;
+        }
+        if (n.keyInput != 0 && (!used.contains(n.keyInput) || n.keyInput == n.id))
+            n.keyInput = 0;
+        if (n.compound != 0 && (!used.contains(n.compound) || n.compound == n.id))
+            n.compound = 0;
+        if (n.innerOutput != 0 && !used.contains(n.innerOutput))
+            n.innerOutput = 0;
+        if (n.type != GradeNodeType::Compound)
+            n.innerOutput = 0;
+        if (n.type != GradeNodeType::KeyMixer) {
+            n.keyGains.clear();
+            n.keyInverts.clear();
         }
     }
     quint64 next = g.allocateId();

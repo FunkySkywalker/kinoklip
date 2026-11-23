@@ -49,7 +49,7 @@ private:
         GLint winCount = -1, winShape = -1, winInvert = -1, winOpacity = -1, winGeom = -1;
         GLint winRotSoft = -1, winPoints = -1;
         GLint qualMode = -1, qualR = -1, qualG = -1, qualB = -1, q3Count = -1, q3 = -1, q3Range = -1;
-        GLint useMatte = -1;
+        GLint useMatte = -1, useKeyIn = -1, keyInInvert = -1;
     };
 
     /// One Blur palette stage on @p source (premultiplied picture): a new target.
@@ -60,8 +60,9 @@ private:
     PooledTarget matteFinesse(
         GlKit& kit, const PreparedGradeNode& node, GLuint input, const QSize& size);
     /// @p matte: a finished qualifier matte replacing the node's own qualifier key (0 = none).
-    void drawCorrector(
-        GlKit& kit, const PreparedGradeNode& node, GLuint input, int mode, GLuint matte = 0);
+    /// @p keyIn: the texture of the node's key input (0 = none).
+    void drawCorrector(GlKit& kit, const PreparedGradeNode& node, GLuint input, int mode,
+        GLuint matte = 0, GLuint keyIn = 0);
     void uploadCurves(GlFunctions* gl, const grademath::CurveTables& tables);
     void uploadWarp(GlFunctions* gl, const grademath::WarpTables& tables);
     void uploadLut(GlFunctions* gl, const std::shared_ptr<const CubeLut>& lut);
@@ -74,6 +75,9 @@ private:
     GLint m_parallelCount = -1;
     GlProgram m_layer;
     GLint m_layerConstAlpha = -1, m_layerUseKey = -1, m_layerOpaque = -1;
+    GlProgram m_keyMix, m_constKey, m_channel, m_combine, m_alpha;
+    GLint m_keyMixCount = -1, m_keyMixGain = -1, m_keyMixInv = -1, m_constValue = -1,
+          m_channelIndex = -1, m_alphaInvert = -1;
 
     GlProgram m_blur, m_blurCombine, m_blurMix;
     GLint m_blurDir = -1, m_blurRadius = -1, m_blurSigma = -1;

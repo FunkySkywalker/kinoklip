@@ -72,8 +72,7 @@ Decisions:
   Several windows combine as a union. Coordinates are fractions of the graded picture.
 - **LUT node**: any corrector can load a `.cube` (1D or 3D), applied last in the node,
   tetrahedral (default) or trilinear.
-- The HDR wheels, tracking of windows, shape keyframes of
-  key mixers and splitter / combiner nodes: later.
+- The HDR wheels, tracking of windows and shape keyframes are corrector features (above).
 
 ### Node semantics (identical on GPU and CPU)
 - **Corrector**: input `I`, graded `G` = primaries -> RGB Mixer -> curves -> LUT; key `k` = qualifier of `I` x
@@ -97,6 +96,32 @@ Decisions:
 - **Layer mixer**: input 0 at the bottom; every further input `i` laid over the result `R` with
   its key: `R = (1 - k) R + k I_i + (O_i - I_i)` (= `mix(R, G_i, k)` without dividing by `k`).
   Inputs that are mixers or the grade input replace `R`. The last input is on top.
+- **Key inputs and outputs** (spec 150): a corrector's key `k` (above) is its **key output**; a
+  corrector can also have a **key input** (`GradeNode::keyInput`, optionally inverted): its key is
+  multiplied by that node's key (`k = Mix x qualifier x windows x key input`). A node without
+  qualifier or windows has the key `Mix`; a bypassed node has key 0. On the GPU a key is a texture
+  (R channel); a node whose key nobody reads does not draw one.
+- **Outside node** (Alt+O): a serial corrector after the current node whose key input is the
+  current node's key, inverted - it works on what the current node's windows / qualifier leave out.
+- **Key Mixer** (`GradeNodeType::KeyMixer`): no picture; its inputs are key outputs, its output a key
+  `clamp(sum_i gain_i x (invert_i ? 1 - k_i : k_i), 0, 1)` (gain -4 .. 4, default 1; an empty slot
+  counts nothing). Its output feeds a corrector's key input, another Key Mixer or the Alpha Output.
+- **Splitter / Combiner**: the Splitter has three outputs, the red, green and blue channel as a grey
+  picture (`GradeNode::ports` names the output a link reads). The Combiner has three inputs and
+  outputs `(R of input 0, G of input 1, B of input 2)`. Grade the grey channels apart in between.
+  Add Splitter / Combiner wires the pair straight through.
+- **Compound node**: a group of nodes shown as one tile. The graph stays flat: members carry
+  `GradeNode::compound` (the compound's id, 0 = top level), the compound has `inputs[0]` (the picture
+  the members read), `innerOutput` (the member whose output leaves) and stands for that member in
+  evaluation (`gradeops::resolve`); bypassed (Ctrl+D) it passes its input. Create Compound Node
+  groups the selected nodes (one entry picture, one member read from outside), Decompose dissolves
+  it, double-click or Open Compound Node shows the inside (Source becomes Input), Esc / double-click
+  on the background / Close Compound Node leaves it; nested compounds work. Deleting a compound
+  deletes its members.
+- **Alpha Output**: no picture ports; its key input becomes the alpha of the graded picture (the
+  clip's alpha in the composite; fully transparent pixels stay transparent, colour is
+  premultiplied by the new alpha). One is used (`gradeops::alphaOutput`); it needs no link from the
+  grade output. Bypassed it does nothing.
 - The grade works on straight (un-premultiplied) gamma-encoded RGB, unclamped between nodes
   (curves and the qualifier clamp their inputs to 0..1); alpha passes through unchanged.
 
@@ -113,8 +138,10 @@ Params (Resolve units -100..100, divided by 100 in the maths): Color Boost (vibr
 
 ## Operations and undo
 - Pure graph operations in `gradeops::` (Grade.h): `initialize`, `addSerialNode` (Alt+S),
-  `addSerialNodeBefore`, `addParallelNode` (Alt+P), `addLayerNode` (Alt+L), `removeNode`,
-  `connect` / `disconnect` (cycles refused), `setNodeEnabled` (Ctrl+D), `resetNode`,
+  `addSerialNodeBefore`, `addParallelNode` (Alt+P), `addLayerNode` (Alt+L), `addOutsideNode`
+  (Alt+O), `addKeyMixer`, `addSplitterCombiner`, `addAlphaOutput`, `groupIntoCompound` /
+  `ungroupCompound`, `removeNode`, `connect` / `connectKey` / `disconnect` / `disconnectKey`
+  (cycles refused), `setNodeEnabled` (Ctrl+D), `resetNode`,
   `addWindow` / `removeWindow`, `evaluationOrder`, `isIdentity`, `defaultSelection`.
 - One undoable entry point each: `Project::setClipGrade()`, `setClipGrades()` (several clips in
   one step: apply a still, copy a grade), `setTimelineGrade()`; read with `clipGrade()` /
@@ -130,6 +157,18 @@ Params (Resolve units -100..100, divided by 100 in the maths): Color Boost (vibr
   (spec 151); the **PowerGrade** albums are a second `GradeGallery` in `core/PowerGradeStore.h`
   (`Project::powerGrades()`), a file in the user data folder shared by every project.
 
+## Node editor
+Picture ports are green, key ports blue (a corrector's key input left and key output right, below
+the picture ports; a dashed link is an inverted key). The Splitter's outputs and the Combiner's
+inputs are red, green, blue. Nodes that are not correctors have their type written under them.
+Gestures: click selects, Ctrl+click adds to the selection, a drag on the background selects with a
+rubber band, a drag on a selected tile moves all selected nodes; a drag from an output to an input
+(or onto a tile) connects, a key output only connects to key inputs; right-click on a key input:
+Invert Key, Key Gain (Key Mixer), Disconnect Key. Right-click on the background: Add Serial /
+Serial Before / Parallel / Layer / Outside / Key Mixer / Splitter / Combiner / Alpha Output,
+Create / Decompose / Open / Close Compound Node (all also in Grade > Add Node and Compound Node).
+Only Alt+O has a key (Resolve's Add Outside Node); the other commands are in the keymap without one.
+
 ## Format (project format 16)
 - Clips and timelines may carry `"grade"`; the project may carry `"gallery"`. Only non-default
   values are written; an ungraded project's file differs from format 15 only in its version.
@@ -138,6 +177,11 @@ Params (Resolve units -100..100, divided by 100 in the maths): Color Boost (vibr
   only the first album and no memory) and the optional `"album"` of a still (absent = the first
   album). Older builds ignore them and list every still. PowerGrade albums are not in the
   project file: `<AppDataLocation>/powergrades.json` (`formatVersion` 1, same still form).
+
+- Node types (spec 150) add optional node keys, no format bump: `ports`, `keyInput`,
+  `keyInputInvert`, `keyGains`, `keyInverts`, `compound`, `innerOutput` and the types
+  `keymixer`, `splitter`, `combiner`, `compound`, `alphaoutput` (see core/Serialization.h). An
+  older build reads the new types as correctors.
 - Files of versions 1 - 15 load unchanged (nothing graded, empty gallery); older builds refuse
   format 16 instead of silently dropping grades.
 - Damaged data is repaired on load: duplicate or zero node ids dropped, unknown inputs read the

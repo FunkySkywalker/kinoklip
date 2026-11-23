@@ -14,7 +14,7 @@ through ColorSession (one undo step per command or gesture).
 - **ColorFrameSource**: the ungraded frame at the playhead and the clip thumbnails (renders
   through `PlaybackEngine::renderImage()`), node outputs, the highlight and eyedropper samples
   (graded on the CPU with `render::applyGrade()`).
-- **ColorNodeEditor**: the node graph (tiles with thumbnails, mixers, links, gestures).
+- **ColorNodeEditor**: the node graph (tiles with thumbnails, mixers, Key Mixer, Splitter / Combiner, Compound and Alpha Output nodes, picture and key links, gestures, rubber band, open compound level).
 - **ColorWidgets**: `ColorWheel`, `PrimaryBars`, `PrimariesPanel`, `GradeCurveEditor`,
   `ColorCurvesPanel`.
 - **ColorPalettes**: `QualifierPanel` (with `QualifierRangeBar`), `WindowsPanel`, `LutBrowser`,

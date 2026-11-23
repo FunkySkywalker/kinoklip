@@ -40,28 +40,64 @@ void warnLut(const QString& path, const QString& why)
 PreparedGrade prepareGrade(const ClipGrade& grade, int64_t frame, const PictureGeometry& geometry)
 {
     PreparedGrade out;
-    const std::vector<int> order = gradeops::evaluationOrder(grade);
+    const std::vector<int> order = gradeops::evaluationOrderWithAlpha(grade);
     if (order.empty())
         return out;
-    // Node id -> position in the evaluation order.
+    // (node id, output port) -> index in the prepared list. A Splitter becomes three nodes, one
+    // per channel; Compound nodes never appear (references resolve to their inner output).
     QHash<quint64, int> slot;
-    for (size_t i = 0; i < order.size(); ++i)
-        slot.insert(grade.nodes[order[i]].id, int(i));
-    out.nodes.reserve(order.size());
+    auto refOf = [&](quint64 id, int port) {
+        const quint64 real = gradeops::resolve(grade, id);
+        return real == 0 ? -1 : slot.value(real * 4 + quint64(std::clamp(port, 0, 3)), -1);
+    };
+    out.nodes.reserve(order.size() + 4);
+    const GradeNode* alphaNode = gradeops::alphaOutput(grade);
     for (const int index : order) {
         const GradeNode& n = grade.nodes[index];
+        if (n.type == GradeNodeType::Splitter) {
+            for (int channel = 0; channel < 3; ++channel) {
+                PreparedGradeNode p;
+                p.id = n.id;
+                p.type = n.type;
+                p.channel = channel;
+                p.inputs = {refOf(n.inputs.value(0, 0), n.portOf(0))};
+                slot.insert(n.id * 4 + quint64(channel), int(out.nodes.size()));
+                out.nodes.push_back(std::move(p));
+            }
+            continue;
+        }
         PreparedGradeNode p;
         p.id = n.id;
         p.type = n.type;
-        const int maxInputs = n.isMixer() ? kMaxMixerInputs : 1;
-        for (const quint64 in : n.inputs) {
-            if (int(p.inputs.size()) >= maxInputs)
-                break;
-            p.inputs.push_back(in == 0 ? -1 : slot.value(in, -1));
+        if (n.type == GradeNodeType::KeyMixer) {
+            for (int k = 0; k < n.inputs.size() && int(p.inputs.size()) < kMaxMixerInputs; ++k) {
+                const int ref = refOf(n.inputs[k], 0);
+                if (n.inputs[k] == 0 || ref < 0)
+                    continue; // an unconnected slot counts nothing
+                p.inputs.push_back(ref);
+                p.keyGains.push_back(float(n.keyGain(k)));
+                p.keyInverts.push_back(n.keyInverted(k));
+            }
+        } else if (n.type == GradeNodeType::AlphaOutput) {
+            p.inputs = {-1};
+        } else {
+            const int maxInputs
+                = n.hasVariableInputs() ? kMaxMixerInputs : (n.type == GradeNodeType::Combiner ? 3 : 1);
+            for (int k = 0; k < n.inputs.size(); ++k) {
+                if (int(p.inputs.size()) >= maxInputs)
+                    break;
+                p.inputs.push_back(refOf(n.inputs[k], n.portOf(k)));
+            }
+            if (p.inputs.empty())
+                p.inputs.push_back(-1);
+            while (n.type == GradeNodeType::Combiner && p.inputs.size() < 3)
+                p.inputs.push_back(-1);
         }
-        if (p.inputs.empty())
-            p.inputs.push_back(-1);
-        if (!n.isMixer()) {
+        if (n.hasKeyInput() && n.keyInput != 0) {
+            p.keyIn = refOf(n.keyInput, 0);
+            p.keyInInvert = n.keyInputInvert;
+        }
+        if (n.type == GradeNodeType::Corrector) {
             p.bypassed = !n.enabled;
             p.mix = float(std::clamp(n.value(gradekeys::Mix, frame), 0.0, 1.0));
             if (!p.bypassed) {
@@ -98,9 +134,14 @@ PreparedGrade prepareGrade(const ClipGrade& grade, int64_t frame, const PictureG
                 p.finesses = n.qualifier.enabled && p.finesse.active();
             }
         }
+        if (alphaNode && n.id == alphaNode->id)
+            out.alpha = int(out.nodes.size());
+        slot.insert(n.id * 4, int(out.nodes.size()));
         out.nodes.push_back(std::move(p));
     }
-    // Layer mixers read the keys of their upper inputs.
+    // Layer mixers read the keys of their upper inputs; key inputs, Key Mixers and the Alpha
+    // Output read the keys of their sources (and a keyed corrector computes its own key from
+    // its key input, so this runs from the last node to the first).
     for (const PreparedGradeNode& p : out.nodes) {
         if (p.type != GradeNodeType::Layer)
             continue;
@@ -109,14 +150,26 @@ PreparedGrade prepareGrade(const ClipGrade& grade, int64_t frame, const PictureG
                 out.nodes[size_t(p.inputs[i])].keyNeeded = true;
         }
     }
+    for (size_t i = out.nodes.size(); i-- > 0;) {
+        const PreparedGradeNode& p = out.nodes[i];
+        if (p.type == GradeNodeType::KeyMixer) {
+            for (const int in : p.inputs)
+                out.nodes[size_t(in)].keyNeeded = true;
+        } else if (p.keyIn >= 0) {
+            const bool reads = p.type == GradeNodeType::AlphaOutput || p.corrects || p.keyNeeded
+                || p.blurs;
+            if (reads)
+                out.nodes[size_t(p.keyIn)].keyNeeded = true;
+        }
+    }
     // A matte nobody reads (identity node, no Layer mixer above) is not cleaned.
     for (PreparedGradeNode& p : out.nodes)
         p.finesses = p.finesses && (p.corrects || p.keyNeeded || p.blurs);
-    out.output = int(out.nodes.size()) - 1;
+    out.output = grade.output == 0 ? -1 : refOf(grade.output, 0);
     out.identity
         = std::all_of(out.nodes.cbegin(), out.nodes.cend(), [](const PreparedGradeNode& p) {
               return p.type == GradeNodeType::Corrector && !p.corrects && !p.blurs;
-          });
+          }) && out.alpha < 0;
     // Mixers over identity correctors still mix identical pictures, except a Layer mixer
     // whose upper input is bypassed (alpha 0: the lower input shows) - also identical. So the
     // test above (every node a non-correcting corrector) stays conservative: any mixer renders.
@@ -140,9 +193,21 @@ void prependInputLut(PreparedGrade& g, const ClipAttributes& attributes)
     first.tetrahedral = true;
     first.corrects = true;
     for (PreparedGradeNode& n : g.nodes) {
+        if (n.type == GradeNodeType::KeyMixer)
+            continue; // its inputs are key sources: shifted below
         for (int& in : n.inputs)
             in = in < 0 ? 0 : in + 1;
     }
+    for (PreparedGradeNode& n : g.nodes) {
+        if (n.type == GradeNodeType::KeyMixer) {
+            for (int& in : n.inputs)
+                ++in;
+        }
+        if (n.keyIn >= 0)
+            ++n.keyIn;
+    }
+    if (g.alpha >= 0)
+        ++g.alpha;
     g.nodes.insert(g.nodes.begin(), std::move(first));
     // output -1 (empty or disconnected grade): the picture leaves with just the LUT.
     g.output = g.output < 0 ? 0 : g.output + 1;
@@ -168,6 +233,18 @@ void applyInputLut(const ClipAttributes& attributes, QImage& image)
 
 namespace {
 
+/// The 8 bit alpha the Alpha Output's key @p key makes.
+int alphaByte(float key)
+{
+    return int(std::lround(std::clamp(key, 0.0f, 1.0f) * 255.0f));
+}
+
+/// The key of a key input: @p key, or its inverse.
+float keyInputValue(float key, bool invert)
+{
+    return invert ? 1.0f - key : key;
+}
+
 /// Evaluates node @p i of @p g for one pixel into scratch[4i .. 4i+3] (colour, layer alpha);
 /// @p rgb is the grade's input colour, scratch holds the outputs of the nodes before @p i.
 void evalNode(const PreparedGrade& g, size_t i, const float rgb[3], float px, float py,
@@ -186,9 +263,13 @@ void evalNode(const PreparedGrade& g, size_t i, const float rgb[3], float px, fl
             break;
         }
         float key = n.mix;
-        if (n.keyed && (n.corrects || n.keyNeeded)) {
-            key *= qualifierKey(n.qualifier, in);
-            key *= windowsMatte(n.windows, px, py);
+        if (n.corrects || n.keyNeeded) {
+            if (n.keyed) {
+                key *= qualifierKey(n.qualifier, in);
+                key *= windowsMatte(n.windows, px, py);
+            }
+            if (n.keyIn >= 0)
+                key *= keyInputValue(scratch[size_t(n.keyIn) * 4 + 3], n.keyInInvert);
         }
         o[3] = key;
         if (!n.corrects || key <= 0.0f)
@@ -245,15 +326,49 @@ void evalNode(const PreparedGrade& g, size_t i, const float rgb[3], float px, fl
         o[3] = 1.0f;
         break;
     }
+    case GradeNodeType::KeyMixer: {
+        // The sum of the gained keys (an inverted input counts 1 - key), clamped.
+        float sum = 0.0f;
+        for (size_t k = 0; k < n.inputs.size(); ++k) {
+            const float key = scratch[size_t(n.inputs[k]) * 4 + 3];
+            sum += n.keyGains[k] * keyInputValue(key, n.keyInverts[k]);
+        }
+        o[3] = std::clamp(sum, 0.0f, 1.0f);
+        o[0] = o[1] = o[2] = o[3]; // a picture of the key (thumbnails)
+        break;
+    }
+    case GradeNodeType::Splitter: {
+        const float v = colour(n.inputs[0])[n.channel];
+        o[0] = o[1] = o[2] = v;
+        o[3] = 1.0f;
+        break;
+    }
+    case GradeNodeType::Combiner:
+        o[0] = colour(n.inputs[0])[0];
+        o[1] = colour(n.inputs[1])[1];
+        o[2] = colour(n.inputs[2])[2];
+        o[3] = 1.0f;
+        break;
+    case GradeNodeType::AlphaOutput:
+        o[0] = o[1] = o[2] = 0.0f;
+        o[3] = n.keyIn >= 0 ? std::clamp(keyInputValue(scratch[size_t(n.keyIn) * 4 + 3], n.keyInInvert), 0.0f, 1.0f)
+                            : 1.0f;
+        break;
+    case GradeNodeType::Compound:
+        o[0] = o[1] = o[2] = 0.0f; // never prepared: references resolve to the inner output
+        o[3] = 1.0f;
+        break;
     }
 }
 
 } // namespace
 
-void gradePixel(
-    const PreparedGrade& g, float rgb[3], float px, float py, std::vector<float>& scratch)
+void gradePixel(const PreparedGrade& g, float rgb[3], float px, float py,
+    std::vector<float>& scratch, float* alpha)
 {
-    if (g.output < 0)
+    if (alpha)
+        *alpha = 1.0f;
+    if (g.output < 0 && g.alpha < 0)
         return;
     const size_t count = g.nodes.size();
     if (scratch.size() < count * 4)
@@ -261,8 +376,12 @@ void gradePixel(
     // Node i: scratch[4i .. 4i+2] = output colour, scratch[4i+3] = layer alpha.
     for (size_t i = 0; i < count; ++i)
         evalNode(g, i, rgb, px, py, scratch);
-    const float* result = &scratch[size_t(g.output) * 4];
-    rgb[0] = result[0], rgb[1] = result[1], rgb[2] = result[2];
+    if (g.output >= 0) {
+        const float* result = &scratch[size_t(g.output) * 4];
+        rgb[0] = result[0], rgb[1] = result[1], rgb[2] = result[2];
+    }
+    if (alpha && g.alpha >= 0)
+        *alpha = scratch[size_t(g.alpha) * 4 + 3];
 }
 
 namespace {
@@ -430,6 +549,8 @@ void applyGradeBlurred(const PreparedGrade& g, QImage& image)
                             k *= n.finesses ? matte[p] : qualifierKey(n.qualifier, in);
                             k *= windowsMatte(n.windows, float(x) + 0.5f, float(y) + 0.5f);
                         }
+                        if (n.keyIn >= 0)
+                            k *= keyInputValue(out[size_t(n.keyIn)][p * 4 + 3], n.keyInInvert);
                         key[p] = k;
                         float c[3] = {in[0], in[1], in[2]};
                         if (n.corrects) { // colour corrections, ungated (the blur reads them all)
@@ -478,6 +599,7 @@ void applyGradeBlurred(const PreparedGrade& g, QImage& image)
             if (n.type == GradeNodeType::Layer && in >= 0)
                 need.push_back(g.nodes[size_t(in)].inputs[0]);
         }
+        need.push_back(n.keyIn);
         forRowBands(w, h, [&](int y0, int y1) {
             std::vector<float> scratch(nodes * 4, 0.0f);
             for (int y = y0; y < y1; ++y) {
@@ -495,15 +617,17 @@ void applyGradeBlurred(const PreparedGrade& g, QImage& image)
             }
         });
     }
-    const std::vector<float>& result = out[size_t(g.output)];
     forRowBands(w, h, [&](int y0, int y1) {
         for (int y = y0; y < y1; ++y) {
             auto* line = reinterpret_cast<QRgb*>(bits + y * stride);
             for (int x = 0; x < w; ++x) {
-                const int a = qAlpha(line[x]);
+                int a = qAlpha(line[x]);
                 if (a == 0)
                     continue;
-                const float* c = &result[(size_t(y) * size_t(w) + size_t(x)) * 4];
+                const size_t p = size_t(y) * size_t(w) + size_t(x);
+                const float* c = g.output >= 0 ? &out[size_t(g.output)][p * 4] : &input[p * 3];
+                if (g.alpha >= 0)
+                    a = alphaByte(out[size_t(g.alpha)][p * 4 + 3]);
                 const float fa = float(a);
                 auto q = [fa](float v) { return int(std::lround(std::clamp(v, 0.0f, 1.0f) * fa)); };
                 line[x] = qRgba(q(c[0]), q(c[1]), q(c[2]), a);
@@ -543,10 +667,12 @@ void applyGrade(const PreparedGrade& grade, QImage& image)
                     continue;
                 const float inv = 1.0f / float(a);
                 float c[3] = {float(qRed(p)) * inv, float(qGreen(p)) * inv, float(qBlue(p)) * inv};
-                gradePixel(grade, c, float(x) + 0.5f, float(y) + 0.5f, scratch);
-                const float fa = float(a);
+                float key = 1.0f;
+                gradePixel(grade, c, float(x) + 0.5f, float(y) + 0.5f, scratch, &key);
+                const int a2 = grade.alpha >= 0 ? alphaByte(key) : a;
+                const float fa = float(a2);
                 auto q = [fa](float v) { return int(std::lround(std::clamp(v, 0.0f, 1.0f) * fa)); };
-                line[x] = qRgba(q(c[0]), q(c[1]), q(c[2]), a);
+                line[x] = qRgba(q(c[0]), q(c[1]), q(c[2]), a2);
             }
         }
     };
