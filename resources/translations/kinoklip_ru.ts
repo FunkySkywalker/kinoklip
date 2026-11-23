@@ -32084,7 +32084,7 @@ Restart Kinoklip to apply them.</source>
     </message>
     <message>
         <source>&amp;Retime</source>
-        <translation>&amp;Ретайминг</translation>
+        <translation>&amp;Ретайм</translation>
     </message>
     <message>
         <source>&amp;Retime Controls</source>
