@@ -21482,12 +21482,12 @@ Verknüpft: nicht in der Projektdatei gespeichert</translation>
         <translation>%n Elemente neu verknüpft.</translation>
     </message>
     <message>
-        <source>%n item is still offline (no file with the same name in that folder).</source>
-        <translation>%n Element ist noch offline (keine Datei mit demselben Namen in diesem Ordner).</translation>
+        <source>%n item is still offline.</source>
+        <translation>%n Element ist noch offline.</translation>
     </message>
     <message>
-        <source>%n items are still offline (no file with the same name in that folder).</source>
-        <translation>%n Elemente sind noch offline (keine Datei mit demselben Namen in diesem Ordner).</translation>
+        <source>%n items are still offline.</source>
+        <translation>%n Elemente sind noch offline.</translation>
     </message>
     <message>
         <source>New Multicam Clip</source>
@@ -29586,6 +29586,137 @@ Die Timelines, die die Projekteinstellungen verwenden, werden umgerechnet: Clips
     </message>
 </context>
 <context>
+    <name>kk::RelinkDialog</name>
+    <message>
+        <source>Relink Media</source>
+        <translation>Medien neu verknüpfen</translation>
+    </message>
+    <message>
+        <source>Choose the folder with the files. Names do not have to be identical: the preview shows what will be relinked.</source>
+        <translation>Wählen Sie den Ordner mit den Dateien. Die Namen müssen nicht identisch sein: Die Vorschau zeigt, was neu verknüpft wird.</translation>
+    </message>
+    <message>
+        <source>Folder with the files</source>
+        <translation>Ordner mit den Dateien</translation>
+    </message>
+    <message>
+        <source>Browse…</source>
+        <translation>Durchsuchen…</translation>
+    </message>
+    <message>
+        <source>Search subfolders</source>
+        <translation>Unterordner durchsuchen</translation>
+    </message>
+    <message>
+        <source>Ignore the file extension</source>
+        <translation>Dateiendung ignorieren</translation>
+    </message>
+    <message>
+        <source>&quot;clip.mov&quot; is found as &quot;clip.mp4&quot; or &quot;clip.mxf&quot;</source>
+        <translation>„clip.mov“ wird auch als „clip.mp4“ oder „clip.mxf“ gefunden</translation>
+    </message>
+    <message>
+        <source>Ignore case</source>
+        <translation>Groß-/Kleinschreibung ignorieren</translation>
+    </message>
+    <message>
+        <source>Closest name, at least</source>
+        <translation>Ähnlichster Name, mindestens</translation>
+    </message>
+    <message>
+        <source>Also take the file with the most similar name when no file has the same name (a typo, another numbering, an added suffix)</source>
+        <translation>Auch die Datei mit dem ähnlichsten Namen nehmen, wenn keine Datei denselben Namen hat (Tippfehler, andere Nummerierung, zusätzliches Suffix)</translation>
+    </message>
+    <message>
+        <source>Also relink media that is online</source>
+        <translation>Auch Medien neu verknüpfen, die online sind</translation>
+    </message>
+    <message>
+        <source>Regular expression, e.g. _v1$</source>
+        <translation>Regulärer Ausdruck, z. B. _v1$</translation>
+    </message>
+    <message>
+        <source>Found in the old file name (without the extension) and replaced by the text on the right; the result is the name to look for</source>
+        <translation>Wird im alten Dateinamen (ohne Endung) gesucht und durch den Text rechts ersetzt; das Ergebnis ist der gesuchte Name</translation>
+    </message>
+    <message>
+        <source>Replace with, e.g. _v2 (\1 = first group)</source>
+        <translation>Ersetzen durch, z. B. _v2 (\1 = erste Gruppe)</translation>
+    </message>
+    <message>
+        <source>Old file</source>
+        <translation>Alte Datei</translation>
+    </message>
+    <message>
+        <source>New file</source>
+        <translation>Neue Datei</translation>
+    </message>
+    <message>
+        <source>Match</source>
+        <translation>Treffer</translation>
+    </message>
+    <message>
+        <source>Quality</source>
+        <translation>Qualität</translation>
+    </message>
+    <message>
+        <source>Double-click a row to choose its file by hand</source>
+        <translation>Doppelklick auf eine Zeile, um die Datei von Hand zu wählen</translation>
+    </message>
+    <message>
+        <source>Relink</source>
+        <translation>Neu verknüpfen</translation>
+    </message>
+    <message>
+        <source>Find and replace</source>
+        <translation>Suchen und ersetzen</translation>
+    </message>
+    <message>
+        <source>Not a valid expression: %1</source>
+        <translation>Kein gültiger Ausdruck: %1</translation>
+    </message>
+    <message>
+        <source> (several files fit)</source>
+        <translation> (mehrere Dateien passen)</translation>
+    </message>
+    <message>
+        <source>(no file found)</source>
+        <translation>(keine Datei gefunden)</translation>
+    </message>
+    <message>
+        <source>No offline media to relink.</source>
+        <translation>Keine Offline-Medien zum Neuverknüpfen.</translation>
+    </message>
+    <message>
+        <source>Choose a folder with media files.</source>
+        <translation>Wählen Sie einen Ordner mit Mediendateien.</translation>
+    </message>
+    <message>
+        <source>%n item will be relinked.</source>
+        <translation>%n Element wird neu verknüpft.</translation>
+    </message>
+    <message>
+        <source>%n items will be relinked.</source>
+        <translation>%n Elemente werden neu verknüpft.</translation>
+    </message>
+    <message>
+        <source>%n item has no match.</source>
+        <translation>%n Element hat keinen Treffer.</translation>
+    </message>
+    <message>
+        <source>%n items have no match.</source>
+        <translation>%n Elemente haben keinen Treffer.</translation>
+    </message>
+    <message>
+        <source>Relink Media: Choose the Folder with the Files</source>
+        <translation>Medien neu verknüpfen: Ordner mit den Dateien wählen</translation>
+    </message>
+    <message>
+        <source>Choose the File</source>
+        <translation>Datei wählen</translation>
+    </message>
+</context>
+<context>
     <name>kk::RenderFinishNotifier</name>
     <message>
         <source>Render complete</source>
@@ -36828,6 +36959,37 @@ Einen Multicam-Clip aus dem Medienpool öffnen oder den Abspielkopf über einen 
     <message>
         <source>The project is open in another window or program</source>
         <translation>Das Projekt ist in einem anderen Fenster oder Programm geöffnet</translation>
+    </message>
+</context>
+<context>
+    <name>kk::relink</name>
+    <message>
+        <source>Exact name</source>
+        <translation>Gleicher Name</translation>
+    </message>
+    <message>
+        <source>Other case</source>
+        <translation>Andere Schreibung</translation>
+    </message>
+    <message>
+        <source>Other extension</source>
+        <translation>Andere Endung</translation>
+    </message>
+    <message>
+        <source>Pattern</source>
+        <translation>Muster</translation>
+    </message>
+    <message>
+        <source>Closest name</source>
+        <translation>Ähnlichster Name</translation>
+    </message>
+    <message>
+        <source>Chosen by hand</source>
+        <translation>Von Hand gewählt</translation>
+    </message>
+    <message>
+        <source>No match</source>
+        <translation>Kein Treffer</translation>
     </message>
 </context>
 <context>

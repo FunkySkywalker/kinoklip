@@ -21497,12 +21497,12 @@ Linked: not stored in the project file</source>
         <translation>%n объектов перепривязано.</translation>
     </message>
     <message>
-        <source>%n item is still offline (no file with the same name in that folder).</source>
-        <translation>%n объект все еще отсутствует (в этой папке нет файла с таким именем).</translation>
+        <source>%n item is still offline.</source>
+        <translation>%n элемент по-прежнему не в сети.</translation>
     </message>
     <message>
-        <source>%n items are still offline (no file with the same name in that folder).</source>
-        <translation>%n объектов все еще отсутствуют (в этой папке нет файлов с такими именами).</translation>
+        <source>%n items are still offline.</source>
+        <translation>Элементов по-прежнему не в сети: %n.</translation>
     </message>
     <message>
         <source>New Multicam Clip</source>
@@ -29605,6 +29605,137 @@ The timelines that use the project settings are converted: clips, markers and ef
     </message>
 </context>
 <context>
+    <name>kk::RelinkDialog</name>
+    <message>
+        <source>Relink Media</source>
+        <translation>Перепривязать медиафайлы</translation>
+    </message>
+    <message>
+        <source>Choose the folder with the files. Names do not have to be identical: the preview shows what will be relinked.</source>
+        <translation>Выберите папку с файлами. Имена не обязаны совпадать: предпросмотр покажет, что будет перепривязано.</translation>
+    </message>
+    <message>
+        <source>Folder with the files</source>
+        <translation>Папка с файлами</translation>
+    </message>
+    <message>
+        <source>Browse…</source>
+        <translation>Обзор…</translation>
+    </message>
+    <message>
+        <source>Search subfolders</source>
+        <translation>Искать в подпапках</translation>
+    </message>
+    <message>
+        <source>Ignore the file extension</source>
+        <translation>Игнорировать расширение файла</translation>
+    </message>
+    <message>
+        <source>&quot;clip.mov&quot; is found as &quot;clip.mp4&quot; or &quot;clip.mxf&quot;</source>
+        <translation>«clip.mov» находится и как «clip.mp4», и как «clip.mxf»</translation>
+    </message>
+    <message>
+        <source>Ignore case</source>
+        <translation>Игнорировать регистр</translation>
+    </message>
+    <message>
+        <source>Closest name, at least</source>
+        <translation>Самое похожее имя, не менее</translation>
+    </message>
+    <message>
+        <source>Also take the file with the most similar name when no file has the same name (a typo, another numbering, an added suffix)</source>
+        <translation>Брать и файл с самым похожим именем, если файла с тем же именем нет (опечатка, другая нумерация, добавленный суффикс)</translation>
+    </message>
+    <message>
+        <source>Also relink media that is online</source>
+        <translation>Перепривязать и медиа, которые в сети</translation>
+    </message>
+    <message>
+        <source>Regular expression, e.g. _v1$</source>
+        <translation>Регулярное выражение, например _v1$</translation>
+    </message>
+    <message>
+        <source>Found in the old file name (without the extension) and replaced by the text on the right; the result is the name to look for</source>
+        <translation>Ищется в старом имени файла (без расширения) и заменяется текстом справа; результат — имя, которое нужно найти</translation>
+    </message>
+    <message>
+        <source>Replace with, e.g. _v2 (\1 = first group)</source>
+        <translation>Заменить на, например _v2 (\1 = первая группа)</translation>
+    </message>
+    <message>
+        <source>Old file</source>
+        <translation>Старый файл</translation>
+    </message>
+    <message>
+        <source>New file</source>
+        <translation>Новый файл</translation>
+    </message>
+    <message>
+        <source>Match</source>
+        <translation>Совпадение</translation>
+    </message>
+    <message>
+        <source>Quality</source>
+        <translation>Качество</translation>
+    </message>
+    <message>
+        <source>Double-click a row to choose its file by hand</source>
+        <translation>Дважды щёлкните строку, чтобы выбрать файл вручную</translation>
+    </message>
+    <message>
+        <source>Relink</source>
+        <translation>Перепривязать</translation>
+    </message>
+    <message>
+        <source>Find and replace</source>
+        <translation>Найти и заменить</translation>
+    </message>
+    <message>
+        <source>Not a valid expression: %1</source>
+        <translation>Недопустимое выражение: %1</translation>
+    </message>
+    <message>
+        <source> (several files fit)</source>
+        <translation> (подходит несколько файлов)</translation>
+    </message>
+    <message>
+        <source>(no file found)</source>
+        <translation>(файл не найден)</translation>
+    </message>
+    <message>
+        <source>No offline media to relink.</source>
+        <translation>Нет медиа не в сети для перепривязки.</translation>
+    </message>
+    <message>
+        <source>Choose a folder with media files.</source>
+        <translation>Выберите папку с медиафайлами.</translation>
+    </message>
+    <message>
+        <source>%n item will be relinked.</source>
+        <translation>Будет перепривязан %n элемент.</translation>
+    </message>
+    <message>
+        <source>%n items will be relinked.</source>
+        <translation>Будет перепривязано элементов: %n.</translation>
+    </message>
+    <message>
+        <source>%n item has no match.</source>
+        <translation>У %n элемента нет совпадения.</translation>
+    </message>
+    <message>
+        <source>%n items have no match.</source>
+        <translation>У элементов без совпадения: %n.</translation>
+    </message>
+    <message>
+        <source>Relink Media: Choose the Folder with the Files</source>
+        <translation>Перепривязка медиа: выберите папку с файлами</translation>
+    </message>
+    <message>
+        <source>Choose the File</source>
+        <translation>Выберите файл</translation>
+    </message>
+</context>
+<context>
     <name>kk::RenderFinishNotifier</name>
     <message>
         <source>Render complete</source>
@@ -36849,6 +36980,37 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
     <message>
         <source>The project is open in another window or program</source>
         <translation>Проект открыт в другом окне или программе</translation>
+    </message>
+</context>
+<context>
+    <name>kk::relink</name>
+    <message>
+        <source>Exact name</source>
+        <translation>То же имя</translation>
+    </message>
+    <message>
+        <source>Other case</source>
+        <translation>Другой регистр</translation>
+    </message>
+    <message>
+        <source>Other extension</source>
+        <translation>Другое расширение</translation>
+    </message>
+    <message>
+        <source>Pattern</source>
+        <translation>Шаблон</translation>
+    </message>
+    <message>
+        <source>Closest name</source>
+        <translation>Самое похожее имя</translation>
+    </message>
+    <message>
+        <source>Chosen by hand</source>
+        <translation>Выбрано вручную</translation>
+    </message>
+    <message>
+        <source>No match</source>
+        <translation>Нет совпадения</translation>
     </message>
 </context>
 <context>

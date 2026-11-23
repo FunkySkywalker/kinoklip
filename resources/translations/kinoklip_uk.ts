@@ -21497,12 +21497,12 @@ Linked: not stored in the project file</source>
         <translation>Повторно прив’язано елементів: %n.</translation>
     </message>
     <message>
-        <source>%n item is still offline (no file with the same name in that folder).</source>
-        <translation>Досі офлайн елементів: %n (у цій теці немає файлу з такою самою назвою).</translation>
+        <source>%n item is still offline.</source>
+        <translation>%n елемент досі не в мережі.</translation>
     </message>
     <message>
-        <source>%n items are still offline (no file with the same name in that folder).</source>
-        <translation>Досі офлайн елементів: %n (у цій теці немає файлу з такою самою назвою).</translation>
+        <source>%n items are still offline.</source>
+        <translation>Елементів досі не в мережі: %n.</translation>
     </message>
     <message>
         <source>New Multicam Clip</source>
@@ -29605,6 +29605,137 @@ The timelines that use the project settings are converted: clips, markers and ef
     </message>
 </context>
 <context>
+    <name>kk::RelinkDialog</name>
+    <message>
+        <source>Relink Media</source>
+        <translation>Повторно прив’язати медіа</translation>
+    </message>
+    <message>
+        <source>Choose the folder with the files. Names do not have to be identical: the preview shows what will be relinked.</source>
+        <translation>Виберіть теку з файлами. Назви не мусять збігатися: попередній перегляд покаже, що буде перепривʼязано.</translation>
+    </message>
+    <message>
+        <source>Folder with the files</source>
+        <translation>Тека з файлами</translation>
+    </message>
+    <message>
+        <source>Browse…</source>
+        <translation>Огляд…</translation>
+    </message>
+    <message>
+        <source>Search subfolders</source>
+        <translation>Шукати в підтеках</translation>
+    </message>
+    <message>
+        <source>Ignore the file extension</source>
+        <translation>Ігнорувати розширення файлу</translation>
+    </message>
+    <message>
+        <source>&quot;clip.mov&quot; is found as &quot;clip.mp4&quot; or &quot;clip.mxf&quot;</source>
+        <translation>«clip.mov» знаходиться і як «clip.mp4», і як «clip.mxf»</translation>
+    </message>
+    <message>
+        <source>Ignore case</source>
+        <translation>Ігнорувати регістр</translation>
+    </message>
+    <message>
+        <source>Closest name, at least</source>
+        <translation>Найсхожіша назва, не менше</translation>
+    </message>
+    <message>
+        <source>Also take the file with the most similar name when no file has the same name (a typo, another numbering, an added suffix)</source>
+        <translation>Брати й файл із найсхожішою назвою, якщо файлу з такою самою назвою немає (одруківка, інша нумерація, доданий суфікс)</translation>
+    </message>
+    <message>
+        <source>Also relink media that is online</source>
+        <translation>Перепривʼязати й медіа, які в мережі</translation>
+    </message>
+    <message>
+        <source>Regular expression, e.g. _v1$</source>
+        <translation>Регулярний вираз, наприклад _v1$</translation>
+    </message>
+    <message>
+        <source>Found in the old file name (without the extension) and replaced by the text on the right; the result is the name to look for</source>
+        <translation>Шукається в старій назві файлу (без розширення) і замінюється текстом праворуч; результат — назва, яку потрібно знайти</translation>
+    </message>
+    <message>
+        <source>Replace with, e.g. _v2 (\1 = first group)</source>
+        <translation>Замінити на, наприклад _v2 (\1 = перша група)</translation>
+    </message>
+    <message>
+        <source>Old file</source>
+        <translation>Старий файл</translation>
+    </message>
+    <message>
+        <source>New file</source>
+        <translation>Новий файл</translation>
+    </message>
+    <message>
+        <source>Match</source>
+        <translation>Збіг</translation>
+    </message>
+    <message>
+        <source>Quality</source>
+        <translation>Якість</translation>
+    </message>
+    <message>
+        <source>Double-click a row to choose its file by hand</source>
+        <translation>Двічі клацніть рядок, щоб вибрати файл вручну</translation>
+    </message>
+    <message>
+        <source>Relink</source>
+        <translation>Перепривʼязати</translation>
+    </message>
+    <message>
+        <source>Find and replace</source>
+        <translation>Знайти й замінити</translation>
+    </message>
+    <message>
+        <source>Not a valid expression: %1</source>
+        <translation>Недійсний вираз: %1</translation>
+    </message>
+    <message>
+        <source> (several files fit)</source>
+        <translation> (підходить кілька файлів)</translation>
+    </message>
+    <message>
+        <source>(no file found)</source>
+        <translation>(файл не знайдено)</translation>
+    </message>
+    <message>
+        <source>No offline media to relink.</source>
+        <translation>Немає медіа не в мережі для перепривʼязування.</translation>
+    </message>
+    <message>
+        <source>Choose a folder with media files.</source>
+        <translation>Виберіть теку з медіафайлами.</translation>
+    </message>
+    <message>
+        <source>%n item will be relinked.</source>
+        <translation>Буде перепривʼязано %n елемент.</translation>
+    </message>
+    <message>
+        <source>%n items will be relinked.</source>
+        <translation>Буде перепривʼязано елементів: %n.</translation>
+    </message>
+    <message>
+        <source>%n item has no match.</source>
+        <translation>У %n елемента немає збігу.</translation>
+    </message>
+    <message>
+        <source>%n items have no match.</source>
+        <translation>Елементів без збігу: %n.</translation>
+    </message>
+    <message>
+        <source>Relink Media: Choose the Folder with the Files</source>
+        <translation>Перепривʼязування медіа: виберіть теку з файлами</translation>
+    </message>
+    <message>
+        <source>Choose the File</source>
+        <translation>Виберіть файл</translation>
+    </message>
+</context>
+<context>
     <name>kk::RenderFinishNotifier</name>
     <message>
         <source>Render complete</source>
@@ -36849,6 +36980,37 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
     <message>
         <source>The project is open in another window or program</source>
         <translation>Проєкт відкрито в іншому вікні або програмі</translation>
+    </message>
+</context>
+<context>
+    <name>kk::relink</name>
+    <message>
+        <source>Exact name</source>
+        <translation>Те саме імʼя</translation>
+    </message>
+    <message>
+        <source>Other case</source>
+        <translation>Інший регістр</translation>
+    </message>
+    <message>
+        <source>Other extension</source>
+        <translation>Інше розширення</translation>
+    </message>
+    <message>
+        <source>Pattern</source>
+        <translation>Шаблон</translation>
+    </message>
+    <message>
+        <source>Closest name</source>
+        <translation>Найсхожіша назва</translation>
+    </message>
+    <message>
+        <source>Chosen by hand</source>
+        <translation>Вибрано вручну</translation>
+    </message>
+    <message>
+        <source>No match</source>
+        <translation>Збігів немає</translation>
     </message>
 </context>
 <context>

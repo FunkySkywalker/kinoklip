@@ -350,6 +350,9 @@ the absolute path no longer exists.
   `inputLut` (an optional `.cube` path, key `inputLut`, no format bump; set through
   `clipattributes::setInputLut()`) is applied by the renderers before the first node of the
   clip grade (`render::prependInputLut()`), also without a grade and under Shift+D.
+- `RelinkMatcher.h`: the planner of the fuzzy relink (`relink::plan()`: exact name, other case,
+  other extension, find / replace pattern, closest name; one file per item) and
+  `scanFolder()`; the preview dialog is `ui/dialogs/RelinkDialog`.
 - Stacked timelines: `Project::setTabs()`, `timelinePlayhead()` / `setTimelinePlayhead()`
   (inactive timelines keep their own playhead; `inactivePlayheadChanged`).
 

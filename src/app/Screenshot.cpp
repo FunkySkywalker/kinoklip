@@ -40,6 +40,7 @@
 #include "ui/dialogs/NormalizeAudioDialog.h"
 #include "ui/dialogs/PreferencesDialog.h"
 #include "ui/dialogs/ProjectSettingsDialog.h"
+#include "ui/dialogs/RelinkDialog.h"
 #include "ui/effects/EffectsLibraryPanel.h"
 #include "ui/inspector/InspectorPanel.h"
 #include "ui/inspector/ParamGroupBox.h"
@@ -1266,6 +1267,54 @@ int runScreenshot(MainWindow& window, const QString& target, const QString& pngP
             lutMenu->popup(pool->mapToGlobal(QPoint(pool->width() / 3, 60)));
             popups = {lutMenu.get()};
         };
+    } else if (base == QLatin1String("relink")) {
+        // "relink[:<folder>]": the Relink dialog. The project's online files are pointed at
+        // made-up names (a _v1 suffix, upper case, another extension) so that the preview shows
+        // what the matching finds in the folder (default: the folder of the first file).
+        std::vector<QString> ids;
+        QString folder = section;
+        for (const MediaItem& m : ctx.project->mediaPool()->items()) {
+            if (m.kind == MediaItemKind::File && QFileInfo::exists(m.path)) {
+                if (folder.isEmpty())
+                    folder = QFileInfo(m.path).absolutePath();
+                if (ids.size() < 7)
+                    ids.push_back(m.id);
+            }
+        }
+        if (ids.empty()) {
+            std::fprintf(stderr, "relink: needs a project with media files\n");
+            return 2;
+        }
+        ctx.project->beginEdit(QStringLiteral("Demo"));
+        for (size_t i = 0; i < ids.size(); ++i) {
+            const MediaItem* m = ctx.project->mediaPool()->item(ids[i]);
+            const QFileInfo fi(m->path);
+            const QString gone = QStringLiteral("/old-drive/footage/");
+            QString name = fi.fileName();
+            switch (i % 4) {
+            case 0:
+                name = fi.completeBaseName() + QStringLiteral("_v1.") + fi.suffix();
+                break;
+            case 1:
+                name = fi.fileName().toUpper();
+                break;
+            case 2:
+                name = fi.completeBaseName() + QStringLiteral(".mxf");
+                break;
+            default:
+                name = fi.completeBaseName() + QStringLiteral("x.") + fi.suffix();
+                break;
+            }
+            ctx.project->mediaPool()->relinkItem(ids[i], gone + name);
+        }
+        ctx.project->endEdit();
+        ctx.project->undoStack()->setClean();
+        auto d = std::make_unique<RelinkDialog>(*ctx.project->mediaPool(), QStringList(), folder, &window);
+        d->findEdit()->setText(QStringLiteral("_v1$"));
+        d->closestBox()->setChecked(true);
+        d->resize(860, 440);
+        dialog = std::move(d);
+        delayMs = kDialogSettleDelayMs;
     } else if (!isPage) {
         std::fprintf(stderr,
             "unknown screenshot target '%s' (use media[:<item>], cut[:tape|clip|strip], edit, "
@@ -1276,7 +1325,7 @@ int runScreenshot(MainWindow& window, const QString& target, const QString& pngP
             "multicam[:viewer|timeline], "
             "keyframes-panel[:dope|curves|absolute|float], "
             "mediapool, levels, stacked, clip-attributes[:audio|timecode], "
-            "metadata-full[:<search>], input-lut, "
+            "metadata-full[:<search>], input-lut, relink[:<folder>], "
             "effects[:<id>], fx:<id>[:inspector|viewer], change-speed, timeline, "
             "deliver:inout|queue, import-dialog, project-manager, new-project, menu-color-theme "
             "or "

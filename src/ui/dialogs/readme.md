@@ -67,6 +67,9 @@ Preferences dialog stored new values.
   connect it in `connectDialogActions()`.
 
 ## Clip Attributes (attrs branch)
+`RelinkDialog.h`: Media Pool > Relink: folder, options (subfolders, case, extension, closest name,
+find / replace) and the preview table of `relink::plan()`; `MediaPoolPanel::relinkRows()` applies
+`result()` as one undo step.
 `ClipAttributesDialog.h`: Video / Audio / Timecode tabs (spec 31.6 - 31.8);
 `clipattributes::edit()` / `apply()` (one undo step on the media pool items),
 `timelineTargets()`. `clip.attributes` is connected in `connectDialogActions()`: the media of

@@ -60,4 +60,20 @@ In a **linked** project the media pool only points to your files, so do not move
 afterwards. In a **single file** project the clips are inside the project; to get the original of
 one back, right-click it in the media pool and choose **Save a Copy to Computer...**.
 
+## Relink files that moved or were renamed
+
+If the media pool shows offline clips, right-click one (or several) and choose **Relink Selected
+Clips...**, or **Relink Offline Media...** for all of them, and pick the folder that holds the
+files. Kinoklip then shows a table before it changes anything: the old file, the file it found,
+how it found it and how good the match is. Clips it found nothing for are listed too.
+
+Names do not have to be identical. Kinoklip matches, best first: the same name; the same name in
+another case (`CLIP.MOV`); the same name with another extension (`clip.mp4` for `clip.mov`, for
+files converted to another format); the name changed by your **Find and replace** (a regular
+expression applied to the old name without its extension, for example `_v1$` replaced by `_v2`,
+or `^(\w+)_v\d+$` replaced by `\1_final`); and, if you tick **Closest name**, the file with the
+most similar name (a typo, another numbering, an added suffix). The percentage shows how similar.
+A file is given to one clip only. Untick a row to leave that clip out, or double-click a row to
+choose its file yourself. **Relink** applies everything as one step that **Undo** takes back.
+
 Next: [Cut and arrange clips](cut-and-arrange-clips.md).
