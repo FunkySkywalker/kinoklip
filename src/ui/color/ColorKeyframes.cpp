@@ -97,8 +97,9 @@ ColorKeyStrip::ColorKeyStrip(ColorSession* session, QWidget* parent)
 void ColorKeyStrip::rebuild()
 {
     m_rows = m_session ? m_session->keyRows() : QVector<ColorSession::KeyRow> {};
-    if (m_selection.row >= rowCount()
-        || (m_selection.row >= 0 && !frames(m_selection.row).contains(m_selection.frame))) {
+    if (!m_dragStarted
+        && (m_selection.row >= rowCount()
+        || (m_selection.row >= 0 && !frames(m_selection.row).contains(m_selection.frame)))) {
         m_selection = {};
         Q_EMIT selectionChanged();
     }
@@ -253,9 +254,6 @@ void ColorKeyStrip::paintEvent(QPaintEvent*)
     const QColor accent = pal.color(QPalette::Highlight);
     // Ruler: the first and last frame and a few ticks.
     p.setPen(text);
-    QFont small = font();
-    small.setPointSizeF(std::max(7.0, small.pointSizeF() - 1.0));
-    p.setFont(small);
     const int ticks = 8;
     for (int i = 0; i <= ticks; ++i) {
         const int64_t f = first + (last - first) * i / ticks;
@@ -272,7 +270,6 @@ void ColorKeyStrip::paintEvent(QPaintEvent*)
         else
             p.drawText(box, Qt::AlignCenter, label);
     }
-    p.setFont(font());
     const quint64 selectedNode = m_session->selectedNode();
     for (int row = 0; row < rowCount(); ++row) {
         const QRect lane = laneRect(row);
