@@ -772,7 +772,7 @@ void main()
     }
     float k = texelFetch(uKey, p, 0).r;
     k = clamp(uInvert != 0 ? 1.0 - k : k, 0.0, 1.0);
-    fragColor = vec4(s.rgb / s.a * k, k);
+    fragColor = vec4(clamp(s.rgb / s.a, 0.0, 1.0) * k, k);
 }
 )";
 
