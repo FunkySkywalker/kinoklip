@@ -1895,7 +1895,6 @@ private slots:
         steps = f.steps();
         auto* reset = page->findChild<QToolButton*>(QStringLiteral("ColorPaletteReset"));
         QVERIFY(reset);
-        timeline->setPlayhead(5);
         QCOMPARE(strip->frames(1), QVector<int64_t> {10});
         reset->click();
         QCOMPARE(f.steps(), steps + 1);
