@@ -10,7 +10,7 @@ Resolve's documentation).
 - **likely**: believed correct, not verified against a running Resolve;
 - **unsure**: best guess; please correct in the keymap file (and here) if it differs.
 
-Counts: 395 commands; sure 106, likely 117, unsure 172.
+Counts: 398 commands; sure 106, likely 120, unsure 172.
 
 Mouse (EditBehaviour, Preferences > Editing): wheel scrolls the tracks vertically, Ctrl+wheel
 scrolls the timeline horizontally, Alt+wheel zooms the timeline (around the playhead by default;
@@ -183,6 +183,7 @@ that every command has an entry and that no key is used twice.
 | Freeze Frame (the clip shows the frame at the playhead) | `clip.freeze_frame` | `Shift+R` | sure |  |
 | Retime Curve (opens the clip's retime curve in the curve editor) | `clip.retime_curve` | `Ctrl+Shift+R` | likely |  |
 | New Compound Clip | `clip.new_compound` | (none) | likely | Clip menu / clip context menu command without a default key in Resolve |
+| New Fusion Clip | `clip.new_fusion` | (none) | likely | Clip menu / clip context menu command without a default key in Resolve |
 | Open in Timeline (compound clip) | `clip.open_in_timeline` | (none) | likely | context menu command without a default key |
 | Decompose in Place (compound clip) | `clip.decompose` | (none) | likely | context menu command without a default key |
 | Open in Compositing Page (the clip's node graph) | `clip.open_in_compositing` | (none) | likely | timeline clip context menu command without a default key |
@@ -363,6 +364,8 @@ that every command has an entry and that no key is used twice.
 | Command | Action id | Key | Confidence | Note |
 |---|---|---|---|---|
 | Create New Multicam Clip Using Selected Clips (media pool) | `mediapool.new_multicam` | (none) | likely | media pool context menu command without a default key in Resolve |
+| New Fusion Composition (media pool) | `mediapool.new_fusion_composition` | (none) | likely | media pool context menu command without a default key in Resolve |
+| New Fusion Clip (media pool) | `mediapool.new_fusion_clip` | (none) | likely | media pool context menu command without a default key in Resolve |
 | Sync and Place on Timeline: Based on Waveform | `mediapool.sync_waveform` | (none) | unsure | Kinoklip's command (Resolve's closest is Auto Sync Audio > Based on Waveform in the media pool); no default key |
 | Sync and Place on Timeline: Based on Timecode | `mediapool.sync_timecode` | (none) | unsure | Kinoklip's command (Resolve: Auto Sync Audio > Based on Timecode); no default key |
 | Sync and Place on Timeline: Based on In Points | `mediapool.sync_in_points` | (none) | unsure | Kinoklip's command (Resolve: Auto Sync Audio > Based on In Points); no default key |

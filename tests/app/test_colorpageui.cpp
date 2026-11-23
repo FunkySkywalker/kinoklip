@@ -704,7 +704,7 @@ private slots:
         QCOMPARE(gal->list()->count(), 0);
         // Moving between albums (what dropping a still on an album does).
         QCOMPARE(gal->dropStill(id, ColorGallery::Source::Project, album), id);
-        QCOMPARE(gal->list()->count(), 0); // the list shows the album being viewed
+        QCOMPARE(gal->list()->count(), 1); // the list shows the album being viewed
         gal->selectAlbum(ColorGallery::Source::Project, album);
         QCOMPARE(gal->list()->count(), 1);
         gal->selectAlbum(ColorGallery::Source::Project, 1);

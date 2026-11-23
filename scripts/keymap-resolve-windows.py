@@ -132,6 +132,7 @@ a("clip.speed_decrease", "Decrease Clip Speed by 10% (percentage points, at leas
 a("clip.freeze_frame", "Freeze Frame (the clip shows the frame at the playhead)", ["Shift+R"], S)
 a("clip.retime_curve", "Retime Curve (opens the clip's retime curve in the curve editor)", ["Ctrl+Shift+R"], L)
 a("clip.new_compound", "New Compound Clip", [], L, "Clip menu / clip context menu command without a default key in Resolve")
+a("clip.new_fusion", "New Fusion Clip", [], L, "Clip menu / clip context menu command without a default key in Resolve")
 a("clip.open_in_timeline", "Open in Timeline (compound clip)", [], L, "context menu command without a default key")
 a("clip.decompose", "Decompose in Place (compound clip)", [], L, "context menu command without a default key")
 a("clip.open_in_compositing", "Open in Compositing Page (the clip's node graph)", [], L, "timeline clip context menu command without a default key")
@@ -298,6 +299,8 @@ a("timeline.find_in_media_pool", "Find in Media Pool (timeline clip)", ["Alt+F"]
 
 sec("Multicam and sync")
 a("mediapool.new_multicam", "Create New Multicam Clip Using Selected Clips (media pool)", [], L, "media pool context menu command without a default key in Resolve")
+a("mediapool.new_fusion_composition", "New Fusion Composition (media pool)", [], L, "media pool context menu command without a default key in Resolve")
+a("mediapool.new_fusion_clip", "New Fusion Clip (media pool)", [], L, "media pool context menu command without a default key in Resolve")
 a("mediapool.sync_waveform", "Sync and Place on Timeline: Based on Waveform", [], U, "Kinoklip's command (Resolve's closest is Auto Sync Audio > Based on Waveform in the media pool); no default key")
 a("mediapool.sync_timecode", "Sync and Place on Timeline: Based on Timecode", [], U, "Kinoklip's command (Resolve: Auto Sync Audio > Based on Timecode); no default key")
 a("mediapool.sync_in_points", "Sync and Place on Timeline: Based on In Points", [], U, "Kinoklip's command (Resolve: Auto Sync Audio > Based on In Points); no default key")
