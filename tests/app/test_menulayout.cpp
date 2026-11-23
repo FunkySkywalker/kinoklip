@@ -724,6 +724,39 @@ private slots:
         QApplication::setStyle(defaultStyle);
     }
 
+    // Every menu of the menu bar fits a 1080p screen in both layouts and the other styles.
+    void menuBarHeights()
+    {
+        Fixture f;
+        const QString defaultStyle = QApplication::style()->objectName();
+        QStringList styles {defaultStyle};
+        for (const QString& name : {QStringLiteral("Fusion"), QStringLiteral("Breeze")}) {
+            for (const QString& key : QStyleFactory::keys()) {
+                if (key.compare(name, Qt::CaseInsensitive) == 0 && !styles.contains(key))
+                    styles.append(key);
+            }
+        }
+        for (const Layout lay : {Layout::Resolve, Layout::Streamlined}) {
+            f.use(lay);
+            for (const QString& style : styles) {
+                QApplication::setStyle(style);
+                for (const QAction* top : f.window->menuBar()->actions()) {
+                    QMenu* menu = top->menu();
+                    if (!menu)
+                        continue;
+                    const int height = menu->sizeHint().height();
+                    qInfo().noquote() << "menu bar height" << menulayout::layoutId(lay) << style
+                                      << top->text().remove(QLatin1Char('&')) << height;
+                    QVERIFY2(height > 0 && height < 1000,
+                        qPrintable(QStringLiteral("%1 %2 %3: %4 px")
+                                       .arg(menulayout::layoutId(lay), style, top->text())
+                                       .arg(height)));
+                }
+            }
+        }
+        QApplication::setStyle(defaultStyle);
+    }
+
     // 82.12: the media pool item and bin menus.
     void mediaPoolMenus()
     {

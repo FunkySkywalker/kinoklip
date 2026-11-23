@@ -47,7 +47,7 @@ QStringList TimelineCommandSuspension::commandIds(
     // Menus whose commands edit the timeline (submenus included; submenu markers such as
     // ">cut" are no ids and the Cut / Compositing page commands are switched by their pages).
     static const char* const kMenus[] = {"edit", "trim", "timeline", "timeline.tracks", "clip",
-        "clip.sync", "clip.multicam", "clip.masks", "mark"};
+        "clip.sync", "clip.multicam", "clip.masks", "clip.retime", "clip.keyframes", "mark"};
     QStringList ids;
     for (const char* menu : kMenus) {
         for (const QString& id : registry.menuEntries(QLatin1String(menu))) {

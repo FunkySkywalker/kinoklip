@@ -32057,6 +32057,14 @@ Reiniciar Kinoklip para aplicarlos.</translation>
         <translation>Cambiar &amp;velocidad del clip…</translation>
     </message>
     <message>
+        <source>&amp;Keyframes</source>
+        <translation>&amp;Fotogramas clave</translation>
+    </message>
+    <message>
+        <source>&amp;Retime</source>
+        <translation>&amp;Retemporización</translation>
+    </message>
+    <message>
         <source>&amp;Retime Controls</source>
         <translation>Controles de &amp;retiming</translation>
     </message>
@@ -34752,6 +34760,10 @@ Trim the clips so the media covers the transition?</source>
     <message>
         <source>Delete Track</source>
         <translation>Eliminar pista</translation>
+    </message>
+    <message>
+        <source>Retime</source>
+        <translation>Retiming</translation>
     </message>
     <message>
         <source>Close Gap</source>

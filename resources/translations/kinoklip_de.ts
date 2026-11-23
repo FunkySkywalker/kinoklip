@@ -32057,6 +32057,14 @@ Kinoklip neu starten, um sie anzuwenden.</translation>
         <translation>Clip-&amp;Geschwindigkeit ändern…</translation>
     </message>
     <message>
+        <source>&amp;Keyframes</source>
+        <translation>&amp;Keyframes</translation>
+    </message>
+    <message>
+        <source>&amp;Retime</source>
+        <translation>&amp;Retime</translation>
+    </message>
+    <message>
         <source>&amp;Retime Controls</source>
         <translation>&amp;Retime-Steuerung</translation>
     </message>
@@ -34752,6 +34760,10 @@ Die Clips trimmen, damit die Medien den Übergang abdecken?</translation>
     <message>
         <source>Delete Track</source>
         <translation>Spur löschen</translation>
+    </message>
+    <message>
+        <source>Retime</source>
+        <translation>Retime</translation>
     </message>
     <message>
         <source>Close Gap</source>

@@ -1,4 +1,4 @@
-384 menu entries in 13 menus; 60 panels
+384 menu entries in 13 menus; 62 panels
 
 # Menu and panel reference
 
@@ -231,11 +231,11 @@ Shortcuts are the defaults of the Resolve keymap (Windows); another keyboard pro
 | Find in Media Pool | Alt+F | Selects the media pool item that the selected clip comes from. |
 | Change Clip Duration… | Ctrl+D | Opens a box to set the length of the selected clips. |
 | Change Clip Speed… | R | Opens a box to set the speed of the selected clips. |
-| Retime Controls | Ctrl+R | Shows the retime controls on the selected clips for changing speed along the clip. |
-| Increase Clip Speed by 10% |  | Makes the selected clips 10 percentage points faster. |
-| Decrease Clip Speed by 10% |  | Makes the selected clips 10 percentage points slower. |
-| Freeze Frame | Shift+R | Makes the selected clips hold the frame under the playhead as a still. |
-| Retime Curve | Ctrl+Shift+R | Opens the retime curve of the selected clip, to change its speed over time. |
+| Retime > Retime Controls | Ctrl+R | Shows the retime controls on the selected clips for changing speed along the clip. |
+| Retime > Increase Clip Speed by 10% |  | Makes the selected clips 10 percentage points faster. |
+| Retime > Decrease Clip Speed by 10% |  | Makes the selected clips 10 percentage points slower. |
+| Retime > Freeze Frame | Shift+R | Makes the selected clips hold the frame under the playhead as a still. |
+| Retime > Retime Curve | Ctrl+Shift+R | Opens the retime curve of the selected clip, to change its speed over time. |
 | New Compound Clip… |  | Combines the selected clips into one compound clip with its own timeline inside. |
 | New Fusion Clip… |  | Combines the selected clips into one Fusion clip and opens its graph on the Compositing page. |
 | New Fusion Composition |  | Adds an empty Fusion composition to the media pool, ready to build on the Compositing page. |
@@ -270,33 +270,33 @@ Shortcuts are the defaults of the Resolve keymap (Windows); another keyboard pro
 | Multicam > Cut / Switch to Angle 9 | 9 | Cuts or switches the multicam clip under the playhead to angle 9 (see Cut Mode and Switch Mode). |
 | Link Clips | Ctrl+Alt+L | Links the selected clips so they are selected and moved together. |
 | Unlink Clips |  | Removes the link between the selected clips. |
-| Add Keyframe | Alt+K | Adds a keyframe at the playhead to the parameter being edited on the selected clip. |
-| Previous Keyframe | [ | Moves the playhead to the previous keyframe of the selected clip. |
-| Next Keyframe | ] | Moves the playhead to the next keyframe of the selected clip. |
-| Delete Keyframes |  | Deletes the selected keyframes. |
-| Copy Keyframes |  | Copies the selected keyframes. |
-| Paste Keyframes |  | Pastes copied keyframes at the playhead. |
-| Keyframe Interpolation > Keyframe Linear |  | Gives the selected keyframes linear interpolation. |
-| Keyframe Interpolation > Keyframe Ease In |  | Gives the selected keyframes ease-in interpolation. |
-| Keyframe Interpolation > Keyframe Ease Out |  | Gives the selected keyframes ease-out interpolation. |
-| Keyframe Interpolation > Keyframe Ease In and Out |  | Gives the selected keyframes ease-in and ease-out interpolation. |
-| Keyframe Interpolation > Keyframe Smooth |  | Gives the selected keyframes smooth (automatic Bezier) interpolation. |
-| Keyframe Interpolation > Keyframe Step In |  | Step In: the value jumps right after the previous keyframe to the selected keyframe's value. |
-| Keyframe Interpolation > Keyframe Step Out |  | Step Out: the value of the selected keyframe stays until the next keyframe, then jumps. |
-| Keyframe Loops > Set Loop |  | After its last keyframe the parameter repeats the keyed range. |
-| Keyframe Loops > Set Ping-Pong |  | After its last keyframe the parameter plays the keyed range back and forth. |
-| Keyframe Loops > Set Relative |  | After its last keyframe the parameter repeats the keyed range, each repeat continuing from the end value of the one before. |
-| Keyframe Loops > Linear Extrapolation |  | After its last keyframe the parameter continues along the keyframe's tangent. |
-| Keyframe Loops > Remove Loop |  | After its last keyframe the parameter holds the last value (the default). |
-| Keyframe Loops > Set Pre-Loop |  | Before its first keyframe the parameter repeats the keyed range. |
-| Keyframe Loops > Set Pre-Ping-Pong |  | Before its first keyframe the parameter plays the keyed range back and forth. |
-| Keyframe Loops > Set Pre-Relative |  | Before its first keyframe the parameter repeats the keyed range, each repeat continuing from the start value of the one after. |
-| Keyframe Loops > Linear Extrapolation Before |  | Before its first keyframe the parameter continues along the keyframe's tangent. |
-| Keyframe Loops > Remove Pre-Loop |  | Before its first keyframe the parameter holds the first value (the default). |
-| Reverse Keyframes |  | Mirrors the selected keyframes in time. |
-| Fit Keyframe Editor to Curves |  | Fits the curves of the focused Keyframes or Spline panel to the view. |
-| Show Keyframe Editor |  | Shows the keyframe (dope sheet) view of the Keyframes panel. |
-| Show Curve Editor |  | Shows the curve view of the Keyframes panel. |
+| Keyframes > Add Keyframe | Alt+K | Adds a keyframe at the playhead to the parameter being edited on the selected clip. |
+| Keyframes > Previous Keyframe | [ | Moves the playhead to the previous keyframe of the selected clip. |
+| Keyframes > Next Keyframe | ] | Moves the playhead to the next keyframe of the selected clip. |
+| Keyframes > Delete Keyframes |  | Deletes the selected keyframes. |
+| Keyframes > Copy Keyframes |  | Copies the selected keyframes. |
+| Keyframes > Paste Keyframes |  | Pastes copied keyframes at the playhead. |
+| Keyframes > Keyframe Interpolation > Keyframe Linear |  | Gives the selected keyframes linear interpolation. |
+| Keyframes > Keyframe Interpolation > Keyframe Ease In |  | Gives the selected keyframes ease-in interpolation. |
+| Keyframes > Keyframe Interpolation > Keyframe Ease Out |  | Gives the selected keyframes ease-out interpolation. |
+| Keyframes > Keyframe Interpolation > Keyframe Ease In and Out |  | Gives the selected keyframes ease-in and ease-out interpolation. |
+| Keyframes > Keyframe Interpolation > Keyframe Smooth |  | Gives the selected keyframes smooth (automatic Bezier) interpolation. |
+| Keyframes > Keyframe Interpolation > Keyframe Step In |  | Step In: the value jumps right after the previous keyframe to the selected keyframe's value. |
+| Keyframes > Keyframe Interpolation > Keyframe Step Out |  | Step Out: the value of the selected keyframe stays until the next keyframe, then jumps. |
+| Keyframes > Keyframe Loops > Set Loop |  | After its last keyframe the parameter repeats the keyed range. |
+| Keyframes > Keyframe Loops > Set Ping-Pong |  | After its last keyframe the parameter plays the keyed range back and forth. |
+| Keyframes > Keyframe Loops > Set Relative |  | After its last keyframe the parameter repeats the keyed range, each repeat continuing from the end value of the one before. |
+| Keyframes > Keyframe Loops > Linear Extrapolation |  | After its last keyframe the parameter continues along the keyframe's tangent. |
+| Keyframes > Keyframe Loops > Remove Loop |  | After its last keyframe the parameter holds the last value (the default). |
+| Keyframes > Keyframe Loops > Set Pre-Loop |  | Before its first keyframe the parameter repeats the keyed range. |
+| Keyframes > Keyframe Loops > Set Pre-Ping-Pong |  | Before its first keyframe the parameter plays the keyed range back and forth. |
+| Keyframes > Keyframe Loops > Set Pre-Relative |  | Before its first keyframe the parameter repeats the keyed range, each repeat continuing from the start value of the one after. |
+| Keyframes > Keyframe Loops > Linear Extrapolation Before |  | Before its first keyframe the parameter continues along the keyframe's tangent. |
+| Keyframes > Keyframe Loops > Remove Pre-Loop |  | Before its first keyframe the parameter holds the first value (the default). |
+| Keyframes > Reverse Keyframes |  | Mirrors the selected keyframes in time. |
+| Keyframes > Fit Keyframe Editor to Curves |  | Fits the curves of the focused Keyframes or Spline panel to the view. |
+| Keyframes > Show Keyframe Editor |  | Shows the keyframe (dope sheet) view of the Keyframes panel. |
+| Keyframes > Show Curve Editor |  | Shows the curve view of the Keyframes panel. |
 | Add Mask > Rectangle Mask |  | Adds a rectangle mask to the selected clip. |
 | Add Mask > Ellipse Mask |  | Adds an ellipse mask to the selected clip. |
 | Add Mask > Polygon Mask |  | Adds a polygon mask to the selected clip. |
