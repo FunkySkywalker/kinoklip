@@ -215,6 +215,12 @@ void SizingPanel::refresh()
         }
         m_flips[0]->setChecked(p.staticValue(keys::FlipH, false).toBool());
         m_flips[1]->setChecked(p.staticValue(keys::FlipV, false).toBool());
+    } else {
+        for (const auto& [n, f] : std::as_const(m_fields))
+            f->setValue(n == QLatin1String("zoom") || n == QLatin1String("width")
+                    || n == QLatin1String("height") ? 1.0 : 0.0);
+        m_flips[0]->setChecked(false);
+        m_flips[1]->setChecked(false);
     }
     m_refreshing = false;
 }
