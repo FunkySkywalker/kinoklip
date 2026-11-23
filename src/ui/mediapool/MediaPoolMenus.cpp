@@ -365,8 +365,10 @@ void MediaPoolPanel::fillStreamlinedItemMenu(QMenu& menu)
     add->addAction(icon(QStringLiteral("smart_bin")), tr("New Smart Bin…"), this,
         &MediaPoolPanel::newSmartBinWithDialog);
     addRegistered(*add, reg, "timeline.new");
-    if (!power)
+    if (!power) {
+        add->addSeparator();
         addFusionEntries(*add, ids);
+    }
     QMenu* tools = menu.addMenu(tr("Media Tools"));
     tools->setObjectName(QStringLiteral("MediaToolsMenu"));
     if (onItem && currentItem && !currentItem->isTimeline())

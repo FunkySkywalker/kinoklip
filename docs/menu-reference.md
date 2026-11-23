@@ -1,4 +1,4 @@
-381 menu entries in 13 menus; 60 panels
+371 menu entries in 13 menus; 60 panels
 
 # Menu and panel reference
 
@@ -123,10 +123,6 @@ Shortcuts are the defaults of the Resolve keymap (Windows); another keyboard pro
 | Color Page > Apply Grade from Still |  | Color page: gives the current clip the grade of the selected gallery still. |
 | Color Page > Wipe with Still (toggle) | Ctrl+W | Color page: splits the viewer to compare with the selected gallery still. |
 | Color Page > Highlight (toggle) | Shift+H | Color page: shows in the viewer what the current node's key selects. |
-| Color Page > Split Screen (toggle) | Ctrl+Alt+W | Color page: turns the viewer's split screen on or off, in the mode last used. |
-| Color Page > Split Screen: Selected Clips (toggle) |  | Color page: shows the graded frames of the clips selected in the clips strip side by side in the viewer. |
-| Color Page > Split Screen: Timeline (toggle) |  | Color page: shows the clip under the playhead and its neighbours on the timeline in vertical strips, to match shots. |
-| Color Page > Lightbox (toggle) | Ctrl+Alt+L | Color page: replaces the viewer with a grid of the graded thumbnails of every clip on the timeline; click one to go to it. |
 | Color Page > Copy Grade | Ctrl+C | Color page: copies the grade of the current clip. |
 | Color Page > Paste Grade | Ctrl+V | Color page: pastes the copied grade onto the current clip. |
 
@@ -176,15 +172,6 @@ Shortcuts are the defaults of the Resolve keymap (Windows); another keyboard pro
 | Duplicate Timeline |  | Makes a copy of the current timeline in the project. |
 | Delete Timeline |  | Deletes the current timeline from the project. |
 | Timeline Settings… |  | Opens the settings of the current timeline. |
-| Output Blanking Off (toggle) |  | Removes the Output Blanking bars of the current timeline. |
-| Output Blanking 1.33 (toggle) |  | Draws black bars over the viewer, renders and exports of the current timeline so the visible picture has the 1.33:1 aspect ratio. |
-| Output Blanking 1.66 (toggle) |  | Draws black bars over the viewer, renders and exports of the current timeline so the visible picture has the 1.66:1 aspect ratio. |
-| Output Blanking 1.78 (toggle) |  | Draws black bars over the viewer, renders and exports of the current timeline so the visible picture has the 1.78:1 aspect ratio. |
-| Output Blanking 1.85 (toggle) |  | Draws black bars over the viewer, renders and exports of the current timeline so the visible picture has the 1.85:1 aspect ratio. |
-| Output Blanking 2.00 (toggle) |  | Draws black bars over the viewer, renders and exports of the current timeline so the visible picture has the 2.00:1 aspect ratio. |
-| Output Blanking 2.35 (toggle) |  | Draws black bars over the viewer, renders and exports of the current timeline so the visible picture has the 2.35:1 aspect ratio. |
-| Output Blanking 2.39 (toggle) |  | Draws black bars over the viewer, renders and exports of the current timeline so the visible picture has the 2.39:1 aspect ratio. |
-| Output Blanking 2.40 (toggle) |  | Draws black bars over the viewer, renders and exports of the current timeline so the visible picture has the 2.40:1 aspect ratio. |
 | Next Timeline Tab | Ctrl+Tab | Shows the next open timeline. |
 | Previous Timeline Tab | Ctrl+Shift+Tab | Shows the previous open timeline. |
 | Close Timeline Tab |  | Closes the tab of the current timeline (the timeline stays in the project). |
@@ -237,6 +224,9 @@ Shortcuts are the defaults of the Resolve keymap (Windows); another keyboard pro
 | Freeze Frame | Shift+R | Makes the selected clips hold the frame under the playhead as a still. |
 | Retime Curve | Ctrl+Shift+R | Opens the retime curve of the selected clip, to change its speed over time. |
 | New Compound Clip… |  | Combines the selected clips into one compound clip with its own timeline inside. |
+| New Fusion Clip… |  | Combines the selected clips into one Fusion clip and opens its graph on the Compositing page. |
+| New Fusion Composition |  | Adds an empty Fusion composition to the media pool, ready to build on the Compositing page. |
+| New Fusion Clip Using Selected Media |  | Makes a Fusion clip from the selected media pool clips, one layer per clip. |
 | Open in Timeline |  | Opens the timeline inside a compound or nested clip. |
 | Decompose in Place |  | Replaces a compound clip by the clips it contains, in the same place. |
 | Clip Attributes… |  | Opens the attributes of the selected clip (such as start timecode and audio levels). |
@@ -551,7 +541,7 @@ Shortcuts are the defaults of the Resolve keymap (Windows); another keyboard pro
 
 # Streamlined menu layout
 
-Preferences > UI Settings > Menu layout offers the menus above (Resolve, the default) or this arrangement (Streamlined): 381 commands in 15 tables (menus, page menus and the last table), no menu longer than 12 entries, grouped by task, with plain names. The commands, their keys and descriptions are the same in both. The page menu (Cut, Nodes or Grade) is shown on its page only; the tables below list all three. Commands that are on no menu are in the last table.
+Preferences > UI Settings > Menu layout offers the menus above (Resolve, the default) or this arrangement (Streamlined): 371 commands in 15 tables (menus, page menus and the last table), no menu longer than 12 entries, grouped by task, with plain names. The commands, their keys and descriptions are the same in both. The page menu (Cut, Nodes or Grade) is shown on its page only; the tables below list all three. Commands that are on no menu are in the last table.
 
 ## Streamlined Kinoklip
 
@@ -647,10 +637,6 @@ Preferences > UI Settings > Menu layout offers the menus above (Resolve, the def
 | Viewer > Zoom to Fit | Z | Fits the picture to the viewer. |
 | Viewer > Full-Screen Viewer | Ctrl+F | Shows the viewer picture full screen. |
 | Viewer > Float Viewer (toggle) |  | Puts the small viewer of the Audio page in its own window, and back. |
-| Viewer > Split Screen (toggle) | Ctrl+Alt+W | Color page: turns the viewer's split screen on or off, in the mode last used. |
-| Viewer > Split Screen: Selected Clips (toggle) |  | Color page: shows the graded frames of the clips selected in the clips strip side by side in the viewer. |
-| Viewer > Split Screen: Timeline (toggle) |  | Color page: shows the clip under the playhead and its neighbours on the timeline in vertical strips, to match shots. |
-| Viewer > Lightbox (toggle) | Ctrl+Alt+L | Color page: replaces the viewer with a grid of the graded thumbnails of every clip on the timeline; click one to go to it. |
 | Viewer > On-Screen Controls > Transform (toggle) |  | Shows controls in the viewer to move, scale and rotate the selected clip. |
 | Viewer > On-Screen Controls > Crop (toggle) |  | Shows controls in the viewer to crop the selected clip. |
 | Viewer > On-Screen Controls > Mask (toggle) |  | Shows controls in the viewer to edit the masks of the selected clip. |
@@ -713,15 +699,6 @@ Preferences > UI Settings > Menu layout offers the menus above (Resolve, the def
 | Timelines > Previous Tab | Ctrl+Shift+Tab | Shows the previous open timeline. |
 | Timelines > Close Tab |  | Closes the tab of the current timeline (the timeline stays in the project). |
 | Timelines > Timeline Settings… |  | Opens the settings of the current timeline. |
-| Output Blanking > Off (toggle) |  | Removes the Output Blanking bars of the current timeline. |
-| Output Blanking > 1.33 (toggle) |  | Draws black bars over the viewer, renders and exports of the current timeline so the visible picture has the 1.33:1 aspect ratio. |
-| Output Blanking > 1.66 (toggle) |  | Draws black bars over the viewer, renders and exports of the current timeline so the visible picture has the 1.66:1 aspect ratio. |
-| Output Blanking > 1.78 (toggle) |  | Draws black bars over the viewer, renders and exports of the current timeline so the visible picture has the 1.78:1 aspect ratio. |
-| Output Blanking > 1.85 (toggle) |  | Draws black bars over the viewer, renders and exports of the current timeline so the visible picture has the 1.85:1 aspect ratio. |
-| Output Blanking > 2.00 (toggle) |  | Draws black bars over the viewer, renders and exports of the current timeline so the visible picture has the 2.00:1 aspect ratio. |
-| Output Blanking > 2.35 (toggle) |  | Draws black bars over the viewer, renders and exports of the current timeline so the visible picture has the 2.35:1 aspect ratio. |
-| Output Blanking > 2.39 (toggle) |  | Draws black bars over the viewer, renders and exports of the current timeline so the visible picture has the 2.39:1 aspect ratio. |
-| Output Blanking > 2.40 (toggle) |  | Draws black bars over the viewer, renders and exports of the current timeline so the visible picture has the 2.40:1 aspect ratio. |
 | Zoom > Zoom In | Ctrl+= | Zooms the timeline in. |
 | Zoom > Zoom Out | Ctrl+- | Zooms the timeline out. |
 | Zoom > Zoom to Fit | Shift+Z | Zooms the timeline so all of it is visible. |
@@ -774,6 +751,9 @@ Preferences > UI Settings > Menu layout offers the menus above (Resolve, the def
 | Masks > Bezier |  | Adds a Bezier mask to the selected clip. |
 | Masks > Freehand |  | Adds a freehand mask to the selected clip. |
 | Compound > New Compound Clip… |  | Combines the selected clips into one compound clip with its own timeline inside. |
+| Compound > New Fusion Clip… |  | Combines the selected clips into one Fusion clip and opens its graph on the Compositing page. |
+| Compound > New Fusion Composition |  | Adds an empty Fusion composition to the media pool, ready to build on the Compositing page. |
+| Compound > New Fusion Clip Using Selected Media |  | Makes a Fusion clip from the selected media pool clips, one layer per clip. |
 | Compound > Open in Timeline |  | Opens the timeline inside a compound or nested clip. |
 | Compound > Decompose in Place |  | Replaces a compound clip by the clips it contains, in the same place. |
 | Multicam > New Multicam Clip… |  | Makes a multicam clip from the selected media pool clips, one angle per clip. |

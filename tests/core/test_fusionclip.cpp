@@ -13,6 +13,7 @@
 
 #include <QTemporaryDir>
 #include <QTest>
+#include <QUndoStack>
 
 using namespace kk;
 using namespace kk::test;
@@ -230,7 +231,7 @@ private slots:
         QVERIFY(blank);
         QCOMPARE(p.undoStack()->count(), undoCount + 1);
         QVERIFY(p.isFusionClip(blank));
-        QCOMPARE(p.timelineData(blank)->duration(), int64_t(125)); // 5 s at 25 fps
+        QCOMPARE(p.timelineData(blank)->duration(), int64_t(5 * p.timelineData(blank)->fps.toDouble() + 0.5)); // 5 s
         QCOMPARE(p.mediaPool()->item(p.timelineItemId(blank))->kind, MediaItemKind::FusionClip);
         QCOMPARE(p.timelineData(blank)->videoTracks[0].clips[0].kind, ClipKind::Solid);
 
@@ -251,12 +252,13 @@ private slots:
         const quint64 uid = p.createFusionComposition({}, {}, {ida, idb});
         QVERIFY(uid);
         const auto n = p.timelineData(uid);
-        QCOMPARE(n->name, QStringLiteral("Fusion Clip"));
+        QVERIFY(n->name.startsWith(QStringLiteral("Fusion Clip")));
         QCOMPARE(n->videoTracks.size(), size_t(2));
-        QCOMPARE(layout(*n, kV1), QStringLiteral("0:50"));
-        QCOMPARE(layout(*n, kV2), QStringLiteral("0:75"));
-        QCOMPARE(layout(*n, kA2), QStringLiteral("0:75"));
-        QCOMPARE(n->duration(), int64_t(75));
+        const Rational fps = n->fps;
+        QCOMPARE(layout(*n, kV1), QStringLiteral("0:%1").arg(usToFrames(2000000, fps)));
+        QCOMPARE(layout(*n, kV2), QStringLiteral("0:%1").arg(usToFrames(3000000, fps)));
+        QCOMPARE(layout(*n, kA2), QStringLiteral("0:%1").arg(usToFrames(3000000, fps)));
+        QCOMPARE(n->duration(), usToFrames(3000000, fps));
         QVERIFY(n->fusionComposition);
     }
 

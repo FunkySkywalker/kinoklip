@@ -2513,6 +2513,18 @@ Das Programm wurde wahrscheinlich vom System beendet, weil der Arbeitsspeicher d
         <translation>Fasst die ausgewählten Clips zu einem Compound-Clip mit eigener Timeline im Inneren zusammen.</translation>
     </message>
     <message>
+        <source>Combines the selected clips into one Fusion clip and opens its graph on the Compositing page.</source>
+        <translation>Fasst die gewählten Clips zu einem Fusion-Clip zusammen und öffnet seinen Graphen auf der Compositing-Seite.</translation>
+    </message>
+    <message>
+        <source>Adds an empty Fusion composition to the media pool, ready to build on the Compositing page.</source>
+        <translation>Fügt dem Medienpool eine leere Fusion-Komposition hinzu, die Sie auf der Compositing-Seite aufbauen können.</translation>
+    </message>
+    <message>
+        <source>Makes a Fusion clip from the selected media pool clips, one layer per clip.</source>
+        <translation>Erstellt aus den gewählten Medienpool-Clips einen Fusion-Clip, eine Ebene pro Clip.</translation>
+    </message>
+    <message>
         <source>Opens the timeline inside a compound or nested clip.</source>
         <translation>Öffnet die Timeline im Inneren eines Compound-Clips oder verschachtelten Clips.</translation>
     </message>
@@ -20941,6 +20953,10 @@ Auch ein Doppelklick auf die Kopfzeile oder Herausziehen der Kopfzeile aus dem P
         <translation>Multicam-Clip</translation>
     </message>
     <message>
+        <source>Fusion Clip</source>
+        <translation>Fusion-Clip</translation>
+    </message>
+    <message>
         <source>Compound Clip</source>
         <translation>Verschachtelter Clip</translation>
     </message>
@@ -21011,6 +21027,12 @@ Ordner, %2: doppelklicken zum Öffnen, Clips darauf ablegen, um sie dorthin zu v
 Multicam clip: double-click to show its angles in the source viewer</source>
         <translation>%1
 Multicam-Clip: doppelklicken, um seine Winkel im Quell-Viewer zu zeigen</translation>
+    </message>
+    <message>
+        <source>%1
+Fusion clip: double-click to open it in a tab, drag it onto the timeline (every instance shares its graph)</source>
+        <translation>%1
+Fusion-Clip: Doppelklick öffnet ihn in einem Tab, auf die Timeline ziehen (alle Instanzen teilen sich den Graphen)</translation>
     </message>
     <message>
         <source>%1
@@ -21330,6 +21352,10 @@ Verknüpft: nicht in der Projektdatei gespeichert</translation>
     <message>
         <source>Duplicate Multicam Clip</source>
         <translation>Multicam-Clip duplizieren</translation>
+    </message>
+    <message>
+        <source>Duplicate Fusion Clip</source>
+        <translation>Fusion-Clip duplizieren</translation>
     </message>
     <message>
         <source>Duplicate Compound Clip</source>
@@ -21658,6 +21684,14 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
     <message>
         <source>Nothing to paste: the clipboard has no files or picture.</source>
         <translation>Nichts einzufügen: die Zwischenablage enthält keine Dateien oder Bilder.</translation>
+    </message>
+    <message>
+        <source>New Fusion Composition</source>
+        <translation>Neue Fusion-Komposition</translation>
+    </message>
+    <message>
+        <source>New Fusion Clip</source>
+        <translation>Neuer Fusion-Clip</translation>
     </message>
 </context>
 <context>
@@ -22519,6 +22553,18 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
     <message>
         <source>New Compound Clip…</source>
         <translation>Neuer verschachtelter Clip…</translation>
+    </message>
+    <message>
+        <source>New Fusion Clip Using Selected Media</source>
+        <translation>Neuer Fusion-Clip aus gewählten Medien</translation>
+    </message>
+    <message>
+        <source>New Fusion Clip…</source>
+        <translation>Neuer Fusion-Clip…</translation>
+    </message>
+    <message>
+        <source>New Fusion Composition</source>
+        <translation>Neue Fusion-Komposition</translation>
     </message>
     <message>
         <source>New Multicam Clip…</source>
@@ -27584,6 +27630,10 @@ Auto: Voll, wechselt nur zu Halb, solange die Wiedergabe nicht mithält (pausier
         <translation>Timeline umbenennen</translation>
     </message>
     <message>
+        <source>Delete Fusion Clip</source>
+        <translation>Fusion-Clip löschen</translation>
+    </message>
+    <message>
         <source>Delete Compound Clip</source>
         <translation>Verschachtelten Clip löschen</translation>
     </message>
@@ -27618,6 +27668,22 @@ Auto: Voll, wechselt nur zu Halb, solange die Wiedergabe nicht mithält (pausier
     <message>
         <source>Decompose in Place</source>
         <translation>An Ort und Stelle auflösen</translation>
+    </message>
+    <message>
+        <source>Fusion Clip</source>
+        <translation>Fusion-Clip</translation>
+    </message>
+    <message>
+        <source>New Fusion Clip</source>
+        <translation>Neuer Fusion-Clip</translation>
+    </message>
+    <message>
+        <source>Fusion Composition</source>
+        <translation>Fusion-Komposition</translation>
+    </message>
+    <message>
+        <source>New Fusion Composition</source>
+        <translation>Neue Fusion-Komposition</translation>
     </message>
 </context>
 <context>
@@ -31232,6 +31298,18 @@ Kinoklip neu starten, um sie anzuwenden.</translation>
         <translation>Neuer &amp;verschachtelter Clip…</translation>
     </message>
     <message>
+        <source>New &amp;Fusion Clip…</source>
+        <translation>Neuer &amp;Fusion-Clip…</translation>
+    </message>
+    <message>
+        <source>New Fusion Compositio&amp;n</source>
+        <translation>Neue Fusion-Kompositio&amp;n</translation>
+    </message>
+    <message>
+        <source>New Fusion Clip Using Selected &amp;Media</source>
+        <translation>Neuer Fusion-Clip aus gewählten &amp;Medien</translation>
+    </message>
+    <message>
         <source>&amp;Open in Timeline</source>
         <translation>In Timeline &amp;öffnen</translation>
     </message>
@@ -32465,6 +32543,18 @@ Kinoklip neu starten, um sie anzuwenden.</translation>
         <translation>Erstellen</translation>
     </message>
     <message>
+        <source>Fusion Clip</source>
+        <translation>Fusion-Clip</translation>
+    </message>
+    <message>
+        <source>New Fusion Clip</source>
+        <translation>Neuer Fusion-Clip</translation>
+    </message>
+    <message>
+        <source>Fusion clip name</source>
+        <translation>Name des Fusion-Clips</translation>
+    </message>
+    <message>
         <source>Decompose in Place</source>
         <translation>An Ort und Stelle auflösen</translation>
     </message>
@@ -33639,6 +33729,10 @@ Die Clips trimmen, damit die Medien den Übergang abdecken?</translation>
     <message>
         <source>Disable Clip</source>
         <translation>Clip deaktivieren</translation>
+    </message>
+    <message>
+        <source>New Fusion Clip…</source>
+        <translation>Neuer Fusion-Clip…</translation>
     </message>
     <message>
         <source>Speed and Duration</source>

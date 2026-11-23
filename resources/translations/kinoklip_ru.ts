@@ -2521,6 +2521,18 @@ The program was probably closed by the system because the computer ran out of me
         <translation>Объединяет выделенные клипы в один составной клип с собственным таймлайном внутри.</translation>
     </message>
     <message>
+        <source>Combines the selected clips into one Fusion clip and opens its graph on the Compositing page.</source>
+        <translation>Объединяет выбранные клипы в один клип Fusion и открывает его граф на странице Compositing.</translation>
+    </message>
+    <message>
+        <source>Adds an empty Fusion composition to the media pool, ready to build on the Compositing page.</source>
+        <translation>Добавляет в медиапул пустую композицию Fusion, которую можно собрать на странице Compositing.</translation>
+    </message>
+    <message>
+        <source>Makes a Fusion clip from the selected media pool clips, one layer per clip.</source>
+        <translation>Создаёт клип Fusion из выбранных клипов медиапула, по одному слою на клип.</translation>
+    </message>
+    <message>
         <source>Opens the timeline inside a compound or nested clip.</source>
         <translation>Открывает таймлайн внутри составного или вложенного клипа.</translation>
     </message>
@@ -20956,6 +20968,10 @@ You can also double-click the header, or drag the header out of the panel.</sour
         <translation>Мультикамера</translation>
     </message>
     <message>
+        <source>Fusion Clip</source>
+        <translation>Клип Fusion</translation>
+    </message>
+    <message>
         <source>Compound Clip</source>
         <translation>Составной клип</translation>
     </message>
@@ -21026,6 +21042,12 @@ Bin, %2: double-click to open it, drop clips on it to move them there</source>
 Multicam clip: double-click to show its angles in the source viewer</source>
         <translation>%1
 Мультикамера: двойной клик, чтобы показать ракурсы в окне просмотра</translation>
+    </message>
+    <message>
+        <source>%1
+Fusion clip: double-click to open it in a tab, drag it onto the timeline (every instance shares its graph)</source>
+        <translation>%1
+Клип Fusion: двойной щелчок открывает его во вкладке, перетащите на таймлайн (все экземпляры используют один граф)</translation>
     </message>
     <message>
         <source>%1
@@ -21345,6 +21367,10 @@ Linked: not stored in the project file</source>
     <message>
         <source>Duplicate Multicam Clip</source>
         <translation>Дублировать клип мультикамеры</translation>
+    </message>
+    <message>
+        <source>Duplicate Fusion Clip</source>
+        <translation>Дублировать клип Fusion</translation>
     </message>
     <message>
         <source>Duplicate Compound Clip</source>
@@ -21673,6 +21699,14 @@ Import files with %1 or drop them here.</source>
     <message>
         <source>Nothing to paste: the clipboard has no files or picture.</source>
         <translation>Нечего вставить: в буфере обмена нет файлов или изображений.</translation>
+    </message>
+    <message>
+        <source>New Fusion Composition</source>
+        <translation>Новая композиция Fusion</translation>
+    </message>
+    <message>
+        <source>New Fusion Clip</source>
+        <translation>Новый клип Fusion</translation>
     </message>
 </context>
 <context>
@@ -22534,6 +22568,18 @@ Import files with %1 or drop them here.</source>
     <message>
         <source>New Compound Clip…</source>
         <translation>Новый составной клип…</translation>
+    </message>
+    <message>
+        <source>New Fusion Clip Using Selected Media</source>
+        <translation>Новый клип Fusion из выбранных медиа</translation>
+    </message>
+    <message>
+        <source>New Fusion Clip…</source>
+        <translation>Новый клип Fusion…</translation>
+    </message>
+    <message>
+        <source>New Fusion Composition</source>
+        <translation>Новая композиция Fusion</translation>
     </message>
     <message>
         <source>New Multicam Clip…</source>
@@ -27603,6 +27649,10 @@ Auto: Full, switching to Half only while playback cannot keep up (paused: Full).
         <translation>Переименовать таймлайн</translation>
     </message>
     <message>
+        <source>Delete Fusion Clip</source>
+        <translation>Удалить клип Fusion</translation>
+    </message>
+    <message>
         <source>Delete Compound Clip</source>
         <translation>Удалить составной клип</translation>
     </message>
@@ -27637,6 +27687,22 @@ Auto: Full, switching to Half only while playback cannot keep up (paused: Full).
     <message>
         <source>Decompose in Place</source>
         <translation>Разложить на месте</translation>
+    </message>
+    <message>
+        <source>Fusion Clip</source>
+        <translation>Клип Fusion</translation>
+    </message>
+    <message>
+        <source>New Fusion Clip</source>
+        <translation>Новый клип Fusion</translation>
+    </message>
+    <message>
+        <source>Fusion Composition</source>
+        <translation>Композиция Fusion</translation>
+    </message>
+    <message>
+        <source>New Fusion Composition</source>
+        <translation>Новая композиция Fusion</translation>
     </message>
 </context>
 <context>
@@ -31252,6 +31318,18 @@ Restart Kinoklip to apply them.</source>
         <translation>Новый &amp;составной клип…</translation>
     </message>
     <message>
+        <source>New &amp;Fusion Clip…</source>
+        <translation>Новый клип &amp;Fusion…</translation>
+    </message>
+    <message>
+        <source>New Fusion Compositio&amp;n</source>
+        <translation>Новая композиция Fusio&amp;n</translation>
+    </message>
+    <message>
+        <source>New Fusion Clip Using Selected &amp;Media</source>
+        <translation>Новый клип Fusion из выбранных &amp;медиа</translation>
+    </message>
+    <message>
         <source>&amp;Open in Timeline</source>
         <translation>&amp;Открыть в таймлайне</translation>
     </message>
@@ -32485,6 +32563,18 @@ Restart Kinoklip to apply them.</source>
         <translation>Создать</translation>
     </message>
     <message>
+        <source>Fusion Clip</source>
+        <translation>Клип Fusion</translation>
+    </message>
+    <message>
+        <source>New Fusion Clip</source>
+        <translation>Новый клип Fusion</translation>
+    </message>
+    <message>
+        <source>Fusion clip name</source>
+        <translation>Имя клипа Fusion</translation>
+    </message>
+    <message>
         <source>Decompose in Place</source>
         <translation>Разложить на месте</translation>
     </message>
@@ -33659,6 +33749,10 @@ Trim the clips so the media covers the transition?</source>
     <message>
         <source>Disable Clip</source>
         <translation>Выключить клип</translation>
+    </message>
+    <message>
+        <source>New Fusion Clip…</source>
+        <translation>Новый клип Fusion…</translation>
     </message>
     <message>
         <source>Speed and Duration</source>

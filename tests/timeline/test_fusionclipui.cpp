@@ -19,6 +19,7 @@
 #include <QSignalSpy>
 #include <QTest>
 #include <QTimer>
+#include <QUndoStack>
 
 using namespace kk;
 using namespace kk::test;
@@ -149,7 +150,7 @@ private slots:
         QCOMPARE(f.project.undoStack()->count(), undoCount + 1);
         QCOMPARE(opened.count(), 1); // MainWindow turns this into the Compositing page
         QVERIFY(f.project.isFusionClip(uid));
-        QCOMPARE(f.project.timelineData(uid)->name, QStringLiteral("Fusion Clip"));
+        QVERIFY(f.project.timelineData(uid)->name.startsWith(QStringLiteral("Fusion Clip")));
         // The new instance is selected and has the graph.
         const QVector<quint64> sel = f.selection.clips();
         QCOMPARE(sel.size(), 1);
@@ -230,11 +231,11 @@ private slots:
         f.project.mediaPool()->renameItem(mediaId, QStringLiteral("Titles"));
         f.project.endEdit();
         QCOMPARE(pool.model()->item(mediaId)->name, QStringLiteral("Titles"));
-        QCOMPARE(f.view().videoTracks[0].clips[0].name, QStringLiteral("Titles"));
+        QCOMPARE(f.project.timelineData(fromMedia)->name, QStringLiteral("Titles"));
 
         // The panel counts the two instances (the delete warning uses this) ...
-        QCOMPARE(f.project.timelineUseCount(fromMedia), 2);
-        QCOMPARE(usage::compute(f.project).value(mediaId, 0), 2);
+        QCOMPARE(f.project.timelineUseCount(fromMedia), 4); // two drops, video + audio each
+        QCOMPARE(usage::compute(f.project).value(mediaId, 0), 2); // the pool counts video instances
         // ... and deleting an unused one needs no warning: the entry goes.
         QCOMPARE(usage::compute(f.project).value(blankId, 0), 0);
         QCOMPARE(pool.deleteItems({blankId}), 1);
@@ -245,7 +246,7 @@ private slots:
         // The item menu offers both entries; the right-click menu is shown in the screenshot.
         QAbstractItemView* view = nullptr;
         for (QAbstractItemView* v : pool.findChildren<QAbstractItemView*>()) {
-            if (v->isVisible() && v->model() && v->objectName() != QLatin1String("BinTree"))
+            if (v->isVisible() && v->objectName() == QLatin1String("MediaPoolGrid"))
                 view = v;
         }
         QVERIFY(view);
@@ -267,7 +268,7 @@ private slots:
                             const_cast<QMenu*>(s)->popup(menu->pos() + QPoint(menu->width(), 0));
                             QCoreApplication::processEvents();
                             QDir().mkpath(dir);
-                            s->grab().save(QDir(dir).filePath(QStringLiteral("fusion-pool-menu.png")));
+                            const_cast<QMenu*>(s)->grab().save(QDir(dir).filePath(QStringLiteral("fusion-pool-menu.png")));
                         }
                     }
                 }

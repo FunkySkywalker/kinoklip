@@ -226,7 +226,7 @@ Still to do:
 - [ ] Color: Keyframes palette and strip on the Color page with Dynamic interpolation, and a Sizing palette (Zoom, Pan, Tilt, Rotate, Flip, Input / Output sizing)
 - [x] Color: Split Screen modes (Selected Clips, Timeline), Lightbox and Output Blanking
 - [ ] Background Removal: Keep / Remove brush to correct the model by hand
-- [ ] Media: New Fusion Clip, and Fusion / compound clips as Media Pool entries you can drag to the timeline
+- [x] Media: New Fusion Clip, and Fusion / compound clips as Media Pool entries you can drag to the timeline (one shared graph per Fusion clip, project format 24; test_fusionclip, test_fusionclipui)
 - [x] Titles: underline and strikethrough (Title and Text node Inspector, drawn as bars under spaces too, Write On and Text+ aware, saved with the project; spec 145.3; test_titledecor)
 
 ## Version 1.13 (planned)
