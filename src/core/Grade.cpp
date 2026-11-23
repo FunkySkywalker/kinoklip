@@ -1105,8 +1105,12 @@ bool reaches(const ClipGrade& grade, quint64 of, quint64 id)
         if (cur == 0 || seen.contains(cur))
             continue;
         seen.append(cur);
-        if (const GradeNode* n = grade.node(cur))
+        if (const GradeNode* n = grade.node(cur)) {
+            // The picture (id 0) is an input too; dependencies() leaves it out.
+            if (id == 0 && n->type != GradeNodeType::Compound && n->inputs.contains(0))
+                return true;
             stack += dependencies(*n);
+        }
     }
     return false;
 }

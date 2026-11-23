@@ -697,6 +697,12 @@ private slots:
             const int changed = maxDiff(graded, plain);
             qInfo("%s: GPU vs CPU reference max diff %d at (%d, %d); changed by up to %d",
                 qPrintable(name), d, at.x(), at.y(), changed);
+            if (d > 2) {
+                const QRgb g = graded.convertToFormat(QImage::Format_ARGB32_Premultiplied).pixel(at);
+                const QRgb r = reference.convertToFormat(QImage::Format_ARGB32_Premultiplied).pixel(at);
+                qInfo("%s: at (%d,%d) GPU argb %08x CPU argb %08x", qPrintable(name), at.x(), at.y(),
+                    g, r);
+            }
             QVERIFY2(d <= 2, qPrintable(name));
             QVERIFY2(changed >= 10, qPrintable(name)); // the case really grades something
         }

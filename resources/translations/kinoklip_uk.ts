@@ -22211,6 +22211,42 @@ Import files with %1 or drop them here.</source>
 <context>
     <name>kk::MenuLayouts</name>
     <message>
+        <source>Outside</source>
+        <translation>Зовні</translation>
+    </message>
+    <message>
+        <source>Key Mixer</source>
+        <translation>Мікшер масок</translation>
+    </message>
+    <message>
+        <source>Splitter / Combiner</source>
+        <translation>Роздільник / Об'єднувач</translation>
+    </message>
+    <message>
+        <source>Alpha Output</source>
+        <translation>Вихід альфа-каналу</translation>
+    </message>
+    <message>
+        <source>Compound Node</source>
+        <translation>Складений нод</translation>
+    </message>
+    <message>
+        <source>Create Compound Node</source>
+        <translation>Створити складений нод</translation>
+    </message>
+    <message>
+        <source>Decompose Compound Node</source>
+        <translation>Розібрати складений нод</translation>
+    </message>
+    <message>
+        <source>Open Compound Node</source>
+        <translation>Відкрити складений нод</translation>
+    </message>
+    <message>
+        <source>Close Compound Node</source>
+        <translation>Закрити складений нод</translation>
+    </message>
+    <message>
         <source>&amp;Audio</source>
         <translation>&amp;Звук</translation>
     </message>

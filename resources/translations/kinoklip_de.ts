@@ -22194,6 +22194,42 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
 <context>
     <name>kk::MenuLayouts</name>
     <message>
+        <source>Outside</source>
+        <translation>Außerhalb</translation>
+    </message>
+    <message>
+        <source>Key Mixer</source>
+        <translation>Key-Mixer</translation>
+    </message>
+    <message>
+        <source>Splitter / Combiner</source>
+        <translation>Splitter / Combiner</translation>
+    </message>
+    <message>
+        <source>Alpha Output</source>
+        <translation>Alpha-Ausgang</translation>
+    </message>
+    <message>
+        <source>Compound Node</source>
+        <translation>Compound-Node</translation>
+    </message>
+    <message>
+        <source>Create Compound Node</source>
+        <translation>Compound-Node erstellen</translation>
+    </message>
+    <message>
+        <source>Decompose Compound Node</source>
+        <translation>Compound-Node auflösen</translation>
+    </message>
+    <message>
+        <source>Open Compound Node</source>
+        <translation>Compound-Node öffnen</translation>
+    </message>
+    <message>
+        <source>Close Compound Node</source>
+        <translation>Compound-Node schließen</translation>
+    </message>
+    <message>
         <source>&amp;Audio</source>
         <translation>&amp;Audio</translation>
     </message>

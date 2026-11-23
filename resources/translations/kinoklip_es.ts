@@ -22194,6 +22194,42 @@ Importar archivos con %1 o soltarlos aquí.</translation>
 <context>
     <name>kk::MenuLayouts</name>
     <message>
+        <source>Outside</source>
+        <translation>Exterior</translation>
+    </message>
+    <message>
+        <source>Key Mixer</source>
+        <translation>Mezclador de máscaras</translation>
+    </message>
+    <message>
+        <source>Splitter / Combiner</source>
+        <translation>Divisor / Combinador</translation>
+    </message>
+    <message>
+        <source>Alpha Output</source>
+        <translation>Salida alfa</translation>
+    </message>
+    <message>
+        <source>Compound Node</source>
+        <translation>Nodo compuesto</translation>
+    </message>
+    <message>
+        <source>Create Compound Node</source>
+        <translation>Crear nodo compuesto</translation>
+    </message>
+    <message>
+        <source>Decompose Compound Node</source>
+        <translation>Descomponer nodo compuesto</translation>
+    </message>
+    <message>
+        <source>Open Compound Node</source>
+        <translation>Abrir nodo compuesto</translation>
+    </message>
+    <message>
+        <source>Close Compound Node</source>
+        <translation>Cerrar nodo compuesto</translation>
+    </message>
+    <message>
         <source>&amp;Audio</source>
         <translation>&amp;Audio</translation>
     </message>
