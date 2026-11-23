@@ -586,6 +586,10 @@ Das Programm wurde wahrscheinlich vom System beendet, weil der Arbeitsspeicher d
         <translation>Clip-Attribute</translation>
     </message>
     <message>
+        <source>Input LUT</source>
+        <translation>Eingangs-LUT</translation>
+    </message>
+    <message>
         <source>Leader</source>
         <translation>Leader</translation>
     </message>
@@ -724,6 +728,26 @@ Das Programm wurde wahrscheinlich vom System beendet, weil der Arbeitsspeicher d
     <message>
         <source>Send to %1</source>
         <translation>Send an %1</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Keine</translation>
+    </message>
+    <message>
+        <source>(no .cube files in the LUT folders)</source>
+        <translation>(keine .cube-Dateien in den LUT-Ordnern)</translation>
+    </message>
+    <message>
+        <source>Browse…</source>
+        <translation>Durchsuchen…</translation>
+    </message>
+    <message>
+        <source>Load LUT</source>
+        <translation>LUT laden</translation>
+    </message>
+    <message>
+        <source>LUT files (*.cube)</source>
+        <translation>LUT-Dateien (*.cube)</translation>
     </message>
 </context>
 <context>
@@ -9850,6 +9874,10 @@ Danke fürs Zuschauen</translation>
     <message>
         <source>%1 Point Cube</source>
         <translation>%1-Punkte-Cube</translation>
+    </message>
+    <message>
+        <source>3D LUT</source>
+        <translation>3D-LUT</translation>
     </message>
     <message>
         <source>grade</source>
@@ -21264,6 +21292,10 @@ Verknüpft: nicht in der Projektdatei gespeichert</translation>
     <message>
         <source>Replace Selected Clip</source>
         <translation>Gewählten Clip ersetzen</translation>
+    </message>
+    <message>
+        <source>3D LUT</source>
+        <translation>3D-LUT</translation>
     </message>
     <message>
         <source>Open in Source Viewer</source>

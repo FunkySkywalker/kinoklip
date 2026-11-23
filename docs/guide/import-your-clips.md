@@ -22,6 +22,15 @@ frame at that place, the left edge being the first frame and the right edge the 
 and goes back to what it showed when the pointer leaves. A picture shows itself. Nothing changes
 while the viewer plays. Turn this **Live Media Preview** off in the media pool's **...** menu.
 
+## Put a LUT on a clip before you grade it
+
+Footage shot in a log profile needs a LUT to look normal. Right-click the clip in the media pool
+(or its thumbnail in the clips strip of the Color page) and choose **3D LUT**: pick a `.cube`
+file from the list (the same folders as the Color page's LUT browser), **None** to take it away,
+or **Browse...** for any other file. The LUT is applied before the grade's nodes, to every use
+of that clip: the media pool thumbnail, the viewers of all pages, the render and the export.
+**Edit > Undo** takes it back.
+
 ## The frame rate question
 
 If your clips were filmed at another frame rate than the project (for example 25 or 30 frames per

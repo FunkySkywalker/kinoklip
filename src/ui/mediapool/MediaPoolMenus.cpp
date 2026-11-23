@@ -14,6 +14,7 @@
 #include "ui/common/ActionRegistry.h"
 #include "ui/common/AppContext.h"
 #include "ui/common/FolderImport.h"
+#include "ui/common/InputLutMenu.h"
 #include "ui/common/Icons.h"
 #include "ui/common/MediaImport.h"
 #include "ui/common/MediaStore.h"
@@ -264,6 +265,23 @@ void MediaPoolPanel::addFileRepairCommands(
         });
 }
 
+void MediaPoolPanel::addInputLutMenu(QMenu& menu, const QStringList& ids, const QString& current)
+{
+    const MediaItem* item = m_model->item(current);
+    if (!item || item->kind != MediaItemKind::File || !item->info.hasVideo)
+        return;
+    // Resolve's right-click > 3D LUT: an input LUT applied before the node graph. Power bin
+    // items are copied into the project first, like for Clip Attributes.
+    QMenu* lut = menu.addMenu(tr("3D LUT"));
+    inputlut::populate(
+        lut, item->attributes.inputLut, this, [this, ids, current](const QString& path) {
+            const QStringList projectIds
+                = ensureInProject(ids.contains(current) ? ids : QStringList {current});
+            if (!projectIds.isEmpty())
+                clipattributes::setInputLut(*m_ctx.project, projectIds, path);
+        });
+}
+
 void MediaPoolPanel::fillStreamlinedItemMenu(QMenu& menu)
 {
     const QStringList ids = selectedMediaIds();
@@ -375,6 +393,8 @@ void MediaPoolPanel::fillStreamlinedItemMenu(QMenu& menu)
         addFileRepairCommands(*tools, ids, current, power);
     if (onItem && !power && reg)
         addRegistered(*tools, reg, "mediapool.select_in_timeline");
+    if (onItem && currentItem && currentItem->kind == MediaItemKind::File)
+        addInputLutMenu(*tools, ids, current);
     if (!tools->actions().isEmpty())
         tools->addSeparator();
     if (reg && reg->contains(QStringLiteral("mediapool.remove_unused")))
@@ -448,6 +468,7 @@ void MediaPoolPanel::showItemMenu(const QPoint& globalPos)
                 if (!projectIds.isEmpty())
                     clipattributes::edit(*m_ctx.project, projectIds, this);
             });
+            addInputLutMenu(menu, ids, current);
         }
         if (!power) {
             menu.addSeparator();

@@ -589,6 +589,10 @@ The program was probably closed by the system because the computer ran out of me
         <translation>Атрибуты клипа</translation>
     </message>
     <message>
+        <source>Input LUT</source>
+        <translation>Входной LUT</translation>
+    </message>
+    <message>
         <source>Leader</source>
         <translation>Лидер</translation>
     </message>
@@ -727,6 +731,26 @@ The program was probably closed by the system because the computer ran out of me
     <message>
         <source>Send to %1</source>
         <translation>Посыл в %1</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Нет</translation>
+    </message>
+    <message>
+        <source>(no .cube files in the LUT folders)</source>
+        <translation>(в папках LUT нет файлов .cube)</translation>
+    </message>
+    <message>
+        <source>Browse…</source>
+        <translation>Обзор…</translation>
+    </message>
+    <message>
+        <source>Load LUT</source>
+        <translation>Загрузить LUT</translation>
+    </message>
+    <message>
+        <source>LUT files (*.cube)</source>
+        <translation>Файлы LUT (*.cube)</translation>
     </message>
 </context>
 <context>
@@ -9859,6 +9883,10 @@ Thank you for watching</source>
     <message>
         <source>%1 Point Cube</source>
         <translation>Куб %1 точек</translation>
+    </message>
+    <message>
+        <source>3D LUT</source>
+        <translation>3D LUT</translation>
     </message>
     <message>
         <source>grade</source>
@@ -21279,6 +21307,10 @@ Linked: not stored in the project file</source>
     <message>
         <source>Replace Selected Clip</source>
         <translation>Заменить выбранный клип</translation>
+    </message>
+    <message>
+        <source>3D LUT</source>
+        <translation>3D LUT</translation>
     </message>
     <message>
         <source>Open in Source Viewer</source>

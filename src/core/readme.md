@@ -347,6 +347,9 @@ the absolute path no longer exists.
   `MediaItem::attributes` (`MediaPool::setItemAttributes()` inside an edit);
   `Project::syncDerived()` mirrors it into `ClipData::attributes` of every Media clip of the
   item in every timeline, so render snapshots carry it. Serialized from format 10.
+  `inputLut` (an optional `.cube` path, key `inputLut`, no format bump; set through
+  `clipattributes::setInputLut()`) is applied by the renderers before the first node of the
+  clip grade (`render::prependInputLut()`), also without a grade and under Shift+D.
 - Stacked timelines: `Project::setTabs()`, `timelinePlayhead()` / `setTimelinePlayhead()`
   (inactive timelines keep their own playhead; `inactivePlayheadChanged`).
 

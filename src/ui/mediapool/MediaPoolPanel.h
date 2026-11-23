@@ -373,6 +373,8 @@ private:
     void becomeImportTarget();
     void showHeaderMenu(const QPoint& globalPos);
     void addColorMenu(QMenu& menu, const QStringList& ids);
+    /// The "3D LUT" submenu (input LUT of the media items @p ids; @p current is the clicked one).
+    void addInputLutMenu(QMenu& menu, const QStringList& ids, const QString& current);
     void addFlagMenu(QMenu& menu, const QStringList& ids);
     void fillColorFilterMenu(QMenu* menu);
     void importWithDialog();

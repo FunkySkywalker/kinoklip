@@ -34,6 +34,7 @@
 #include "ui/cut/CutEditor.h"
 #include "ui/cut/CutViewer.h"
 #include "ui/deliver/RenderSettingsPanel.h"
+#include "ui/common/InputLutMenu.h"
 #include "ui/dialogs/ClipAttributesDialog.h"
 #include "ui/dialogs/KeyboardCustomizationDialog.h"
 #include "ui/dialogs/NormalizeAudioDialog.h"
@@ -355,6 +356,7 @@ int runScreenshot(MainWindow& window, const QString& target, const QString& pngP
     QList<QWidget*> popups; // "popup:" targets: open lists and menus of widgets
     QRect popupAnchor; // the widget a "popup:" target opened
     std::function<void()> openPopup; // "popup:" targets: opens them just before the grab
+    std::unique_ptr<QMenu> lutMenu; // "input-lut": the 3D LUT submenu, kept alive for the grab
     if (!isPage)
         window.setCurrentPage(QStringLiteral("edit"));
     // KK_SCREENSHOT_SIZE=1366x768 checks the layout on small screens.
@@ -1198,6 +1200,51 @@ int runScreenshot(MainWindow& window, const QString& target, const QString& pngP
         delayMs = std::max(delayMs, kCompositingSettleDelayMs);
     } else if (target == QLatin1String("import-dialog")) {
         return grabImportDialog(window, pngPath);
+    } else if (base == QLatin1String("input-lut")) {
+        // "input-lut": every video file of the project gets a warm look as its input LUT (Media
+        // Pool > 3D LUT), the media pool shows it in its thumbnails, and the 3D LUT submenu is
+        // open over it. A demo edit: closing does not ask to save it.
+        window.setCurrentPage(QStringLiteral("media"));
+        const QString lutPath = QDir(QDir::tempPath()).filePath(QStringLiteral("kk_demo_warm.cube"));
+        {
+            QFile f(lutPath);
+            if (f.open(QIODevice::WriteOnly)) {
+                constexpr int n = 17;
+                f.write("TITLE \"Warm demo\"\nLUT_3D_SIZE 17\n");
+                for (int b = 0; b < n; ++b)
+                    for (int g = 0; g < n; ++g)
+                        for (int r = 0; r < n; ++r) {
+                            const double R = double(r) / (n - 1), G = double(g) / (n - 1),
+                                         B = double(b) / (n - 1);
+                            // A strong sepia: the luma tinted warm, so the thumbnails visibly change.
+                            const double y = 0.2126 * R + 0.7152 * G + 0.0722 * B;
+                            f.write(QByteArray::number(std::min(1.0, y * 1.15 + 0.04), 'f', 5) + ' '
+                                + QByteArray::number(y * 0.95, 'f', 5) + ' '
+                                + QByteArray::number(y * 0.7, 'f', 5) + '\n');
+                        }
+            }
+        }
+        QStringList ids;
+        for (const MediaItem& m : ctx.project->mediaPool()->items()) {
+            if (m.kind == MediaItemKind::File && m.info.hasVideo)
+                ids.append(m.id);
+        }
+        if (ids.isEmpty()) {
+            std::fprintf(stderr, "input-lut: needs a project with video files\n");
+            return 2;
+        }
+        clipattributes::setInputLut(*ctx.project, ids, lutPath);
+        ctx.project->undoStack()->setClean();
+        panel = window.mediaPage()->findChild<MediaPoolPanel*>();
+        delayMs = std::max(delayMs, kProjectManagerSettleDelayMs);
+        lutMenu = std::make_unique<QMenu>(&window);
+        inputlut::populate(lutMenu.get(), lutPath, &window, [](const QString&) {});
+        openPopup = [&window, &popups, &popupAnchor, &lutMenu, &panel] {
+            QWidget* pool = panel ? panel : static_cast<QWidget*>(&window);
+            popupAnchor = QRect(window.mapFromGlobal(pool->mapToGlobal(QPoint(0, 0))), pool->size());
+            lutMenu->popup(pool->mapToGlobal(QPoint(pool->width() / 3, 60)));
+            popups = {lutMenu.get()};
+        };
     } else if (!isPage) {
         std::fprintf(stderr,
             "unknown screenshot target '%s' (use media[:<item>], cut[:tape|clip|strip], edit, "
@@ -1208,6 +1255,7 @@ int runScreenshot(MainWindow& window, const QString& target, const QString& pngP
             "multicam[:viewer|timeline], "
             "keyframes-panel[:dope|curves|absolute|float], "
             "mediapool, levels, stacked, clip-attributes[:audio|timecode], "
+            "input-lut, "
             "effects[:<id>], fx:<id>[:inspector|viewer], change-speed, timeline, "
             "deliver:inout|queue, import-dialog, project-manager, new-project, menu-color-theme "
             "or "

@@ -222,6 +222,12 @@ pass per mixer); curve tables, LUTs and polygon points are float textures read w
 within 2 levels. `RenderRequest::bypassGrades` (viewer "bypass all") skips both and the render
 cache. Design: docs/color-page.md.
 
+The media item's input LUT (`ClipAttributes::inputLut`, Media Pool > 3D LUT) is the first node of
+the clip's grade pass: `prepareClipGrade()` / `prependInputLut()` put a LUT-only corrector in front
+of the prepared grade, so GPU and CPU run it as any LUT node; it does not depend on `grades` (also
+under Shift+D and as the Color page's input picture), and the LUT file is part of the cache key.
+`applyInputLut()` does the same to a QImage (Media Pool posters).
+
 Dynamic Zoom (spec 24.20, core/DynamicZoom.h) is part of `clipTransform()`: the clip's framing
 rectangle at the frame is scaled onto the whole frame before the Transform, so both renderers
 apply it the same way; `maxZoom()` and `hasIdentityFootprint()` count it.
