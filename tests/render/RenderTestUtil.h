@@ -8,6 +8,7 @@
 #include "core/EditOps.h"
 #include "core/ParamKeys.h"
 #include "core/TimelineData.h"
+#include "render/GlApi.h"
 #include "render/RenderTypes.h"
 
 #include <QCoreApplication>
@@ -153,10 +154,7 @@ int glTestMain(int argc, char** argv)
         }
     }
     QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
-    QSurfaceFormat format;
-    format.setVersion(3, 3);
-    format.setProfile(QSurfaceFormat::CoreProfile);
-    QSurfaceFormat::setDefaultFormat(format);
+    render::applyGlApiFromEnvironment(); // desktop 3.3 core; OpenGL ES 3.0 with KK_GL_API=gles
     App app(argc, argv); // QApplication for tests that open widgets
     TestObject test;
     return QTest::qExec(&test, argc, argv);

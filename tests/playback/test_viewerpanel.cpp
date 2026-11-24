@@ -3,6 +3,7 @@
 // (raster path), header/timecode/marks/zoom, source viewer loading a clip with its own marks
 // (I/O keys claimed from the timeline while focused), transport routing to the active viewer,
 // full-screen viewer, and F9 inserting the source viewer's marked range (EditPage wiring).
+#include "render/GlApi.h"
 #include "../core/ClassicTimeline.h"
 #include "../media/MediaTestUtil.h"
 #include "app/pages/EditPage.h"
@@ -654,10 +655,7 @@ int main(int argc, char** argv)
     qputenv("KK_NO_AUDIO", "1"); // source players use the default output: keep the tests silent
     // Same GL set-up as main(): shared contexts let GL viewers draw compositor textures.
     QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
-    QSurfaceFormat format;
-    format.setVersion(3, 3);
-    format.setProfile(QSurfaceFormat::CoreProfile);
-    QSurfaceFormat::setDefaultFormat(format);
+    kk::render::applyGlApiFromEnvironment(); // desktop 3.3 core, or ES 3.0 with KK_GL_API=gles
     QApplication app(argc, argv);
     TestViewerPanel test;
     return QTest::qExec(&test, argc, argv);

@@ -3,14 +3,17 @@
 #include "render/GlKit.h"
 
 #include "core/MemoryBudget.h"
+#include "render/GlApi.h"
 #include "render/RenderLog.h"
+
+#include <QOpenGLContext>
 
 #include <algorithm>
 #include <cmath>
 
 namespace kk::render {
 
-const char* const kVertexShader = R"(#version 330 core
+const char* const kVertexShader = R"(
 layout(location = 0) in vec2 aPos;
 uniform mat3 uPosMatrix;
 uniform mat3 uUvMatrix;
@@ -27,6 +30,42 @@ void main()
 }
 )";
 
+bool glIsEs()
+{
+    const QOpenGLContext* ctx = QOpenGLContext::currentContext();
+    return ctx && ctx->isOpenGLES();
+}
+
+GLenum bgraUploadFormat(GlFunctions* gl)
+{
+    if (!glIsEs())
+        return GL_BGRA;
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_BLUE);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
+    return GL_RGBA;
+}
+
+GLenum bgraReadFormat()
+{
+    return glIsEs() ? GL_RGBA : GL_BGRA;
+}
+
+void fixBgraReadback(void* data, qsizetype pixels)
+{
+    if (!glIsEs())
+        return;
+    auto* p = static_cast<uint32_t*>(data);
+    for (qsizetype i = 0; i < pixels; ++i) {
+        const uint32_t v = p[i];
+        p[i] = (v & 0xFF00FF00u) | ((v & 0xFFu) << 16) | ((v >> 16) & 0xFFu);
+    }
+}
+
+GLint floatTextureFilter()
+{
+    return hasFloatLinear(QOpenGLContext::currentContext()) ? GL_LINEAR : GL_NEAREST;
+}
+
 namespace {
 
 /// Prepended to every fragment shader: version, the varyings and edgeCoverage().
@@ -35,7 +74,7 @@ namespace {
 /// quad-space size of one pixel, so `min(vQuad, 1 − vQuad) / fwidth` is the distance to the
 /// nearest quad edge in pixels. Pixels whose centre is ≥ 0.5 px inside are fully covered,
 /// which keeps axis-aligned full-frame quads exact (coverage 1 everywhere).
-const char* const kFragmentHeader = R"(#version 330 core
+const char* const kFragmentHeader = R"(
 in vec2 vUv;
 in vec2 vQuad;
 out vec4 fragColor;
@@ -134,10 +173,13 @@ GLuint compile(GlFunctions* gl, GLenum type, const char* const* sources, int cou
 bool GlProgram::build(GlFunctions* gl, const char* name, const char* fragmentSource, QString* log)
 {
     QString message;
-    const char* vs[] = {kVertexShader};
-    const char* fs[] = {kFragmentHeader, fragmentSource};
-    const GLuint v = compile(gl, GL_VERTEX_SHADER, vs, 1, &message);
-    const GLuint f = v ? compile(gl, GL_FRAGMENT_SHADER, fs, 2, &message) : 0;
+    const GlApi api = currentGlApi();
+    const QByteArray vsHeader = shaderHeader(api, ShaderStage::Vertex);
+    const QByteArray fsHeader = shaderHeader(api, ShaderStage::Fragment);
+    const char* vs[] = {vsHeader.constData(), kVertexShader};
+    const char* fs[] = {fsHeader.constData(), kFragmentHeader, fragmentSource};
+    const GLuint v = compile(gl, GL_VERTEX_SHADER, vs, 2, &message);
+    const GLuint f = v ? compile(gl, GL_FRAGMENT_SHADER, fs, 3, &message) : 0;
     if (!v || !f) {
         if (v)
             gl->glDeleteShader(v);

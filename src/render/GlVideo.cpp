@@ -3,9 +3,13 @@
 #include "render/GlVideo.h"
 
 #include "media/HdrToSdr.h"
+#include "render/GlApi.h"
 #include "render/GlDmaBuf.h"
 #include "render/YuvMath.h"
 
+#include <QOpenGLContext>
+
+#include <algorithm>
 #include <string>
 
 namespace kk::render {
@@ -167,7 +171,6 @@ void GlVideo::uploadPlanes(GlKit& kit, PlaneTextures& t, const media::VideoFrame
     GlFunctions* gl = kit.gl();
     gl->glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     for (int p = 0; p < frame->planeCount && p < 3; ++p) {
-        const PlaneFormat pf = planeFormat(frame->format, p);
         const QSize size(frame->planeWidth(p), frame->planeHeight(p));
         if (!t.texture[p]) {
             gl->glGenTextures(1, &t.texture[p]);
@@ -183,14 +186,37 @@ void GlVideo::uploadPlanes(GlKit& kit, PlaneTextures& t, const media::VideoFrame
         // so the decoder's memory is uploaded as-is without repacking.
         gl->glPixelStorei(
             GL_UNPACK_ROW_LENGTH, frame->linesize[size_t(p)] / frame->bytesPerPixel(p));
+        PlaneFormat pf = planeFormat(frame->format, p);
+        const void* data = frame->data[size_t(p)];
+        if (pf.format == GL_BGRA)
+            pf.format = bgraUploadFormat(gl);
+        if (pf.type == GL_UNSIGNED_SHORT && !hasNorm16(QOpenGLContext::currentContext())) {
+            // OpenGL ES without EXT_texture_norm16: keep the 8 most significant bits of the
+            // 10-bit code (draw() then reads the plane without the 16-bit scale).
+            const int channels = pf.format == GL_RG ? 2 : 1;
+            const int rowSamples = frame->linesize[size_t(p)] / 2;
+            const int shift = frame->format == media::PixelFormat::P010 ? 8 : 2;
+            t.narrow.resize(size_t(size.width()) * size_t(size.height()) * size_t(channels));
+            const auto* src = static_cast<const uint16_t*>(data);
+            uint8_t* dst = t.narrow.data();
+            const int rowLength = size.width() * channels;
+            for (int y = 0; y < size.height(); ++y) {
+                const uint16_t* row = src + size_t(y) * size_t(rowSamples);
+                for (int x = 0; x < rowLength; ++x)
+                    *dst++ = uint8_t(std::min(int(row[x]) >> shift, 255));
+            }
+            data = t.narrow.data();
+            pf = {channels == 2 ? GL_RG8 : GL_R8, pf.format, GL_UNSIGNED_BYTE};
+            gl->glPixelStorei(GL_UNPACK_ROW_LENGTH, size.width());
+        }
         if (t.size[p] != size || t.internalFormat[p] != pf.internal) {
             gl->glTexImage2D(GL_TEXTURE_2D, 0, GLint(pf.internal), size.width(), size.height(), 0,
-                pf.format, pf.type, frame->data[size_t(p)]);
+                pf.format, pf.type, data);
             t.size[p] = size;
             t.internalFormat[p] = pf.internal;
         } else {
             gl->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.width(), size.height(), pf.format,
-                pf.type, frame->data[size_t(p)]);
+                pf.type, data);
         }
     }
     gl->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
@@ -251,7 +277,12 @@ void GlVideo::draw(GlKit& kit, const PlaneTextures& t, const media::VideoFrame& 
         const YuvCoefficients c = yuvCoefficients(frame.matrix, look.range, frame.format);
         gl->glUniformMatrix3fv(m_yuvMatrix, 1, GL_FALSE, c.matrix.data());
         gl->glUniform3fv(m_yuvOffset, 1, c.offset.data());
-        gl->glUniform1f(m_sampleScale, c.sampleScale);
+        const bool narrowed = (frame.format == media::PixelFormat::P010
+                                  || frame.format == media::PixelFormat::Yuv420p10
+                                  || frame.format == media::PixelFormat::Yuv422p10
+                                  || frame.format == media::PixelFormat::Yuv444p10)
+            && !hasNorm16(QOpenGLContext::currentContext());
+        gl->glUniform1f(m_sampleScale, narrowed ? 1.0f : c.sampleScale);
         gl->glUniform1i(m_hdr, int(media::hdrMappingOf(frame)));
     }
     gl->glUniform4f(

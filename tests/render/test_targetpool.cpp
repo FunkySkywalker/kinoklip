@@ -2,6 +2,7 @@
 // Byte limit of the GL render-target pool: targets of ever-changing sizes (a keyframed zoom on a
 // generator or a retimed clip gave every frame its own size) must not pile up beyond the limit.
 // Needs OpenGL 3.3 (skips without).
+#include "render/GlApi.h"
 #include "render/GlKit.h"
 
 #include <QGuiApplication>
@@ -26,11 +27,11 @@ private Q_SLOTS:
     {
         m_surface.create();
         m_context = std::make_unique<QOpenGLContext>();
-        if (!m_context->create() || !m_context->makeCurrent(&m_surface) || m_context->isOpenGLES()
-            || m_context->format().version() < qMakePair(3, 3))
-            QSKIP("OpenGL 3.3 core is not available");
-        m_gl = QOpenGLVersionFunctionsFactory::get<GlFunctions>(m_context.get());
-        if (!m_gl || !m_gl->initializeOpenGLFunctions())
+        if (!m_context->create() || !m_context->makeCurrent(&m_surface) 
+            || (!m_context->isOpenGLES() && m_context->format().version() < qMakePair(3, 3)))
+            QSKIP("OpenGL 3.3 core / ES 3.0 is not available");
+        m_gl = m_context->extraFunctions();
+        if (!m_gl)
             QSKIP("OpenGL 3.3 functions are not available");
     }
 
@@ -113,10 +114,7 @@ private Q_SLOTS:
 
 int main(int argc, char** argv)
 {
-    QSurfaceFormat format;
-    format.setVersion(3, 3);
-    format.setProfile(QSurfaceFormat::CoreProfile);
-    QSurfaceFormat::setDefaultFormat(format);
+    kk::render::applyGlApiFromEnvironment(); // desktop 3.3 core, or ES 3.0 with KK_GL_API=gles
     QGuiApplication app(argc, argv);
     TestTargetPool test;
     return QTest::qExec(&test, argc, argv);

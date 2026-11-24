@@ -20,7 +20,7 @@
 #include <QGuiApplication>
 #include <QOffscreenSurface>
 #include <QOpenGLContext>
-#include <QOpenGLFunctions_3_3_Core>
+#include <QOpenGLExtraFunctions>
 #include <QOpenGLVersionFunctionsFactory>
 #include <QRandomGenerator>
 #include <QTemporaryDir>
@@ -66,9 +66,8 @@ QImage pictureOf(const RenderedFramePtr& f)
         ctx->create();
     }
     ctx->makeCurrent(surface);
-    auto* gl = QOpenGLVersionFunctionsFactory::get<QOpenGLFunctions_3_3_Core>(ctx);
-    gl->initializeOpenGLFunctions();
-    if (f->fence)
+    auto* gl = ctx->extraFunctions();
+        if (f->fence)
         gl->glWaitSync(static_cast<GLsync>(f->fence), 0, GL_TIMEOUT_IGNORED);
     GLuint fbo = 0;
     gl->glGenFramebuffers(1, &fbo);

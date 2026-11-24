@@ -123,8 +123,8 @@ private:
         gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         gl->glPixelStorei(GL_UNPACK_ROW_LENGTH, GLint(image.bytesPerLine() / 4));
-        gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image.width(), image.height(), 0, GL_BGRA,
-            GL_UNSIGNED_BYTE, image.constBits());
+        gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image.width(), image.height(), 0,
+            bgraUploadFormat(gl), GL_UNSIGNED_BYTE, image.constBits());
         gl->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
         m_key = key;
     }

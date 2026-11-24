@@ -2,6 +2,8 @@
 // ViewerSurface factory, OpenGL availability check and shared letterbox / raster drawing.
 #include "ui/viewer/ViewerSurface.h"
 
+#include "render/GlApi.h"
+#include "render/GlKit.h"
 #include "ui/common/SchemeColors.h"
 #include "ui/viewer/GlViewerSurface.h"
 #include "ui/viewer/RasterViewerSurface.h"
@@ -38,11 +40,14 @@ bool ViewerSurface::openGLAvailable()
         // A throw-away context: cheap, done once. Platforms without GL (offscreen, minimal)
         // fail create() instead of crashing later inside QOpenGLWidget.
         QOpenGLContext context;
-        context.setFormat(QSurfaceFormat::defaultFormat());
+        context.setFormat(render::contextFormat(QSurfaceFormat::defaultFormat()));
         if (!context.create()) {
             return false;
         }
         const QSurfaceFormat format = context.format();
+        // Desktop 3.3 core or OpenGL ES 3.0 (render/GlApi.h), as the default format asks.
+        if (context.isOpenGLES())
+            return format.majorVersion() >= 3;
         return format.majorVersion() > 3
             || (format.majorVersion() == 3 && format.minorVersion() >= 3);
     }();
@@ -57,7 +62,7 @@ ViewerSurface* ViewerSurface::create(QWidget* parent)
     static bool logged = false;
     if (!logged) {
         logged = true;
-        qCInfo(lcViewer) << "OpenGL 3.3 widgets not available on" << QGuiApplication::platformName()
+        qCInfo(lcViewer) << "OpenGL (3.3 core or ES 3.0) widgets not available on" << QGuiApplication::platformName()
                          << "- using the raster viewer surface";
     }
     return new RasterViewerSurface(parent);

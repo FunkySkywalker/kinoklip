@@ -70,8 +70,9 @@ GLuint makeTableTexture(GlFunctions* gl, GLenum target)
     GLuint tex = 0;
     gl->glGenTextures(1, &tex);
     gl->glBindTexture(target, tex);
-    gl->glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    gl->glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // 32-bit float tables: filtered only where the context can (ES: OES_texture_float_linear).
+    gl->glTexParameteri(target, GL_TEXTURE_MIN_FILTER, floatTextureFilter());
+    gl->glTexParameteri(target, GL_TEXTURE_MAG_FILTER, floatTextureFilter());
     gl->glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     gl->glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     if (target == GL_TEXTURE_3D)

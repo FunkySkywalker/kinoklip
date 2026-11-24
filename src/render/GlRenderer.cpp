@@ -22,6 +22,7 @@
 #include "core/ParamKeys.h"
 #include "core/Retime.h"
 #include "render/CaptionRenderer.h"
+#include "render/GlApi.h"
 #include "render/GlInfo.h"
 #include "render/RenderLog.h"
 #include "render/TimeEffects.h"
@@ -29,7 +30,7 @@
 #include <QElapsedTimer>
 #include <QOffscreenSurface>
 #include <QOpenGLContext>
-#include <QOpenGLVersionFunctionsFactory>
+
 #include <QSet>
 
 #include <algorithm>
@@ -154,10 +155,8 @@ GlRenderer::~GlRenderer()
 bool GlRenderer::initialize(QString* why)
 {
     m_context = std::make_unique<QOpenGLContext>();
-    QSurfaceFormat format = m_surface->format();
-    format.setVersion(3, 3);
-    format.setProfile(QSurfaceFormat::CoreProfile);
-    m_context->setFormat(format);
+    // The surface carries the API chosen at startup (GlApi.h): desktop 3.3 core or ES 3.0.
+    m_context->setFormat(contextFormat(m_surface->format()));
     QOpenGLContext* share = QOpenGLContext::globalShareContext();
     if (share)
         m_context->setShareContext(share);
@@ -172,16 +171,21 @@ bool GlRenderer::initialize(QString* why)
         return false;
     }
     const QSurfaceFormat actual = m_context->format();
-    if (m_context->isOpenGLES() || actual.version() < qMakePair(3, 3)) {
-        *why = QStringLiteral("OpenGL %1.%2%3 < 3.3 core")
+    const bool es = m_context->isOpenGLES();
+    if (es ? actual.majorVersion() < 3 : actual.version() < qMakePair(3, 3)) {
+        *why = QStringLiteral("OpenGL %1.%2%3 is too old (needs 3.3 core or ES 3.0)")
                    .arg(actual.majorVersion())
                    .arg(actual.minorVersion())
-                   .arg(m_context->isOpenGLES() ? QStringLiteral(" ES") : QString());
+                   .arg(es ? QStringLiteral(" ES") : QString());
         return false;
     }
-    m_gl = QOpenGLVersionFunctionsFactory::get<QOpenGLFunctions_3_3_Core>(m_context.get());
-    if (!m_gl || !m_gl->initializeOpenGLFunctions()) {
-        *why = QStringLiteral("OpenGL 3.3 core functions unavailable");
+    if (!hasRenderableFloat(m_context.get())) {
+        *why = QStringLiteral("OpenGL ES without float render targets (EXT_color_buffer_float)");
+        return false;
+    }
+    m_gl = m_context->extraFunctions();
+    if (!m_gl) {
+        *why = QStringLiteral("OpenGL functions unavailable");
         return false;
     }
     const auto renderer = reinterpret_cast<const char*>(m_gl->glGetString(GL_RENDERER));
@@ -193,7 +197,8 @@ bool GlRenderer::initialize(QString* why)
         };
         rememberGlDriverInfo({glString(GL_VENDOR), glString(GL_RENDERER), glString(GL_VERSION)});
     }
-    m_description = QStringLiteral("OpenGL %1.%2 (%3)")
+    m_description = QStringLiteral("OpenGL%1 %2.%3 (%4)")
+                        .arg(es ? QStringLiteral(" ES") : QString())
                         .arg(actual.majorVersion())
                         .arg(actual.minorVersion())
                         .arg(QString::fromLatin1(renderer ? renderer : "unknown"));
@@ -1730,8 +1735,8 @@ const GlRenderer::TitleTexture* GlRenderer::titleTexture(const TitleStyle& style
     m_gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     m_gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     m_gl->glPixelStorei(GL_UNPACK_ROW_LENGTH, GLint(image.image.bytesPerLine() / 4));
-    m_gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, t.size.width(), t.size.height(), 0, GL_BGRA,
-        GL_UNSIGNED_BYTE, image.image.constBits());
+    m_gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, t.size.width(), t.size.height(), 0,
+        bgraUploadFormat(m_gl), GL_UNSIGNED_BYTE, image.image.constBits());
     m_gl->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     return &*m_titles.insert(style, t);
 }

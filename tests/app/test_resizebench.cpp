@@ -28,6 +28,7 @@
 // for the viewers (QOpenGLWindow in a window container, a separate wl_subsurface; the main
 // window stays wl_shm) is the next step if resizing still stutters on real hardware. When a
 // step takes longer than the settle delay (llvmpipe), the coalescing cannot help.
+#include "render/GlApi.h"
 #include "../media/MediaTestUtil.h"
 #include "app/MainWindow.h"
 #include "app/Theme.h"
@@ -578,11 +579,7 @@ int main(int argc, char** argv)
 {
     // The application's OpenGL setup (src/main.cpp), so the viewers on xcb / wayland are the
     // OpenGL ones with shared contexts, as in the real app.
-    QSurfaceFormat format;
-    format.setRenderableType(QSurfaceFormat::OpenGL);
-    format.setVersion(3, 3);
-    format.setProfile(QSurfaceFormat::CoreProfile);
-    format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
+    QSurfaceFormat format = kk::render::glFormat(kk::render::requestedGlApi());
     format.setSwapInterval(1);
     QSurfaceFormat::setDefaultFormat(format);
     QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);

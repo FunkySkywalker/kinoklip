@@ -13,7 +13,7 @@
 #include <QFileInfo>
 #include <QOffscreenSurface>
 #include <QOpenGLContext>
-#include <QOpenGLFunctions_3_3_Core>
+#include <QOpenGLExtraFunctions>
 #include <QOpenGLVersionFunctionsFactory>
 
 using namespace kk;
@@ -853,8 +853,8 @@ private slots:
         ctx.setShareContext(QOpenGLContext::globalShareContext());
         QVERIFY(ctx.create());
         QVERIFY(ctx.makeCurrent(&surface));
-        auto* gl = QOpenGLVersionFunctionsFactory::get<QOpenGLFunctions_3_3_Core>(&ctx);
-        QVERIFY(gl && gl->initializeOpenGLFunctions());
+        auto* gl = ctx.extraFunctions();
+        QVERIFY(gl);
         gl->glWaitSync(static_cast<GLsync>(f->fence), 0, GL_TIMEOUT_IGNORED);
         GLuint fbo = 0;
         gl->glGenFramebuffers(1, &fbo);

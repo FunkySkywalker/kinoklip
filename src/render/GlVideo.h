@@ -12,6 +12,7 @@
 #include <QTransform>
 
 #include <memory>
+#include <vector>
 
 namespace kk::render {
 
@@ -27,6 +28,7 @@ struct PlaneTextures
     QSize size[3];
     GLenum internalFormat[3] = {0, 0, 0};
     std::shared_ptr<const media::VideoFrame> uploaded;
+    std::vector<uint8_t> narrow; ///< scratch for the 8-bit copy of 16-bit planes (ES without norm16)
 };
 
 /// How a frame is shown: the frame's own metadata with the clip's Clip Attributes applied

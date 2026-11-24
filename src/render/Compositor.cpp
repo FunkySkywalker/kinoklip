@@ -5,6 +5,7 @@
 #include "core/MemoryBudget.h"
 #include "core/ThreadNice.h"
 #include "render/DecodeTargets.h"
+#include "render/GlApi.h"
 #include "render/RenderBackend.h"
 #include "render/RenderLog.h"
 
@@ -205,9 +206,7 @@ Compositor::Compositor(Options options)
             == 0;
     // QOffscreenSurface is a platform window on some platforms: create it on the GUI thread.
     if (!forceCpu && qobject_cast<QGuiApplication*>(QCoreApplication::instance())) {
-        QSurfaceFormat format = QSurfaceFormat::defaultFormat();
-        format.setVersion(3, 3);
-        format.setProfile(QSurfaceFormat::CoreProfile);
+        const QSurfaceFormat format = render::contextFormat(QSurfaceFormat::defaultFormat());
         // The shared context (Qt::AA_ShareOpenGLContexts) is created on first use: do it here, not
         // on the render thread, whose end would leave its deleteLater at exit without an event loop.
         QOpenGLContext::globalShareContext();

@@ -3,7 +3,7 @@
 // shader programs, the unit quad, pooled render targets and common passes (blit, blur).
 #pragma once
 
-#include <QOpenGLFunctions_3_3_Core>
+#include <QOpenGLExtraFunctions>
 #include <QRect>
 #include <QRectF>
 #include <QSize>
@@ -16,9 +16,27 @@
 
 namespace kk::render {
 
-using GlFunctions = QOpenGLFunctions_3_3_Core;
+/// OpenGL ES 3.0 function set (QOpenGLExtraFunctions): everything the renderer calls exists in
+/// both desktop 3.3 core and ES 3.0, so one type serves both APIs.
+using GlFunctions = QOpenGLExtraFunctions;
 
-/// The vertex shader every pass uses (GLSL 330). Inputs: a unit quad (0..1, (0,0) = top-left
+/// True when the current context is OpenGL ES (QOpenGLContext::isOpenGLES()).
+[[nodiscard]] bool glIsEs();
+
+/// Pixel format to upload BGRA bytes (QImage ARGB32 / Bgra frames) with. Desktop: GL_BGRA.
+/// ES 3.0 has no BGRA upload: GL_RGBA, and the currently bound 2D texture gets an R/B swizzle
+/// so shaders still see RGBA. Call right before glTexImage2D / glTexSubImage2D.
+[[nodiscard]] GLenum bgraUploadFormat(GlFunctions* gl);
+/// Pixel format for glReadPixels of an RGBA8 target into QImage ARGB32 bytes: GL_BGRA on
+/// desktop; GL_RGBA on ES, after which swapRedBlue() must be applied to the bytes.
+[[nodiscard]] GLenum bgraReadFormat();
+/// Swaps R and B of @p pixels 32-bit pixels in place (the ES readback fix-up; no-op on desktop).
+void fixBgraReadback(void* data, qsizetype pixels);
+
+/// Filter for 32-bit float lookup textures: GL_LINEAR where the context can, else GL_NEAREST.
+[[nodiscard]] GLint floatTextureFilter();
+
+/// The vertex shader every pass uses (GLSL 330 core / 300 es, the version header is prepended by GlProgram::build). Inputs: a unit quad (0..1, (0,0) = top-left
 /// corner). Uniforms `uPosMatrix` (quad → normalised device coordinates) and `uUvMatrix`
 /// (quad → source texture coordinates). Outputs `vUv` and `vQuad` (position in the quad, for
 /// crop, vignette and edge antialiasing).

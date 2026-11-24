@@ -3,6 +3,7 @@
 // VAAPI surface needs a GPU render node, so the tests cover what does not: the EGL attribute
 // lists, the probe's answer on this GL stack, and the download fallback of a frame whose
 // buffers cannot be imported (also on a machine with EGL), checked on a real GL texture.
+#include "render/GlApi.h"
 #include "RenderTestUtil.h"
 #include "media/DecodeStats.h"
 #include "media/VideoDecoder.h"
@@ -82,16 +83,13 @@ private slots:
         m_surface = std::make_unique<QOffscreenSurface>();
         m_surface->create();
         m_context = std::make_unique<QOpenGLContext>();
-        QSurfaceFormat format;
-        format.setVersion(3, 3);
-        format.setProfile(QSurfaceFormat::CoreProfile);
-        m_context->setFormat(format);
+        m_context->setFormat(kk::render::contextFormat(QSurfaceFormat::defaultFormat()));
         if (!m_context->create() || !m_context->makeCurrent(m_surface.get())) {
             m_context.reset(); // no OpenGL here: the GL cases skip
             return;
         }
-        m_gl = QOpenGLVersionFunctionsFactory::get<QOpenGLFunctions_3_3_Core>(m_context.get());
-        if (!m_gl || !m_gl->initializeOpenGLFunctions())
+        m_gl = m_context->extraFunctions();
+        if (!m_gl)
             m_context.reset();
     }
 
@@ -275,7 +273,7 @@ private slots:
 private:
     std::unique_ptr<QOffscreenSurface> m_surface;
     std::unique_ptr<QOpenGLContext> m_context;
-    QOpenGLFunctions_3_3_Core* m_gl = nullptr;
+    QOpenGLExtraFunctions* m_gl = nullptr;
 };
 
 int main(int argc, char** argv)

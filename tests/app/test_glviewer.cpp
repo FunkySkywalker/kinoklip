@@ -2,6 +2,7 @@
 // Pixel test of the viewer surfaces. The GL case is skipped where OpenGL widgets are unavailable
 // (ctest runs offscreen); run it with GL, e.g.:
 //   QT_QPA_PLATFORM=xcb xvfb-run -a ./build/test_glviewer
+#include "render/GlApi.h"
 #include "ui/viewer/GlViewerSurface.h"
 #include "ui/viewer/RasterViewerSurface.h"
 
@@ -78,10 +79,7 @@ private slots:
 int main(int argc, char** argv)
 {
     // Same default format as the application (OpenGL 3.3 core), set before QApplication.
-    QSurfaceFormat format;
-    format.setVersion(3, 3);
-    format.setProfile(QSurfaceFormat::CoreProfile);
-    QSurfaceFormat::setDefaultFormat(format);
+    kk::render::applyGlApiFromEnvironment(); // desktop 3.3 core, or ES 3.0 with KK_GL_API=gles
     QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
     QApplication app(argc, argv);
     TestGlViewer test;

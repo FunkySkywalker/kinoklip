@@ -914,8 +914,8 @@ PooledTarget GlComposition::uploadedImage(GlKit& kit, const CompEval& ev, const 
     gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     gl->glPixelStorei(GL_UNPACK_ROW_LENGTH, GLint(image.bytesPerLine() / 4));
-    gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image.width(), image.height(), 0, GL_BGRA,
-        GL_UNSIGNED_BYTE, image.constBits());
+    gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image.width(), image.height(), 0,
+        bgraUploadFormat(gl), GL_UNSIGNED_BYTE, image.constBits());
     gl->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     kit.bindTarget(*out);
     kit.setBlendOver(false);
@@ -943,8 +943,13 @@ QImage GlComposition::readBack(GlKit& kit, int owner)
     gl->glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
     gl->glPixelStorei(GL_PACK_ALIGNMENT, 4);
     gl->glPixelStorei(GL_PACK_ROW_LENGTH, GLint(image.bytesPerLine() / 4));
-    gl->glReadPixels(0, 0, t->size.width(), t->size.height(), GL_BGRA, GL_UNSIGNED_BYTE, image.bits());
+    gl->glReadPixels(0, 0, t->size.width(), t->size.height(), bgraReadFormat(),
+        GL_UNSIGNED_BYTE, image.bits());
     gl->glPixelStorei(GL_PACK_ROW_LENGTH, 0);
+    if (glIsEs()) { // rows are padded to bytesPerLine: swap every row
+        for (int y = 0; y < image.height(); ++y)
+            fixBgraReadback(image.scanLine(y), image.width());
+    }
     return image;
 }
 

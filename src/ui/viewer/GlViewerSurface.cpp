@@ -2,6 +2,8 @@
 // OpenGL viewer surface: compositor texture (zero copy) or uploaded image, one textured quad.
 #include "ui/viewer/GlViewerSurface.h"
 
+#include "render/GlApi.h"
+#include "render/GlKit.h"
 #include "ui/common/SchemeColors.h"
 
 #include <QCoreApplication>
@@ -20,7 +22,7 @@ Q_LOGGING_CATEGORY(lcGlViewer, "kk.ui.viewer.gl", QtInfoMsg)
 // Unit quad as a triangle strip; the vertex shader maps it onto the picture rectangle.
 constexpr GLfloat kQuad[] = {0.f, 0.f, 1.f, 0.f, 0.f, 1.f, 1.f, 1.f};
 
-constexpr char kVertexShader[] = R"(#version 330 core
+constexpr char kVertexShader[] = R"(
 layout(location = 0) in vec2 position;
 uniform vec4 rect; // x, y, width, height in normalised device coordinates
 out vec2 uv;
@@ -32,7 +34,7 @@ void main()
 }
 )";
 
-constexpr char kFragmentShader[] = R"(#version 330 core
+constexpr char kFragmentShader[] = R"(
 in vec2 uv;
 uniform sampler2D frame;
 out vec4 color;
@@ -176,9 +178,14 @@ void GlViewerSurface::initializeGL()
     connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &GlViewerSurface::releaseGl,
         Qt::DirectConnection);
 
-    auto compile = [this](GLenum type, const char* source) -> GLuint {
+    const render::GlApi api = context()->isOpenGLES() ? render::GlApi::Gles
+                                                                    : render::GlApi::Desktop;
+    auto compile = [this, api](GLenum type, const char* source) -> GLuint {
         const GLuint shader = glCreateShader(type);
-        glShaderSource(shader, 1, &source, nullptr);
+        const QByteArray header = render::shaderHeader(api,
+            type == GL_VERTEX_SHADER ? render::ShaderStage::Vertex : render::ShaderStage::Fragment);
+        const char* sources[] = {header.constData(), source};
+        glShaderSource(shader, 2, sources, nullptr);
         glCompileShader(shader);
         GLint ok = 0;
         glGetShaderiv(shader, GL_COMPILE_STATUS, &ok);
@@ -237,13 +244,19 @@ void GlViewerSurface::uploadFrame()
     glBindTexture(GL_TEXTURE_2D, m_texture);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
     glPixelStorei(GL_UNPACK_ROW_LENGTH, GLint(m_frame.bytesPerLine() / 4));
+    // ES 3.0 cannot upload BGRA: RGBA bytes plus an R/B swizzle of the texture (GlKit.h).
+    const GLenum bgra = render::glIsEs() ? GL_RGBA : GL_BGRA;
+    if (render::glIsEs()) {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_BLUE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
+    }
     if (m_frame.size() != m_textureSize) {
         // (Re)allocate only when the size changes; same-size frames reuse the storage.
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_frame.width(), m_frame.height(), 0, GL_BGRA,
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_frame.width(), m_frame.height(), 0, bgra,
             GL_UNSIGNED_BYTE, m_frame.constBits());
         m_textureSize = m_frame.size();
     } else {
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_frame.width(), m_frame.height(), GL_BGRA,
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_frame.width(), m_frame.height(), bgra,
             GL_UNSIGNED_BYTE, m_frame.constBits());
     }
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);

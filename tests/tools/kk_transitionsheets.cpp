@@ -8,6 +8,7 @@
 //
 // The default output directory is "transition-sheets" next to the executable (the build
 // directory); nothing is ever written into the repository.
+#include "render/GlApi.h"
 #include "../render/TransitionRig.h"
 #include "core/EffectRegistry.h"
 
@@ -34,10 +35,7 @@ constexpr double kProgress[3] = {0.25, 0.5, 0.75};
 int main(int argc, char** argv)
 {
     qputenv("QT_LOGGING_RULES", "qt.qpa.*=false");
-    QSurfaceFormat format;
-    format.setVersion(3, 3);
-    format.setProfile(QSurfaceFormat::CoreProfile);
-    QSurfaceFormat::setDefaultFormat(format);
+    kk::render::applyGlApiFromEnvironment(); // desktop 3.3 core, or ES 3.0 with KK_GL_API=gles
     QGuiApplication app(argc, argv);
     const QString outDir = argc > 1 ? QString::fromLocal8Bit(argv[1])
                                     : QDir(QCoreApplication::applicationDirPath())

@@ -242,7 +242,7 @@ void GlOutput::startReadback(
     gl->glPixelStorei(GL_PACK_ALIGNMENT, 4);
     // BGRA bytes = QImage::Format_ARGB32_Premultiplied on little-endian; framebuffer row 0 is
     // the top of the picture (GlKit convention), so the rows arrive in QImage order.
-    gl->glReadPixels(0, 0, size.width(), size.height(), GL_BGRA, GL_UNSIGNED_BYTE, nullptr);
+    gl->glReadPixels(0, 0, size.width(), size.height(), bgraReadFormat(), GL_UNSIGNED_BYTE, nullptr);
     gl->glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
     Pending p;
     p.job = std::move(job);
@@ -272,6 +272,7 @@ void GlOutput::finishPending(bool keepNewest)
             QImage image(size, QImage::Format_ARGB32_Premultiplied);
             // bytesPerLine == width·4 for 32-bit images, so the PBO is one contiguous copy.
             std::memcpy(image.bits(), data, size_t(bytes));
+            fixBgraReadback(image.bits(), qsizetype(size.width()) * size.height());
             p.frame->image = std::move(image);
             gl->glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
         } else {

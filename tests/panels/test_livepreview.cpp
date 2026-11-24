@@ -2,6 +2,7 @@
 // Effects library Live Preview (spec 47): hovering an entry shows it applied in the timeline
 // viewer, leaving restores the picture exactly, the project stays untouched, the options-menu
 // toggle, stale requests, and the preview scenes (which clip, which frame).
+#include "render/GlApi.h"
 #include "PanelTestUtils.h"
 #include "app/Theme.h"
 #include "core/AudioTransitions.h"
@@ -654,10 +655,7 @@ int main(int argc, char** argv)
 {
     qputenv("KK_NO_AUDIO", "1");
     QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
-    QSurfaceFormat format;
-    format.setVersion(3, 3);
-    format.setProfile(QSurfaceFormat::CoreProfile);
-    QSurfaceFormat::setDefaultFormat(format);
+    kk::render::applyGlApiFromEnvironment(); // desktop 3.3 core, or ES 3.0 with KK_GL_API=gles
     QApplication app(argc, argv);
     TestLivePreview test;
     return QTest::qExec(&test, argc, argv);

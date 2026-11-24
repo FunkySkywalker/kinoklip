@@ -25,6 +25,7 @@
 #include "media/MediaCache.h"
 #include "pack/ProjectPackage.h"
 #include "playback/PlaybackEngine.h"
+#include "render/GlApi.h"
 #include "render/RenderFrameCommand.h"
 #include "ui/audio/VoiceOverController.h"
 #include "ui/common/ActionRegistry.h"
@@ -58,12 +59,10 @@ namespace {
 /// copies (and keeps QOpenGLWidgets in different windows/pages compatible).
 void configureOpenGL()
 {
-    constexpr int kGlMajor = 3;
-    constexpr int kGlMinor = 3;
-    QSurfaceFormat format;
-    format.setRenderableType(QSurfaceFormat::OpenGL);
-    format.setVersion(kGlMajor, kGlMinor);
-    format.setProfile(QSurfaceFormat::CoreProfile);
+    // Desktop OpenGL 3.3 core first; kk::render::chooseGlApi() (after QApplication exists)
+    // switches the default to OpenGL ES 3.0 when the driver cannot make a 3.3 core context
+    // (Raspberry Pi 5), or when KK_GL_API=gles asks for it.
+    QSurfaceFormat format = kk::render::glFormat(kk::render::requestedGlApi());
     format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
     format.setSwapInterval(1); // vsync on X11 (no tearing); 0 on Wayland, see LiveResize.h
     QSurfaceFormat::setDefaultFormat(format);
@@ -75,6 +74,20 @@ void configureOpenGL()
         && !qEnvironmentVariableIsSet("QT_XCB_GL_INTEGRATION")) {
         qputenv("QT_XCB_GL_INTEGRATION", "xcb_egl");
     }
+}
+
+/// After QApplication: picks desktop OpenGL 3.3 core or OpenGL ES 3.0 for this session and
+/// logs the choice. Platforms without OpenGL (offscreen, minimal) keep the default format;
+/// their compositor and viewer fall back to the CPU as before.
+void chooseOpenGLApi()
+{
+    static const QStringList kNoGl {QStringLiteral("offscreen"), QStringLiteral("minimal"),
+        QStringLiteral("vnc"), QStringLiteral("linuxfb")};
+    if (kNoGl.contains(QGuiApplication::platformName())
+        || qEnvironmentVariableIntValue("KK_NO_OPENGL") != 0
+        || qEnvironmentVariable("KINOKLIP_RENDER").compare(QLatin1String("cpu"), Qt::CaseInsensitive) == 0)
+        return;
+    kk::render::chooseGlApi();
 }
 
 /// Must run before QApplication exists: applies the "Interface scale" preference
@@ -202,6 +215,7 @@ int main(int argc, char** argv)
     configureOpenGL();
     kk::theme::initBeforeApplication(); // bundled Breeze icons; must precede QApplication
     QApplication app(argc, argv);
+    chooseOpenGLApi(); // needs a platform: after QApplication, before any viewer or compositor
     kk::liveresize::adjustSwapInterval(); // needs the platform name: after QApplication
     setApplicationIdentity();
     // Matches packaging/linux/org.kinoklip.Kinoklip.desktop: Wayland app_id / X11 WM_CLASS,

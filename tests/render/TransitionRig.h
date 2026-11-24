@@ -36,12 +36,12 @@ public:
             *why = QStringLiteral("no OpenGL context");
             return false;
         }
-        if (m_context->isOpenGLES() || m_context->format().version() < qMakePair(3, 3)) {
+        if (!m_context->isOpenGLES() && m_context->format().version() < qMakePair(3, 3)) {
             *why = QStringLiteral("OpenGL 3.3 core is not available");
             return false;
         }
-        m_gl = QOpenGLVersionFunctionsFactory::get<render::GlFunctions>(m_context.get());
-        if (!m_gl || !m_gl->initializeOpenGLFunctions()) {
+        m_gl = m_context->extraFunctions();
+        if (!m_gl) {
             *why = QStringLiteral("OpenGL 3.3 functions are not available");
             return false;
         }
