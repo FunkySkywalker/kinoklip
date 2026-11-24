@@ -2985,8 +2985,8 @@ Probablemente el sistema cerró el programa porque el equipo se quedó sin memor
         <translation>Bloquea las guías para que no se puedan mover por accidente.</translation>
     </message>
     <message>
-        <source>Makes an on-screen transform drag snap the picture to the guides.</source>
-        <translation>Hace que al arrastrar una transformación en pantalla la imagen se ajuste a las guías.</translation>
+        <source>Makes an on-screen transform drag snap the picture to the guides and to the frame edges and centre, with alignment lines; Ctrl held skips snapping.</source>
+        <translation>Hace que al arrastrar una transformación en pantalla la imagen se ajuste a las guías y a los bordes y el centro del fotograma, con líneas de alineación; con Ctrl pulsado no se ajusta.</translation>
     </message>
     <message>
         <source>Adds a horizontal guide in the middle of the picture.</source>

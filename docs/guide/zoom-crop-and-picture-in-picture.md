@@ -42,6 +42,11 @@ With several clips selected, dragging the frame of the shown clip changes all of
 same amount (and typing in the Inspector's Transform, Cropping and Composite sections does
 too), whatever kind of clip they are.
 
+While you drag, the clip snaps to the edges and the centre lines of the picture, also when
+the clip is smaller than the picture, and a thin pink line shows what it is lined up with. Hold
+**Ctrl** to drag freely. **View > Guides > Snap to Guides** turns this (and snapping to your own
+guides) on or off.
+
 Choose **On-Screen Crop Controls** to crop by dragging the edges of the frame, and **Off** to
 hide the handles again.
 

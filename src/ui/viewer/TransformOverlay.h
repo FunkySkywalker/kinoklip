@@ -119,6 +119,14 @@ private:
     /// Applies the change the primary clip's drag made so far to m_peers.
     void updatePeers(const ClipData& primary, int64_t primaryLocal);
     QPointer<GuideOverlay> m_guides; ///< setGuideOverlay()
+    /// Frame edge / centre lines the drag is snapped to (frame px), drawn as guide lines.
+    std::vector<double> m_snapX;
+    std::vector<double> m_snapY;
+public:
+    /// Frame x / y lines currently drawn because the drag is snapped to the frame edges or
+    /// centre (View > Guides > Snap to Canvas); tests read them.
+    [[nodiscard]] const std::vector<double>& snapLinesX() const { return m_snapX; }
+    [[nodiscard]] const std::vector<double>& snapLinesY() const { return m_snapY; }
 };
 
 } // namespace kk

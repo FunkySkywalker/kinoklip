@@ -389,7 +389,7 @@ Shortcuts are the defaults of the Resolve keymap (Windows); another keyboard pro
 | Viewer Overlays > Show Rulers (toggle) |  | Shows rulers along the top and left edges of the viewer picture; new guides are dragged out of them. |
 | Viewer Overlays > Guides > Show Guides (toggle) |  | Shows or hides the guides over the viewer picture. |
 | Viewer Overlays > Guides > Lock Guides (toggle) |  | Locks the guides so they cannot be moved by accident. |
-| Viewer Overlays > Guides > Snap to Guides (toggle) |  | Makes an on-screen transform drag snap the picture to the guides. |
+| Viewer Overlays > Guides > Snap to Guides (toggle) |  | Makes an on-screen transform drag snap the picture to the guides and to the frame edges and centre, with alignment lines; Ctrl held skips snapping. |
 | Viewer Overlays > Guides > Add Horizontal Guide |  | Adds a horizontal guide in the middle of the picture. |
 | Viewer Overlays > Guides > Add Vertical Guide |  | Adds a vertical guide in the middle of the picture. |
 | Viewer Overlays > Guides > Clear Guides |  | Removes all guides. |
@@ -706,7 +706,7 @@ Preferences > UI Settings > Menu layout offers the menus above (Resolve, the def
 | Overlays > Aspect Marker > 9:16 (choice) |  | Shows a 9:16 vertical-video frame over the viewer. |
 | Guides > Show (toggle) |  | Shows or hides the guides over the viewer picture. |
 | Guides > Lock (toggle) |  | Locks the guides so they cannot be moved by accident. |
-| Guides > Snap (toggle) |  | Makes an on-screen transform drag snap the picture to the guides. |
+| Guides > Snap (toggle) |  | Makes an on-screen transform drag snap the picture to the guides and to the frame edges and centre, with alignment lines; Ctrl held skips snapping. |
 | Guides > Add Horizontal |  | Adds a horizontal guide in the middle of the picture. |
 | Guides > Add Vertical |  | Adds a vertical guide in the middle of the picture. |
 | Guides > Clear |  | Removes all guides. |

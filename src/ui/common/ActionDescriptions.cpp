@@ -447,7 +447,7 @@ const Description kDescriptions[] = {
     {"view.guides_lock",
         QT_TRANSLATE_NOOP("kk::ActionDescriptions", "Locks the guides so they cannot be moved by accident.")},
     {"view.guides_snap",
-        QT_TRANSLATE_NOOP("kk::ActionDescriptions", "Makes an on-screen transform drag snap the picture to the guides.")},
+        QT_TRANSLATE_NOOP("kk::ActionDescriptions", "Makes an on-screen transform drag snap the picture to the guides and to the frame edges and centre, with alignment lines; Ctrl held skips snapping.")},
     {"view.guide_add_horizontal",
         QT_TRANSLATE_NOOP("kk::ActionDescriptions", "Adds a horizontal guide in the middle of the picture.")},
     {"view.guide_add_vertical",

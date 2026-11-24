@@ -229,6 +229,30 @@ private slots:
         QCOMPARE(guides::positions({kH540, kV640}, Qt::Vertical), (std::vector<double> {640.5}));
     }
 
+    // Canvas snapping: the frame's edges and centre as targets; a picture smaller than the
+    // frame snaps its own edges and centre to them.
+    void canvasSnapping()
+    {
+        QCOMPARE(guides::canvasTargets(1920), (std::vector<double> {0, 960, 1920}));
+        QVERIFY(guides::canvasTargets(0).empty());
+        const auto xs = guides::canvasTargets(320);
+        std::vector<double> features {80, 160, 240}; // a 160 px picture, centred
+        QCOMPARE(guides::coincident(features, xs), (std::vector<double> {160}));
+        features = {158, 238, 318}; // moved: right edge 2 px short of 320
+        auto d = guides::snapOffset(features, xs, 6);
+        QVERIFY(d);
+        QCOMPARE(*d, 2.0);
+        for (double& f : features)
+            f += *d;
+        QCOMPARE(guides::coincident(features, xs), (std::vector<double> {160, 320}));
+        features = {-4, 76, 156};
+        QCOMPARE(*guides::snapOffset(features, xs, 6), 4.0);
+        features = {20, 100, 180}; // out of reach
+        QVERIFY(!guides::snapOffset(features, xs, 6));
+        QVERIFY(!guides::snapOffset(features, guides::canvasTargets(0), 6)); // no targets
+        QVERIFY(guides::coincident(features, xs).empty());
+    }
+
     // 41.5: labelled ticks at least the given spacing apart, in 1 / 2 / 5 steps.
     void guideSnapTargets()
     {

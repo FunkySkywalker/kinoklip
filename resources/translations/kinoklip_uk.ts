@@ -2993,8 +2993,8 @@ The program was probably closed by the system because the computer ran out of me
         <translation>Блокує напрямні, щоб їх не можна було випадково зсунути.</translation>
     </message>
     <message>
-        <source>Makes an on-screen transform drag snap the picture to the guides.</source>
-        <translation>Змушує екранне перетягування трансформації притягувати зображення до напрямних.</translation>
+        <source>Makes an on-screen transform drag snap the picture to the guides and to the frame edges and centre, with alignment lines; Ctrl held skips snapping.</source>
+        <translation>Змушує екранне перетягування трансформації притягувати зображення до напрямних, країв і центру кадру, з лініями вирівнювання; із затиснутим Ctrl прив’язка вимкнена.</translation>
     </message>
     <message>
         <source>Adds a horizontal guide in the middle of the picture.</source>

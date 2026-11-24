@@ -15,6 +15,7 @@
 #include "ui/common/StandardActions.h"
 #include "ui/viewer/TransformGesture.h"
 #include "ui/viewer/TransformOverlay.h"
+#include "ui/viewer/ViewerOverlaySettings.h"
 #include "ui/viewer/ViewerPanel.h"
 
 #include <QAction>
@@ -292,6 +293,65 @@ private slots:
         move(overlay, to);
         release(overlay, to);
         QVERIFY(std::abs(f.clip().transform.value(keys::ZoomX, 0) - 1.5) < 0.02);
+        f.action("view.onscreen_transform")->setChecked(false);
+    }
+
+    // Frame edges and centre are snap targets of a Move drag (View > Guides > Snap to Guides),
+    // with guide lines while snapped; Ctrl or the option off: free. One undo step.
+    void moveSnapsToTheFrameEdges()
+    {
+        Fixture f;
+        f.project.beginEdit(QStringLiteral("Zoom"));
+        ClipData* c = editops::clipById(f.project.timeline()->mutableData(), f.clipId);
+        c->transform.values[keys::ZoomX].setValue(0, 0.5);
+        c->transform.values[keys::ZoomY].setValue(0, 0.5);
+        f.project.endEdit();
+        ViewerPanel viewer(ViewerPanel::Mode::Timeline, f.ctx);
+        viewer.resize(700, 500);
+        viewer.show();
+        QVERIFY(QTest::qWaitForWindowExposed(&viewer));
+        TransformOverlay* overlay = viewer.transformOverlay();
+        f.action("view.onscreen_transform")->setChecked(true);
+        QTRY_VERIFY(overlay->isEditing());
+        QUndoStack* undo = f.project.undoStack();
+        const QTransform map = *overlay->frameToWidget();
+        const QPointF from = map.map(QPointF(120, 60));
+        auto dragBy = [&](double dx, Qt::KeyboardModifiers mods = {}) {
+            const QPointF to = map.map(QPointF(120 + dx, 60));
+            press(overlay, from);
+            move(overlay, (from + to) / 2, mods);
+            move(overlay, to, mods);
+            const std::vector<double> lines = overlay->snapLinesX();
+            release(overlay, to);
+            return lines;
+        };
+        // Picture x 80 .. 240: moved 78 its right edge is 2 px short of the frame edge.
+        auto setSnap = [](bool on) {
+            ViewerOverlayOptions o = ViewerOverlaySettings::instance().options();
+            o.snapToGuides = on;
+            ViewerOverlaySettings::instance().setOptions(o);
+        };
+        setSnap(true);
+        const int steps = undo->index();
+        auto lines = dragBy(78);
+        QVERIFY2(std::abs(f.clip().transform.value(keys::PosX, 0) - 80.0) < 1e-6, qPrintable(QString::number(f.clip().transform.value(keys::PosX, 0), 'g', 12)));
+        QCOMPARE(lines, (std::vector<double> {160, 320})); // left edge on the centre too
+        QCOMPARE(undo->index(), steps + 1);
+        QVERIFY(overlay->snapLinesX().empty()); // the lines go with the drag
+        undo->undo();
+        lines = dragBy(78, Qt::ControlModifier);
+        QVERIFY2(std::abs(f.clip().transform.value(keys::PosX, 0) - 78) < 1e-6, qPrintable(QString::number(f.clip().transform.value(keys::PosX, 0), 'g', 12)));
+        QVERIFY(lines.empty());
+        undo->undo();
+        setSnap(false);
+        dragBy(78);
+        QVERIFY2(std::abs(f.clip().transform.value(keys::PosX, 0) - 78) < 1e-6, qPrintable(QString::number(f.clip().transform.value(keys::PosX, 0), 'g', 12)));
+        undo->undo();
+        setSnap(true);
+        lines = dragBy(2.0); // back onto the centre line
+        QVERIFY2(std::abs(f.clip().transform.value(keys::PosX, 0)) < 1e-6, qPrintable(QString::number(f.clip().transform.value(keys::PosX, 0), 'g', 12)));
+        QCOMPARE(lines, (std::vector<double> {160}));
+        undo->undo();
         f.action("view.onscreen_transform")->setChecked(false);
     }
 
