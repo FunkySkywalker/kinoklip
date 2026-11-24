@@ -152,7 +152,7 @@ constexpr GLfloat kQuad[] = {0.f, 0.f, 1.f, 0.f, 0.f, 1.f, 1.f, 0.f, 1.f, 1.f, 0
 GLuint compile(GlFunctions* gl, GLenum type, const char* const* sources, int count, QString* log)
 {
     const GLuint shader = gl->glCreateShader(type);
-    gl->glShaderSource(shader, count, sources, nullptr);
+    gl->glShaderSource(shader, count, const_cast<const char**>(sources), nullptr);
     gl->glCompileShader(shader);
     GLint ok = 0;
     gl->glGetShaderiv(shader, GL_COMPILE_STATUS, &ok);
