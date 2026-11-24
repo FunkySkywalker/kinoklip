@@ -39,6 +39,9 @@ NVIDIA-first GPU support, and no H.264 or H.265 in the free version. Kinoklip gi
 - **The same layout and shortcuts as Resolve**, plus presets for Premiere Pro, Final Cut Pro, Vegas and others.
 - **An AppImage for every distribution, or a Flatpak**, on x86_64 and ARM64.
 - **Free and open source** (GPL-3.0).
+- **One file, one project.** A `.kinoklip` project holds the edit and every clip it uses, so you
+  can move it, copy it or send it anywhere ([how](docs/single-file-project.md)). Media Offline?
+  Not going to happen.
 
 ## Install
 
