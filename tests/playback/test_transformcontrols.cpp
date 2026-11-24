@@ -328,7 +328,7 @@ private slots:
         const int steps = undo->index();
         auto lines = dragBy(78.5);
         QVERIFY(std::abs(f.clip().transform.value(keys::PosX, 0) - 80.0) < 1e-6);
-        QCOMPARE(lines, (std::vector<double> {320}));
+        QCOMPARE(lines, (std::vector<double> {160, 320})); // left edge on the centre too
         QCOMPARE(undo->index(), steps + 1);
         QVERIFY(overlay->snapLinesX().empty()); // the lines go with the drag
         undo->undo();
