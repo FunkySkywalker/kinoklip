@@ -32,6 +32,13 @@ release: `release` on a quiet machine (the timing tests fail under load), plus t
 [contributing.md](contributing.md). `scripts/test.sh` takes more ctest arguments
 (`scripts/test.sh quick -R timeline`); `KK_JOBS` sets the job count (default 2).
 
+## OpenGL ES 3.0 path (Raspberry Pi 5 / ARM)
+
+To test the ES fallback on a PC: `KK_GL_API=gles QT_QPA_PLATFORM=xcb QT_XCB_GL_INTEGRATION=xcb_egl xvfb-run -a ctest -L quick`.
+GPU tests skip when no context of the forced API exists. GLSL must stay valid as `#version 330 core` and as
+`#version 300 es` (headers come from `shaderHeader()` in `src/render/GlApi.cpp`): no desktop-only built-ins and no
+ES-reserved words such as `patch` or `sample` as identifiers.
+
 ## Local dev builds
 
 `scripts/dev_build.sh` makes a test AppImage on this computer, for trying new work before a

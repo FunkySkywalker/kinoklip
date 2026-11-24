@@ -83,6 +83,13 @@ gives it OpenGL and VAAPI):
 An AUR package is on the way. Until then, use the AppImage, or build the package from
 [packaging/aur/kinoklip-bin](../packaging/aur/kinoklip-bin) with `makepkg -si`.
 
+## Raspberry Pi 5 and other ARM boards
+
+Kinoklip uses OpenGL 3.3 core when the driver offers it and otherwise falls back to OpenGL ES 3.0 (Mesa V3D on the
+Pi 5), so the GPU compositor and viewer work there too. Use a 64-bit OS with Mesa 23 or newer. `KK_GL_API=gles`
+forces the ES path and `KK_GL_API=desktop` the desktop one. This path is tested on software EGL only; reports from
+real boards are welcome (issue 11).
+
 ## Building from source
 
 See [building.md](building.md).

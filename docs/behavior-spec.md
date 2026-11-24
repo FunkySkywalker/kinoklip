@@ -3392,3 +3392,14 @@ Resolve's node editor has more than serial, parallel and layer nodes: Add Node >
 | 154.1 | While an on-screen Transform drag moves a clip, its picture's left / centre / right and top / centre / bottom (the bounding box when rotated) snap onto the frame's edges and centre lines within 6 screen px, also when the picture is smaller than the frame. The position becomes exactly the snapped value; one undo step per drag. Scale and crop handles snap the edges they drag. | Done (tr moveSnapsToTheFrameEdges, vg canvasSnapping) |
 | 154.2 | A thin pink alignment line is drawn across the viewer for each frame line the drag sits on, only while the drag lasts. | Done (tr moveSnapsToTheFrameEdges) |
 | 154.3 | One setting: View > Guides > Snap to Guides switches frame snapping and guide snapping together (on by default, saved per user); frame snapping works even with Show Guides off. Ctrl held during the drag skips snapping. Cut and Edit viewers share the overlay. | Done (tr moveSnapsToTheFrameEdges) |
+
+## 155. OpenGL ES 3.0 fallback for ARM boards (issue 11)
+
+| # | Behaviour | Status |
+|---|---|---|
+| 155.1 | At start Kinoklip asks for an OpenGL 3.3 core context; when none exists (Raspberry Pi 5 with Mesa V3D, other ARM boards) it asks for OpenGL ES 3.0 and the GPU compositor, viewer and effects run on that. Only when neither exists the CPU compositor is used. | Done (test_glapi) |
+| 155.2 | Every shader gets a version header for the active API (`#version 330 core`, or `#version 300 es` with highp float, int and samplers). Shader sources use no desktop-only calls and no ES-reserved words. | Done (test_glapi, test_effects5) |
+| 155.3 | The environment variable KK_GL_API=gles (or desktop) forces the API for testing; the API in use is written to the render log ("OpenGL API: ..."). | Done (test_glapi) |
+| 155.4 | Tests that need a GPU context skip, without failing, when no context of the requested API can be created. | Done (test_targetpool, test_glviewer) |
+| 155.5 | Not verified on real Raspberry Pi 5 hardware, only on Mesa software EGL. | Open |
+
