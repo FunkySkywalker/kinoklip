@@ -19,6 +19,7 @@ end, and a command never edits a timeline in a way the UI cannot: they call `edi
 | `TimelineCommands.cpp` | `timeline.list`, `timeline.new`, `timeline.select`, `timeline.convert-rate` |
 | `ClipCommands.cpp` | `clip.list`, `clip.add`, `clip.move`, `clip.trim`, `clip.split`, `clip.delete`, `clip.set` |
 | `StabilizeCommands.cpp` | `clip.stabilize`: measures a clip's camera movement (progress per frame) and stores settings + data in one undo step; `clip.set --stabilization on/off` is in `ClipCommands.cpp` |
+| `AlignCommands.cpp` | `clip.align` (spec 153): Auto Align Clips, by waveform or timecode, through `ui/timeline/AutoAlign` (the same code as the clip menu) |
 | `MarkerCommands.cpp` | `marker.add`, `marker.list`, `marker.delete` |
 | `TransitionCommands.cpp` | `transition.add`, `transition.set`, `transition.remove` |
 | `FrameCommands.cpp` | `frame.export` (a timeline frame to a PNG file), `frame.view` (the picture in `CommandResult::image`; MCP sends it as image content) through `renderFrameImage()` |

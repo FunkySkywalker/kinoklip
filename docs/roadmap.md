@@ -258,7 +258,7 @@ when the owner asks for it.
 - [x] Website on GitHub Pages (starts when the owner says): home page with a Download button for the latest AppImage, the guide as searchable pages built from docs/guide, new screenshots in Breeze Dark with real (not generated) people in the sample footage, and a simple bug report form that opens a GitHub issue for people who have no GitHub account
 
 - [ ] Audio: Bounce Mix to Track and Bounce Selected Tracks (Timeline menu): render the whole mix, or each selected track with its effects, into a new audio track as one clip
-- [ ] Edit: Auto Align Clips (clip context menu): line up selected clips on different tracks by timecode or by matching their sound
+- [x] Edit: Auto Align Clips (clip context menu): line up selected clips on different tracks by timecode or by matching their sound (user request, issue 16; spec 153; command `clip align`, so also the command line and the MCP server; guide line-up-clips-by-sound)
 - [ ] Edit: Paste Mix to Current Track (Edit menu); its exact behaviour is read from public documentation first
 - [ ] Edit: Trim Editor as a window of its own: outgoing and incoming frames side by side with trim buttons
 - [ ] Project: Archive Project (File menu): copy the project and every media file it uses into one folder, and open such a folder again

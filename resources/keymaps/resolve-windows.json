@@ -296,6 +296,8 @@
         "mediapool.sync_waveform": [],
         "mediapool.sync_timecode": [],
         "mediapool.sync_in_points": [],
+        "clip.auto_align_waveform": [],
+        "clip.auto_align_timecode": [],
         "view.multicam_viewer": [],
         "multicam.flatten": [],
         "multicam.mode_cut": [],

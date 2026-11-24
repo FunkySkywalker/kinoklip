@@ -55,6 +55,7 @@ Also early: [Add a title](add-a-title.md) and [Transitions between clips](transi
 - [Blur or hide part of the picture](hide-part-of-the-picture.md)
 - [Add subtitles](add-subtitles.md)
 - [Separate the audio from the video](separate-audio-from-video.md)
+- [Line up clips by their sound](line-up-clips-by-sound.md)
 - [Animate with keyframes](keyframe-animation.md)
 - [Make quiet and loud clips the same volume](even-out-clip-volumes.md)
 - [Change the pitch of a clip and equalize it](change-pitch-and-equalize-a-clip.md)

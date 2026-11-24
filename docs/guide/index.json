@@ -724,6 +724,28 @@
       ]
     },
     {
+      "id": "line-up-clips-by-sound",
+      "title": "Line up clips by their sound",
+      "file": "line-up-clips-by-sound.md",
+      "summary": "Auto Align Clips: move an external audio recording so it matches the camera sound, by waveform or timecode; also from the command line.",
+      "keywords": [
+        "auto align",
+        "align clips",
+        "sync audio",
+        "synchronize",
+        "external recorder",
+        "waveform",
+        "timecode",
+        "line up",
+        "separate audio recording",
+        "clap"
+      ],
+      "contexts": [
+        "action:clip.auto_align_waveform",
+        "action:clip.auto_align_timecode"
+      ]
+    },
+    {
       "id": "keyframe-animation",
       "title": "Animate with keyframes",
       "file": "keyframe-animation.md",

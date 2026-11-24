@@ -227,6 +227,7 @@ void registerMediaCommands(CommandRegistry& registry);
 void registerTimelineCommands(CommandRegistry& registry);
 void registerClipCommands(CommandRegistry& registry);
 void registerStabilizeCommands(CommandRegistry& registry);
+void registerAlignCommands(CommandRegistry& registry);
 void registerMarkerCommands(CommandRegistry& registry);
 void registerTransitionCommands(CommandRegistry& registry);
 void registerExportCommands(CommandRegistry& registry);

@@ -232,6 +232,7 @@ const CommandRegistry& CommandRegistry::builtin()
         registerTimelineCommands(r);
         registerClipCommands(r);
         registerStabilizeCommands(r);
+        registerAlignCommands(r);
         registerMarkerCommands(r);
         registerTransitionCommands(r);
         registerExportCommands(r);

@@ -2117,6 +2117,38 @@ Das Programm wurde wahrscheinlich vom System beendet, weil der Arbeitsspeicher d
         <source>Clear All Flags</source>
         <translation>Alle Flaggen entfernen</translation>
     </message>
+    <message>
+        <source>Auto Align Clips</source>
+        <translation>Clips automatisch ausrichten</translation>
+    </message>
+    <message>
+        <source>Auto Align Clips: select two or more clips on different tracks.</source>
+        <translation>Clips automatisch ausrichten: Wählen Sie zwei oder mehr Clips auf verschiedenen Spuren aus.</translation>
+    </message>
+    <message>
+        <source>Auto Align Clips: %1</source>
+        <translation>Clips automatisch ausrichten: %1</translation>
+    </message>
+    <message>
+        <source>Analysing the audio…</source>
+        <translation>Audio wird analysiert…</translation>
+    </message>
+    <message>
+        <source>Auto Align Clips: nothing was moved.</source>
+        <translation>Clips automatisch ausrichten: Es wurde nichts verschoben.</translation>
+    </message>
+    <message>
+        <source>Auto Align Clips: the clips are already in sync.</source>
+        <translation>Clips automatisch ausrichten: Die Clips sind bereits synchron.</translation>
+    </message>
+    <message>
+        <source>Auto Align Clips: %1 clip(s) moved.</source>
+        <translation>Clips automatisch ausrichten: %1 Clip(s) verschoben.</translation>
+    </message>
+    <message>
+        <source>%1: not moved, %2.</source>
+        <translation>%1: nicht verschoben, %2.</translation>
+    </message>
 </context>
 <context>
     <name>kk::ActionDescriptions</name>
@@ -3600,6 +3632,14 @@ Das Programm wurde wahrscheinlich vom System beendet, weil der Arbeitsspeicher d
         <source>Cuts or switches the multicam clip under the playhead to angle %1 (see Cut Mode and Switch Mode).</source>
         <translation>Schneidet den Multicam-Clip unter dem Abspielkopf auf Winkel %1 oder schaltet ihn um (siehe Schnittmodus und Umschaltmodus).</translation>
     </message>
+    <message>
+        <source>Moves the selected clips so their sound matches the reference clip (the one on the lowest video track); the reference stays where it is.</source>
+        <translation>Verschiebt die ausgewählten Clips so, dass ihr Ton zum Referenzclip passt (der Clip auf der untersten Videospur); die Referenz bleibt, wo sie ist.</translation>
+    </message>
+    <message>
+        <source>Moves the selected clips so their start timecodes match the reference clip (the one on the lowest video track).</source>
+        <translation>Verschiebt die ausgewählten Clips so, dass ihre Start-Timecodes zum Referenzclip passen (der Clip auf der untersten Videospur).</translation>
+    </message>
 </context>
 <context>
     <name>kk::ActionRegistry</name>
@@ -4195,6 +4235,132 @@ Das Programm wurde wahrscheinlich vom System beendet, weil der Arbeitsspeicher d
     <message>
         <source>Viewer</source>
         <translation>Viewer</translation>
+    </message>
+</context>
+<context>
+    <name>kk::AutoAlign</name>
+    <message>
+        <source>%1: already in sync</source>
+        <translation>%1: bereits synchron</translation>
+    </message>
+    <message>
+        <source>%1: moved %2 frames</source>
+        <translation>%1: um %2 Bilder verschoben</translation>
+    </message>
+    <message>
+        <source>%1: not moved, %2</source>
+        <translation>%1: nicht verschoben, %2</translation>
+    </message>
+    <message>
+        <source>a track of the clip is locked</source>
+        <translation>eine Spur des Clips ist gesperrt</translation>
+    </message>
+    <message>
+        <source>it would overwrite another clip on its track</source>
+        <translation>er würde einen anderen Clip auf seiner Spur überschreiben</translation>
+    </message>
+    <message>
+        <source>it would start before the beginning of the timeline</source>
+        <translation>er würde vor dem Anfang der Timeline beginnen</translation>
+    </message>
+    <message>
+        <source>no clear match with the reference sound (confidence %1 %); not moved</source>
+        <translation>keine eindeutige Übereinstimmung mit dem Referenzton (Sicherheit %1 %); nicht verschoben</translation>
+    </message>
+    <message>
+        <source>no clip with id %1</source>
+        <translation>kein Clip mit der ID %1</translation>
+    </message>
+    <message>
+        <source>no clip with usable audio</source>
+        <translation>kein Clip mit verwendbarem Ton</translation>
+    </message>
+    <message>
+        <source>no start timecode in the file</source>
+        <translation>kein Start-Timecode in der Datei</translation>
+    </message>
+    <message>
+        <source>only clips of media files can be aligned</source>
+        <translation>nur Clips aus Mediendateien können ausgerichtet werden</translation>
+    </message>
+    <message>
+        <source>select at least two clips that are not linked to each other (the reference and the clips to line up with it)</source>
+        <translation>Wählen Sie mindestens zwei Clips aus, die nicht miteinander verknüpft sind (die Referenz und die Clips, die daran ausgerichtet werden)</translation>
+    </message>
+    <message>
+        <source>select the clips to align</source>
+        <translation>Wählen Sie die auszurichtenden Clips aus</translation>
+    </message>
+    <message>
+        <source>the audio could not be read (%1)</source>
+        <translation>der Ton konnte nicht gelesen werden (%1)</translation>
+    </message>
+    <message>
+        <source>the clip could not be moved</source>
+        <translation>der Clip konnte nicht verschoben werden</translation>
+    </message>
+    <message>
+        <source>the clip is gone</source>
+        <translation>der Clip existiert nicht mehr</translation>
+    </message>
+    <message>
+        <source>the clip is retimed</source>
+        <translation>der Clip hat eine geänderte Geschwindigkeit</translation>
+    </message>
+    <message>
+        <source>the media has no audio</source>
+        <translation>die Mediendatei hat keinen Ton</translation>
+    </message>
+    <message>
+        <source>the media has no start timecode</source>
+        <translation>die Mediendatei hat keinen Start-Timecode</translation>
+    </message>
+    <message>
+        <source>the media is offline</source>
+        <translation>die Mediendatei ist offline</translation>
+    </message>
+    <message>
+        <source>the reference clip cannot be used: %1</source>
+        <translation>der Referenzclip kann nicht verwendet werden: %1</translation>
+    </message>
+</context>
+<context>
+    <name>kk::AutoAlignUi</name>
+    <message>
+        <source>%1: not moved, %2.</source>
+        <translation>%1: nicht verschoben, %2.</translation>
+    </message>
+    <message>
+        <source>Analysing the audio…</source>
+        <translation>Audio wird analysiert…</translation>
+    </message>
+    <message>
+        <source>Auto Align Clips</source>
+        <translation>Clips automatisch ausrichten</translation>
+    </message>
+    <message>
+        <source>Auto Align Clips: %1</source>
+        <translation>Clips automatisch ausrichten: %1</translation>
+    </message>
+    <message>
+        <source>Auto Align Clips: %1 clip(s) moved.</source>
+        <translation>Clips automatisch ausrichten: %1 Clip(s) verschoben.</translation>
+    </message>
+    <message>
+        <source>Auto Align Clips: nothing was moved.</source>
+        <translation>Clips automatisch ausrichten: Es wurde nichts verschoben.</translation>
+    </message>
+    <message>
+        <source>Auto Align Clips: select two or more clips on different tracks.</source>
+        <translation>Clips automatisch ausrichten: Wählen Sie zwei oder mehr Clips auf verschiedenen Spuren aus.</translation>
+    </message>
+    <message>
+        <source>Auto Align Clips: the clips are already in sync.</source>
+        <translation>Clips automatisch ausrichten: Die Clips sind bereits synchron.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Abbrechen</translation>
     </message>
 </context>
 <context>
@@ -23899,6 +24065,10 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
         <source>Zoom to Fit</source>
         <translation>Einpassen</translation>
     </message>
+    <message>
+        <source>Auto Align Clips</source>
+        <translation>Clips automatisch ausrichten</translation>
+    </message>
 </context>
 <context>
     <name>kk::MetadataPanel</name>
@@ -33454,6 +33624,10 @@ Kinoklip neu starten, um sie anzuwenden.</translation>
         <source>Toggle Auto Select A%1</source>
         <translation>Auto-Auswahl A%1 umschalten</translation>
     </message>
+    <message>
+        <source>Auto &amp;Align Clips</source>
+        <translation>Clips &amp;automatisch ausrichten</translation>
+    </message>
 </context>
 <context>
     <name>kk::StoragePage</name>
@@ -35026,6 +35200,18 @@ Die Clips trimmen, damit die Medien den Übergang abdecken?</translation>
     <message>
         <source>Automation lane: show the volume, pan, mute, send and effect curves of this track below it</source>
         <translation>Automationsspur: zeigt darunter die Kurven für Lautstärke, Panorama, Stummschaltung, Sends und Effekte dieser Spur</translation>
+    </message>
+    <message>
+        <source>Auto Align Clips</source>
+        <translation>Clips automatisch ausrichten</translation>
+    </message>
+    <message>
+        <source>Based on Waveform</source>
+        <translation>Basierend auf Wellenform</translation>
+    </message>
+    <message>
+        <source>Based on Timecode</source>
+        <translation>Basierend auf Timecode</translation>
     </message>
 </context>
 <context>
@@ -36683,6 +36869,93 @@ Einen Multicam-Clip aus dem Medienpool öffnen oder den Abspielkopf über einen 
     <message>
         <source>inverted</source>
         <translation>invertiert</translation>
+    </message>
+</context>
+<context>
+    <name>kk::autoalign</name>
+    <message>
+        <source>only clips of media files can be aligned</source>
+        <translation>nur Clips aus Mediendateien können ausgerichtet werden</translation>
+    </message>
+    <message>
+        <source>the media is offline</source>
+        <translation>die Mediendatei ist offline</translation>
+    </message>
+    <message>
+        <source>the clip is retimed</source>
+        <translation>der Clip hat eine geänderte Geschwindigkeit</translation>
+    </message>
+    <message>
+        <source>the media has no audio</source>
+        <translation>die Mediendatei hat keinen Ton</translation>
+    </message>
+    <message>
+        <source>the media has no start timecode</source>
+        <translation>die Mediendatei hat keinen Start-Timecode</translation>
+    </message>
+    <message>
+        <source>no clip with usable audio</source>
+        <translation>kein Clip mit verwendbarem Ton</translation>
+    </message>
+    <message>
+        <source>no clip with id %1</source>
+        <translation>kein Clip mit der ID %1</translation>
+    </message>
+    <message>
+        <source>select the clips to align</source>
+        <translation>Wählen Sie die auszurichtenden Clips aus</translation>
+    </message>
+    <message>
+        <source>the reference clip cannot be used: %1</source>
+        <translation>der Referenzclip kann nicht verwendet werden: %1</translation>
+    </message>
+    <message>
+        <source>select at least two clips that are not linked to each other (the reference and the clips to line up with it)</source>
+        <translation>Wählen Sie mindestens zwei Clips aus, die nicht miteinander verknüpft sind (die Referenz und die Clips, die daran ausgerichtet werden)</translation>
+    </message>
+    <message>
+        <source>no start timecode in the file</source>
+        <translation>kein Start-Timecode in der Datei</translation>
+    </message>
+    <message>
+        <source>the audio could not be read (%1)</source>
+        <translation>der Ton konnte nicht gelesen werden (%1)</translation>
+    </message>
+    <message>
+        <source>no clear match with the reference sound (confidence %1 %); not moved</source>
+        <translation>keine eindeutige Übereinstimmung mit dem Referenzton (Sicherheit %1 %); nicht verschoben</translation>
+    </message>
+    <message>
+        <source>the clip is gone</source>
+        <translation>der Clip existiert nicht mehr</translation>
+    </message>
+    <message>
+        <source>a track of the clip is locked</source>
+        <translation>eine Spur des Clips ist gesperrt</translation>
+    </message>
+    <message>
+        <source>it would start before the beginning of the timeline</source>
+        <translation>er würde vor dem Anfang der Timeline beginnen</translation>
+    </message>
+    <message>
+        <source>it would overwrite another clip on its track</source>
+        <translation>er würde einen anderen Clip auf seiner Spur überschreiben</translation>
+    </message>
+    <message>
+        <source>the clip could not be moved</source>
+        <translation>der Clip konnte nicht verschoben werden</translation>
+    </message>
+    <message>
+        <source>%1: moved %2 frames</source>
+        <translation>%1: um %2 Bilder verschoben</translation>
+    </message>
+    <message>
+        <source>%1: already in sync</source>
+        <translation>%1: bereits synchron</translation>
+    </message>
+    <message>
+        <source>%1: not moved, %2</source>
+        <translation>%1: nicht verschoben, %2</translation>
     </message>
 </context>
 <context>

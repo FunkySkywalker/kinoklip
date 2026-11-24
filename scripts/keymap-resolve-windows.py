@@ -304,6 +304,8 @@ a("mediapool.new_fusion_clip", "New Fusion Clip (media pool)", [], L, "media poo
 a("mediapool.sync_waveform", "Sync and Place on Timeline: Based on Waveform", [], U, "Kinoklip's command (Resolve's closest is Auto Sync Audio > Based on Waveform in the media pool); no default key")
 a("mediapool.sync_timecode", "Sync and Place on Timeline: Based on Timecode", [], U, "Kinoklip's command (Resolve: Auto Sync Audio > Based on Timecode); no default key")
 a("mediapool.sync_in_points", "Sync and Place on Timeline: Based on In Points", [], U, "Kinoklip's command (Resolve: Auto Sync Audio > Based on In Points); no default key")
+a("clip.auto_align_waveform", "Auto Align Clips: Based on Waveform (timeline clip menu)", [], L, "timeline context menu command without a default key in Resolve")
+a("clip.auto_align_timecode", "Auto Align Clips: Based on Timecode (timeline clip menu)", [], L, "timeline context menu command without a default key in Resolve")
 a("view.multicam_viewer", "Multicam Viewer (source viewer mode: Multicam)", [], L, "Resolve picks Multicam in the source viewer's mode menu; no default key is known, none assigned")
 a("multicam.flatten", "Flatten Multicam Clip", [], L, "timeline context menu command without a default key")
 a("multicam.mode_cut", "Multicam Cut Mode", [], U, "Resolve switches cut / switch with buttons above the multicam viewer; no default key is known")

@@ -1034,6 +1034,12 @@ void TimelineWidget::streamlinedClipMenu(QMenu& menu, const TimelineHit& hit)
         add(*more, "edit.paste_attributes", tr("Paste Attributes…"));
     if (clip && clip->kind == ClipKind::Media)
         add(*more, "timeline.find_in_media_pool", tr("Find in Media Pool"));
+    if (multi) {
+        QMenu* align = more->addMenu(tr("Auto Align Clips"));
+        align->setObjectName(QStringLiteral("AutoAlignMenu"));
+        add(*align, "clip.auto_align_waveform", tr("Based on Waveform"));
+        add(*align, "clip.auto_align_timecode", tr("Based on Timecode"));
+    }
     if (clip && clip->kind == ClipKind::Nested) {
         more->addSeparator();
         add(*more, "clip.open_in_timeline", tr("Open in Timeline"));
@@ -1224,6 +1230,14 @@ void TimelineWidget::contextMenuEvent(QContextMenuEvent* event)
         menu.addSeparator();
         addAction("clip.link");
         addAction("clip.unlink");
+        // Auto Align Clips (issue 16): line the selected clips up by sound or timecode.
+        if (QMenu* align = menu.addMenu(tr("Auto Align Clips"))) {
+            align->setObjectName(QStringLiteral("AutoAlignMenu"));
+            for (const char* id : {"clip.auto_align_waveform", "clip.auto_align_timecode"}) {
+                if (QAction* a = action(id))
+                    align->addAction(a);
+            }
+        }
         menu.addSeparator();
         // Organisation (bins branch): clip colour, flags of the source, find its source.
         addClipColorMenus(menu, m_ctx, m_ctx.selection->clips(), this);

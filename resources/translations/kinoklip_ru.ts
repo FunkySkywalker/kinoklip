@@ -2125,6 +2125,38 @@ The program was probably closed by the system because the computer ran out of me
         <source>Clear All Flags</source>
         <translation>Очистить все флаги</translation>
     </message>
+    <message>
+        <source>Auto Align Clips</source>
+        <translation>Автовыравнивание клипов</translation>
+    </message>
+    <message>
+        <source>Auto Align Clips: select two or more clips on different tracks.</source>
+        <translation>Автовыравнивание клипов: выберите два или больше клипов на разных дорожках.</translation>
+    </message>
+    <message>
+        <source>Auto Align Clips: %1</source>
+        <translation>Автовыравнивание клипов: %1</translation>
+    </message>
+    <message>
+        <source>Analysing the audio…</source>
+        <translation>Анализ звука…</translation>
+    </message>
+    <message>
+        <source>Auto Align Clips: nothing was moved.</source>
+        <translation>Автовыравнивание клипов: ничего не перемещено.</translation>
+    </message>
+    <message>
+        <source>Auto Align Clips: the clips are already in sync.</source>
+        <translation>Автовыравнивание клипов: клипы уже синхронны.</translation>
+    </message>
+    <message>
+        <source>Auto Align Clips: %1 clip(s) moved.</source>
+        <translation>Автовыравнивание клипов: перемещено клипов: %1.</translation>
+    </message>
+    <message>
+        <source>%1: not moved, %2.</source>
+        <translation>%1: не перемещён, %2.</translation>
+    </message>
 </context>
 <context>
     <name>kk::ActionDescriptions</name>
@@ -3608,6 +3640,14 @@ The program was probably closed by the system because the computer ran out of me
         <source>Cuts or switches the multicam clip under the playhead to angle %1 (see Cut Mode and Switch Mode).</source>
         <translation>Разрезает или переключает мультикамерный клип под указателем воспроизведения на угол %1 (см. Режим разрезания и Режим переключения).</translation>
     </message>
+    <message>
+        <source>Moves the selected clips so their sound matches the reference clip (the one on the lowest video track); the reference stays where it is.</source>
+        <translation>Сдвигает выбранные клипы так, чтобы их звук совпал со звуком опорного клипа (клипа на нижней видеодорожке); опорный клип остаётся на месте.</translation>
+    </message>
+    <message>
+        <source>Moves the selected clips so their start timecodes match the reference clip (the one on the lowest video track).</source>
+        <translation>Сдвигает выбранные клипы так, чтобы их начальные таймкоды совпали с таймкодом опорного клипа (клипа на нижней видеодорожке).</translation>
+    </message>
 </context>
 <context>
     <name>kk::ActionRegistry</name>
@@ -4203,6 +4243,132 @@ The program was probably closed by the system because the computer ran out of me
     <message>
         <source>Viewer</source>
         <translation>Окно просмотра</translation>
+    </message>
+</context>
+<context>
+    <name>kk::AutoAlign</name>
+    <message>
+        <source>%1: already in sync</source>
+        <translation>%1: уже синхронен</translation>
+    </message>
+    <message>
+        <source>%1: moved %2 frames</source>
+        <translation>%1: сдвинут, кадров: %2</translation>
+    </message>
+    <message>
+        <source>%1: not moved, %2</source>
+        <translation>%1: не перемещён, %2</translation>
+    </message>
+    <message>
+        <source>a track of the clip is locked</source>
+        <translation>одна из дорожек клипа заблокирована</translation>
+    </message>
+    <message>
+        <source>it would overwrite another clip on its track</source>
+        <translation>он перезаписал бы другой клип на своей дорожке</translation>
+    </message>
+    <message>
+        <source>it would start before the beginning of the timeline</source>
+        <translation>он начался бы раньше начала таймлайна</translation>
+    </message>
+    <message>
+        <source>no clear match with the reference sound (confidence %1 %); not moved</source>
+        <translation>нет чёткого совпадения со звуком опорного клипа (уверенность %1 %); не перемещён</translation>
+    </message>
+    <message>
+        <source>no clip with id %1</source>
+        <translation>нет клипа с id %1</translation>
+    </message>
+    <message>
+        <source>no clip with usable audio</source>
+        <translation>нет клипа с пригодным звуком</translation>
+    </message>
+    <message>
+        <source>no start timecode in the file</source>
+        <translation>в файле нет начального таймкода</translation>
+    </message>
+    <message>
+        <source>only clips of media files can be aligned</source>
+        <translation>выравнивать можно только клипы из медиафайлов</translation>
+    </message>
+    <message>
+        <source>select at least two clips that are not linked to each other (the reference and the clips to line up with it)</source>
+        <translation>выберите минимум два клипа, не связанных друг с другом (опорный и клипы, которые нужно выровнять по нему)</translation>
+    </message>
+    <message>
+        <source>select the clips to align</source>
+        <translation>выберите клипы для выравнивания</translation>
+    </message>
+    <message>
+        <source>the audio could not be read (%1)</source>
+        <translation>не удалось прочитать звук (%1)</translation>
+    </message>
+    <message>
+        <source>the clip could not be moved</source>
+        <translation>клип не удалось переместить</translation>
+    </message>
+    <message>
+        <source>the clip is gone</source>
+        <translation>клипа больше нет</translation>
+    </message>
+    <message>
+        <source>the clip is retimed</source>
+        <translation>у клипа изменена скорость</translation>
+    </message>
+    <message>
+        <source>the media has no audio</source>
+        <translation>в медиафайле нет звука</translation>
+    </message>
+    <message>
+        <source>the media has no start timecode</source>
+        <translation>в медиафайле нет начального таймкода</translation>
+    </message>
+    <message>
+        <source>the media is offline</source>
+        <translation>медиафайл недоступен</translation>
+    </message>
+    <message>
+        <source>the reference clip cannot be used: %1</source>
+        <translation>опорный клип использовать нельзя: %1</translation>
+    </message>
+</context>
+<context>
+    <name>kk::AutoAlignUi</name>
+    <message>
+        <source>%1: not moved, %2.</source>
+        <translation>%1: не перемещён, %2.</translation>
+    </message>
+    <message>
+        <source>Analysing the audio…</source>
+        <translation>Анализ звука…</translation>
+    </message>
+    <message>
+        <source>Auto Align Clips</source>
+        <translation>Автовыравнивание клипов</translation>
+    </message>
+    <message>
+        <source>Auto Align Clips: %1</source>
+        <translation>Автовыравнивание клипов: %1</translation>
+    </message>
+    <message>
+        <source>Auto Align Clips: %1 clip(s) moved.</source>
+        <translation>Автовыравнивание клипов: перемещено клипов: %1.</translation>
+    </message>
+    <message>
+        <source>Auto Align Clips: nothing was moved.</source>
+        <translation>Автовыравнивание клипов: ничего не перемещено.</translation>
+    </message>
+    <message>
+        <source>Auto Align Clips: select two or more clips on different tracks.</source>
+        <translation>Автовыравнивание клипов: выберите два или больше клипов на разных дорожках.</translation>
+    </message>
+    <message>
+        <source>Auto Align Clips: the clips are already in sync.</source>
+        <translation>Автовыравнивание клипов: клипы уже синхронны.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
     </message>
 </context>
 <context>
@@ -23916,6 +24082,10 @@ Import files with %1 or drop them here.</source>
         <source>Zoom to Fit</source>
         <translation>Масштаб по размеру</translation>
     </message>
+    <message>
+        <source>Auto Align Clips</source>
+        <translation>Автовыравнивание клипов</translation>
+    </message>
 </context>
 <context>
     <name>kk::MetadataPanel</name>
@@ -33476,6 +33646,10 @@ Restart Kinoklip to apply them.</source>
         <source>Toggle Auto Select A%1</source>
         <translation>Переключить автовыбор A%1</translation>
     </message>
+    <message>
+        <source>Auto &amp;Align Clips</source>
+        <translation>&amp;Автовыравнивание клипов</translation>
+    </message>
 </context>
 <context>
     <name>kk::StoragePage</name>
@@ -35048,6 +35222,18 @@ Trim the clips so the media covers the transition?</source>
     <message>
         <source>Automation lane: show the volume, pan, mute, send and effect curves of this track below it</source>
         <translation>Дорожка автоматизации: показать под дорожкой кривые громкости, панорамы, отключения звука, посылов и эффектов</translation>
+    </message>
+    <message>
+        <source>Auto Align Clips</source>
+        <translation>Автовыравнивание клипов</translation>
+    </message>
+    <message>
+        <source>Based on Waveform</source>
+        <translation>По форме волны</translation>
+    </message>
+    <message>
+        <source>Based on Timecode</source>
+        <translation>По тайм-коду</translation>
     </message>
 </context>
 <context>
@@ -36706,6 +36892,93 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
     <message>
         <source>inverted</source>
         <translation>инвертировано</translation>
+    </message>
+</context>
+<context>
+    <name>kk::autoalign</name>
+    <message>
+        <source>only clips of media files can be aligned</source>
+        <translation>выравнивать можно только клипы из медиафайлов</translation>
+    </message>
+    <message>
+        <source>the media is offline</source>
+        <translation>медиафайл недоступен</translation>
+    </message>
+    <message>
+        <source>the clip is retimed</source>
+        <translation>у клипа изменена скорость</translation>
+    </message>
+    <message>
+        <source>the media has no audio</source>
+        <translation>в медиафайле нет звука</translation>
+    </message>
+    <message>
+        <source>the media has no start timecode</source>
+        <translation>в медиафайле нет начального таймкода</translation>
+    </message>
+    <message>
+        <source>no clip with usable audio</source>
+        <translation>нет клипа с пригодным звуком</translation>
+    </message>
+    <message>
+        <source>no clip with id %1</source>
+        <translation>нет клипа с id %1</translation>
+    </message>
+    <message>
+        <source>select the clips to align</source>
+        <translation>выберите клипы для выравнивания</translation>
+    </message>
+    <message>
+        <source>the reference clip cannot be used: %1</source>
+        <translation>опорный клип использовать нельзя: %1</translation>
+    </message>
+    <message>
+        <source>select at least two clips that are not linked to each other (the reference and the clips to line up with it)</source>
+        <translation>выберите минимум два клипа, не связанных друг с другом (опорный и клипы, которые нужно выровнять по нему)</translation>
+    </message>
+    <message>
+        <source>no start timecode in the file</source>
+        <translation>в файле нет начального таймкода</translation>
+    </message>
+    <message>
+        <source>the audio could not be read (%1)</source>
+        <translation>не удалось прочитать звук (%1)</translation>
+    </message>
+    <message>
+        <source>no clear match with the reference sound (confidence %1 %); not moved</source>
+        <translation>нет чёткого совпадения со звуком опорного клипа (уверенность %1 %); не перемещён</translation>
+    </message>
+    <message>
+        <source>the clip is gone</source>
+        <translation>клипа больше нет</translation>
+    </message>
+    <message>
+        <source>a track of the clip is locked</source>
+        <translation>одна из дорожек клипа заблокирована</translation>
+    </message>
+    <message>
+        <source>it would start before the beginning of the timeline</source>
+        <translation>он начался бы раньше начала таймлайна</translation>
+    </message>
+    <message>
+        <source>it would overwrite another clip on its track</source>
+        <translation>он перезаписал бы другой клип на своей дорожке</translation>
+    </message>
+    <message>
+        <source>the clip could not be moved</source>
+        <translation>клип не удалось переместить</translation>
+    </message>
+    <message>
+        <source>%1: moved %2 frames</source>
+        <translation>%1: сдвинут, кадров: %2</translation>
+    </message>
+    <message>
+        <source>%1: already in sync</source>
+        <translation>%1: уже синхронен</translation>
+    </message>
+    <message>
+        <source>%1: not moved, %2</source>
+        <translation>%1: не перемещён, %2</translation>
     </message>
 </context>
 <context>

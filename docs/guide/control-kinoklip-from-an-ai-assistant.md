@@ -119,6 +119,9 @@ Be concrete about files. For example:
 - "Add a title 'Summer 2026' at the start of the timeline for three seconds, and fade the first
   clip in from black over one second." (a title, and keyframes on the clip's opacity)
 - "Make the second clip slightly blurred, turn it off for now, and mute the music track."
+- "Line up the voice recording on A2 with the camera clip on V1 by their sound, and mute the
+  camera sound." (`clip_align` with `method` `waveform`; a clip with no clear match is reported,
+  not moved)
 - "Render demo.kkproj to ~/Videos/ai/demo.mp4 for YouTube."
 
 ## The tools

@@ -14,9 +14,9 @@ keep Kinoklip's keys or are left free where Shotcut uses the letter.
 - **likely**: believed correct, not checked against the program;
 - **unsure**: best guess; please correct it in `scripts/keymap-presets.py` if it differs.
 
-Counts: 398 commands; 32 mapped to Shotcut's key (sure 21, likely 11,
-unsure 0); 168 keep the default (Resolve) key; 8 have no key because
-Shotcut uses it for something else; 190 have no key in either.
+Counts: 408 commands; 32 mapped to Shotcut's key (sure 21, likely 11,
+unsure 0); 169 keep the default (Resolve) key; 8 have no key because
+Shotcut uses it for something else; 199 have no key in either.
 
 To change a key: edit the preset's section in `scripts/keymap-presets.py` and run it (it writes
 the JSON file and this page and stops when a key is used twice in one scope);
@@ -221,13 +221,6 @@ shares with a Shotcut command was removed, see the note).
 | Add Layer Node (with a Layer mixer) | `color.add_layer` | `Alt+L` |  |
 | Add Serial Node Before (the current node) | `color.add_serial_before` | `Shift+S` |  |
 | Add Outside Node (keyed with the inverse of the current node's key) | `color.add_outside` | `Alt+O` |  |
-| Add Key Mixer (combines the keys of several nodes) | `color.add_key_mixer` |  |  |
-| Add Splitter / Combiner (red, green and blue graded apart) | `color.add_splitter_combiner` |  |  |
-| Add Alpha Output (its key becomes the clip's alpha) | `color.add_alpha_output` |  |  |
-| Create Compound Node (from the selected nodes) | `color.group_nodes` |  |  |
-| Decompose Compound Node | `color.ungroup_nodes` |  |  |
-| Open Compound Node (show the nodes inside) | `color.open_compound` |  |  |
-| Close Compound Node (back to the level above) | `color.close_compound` |  |  |
 | Delete Node (the current node) | `color.delete_node` | `Del` / `Backspace` |  |
 | Enable / Disable Current Node | `color.bypass_node` | `Ctrl+D` |  |
 | Bypass All Grades (viewer only; the render keeps them) | `color.bypass_all` | `Shift+D` |  |

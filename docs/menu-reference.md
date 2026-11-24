@@ -278,6 +278,8 @@ Shortcuts are the defaults of the Resolve keymap (Windows); another keyboard pro
 | Sync and Place on Timeline > Based on Waveform |  | Lines up the selected clips by matching their sound and places them on the timeline. |
 | Sync and Place on Timeline > Based on Timecode |  | Lines up the selected clips by their timecode and places them on the timeline. |
 | Sync and Place on Timeline > Based on In Points |  | Lines up the selected clips by their in points and places them on the timeline. |
+| Auto Align Clips > Based on Waveform |  | Moves the selected clips so their sound matches the reference clip (the one on the lowest video track); the reference stays where it is. |
+| Auto Align Clips > Based on Timecode |  | Moves the selected clips so their start timecodes match the reference clip (the one on the lowest video track). |
 | Multicam > Flatten Multicam Clip |  | Replaces the multicam clip by the clips of the angles it currently shows. |
 | Multicam > Cut Mode (angle clicks cut at the playhead) (choice) |  | Cut mode: clicking an angle cuts the multicam clip at the playhead and uses that angle after it. |
 | Multicam > Switch Mode (angle clicks change the current segment) (choice) |  | Switch mode: clicking an angle changes the angle of the current segment. |
@@ -815,6 +817,8 @@ Preferences > UI Settings > Menu layout offers the menus above (Resolve, the def
 | Multicam > Sync and Place > Based on Waveform |  | Lines up the selected clips by matching their sound and places them on the timeline. |
 | Multicam > Sync and Place > Based on Timecode |  | Lines up the selected clips by their timecode and places them on the timeline. |
 | Multicam > Sync and Place > Based on In Points |  | Lines up the selected clips by their in points and places them on the timeline. |
+| Multicam > Auto Align Clips > Based on Waveform |  | Moves the selected clips so their sound matches the reference clip (the one on the lowest video track); the reference stays where it is. |
+| Multicam > Auto Align Clips > Based on Timecode |  | Moves the selected clips so their start timecodes match the reference clip (the one on the lowest video track). |
 | Multicam > Flatten |  | Replaces the multicam clip by the clips of the angles it currently shows. |
 | Multicam > Cut Mode (choice) |  | Cut mode: clicking an angle cuts the multicam clip at the playhead and uses that angle after it. |
 | Multicam > Switch Mode (choice) |  | Switch mode: clicking an angle changes the angle of the current segment. |

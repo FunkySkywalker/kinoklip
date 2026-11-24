@@ -45,6 +45,7 @@ not a count.
 | 29 | Lower the music while someone speaks (ducking, sidechain) | Editors expect the music to dip under the voice; Resolve users look for Fairlight's key input on the compressor (version 1.11 roadmap). | [Lower music under a voice (ducking)](lower-music-under-a-voice-ducking.md) |
 | 30 | Send a voice to a reverb bus, invert the phase of a track, set an equalizer from a preset | Resolve users look for Fairlight's bus sends, the Phase Invert button and the EQ presets (version 1.11 roadmap). | [Send tracks to a bus, flip the phase and use EQ presets](send-tracks-to-a-bus-flip-phase-and-eq-presets.md) |
 | 31 | Make the volume (or pan, or an effect) change over time, record a fader move | Resolve users look for Fairlight's automation modes (Touch, Latch, Write, Trim) and the automation curves (version 1.11 roadmap). | [Automate volume over time](automate-volume-over-time.md) |
+| 32 | Line up a separate audio recording with the camera clip | Clips from a camera and an external recorder start at different moments; Resolve users look for Auto Align Clips (issue 16). | [Line up clips by their sound](line-up-clips-by-sound.md) |
 
 Topics that come up often but that Kinoklip cannot do yet (no article until it can):
 

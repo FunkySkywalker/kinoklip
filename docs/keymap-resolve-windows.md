@@ -10,7 +10,7 @@ Resolve's documentation).
 - **likely**: believed correct, not verified against a running Resolve;
 - **unsure**: best guess; please correct in the keymap file (and here) if it differs.
 
-Counts: 398 commands; sure 106, likely 120, unsure 172.
+Counts: 408 commands; sure 107, likely 122, unsure 179.
 
 Mouse (EditBehaviour, Preferences > Editing): wheel scrolls the tracks vertically, Ctrl+wheel
 scrolls the timeline horizontally, Alt+wheel zooms the timeline (around the playhead by default;
@@ -369,6 +369,8 @@ that every command has an entry and that no key is used twice.
 | Sync and Place on Timeline: Based on Waveform | `mediapool.sync_waveform` | (none) | unsure | Kinoklip's command (Resolve's closest is Auto Sync Audio > Based on Waveform in the media pool); no default key |
 | Sync and Place on Timeline: Based on Timecode | `mediapool.sync_timecode` | (none) | unsure | Kinoklip's command (Resolve: Auto Sync Audio > Based on Timecode); no default key |
 | Sync and Place on Timeline: Based on In Points | `mediapool.sync_in_points` | (none) | unsure | Kinoklip's command (Resolve: Auto Sync Audio > Based on In Points); no default key |
+| Auto Align Clips: Based on Waveform (timeline clip menu) | `clip.auto_align_waveform` | (none) | likely | timeline context menu command without a default key in Resolve |
+| Auto Align Clips: Based on Timecode (timeline clip menu) | `clip.auto_align_timecode` | (none) | likely | timeline context menu command without a default key in Resolve |
 | Multicam Viewer (source viewer mode: Multicam) | `view.multicam_viewer` | (none) | likely | Resolve picks Multicam in the source viewer's mode menu; no default key is known, none assigned |
 | Flatten Multicam Clip | `multicam.flatten` | (none) | likely | timeline context menu command without a default key |
 | Multicam Cut Mode | `multicam.mode_cut` | (none) | unsure | Resolve switches cut / switch with buttons above the multicam viewer; no default key is known |
@@ -433,13 +435,13 @@ that every command has an entry and that no key is used twice.
 | Add Layer Node (with a Layer mixer) | `color.add_layer` | `Alt+L` | sure | acts on the Color page |
 | Add Serial Node Before (the current node) | `color.add_serial_before` | `Shift+S` | likely | acts on the Color page |
 | Add Outside Node (keyed with the inverse of the current node's key) | `color.add_outside` | `Alt+O` | sure | acts on the Color page |
-| Add Key Mixer (combines the keys of several nodes) | `color.add_key_mixer` |  | unsure | Kinoklip's menu command; Resolve's Add Node menu has no key for it |
-| Add Splitter / Combiner (red, green and blue graded apart) | `color.add_splitter_combiner` |  | unsure | Kinoklip's menu command; Resolve's Add Node menu has no key for it |
-| Add Alpha Output (its key becomes the clip's alpha) | `color.add_alpha_output` |  | unsure | Kinoklip's menu command; Resolve's Add Node menu has no key for it |
-| Create Compound Node (from the selected nodes) | `color.group_nodes` |  | unsure | Resolve has the command in the node menu, no key |
-| Decompose Compound Node | `color.ungroup_nodes` |  | unsure | Resolve has the command in the node menu, no key |
-| Open Compound Node (show the nodes inside) | `color.open_compound` |  | unsure | Double-click on the node; no key |
-| Close Compound Node (back to the level above) | `color.close_compound` |  | unsure | Esc or double-click on the background in the node editor; no key |
+| Add Key Mixer (combines the keys of several nodes) | `color.add_key_mixer` | (none) | unsure | Kinoklip's menu command; Resolve's Add Node menu has no key for it |
+| Add Splitter / Combiner (red, green and blue graded apart) | `color.add_splitter_combiner` | (none) | unsure | Kinoklip's menu command; Resolve's Add Node menu has no key for it |
+| Add Alpha Output (its key becomes the clip's alpha) | `color.add_alpha_output` | (none) | unsure | Kinoklip's menu command; Resolve's Add Node menu has no key for it |
+| Create Compound Node (from the selected nodes) | `color.group_nodes` | (none) | unsure | Resolve has the command in the node menu, no key |
+| Decompose Compound Node | `color.ungroup_nodes` | (none) | unsure | Resolve has the command in the node menu, no key |
+| Open Compound Node (show the nodes inside) | `color.open_compound` | (none) | unsure | Double-click on the node; no key |
+| Close Compound Node (back to the level above) | `color.close_compound` | (none) | unsure | Esc or double-click on the background in the node editor; no key |
 | Delete Node (the current node) | `color.delete_node` | `Del` / `Backspace` | likely | acts on the Color page; Delete in Resolve's node editor |
 | Enable / Disable Current Node | `color.bypass_node` | `Ctrl+D` | sure | acts on the Color page |
 | Bypass All Grades (viewer only; the render keeps them) | `color.bypass_all` | `Shift+D` | sure | acts on the Color page |

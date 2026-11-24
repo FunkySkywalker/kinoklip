@@ -11,6 +11,7 @@
 #include "ui/dialogs/NormalizeAudioDialog.h"
 #include "ui/dialogs/PreferencesDialog.h"
 #include "ui/dialogs/ProjectSettingsDialog.h"
+#include "ui/timeline/AutoAlignUi.h"
 
 #include <QAction>
 #include <QMessageBox>
@@ -57,6 +58,12 @@ void connectDialogActions(
             NormalizeAudioDialog dialog(ctx.project, clips, window);
             dialog.exec();
         });
+    // Clip > Auto Align Clips (issue 16): the selected clips against the reference clip.
+    for (const auto& [id, method] : {std::pair {"clip.auto_align_waveform", autoalign::Method::Waveform},
+             std::pair {"clip.auto_align_timecode", autoalign::Method::Timecode}}) {
+        QObject::connect(actions.action(QString::fromLatin1(id)), &QAction::triggered, window,
+            [&ctx, window, method] { runAutoAlign(ctx, window, method); });
+    }
     // Edit > History > Open History Window: one non-modal window per main window, kept
     // (hidden) when closed so it reopens where the user left it.
     QObject::connect(actions.action(QStringLiteral("edit.history_window")), &QAction::triggered,

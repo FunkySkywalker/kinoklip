@@ -386,6 +386,10 @@ Menu clipMenu()
                 A("mediapool.sync_timecode", "Based on Timecode"),
                 A("mediapool.sync_in_points", "Based on In Points"),
             }),
+            M("Auto Align Clips", {
+                A("clip.auto_align_waveform", "Based on Waveform"),
+                A("clip.auto_align_timecode", "Based on Timecode"),
+            }),
             A("multicam.flatten", "Flatten"),
             S(),
             A("multicam.mode_cut", "Cut Mode"),

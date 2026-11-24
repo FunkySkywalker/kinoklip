@@ -218,6 +218,10 @@ const ActionSpec kActions[] = {
     {"clip.sync", "mediapool.sync_waveform", QT_TRANSLATE_NOOP("kk::StandardActions", "Based on &Waveform")},
     {"clip.sync", "mediapool.sync_timecode", QT_TRANSLATE_NOOP("kk::StandardActions", "Based on &Timecode")},
     {"clip.sync", "mediapool.sync_in_points", QT_TRANSLATE_NOOP("kk::StandardActions", "Based on &In Points")},
+    // Auto Align Clips (src/ui/timeline/AutoAlignUi.cpp): the selected clips already on the timeline.
+    {"clip", ">clip.auto_align",      QT_TRANSLATE_NOOP("kk::StandardActions", "Auto &Align Clips")},
+    {"clip.auto_align", "clip.auto_align_waveform", QT_TRANSLATE_NOOP("kk::StandardActions", "Based on &Waveform")},
+    {"clip.auto_align", "clip.auto_align_timecode", QT_TRANSLATE_NOOP("kk::StandardActions", "Based on &Timecode")},
     {"clip", ">clip.multicam",        QT_TRANSLATE_NOOP("kk::StandardActions", "Multica&m")},
     {"clip.multicam", "multicam.flatten", QT_TRANSLATE_NOOP("kk::StandardActions", "&Flatten Multicam Clip")},
     {"clip.multicam", "-"},
