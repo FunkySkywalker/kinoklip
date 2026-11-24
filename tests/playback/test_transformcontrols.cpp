@@ -295,6 +295,59 @@ private slots:
         f.action("view.onscreen_transform")->setChecked(false);
     }
 
+    // Frame edges and centre are snap targets of a Move drag (View > Guides > Snap to Guides),
+    // with guide lines while snapped; Ctrl or the option off: free. One undo step.
+    void moveSnapsToTheFrameEdges()
+    {
+        Fixture f;
+        f.project.beginEdit(QStringLiteral("Zoom"));
+        ClipData* c = editops::clipById(f.project.timeline()->mutableData(), f.clipId);
+        c->transform.values[keys::ZoomX].setValue(0, 0.5);
+        c->transform.values[keys::ZoomY].setValue(0, 0.5);
+        f.project.endEdit();
+        ViewerPanel viewer(ViewerPanel::Mode::Timeline, f.ctx);
+        viewer.resize(700, 500);
+        viewer.show();
+        QVERIFY(QTest::qWaitForWindowExposed(&viewer));
+        TransformOverlay* overlay = viewer.transformOverlay();
+        f.action("view.onscreen_transform")->setChecked(true);
+        QTRY_VERIFY(overlay->isEditing());
+        QUndoStack* undo = f.project.undoStack();
+        const QTransform map = *overlay->frameToWidget();
+        const QPointF from = map.map(QPointF(160, 90));
+        auto dragBy = [&](double dx, Qt::KeyboardModifiers mods = {}) {
+            const QPointF to = map.map(QPointF(160 + dx, 90));
+            press(overlay, from);
+            move(overlay, (from + to) / 2, mods);
+            move(overlay, to, mods);
+            const std::vector<double> lines = overlay->snapLinesX();
+            release(overlay, to);
+            return lines;
+        };
+        // Picture x 80 .. 240: moved 78.5 its right edge is 1.5 px short of the frame edge.
+        const int steps = undo->index();
+        auto lines = dragBy(78.5);
+        QVERIFY(std::abs(f.clip().transform.value(keys::PosX, 0) - 80.0) < 1e-6);
+        QCOMPARE(lines, (std::vector<double> {320}));
+        QCOMPARE(undo->index(), steps + 1);
+        QVERIFY(overlay->snapLinesX().empty()); // the lines go with the drag
+        undo->undo();
+        lines = dragBy(78.5, Qt::ControlModifier);
+        QVERIFY(std::abs(f.clip().transform.value(keys::PosX, 0) - 78.5) < 1e-6);
+        QVERIFY(lines.empty());
+        undo->undo();
+        f.action("view.guides_snap")->setChecked(false);
+        dragBy(78.5);
+        QVERIFY(std::abs(f.clip().transform.value(keys::PosX, 0) - 78.5) < 1e-6);
+        undo->undo();
+        f.action("view.guides_snap")->setChecked(true);
+        lines = dragBy(3.0); // back onto the centre line
+        QVERIFY(std::abs(f.clip().transform.value(keys::PosX, 0)) < 1e-6);
+        QCOMPARE(lines, (std::vector<double> {160}));
+        undo->undo();
+        f.action("view.onscreen_transform")->setChecked(false);
+    }
+
     // Several selected video clips of any kind: move, scale, rotate and crop drags change all
     // of them by the same amount, in one undo step (owner report, spec 24.1).
     void dragsApplyToEverySelectedClip()

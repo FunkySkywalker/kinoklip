@@ -226,6 +226,28 @@ std::optional<double> snapOffset(
     return best;
 }
 
+std::vector<double> canvasTargets(double extent)
+{
+    if (extent <= 0)
+        return {};
+    return {0.0, extent / 2, extent};
+}
+
+std::vector<double> coincident(
+    std::span<const double> features, std::span<const double> targets, double epsilon)
+{
+    std::vector<double> out;
+    for (const double t : targets) {
+        for (const double f : features) {
+            if (std::abs(t - f) <= epsilon) {
+                out.push_back(t);
+                break;
+            }
+        }
+    }
+    return out;
+}
+
 std::vector<double> guideSnapTargets(QSizeF frame, Qt::Orientation orientation,
     const std::vector<double>& others, int gridDivisions, double aspect)
 {

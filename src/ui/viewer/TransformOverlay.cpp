@@ -11,6 +11,7 @@
 #include "ui/common/SchemeColors.h"
 #include "ui/inspector/MultiClipEdit.h"
 #include "ui/viewer/GuideOverlay.h"
+#include "ui/viewer/ViewerOverlaySettings.h"
 #include "ui/viewer/ViewerSurface.h"
 
 #include <QAction>
@@ -228,6 +229,21 @@ void TransformOverlay::paintEvent(QPaintEvent*)
             p.drawEllipse(a, kAnchorRadius, kAnchorRadius);
         });
     }
+    // Alignment guide lines while a drag sits on the frame edges / centre.
+    if (m_dragging && (!m_snapX.empty() || !m_snapY.empty())) {
+        const QPen guide(QColor(255, 64, 160), 1);
+        p.setPen(guide);
+        p.setRenderHint(QPainter::Antialiasing, false);
+        for (const double x : m_snapX) {
+            const double wx = std::round(toWidget->map(QPointF(x, 0)).x()) + 0.5;
+            p.drawLine(QPointF(wx, 0), QPointF(wx, height()));
+        }
+        for (const double y : m_snapY) {
+            const double wy = std::round(toWidget->map(QPointF(0, y)).y()) + 0.5;
+            p.drawLine(QPointF(0, wy), QPointF(width(), wy));
+        }
+        p.setRenderHint(QPainter::Antialiasing, true);
+    }
     // Square handles on the corners and edge midpoints.
     p.setPen(halo);
     p.setBrush(c.selection);
@@ -324,8 +340,14 @@ void TransformOverlay::mouseMoveEvent(QMouseEvent* event)
     const bool shift = event->modifiers() & Qt::ShiftModifier;
     QPointF pointer = toWidget->inverted().map(event->position());
     m_drag.update(clip->transform, local, pointer, shift);
-    if (m_guides && !(event->modifiers() & Qt::ControlModifier))
+    const bool snapping = !(event->modifiers() & Qt::ControlModifier);
+    if (snapping)
         pointer = snapPointer(*clip, local, pointer, shift, *toWidget);
+    if (!snapping) {
+        m_snapX.clear();
+        m_snapY.clear();
+    }
+    update(); // the guide lines
     updatePeers(*clip, local);
     timeline->notifyChanged(); // live picture and Inspector while dragging
 }
@@ -356,8 +378,23 @@ void TransformOverlay::setGuideOverlay(GuideOverlay* guides)
 QPointF TransformOverlay::snapPointer(
     ClipData& clip, int64_t localFrame, QPointF pointer, bool shift, const QTransform& toWidget)
 {
-    const std::vector<double> xs = m_guides->snapTargets(Qt::Vertical); // vertical guides: x
-    const std::vector<double> ys = m_guides->snapTargets(Qt::Horizontal);
+    std::vector<double> xs; // vertical guides: x
+    std::vector<double> ys;
+    if (m_guides) {
+        xs = m_guides->snapTargets(Qt::Vertical);
+        ys = m_guides->snapTargets(Qt::Horizontal);
+    }
+    m_snapX.clear();
+    m_snapY.clear();
+    std::vector<double> canvasX;
+    std::vector<double> canvasY;
+    if (ViewerOverlaySettings::instance().options().snapToGuides) {
+        const TimelineData& d = m_ctx.project->timeline()->data();
+        canvasX = guides::canvasTargets(d.width);
+        canvasY = guides::canvasTargets(d.height);
+        xs.insert(xs.end(), canvasX.begin(), canvasX.end());
+        ys.insert(ys.end(), canvasY.begin(), canvasY.end());
+    }
     const TransformHandle h = m_drag.handle();
     if ((xs.empty() && ys.empty()) || h.kind == TransformHandle::Kind::Rotate
         || h.kind == TransformHandle::Kind::None || toWidget.m11() <= 0)
@@ -412,6 +449,10 @@ QPointF TransformOverlay::snapPointer(
         pointer += QPointF(dx.value_or(0.0), dy.value_or(0.0));
         m_drag.update(clip.transform, localFrame, pointer, shift);
     }
+    // Guide lines for the frame edges / centre the dragged features ended on.
+    features(fx, fy);
+    m_snapX = guides::coincident(fx, canvasX);
+    m_snapY = guides::coincident(fy, canvasY);
     return pointer;
 }
 
@@ -433,6 +474,8 @@ void TransformOverlay::keyPressEvent(QKeyEvent* event)
 void TransformOverlay::finishDrag(bool commit)
 {
     m_dragging = false;
+    m_snapX.clear();
+    m_snapY.clear();
     m_peers.clear();
     if (!commit)
         m_ctx.project->cancelEdit();

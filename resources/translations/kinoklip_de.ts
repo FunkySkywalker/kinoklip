@@ -2953,8 +2953,8 @@ Das Programm wurde wahrscheinlich vom System beendet, weil der Arbeitsspeicher d
         <translation>Sperrt die Hilfslinien, damit sie nicht versehentlich verschoben werden.</translation>
     </message>
     <message>
-        <source>Makes an on-screen transform drag snap the picture to the guides.</source>
-        <translation>Lässt das Bild beim Ziehen einer Transformation auf dem Bildschirm an den Hilfslinien einrasten.</translation>
+        <source>Makes an on-screen transform drag snap the picture to the guides and to the frame edges and centre, with alignment lines; Ctrl held skips snapping.</source>
+        <translation>Lässt das Bild beim Ziehen einer Transformation auf dem Bildschirm an den Hilfslinien sowie an Rändern und Mitte des Bildausschnitts einrasten, mit Ausrichtungslinien; mit gehaltener Strg-Taste ohne Einrasten.</translation>
     </message>
     <message>
         <source>Adds a horizontal guide in the middle of the picture.</source>

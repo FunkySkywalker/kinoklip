@@ -98,6 +98,14 @@ void gridLines(QSizeF frame, int divisions, std::vector<double>& xs, std::vector
 /// std::nullopt when nothing is in reach. Ties keep the first feature / target.
 [[nodiscard]] std::optional<double> snapOffset(
     std::span<const double> features, std::span<const double> targets, double threshold);
+/// Snap targets of the frame itself for an on-screen transform drag: the lower edge, the centre
+/// and the upper edge of an axis of @p extent frame px ({0, extent / 2, extent}); empty for an
+/// extent <= 0.
+[[nodiscard]] std::vector<double> canvasTargets(double extent);
+/// The @p targets that at least one of @p features sits on (within @p epsilon): the lines to
+/// draw while snapped.
+[[nodiscard]] std::vector<double> coincident(
+    std::span<const double> features, std::span<const double> targets, double epsilon = 1e-3);
 /// Where a guide being dragged with Ctrl held snaps to, frame px along the axis the guide
 /// moves on (x for a vertical guide, y for a horizontal one): the frame edges and centre, the
 /// thirds and quarters, the action and title safe edges, the lines of a shown grid

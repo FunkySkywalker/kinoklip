@@ -2961,8 +2961,8 @@ The program was probably closed by the system because the computer ran out of me
         <translation>Блокирует направляющие, чтобы их нельзя было случайно сдвинуть.</translation>
     </message>
     <message>
-        <source>Makes an on-screen transform drag snap the picture to the guides.</source>
-        <translation>Заставляет изображение при трансформации перетаскиванием на экране привязываться к направляющим.</translation>
+        <source>Makes an on-screen transform drag snap the picture to the guides and to the frame edges and centre, with alignment lines; Ctrl held skips snapping.</source>
+        <translation>Заставляет изображение при трансформации перетаскиванием на экране привязываться к направляющим, краям и центру кадра, с линиями выравнивания; при зажатом Ctrl привязка отключена.</translation>
     </message>
     <message>
         <source>Adds a horizontal guide in the middle of the picture.</source>
