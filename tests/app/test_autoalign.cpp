@@ -171,6 +171,7 @@ private:
     }
     qint64 place(const QString& file, const QString& track, int at)
     {
+        ok(QStringLiteral("media.import"), {{"file", QJsonArray {file}}});
         const CommandResult r
             = ok(QStringLiteral("clip.add"), {{"media", file}, {"track", track}, {"at", at}});
         for (const QJsonValue& v : r.data["clips"].toArray()) {
@@ -280,6 +281,7 @@ private slots:
         const QString camera = mp4(wav(0, 30, 0.2, 0.005));
         const QString second = mp4(wav(4, 20));
         QVERIFY(!camera.isEmpty() && !second.isEmpty());
+        ok(QStringLiteral("track.add"), {{"type", "audio"}}); // A3
         const qint64 camId = place(camera, QStringLiteral("V1"), 240); // V1 + A1, linked
         const qint64 otherVideo = place(second, QStringLiteral("V2"), 3); // V2 + A2, linked
         const qint64 external = place(wav(2, 25, 1.0, 0.003), QStringLiteral("A3"), 2);
@@ -310,7 +312,8 @@ private slots:
         const CommandResult r = ok(QStringLiteral("clip.align"),
             {{"reference", camId}, {"clip", QJsonArray {QString::number(external)}},
                 {"mute-reference", true}});
-        QCOMPARE(clipOn(QStringLiteral("A2"))["start"].toInteger(), qint64(100 + 2 * kFps));
+        // AAC adds a little delay of its own: within one frame.
+        QVERIFY(std::abs(clipOn(QStringLiteral("A2"))["start"].toInteger() - (100 + 2 * kFps)) <= 1);
         QVERIFY(r.data["muted"].toBool());
         QVERIFY(clipOn(QStringLiteral("A1"))["volumeDb"].toDouble() <= -90.0);
         QCOMPARE(clipOn(QStringLiteral("V1"))["enabled"].toBool(), true);
