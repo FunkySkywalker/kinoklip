@@ -244,7 +244,7 @@ private slots:
         QCOMPARE(*d, 2.0);
         for (double& f : features)
             f += *d;
-        QCOMPARE(guides::coincident(features, xs), (std::vector<double> {320}));
+        QCOMPARE(guides::coincident(features, xs), (std::vector<double> {160, 320}));
         features = {-4, 76, 156};
         QCOMPARE(*guides::snapOffset(features, xs, 6), 4.0);
         features = {20, 100, 180}; // out of reach

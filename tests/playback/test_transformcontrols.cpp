@@ -314,9 +314,9 @@ private slots:
         QTRY_VERIFY(overlay->isEditing());
         QUndoStack* undo = f.project.undoStack();
         const QTransform map = *overlay->frameToWidget();
-        const QPointF from = map.map(QPointF(160, 90));
+        const QPointF from = map.map(QPointF(120, 60));
         auto dragBy = [&](double dx, Qt::KeyboardModifiers mods = {}) {
-            const QPointF to = map.map(QPointF(160 + dx, 90));
+            const QPointF to = map.map(QPointF(120 + dx, 60));
             press(overlay, from);
             move(overlay, (from + to) / 2, mods);
             move(overlay, to, mods);
