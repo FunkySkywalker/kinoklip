@@ -208,10 +208,20 @@ private slots:
         QCOMPARE(downloads, 1);
 
         // The luma texture holds the downloaded picture.
-        std::vector<uint8_t> luma(size_t(kW) * kH);
-        m_gl->glBindTexture(GL_TEXTURE_2D, textures.texture[0]);
+        // (read through a framebuffer: glGetTexImage does not exist on OpenGL ES)
+        std::vector<uint8_t> rgba(size_t(kW) * kH * 4);
+        GLuint fbo = 0;
+        m_gl->glGenFramebuffers(1, &fbo);
+        m_gl->glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+        m_gl->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+                                     textures.texture[0], 0);
         m_gl->glPixelStorei(GL_PACK_ALIGNMENT, 1);
-        m_gl->glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_UNSIGNED_BYTE, luma.data());
+        m_gl->glReadPixels(0, 0, kW, kH, GL_RGBA, GL_UNSIGNED_BYTE, rgba.data());
+        m_gl->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        m_gl->glDeleteFramebuffers(1, &fbo);
+        std::vector<uint8_t> luma(size_t(kW) * kH);
+        for (size_t i = 0; i < luma.size(); ++i)
+            luma[i] = rgba[i * 4];
         QCOMPARE(int(luma[0]), 0);
         QCOMPARE(int(luma[10]), 40);
         QCOMPARE(int(luma[size_t(kW) * kH - 1]), 252);
