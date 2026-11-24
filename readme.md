@@ -43,6 +43,8 @@ NVIDIA-first GPU support, and no H.264 or H.265 in the free version. Kinoklip gi
   can move it, copy it or send it anywhere ([how](docs/single-file-project.md)). Media Offline?
   Not going to happen.
 
+<p align="center"><img src="docs/images/media-offline-meme.jpg" alt="I fear no man. But that thing (Media Offline) it scares me." width="480"></p>
+
 ## Install
 
 **AppImage** (every distribution): download `Kinoklip-x86_64.AppImage` from the
@@ -68,7 +70,7 @@ More ways (NixOS, Arch Linux, building from source): [Installing Kinoklip](docs/
 ## Status
 
 <!-- status:start -->
-![Status: 82.07% of the roadmap items are done, 92.90% of the effects library works](docs/images/status.svg)
+![Status: 82.41% of the roadmap items are done, 92.90% of the effects library works](docs/images/status.svg)
 
 Green is done, grey is still to do. Details: [roadmap](docs/roadmap.md) and [effects library](docs/effects-library-status.md).
 <!-- status:end -->
