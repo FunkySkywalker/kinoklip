@@ -407,8 +407,8 @@ uniform vec3 uShift;   // source minus target in uv, blend
 void main()
 {
     vec4 t = texture(uTex, vUv);
-    vec4 patch = texture(uTex, vUv + uShift.xy);
-    fragColor = mix(t, patch, regionWeight() * uShift.z);
+    vec4 moved = texture(uTex, vUv + uShift.xy);
+    fragColor = mix(t, moved, regionWeight() * uShift.z);
 }
 )";
 
