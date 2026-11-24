@@ -2,6 +2,7 @@
 // Hardware encoder detection is quiet: probing every hardware encoder (NVENC, VAAPI, QSV) logs no
 // FFmpeg error and no warning at all - whatever this machine has - and exactly one summary line.
 #include "export/EncoderCatalog.h"
+#include "export/ExportFFmpeg.h"
 #include "media/HwAccel.h"
 
 #include <QTest>
@@ -40,6 +41,33 @@ class TestEncoderProbe : public QObject
 {
     Q_OBJECT
 private Q_SLOTS:
+    void pixelFormatChoice()
+    {
+        using namespace kk::exporter;
+        const std::vector<AVPixelFormat> nv12 {AV_PIX_FMT_NV12};
+        // VAAPI encoders list only their surface format: NV12 is still the upload format.
+        QCOMPARE(pickPixelFormat(nv12, {AV_PIX_FMT_VAAPI}, EncoderBackend::Vaapi), AV_PIX_FMT_NV12);
+        QCOMPARE(pickPixelFormat(nv12, {AV_PIX_FMT_NV12, AV_PIX_FMT_VAAPI}, EncoderBackend::Vaapi),
+            AV_PIX_FMT_NV12);
+        QCOMPARE(pickPixelFormat(nv12, {}, EncoderBackend::Vaapi), AV_PIX_FMT_NV12);
+        QCOMPARE(pickPixelFormat(nv12, {AV_PIX_FMT_QSV}, EncoderBackend::Qsv), AV_PIX_FMT_NV12);
+        // A VAAPI encoder with an unrelated list, or a software one, is still rejected.
+        QCOMPARE(pickPixelFormat(nv12, {AV_PIX_FMT_YUV420P}, EncoderBackend::Vaapi),
+            AV_PIX_FMT_NONE);
+        QCOMPARE(pickPixelFormat(nv12, {AV_PIX_FMT_VAAPI}, EncoderBackend::Software),
+            AV_PIX_FMT_NONE);
+        // Software: first wanted format the encoder takes.
+        QCOMPARE(pickPixelFormat({AV_PIX_FMT_YUV420P, AV_PIX_FMT_NV12},
+                     {AV_PIX_FMT_NV12, AV_PIX_FMT_YUV420P}, EncoderBackend::Software),
+            AV_PIX_FMT_YUV420P);
+        // The FFmpeg in use: any h264_vaapi build must resolve to NV12.
+        initExportFfmpeg();
+        if (const AVCodec* codec = avcodec_find_encoder_by_name("h264_vaapi")) {
+            QCOMPARE(pickPixelFormat(nv12, supportedPixelFormats(codec), EncoderBackend::Vaapi),
+                AV_PIX_FMT_NV12);
+        }
+    }
+
     void probingIsQuiet()
     {
         qunsetenv("KINOKLIP_HWENC");

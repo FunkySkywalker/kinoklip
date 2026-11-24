@@ -91,17 +91,7 @@ std::vector<AVPixelFormat> preferredFormats(const VideoEncoderConfig& c)
 
 AVPixelFormat choosePixelFormat(const AVCodec* codec, const VideoEncoderConfig& c)
 {
-    const std::vector<AVPixelFormat> wanted = preferredFormats(c);
-    const std::vector<AVPixelFormat> supported = supportedPixelFormats(codec);
-    if (supported.empty()) {
-        return wanted.front();
-    }
-    for (AVPixelFormat f : wanted) {
-        if (std::find(supported.begin(), supported.end(), f) != supported.end()) {
-            return f;
-        }
-    }
-    return AV_PIX_FMT_NONE;
+    return pickPixelFormat(preferredFormats(c), supportedPixelFormats(codec), c.backend);
 }
 
 /// Speed presets per encoder family ("fast" / "medium" / "slow").

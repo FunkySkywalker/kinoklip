@@ -84,6 +84,9 @@ kk::ExportResult r = job.run([](const kk::ExportProgress& p) { /* frames, fps, E
   output, and one info line summarises:
   `kk.export: hardware encoders: VAAPI h264/hevc (iHD 24.1.0, /dev/dri/renderD128), NVENC
   unavailable (no NVIDIA driver), QSV unavailable (no Intel GPU with a oneVPL/MFX runtime)`.
+  Each codec is probed on its own; the line names the codecs that failed and why
+  (`[failed: av1: ...]`). VAAPI encoders list only `AV_PIX_FMT_VAAPI` as pixel format; frames
+  are uploaded from NV12 (`pickPixelFormat`).
   `tests/export/test_encoderprobe` checks that probing logs no warning at all.
 
 ## Subtitles (`SubtitleExport.*`)

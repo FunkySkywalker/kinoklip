@@ -3362,3 +3362,11 @@ Resolve's node editor has more than serial, parallel and layer nodes: Add Node >
 | 150.7 | Typed labels: every node that is not a corrector shows its type under its tile (Parallel, Layer, Key Mixer, Splitter, Combiner, Compound, Alpha Output); correctors keep their number; a corrector with a key input shows "Key" / "Outside". | Done (`test_colorpageui`) |
 | 150.8 | Project files: no format bump (stays 24). Optional node keys `ports`, `keyInput`, `keyInputInvert`, `keyGains`, `keyInverts`, `compound`, `innerOutput` and the node types `keymixer`, `splitter`, `combiner`, `compound`, `alphaoutput`; key links to deleted nodes end, damaged references fall back. An older build reads the new types as correctors. | Done (`test_grade` nodeTypesSurviveSerialization) |
 | 150.9 | Not done: a key input on the Compound tile (its members take their own key inputs), Key Mixer modes other than add, Splitter channels as colour (they are grey), keyframes of the Key Mixer gain, and Resolve's node-tile right-click menu entries beyond Add Node. | Open |
+
+## 152. VAAPI hardware encoding (issue 15)
+
+| # | Behaviour | Status |
+|---|---|---|
+| 152.1 | Owner (AMD RX 590, Mesa radeonsi, host libva 2.24): Deliver showed "VAAPI (not available)" while VAAPI decoding worked. The session log said `VAAPI unavailable (encoder h264_vaapi supports none of the pixel formats Kinoklip uses)`. Cause: a VAAPI encoder advertises only its surface format (`AV_PIX_FMT_VAAPI`), never NV12, and the encoder opener looked for NV12 in that list. The frames are uploaded from NV12, so for VAAPI (and QSV) NV12 is chosen whenever the encoder lists its surface format (`pickPixelFormat`). | Done (`test_encoderprobe pixelFormatChoice`) |
+| 152.2 | The probe tests every codec (H.264, HEVC, AV1, VP9) on its own with a 320x240 NV12 frame, on every render node, normal then low-power entry point. The one info line now names the codecs that failed and why, e.g. `VAAPI h264/hevc (Mesa Gallium ..., /dev/dri/renderD128) [failed: av1: ...]`. A render that cannot open its hardware encoder logs the real FFmpeg error and falls back to the next candidate, ending at software. | Done |
+| 152.3 | Not verified without the owner's hardware: a real H.264 / HEVC encode on Polaris VCE (the dev machines have no AMD GPU). | Open |

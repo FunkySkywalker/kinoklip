@@ -308,7 +308,7 @@ void logSummary(const QString& scope)
             {EncoderBackend::Vaapi, EncoderBackend::Nvenc, EncoderBackend::Qsv}) {
             QStringList codecs;
             QString where;
-            QString why;
+            QStringList why; ///< "codec: reason" of every codec that failed
             bool any = false;
             for (const HwRow& row : kHardware) {
                 if (row.backend != backend
@@ -332,8 +332,9 @@ void logSummary(const QString& scope)
                     if (!details.isEmpty()) {
                         where = QStringLiteral(" (%1)").arg(details.join(QStringLiteral(", ")));
                     }
-                } else if (why.isEmpty()) {
-                    why = it->status.error;
+                } else {
+                    why << QStringLiteral("%1: %2").arg(
+                        QString::fromLatin1(row.codec), it->status.error);
                 }
             }
             if (!any) {
@@ -341,9 +342,12 @@ void logSummary(const QString& scope)
             }
             parts << (codecs.isEmpty()
                     ? QStringLiteral("%1 unavailable (%2)")
-                          .arg(QLatin1String(backendLabel(backend)), why)
-                    : QStringLiteral("%1 %2%3").arg(
-                          QLatin1String(backendLabel(backend)), codecs.join(u'/'), where));
+                          .arg(QLatin1String(backendLabel(backend)), why.join(QStringLiteral("; ")))
+                    : QStringLiteral("%1 %2%3%4")
+                          .arg(QLatin1String(backendLabel(backend)), codecs.join(u'/'), where,
+                              why.isEmpty() ? QString()
+                                            : QStringLiteral(" [failed: %1]")
+                                                  .arg(why.join(QStringLiteral("; ")))));
         }
     }
     qCInfo(lcExport).noquote() << (scope.isEmpty()

@@ -4,6 +4,8 @@
 // Only files in src/export include this header (src/media has its own internal equivalent).
 #pragma once
 
+#include "export/ExportSettings.h"
+
 #include <QString>
 
 extern "C" {
@@ -16,6 +18,7 @@ extern "C" {
 #include <libswscale/swscale.h>
 }
 
+#include <algorithm>
 #include <functional>
 #include <memory>
 #include <vector>
@@ -101,6 +104,41 @@ inline std::vector<AVPixelFormat> supportedPixelFormats(const AVCodec* codec)
     }
 #endif
     return out;
+}
+
+/// The software-side pixel format to feed an encoder: the first of @p wanted that the encoder
+/// accepts. VAAPI encoders (and QSV ones that list only QSV surfaces) advertise just their
+/// hardware surface format (AV_PIX_FMT_VAAPI / AV_PIX_FMT_QSV), never NV12: the frames are
+/// uploaded from NV12, so for those backends NV12 is right whenever the encoder lists its
+/// surface format. Without that rule every VAAPI encoder was reported "supports none of the
+/// pixel formats" (issue 15). @return AV_PIX_FMT_NONE if nothing fits.
+inline AVPixelFormat pickPixelFormat(const std::vector<AVPixelFormat>& wanted,
+    const std::vector<AVPixelFormat>& supported, EncoderBackend backend)
+{
+    if (wanted.empty()) {
+        return AV_PIX_FMT_NONE;
+    }
+    if (supported.empty()) {
+        return wanted.front();
+    }
+    const auto has = [&](AVPixelFormat f) {
+        return std::find(supported.begin(), supported.end(), f) != supported.end();
+    };
+    for (AVPixelFormat f : wanted) {
+        if (has(f)) {
+            return f;
+        }
+    }
+    const bool uploads = (backend == EncoderBackend::Vaapi && has(AV_PIX_FMT_VAAPI))
+        || (backend == EncoderBackend::Qsv && has(AV_PIX_FMT_QSV));
+    if (uploads) {
+        for (AVPixelFormat f : wanted) {
+            if (f == AV_PIX_FMT_NV12 || f == AV_PIX_FMT_P010LE) {
+                return f;
+            }
+        }
+    }
+    return AV_PIX_FMT_NONE;
 }
 
 /// Sample formats @p codec accepts (empty = unknown/any).
