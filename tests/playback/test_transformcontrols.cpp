@@ -327,22 +327,22 @@ private slots:
         // Picture x 80 .. 240: moved 78.5 its right edge is 1.5 px short of the frame edge.
         const int steps = undo->index();
         auto lines = dragBy(78.5);
-        QVERIFY(std::abs(f.clip().transform.value(keys::PosX, 0) - 80.0) < 1e-6);
+        QVERIFY2(std::abs(f.clip().transform.value(keys::PosX, 0) - 80.0) < 1e-6, qPrintable(QString::number(f.clip().transform.value(keys::PosX, 0), 'g', 12)));
         QCOMPARE(lines, (std::vector<double> {160, 320})); // left edge on the centre too
         QCOMPARE(undo->index(), steps + 1);
         QVERIFY(overlay->snapLinesX().empty()); // the lines go with the drag
         undo->undo();
         lines = dragBy(78.5, Qt::ControlModifier);
-        QVERIFY(std::abs(f.clip().transform.value(keys::PosX, 0) - 78.5) < 1e-6);
+        QVERIFY2(std::abs(f.clip().transform.value(keys::PosX, 0) - 78.5) < 1e-6, qPrintable(QString::number(f.clip().transform.value(keys::PosX, 0), 'g', 12)));
         QVERIFY(lines.empty());
         undo->undo();
         f.action("view.guides_snap")->setChecked(false);
         dragBy(78.5);
-        QVERIFY(std::abs(f.clip().transform.value(keys::PosX, 0) - 78.5) < 1e-6);
+        QVERIFY2(std::abs(f.clip().transform.value(keys::PosX, 0) - 78.5) < 1e-6, qPrintable(QString::number(f.clip().transform.value(keys::PosX, 0), 'g', 12)));
         undo->undo();
         f.action("view.guides_snap")->setChecked(true);
         lines = dragBy(3.0); // back onto the centre line
-        QVERIFY(std::abs(f.clip().transform.value(keys::PosX, 0)) < 1e-6);
+        QVERIFY2(std::abs(f.clip().transform.value(keys::PosX, 0)) < 1e-6, qPrintable(QString::number(f.clip().transform.value(keys::PosX, 0), 'g', 12)));
         QCOMPARE(lines, (std::vector<double> {160}));
         undo->undo();
         f.action("view.onscreen_transform")->setChecked(false);
