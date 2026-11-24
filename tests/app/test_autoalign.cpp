@@ -325,15 +325,16 @@ private slots:
     {
         makeProject();
         const qint64 ref = place(wav(0, 40), QStringLiteral("A1"), 100);
-        const qint64 other = place(wav(5, 20), QStringLiteral("A2"), 0);
-        // A third clip sits where the aligned clip would land (100 + 120 = frame 220).
+        const qint64 other = place(wav(5, 20), QStringLiteral("A2"), 700);
+        // A third clip sits where the aligned clip would land (100 + 120 = frame 220 ...).
         place(wav(60, 10), QStringLiteral("A2"), 230);
         const CommandResult r = run(QStringLiteral("clip.align"),
             {{"reference", ref}, {"clip", QJsonArray {QString::number(other)}}});
         QVERIFY(!r.ok);
         QCOMPARE(r.errorCode, QStringLiteral("cannot_align"));
         QVERIFY(r.error.contains(QLatin1String("overwrite")));
-        QCOMPARE(clipOn(QStringLiteral("A2"))["start"].toInteger(), qint64(0));
+        QCOMPARE(clipOn(QStringLiteral("A2"))["start"].toInteger(), qint64(230)); // the blocker first
+        QVERIFY(clipOn(QStringLiteral("A2"))["id"].toInteger() != other);
     }
 
     void startingBeforeTheTimelineIsRefused()
