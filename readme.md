@@ -43,8 +43,6 @@ NVIDIA-first GPU support, and no H.264 or H.265 in the free version. Kinoklip gi
   can move it, copy it or send it anywhere ([how](docs/single-file-project.md)). Media Offline?
   Not going to happen.
 
-<p align="center"><img src="docs/images/media-offline-meme.jpg" alt="I fear no man. But that thing (Media Offline) it scares me." width="480"></p>
-
 ## Install
 
 **AppImage** (every distribution): download `Kinoklip-x86_64.AppImage` from the
