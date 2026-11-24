@@ -3290,35 +3290,35 @@ The program was probably closed by the system because the computer ran out of me
     </message>
     <message>
         <source>Color page: adds an Outside node after the current node, keyed with the inverse of the current node&apos;s key.</source>
-        <translation type="unfinished"></translation>
+        <translation>Сторінка Color: додає нод Outside після поточного, з інвертованим ключем поточного нода.</translation>
     </message>
     <message>
         <source>Color page: adds a Key Mixer that combines the keys of several nodes into one key.</source>
-        <translation type="unfinished"></translation>
+        <translation>Сторінка Color: додає мікшер ключів, що об’єднує ключі кількох нодів в один.</translation>
     </message>
     <message>
         <source>Color page: adds a Splitter and a Combiner after the current node, to grade the red, green and blue channels apart.</source>
-        <translation type="unfinished"></translation>
+        <translation>Сторінка Color: додає розділювач і об’єднувач після поточного нода, щоб грейдити червоний, зелений і синій канали окремо.</translation>
     </message>
     <message>
         <source>Color page: adds the Alpha Output, whose key becomes the alpha of the clip.</source>
-        <translation type="unfinished"></translation>
+        <translation>Сторінка Color: додає вихід альфа-каналу, ключ якого стає альфою кліпу.</translation>
     </message>
     <message>
         <source>Color page: groups the selected nodes into one Compound node.</source>
-        <translation type="unfinished"></translation>
+        <translation>Сторінка Color: об’єднує вибрані ноди в складений нод.</translation>
     </message>
     <message>
         <source>Color page: dissolves the current Compound node into its nodes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Сторінка Color: розбирає поточний складений нод на його ноди.</translation>
     </message>
     <message>
         <source>Color page: shows the nodes inside the current Compound node.</source>
-        <translation type="unfinished"></translation>
+        <translation>Сторінка Color: показує ноди всередині поточного складеного нода.</translation>
     </message>
     <message>
         <source>Color page: leaves the open Compound node and shows the level above.</source>
-        <translation type="unfinished"></translation>
+        <translation>Сторінка Color: виходить з відкритого складеного нода й показує рівень вище.</translation>
     </message>
     <message>
         <source>Color page: deletes the current node.</source>
@@ -10474,31 +10474,31 @@ Thank you for watching</source>
     <name>kk::ColorNodeEditor</name>
     <message>
         <source>Parallel</source>
-        <translation type="unfinished">Паралельно</translation>
+        <translation>Паралельний</translation>
     </message>
     <message>
         <source>Layer</source>
-        <translation type="unfinished">Шар</translation>
+        <translation>Шар</translation>
     </message>
     <message>
         <source>Key Mixer</source>
-        <translation type="unfinished">Мікшер масок</translation>
+        <translation>Мікшер ключів</translation>
     </message>
     <message>
         <source>Splitter</source>
-        <translation type="unfinished"></translation>
+        <translation>Розділювач</translation>
     </message>
     <message>
         <source>Combiner</source>
-        <translation type="unfinished"></translation>
+        <translation>Об’єднувач</translation>
     </message>
     <message>
         <source>Compound</source>
-        <translation type="unfinished">Складений</translation>
+        <translation>Складений</translation>
     </message>
     <message>
         <source>Alpha Output</source>
-        <translation type="unfinished">Вихід альфа-каналу</translation>
+        <translation>Вихід альфа-каналу</translation>
     </message>
     <message>
         <source>P</source>
@@ -10513,32 +10513,32 @@ Thank you for watching</source>
     <message>
         <source>K</source>
         <comment>Key Mixer</comment>
-        <translation type="unfinished"></translation>
+        <translation>K</translation>
     </message>
     <message>
         <source>S</source>
         <comment>Splitter</comment>
-        <translation type="unfinished">S</translation>
+        <translation>S</translation>
     </message>
     <message>
         <source>C</source>
         <comment>Combiner</comment>
-        <translation type="unfinished"></translation>
+        <translation>C</translation>
     </message>
     <message>
         <source>A</source>
         <comment>Alpha Output</comment>
-        <translation type="unfinished">A</translation>
+        <translation>A</translation>
     </message>
     <message>
         <source>Outside</source>
         <comment>key input inverted marker</comment>
-        <translation type="unfinished"></translation>
+        <translation>Outside</translation>
     </message>
     <message>
         <source>Key</source>
         <comment>key input marker</comment>
-        <translation type="unfinished"></translation>
+        <translation>Ключ</translation>
     </message>
     <message>
         <source>Q</source>
@@ -10564,7 +10564,7 @@ Thank you for watching</source>
     </message>
     <message>
         <source>Input</source>
-        <translation type="unfinished">Вхід</translation>
+        <translation>Вхід</translation>
     </message>
     <message>
         <source>Output</source>
@@ -10572,15 +10572,15 @@ Thank you for watching</source>
     </message>
     <message>
         <source>Inside %1 - double-click the background to close</source>
-        <translation type="unfinished"></translation>
+        <translation>Усередині %1 — подвійне клацання по тлу, щоб закрити</translation>
     </message>
     <message>
         <source>Connect Keys</source>
-        <translation type="unfinished"></translation>
+        <translation>З’єднати ключі</translation>
     </message>
     <message>
         <source>Reconnect Keys</source>
-        <translation type="unfinished"></translation>
+        <translation>Перепід’єднати ключі</translation>
     </message>
     <message>
         <source>Connect Nodes</source>
@@ -10592,23 +10592,23 @@ Thank you for watching</source>
     </message>
     <message>
         <source>Invert Key</source>
-        <translation type="unfinished">Інвертувати ключ</translation>
+        <translation>Інвертувати ключ</translation>
     </message>
     <message>
         <source>Key Gain…</source>
-        <translation type="unfinished"></translation>
+        <translation>Підсилення ключа…</translation>
     </message>
     <message>
         <source>Key Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Підсилення ключа</translation>
     </message>
     <message>
         <source>Gain of this key:</source>
-        <translation type="unfinished"></translation>
+        <translation>Підсилення цього ключа:</translation>
     </message>
     <message>
         <source>Disconnect Key</source>
-        <translation type="unfinished"></translation>
+        <translation>Від’єднати ключ</translation>
     </message>
     <message>
         <source>Add Serial Node</source>
@@ -10628,35 +10628,35 @@ Thank you for watching</source>
     </message>
     <message>
         <source>Add Outside Node</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати нод Outside</translation>
     </message>
     <message>
         <source>Add Key Mixer</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати мікшер ключів</translation>
     </message>
     <message>
         <source>Add Splitter / Combiner</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати розділювач / об’єднувач</translation>
     </message>
     <message>
         <source>Add Alpha Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати вихід альфа-каналу</translation>
     </message>
     <message>
         <source>Create Compound Node</source>
-        <translation type="unfinished">Створити складений нод</translation>
+        <translation>Створити складений нод</translation>
     </message>
     <message>
         <source>Decompose Compound Node</source>
-        <translation type="unfinished">Розібрати складений нод</translation>
+        <translation>Розібрати складений нод</translation>
     </message>
     <message>
         <source>Open Compound Node</source>
-        <translation type="unfinished">Відкрити складений нод</translation>
+        <translation>Відкрити складений нод</translation>
     </message>
     <message>
         <source>Close Compound Node</source>
-        <translation type="unfinished">Закрити складений нод</translation>
+        <translation>Закрити складений нод</translation>
     </message>
     <message>
         <source>Enable / Disable Node</source>
@@ -10968,11 +10968,11 @@ Thank you for watching</source>
     <name>kk::ColorSession</name>
     <message>
         <source>Create Compound Node</source>
-        <translation type="unfinished">Створити складений нод</translation>
+        <translation>Створити складений нод</translation>
     </message>
     <message>
         <source>Decompose Compound Node</source>
-        <translation type="unfinished">Розібрати складений нод</translation>
+        <translation>Розібрати складений нод</translation>
     </message>
     <message>
         <source>Add Serial Node</source>
@@ -10988,35 +10988,35 @@ Thank you for watching</source>
     </message>
     <message>
         <source>Add Outside Node</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати нод Outside</translation>
     </message>
     <message>
         <source>Add Key Mixer</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати мікшер ключів</translation>
     </message>
     <message>
         <source>Add Splitter / Combiner</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати розділювач / об’єднувач</translation>
     </message>
     <message>
         <source>Add Alpha Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати вихід альфа-каналу</translation>
     </message>
     <message>
         <source>Connect Keys</source>
-        <translation type="unfinished"></translation>
+        <translation>З’єднати ключі</translation>
     </message>
     <message>
         <source>Disconnect Keys</source>
-        <translation type="unfinished"></translation>
+        <translation>Від’єднати ключі</translation>
     </message>
     <message>
         <source>Invert Key</source>
-        <translation type="unfinished">Інвертувати ключ</translation>
+        <translation>Інвертувати ключ</translation>
     </message>
     <message>
         <source>Key Mixer Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Підсилення мікшера ключів</translation>
     </message>
     <message>
         <source>Connect Nodes</source>
@@ -33114,35 +33114,35 @@ Restart Kinoklip to apply them.</source>
     </message>
     <message>
         <source>Add &amp;Outside Node</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати нод &amp;Outside</translation>
     </message>
     <message>
         <source>Add &amp;Key Mixer</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати &amp;мікшер ключів</translation>
     </message>
     <message>
         <source>Add Splitter / &amp;Combiner</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати розділювач / &amp;об’єднувач</translation>
     </message>
     <message>
         <source>Add &amp;Alpha Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати &amp;вихід альфа-каналу</translation>
     </message>
     <message>
         <source>Create Compound &amp;Node</source>
-        <translation type="unfinished"></translation>
+        <translation>Створити складений &amp;нод</translation>
     </message>
     <message>
         <source>Decompose Compound N&amp;ode</source>
-        <translation type="unfinished"></translation>
+        <translation>Р&amp;озібрати складений нод</translation>
     </message>
     <message>
         <source>Open Compound Node</source>
-        <translation type="unfinished">Відкрити складений нод</translation>
+        <translation>Відкрити складений нод</translation>
     </message>
     <message>
         <source>Close Compound Node</source>
-        <translation type="unfinished">Закрити складений нод</translation>
+        <translation>Закрити складений нод</translation>
     </message>
     <message>
         <source>&amp;Delete Node</source>

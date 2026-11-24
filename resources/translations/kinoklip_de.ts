@@ -3282,35 +3282,35 @@ Das Programm wurde wahrscheinlich vom System beendet, weil der Arbeitsspeicher d
     </message>
     <message>
         <source>Color page: adds an Outside node after the current node, keyed with the inverse of the current node&apos;s key.</source>
-        <translation type="unfinished"></translation>
+        <translation>Color-Seite: fügt nach dem aktuellen Node einen Outside-Node hinzu, gekeyt mit dem invertierten Key des aktuellen Nodes.</translation>
     </message>
     <message>
         <source>Color page: adds a Key Mixer that combines the keys of several nodes into one key.</source>
-        <translation type="unfinished"></translation>
+        <translation>Color-Seite: fügt einen Key-Mixer hinzu, der die Keys mehrerer Nodes zu einem Key vereint.</translation>
     </message>
     <message>
         <source>Color page: adds a Splitter and a Combiner after the current node, to grade the red, green and blue channels apart.</source>
-        <translation type="unfinished"></translation>
+        <translation>Color-Seite: fügt nach dem aktuellen Node einen Splitter und einen Combiner hinzu, um Rot, Grün und Blau getrennt zu graden.</translation>
     </message>
     <message>
         <source>Color page: adds the Alpha Output, whose key becomes the alpha of the clip.</source>
-        <translation type="unfinished"></translation>
+        <translation>Color-Seite: fügt den Alpha-Ausgang hinzu, dessen Key zum Alpha des Clips wird.</translation>
     </message>
     <message>
         <source>Color page: groups the selected nodes into one Compound node.</source>
-        <translation type="unfinished"></translation>
+        <translation>Color-Seite: fasst die ausgewählten Nodes zu einem Compound-Node zusammen.</translation>
     </message>
     <message>
         <source>Color page: dissolves the current Compound node into its nodes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Color-Seite: löst den aktuellen Compound-Node in seine Nodes auf.</translation>
     </message>
     <message>
         <source>Color page: shows the nodes inside the current Compound node.</source>
-        <translation type="unfinished"></translation>
+        <translation>Color-Seite: zeigt die Nodes im aktuellen Compound-Node.</translation>
     </message>
     <message>
         <source>Color page: leaves the open Compound node and shows the level above.</source>
-        <translation type="unfinished"></translation>
+        <translation>Color-Seite: verlässt den geöffneten Compound-Node und zeigt die Ebene darüber.</translation>
     </message>
     <message>
         <source>Color page: deletes the current node.</source>
@@ -10462,31 +10462,31 @@ Danke fürs Zuschauen</translation>
     <name>kk::ColorNodeEditor</name>
     <message>
         <source>Parallel</source>
-        <translation type="unfinished">Parallel</translation>
+        <translation>Parallel</translation>
     </message>
     <message>
         <source>Layer</source>
-        <translation type="unfinished">Ebene</translation>
+        <translation>Layer</translation>
     </message>
     <message>
         <source>Key Mixer</source>
-        <translation type="unfinished">Key-Mixer</translation>
+        <translation>Key-Mixer</translation>
     </message>
     <message>
         <source>Splitter</source>
-        <translation type="unfinished"></translation>
+        <translation>Splitter</translation>
     </message>
     <message>
         <source>Combiner</source>
-        <translation type="unfinished"></translation>
+        <translation>Combiner</translation>
     </message>
     <message>
         <source>Compound</source>
-        <translation type="unfinished">Verschachtelt</translation>
+        <translation>Compound</translation>
     </message>
     <message>
         <source>Alpha Output</source>
-        <translation type="unfinished">Alpha-Ausgang</translation>
+        <translation>Alpha-Ausgang</translation>
     </message>
     <message>
         <source>P</source>
@@ -10501,32 +10501,32 @@ Danke fürs Zuschauen</translation>
     <message>
         <source>K</source>
         <comment>Key Mixer</comment>
-        <translation type="unfinished"></translation>
+        <translation>K</translation>
     </message>
     <message>
         <source>S</source>
         <comment>Splitter</comment>
-        <translation type="unfinished">S</translation>
+        <translation>S</translation>
     </message>
     <message>
         <source>C</source>
         <comment>Combiner</comment>
-        <translation type="unfinished"></translation>
+        <translation>C</translation>
     </message>
     <message>
         <source>A</source>
         <comment>Alpha Output</comment>
-        <translation type="unfinished">A</translation>
+        <translation>A</translation>
     </message>
     <message>
         <source>Outside</source>
         <comment>key input inverted marker</comment>
-        <translation type="unfinished"></translation>
+        <translation>Outside</translation>
     </message>
     <message>
         <source>Key</source>
         <comment>key input marker</comment>
-        <translation type="unfinished"></translation>
+        <translation>Key</translation>
     </message>
     <message>
         <source>Q</source>
@@ -10552,7 +10552,7 @@ Danke fürs Zuschauen</translation>
     </message>
     <message>
         <source>Input</source>
-        <translation type="unfinished">Eingang</translation>
+        <translation>Eingang</translation>
     </message>
     <message>
         <source>Output</source>
@@ -10560,15 +10560,15 @@ Danke fürs Zuschauen</translation>
     </message>
     <message>
         <source>Inside %1 - double-click the background to close</source>
-        <translation type="unfinished"></translation>
+        <translation>In %1 – Doppelklick auf den Hintergrund zum Schließen</translation>
     </message>
     <message>
         <source>Connect Keys</source>
-        <translation type="unfinished"></translation>
+        <translation>Keys verbinden</translation>
     </message>
     <message>
         <source>Reconnect Keys</source>
-        <translation type="unfinished"></translation>
+        <translation>Keys neu verbinden</translation>
     </message>
     <message>
         <source>Connect Nodes</source>
@@ -10580,23 +10580,23 @@ Danke fürs Zuschauen</translation>
     </message>
     <message>
         <source>Invert Key</source>
-        <translation type="unfinished">Key invertieren</translation>
+        <translation>Key invertieren</translation>
     </message>
     <message>
         <source>Key Gain…</source>
-        <translation type="unfinished"></translation>
+        <translation>Key-Gain…</translation>
     </message>
     <message>
         <source>Key Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Key-Gain</translation>
     </message>
     <message>
         <source>Gain of this key:</source>
-        <translation type="unfinished"></translation>
+        <translation>Gain dieses Keys:</translation>
     </message>
     <message>
         <source>Disconnect Key</source>
-        <translation type="unfinished"></translation>
+        <translation>Key trennen</translation>
     </message>
     <message>
         <source>Add Serial Node</source>
@@ -10616,35 +10616,35 @@ Danke fürs Zuschauen</translation>
     </message>
     <message>
         <source>Add Outside Node</source>
-        <translation type="unfinished"></translation>
+        <translation>Outside-Node hinzufügen</translation>
     </message>
     <message>
         <source>Add Key Mixer</source>
-        <translation type="unfinished"></translation>
+        <translation>Key-Mixer hinzufügen</translation>
     </message>
     <message>
         <source>Add Splitter / Combiner</source>
-        <translation type="unfinished"></translation>
+        <translation>Splitter / Combiner hinzufügen</translation>
     </message>
     <message>
         <source>Add Alpha Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Alpha-Ausgang hinzufügen</translation>
     </message>
     <message>
         <source>Create Compound Node</source>
-        <translation type="unfinished">Compound-Node erstellen</translation>
+        <translation>Compound-Node erstellen</translation>
     </message>
     <message>
         <source>Decompose Compound Node</source>
-        <translation type="unfinished">Compound-Node auflösen</translation>
+        <translation>Compound-Node auflösen</translation>
     </message>
     <message>
         <source>Open Compound Node</source>
-        <translation type="unfinished">Compound-Node öffnen</translation>
+        <translation>Compound-Node öffnen</translation>
     </message>
     <message>
         <source>Close Compound Node</source>
-        <translation type="unfinished">Compound-Node schließen</translation>
+        <translation>Compound-Node schließen</translation>
     </message>
     <message>
         <source>Enable / Disable Node</source>
@@ -10956,11 +10956,11 @@ Danke fürs Zuschauen</translation>
     <name>kk::ColorSession</name>
     <message>
         <source>Create Compound Node</source>
-        <translation type="unfinished">Compound-Node erstellen</translation>
+        <translation>Compound-Node erstellen</translation>
     </message>
     <message>
         <source>Decompose Compound Node</source>
-        <translation type="unfinished">Compound-Node auflösen</translation>
+        <translation>Compound-Node auflösen</translation>
     </message>
     <message>
         <source>Add Serial Node</source>
@@ -10976,35 +10976,35 @@ Danke fürs Zuschauen</translation>
     </message>
     <message>
         <source>Add Outside Node</source>
-        <translation type="unfinished"></translation>
+        <translation>Outside-Node hinzufügen</translation>
     </message>
     <message>
         <source>Add Key Mixer</source>
-        <translation type="unfinished"></translation>
+        <translation>Key-Mixer hinzufügen</translation>
     </message>
     <message>
         <source>Add Splitter / Combiner</source>
-        <translation type="unfinished"></translation>
+        <translation>Splitter / Combiner hinzufügen</translation>
     </message>
     <message>
         <source>Add Alpha Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Alpha-Ausgang hinzufügen</translation>
     </message>
     <message>
         <source>Connect Keys</source>
-        <translation type="unfinished"></translation>
+        <translation>Keys verbinden</translation>
     </message>
     <message>
         <source>Disconnect Keys</source>
-        <translation type="unfinished"></translation>
+        <translation>Keys trennen</translation>
     </message>
     <message>
         <source>Invert Key</source>
-        <translation type="unfinished">Key invertieren</translation>
+        <translation>Key invertieren</translation>
     </message>
     <message>
         <source>Key Mixer Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Key-Mixer-Gain</translation>
     </message>
     <message>
         <source>Connect Nodes</source>
@@ -33092,35 +33092,35 @@ Kinoklip neu starten, um sie anzuwenden.</translation>
     </message>
     <message>
         <source>Add &amp;Outside Node</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Outside-Node hinzufügen</translation>
     </message>
     <message>
         <source>Add &amp;Key Mixer</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Key-Mixer hinzufügen</translation>
     </message>
     <message>
         <source>Add Splitter / &amp;Combiner</source>
-        <translation type="unfinished"></translation>
+        <translation>Splitter / &amp;Combiner hinzufügen</translation>
     </message>
     <message>
         <source>Add &amp;Alpha Output</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Alpha-Ausgang hinzufügen</translation>
     </message>
     <message>
         <source>Create Compound &amp;Node</source>
-        <translation type="unfinished"></translation>
+        <translation>Compound-&amp;Node erstellen</translation>
     </message>
     <message>
         <source>Decompose Compound N&amp;ode</source>
-        <translation type="unfinished"></translation>
+        <translation>Compound-N&amp;ode auflösen</translation>
     </message>
     <message>
         <source>Open Compound Node</source>
-        <translation type="unfinished">Compound-Node öffnen</translation>
+        <translation>Compound-Node öffnen</translation>
     </message>
     <message>
         <source>Close Compound Node</source>
-        <translation type="unfinished">Compound-Node schließen</translation>
+        <translation>Compound-Node schließen</translation>
     </message>
     <message>
         <source>&amp;Delete Node</source>
