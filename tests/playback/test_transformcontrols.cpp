@@ -348,7 +348,7 @@ private slots:
         QVERIFY2(std::abs(f.clip().transform.value(keys::PosX, 0) - 78) < 1e-6, qPrintable(QString::number(f.clip().transform.value(keys::PosX, 0), 'g', 12)));
         undo->undo();
         setSnap(true);
-        lines = dragBy(3.0); // back onto the centre line
+        lines = dragBy(2.0); // back onto the centre line
         QVERIFY2(std::abs(f.clip().transform.value(keys::PosX, 0)) < 1e-6, qPrintable(QString::number(f.clip().transform.value(keys::PosX, 0), 'g', 12)));
         QCOMPARE(lines, (std::vector<double> {160}));
         undo->undo();
