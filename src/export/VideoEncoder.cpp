@@ -372,7 +372,7 @@ bool VideoEncoder::open(const VideoEncoderConfig& config, QString* error)
         }
         auto* frames = reinterpret_cast<AVHWFramesContext*>(m_hwFrames->data);
         frames->format = AV_PIX_FMT_VAAPI;
-        frames->sw_format = AV_PIX_FMT_NV12;
+        frames->sw_format = m_swFormat; // NV12, or P010 for 10-bit (pickPixelFormat)
         frames->width = ctx->width;
         frames->height = ctx->height;
         frames->initial_pool_size = kVaapiPoolSize;
