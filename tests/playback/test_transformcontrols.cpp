@@ -15,6 +15,7 @@
 #include "ui/common/StandardActions.h"
 #include "ui/viewer/TransformGesture.h"
 #include "ui/viewer/TransformOverlay.h"
+#include "ui/viewer/ViewerOverlaySettings.h"
 #include "ui/viewer/ViewerPanel.h"
 
 #include <QAction>
@@ -325,6 +326,12 @@ private slots:
             return lines;
         };
         // Picture x 80 .. 240: moved 78 its right edge is 2 px short of the frame edge.
+        auto setSnap = [](bool on) {
+            ViewerOverlayOptions o = ViewerOverlaySettings::instance().options();
+            o.snapToGuides = on;
+            ViewerOverlaySettings::instance().setOptions(o);
+        };
+        setSnap(true);
         const int steps = undo->index();
         auto lines = dragBy(78);
         QVERIFY2(std::abs(f.clip().transform.value(keys::PosX, 0) - 80.0) < 1e-6, qPrintable(QString::number(f.clip().transform.value(keys::PosX, 0), 'g', 12)));
@@ -336,11 +343,11 @@ private slots:
         QVERIFY2(std::abs(f.clip().transform.value(keys::PosX, 0) - 78) < 1e-6, qPrintable(QString::number(f.clip().transform.value(keys::PosX, 0), 'g', 12)));
         QVERIFY(lines.empty());
         undo->undo();
-        f.action("view.guides_snap")->setChecked(false);
+        setSnap(false);
         dragBy(78);
         QVERIFY2(std::abs(f.clip().transform.value(keys::PosX, 0) - 78) < 1e-6, qPrintable(QString::number(f.clip().transform.value(keys::PosX, 0), 'g', 12)));
         undo->undo();
-        f.action("view.guides_snap")->setChecked(true);
+        setSnap(true);
         lines = dragBy(3.0); // back onto the centre line
         QVERIFY2(std::abs(f.clip().transform.value(keys::PosX, 0)) < 1e-6, qPrintable(QString::number(f.clip().transform.value(keys::PosX, 0), 'g', 12)));
         QCOMPARE(lines, (std::vector<double> {160}));
