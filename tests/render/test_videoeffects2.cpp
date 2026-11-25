@@ -339,6 +339,18 @@ private slots:
         wide.apply(w);
         QVERIFY(std::abs(w[0] - 0.5f) < 1e-5f);
 
+        // Tab-separated keywords, as DJI's exported .cube files write them.
+        CubeLut tabbed;
+        QVERIFY2(
+            tabbed.parse("# DaVinci Resolve Cube (3D LUT).\nLUT_3D_SIZE\t2\n0 0 0\n1 1 1\n", &why),
+            qPrintable(why));
+        QVERIFY(tabbed.is3d());
+        QCOMPARE(tabbed.size(), 2);
+        CubeLut tabbedDomain;
+        QVERIFY2(tabbedDomain.parse(
+                     "DOMAIN_MIN\t0 0 0\nDOMAIN_MAX\t2 2 2\nLUT_1D_SIZE\t2\n0 0 0\n1 1 1\n", &why),
+            qPrintable(why));
+
         // Errors.
         QVERIFY(!CubeLut().parse("0 0 0\n", &why)); // rows before the size
         QVERIFY(!CubeLut().parse("LUT_3D_SIZE 2\n0 0 0\n", &why)); // too few rows

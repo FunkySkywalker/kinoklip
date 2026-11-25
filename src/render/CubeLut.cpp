@@ -80,7 +80,13 @@ bool CubeLut::parse(const QByteArray& text, QString* error)
             // A keyword line (only before the data rows).
             if (!m_data.isEmpty())
                 return fail(tr("line %1: keyword after the table rows").arg(lineNumber));
-            const qsizetype space = line.indexOf(' ');
+            // The keyword ends at the first space or tab: DJI's .cube files (and many
+            // generators) write "LUT_3D_SIZE\t33", and treating the whole line as the keyword
+            // would drop the size and fail on the first table row.
+            qsizetype space = line.indexOf(' ');
+            const qsizetype tab = line.indexOf('\t');
+            if (tab >= 0 && (space < 0 || tab < space))
+                space = tab;
             const QByteArray key = space < 0 ? line : line.left(space);
             const QByteArray rest = space < 0 ? QByteArray() : line.mid(space + 1).trimmed();
             if (key == "TITLE") {
