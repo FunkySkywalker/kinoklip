@@ -147,8 +147,8 @@ Params (Resolve units -100..100, divided by 100 in the maths): Color Boost (vibr
   one step: apply a still, copy a grade), `setTimelineGrade()`; read with `clipGrade()` /
   `timelineGrade()`. They follow the beginEdit / endEdit / snapshot protocol: inside an open
   edit (a wheel drag) every call joins that one step; an unchanged grade makes no step.
-- Split / trim shift grade keys like every clip key; a through edit joins only when both
-  halves carry the same grade.
+- Split / trim shift grade keys like every clip key; a through edit joins even when the
+  grades differ: the left clip's grade is kept.
 - Keyframes: KeyframeOps paths `grade/<node id>/<key>` and `gradewin/<window id>/<key>`; the
   keyframe editors list a "Color 01" group per keyed node.
 - **Gallery** (`core/GradeGallery.h`, `Project::gallery()`): stills = a small JPEG picture and

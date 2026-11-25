@@ -47,6 +47,12 @@ The tools on the left of the timeline tool bar (see the picture above):
   selection tool.
 - **Split Clip at Playhead** (5, **Ctrl+\\**): cuts the clips under the playhead in two (only the
   selected ones, if you selected any). Also in the **Timeline** menu.
+- **Join Clips** (**Alt+\\**): click the cut (the edit point) or select the clips on both sides, then
+  choose **Timeline > Join Clips** to make them one clip again. The two clips must be the same
+  media, touch, and continue each other. Their effects, color grade and keyframes may differ: the
+  joined clip keeps the left clip's effects and grade, keeps its keyframes and adds the right clip's
+  keyframes after them. Linked picture and sound join together in one undo step. If nothing can be
+  joined, the status bar says why.
 
 With the selection tool, dragging the left or right edge of a clip makes it shorter or longer and
 leaves a gap. **Shift+[** and **Shift+]** trim the start or the end of the clip under the playhead

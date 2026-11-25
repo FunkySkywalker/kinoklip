@@ -57,7 +57,12 @@ void mergeKeys(ParamSet& dst, const ParamSet& src, int64_t offset)
     for (auto it = src.values.cbegin(); it != src.values.cend(); ++it) {
         if (!it.value().isAnimated())
             continue;
-        AnimatedValue& target = dst.animated(it.key(), it.value().base);
+        // A parameter static on the left keeps its value there: it is held up to the join.
+        const double leftValue = dst.value(it.key(), 0);
+        const bool wasAnimated = dst.values.contains(it.key()) && dst.values[it.key()].isAnimated();
+        AnimatedValue& target = dst.animated(it.key(), leftValue);
+        if (!wasAnimated && offset > 0)
+            target.setKey(offset - 1, leftValue);
         for (const Keyframe& k : it.value().keys) {
             if (k.frame >= 0 && !target.hasKeyAt(k.frame + offset)) {
                 Keyframe moved = k; // handles and hold travel with the key
@@ -66,17 +71,6 @@ void mergeKeys(ParamSet& dst, const ParamSet& src, int64_t offset)
             }
         }
     }
-}
-
-bool sameEffectChain(const ClipData& a, const ClipData& b)
-{
-    if (a.effects.size() != b.effects.size())
-        return false;
-    for (qsizetype i = 0; i < a.effects.size(); ++i) {
-        if (a.effects[i].type != b.effects[i].type || a.effects[i].enabled != b.effects[i].enabled)
-            return false;
-    }
-    return true;
 }
 
 } // namespace
@@ -300,40 +294,37 @@ int64_t deleteGaps(TimelineData& data, const TrackFilter& filter)
 
 // ---- Joining, swapping, shuffling ----
 
-bool canJoin(const TimelineData& data, quint64 leftClipId, quint64 rightClipId)
+JoinRefusal joinRefusal(const TimelineData& data, quint64 leftClipId, quint64 rightClipId)
 {
     const auto left = findClip(data, leftClipId);
     const auto right = findClip(data, rightClipId);
     if (!left || !right || !(left->track == right->track)
         || right->clipIndex != left->clipIndex + 1)
-        return false;
+        return JoinRefusal::NotNeighbours;
     const TrackData& track = *data.track(left->track);
     if (track.locked)
-        return false;
+        return JoinRefusal::Locked;
     const ClipData& a = track.clips[size_t(left->clipIndex)];
     const ClipData& b = track.clips[size_t(right->clipIndex)];
-    if (a.end() != b.start || a.kind != b.kind || a.mediaId != b.mediaId || a.speed != b.speed
-        || a.enabled != b.enabled || a.transitionOut || b.transitionIn || !sameEffectChain(a, b)
+    if (a.end() != b.start)
+        return JoinRefusal::NotNeighbours;
+    if (a.transitionOut || b.transitionIn)
+        return JoinRefusal::Transition;
+    if (a.kind != b.kind || a.mediaId != b.mediaId || a.speed != b.speed || a.enabled != b.enabled
         || a.retimeProcess != b.retimeProcess || a.pitchCorrection != b.pitchCorrection)
-        return false;
+        return JoinRefusal::SourceDiffers;
     // Retime curves: the right clip's must be the left one's continued (a split shifts it).
     {
         ParamSet shifted = a.retime;
         shifted.shiftKeys(-a.duration);
         if (shifted != b.retime)
-            return false;
+            return JoinRefusal::SourceDiffers;
     }
-    // Grades likewise (a split keeps the grade on both halves, keys shifted).
-    {
-        ClipGrade shifted = a.grade;
-        shifted.shiftKeys(-a.duration);
-        if (shifted != b.grade)
-            return false;
-    }
+    // Effects, grade and keyframes may differ: the joined clip keeps the left clip's (Resolve).
     switch (a.kind) {
     case ClipKind::Nested:
         if (a.nestedUid != b.nestedUid)
-            return false;
+            return JoinRefusal::SourceDiffers;
         [[fallthrough]];
     case ClipKind::Media: {
         // The right clip must continue the source where the left one ends (half a frame of
@@ -341,31 +332,39 @@ bool canJoin(const TimelineData& data, quint64 leftClipId, quint64 rightClipId)
         const int64_t expected = a.sourceTimeUsAt(a.end(), data.fps);
         const double tolerance = std::max(1.0,
             retime::frameUs(data.fps) * std::abs(retime::speedAt(a, double(a.duration))) / 2.0);
-        return std::abs(double(b.sourceInUs - expected)) <= tolerance;
+        return std::abs(double(b.sourceInUs - expected)) <= tolerance ? JoinRefusal::None
+                                                                      : JoinRefusal::SourceDiffers;
     }
     case ClipKind::Title: {
         if (a.title.statics != b.title.statics || a.titleBase != b.titleBase
             || a.titleLayers.size() != b.titleLayers.size())
-            return false;
+            return JoinRefusal::SourceDiffers;
         for (qsizetype i = 0; i < a.titleLayers.size(); ++i) {
             const TitleLayer& x = a.titleLayers[i];
             const TitleLayer& y = b.titleLayers[i];
             if (x.id != y.id || x.kind != y.kind || x.visible != y.visible || x.name != y.name
                 || x.params.statics != y.params.statics)
-                return false;
+                return JoinRefusal::SourceDiffers;
         }
-        return true;
+        return JoinRefusal::None;
     }
     case ClipKind::Subtitle:
-        return a.title.statics == b.title.statics;
+        return a.title.statics == b.title.statics ? JoinRefusal::None : JoinRefusal::SourceDiffers;
     case ClipKind::Generator:
-        return a.generator == b.generator && a.title == b.title;
+        return a.generator == b.generator && a.title == b.title ? JoinRefusal::None
+                                                                : JoinRefusal::SourceDiffers;
     case ClipKind::Adjustment:
-        return a.effects.size() == b.effects.size();
+        return JoinRefusal::None;
     case ClipKind::Solid:
-        return a.solidColor == b.solidColor;
+        return a.solidColor == b.solidColor ? JoinRefusal::None : JoinRefusal::SourceDiffers;
     }
-    return false;
+    return JoinRefusal::SourceDiffers;
+}
+
+
+bool canJoin(const TimelineData& data, quint64 leftClipId, quint64 rightClipId)
+{
+    return joinRefusal(data, leftClipId, rightClipId) == JoinRefusal::None;
 }
 
 bool joinClips(TimelineData& data, quint64 leftClipId, quint64 rightClipId)
@@ -380,10 +379,13 @@ bool joinClips(TimelineData& data, quint64 leftClipId, quint64 rightClipId)
     mergeKeys(a.transform, b.transform, a.duration);
     mergeKeys(a.audio, b.audio, a.duration);
     mergeKeys(a.title, b.title, a.duration);
-    for (qsizetype i = 0; i < a.titleLayers.size(); ++i)
+    for (qsizetype i = 0; i < a.titleLayers.size() && i < b.titleLayers.size(); ++i)
         mergeKeys(a.titleLayers[i].params, b.titleLayers[i].params, a.duration);
-    for (qsizetype e = 0; e < a.effects.size(); ++e)
-        mergeKeys(a.effects[e].params, b.effects[e].params, a.duration);
+    // Effects: only where the right clip has the same effect at the same place in the chain.
+    for (qsizetype e = 0; e < a.effects.size() && e < b.effects.size(); ++e) {
+        if (a.effects[e].type == b.effects[e].type)
+            mergeKeys(a.effects[e].params, b.effects[e].params, a.duration);
+    }
     a.transitionOut = b.transitionOut;
     a.fadeOutFrames = b.fadeOutFrames;
     a.fadeOutCurve = b.fadeOutCurve;

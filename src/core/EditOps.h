@@ -335,8 +335,15 @@ int64_t deleteGaps(TimelineData& data, const TrackFilter& filter = {});
 /// edit: same media / kind, same speed, the right clip continues the source exactly where the
 /// left one ends, and no transition sits on the cut.
 [[nodiscard]] bool canJoin(const TimelineData& data, quint64 leftClipId, quint64 rightClipId);
-/// Join: merges a through edit (canJoin()) into the left clip; the right clip's keyframes and
-/// tail transition move over. Returns whether the clips were joined.
+/// Why two clips cannot be joined (None = they can).
+enum class JoinRefusal { None, NotNeighbours, Locked, Transition, SourceDiffers };
+[[nodiscard]] JoinRefusal joinRefusal(const TimelineData& data, quint64 leftClipId, quint64 rightClipId);
+/// Join: merges a through edit (canJoin()) into the left clip. The joined clip keeps the left
+/// clip's effect chain, static values and grade (Resolve). Keyframes: the left clip's keys stay;
+/// the right clip's keys, shifted by the left duration, are added for every parameter the left
+/// clip has (effects only where the right clip has the same effect type at the same chain
+/// position) unless the left clip already has a key on that frame. The right clip's tail
+/// transition moves over. Returns whether the clips were joined.
 bool joinClips(TimelineData& data, quint64 leftClipId, quint64 rightClipId);
 
 /// Swap (spec 21.6): exchanges clip @p clipId with its previous (@p direction < 0) or next

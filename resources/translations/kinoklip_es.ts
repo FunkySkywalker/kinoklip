@@ -33770,8 +33770,28 @@ Reiniciar Kinoklip para aplicarlos.</translation>
         <translation>Vincular clips</translation>
     </message>
     <message>
+        <source>Join Clips: select an edit point or two touching clips</source>
+        <translation>Unir clips: seleccione un punto de edición o dos clips contiguos</translation>
+    </message>
+    <message>
         <source>Join Clips</source>
         <translation>Unir clips</translation>
+    </message>
+    <message>
+        <source>Join Clips: the track is locked</source>
+        <translation>Unir clips: la pista está bloqueada</translation>
+    </message>
+    <message>
+        <source>Join Clips: a transition is between the clips</source>
+        <translation>Unir clips: hay una transición entre los clips</translation>
+    </message>
+    <message>
+        <source>Join Clips: the clips do not touch</source>
+        <translation>Unir clips: los clips no son contiguos</translation>
+    </message>
+    <message>
+        <source>Join Clips: the clips don&apos;t continue the same source</source>
+        <translation>Unir clips: los clips no continúan la misma fuente</translation>
     </message>
     <message>
         <source>Swap Clips</source>

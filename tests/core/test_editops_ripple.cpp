@@ -231,6 +231,45 @@ private slots:
         QVERIFY(!ops::joinClips(d, a, b));
     }
 
+    // Join keeps the left clip's attributes (Resolve): differing keys, effects and grade join.
+    void joinDifferingAttributes()
+    {
+        TimelineData d = timeline();
+        const quint64 a = ops::overwriteClip(d, kV1, mediaClip(0, 40, 0, 100));
+        const QVector<quint64> right = ops::splitClips(d, {a}, 20);
+        QCOMPARE(right.size(), 1);
+        // Keys only on the left half.
+        ops::clipById(d, a)->transform.animated(keys::Opacity, 1.0).setKey(5, 0.5);
+        // Keys on the right half, plus an effect only the right half has.
+        ops::clipById(d, right[0])->transform.animated(keys::Opacity, 1.0).setKey(3, 0.25);
+        EffectInstance fx;
+        fx.id = d.allocateId();
+        fx.type = QStringLiteral("blur");
+        ops::clipById(d, right[0])->effects.append(fx);
+        ops::clipById(d, right[0])->grade.nodes.clear();
+        QCOMPARE(ops::joinRefusal(d, a, right[0]), ops::JoinRefusal::None);
+        QVERIFY(ops::joinClips(d, a, right[0]));
+        const ClipData& j = *ops::clipById(d, a);
+        QCOMPARE(layout(d, kV1), QStringLiteral("0:40"));
+        QVERIFY(j.effects.isEmpty()); // the left chain wins
+        const AnimatedValue& op = j.transform.values.value(keys::Opacity);
+        QVERIFY(op.hasKeyAt(5));
+        QVERIFY(op.hasKeyAt(23)); // the right key, shifted by the left duration
+        KK_VERIFY_INVARIANTS(d);
+    }
+
+    void joinRefusals()
+    {
+        TimelineData d = timeline();
+        const quint64 a = ops::overwriteClip(d, kV1, mediaClip(0, 20, 0, 100));
+        const quint64 b = ops::overwriteClip(d, kV1, mediaClip(20, 20, 70, 100));
+        QCOMPARE(ops::joinRefusal(d, a, b), ops::JoinRefusal::SourceDiffers);
+        d.videoTracks[0].locked = true;
+        QCOMPARE(ops::joinRefusal(d, a, b), ops::JoinRefusal::Locked);
+        d.videoTracks[0].locked = false;
+        QCOMPARE(ops::joinRefusal(d, b, a), ops::JoinRefusal::NotNeighbours);
+    }
+
     // ---- swap / shuffle (21.6) ----
     void swapWithNeighbourKeepsGap()
     {

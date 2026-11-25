@@ -33770,8 +33770,28 @@ Kinoklip neu starten, um sie anzuwenden.</translation>
         <translation>Clips verknüpfen</translation>
     </message>
     <message>
+        <source>Join Clips: select an edit point or two touching clips</source>
+        <translation>Clips verbinden: Schnittpunkt oder zwei aneinandergrenzende Clips auswählen</translation>
+    </message>
+    <message>
         <source>Join Clips</source>
         <translation>Clips verbinden</translation>
+    </message>
+    <message>
+        <source>Join Clips: the track is locked</source>
+        <translation>Clips verbinden: Die Spur ist gesperrt</translation>
+    </message>
+    <message>
+        <source>Join Clips: a transition is between the clips</source>
+        <translation>Clips verbinden: Zwischen den Clips liegt ein Übergang</translation>
+    </message>
+    <message>
+        <source>Join Clips: the clips do not touch</source>
+        <translation>Clips verbinden: Die Clips grenzen nicht aneinander</translation>
+    </message>
+    <message>
+        <source>Join Clips: the clips don&apos;t continue the same source</source>
+        <translation>Clips verbinden: Die Clips setzen nicht dieselbe Quelle fort</translation>
     </message>
     <message>
         <source>Swap Clips</source>

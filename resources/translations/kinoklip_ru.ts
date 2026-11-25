@@ -33792,8 +33792,28 @@ Restart Kinoklip to apply them.</source>
         <translation>Связать клипы</translation>
     </message>
     <message>
+        <source>Join Clips: select an edit point or two touching clips</source>
+        <translation>Склеить клипы: выберите точку монтажа или два соседних клипа</translation>
+    </message>
+    <message>
         <source>Join Clips</source>
         <translation>Объединить клипы</translation>
+    </message>
+    <message>
+        <source>Join Clips: the track is locked</source>
+        <translation>Склеить клипы: дорожка заблокирована</translation>
+    </message>
+    <message>
+        <source>Join Clips: a transition is between the clips</source>
+        <translation>Склеить клипы: между клипами есть переход</translation>
+    </message>
+    <message>
+        <source>Join Clips: the clips do not touch</source>
+        <translation>Склеить клипы: клипы не соприкасаются</translation>
+    </message>
+    <message>
+        <source>Join Clips: the clips don&apos;t continue the same source</source>
+        <translation>Склеить клипы: клипы не продолжают один и тот же исходник</translation>
     </message>
     <message>
         <source>Swap Clips</source>

@@ -359,30 +359,38 @@ void TimelineController::selectNearestClipOrGap()
 
 void TimelineController::joinSelection()
 {
-    // Pairs (left, right) to join.
+    // Pairs (left, right) to join: the selected edit point and the selected touching clips,
+    // each with the linked parts cut at the same frame.
     QVector<std::pair<quint64, quint64>> pairs;
     const TimelineData& d = timeline()->data();
-    if (m_selectedEdit.tailClip && m_selectedEdit.headClip) {
-        pairs.append({m_selectedEdit.tailClip, m_selectedEdit.headClip});
-        if (m_linked) {
-            // Linked parts cut at the same frame join along.
-            for (quint64 l : ops::linkedClips(d, m_selectedEdit.tailClip)) {
-                const quint64 r = neighbourOf(d, l, +1);
-                if (l != m_selectedEdit.tailClip && r
-                    && ops::linkedClips(d, m_selectedEdit.headClip).contains(r))
-                    pairs.append({l, r});
-            }
+    const auto addPair = [&](quint64 left, quint64 right) {
+        const auto add = [&pairs](quint64 l, quint64 r) {
+            const std::pair<quint64, quint64> p {l, r};
+            if (!pairs.contains(p))
+                pairs.append(p);
+        };
+        add(left, right);
+        if (!m_linked)
+            return;
+        const QVector<quint64> rightLinks = ops::linkedClips(d, right);
+        for (quint64 l : ops::linkedClips(d, left)) {
+            const quint64 r = neighbourOf(d, l, +1);
+            if (l != left && r && rightLinks.contains(r))
+                add(l, r);
         }
-    } else {
-        const QVector<quint64> ids = effectiveSelection();
-        for (quint64 id : ids) {
-            const quint64 r = neighbourOf(d, id, +1);
-            if (r && ids.contains(r))
-                pairs.append({id, r});
-        }
+    };
+    if (m_selectedEdit.tailClip && m_selectedEdit.headClip)
+        addPair(m_selectedEdit.tailClip, m_selectedEdit.headClip);
+    const QVector<quint64> ids = effectiveSelection();
+    for (quint64 id : ids) {
+        const quint64 r = neighbourOf(d, id, +1);
+        if (r && ids.contains(r))
+            addPair(id, r);
     }
-    if (pairs.isEmpty())
+    if (pairs.isEmpty()) {
+        emit editRefused(tr("Join Clips: select an edit point or two touching clips"));
         return;
+    }
     // Right to left, so a chain a|b|c joins into a: joining (b, c) first keeps the pair
     // (a, b) valid.
     std::sort(pairs.begin(), pairs.end(), [&d](const auto& x, const auto& y) {
@@ -394,8 +402,27 @@ void TimelineController::joinSelection()
             any |= ops::joinClips(data, left, right);
         return any;
     });
-    if (changed)
+    if (changed) {
         setSelectedEdit({});
+        return;
+    }
+    // Nothing joined: say why (the first pair's reason).
+    QString reason;
+    switch (ops::joinRefusal(timeline()->data(), pairs.first().first, pairs.first().second)) {
+    case ops::JoinRefusal::Locked:
+        reason = tr("Join Clips: the track is locked");
+        break;
+    case ops::JoinRefusal::Transition:
+        reason = tr("Join Clips: a transition is between the clips");
+        break;
+    case ops::JoinRefusal::NotNeighbours:
+        reason = tr("Join Clips: the clips do not touch");
+        break;
+    default:
+        reason = tr("Join Clips: the clips don't continue the same source");
+        break;
+    }
+    emit editRefused(reason);
 }
 
 void TimelineController::swapSelection(int direction)

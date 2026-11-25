@@ -175,6 +175,34 @@ private slots:
         QVERIFY(b.steps >= 25);
     }
 
+    // Owner report: a bladed clip with keys on the left half, linked audio: Join Clips works
+    // on the selected halves and the edit, as one undo step.
+    void joinLinkedHalvesWithDifferentKeys()
+    {
+        Bench b;
+        ClipData keyed = mediaClip(0, 60, 10);
+        keyed.transform.animated(keys::Opacity, 1.0).setKey(5, 0.5); // the left half keeps it
+        const quint64 v = b.put(kV1, keyed);
+        const quint64 a = b.put(kA1, mediaClip(0, 60, 10));
+        b.link({v, a});
+        b.f.project.undoStack()->clear();
+        b.tl()->setPlayhead(25);
+        b.step("blade", [&] { b.action("edit.split")->trigger(); });
+        const TimelineData& d = b.f.view();
+        QCOMPARE(d.videoTracks[0].clips.size(), size_t(2));
+        const quint64 v2 = d.videoTracks[0].clips[1].id;
+        const quint64 a2 = d.audioTracks[0].clips[1].id;
+        b.f.selection.setClips({v, a, v2, a2});
+        const int undoBefore = b.undoCount();
+        b.c.joinSelection();
+        QCOMPARE(d.videoTracks[0].clips.size(), size_t(1));
+        QCOMPARE(d.audioTracks[0].clips.size(), size_t(1));
+        QCOMPARE(b.undoCount(), undoBefore + 1);
+        b.f.project.undoStack()->undo();
+        QCOMPARE(d.videoTracks[0].clips.size(), size_t(2));
+        QCOMPARE(d.audioTracks[0].clips.size(), size_t(2));
+    }
+
     void mouseWorkflows()
     {
         Bench b;

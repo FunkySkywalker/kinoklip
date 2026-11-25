@@ -4293,7 +4293,7 @@ The program was probably closed by the system because the computer ran out of me
     </message>
     <message>
         <source>select at least two clips that are not linked to each other (the reference and the clips to line up with it)</source>
-        <translation>виберіть щонайменше два кліпи, не пов'язані між собою (опорний і кліпи, які треба вирівняти за ним)</translation>
+        <translation>виберіть щонайменше два кліпи, не пов&apos;язані між собою (опорний і кліпи, які треба вирівняти за ним)</translation>
     </message>
     <message>
         <source>select the clips to align</source>
@@ -33792,8 +33792,28 @@ Restart Kinoklip to apply them.</source>
         <translation>Зв’язати кліпи</translation>
     </message>
     <message>
+        <source>Join Clips: select an edit point or two touching clips</source>
+        <translation>Склеїти кліпи: виберіть точку монтажу або два сусідні кліпи</translation>
+    </message>
+    <message>
         <source>Join Clips</source>
         <translation>З’єднати кліпи</translation>
+    </message>
+    <message>
+        <source>Join Clips: the track is locked</source>
+        <translation>Склеїти кліпи: доріжку заблоковано</translation>
+    </message>
+    <message>
+        <source>Join Clips: a transition is between the clips</source>
+        <translation>Склеїти кліпи: між кліпами є перехід</translation>
+    </message>
+    <message>
+        <source>Join Clips: the clips do not touch</source>
+        <translation>Склеїти кліпи: кліпи не торкаються</translation>
+    </message>
+    <message>
+        <source>Join Clips: the clips don&apos;t continue the same source</source>
+        <translation>Склеїти кліпи: кліпи не продовжують те саме джерело</translation>
     </message>
     <message>
         <source>Swap Clips</source>
@@ -36934,7 +36954,7 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
     </message>
     <message>
         <source>select at least two clips that are not linked to each other (the reference and the clips to line up with it)</source>
-        <translation>виберіть щонайменше два кліпи, не пов'язані між собою (опорний і кліпи, які треба вирівняти за ним)</translation>
+        <translation>виберіть щонайменше два кліпи, не пов&apos;язані між собою (опорний і кліпи, які треба вирівняти за ним)</translation>
     </message>
     <message>
         <source>no start timecode in the file</source>

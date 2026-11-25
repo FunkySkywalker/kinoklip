@@ -954,11 +954,12 @@ private slots:
         QCOMPARE(v.keys.first().frame, int64_t(-20));
         QCOMPARE(
             t.clips[0].grade.node(first)->params.values[gk::GainR].keys.first().frame, int64_t(0));
-        // Both halves keep the same grade, so they can be joined again.
+        // Both halves can be joined again.
         QVERIFY(editops::canJoin(d, t.clips[0].id, t.clips[1].id));
         TimelineData other = d;
         other.track(kV1)->clips[1].grade.nodes[0].params.setBase(gk::Hue, 10.0);
-        QVERIFY(!editops::canJoin(other, t.clips[0].id, t.clips[1].id));
+        // A different grade no longer blocks the join: the left clip's grade is kept.
+        QVERIFY(editops::canJoin(other, t.clips[0].id, t.clips[1].id));
     }
 
     // ---- Blur palette ----
