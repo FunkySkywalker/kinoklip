@@ -17838,6 +17838,10 @@ Danke fürs Zuschauen</translation>
         <translation>Plugins</translation>
     </message>
     <message>
+        <source>OpenFX</source>
+        <translation>OpenFX</translation>
+    </message>
+    <message>
         <source>Dissolve</source>
         <translation>Überblendung</translation>
     </message>
@@ -28491,6 +28495,38 @@ Auto: Voll, wechselt nur zu Halb, solange die Wiedergabe nicht mithält (pausier
         <translation>Skripte sind Programme (Python 3), die auf diesem Computer mit Ihren Rechten laufen, wenn Sie sie unter Arbeitsbereich &gt; Skripte auswählen. Aktivieren Sie nur Plugins, denen Sie vertrauen.</translation>
     </message>
     <message>
+        <source>Found in</source>
+        <translation>Gefunden in</translation>
+    </message>
+    <message>
+        <source>Source:</source>
+        <translation>Quelle:</translation>
+    </message>
+    <message>
+        <source>This is a bad plugin: Kinoklip does not load it.</source>
+        <translation>Dies ist ein fehlerhaftes Plugin: Kinoklip lädt es nicht.</translation>
+    </message>
+    <message>
+        <source>Press Retry to try it again, for example after updating the plugin.</source>
+        <translation>Klicken Sie auf Wiederholen, um es erneut zu versuchen, zum Beispiel nach einer Aktualisierung des Plugins.</translation>
+    </message>
+    <message>
+        <source>in the Effects library, folder OpenFX</source>
+        <translation>in der Effektbibliothek, Ordner OpenFX</translation>
+    </message>
+    <message>
+        <source>not used: </source>
+        <translation>nicht verwendet: </translation>
+    </message>
+    <message>
+        <source>last problem: </source>
+        <translation>letztes Problem: </translation>
+    </message>
+    <message>
+        <source>Plugins in this bundle</source>
+        <translation>Plugins in diesem Bundle</translation>
+    </message>
+    <message>
         <source>Check</source>
         <translation>Prüfen</translation>
     </message>
@@ -28501,6 +28537,10 @@ Auto: Voll, wechselt nur zu Halb, solange die Wiedergabe nicht mithält (pausier
     <message>
         <source>Plugins add effects, transitions, presets and scripts. They show up in the Effects library and in Workspace &gt; Scripts like the built-in ones. Install a .kkplugin file or a plugin folder; you can also drop a .kkplugin file onto the window.</source>
         <translation>Plugins fügen Effekte, Übergänge, Vorgaben und Skripte hinzu. Sie erscheinen wie die eingebauten in der Effektbibliothek und unter Arbeitsbereich &gt; Skripte. Installieren Sie eine .kkplugin-Datei oder einen Plugin-Ordner; eine .kkplugin-Datei lässt sich auch auf das Fenster ziehen.</translation>
+    </message>
+    <message>
+        <source>Use OpenFX plugins (effects of other programs, such as the free openfx-misc pack)</source>
+        <translation>OpenFX-Plugins verwenden (Effekte anderer Programme, etwa das freie Paket openfx-misc)</translation>
     </message>
     <message>
         <source>Install…</source>
@@ -28539,6 +28579,30 @@ Auto: Voll, wechselt nur zu Halb, solange die Wiedergabe nicht mithält (pausier
         <translation>Plugin-Ordner öffnen</translation>
     </message>
     <message>
+        <source>Retry</source>
+        <translation>Wiederholen</translation>
+    </message>
+    <message>
+        <source>Try the selected OpenFX bad plugin again</source>
+        <translation>Das ausgewählte fehlerhafte OpenFX-Plugin erneut versuchen</translation>
+    </message>
+    <message>
+        <source>Open OpenFX Folder</source>
+        <translation>OpenFX-Ordner öffnen</translation>
+    </message>
+    <message>
+        <source>The folder for OpenFX bundles (*.ofx.bundle)</source>
+        <translation>Der Ordner für OpenFX-Bundles (*.ofx.bundle)</translation>
+    </message>
+    <message>
+        <source>Get Free Plugin Packs</source>
+        <translation>Freie Plugin-Pakete holen</translation>
+    </message>
+    <message>
+        <source>Which free OpenFX packs work with Kinoklip and how to install them</source>
+        <translation>Welche freien OpenFX-Pakete mit Kinoklip funktionieren und wie man sie installiert</translation>
+    </message>
+    <message>
         <source>Install Plugin</source>
         <translation>Plugin installieren</translation>
     </message>
@@ -28565,6 +28629,18 @@ Auto: Voll, wechselt nur zu Halb, solange die Wiedergabe nicht mithält (pausier
     <message>
         <source>  (problem)</source>
         <translation>  (Problem)</translation>
+    </message>
+    <message>
+        <source>  (OpenFX)</source>
+        <translation>  (OpenFX)</translation>
+    </message>
+    <message>
+        <source>  (bad plugin)</source>
+        <translation>  (fehlerhaftes Plugin)</translation>
+    </message>
+    <message>
+        <source>  %1 effects</source>
+        <translation>  %1 Effekte</translation>
     </message>
     <message>
         <source>No plugins installed.</source>

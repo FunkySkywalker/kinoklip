@@ -112,6 +112,11 @@ jobs:
           key: ccache-x86_64-${{ github.sha }}
           restore-keys: ccache-x86_64-
 
+      - name: Build openfx-misc (bundled in the AppImage, and the pack test of test_ofx)
+        run: |
+          scripts/build_openfx_misc.sh "$GITHUB_WORKSPACE/ofx-misc" "$KK_JOBS"
+          echo "KK_OFX_MISC_DIR=$GITHUB_WORKSPACE/ofx-misc" >> "$GITHUB_ENV"
+
       - name: Build and package
         run: |
           ccache -z

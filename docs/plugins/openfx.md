@@ -17,11 +17,17 @@ An OpenFX plugin is a folder ending in `.ofx.bundle` with a binary at
 | `/usr/OFX/Plugins` | the standard system folder (what a distribution package of a pack uses) |
 | `~/.OFX/Plugins` | another common per-user folder |
 | every folder in the environment variable `OFX_PLUGIN_PATH` (separated by `:`) | anything else |
-| `share/kinoklip/ofx` next to the program | bundles shipped with Kinoklip (none yet) |
+| `share/kinoklip/ofx` next to the program | bundles shipped with Kinoklip: the dev AppImage carries openfx-misc (built by `scripts/build_openfx_misc.sh`); other builds none |
 
 Copy the bundle folder into one of them and press **Reload** in Preferences > Plugins. Distributions
 package some packs; on Arch Linux and Debian-based systems look for `openfx-misc`. Kinoklip has no
 download button for packs and never downloads plugins on its own.
+
+**Flatpak**: the sandbox does not see `/usr/OFX/Plugins` of your system. Copy the bundle into
+`~/.var/app/org.kinoklip.Kinoklip/data/Kinoklip/ofx` instead. A plugin that needs libraries the
+Flatpak runtime does not have will not load (it goes on the bad-plugin list with the reason).
+**AppImage**: it carries its own system libraries; a plugin built against a newer system may not
+load there. Both cases show up as a bad plugin, never as a crash.
 
 Folders one level down are scanned too, so a pack unpacked into a folder of its own works.
 
@@ -29,7 +35,7 @@ Folders one level down are scanned too, so a pack unpacked into a folder of its 
 
 | Pack | Licence | Status in Kinoklip |
 |---|---|---|
-| [openfx-misc](https://github.com/NatronGitHub/openfx-misc) (about 100 filters, keyers, transforms, colour tools) | GPL-2.0-or-later | the first target; see "Tested" below for what was checked |
+| [openfx-misc](https://github.com/NatronGitHub/openfx-misc) (filters, keyers, transforms, colour tools) | GPL-2.0-or-later (the OpenFX headers inside it are BSD-3-Clause) | works. Checked 2026-11-25 with the build of commit a047cbd (Misc.ofx.bundle, CImg and Shadertoy parts not built): 185 plugin entries in the bundle, 113 effects offered (the rest are older versions of the same plugins, generators, transitions, several-input merges, retimers and plugins that need parametric parameters), 112 of them render with their default values (the keyer PIK needs its optional inputs), Multiply and Saturation give the expected pixels. Size: 31 MB binary (4.6 MB compressed) and 1.3 MB of icons |
 | [openfx-gmic](https://github.com/NatronGitHub/openfx-gmic) (G'MIC filters, 1200 plugins in one bundle) | dual: CeCILL-C or CeCILL v2.0 (the CeCILL v2.0 option is GPL-compatible); some community filters inside carry other licences | loads like any bundle; a Filter-context plugin works. Not tested here (its build takes G'MIC's source and a long compile) |
 | openfx-arena (text, particles, ...) | GPL-2.0-or-later | not tested; plugins that need more than one input or the OpenGL suite do not run |
 | Natron's other free packs, commercial plugins you own | their own | any plugin that follows the rules below can work; Kinoklip does not check licences of what you install |
@@ -114,4 +120,6 @@ The host is `src/ofx/OfxHost.*` (OpenFX 1.4 / 1.5 headers, `third_party/openfx`,
 `tests/ofx/kk_test_ofx.cpp` is a complete small plugin (gain, invert, choice, point, colour, integer,
 text) written against the C API only, a good starting point to test a plugin against Kinoklip.
 Messages a plugin posts through the OpenFX message suite go to the Kinoklip log (category
-`kk.ofx`; `QT_LOGGING_RULES="kk.ofx*=true"`).
+`kk.ofx`; `QT_LOGGING_RULES="kk.ofx*=true"`). With `KK_OFX_TRACE=1` the host also prints every
+property a plugin asked for and did not get, every suite it did not find and every action that
+failed (run `kinoklip-ofx-probe <bundle> out.json` to see what the scan sees).

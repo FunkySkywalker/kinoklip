@@ -176,7 +176,7 @@ private slots:
             keys << p.key;
         QCOMPARE(keys,
             (QStringList {QStringLiteral("gain"), QStringLiteral("invert"), QStringLiteral("mode"),
-                QStringLiteral("offset.x"), QStringLiteral("offset.y"), QStringLiteral("tint"),
+                QStringLiteral("offset_x"), QStringLiteral("offset_y"), QStringLiteral("tint"),
                 QStringLiteral("steps"), QStringLiteral("note")}));
         const ParamDescriptor* gain = d->param(QStringLiteral("gain"));
         QCOMPARE(gain->type, ParamType::Double);
@@ -482,6 +482,131 @@ private slots:
         QVERIFY(!reg.plugin(kGain));
         reg.setEnabled(true);
         QVERIFY(!EffectRegistry::instance().find(kGain)->unavailable);
+    }
+
+    // ---- a real pack (skipped when openfx-misc is not built: scripts/build_openfx_misc.sh) ----
+
+    static QString miscDir()
+    {
+        QStringList candidates;
+        if (qEnvironmentVariableIsSet("KK_OFX_MISC_DIR"))
+            candidates << qEnvironmentVariable("KK_OFX_MISC_DIR");
+        candidates << QStringLiteral("/usr/OFX/Plugins") << QStringLiteral("/usr/local/OFX/Plugins");
+        for (const QString& c : candidates) {
+            if (QFileInfo(c + QStringLiteral("/Misc.ofx.bundle")).isDir())
+                return c;
+        }
+        return {};
+    }
+
+    static QStringList miscEffects()
+    {
+        QStringList ids;
+        for (const OfxPluginEntry& p : OfxRegistry::instance().allPlugins()) {
+            if (OfxRegistry::instance().plugin(p.fullId) && !ids.contains(p.fullId))
+                ids << p.fullId;
+        }
+        return ids;
+    }
+
+    void openfxMiscIsDescribedAndItsEffectsAreListed()
+    {
+        const QString dir = miscDir();
+        if (dir.isEmpty())
+            QSKIP("openfx-misc is not built here (scripts/build_openfx_misc.sh, KK_OFX_MISC_DIR)");
+        OfxRegistry& reg = OfxRegistry::instance();
+        reg.setSearchDirs({dir});
+        reg.setCacheFile(m_dir.filePath(QStringLiteral("cache-misc.json")));
+        QFile::remove(m_dir.filePath(QStringLiteral("cache-misc.json")));
+        reg.setProbeTimeoutMs(120000);
+        reg.reload();
+        const OfxBundleEntry* misc
+            = reg.bundle(QFileInfo(dir + QStringLiteral("/Misc.ofx.bundle")).absoluteFilePath());
+        QVERIFY(misc);
+        QVERIFY2(!misc->bad, qPrintable(misc->reason));
+        const QStringList effects = miscEffects();
+        qInfo("openfx-misc: %d plugins in the bundle, %d effects offered",
+            int(misc->info.plugins.size()), int(effects.size()));
+        QVERIFY2(effects.size() >= 100, qPrintable(QString::number(effects.size())));
+        for (const char* id : {"GradePlugin", "GammaPlugin", "Invert", "MultiplyPlugin",
+                 "SaturationPlugin", "TransformPlugin", "Threshold"})
+            QVERIFY2(effects.contains(QStringLiteral("ofx:net.sf.openfx.") + QLatin1String(id)), id);
+    }
+
+    void openfxMiscEffectsRenderThroughTheHost()
+    {
+        if (miscDir().isEmpty())
+            QSKIP("openfx-misc is not built here");
+        OfxRegistry& reg = OfxRegistry::instance();
+        const auto multiply = reg.plugin(QStringLiteral("ofx:net.sf.openfx.MultiplyPlugin"));
+        QVERIFY(multiply);
+        QString error;
+        auto inst = ofx::Instance::create(multiply->bundleInfo(), multiply->info.index, &error);
+        QVERIFY2(inst, qPrintable(error));
+        ofx::ParamValue half;
+        half.v = {0.5, 0.5, 0.5, 1.0};
+        QVERIFY(inst->setValue(QStringLiteral("value"), half));
+        Picture src(32, 16);
+        std::vector<float> dst(src.px.size(), -1.f);
+        QCOMPARE(inst->render(argsFor(src), src.px.data(), dst.data(), &error),
+            ofx::RenderResult::Rendered);
+        QVERIFY2(error.isEmpty(), qPrintable(error));
+        for (size_t i = 0; i < dst.size(); i += 4) {
+            QVERIFY2(std::abs(dst[i] - 0.1f) < 1e-4f, qPrintable(QString::number(dst[i])));
+            QVERIFY(std::abs(dst[i + 1] - 0.2f) < 1e-4f);
+            QVERIFY(std::abs(dst[i + 2] - 0.3f) < 1e-4f);
+            QVERIFY(std::abs(dst[i + 3] - 1.0f) < 1e-4f);
+        }
+        // Saturation 0 makes the colour grey
+        const auto sat = reg.plugin(QStringLiteral("ofx:net.sf.openfx.SaturationPlugin"));
+        QVERIFY(sat);
+        auto satInst = ofx::Instance::create(sat->bundleInfo(), sat->info.index, &error);
+        QVERIFY2(satInst, qPrintable(error));
+        QVERIFY(satInst->setValue(QStringLiteral("saturation"), number(0.0)));
+        QCOMPARE(satInst->render(argsFor(src), src.px.data(), dst.data(), &error),
+            ofx::RenderResult::Rendered);
+        QVERIFY(std::abs(dst[0] - dst[1]) < 1e-4f && std::abs(dst[1] - dst[2]) < 1e-4f);
+        // At half render scale the plugin gets the scale and still fills the picture.
+        QVERIFY(satInst->setValue(QStringLiteral("saturation"), number(0.5)));
+        Picture small(16, 8);
+        std::vector<float> out(small.px.size(), -1.f);
+        QCOMPARE(satInst->render(argsFor(small, 0, 0.5), small.px.data(), out.data(), &error),
+            ofx::RenderResult::Rendered);
+        QVERIFY(out[0] >= 0.f);
+    }
+
+    void everyOpenfxMiscEffectRendersOnceWithItsDefaults()
+    {
+        if (miscDir().isEmpty())
+            QSKIP("openfx-misc is not built here");
+        OfxRegistry& reg = OfxRegistry::instance();
+        Picture src(40, 24);
+        for (size_t y = 0; y < size_t(src.h); ++y)
+            for (size_t x = 0; x < size_t(src.w); ++x)
+                src.px[(y * size_t(src.w) + x) * 4] = float(x) / float(src.w);
+        QStringList failures;
+        int rendered = 0;
+        for (const QString& id : miscEffects()) {
+            const auto p = reg.plugin(id);
+            QString error;
+            auto inst = ofx::Instance::create(p->bundleInfo(), p->info.index, &error);
+            if (!inst) {
+                failures << id + QStringLiteral(": ") + error;
+                continue;
+            }
+            std::vector<float> dst(src.px.size(), 0.f);
+            const ofx::RenderResult r = inst->render(argsFor(src, 3), src.px.data(), dst.data(), &error);
+            if (r == ofx::RenderResult::Failed)
+                failures << id + QStringLiteral(": ") + error;
+            else
+                ++rendered;
+        }
+        qInfo("openfx-misc: %d effects rendered with their defaults, %d did not", rendered,
+            int(failures.size()));
+        if (!failures.isEmpty())
+            qInfo("did not render: %s", qPrintable(failures.join(QStringLiteral("; "))));
+        // A few effects need what this host does not give (a second input, a region larger than the clip).
+        QVERIFY2(failures.size() <= rendered / 10, qPrintable(failures.join(QLatin1Char('\n'))));
     }
 
     void theRenderCacheKeyChangesWithThePlugins()

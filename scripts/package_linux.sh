@@ -419,6 +419,19 @@ rm -rf "$APPDIR/usr/share/kinoklip/plugin-examples"
 cp -r "$ROOT/plugins/examples" "$APPDIR/usr/share/kinoklip/plugin-examples"
 install -D -m 644 "$ROOT/docs/plugins/plugin.schema.json" "$APPDIR/usr/share/kinoklip/plugin.schema.json"
 
+# OpenFX pack (opt-in, spec 158): KK_OFX_MISC_DIR holds Misc.ofx.bundle as made by
+# scripts/build_openfx_misc.sh (openfx-misc, GPL-2.0-or-later, about 6 MB more in the AppImage).
+# It goes to the folder bundled OpenFX plugins load from (src/plugins/OfxRegistry.cpp).
+if [ -n "${KK_OFX_MISC_DIR:-}" ] && [ -d "$KK_OFX_MISC_DIR/Misc.ofx.bundle" ]; then
+    log "bundling openfx-misc from $KK_OFX_MISC_DIR"
+    mkdir -p "$APPDIR/usr/share/kinoklip/ofx"
+    rm -rf "$APPDIR/usr/share/kinoklip/ofx/Misc.ofx.bundle"
+    cp -r "$KK_OFX_MISC_DIR/Misc.ofx.bundle" "$APPDIR/usr/share/kinoklip/ofx/"
+    find "$APPDIR/usr/share/kinoklip/ofx" -name '*.ofx' -exec strip --strip-unneeded {} +
+    install -D -m 644 "$KK_OFX_MISC_DIR/Misc.ofx.bundle/Contents/Resources/LICENSE-openfx-misc.txt" \
+        "$APPDIR/usr/share/doc/kinoklip/licenses/openfx-misc-LICENSE.txt"
+fi
+
 # RUNPATHs. They make the bundle work without LD_LIBRARY_PATH for everything except Qt
 # (which the launcher selects per mode). Never include usr/lib/qt in the binary's RUNPATH,
 # or host-Qt mode could not use the system Qt.

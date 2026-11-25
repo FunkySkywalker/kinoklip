@@ -236,7 +236,13 @@ void OfxRegistry::mapParams(
         OfxParamMap map;
         map.info = p;
         const auto base = [&](ParamDescriptor* d, const QString& key, const QString& label) {
+            // keys are plain words: a '.' would read as "node.parameter" in the Compositing
+            // page's expressions
             d->key = key;
+            for (QChar& c : d->key) {
+                if (!c.isLetterOrNumber() && c != QLatin1Char('_'))
+                    c = QLatin1Char('_');
+            }
             d->label = label;
             d->tooltip = p.hint;
             d->hidden = p.secret;
@@ -250,7 +256,7 @@ void OfxRegistry::mapParams(
             for (int k = 0; k < p.dims; ++k) {
                 ParamDescriptor d;
                 const QString suffix = p.dims == 1 ? QString()
-                                                   : QLatin1Char('.') + QLatin1String(k == 0 ? "x" : k == 1 ? "y" : "z");
+                                                   : QLatin1Char('_') + QLatin1String(k == 0 ? "x" : k == 1 ? "y" : "z");
                 const QString dimLabel = k < p.dimLabels.size() && !p.dimLabels[k].isEmpty()
                     ? p.dimLabels[k]
                     : (p.dims == 1 ? QString() : QString(QLatin1Char("XYZ"[k])));
@@ -477,6 +483,8 @@ void OfxRegistry::loadCache()
 
 void OfxRegistry::saveCache() const
 {
+    if (m_bundles.isEmpty() && !QFileInfo::exists(cacheFilePath()))
+        return; // nothing found, nothing to remember (and no cache folder made for it)
     QJsonArray arr;
     for (const OfxBundleEntry& b : m_bundles) {
         QJsonObject o;
@@ -657,7 +665,19 @@ void OfxRegistry::registerAll()
     for (const OfxBundleEntry& b : std::as_const(m_bundles)) {
         if (b.bad)
             continue;
-        for (const ofx::PluginInfo& info : b.info.plugins) {
+        // A bundle may carry several versions of one plugin (Natron's packs keep old ones for old
+        // projects): the highest version is the one offered.
+        QHash<QString, int> best;
+        for (int k = 0; k < b.info.plugins.size(); ++k) {
+            const ofx::PluginInfo& p = b.info.plugins[k];
+            const auto it = best.constFind(p.identifier);
+            if (it == best.constEnd()
+                || std::pair(p.major, p.minor)
+                    > std::pair(b.info.plugins[*it].major, b.info.plugins[*it].minor))
+                best.insert(p.identifier, k);
+        }
+        for (int pk = 0; pk < b.info.plugins.size(); ++pk) {
+            const ofx::PluginInfo& info = b.info.plugins[pk];
             OfxPluginEntry entry;
             entry.fullId = QString::fromLatin1(kOfxIdPrefix) + info.identifier;
             entry.info = info;
@@ -665,6 +685,11 @@ void OfxRegistry::registerAll()
             entry.binary = b.binary;
             entry.source = b.source;
             const ofx::ContextInfo* ctx = info.usableContext();
+            if (best.value(info.identifier) != pk) {
+                entry.info.error = QStringLiteral("a newer version of this plugin is offered");
+                all.append(entry);
+                continue;
+            }
             if (!info.error.isEmpty() || !ctx) {
                 all.append(entry);
                 continue;

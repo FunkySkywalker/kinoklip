@@ -261,6 +261,13 @@ const OfxMessageSuiteV2 kMessageSuite = {sMessage, sSetPersistentMessage, sClear
 
 // ---- property suite ----
 
+/// KK_OFX_TRACE=1 prints what a plugin asked for and did not get (for plugin authors and bug reports).
+bool traceOn()
+{
+    static const bool on = qEnvironmentVariableIsSet("KK_OFX_TRACE");
+    return on;
+}
+
 OfxStatus propSet(OfxPropertySetHandle h, const char* name, Prop::Type t, int index,
     const std::function<void(OfxPropertySetStruct&)>& set)
 {
@@ -269,8 +276,11 @@ OfxStatus propSet(OfxPropertySetHandle h, const char* name, Prop::Type t, int in
     if (index < 0)
         return kOfxStatErrBadIndex;
     const Prop* p = h->find(name);
-    if (p && p->type != Prop::None && p->type != t)
+    if (p && p->type != Prop::None && p->type != t) {
+        if (traceOn())
+            std::fprintf(stderr, "ofx: property %s set with the wrong type\n", name);
         return kOfxStatErrValue;
+    }
     set(*h);
     return kOfxStatOK;
 }
@@ -320,7 +330,17 @@ OfxStatus pSetIntN(OfxPropertySetHandle h, const char* n, int c, const int* v)
     return kOfxStatOK;
 }
 
+const Prop* getPropQuiet(OfxPropertySetHandle h, const char* n, int i, Prop::Type t, OfxStatus* st);
+
 const Prop* getProp(OfxPropertySetHandle h, const char* n, int i, Prop::Type t, OfxStatus* st)
+{
+    const Prop* p = getPropQuiet(h, n, i, t, st);
+    if (!p && traceOn())
+        std::fprintf(stderr, "ofx: property %s[%d] not given (status %d)\n", n ? n : "?", i, int(*st));
+    return p;
+}
+
+const Prop* getPropQuiet(OfxPropertySetHandle h, const char* n, int i, Prop::Type t, OfxStatus* st)
 {
     if (!h || !n) {
         *st = kOfxStatErrBadHandle;
@@ -415,9 +435,9 @@ OfxStatus pGetDimension(OfxPropertySetHandle h, const char* n, int* count)
     if (!h || !n)
         return kOfxStatErrBadHandle;
     const Prop* p = h->find(n);
-    if (!p)
-        return kOfxStatErrUnknown;
-    *count = p->size();
+    // A property that has no value yet has dimension 0 (plugins ask before they set, e.g. the
+    // supported contexts of their own descriptor).
+    *count = p ? p->size() : 0;
     return kOfxStatOK;
 }
 
@@ -608,6 +628,7 @@ std::mutex g_pluginLockMutex;
 std::map<std::string, std::unique_ptr<std::mutex>> g_pluginLocks; ///< for Unsafe plugins
 
 const void* fetchSuite(OfxPropertySetHandle, const char* name, int version);
+const void* fetchSuiteImpl(const char* name, int version);
 
 void initHost()
 {
@@ -654,15 +675,18 @@ void initHost()
     });
 }
 
-OfxStatus callPlugin(OfxPlugin* p, const char* action, const void* handle,
-    OfxPropertySetHandle in = nullptr, OfxPropertySetHandle out = nullptr)
-{
-    return p->mainEntry(action, handle, in, out);
-}
-
 bool failed(OfxStatus st)
 {
     return st != kOfxStatOK && st != kOfxStatReplyDefault;
+}
+
+OfxStatus callPlugin(OfxPlugin* p, const char* action, const void* handle,
+    OfxPropertySetHandle in = nullptr, OfxPropertySetHandle out = nullptr)
+{
+    const OfxStatus st = p->mainEntry(action, handle, in, out);
+    if (traceOn() && failed(st))
+        std::fprintf(stderr, "ofx: %s of %s returned status %d\n", action, p->pluginIdentifier, int(st));
+    return st;
 }
 
 // ---- parameters ----
@@ -710,6 +734,7 @@ OfxParamStruct* newParam(OfxParamSetStruct* set, const std::string& type, const 
     pr.setI(kOfxParamPropPersistant, 1);
     pr.setI(kOfxParamPropIsAnimating, 0);
     pr.setI(kOfxParamPropIsAutoKeying, 0);
+    pr.setS(kOfxParamPropDefaultCoordinateSystem, kOfxParamCoordinatesCanonical);
     pr.setS(kOfxParamPropHint, "");
     pr.setS(kOfxParamPropScriptName, name);
     pr.setS(kOfxParamPropParent, "");
@@ -814,7 +839,8 @@ Described* describe(Binary& bin, int idx)
     info.minor = int(plugin->pluginVersionMinor);
     info.label = info.identifier;
     if (!bin.loadedOk[size_t(idx)]) {
-        info.error = QStringLiteral("the plugin's load action failed");
+        info.error = QStringLiteral(
+            "the plugin refused to load (it needs a host feature Kinoklip does not have, such as random access to other frames)");
         bin.described[size_t(idx)] = std::move(d);
         return bin.described[size_t(idx)].get();
     }
@@ -836,7 +862,9 @@ Described* describe(Binary& bin, int idx)
 
     OfxStatus st = callPlugin(plugin, kOfxActionDescribe, &desc);
     if (failed(st)) {
-        info.error = QStringLiteral("the describe action failed (status %1)").arg(st);
+        info.error = st == kOfxStatErrMissingHostFeature
+            ? QStringLiteral("it needs a host feature Kinoklip does not have")
+            : QStringLiteral("the describe action failed (status %1)").arg(st);
         bin.described[size_t(idx)] = std::move(d);
         return bin.described[size_t(idx)].get();
     }
@@ -877,7 +905,9 @@ Described* describe(Binary& bin, int idx)
         in.setS(kOfxImageEffectPropContext, ss(ctxId));
         st = callPlugin(plugin, kOfxImageEffectActionDescribeInContext, ctxEffect.get(), &in);
         if (failed(st)) {
-            ci.whyNot = QStringLiteral("describeInContext failed (status %1)").arg(st);
+            ci.whyNot = st == kOfxStatErrUnsupported || st == kOfxStatErrMissingHostFeature
+                ? QStringLiteral("it needs a host feature Kinoklip does not have (such as parametric parameters)")
+                : QStringLiteral("describeInContext failed (status %1)").arg(st);
             info.contexts.append(ci);
             d->contextIndex.push_back(-1);
             continue;
@@ -1397,6 +1427,14 @@ const OfxImageEffectSuiteV1 kImageEffectSuite = {ieGetProps, ieGetParamSet, ieCl
 
 
 const void* fetchSuite(OfxPropertySetHandle, const char* name, int version)
+{
+    const void* found = fetchSuiteImpl(name, version);
+    if (!found && traceOn())
+        std::fprintf(stderr, "ofx: suite %s v%d not provided\n", name ? name : "?", version);
+    return found;
+}
+
+const void* fetchSuiteImpl(const char* name, int version)
 {
     const std::string n = name ? name : "";
     if (n == kOfxPropertySuite && version == 1)

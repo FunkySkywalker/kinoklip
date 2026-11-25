@@ -17851,6 +17851,10 @@ Thank you for watching</source>
         <translation>Плагіни</translation>
     </message>
     <message>
+        <source>OpenFX</source>
+        <translation>OpenFX</translation>
+    </message>
+    <message>
         <source>Dissolve</source>
         <translation>Розчинення</translation>
     </message>
@@ -28512,6 +28516,38 @@ Auto: Full, switching to Half only while playback cannot keep up (paused: Full).
         <translation>Скрипти — це програми (Python 3), що запускаються на цьому комп&apos;ютері з вашими правами, коли ви вибираєте їх у меню «Робоча область &gt; Скрипти». Вмикайте лише плагіни, яким довіряєте.</translation>
     </message>
     <message>
+        <source>Found in</source>
+        <translation>Знайдено в</translation>
+    </message>
+    <message>
+        <source>Source:</source>
+        <translation>Джерело:</translation>
+    </message>
+    <message>
+        <source>This is a bad plugin: Kinoklip does not load it.</source>
+        <translation>Це несправний плагін: Kinoklip його не завантажує.</translation>
+    </message>
+    <message>
+        <source>Press Retry to try it again, for example after updating the plugin.</source>
+        <translation>Натисніть «Повторити», щоб спробувати знову, наприклад після оновлення плагіна.</translation>
+    </message>
+    <message>
+        <source>in the Effects library, folder OpenFX</source>
+        <translation>у бібліотеці ефектів, тека OpenFX</translation>
+    </message>
+    <message>
+        <source>not used: </source>
+        <translation>не використовується: </translation>
+    </message>
+    <message>
+        <source>last problem: </source>
+        <translation>остання проблема: </translation>
+    </message>
+    <message>
+        <source>Plugins in this bundle</source>
+        <translation>Плагіни в цьому бандлі</translation>
+    </message>
+    <message>
         <source>Check</source>
         <translation>Перевірити</translation>
     </message>
@@ -28522,6 +28558,10 @@ Auto: Full, switching to Half only while playback cannot keep up (paused: Full).
     <message>
         <source>Plugins add effects, transitions, presets and scripts. They show up in the Effects library and in Workspace &gt; Scripts like the built-in ones. Install a .kkplugin file or a plugin folder; you can also drop a .kkplugin file onto the window.</source>
         <translation>Плагіни додають ефекти, переходи, пресети та скрипти. Вони з&apos;являються в бібліотеці ефектів і в меню «Робоча область &gt; Скрипти», як і вбудовані. Встановіть файл .kkplugin або теку плагіна; файл .kkplugin можна також перетягнути на вікно.</translation>
+    </message>
+    <message>
+        <source>Use OpenFX plugins (effects of other programs, such as the free openfx-misc pack)</source>
+        <translation>Використовувати плагіни OpenFX (ефекти з інших програм, наприклад вільний пакет openfx-misc)</translation>
     </message>
     <message>
         <source>Install…</source>
@@ -28560,6 +28600,30 @@ Auto: Full, switching to Half only while playback cannot keep up (paused: Full).
         <translation>Відкрити теку плагінів</translation>
     </message>
     <message>
+        <source>Retry</source>
+        <translation>Повторити</translation>
+    </message>
+    <message>
+        <source>Try the selected OpenFX bad plugin again</source>
+        <translation>Спробувати ще раз вибраний несправний плагін OpenFX</translation>
+    </message>
+    <message>
+        <source>Open OpenFX Folder</source>
+        <translation>Відкрити теку OpenFX</translation>
+    </message>
+    <message>
+        <source>The folder for OpenFX bundles (*.ofx.bundle)</source>
+        <translation>Тека для бандлів OpenFX (*.ofx.bundle)</translation>
+    </message>
+    <message>
+        <source>Get Free Plugin Packs</source>
+        <translation>Отримати вільні пакети плагінів</translation>
+    </message>
+    <message>
+        <source>Which free OpenFX packs work with Kinoklip and how to install them</source>
+        <translation>Які вільні пакети OpenFX працюють із Kinoklip і як їх установити</translation>
+    </message>
+    <message>
         <source>Install Plugin</source>
         <translation>Встановлення плагіна</translation>
     </message>
@@ -28586,6 +28650,18 @@ Auto: Full, switching to Half only while playback cannot keep up (paused: Full).
     <message>
         <source>  (problem)</source>
         <translation>  (проблема)</translation>
+    </message>
+    <message>
+        <source>  (OpenFX)</source>
+        <translation>  (OpenFX)</translation>
+    </message>
+    <message>
+        <source>  (bad plugin)</source>
+        <translation>  (несправний плагін)</translation>
+    </message>
+    <message>
+        <source>  %1 effects</source>
+        <translation>  %1 ефектів</translation>
     </message>
     <message>
         <source>No plugins installed.</source>

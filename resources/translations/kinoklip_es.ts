@@ -17838,6 +17838,10 @@ Gracias por ver</translation>
         <translation>Complementos</translation>
     </message>
     <message>
+        <source>OpenFX</source>
+        <translation>OpenFX</translation>
+    </message>
+    <message>
         <source>Dissolve</source>
         <translation>Disolución</translation>
     </message>
@@ -28491,6 +28495,38 @@ Automática: Completa, pasando a Mitad solo mientras la reproducción no pueda s
         <translation>Los scripts son programas (Python 3) que se ejecutan en este equipo con sus permisos cuando los elige en Espacio de trabajo &gt; Scripts. Active solo complementos de confianza.</translation>
     </message>
     <message>
+        <source>Found in</source>
+        <translation>Encontrado en</translation>
+    </message>
+    <message>
+        <source>Source:</source>
+        <translation>Origen:</translation>
+    </message>
+    <message>
+        <source>This is a bad plugin: Kinoklip does not load it.</source>
+        <translation>Este es un plugin defectuoso: Kinoklip no lo carga.</translation>
+    </message>
+    <message>
+        <source>Press Retry to try it again, for example after updating the plugin.</source>
+        <translation>Pulse Reintentar para probar de nuevo, por ejemplo después de actualizar el plugin.</translation>
+    </message>
+    <message>
+        <source>in the Effects library, folder OpenFX</source>
+        <translation>en la biblioteca de efectos, carpeta OpenFX</translation>
+    </message>
+    <message>
+        <source>not used: </source>
+        <translation>no se usa: </translation>
+    </message>
+    <message>
+        <source>last problem: </source>
+        <translation>último problema: </translation>
+    </message>
+    <message>
+        <source>Plugins in this bundle</source>
+        <translation>Plugins de este paquete</translation>
+    </message>
+    <message>
         <source>Check</source>
         <translation>Comprobar</translation>
     </message>
@@ -28501,6 +28537,10 @@ Automática: Completa, pasando a Mitad solo mientras la reproducción no pueda s
     <message>
         <source>Plugins add effects, transitions, presets and scripts. They show up in the Effects library and in Workspace &gt; Scripts like the built-in ones. Install a .kkplugin file or a plugin folder; you can also drop a .kkplugin file onto the window.</source>
         <translation>Los complementos añaden efectos, transiciones, preajustes y scripts. Aparecen en la biblioteca de efectos y en Espacio de trabajo &gt; Scripts como los integrados. Instale un archivo .kkplugin o una carpeta de complemento; también puede arrastrar un archivo .kkplugin a la ventana.</translation>
+    </message>
+    <message>
+        <source>Use OpenFX plugins (effects of other programs, such as the free openfx-misc pack)</source>
+        <translation>Usar plugins OpenFX (efectos de otros programas, como el paquete libre openfx-misc)</translation>
     </message>
     <message>
         <source>Install…</source>
@@ -28539,6 +28579,30 @@ Automática: Completa, pasando a Mitad solo mientras la reproducción no pueda s
         <translation>Abrir carpeta de complementos</translation>
     </message>
     <message>
+        <source>Retry</source>
+        <translation>Reintentar</translation>
+    </message>
+    <message>
+        <source>Try the selected OpenFX bad plugin again</source>
+        <translation>Probar de nuevo el plugin OpenFX defectuoso seleccionado</translation>
+    </message>
+    <message>
+        <source>Open OpenFX Folder</source>
+        <translation>Abrir carpeta de OpenFX</translation>
+    </message>
+    <message>
+        <source>The folder for OpenFX bundles (*.ofx.bundle)</source>
+        <translation>La carpeta de los paquetes OpenFX (*.ofx.bundle)</translation>
+    </message>
+    <message>
+        <source>Get Free Plugin Packs</source>
+        <translation>Obtener paquetes de plugins libres</translation>
+    </message>
+    <message>
+        <source>Which free OpenFX packs work with Kinoklip and how to install them</source>
+        <translation>Qué paquetes OpenFX libres funcionan con Kinoklip y cómo instalarlos</translation>
+    </message>
+    <message>
         <source>Install Plugin</source>
         <translation>Instalar complemento</translation>
     </message>
@@ -28565,6 +28629,18 @@ Automática: Completa, pasando a Mitad solo mientras la reproducción no pueda s
     <message>
         <source>  (problem)</source>
         <translation>  (problema)</translation>
+    </message>
+    <message>
+        <source>  (OpenFX)</source>
+        <translation>  (OpenFX)</translation>
+    </message>
+    <message>
+        <source>  (bad plugin)</source>
+        <translation>  (plugin defectuoso)</translation>
+    </message>
+    <message>
+        <source>  %1 effects</source>
+        <translation>  %1 efectos</translation>
     </message>
     <message>
         <source>No plugins installed.</source>
