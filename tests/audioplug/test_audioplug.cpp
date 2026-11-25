@@ -5,7 +5,11 @@
 // parameters become Kinoklip parameters, they filter sound like the reference calculation also with
 // a changing parameter, report their latency, are skipped (bypass) when missing, and a crashing
 // plugin goes on the bad-plugin list. With the LSP plugins installed a real plugin runs too.
+#include "../render/RenderTestUtil.h"
 #include "audioplug/AudioPluginHost.h"
+#include "core/AudioEffectKeys.h"
+#include "core/MixerOps.h"
+#include "render/AudioMixer.h"
 #include "core/EffectRegistry.h"
 #include "core/Serialization.h"
 #include "core/TimelineData.h"
@@ -98,6 +102,51 @@ double maxDiff(const Signal& a, const Signal& b)
     return d;
 }
 
+
+// ---- through the mixer (playback blocks, render, clip and track effects, automation) ----
+
+constexpr int kMixRate = 48000;
+const QString kMixMedia = QStringLiteral("apfx");
+
+bool writeWav(const QString& path, int seconds)
+{
+    const quint32 frames = quint32(kMixRate * seconds);
+    QByteArray bytes;
+    auto u32 = [&](quint32 v) {
+        for (int i = 0; i < 4; ++i)
+            bytes.append(char((v >> (8 * i)) & 0xff));
+    };
+    auto u16 = [&](quint16 v) {
+        bytes.append(char(v & 0xff));
+        bytes.append(char(v >> 8));
+    };
+    bytes.append("RIFF");
+    u32(36 + frames * 2);
+    bytes.append("WAVEfmt ");
+    u32(16);
+    u16(1);
+    u16(1);
+    u32(kMixRate);
+    u32(kMixRate * 2);
+    u16(2);
+    u16(16);
+    bytes.append("data");
+    u32(frames * 2);
+    for (quint32 n = 0; n < frames; ++n)
+        u16(quint16(qint16(std::lround(0.25 * std::sin(2.0 * M_PI * 440.0 * double(n) / kMixRate) * 32767.0))));
+    QFile f(path);
+    return f.open(QIODevice::WriteOnly) && f.write(bytes) == bytes.size();
+}
+
+double rmsDb(const std::vector<float>& out, double fromS, double toS)
+{
+    double sum = 0.0;
+    const int from = int(fromS * kMixRate), to = int(toS * kMixRate);
+    for (int i = from; i < to; ++i)
+        sum += double(out[size_t(2 * i)]) * double(out[size_t(2 * i)]);
+    return 10.0 * std::log10(sum / (to - from) + 1e-20);
+}
+
 } // namespace
 
 // counts the allocations of C++ code while a test asks for it (the real-time check)
@@ -142,6 +191,28 @@ class TestAudioPlug : public QObject
     }
 
     static bool haveLv2() { return KK_AUDIOPLUG_HAVE_LV2 != 0; }
+
+    TimelineData mixTimeline(const QVector<EffectInstance>& trackFx, const QVector<EffectInstance>& clipFx = {})
+    {
+        TimelineData tl = kk::test::emptyTimeline();
+        ClipData c = kk::test::mediaClip(tl, kMixMedia, 0, 100, 0, 4'000'000);
+        c.effects = clipFx;
+        kk::test::addClip(tl, TrackType::Audio, 0, c);
+        tl.audioTracks[0].mix.effects = trackFx;
+        return tl;
+    }
+
+    std::vector<float> renderMix(const TimelineData& tl, int frames, int block)
+    {
+        AudioMixer mixer;
+        auto map = std::make_shared<MediaPathMap>();
+        map->insert(kMixMedia, m_dir.filePath(QStringLiteral("mix.wav")));
+        mixer.setMediaPaths(map);
+        std::vector<float> out(size_t(2) * frames);
+        for (int pos = 0; pos < frames; pos += block)
+            mixer.mix(tl, pos, std::min(block, frames - pos), out.data() + size_t(2) * pos);
+        return out;
+    }
 
 private slots:
     void initTestCase()
@@ -530,6 +601,74 @@ private slots:
             chain.process(effects, in.data(), 1024);
         gCounting = false;
         QCOMPARE(size_t(gAllocations), size_t(0));
+    }
+
+
+    // ---- through the mixer ----
+
+    void aPluginIsATrackAndAClipEffectLikeABuiltIn_data() { discoveryListsThePluginsAsAudioEffects_data(); }
+    void aPluginIsATrackAndAClipEffectLikeABuiltIn()
+    {
+        QFETCH(QString, format);
+        const Keys k = keysOf(format);
+        QVERIFY(writeWav(m_dir.filePath(QStringLiteral("mix.wav")), 4));
+        const EffectInstance builtin = EffectRegistry::instance().createEffect(QLatin1String(afxid::Gain), 5);
+        EffectInstance ref = builtin;
+        ref.params.setBase(QLatin1String(afxkeys::GainDb), -6.0206);
+        const EffectInstance plugin = make(k.type, -6.0206, false, k.gain, k.invert);
+        const auto plain = renderMix(mixTimeline({}), 96000, 96000);
+        const auto expected = renderMix(mixTimeline({ref}), 96000, 96000);
+        QVERIFY(maxDiff(plain, expected) > 0.05); // the reference does something
+        // as a track effect: a render, then playback blocks
+        const auto whole = renderMix(mixTimeline({plugin}), 96000, 96000);
+        QVERIFY2(maxDiff(whole, expected) < 2e-4, qPrintable(QString::number(maxDiff(whole, expected))));
+        for (const int block : {512, 997, 4801})
+            QVERIFY2(maxDiff(renderMix(mixTimeline({plugin}), 96000, block), whole) < 1e-4, qPrintable(QString::number(block)));
+        // as a clip effect
+        const auto clipFx = renderMix(mixTimeline({}, {plugin}), 96000, 997);
+        QVERIFY2(maxDiff(clipFx, expected) < 2e-4, qPrintable(QString::number(maxDiff(clipFx, expected))));
+        // bypassed: the original sound
+        EffectInstance off = plugin;
+        off.enabled = false;
+        QCOMPARE(renderMix(mixTimeline({off}), 96000, 997), plain);
+    }
+
+    void theMixerCompensatesThePluginsLatency_data() { discoveryListsThePluginsAsAudioEffects_data(); }
+    void theMixerCompensatesThePluginsLatency()
+    {
+        QFETCH(QString, format);
+        const Keys k = keysOf(format);
+        QVERIFY(writeWav(m_dir.filePath(QStringLiteral("mix.wav")), 4));
+        const EffectInstance delay = make(k.delay, 0.0, false, k.gain, k.invert); // delays 32 frames, reports 32
+        const auto plain = renderMix(mixTimeline({}), 48000, 48000);
+        for (const int block : {48000, 997}) {
+            const auto out = renderMix(mixTimeline({delay}), 48000, block);
+            QVERIFY2(maxDiff(out, plain) < 1e-4, qPrintable(QString::number(maxDiff(out, plain))));
+        }
+    }
+
+    void trackAutomationOfAPluginParameterWorks_data() { discoveryListsThePluginsAsAudioEffects_data(); }
+    void trackAutomationOfAPluginParameterWorks()
+    {
+        QFETCH(QString, format);
+        const Keys k = keysOf(format);
+        QVERIFY(writeWav(m_dir.filePath(QStringLiteral("mix.wav")), 4));
+        TimelineData tl = mixTimeline({});
+        const quint64 track = tl.audioTracks[0].id;
+        const quint64 fx = mixerops::addTrackEffect(tl, track, k.type);
+        QVERIFY(fx != 0);
+        const QString key = mixerops::effectKey(fx, k.gain);
+        bool offered = false; // the automation lane offers the plugin's parameter
+        for (const auto& p : mixerops::automationParams(tl, tl.audioTracks[0]))
+            offered |= p.key == key;
+        QVERIFY(offered);
+        QVERIFY(mixerops::addAutomationPoint(tl, track, key, 0, 0.0));
+        QVERIFY(mixerops::addAutomationPoint(tl, track, key, 50, -12.0));
+        const auto whole = renderMix(tl, 192000, 192000);
+        const double early = rmsDb(whole, 0.0, 0.1), late = rmsDb(whole, 3.0, 3.8);
+        QVERIFY2(std::abs((late - early) + 12.0) < 1.0, qPrintable(QString("%1 %2").arg(early).arg(late)));
+        for (const int block : {512, 4096})
+            QVERIFY2(maxDiff(renderMix(tl, 192000, block), whole) < 1e-5, qPrintable(QString::number(block)));
     }
 
     // ---- real packs (rows only for the bundles that are installed: the LSP plugins, ZAM, x42) ----
