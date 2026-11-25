@@ -250,6 +250,7 @@ void registerKeyframeCommands(CommandRegistry& registry);
 void registerTrackCommands(CommandRegistry& registry);
 void registerSettingsCommands(CommandRegistry& registry);
 void registerLogCommands(CommandRegistry& registry);
+void registerPluginCommands(CommandRegistry& registry);
 
 } // namespace commands
 } // namespace kk

@@ -246,6 +246,7 @@ const CommandRegistry& CommandRegistry::builtin()
         registerTrackCommands(r);
         registerSettingsCommands(r);
         registerLogCommands(r);
+        registerPluginCommands(r);
         return r;
     }();
     return registry;
