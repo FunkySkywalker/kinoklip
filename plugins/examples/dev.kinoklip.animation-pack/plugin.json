@@ -1,0 +1,39 @@
+{
+  "id": "dev.kinoklip.animation-pack",
+  "name": "Animation Pack (example plugin)",
+  "version": "1.0.0",
+  "author": "The Kinoklip contributors",
+  "license": "GPL-3.0-or-later",
+  "description": "A preset pack: animations and effect stacks you apply to selected clips from the Effects library (drag one onto a clip, or double-click it). A template for packs in the style of animation panels.",
+  "api": 1,
+  "presets": [
+    {
+      "id": "fade_in",
+      "name": "Fade In",
+      "description": "Opacity from 0 to 100 % over the first second",
+      "target": "clip",
+      "file": "fade_in.json"
+    },
+    {
+      "id": "fade_out",
+      "name": "Fade Out",
+      "description": "Opacity from 100 to 0 % over the last second",
+      "target": "clip",
+      "file": "fade_out.json"
+    },
+    {
+      "id": "pop_in",
+      "name": "Pop In",
+      "description": "Grows from 80 % to 100 % while it fades in",
+      "target": "clip",
+      "file": "pop_in.json"
+    },
+    {
+      "id": "soft_glow_look",
+      "name": "Soft Glow Look",
+      "description": "A blur and a glow effect on the clip (an effect stack)",
+      "target": "clip",
+      "file": "soft_glow_look.json"
+    }
+  ]
+}

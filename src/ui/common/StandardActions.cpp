@@ -534,6 +534,11 @@ const ActionSpec kActions[] = {
     {"settings", "-"},
     {"settings", ">settings.color_scheme", QT_TRANSLATE_NOOP("kk::StandardActions", "&Color Theme")},
     {"settings", ">settings.style",    QT_TRANSLATE_NOOP("kk::StandardActions", "&Style")},
+    {"settings", "-"},
+    // Plugins (src/plugins, docs/plugins): the manager is a Preferences page; the scripts of the
+    // enabled plugins are listed by app/PluginHost.
+    {"settings", "settings.plugins",   QT_TRANSLATE_NOOP("kk::StandardActions", "&Plugins…")},
+    {"settings", ">settings.scripts",  QT_TRANSLATE_NOOP("kk::StandardActions", "S&cripts")},
 
     // ---- Help ----
     // In-app help (src/ui/help): links to the user guide in docs/guide.

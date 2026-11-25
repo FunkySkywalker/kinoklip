@@ -18,12 +18,14 @@
 #include "core/CompOps.h"
 #include "core/OutputBlanking.h"
 #include "core/Sizing.h"
+#include "plugins/PluginRegistry.h"
 #include "core/NodeRegistry.h"
 #include "core/ParamKeys.h"
 #include "core/Retime.h"
 #include "render/CaptionRenderer.h"
 #include "render/GlApi.h"
 #include "render/GlInfo.h"
+#include "render/GlPluginEffect.h"
 #include "render/RenderLog.h"
 #include "render/TimeEffects.h"
 
@@ -292,9 +294,13 @@ GlEffect* GlRenderer::effectFor(const QString& id)
     if (m_failedEffects.contains(id))
         return nullptr;
     const GlEffectFactory* factory = findGlEffectFactory(id);
-    if (!factory)
+    std::shared_ptr<GlEffect> effect;
+    if (factory)
+        effect = factory->create();
+    else if (isPluginId(id))
+        effect = makePluginEffect(id); // a plugin effect: null when its plugin is off or gone
+    if (!effect)
         return nullptr;
-    std::shared_ptr<GlEffect> effect = factory->create();
     QString log;
     if (!effect->initialize(*m_kit, &log)) {
         m_failedEffects.insert(id);
@@ -304,6 +310,34 @@ GlEffect* GlRenderer::effectFor(const QString& id)
     return m_effects.insert(id, std::move(effect))->get();
 }
 
+void GlRenderer::refreshPlugins()
+{
+    const quint64 generation = plugins::PluginRegistry::instance().generation();
+    if (generation == m_pluginGeneration)
+        return;
+    m_pluginGeneration = generation;
+    for (auto it = m_effects.begin(); it != m_effects.end();) {
+        if (isPluginId(it.key())) {
+            it.value()->destroy(*m_kit);
+            it = m_effects.erase(it);
+        } else {
+            ++it;
+        }
+    }
+    for (auto it = m_transitions.begin(); it != m_transitions.end();) {
+        if (isPluginId(it.key())) {
+            it.value()->destroy(*m_kit);
+            it = m_transitions.erase(it);
+        } else {
+            ++it;
+        }
+    }
+    for (auto* failed : {&m_failedEffects, &m_failedTransitions}) {
+        for (auto it = failed->begin(); it != failed->end();)
+            it = isPluginId(*it) ? failed->erase(it) : std::next(it);
+    }
+}
+
 GlTransition* GlRenderer::transitionFor(const QString& id)
 {
     if (const auto it = m_transitions.constFind(id); it != m_transitions.constEnd())
@@ -311,9 +345,13 @@ GlTransition* GlRenderer::transitionFor(const QString& id)
     if (m_failedTransitions.contains(id))
         return nullptr;
     const GlTransitionFactory* factory = findGlTransitionFactory(id);
-    if (!factory)
+    std::shared_ptr<GlTransition> transition;
+    if (factory)
+        transition = factory->create();
+    else if (isPluginId(id))
+        transition = makePluginTransition(id);
+    if (!transition)
         return nullptr; // not a GPU transition (unknown id): the caller falls back
-    std::shared_ptr<GlTransition> transition = factory->create();
     QString log;
     if (!transition->initialize(*m_kit, &log)) {
         m_failedTransitions.insert(id); // reported once, the fallback draws it from now on
@@ -615,6 +653,7 @@ void GlRenderer::render(RenderJob& job)
         invalid();
         return;
     }
+    refreshPlugins();
     const TimelineData& tl = *rq.timeline;
     const QSize requested = rq.outSize.isEmpty() ? QSize(tl.width, tl.height) : rq.outSize;
     const QSize out = scaledRenderSize(requested, rq.quality);

@@ -1,0 +1,65 @@
+# Kinoklip plugins: instructions for an AI assistant
+
+You write plugins for Kinoklip, a video editor. Full reference: docs/plugins/writing-plugins.md.
+This is the short version. A plugin is a folder with plugin.json and the files it names.
+
+## Work with these commands (CLI `kinoklip plugin <verb>` or MCP tools plugin_<verb>)
+
+1. plugin_create  id=com.example.name name="Name" kind=effect|transition|preset|script
+                  [entry=main|color] [group=color] [param=key:number:min:max:default[:label] ...]
+   -> writes and installs a working plugin, returns the file paths. Edit the shader file.
+   param forms: key:integer:min:max:default  key:boolean:true  key:color:#rrggbb
+                key:choice:a|b|c:default
+2. (edit files)    then plugin_reload
+3. plugin_validate target=<plugin id>   -> valid yes/no, problems with file + line, opengl33 and
+                  opengles30 compile state. Repeat 2-3 until valid.
+4. plugin_render_preview plugin=<id> [item=<item id>] [set=["amount=80"]] [progress=0.5]
+   -> a picture of your effect/transition on a test chart. LOOK at it and compare with the intent.
+5. effect_add clip=<id> type=plugin:<plugin id>/<item id> to use an effect; plugin_pack to share.
+Copy a built-in to change it: plugin_copy_builtin builtin=invert|posterize|dip_to_color id=...
+
+## plugin.json (required: id, name, version, author, license, api=1, and one list)
+
+{ "id": "com.example.name", "name": "Name", "version": "1.0.0", "author": "A", "license": "MIT",
+  "api": 1,
+  "effects": [ { "id": "fx", "name": "Fx", "file": "fx.glsl", "entry": "color", "group": "color",
+    "params": [ { "key": "amount", "label": "Amount", "type": "number", "min": 0, "max": 100,
+                  "default": 50, "unit": "%" } ] } ] }
+
+Lists: effects, transitions (same without entry), presets {id,name,file,target:clip|playhead},
+scripts {id,name,file,permissions}. Param types: number, integer, boolean, color, choice.
+Item ids: a-z 0-9 _ . Param keys: letter then letters/digits (no underscore). Plugin id: a-z 0-9 . - _
+
+## Shaders (GLSL, must compile for desktop GL 3.3 AND OpenGL ES 3.0)
+
+Never write #version, uniform declarations of your parameters, or main(). Kinoklip declares
+u_<key> for every param: number float, integer int, boolean bool, choice int (index), color vec4
+(straight RGBA). Write ONE entry function:
+- entry "color":  vec3 apply(vec3 c) { ... }    c = straight RGB 0..1, return new RGB
+- entry "main":   vec4 effect(vec2 uv) { vec4 t = texture(uTex, uv); ... }  premultiplied RGBA in/out
+- transition:     vec4 transition(vec2 uv) { return mix(getFromColor(uv), getToColor(uv), progress); }
+  (gl-transitions convention: uv origin BOTTOM left; also ratio = width/height)
+Available: uTex, uResolution (px), uScale, uTime (s), uFrame, uFps, uContent, luma(vec3),
+straight(vec4), hash01(uint), hash2(ivec2,uint). uv (0,0) is the TOP left for effects.
+Premultiplied alpha: rgb is already times a. Colours are gamma encoded, not linear.
+ES 3 rules: 1.0 not 1 for floats; no 1.0f; no texture2D/gl_FragColor/varying; reserved words
+(patch, sample, input, output, filter, common, partition, active, class, ...) are not names.
+Do not use the names luma, straight, hash01, hash2, hashU, maxAbs, kLuma, vUv, fragColor.
+
+## Presets (recipes) = {"commands":[{"command":"effect.add","args":{"clip":"$clip","type":"glow"}}]}
+
+Any command of the command layer (kinoklip commands --json). Placeholders: $clip $start $end
+(last frame) $duration $playhead $last_effect, with offsets like "$end-24". One undo step.
+Keyframes: {"command":"keyframe.set","args":{"clip":"$clip","param":"opacity","at":"$start","value":"0"}}
+(clip params: opacity posX posY zoomX zoomY rotation; effect params need "effect":"$last_effect").
+
+## Scripts (python3)  import kinoklip; kinoklip.call("clip.list")["clips"]; kinoklip.log("x")
+
+Needs permissions project.read / project.edit in the script entry. The person must enable a
+plugin with scripts themselves; you cannot. Every call is one undo step.
+
+## Rules
+
+Licence of what you write: ask, put it in "license". Only GPL-compatible open source is bundled.
+Do not copy code with an unknown or non-free licence (Shadertoy shaders are usually CC BY-NC-SA:
+do not use them). Never change the ids of a released plugin.

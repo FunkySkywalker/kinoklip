@@ -30,6 +30,7 @@ end, and a command never edits a timeline in a way the UI cannot: they call `edi
 | `TrackCommands.cpp` | `track.list`, `track.add`, `track.set` |
 | `ParamSupport.h/.cpp` | `key=value` settings checked against a `ParamDescriptor` (range, choices, colour, file) and written through `paramaccess`; finding a clip parameter by key |
 | `ExportCommands.cpp` | `export.otio`, `export.edl`, `import.otio`, `render` (uses `export/RenderCommand.h` `renderProject()`) |
+| `PluginCommands.cpp` | `plugin.list`, `plugin.info`, `plugin.create`, `plugin.copy_builtin`, `plugin.validate`, `plugin.install`, `plugin.uninstall`, `plugin.enable`, `plugin.disable`, `plugin.reload`, `plugin.pack`, `plugin.render_preview` (docs/plugins): they need no project and work on `plugins::PluginRegistry`; `executeLiveBatch()` runs a preset recipe as one undo step |
 | `LogCommands.cpp` | `log.export` (spec 64): the session log as a text file (`app/LogExport.h`); not remote-allowed, like `settings.import` |
 | `SettingsCommands.cpp` | `settings.export`, `settings.import` (spec 61): the application's own settings, no project (`ProjectUse::None`); `app/SettingsTransfer.h` does the work |
 

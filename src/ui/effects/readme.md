@@ -41,6 +41,9 @@ Owned by the panels agent.
   the panel, playback, any edit, a timeline switch end it; a playhead move or a selection
   change re-render it. Renders go through `PlaybackEngine::renderAlternative()` (the
   viewer's size, quality and proxies, on the render thread); a stale request is cancelled.
+- **Plugin presets** (docs/plugins): the "Presets" section lists the presets of enabled plugins, one folder per plugin; a double-click or a drop on a clip
+  goes through `effectactions::applyEffect()`, which hands preset ids (`plugin:<id>/<item>`) to the applier the main window installed
+  (`PluginHost::applyPreset()`, one undo step). The tree is built again when `PluginRegistry::changed()` fires (install, enable, reload).
 - **Search** filters by name and description (case-insensitive), hiding empty sections and
   folders.
 

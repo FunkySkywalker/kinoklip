@@ -218,6 +218,7 @@
         "view.onscreen_dynamic_zoom": [],
         "view.fullscreen": ["F11"],
         "view.reset_ui_layout": [],
+        "settings.plugins": [],
         "view.show_rulers": [],
         "view.guides_show": [],
         "view.guides_lock": [],

@@ -2157,6 +2157,10 @@ The program was probably closed by the system because the computer ran out of me
         <source>%1: not moved, %2.</source>
         <translation>%1: не переміщено, %2.</translation>
     </message>
+    <message>
+        <source>Plugins</source>
+        <translation>Плагіни</translation>
+    </message>
 </context>
 <context>
     <name>kk::ActionDescriptions</name>
@@ -2175,6 +2179,10 @@ The program was probably closed by the system because the computer ran out of me
     <message>
         <source>Turns Vim mode on or off: with it on, plain keys are Vim commands (NORMAL mode) and i gives you the usual shortcuts back (INSERT mode). Works with any keyboard profile.</source>
         <translation>Вмикає або вимикає режим Vim: коли його ввімкнено, звичайні клавіші стають командами Vim (режим NORMAL), а i повертає звичні скорочення (режим INSERT). Працює з будь-яким профілем клавіатури.</translation>
+    </message>
+    <message>
+        <source>Opens Preferences &gt; Plugins: the installed plugins, install a .kkplugin file or a plugin folder, switch plugins on and off, reload them.</source>
+        <translation>Відкриває Налаштування &gt; Плагіни: встановлені плагіни, встановлення файлу .kkplugin або теки плагіна, вмикання й вимикання плагінів, перезавантаження.</translation>
     </message>
     <message>
         <source>Opens the Preferences window (user settings such as editing, playback, interface and local control).</source>
@@ -17839,6 +17847,10 @@ Thank you for watching</source>
         <translation>Часові</translation>
     </message>
     <message>
+        <source>Plugins</source>
+        <translation>Плагіни</translation>
+    </message>
+    <message>
         <source>Dissolve</source>
         <translation>Розчинення</translation>
     </message>
@@ -18290,6 +18302,10 @@ Thank you for watching</source>
         <translation>Видаляє збережений файл макросу; титри, що вже лежать на таймлайні, не змінюються</translation>
     </message>
     <message>
+        <source>Apply to Selected Clips</source>
+        <translation>Застосувати до вибраних кліпів</translation>
+    </message>
+    <message>
         <source>Add to Selected Edit Point</source>
         <translation>Додати до вибраної точки монтажу</translation>
     </message>
@@ -18334,6 +18350,14 @@ Standard transition of this project</source>
     <message>
         <source>Toolbox</source>
         <translation>Інструменти</translation>
+    </message>
+    <message>
+        <source>Presets</source>
+        <translation>Пресети</translation>
+    </message>
+    <message>
+        <source>Presets from plugins</source>
+        <translation>Пресети з плагінів</translation>
     </message>
     <message>
         <source>Audio FX</source>
@@ -19552,6 +19576,10 @@ Drag one from the Effects library or use Add Effect.</source>
     <message>
         <source>Remove effect</source>
         <translation>Видалити ефект</translation>
+    </message>
+    <message>
+        <source>Missing plugin: “%1” is not installed or not enabled. The effect is bypassed and its settings are kept.</source>
+        <translation>Плагін відсутній: «%1» не встановлено або не ввімкнено. Ефект пропускається, його налаштування зберігаються.</translation>
     </message>
     <message>
         <source>Unknown effect type “%1”.</source>
@@ -21336,6 +21364,10 @@ You can also double-click the header, or drag the header out of the panel.</sour
     <message>
         <source>Lists the widget styles found on this computer; choosing one changes how buttons and panels are drawn.</source>
         <translation>Перелічує стилі віджетів, знайдені на цьому комп’ютері; вибір змінює вигляд кнопок і панелей.</translation>
+    </message>
+    <message>
+        <source>Lists the scripts of the enabled plugins; choosing one runs it and shows its output.</source>
+        <translation>Показує скрипти ввімкнених плагінів; вибір запускає скрипт і показує його вивід.</translation>
     </message>
     <message>
         <source>&amp;Undo %1</source>
@@ -23607,6 +23639,10 @@ Import files with %1 or drop them here.</source>
         <translation>Відтворити назад</translation>
     </message>
     <message>
+        <source>Plugins…</source>
+        <translation>Плагіни…</translation>
+    </message>
+    <message>
         <source>Polygon</source>
         <translation>Багатокутник</translation>
     </message>
@@ -23769,6 +23805,10 @@ Import files with %1 or drop them here.</source>
     <message>
         <source>Save Preset…</source>
         <translation>Зберегти пресет…</translation>
+    </message>
+    <message>
+        <source>Scripts</source>
+        <translation>Скрипти</translation>
     </message>
     <message>
         <source>Select</source>
@@ -28376,6 +28416,222 @@ Auto: Full, switching to Half only while playback cannot keep up (paused: Full).
     <message>
         <source>Play every frame at full resolution; frames are skipped if the computer cannot keep up.</source>
         <translation>Відтворювати кожен кадр у повній роздільності; кадри пропускаються, якщо комп’ютер не встигає.</translation>
+    </message>
+</context>
+<context>
+    <name>kk::PluginHost</name>
+    <message>
+        <source>Preset</source>
+        <translation>Пресет</translation>
+    </message>
+    <message>
+        <source>The preset is not available (its plugin is missing or disabled).</source>
+        <translation>Пресет недоступний (його плагін відсутній або вимкнений).</translation>
+    </message>
+    <message>
+        <source>Select a clip to apply this preset to.</source>
+        <translation>Виберіть кліп, до якого застосувати цей пресет.</translation>
+    </message>
+    <message>
+        <source>Apply %1</source>
+        <translation>Застосувати %1</translation>
+    </message>
+    <message>
+        <source>No scripts installed</source>
+        <translation>Скрипти не встановлено</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Зупинити</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Закрити</translation>
+    </message>
+    <message>
+        <source>Script: %1</source>
+        <translation>Скрипт: %1</translation>
+    </message>
+</context>
+<context>
+    <name>kk::PluginsPage</name>
+    <message>
+        <source>Author:</source>
+        <translation>Автор:</translation>
+    </message>
+    <message>
+        <source>Licence:</source>
+        <translation>Ліцензія:</translation>
+    </message>
+    <message>
+        <source>Id:</source>
+        <translation>Id:</translation>
+    </message>
+    <message>
+        <source>Bundled with Kinoklip in</source>
+        <translation>Входить до комплекту Kinoklip, у</translation>
+    </message>
+    <message>
+        <source>Installed in</source>
+        <translation>Встановлено в</translation>
+    </message>
+    <message>
+        <source>This plugin has problems and is not used:</source>
+        <translation>У цього плагіна є проблеми, він не використовується:</translation>
+    </message>
+    <message>
+        <source>Effect: </source>
+        <translation>Ефект: </translation>
+    </message>
+    <message>
+        <source>Transition: </source>
+        <translation>Перехід: </translation>
+    </message>
+    <message>
+        <source>Preset: </source>
+        <translation>Пресет: </translation>
+    </message>
+    <message>
+        <source>Script: </source>
+        <translation>Скрипт: </translation>
+    </message>
+    <message>
+        <source>Contains</source>
+        <translation>Містить</translation>
+    </message>
+    <message>
+        <source>The shader does not compile:</source>
+        <translation>Шейдер не компілюється:</translation>
+    </message>
+    <message>
+        <source>It asks to</source>
+        <translation>Запитує</translation>
+    </message>
+    <message>
+        <source>Scripts are programs (Python 3) that run on this computer when you choose them in Workspace &gt; Scripts, with your rights. Enable only plugins you trust.</source>
+        <translation>Скрипти — це програми (Python 3), що запускаються на цьому комп&apos;ютері з вашими правами, коли ви вибираєте їх у меню «Робоча область &gt; Скрипти». Вмикайте лише плагіни, яким довіряєте.</translation>
+    </message>
+    <message>
+        <source>Check</source>
+        <translation>Перевірити</translation>
+    </message>
+    <message>
+        <source>No problems found.</source>
+        <translation>Проблем не знайдено.</translation>
+    </message>
+    <message>
+        <source>Plugins add effects, transitions, presets and scripts. They show up in the Effects library and in Workspace &gt; Scripts like the built-in ones. Install a .kkplugin file or a plugin folder; you can also drop a .kkplugin file onto the window.</source>
+        <translation>Плагіни додають ефекти, переходи, пресети та скрипти. Вони з&apos;являються в бібліотеці ефектів і в меню «Робоча область &gt; Скрипти», як і вбудовані. Встановіть файл .kkplugin або теку плагіна; файл .kkplugin можна також перетягнути на вікно.</translation>
+    </message>
+    <message>
+        <source>Install…</source>
+        <translation>Встановити…</translation>
+    </message>
+    <message>
+        <source>Install a .kkplugin file</source>
+        <translation>Встановити файл .kkplugin</translation>
+    </message>
+    <message>
+        <source>Install Folder…</source>
+        <translation>Встановити теку…</translation>
+    </message>
+    <message>
+        <source>Install a plugin folder (one with a plugin.json)</source>
+        <translation>Встановити теку плагіна (з файлом plugin.json)</translation>
+    </message>
+    <message>
+        <source>Uninstall</source>
+        <translation>Видалити</translation>
+    </message>
+    <message>
+        <source>Reload</source>
+        <translation>Перезавантажити</translation>
+    </message>
+    <message>
+        <source>Read all plugin folders again: edited shaders and manifests take effect at once</source>
+        <translation>Заново прочитати всі теки плагінів: змінені шейдери й маніфести діють одразу</translation>
+    </message>
+    <message>
+        <source>Compile the shaders of the selected plugin for OpenGL 3.3 and OpenGL ES 3.0 and list every problem with its line</source>
+        <translation>Скомпілювати шейдери вибраного плагіна для OpenGL 3.3 та OpenGL ES 3.0 і показати кожну проблему з номером рядка</translation>
+    </message>
+    <message>
+        <source>Open Plugin Folder</source>
+        <translation>Відкрити теку плагінів</translation>
+    </message>
+    <message>
+        <source>Install Plugin</source>
+        <translation>Встановлення плагіна</translation>
+    </message>
+    <message>
+        <source>Kinoklip plugins (*.kkplugin);;All files (*)</source>
+        <translation>Плагіни Kinoklip (*.kkplugin);;Усі файли (*)</translation>
+    </message>
+    <message>
+        <source>Install Plugin Folder</source>
+        <translation>Встановлення теки плагіна</translation>
+    </message>
+    <message>
+        <source>Uninstall Plugin</source>
+        <translation>Видалення плагіна</translation>
+    </message>
+    <message>
+        <source>Delete the plugin &quot;%1&quot;? Projects that use it keep the effect&apos;s settings and show it as a missing plugin.</source>
+        <translation>Видалити плагін «%1»? Проєкти, що його використовують, збережуть налаштування ефекту й покажуть його як відсутній плагін.</translation>
+    </message>
+    <message>
+        <source>  (bundled)</source>
+        <translation>  (вбудований)</translation>
+    </message>
+    <message>
+        <source>  (problem)</source>
+        <translation>  (проблема)</translation>
+    </message>
+    <message>
+        <source>No plugins installed.</source>
+        <translation>Плагіни не встановлено.</translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; contains scripts: programs that run on this computer with your rights when you choose them in Workspace &gt; Scripts.
+
+It asks to:
+%2
+
+Only enable plugins from people you trust.</source>
+        <translation>«%1» містить скрипти: програми, що запускаються на цьому комп&apos;ютері з вашими правами, коли ви вибираєте їх у меню «Робоча область &gt; Скрипти».
+
+Запитує:
+%2
+
+Вмикайте лише плагіни від людей, яким довіряєте.</translation>
+    </message>
+    <message>
+        <source>- (nothing declared)</source>
+        <translation>- (нічого не вказано)</translation>
+    </message>
+    <message>
+        <source>Enable Scripts</source>
+        <translation>Увімкнення скриптів</translation>
+    </message>
+    <message>
+        <source>The plugin could not be installed.
+
+%1</source>
+        <translation>Не вдалося встановити плагін.
+
+%1</translation>
+    </message>
+    <message>
+        <source>Installed &quot;%1&quot;.</source>
+        <translation>«%1» встановлено.</translation>
+    </message>
+    <message>
+        <source>It contains scripts, so it is switched off until you enable it in Preferences &gt; Plugins.</source>
+        <translation>Він містить скрипти, тому вимкнений, доки ви не ввімкнете його в Налаштування &gt; Плагіни.</translation>
+    </message>
+    <message>
+        <source>Plugins</source>
+        <translation>Плагіни</translation>
     </message>
 </context>
 <context>
@@ -33527,6 +33783,14 @@ Restart Kinoklip to apply them.</source>
         <translation>&amp;Стиль</translation>
     </message>
     <message>
+        <source>&amp;Plugins…</source>
+        <translation>&amp;Плагіни…</translation>
+    </message>
+    <message>
+        <source>S&amp;cripts</source>
+        <translation>С&amp;крипти</translation>
+    </message>
+    <message>
         <source>&amp;Help for This…</source>
         <translation>&amp;Довідка про це…</translation>
     </message>
@@ -38125,6 +38389,56 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
     <message>
         <source>Select a multicam clip to flatten.</source>
         <translation>Виберіть кліп мультикамери для розгортання.</translation>
+    </message>
+</context>
+<context>
+    <name>kk::plugins</name>
+    <message>
+        <source>Read the open project</source>
+        <translation>Читати відкритий проєкт</translation>
+    </message>
+    <message>
+        <source>Change the open project</source>
+        <translation>Змінювати відкритий проєкт</translation>
+    </message>
+    <message>
+        <source>Read files on this computer</source>
+        <translation>Читати файли на цьому комп&apos;ютері</translation>
+    </message>
+    <message>
+        <source>Write files on this computer</source>
+        <translation>Записувати файли на цьому комп&apos;ютері</translation>
+    </message>
+    <message>
+        <source>Use the network</source>
+        <translation>Використовувати мережу</translation>
+    </message>
+    <message>
+        <source>Start other programs</source>
+        <translation>Запускати інші програми</translation>
+    </message>
+</context>
+<context>
+    <name>kk::plugins::ScriptRunner</name>
+    <message>
+        <source>Stopped: the script ran longer than %1 minutes.</source>
+        <translation>Зупинено: скрипт працював довше %1 хв.</translation>
+    </message>
+    <message>
+        <source>Stopped.</source>
+        <translation>Зупинено.</translation>
+    </message>
+    <message>
+        <source>python3 could not be started.</source>
+        <translation>Не вдалося запустити python3.</translation>
+    </message>
+    <message>
+        <source>The script ended with an error (exit code %1).</source>
+        <translation>Скрипт завершився з помилкою (код виходу %1).</translation>
+    </message>
+    <message>
+        <source>Done.</source>
+        <translation>Готово.</translation>
     </message>
 </context>
 <context>

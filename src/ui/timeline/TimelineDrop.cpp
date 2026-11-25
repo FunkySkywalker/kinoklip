@@ -10,6 +10,7 @@
 #include "core/SelectionModel.h"
 #include "core/Subtitles.h"
 #include "core/Timeline.h"
+#include "plugins/PluginRegistry.h"
 #include "platform/DroppedFiles.h"
 #include "ui/common/AppContext.h"
 #include "ui/common/DragAndDrop.h"
@@ -274,6 +275,19 @@ TimelineWidget::DropPlan TimelineWidget::planDrop(
     const QString effectId = QString::fromUtf8(mime->data(QLatin1String(mime::Effect))).trimmed();
     const EffectDescriptor* desc = EffectRegistry::instance().find(effectId);
     const bool macroTitle = effectId.startsWith(macrofiles::kIdPrefix); // a saved macro (spec 120)
+    // A preset of a plugin acts on the clip it is dropped on (the ones that work at the
+    // playhead are applied by double-click).
+    if (!desc && effectactions::isPresetId(effectId)) {
+        const plugins::PluginPresetDef* preset
+            = plugins::PluginRegistry::instance().findPreset(effectId);
+        if (preset && preset->target == plugins::PresetTarget::Clip
+            && hit.area == TimelineHit::Area::Clip) {
+            plan.effectId = effectId;
+            plan.kind = DropPlan::Kind::Effect;
+            plan.clipId = hit.clipId;
+        }
+        return plan;
+    }
     if (!desc && !macroTitle)
         return plan;
     plan.effectId = effectId;
@@ -441,6 +455,8 @@ bool TimelineWidget::executeDrop(const DropPlan& plan)
         // of the matching kind, the selection stays (owner request 1.8.1).
         const QVector<quint64> targets = effectactions::effectTargets(
             *project, m_ctx.selection->clips(), plan.clipId);
+        if (effectactions::isPresetId(plan.effectId))
+            return effectactions::applyEffect(*project, targets, plan.effectId) > 0;
         if (targets.size() > 1)
             return effectactions::applyEffect(*project, targets, plan.effectId) > 0;
         project->beginEdit(tr("Add Effect"));

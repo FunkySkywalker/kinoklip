@@ -1,0 +1,23 @@
+{
+  "id": "dev.kinoklip.invert",
+  "name": "Invert (example plugin)",
+  "version": "1.0.0",
+  "author": "The Kinoklip contributors",
+  "license": "GPL-3.0-or-later",
+  "description": "The built-in Invert effect as a plugin: a template for a colour effect (entry \"color\").",
+  "api": 1,
+  "effects": [
+    {
+      "id": "invert",
+      "name": "Invert (plugin)",
+      "description": "Negative image, written as a plugin",
+      "group": "color",
+      "entry": "color",
+      "ported_from": "invert",
+      "file": "invert.glsl",
+      "params": [
+        { "key": "amount", "label": "Amount", "type": "number", "min": 0, "max": 100, "default": 100, "step": 1, "unit": "%" }
+      ]
+    }
+  ]
+}

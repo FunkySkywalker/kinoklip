@@ -1,0 +1,6 @@
+{
+  "commands": [
+    { "command": "effect.add", "args": { "clip": "$clip", "type": "gaussian_blur", "set": ["radius=2"] } },
+    { "command": "effect.add", "args": { "clip": "$clip", "type": "glow" } }
+  ]
+}

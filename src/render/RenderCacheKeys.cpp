@@ -8,6 +8,8 @@
 #include "core/Retime.h"
 #include "core/Serialization.h"
 
+#include "plugins/PluginRegistry.h"
+
 #include <QCryptographicHash>
 #include <QDateTime>
 #include <QDir>
@@ -276,6 +278,7 @@ std::vector<CacheChunk> renderCacheChunks(
     QCryptographicHash header(QCryptographicHash::Sha1);
     header.addData(QByteArrayLiteral("kinoklip-render-cache:"));
     header.addData(QByteArray::number(kRenderCacheVersion));
+    header.addData(plugins::PluginRegistry::instance().contentKey()); // shader plugins in use
     header.addData(QByteArrayLiteral(":" KK_APP_VERSION ":"));
     header.addData(options.format.toUtf8());
     header.addData(':' + QByteArray::number(timeline.width) + 'x'

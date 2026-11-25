@@ -11,6 +11,10 @@
 
 namespace kk {
 
+namespace {
+constexpr qsizetype kReservedDescriptors = 4096;
+}
+
 const ParamDescriptor* EffectDescriptor::param(const QString& key) const
 {
     for (const ParamDescriptor& p : params) {
@@ -22,6 +26,9 @@ const ParamDescriptor* EffectDescriptor::param(const QString& key) const
 
 EffectRegistry::EffectRegistry()
 {
+    // Room for plugin descriptors added later: appending below the capacity never moves the
+    // descriptors, so the pointers find() gave out stay valid.
+    m_descriptors.reserve(kReservedDescriptors);
     registerBuiltins();
 }
 
@@ -39,6 +46,26 @@ void EffectRegistry::add(EffectDescriptor descriptor)
     }
     m_index.insert(descriptor.id, m_descriptors.size());
     m_descriptors.append(std::move(descriptor));
+}
+
+void EffectRegistry::markUnavailable(const QString& id)
+{
+    if (const auto it = m_index.constFind(id); it != m_index.cend())
+        m_descriptors[*it].unavailable = true;
+}
+
+void EffectRegistry::markAvailable(const QString& id)
+{
+    if (const auto it = m_index.constFind(id); it != m_index.cend())
+        m_descriptors[*it].unavailable = false;
+}
+
+void EffectRegistry::markPluginUnavailable(const QString& pluginId)
+{
+    for (EffectDescriptor& d : m_descriptors) {
+        if (d.plugin == pluginId)
+            d.unavailable = true;
+    }
 }
 
 const EffectDescriptor* EffectRegistry::find(const QString& id) const
@@ -72,7 +99,7 @@ QVector<const EffectDescriptor*> EffectRegistry::byCategory(EffectCategory categ
 {
     QVector<const EffectDescriptor*> result;
     for (const EffectDescriptor& d : m_descriptors) {
-        if (d.category == category)
+        if (d.category == category && !d.unavailable)
             result.append(&d);
     }
     return result;
@@ -160,6 +187,7 @@ QString EffectRegistry::groupName(const QString& group)
         {effectgroups::Time, QT_TRANSLATE_NOOP("kk::EffectRegistry", "Time")},
         {effectgroups::Temporal, QT_TRANSLATE_NOOP("kk::EffectRegistry", "Temporal")},
         {effectgroups::Transform, QT_TRANSLATE_NOOP("kk::EffectRegistry", "Transform")},
+        {effectgroups::Plugins, QT_TRANSLATE_NOOP("kk::EffectRegistry", "Plugins")},
         {effectgroups::Dissolve, QT_TRANSLATE_NOOP("kk::EffectRegistry", "Dissolve")},
         {effectgroups::Iris, QT_TRANSLATE_NOOP("kk::EffectRegistry", "Iris")},
         {effectgroups::Motion, QT_TRANSLATE_NOOP("kk::EffectRegistry", "Motion")},
@@ -182,7 +210,8 @@ QStringList EffectRegistry::groups(EffectCategory category) const
 {
     QStringList result;
     for (const EffectDescriptor& d : m_descriptors) {
-        if (d.category == category && !d.group.isEmpty() && !result.contains(d.group))
+        if (d.category == category && !d.unavailable && !d.group.isEmpty()
+            && !result.contains(d.group))
             result.append(d.group);
     }
     std::sort(result.begin(), result.end(), [](const QString& a, const QString& b) {

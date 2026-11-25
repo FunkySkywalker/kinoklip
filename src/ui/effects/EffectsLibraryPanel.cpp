@@ -8,6 +8,7 @@
 #include "core/Preferences.h"
 #include "core/Project.h"
 #include "core/TransitionPresets.h"
+#include "plugins/PluginRegistry.h"
 #include "ui/common/AppContext.h"
 #include "ui/common/DragMime.h"
 #include "ui/common/Icons.h"
@@ -45,6 +46,8 @@ namespace kk {
 namespace {
 
 constexpr int kGlyphSize = 20;
+/// Category number of the section with the presets of plugins (not an EffectCategory).
+constexpr int kPresetsCategory = 100;
 constexpr int kDescriptorRole = Qt::UserRole; ///< descriptor id (empty for section rows)
 constexpr int kCategoryRole = Qt::UserRole + 1; ///< EffectCategory of a section row
 constexpr int kFolderRole = Qt::UserRole + 2; ///< EffectDescriptor::group of a folder row
@@ -435,6 +438,8 @@ EffectsLibraryPanel::EffectsLibraryPanel(AppContext& ctx, QWidget* parent)
     setContentWidget(splitter);
 
     populate();
+    connect(&plugins::PluginRegistry::instance(), &plugins::PluginRegistry::changed, this,
+        &EffectsLibraryPanel::rebuild);
     if (m_ctx.project) {
         markStandardTransitions();
         connect(
@@ -445,8 +450,10 @@ EffectsLibraryPanel::EffectsLibraryPanel(AppContext& ctx, QWidget* parent)
     connect(SchemeColorsNotifier::instance(), &SchemeColorsNotifier::changed, this, [this] {
         for (int i = 0; i < m_tree->topLevelItemCount(); ++i) {
             QTreeWidgetItem* section = m_tree->topLevelItem(i);
-            const QIcon glyph
-                = categoryGlyph(EffectCategory(section->data(0, kCategoryRole).toInt()));
+            const int category = section->data(0, kCategoryRole).toInt();
+            const QIcon glyph = categoryGlyph(category == kPresetsCategory
+                    ? EffectCategory::Effects
+                    : EffectCategory(category));
             forEachEffect(section, [&](QTreeWidgetItem* item) {
                 const EffectDescriptor* d
                     = EffectRegistry::instance().find(item->data(0, kDescriptorRole).toString());
@@ -586,6 +593,13 @@ QMenu* EffectsLibraryPanel::createContextMenu(const QString& descriptorId)
         remove->setToolTip(tr("Deletes the saved macro file; titles already on the timeline are not changed"));
         return menu;
     }
+    if (effectactions::isPresetId(descriptorId)) {
+        auto* menu = new QMenu(this);
+        QAction* apply = menu->addAction(
+            tr("Apply to Selected Clips"), this, [this, descriptorId] { activate(descriptorId); });
+        apply->setObjectName(QStringLiteral("ApplyLibraryEntry"));
+        return menu;
+    }
     const EffectDescriptor* d = EffectRegistry::instance().find(descriptorId);
     if (!d)
         return nullptr;
@@ -710,6 +724,8 @@ void EffectsLibraryPanel::populate()
         section->setData(0, kCategoryRole, int(category));
     }
 
+    addPluginPresets();
+
     // Sidebar: "Toolbox" (the transitions, titles, generators and effects) with its
     // categories, then the audio effects, like Resolve's effects library.
     auto* toolbox = new QTreeWidgetItem(m_categories, {tr("Toolbox")});
@@ -723,6 +739,13 @@ void EffectsLibraryPanel::populate()
         item->setData(0, Qt::UserRole, int(category));
         item->setToolTip(0, item->text(0)); // the full name when the sidebar elides it
     }
+    for (int i = 0; i < m_tree->topLevelItemCount(); ++i) {
+        if (m_tree->topLevelItem(i)->data(0, kCategoryRole).toInt() == kPresetsCategory) {
+            auto* item = new QTreeWidgetItem(toolbox, {tr("Presets")});
+            item->setData(0, Qt::UserRole, kPresetsCategory);
+            item->setToolTip(0, tr("Presets from plugins"));
+        }
+    }
     toolbox->setExpanded(true);
     if (!registry.byCategory(EffectCategory::AudioEffect).isEmpty()) {
         auto* audio = new QTreeWidgetItem(m_categories, {tr("Audio FX")});
@@ -733,11 +756,58 @@ void EffectsLibraryPanel::populate()
     refreshPresets();
     // Macros and transition presets saved from the Compositing page appear (and deleted ones go)
     // as their folders change.
-    m_macroWatcher = new QFileSystemWatcher({macrofiles::directory(), transitionpresets::directory()}, this);
-    connect(m_macroWatcher, &QFileSystemWatcher::directoryChanged, this, [this] {
-        refreshMacros();
-        refreshPresets();
-    });
+    if (!m_macroWatcher) {
+        m_macroWatcher = new QFileSystemWatcher(
+            {macrofiles::directory(), transitionpresets::directory()}, this);
+        connect(m_macroWatcher, &QFileSystemWatcher::directoryChanged, this, [this] {
+            refreshMacros();
+            refreshPresets();
+        });
+    }
+}
+
+void EffectsLibraryPanel::rebuild()
+{
+    endHover();
+    const QString text = m_search->text();
+    const int category = m_category;
+    m_tree->clear();
+    m_categories->clear();
+    populate();
+    if (category >= 0)
+        selectCategory(category);
+    setFilterText(text);
+    markStandardTransitions();
+}
+
+void EffectsLibraryPanel::addPluginPresets()
+{
+    const QVector<plugins::PresetEntry> presets = plugins::PluginRegistry::instance().presets();
+    if (presets.isEmpty())
+        return;
+    auto* section = new QTreeWidgetItem(m_tree, {tr("Presets")});
+    section->setFlags(Qt::ItemIsEnabled);
+    section->setFont(0, uifonts::font(uifonts::Role::Emphasis, m_tree->font()));
+    section->setData(0, kCategoryRole, kPresetsCategory);
+    const QIcon glyph = categoryGlyph(EffectCategory::Effects);
+    QHash<QString, QTreeWidgetItem*> folders;
+    for (const plugins::PresetEntry& e : presets) {
+        // One folder per plugin (its own folder name when the preset names one).
+        const QString folderName = e.def.group.isEmpty() ? e.pluginName : e.def.group;
+        QTreeWidgetItem*& folder = folders[folderName];
+        if (!folder) {
+            folder = new QTreeWidgetItem(section, {folderName});
+            folder->setFlags(Qt::ItemIsEnabled);
+            folder->setData(0, kFolderRole, folderName);
+            folder->setExpanded(true);
+        }
+        auto* item = new QTreeWidgetItem(folder, {e.def.name});
+        item->setIcon(0, glyph);
+        item->setData(0, kDescriptorRole, e.def.fullId);
+        item->setToolTip(0, e.def.description.isEmpty() ? e.pluginName : e.def.description);
+        item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled);
+    }
+    section->setExpanded(true);
 }
 
 bool EffectsLibraryPanel::livePreviewEnabled() const
@@ -749,8 +819,8 @@ void EffectsLibraryPanel::hoverAt(QPoint viewportPos)
 {
     QTreeWidgetItem* item = m_tree->itemAt(viewportPos);
     const QString id = item ? item->data(0, kDescriptorRole).toString() : QString();
-    if (id.isEmpty() || id.startsWith(macrofiles::kIdPrefix) || !livePreviewEnabled()
-        || !isVisible()) {
+    if (id.isEmpty() || id.startsWith(macrofiles::kIdPrefix) || effectactions::isPresetId(id)
+        || !livePreviewEnabled() || !isVisible()) {
         endHover();
         return;
     }

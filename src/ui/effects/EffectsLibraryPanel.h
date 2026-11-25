@@ -113,6 +113,10 @@ public:
 private:
     QFileSystemWatcher* m_macroWatcher = nullptr;
     void populate();
+    /// Builds the tree again (a plugin was installed, enabled, disabled or reloaded).
+    void rebuild();
+    /// The "Presets" section: the presets of enabled plugins (plugins/PluginRegistry.h).
+    void addPluginPresets();
     /// Bolds the project's standard video and audio transition (Set as Standard Transition).
     void markStandardTransitions();
     void applyFilters();

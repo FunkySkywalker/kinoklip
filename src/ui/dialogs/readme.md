@@ -6,6 +6,7 @@ Owned by the panels agent.
 |---|---|
 | `ProjectSettingsDialog.h` | Resolve-style section list: Master Settings (resolution presets + custom, pixel aspect, timeline / playback frame rate, video monitoring), Image Scaling, Audio, General Options (name, autosave), Optimized Media and Render Cache (proxy / optimized resolution and format, render cache format, background caching, User mode options -> `Project::setCacheSettings()`, not undoable); applied with `Project::setSettings()` = one undo step |
 | `PreferencesDialog.h` | Resolve-style window: System / User tabs, section list, the registered `SettingsPage`s of a section stacked under headings; Save / Cancel |
+| `PluginsPage.*` | Preferences > Plugins (docs/plugins/installing-plugins.md): the installed plugins, install / uninstall / enable (a plugin with scripts asks first) / reload, details with problems and permissions |
 | `PreferencePages.cpp` | the standard pages + `applyStartupPreferences()` / `applyRuntimePreferences()` (see the table below) |
 | `KeyboardCustomizationDialog.h` | searchable command/shortcut table over `ActionRegistry`, `ShortcutRecorder`, conflict detection with reassign, reset one/all, import/export JSON, Cancel restores; two tabs: Shortcuts and Vim keys |
 | `VimKeysTab.h` | the "Vim keys" tab of Keyboard Customization (spec 83): the Vim key table as a tree by context, add / change / remove / reset, conflict and prefix checks, import / export, Open vimrc; edits the `VimKeymap` directly |

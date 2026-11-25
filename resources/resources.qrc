@@ -134,6 +134,11 @@
         <file>icons/zoom_in.svg</file>
         <file>icons/zoom_out.svg</file>
     </qresource>
+    <!-- The Python module plugin scripts import (src/plugins/ScriptRunner.cpp writes it next to the
+         script run). -->
+    <qresource prefix="/plugin-sdk">
+        <file alias="kinoklip.py">plugin-sdk/kinoklip.py</file>
+    </qresource>
     <!-- KColorSchemeManager (KF6) also lists the schemes in this resource directory, so the
          default Kinoklip scheme is found without a copy on disk (src/app/Theme.cpp). -->
     <qresource prefix="/org.kde.kcolorscheme">

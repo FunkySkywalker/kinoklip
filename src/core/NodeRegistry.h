@@ -903,6 +903,9 @@ public:
     {
         return nodetypes::EffectPrefix + effectId;
     }
+    /// Adds (or replaces) the node of video effect @p e added to the EffectRegistry after
+    /// start-up (a plugin effect). GUI thread only.
+    static void registerEffectNode(const EffectDescriptor& e);
 
 private:
     NodeRegistry();

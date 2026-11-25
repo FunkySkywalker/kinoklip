@@ -1,0 +1,6 @@
+{
+  "commands": [
+    { "command": "keyframe.set", "args": { "clip": "$clip", "param": "opacity", "at": "$end-24", "value": "100" } },
+    { "command": "keyframe.set", "args": { "clip": "$clip", "param": "opacity", "at": "$end", "value": "0", "interp": "easeIn" } }
+  ]
+}

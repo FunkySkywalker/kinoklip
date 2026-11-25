@@ -9,6 +9,7 @@
 #include "app/WelcomeDialog.h"
 #include "app/LogExportDialog.h"
 #include "app/PageBar.h"
+#include "app/PluginHost.h"
 #include "app/ProjectController.h"
 #include "app/SettingsTransfer.h"
 #include "app/TimelineExport.h"
@@ -25,6 +26,8 @@
 #include "core/Logging.h"
 #include "core/Preferences.h"
 #include "core/Project.h"
+#include "plugins/PluginRegistry.h"
+#include "ui/effects/EffectActions.h"
 #include "render/FontReload.h"
 #include "ui/audio/VoiceOverController.h"
 #include "ui/common/ActionRegistry.h"
@@ -52,6 +55,9 @@
 #include <QActionGroup>
 #include <QApplication>
 #include <QCloseEvent>
+#include <QDragEnterEvent>
+#include <QDropEvent>
+#include <QMimeData>
 #include <QElapsedTimer>
 #include <QGuiApplication>
 #include <QHash>
@@ -298,6 +304,14 @@ MainWindow::MainWindow(AppContext& ctx, const MainWindowOptions& options, QWidge
     connect(m_live, &live::LiveServer::clientCountChanged, m_interfaceBar,
         &InterfaceBar::setRemoteControlClients);
     applyLocalControlPreference();
+    // Plugins: presets in the Effects library, Workspace > Scripts, .kkplugin drops.
+    m_pluginHost = new PluginHost(ctx, target, this);
+    effectactions::setPresetApplier(
+        [this](Project& project, const QVector<quint64>& clips, const QString& id) {
+            return m_pluginHost->applyPreset(project, clips, id);
+        });
+    m_pluginHost->attachScriptsMenu(menuBar()->findChild<QMenu*>(QStringLiteral("menu:settings.scripts")));
+    setAcceptDrops(true);
     // Vim mode (Kinoklip menu > Vim Mode, off by default): the keys, the mode line, the `:` line.
     m_vim = new VimController(ctx, m_editPage->timeline(), this, m_pageBar, target, this);
     // A settings import may have switched Local Control off.
@@ -498,6 +512,9 @@ void MainWindow::buildMenus()
         {"menu:settings.style",
             QT_TR_NOOP("Lists the widget styles found on this computer; choosing one changes how "
                        "buttons and panels are drawn.")},
+        {"menu:settings.scripts",
+            QT_TR_NOOP("Lists the scripts of the enabled plugins; choosing one runs it and shows "
+                       "its output.")},
     };
     for (const auto& entry : dynamicMenus) {
         if (auto* menu = menuBar()->findChild<QMenu*>(QLatin1String(entry.menu))) {
@@ -505,6 +522,9 @@ void MainWindow::buildMenus()
             menu->menuAction()->setStatusTip(tr(entry.what));
         }
     }
+    if (m_pluginHost)
+        m_pluginHost->attachScriptsMenu(
+            menuBar()->findChild<QMenu*>(QStringLiteral("menu:settings.scripts")));
     // File > Open Recent lists files, not registered commands: filled by ProjectController.
     if (auto* recent = menuBar()->findChild<QMenu*>(QStringLiteral("menu:file.recent")))
         m_projectController->attachRecentMenu(recent);
@@ -812,6 +832,28 @@ void MainWindow::showRestored()
         show();
     else
         showMaximized();
+}
+
+void MainWindow::dragEnterEvent(QDragEnterEvent* event)
+{
+    QStringList paths;
+    for (const QUrl& url : event->mimeData()->urls())
+        paths << url.toLocalFile();
+    if (m_pluginHost && PluginHost::hasPluginFile(paths))
+        event->acceptProposedAction();
+    else
+        QMainWindow::dragEnterEvent(event);
+}
+
+void MainWindow::dropEvent(QDropEvent* event)
+{
+    QStringList paths;
+    for (const QUrl& url : event->mimeData()->urls())
+        paths << url.toLocalFile();
+    if (m_pluginHost && m_pluginHost->installDropped(paths))
+        event->acceptProposedAction();
+    else
+        QMainWindow::dropEvent(event);
 }
 
 void MainWindow::closeEvent(QCloseEvent* event)

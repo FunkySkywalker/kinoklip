@@ -16,6 +16,7 @@
 #include <cstdint>
 #include <functional>
 #include <optional>
+#include <utility>
 
 namespace kk {
 
@@ -208,6 +209,12 @@ public:
     [[nodiscard]] CommandResult executeLive(const QString& name, const QJsonObject& arguments,
         const LiveTarget& target, const ProgressFn& progress = {}) const;
 
+    /// Runs @p steps (command name and arguments) one after the other on the open project as ONE
+    /// undo step named @p label (a preset): the first failure cancels all of them. "$last_effect"
+    /// in the arguments of a step is the id of the effect an earlier step added.
+    [[nodiscard]] CommandResult executeLiveBatch(const QString& label,
+        const QVector<QPair<QString, QJsonObject>>& steps, const LiveTarget& target) const;
+
     /// Runs a CommandSpec::background command (render, frame export) of the open project on a
     /// copy of it: @p documentJson is Project::documentJson(@p documentPath) taken on the
     /// project's thread. Safe to call from a worker thread; the open project is not touched.
@@ -218,6 +225,10 @@ public:
         const ProgressFn& progress = {}) const;
 
 private:
+    /// executeLive(); @p nested: the caller already opened the edit (executeLiveBatch).
+    [[nodiscard]] CommandResult runLive(const QString& name, const QJsonObject& arguments,
+        const LiveTarget& target, const ProgressFn& progress, bool nested) const;
+
     QVector<Command> m_commands;
 };
 
@@ -239,6 +250,7 @@ void registerKeyframeCommands(CommandRegistry& registry);
 void registerTrackCommands(CommandRegistry& registry);
 void registerSettingsCommands(CommandRegistry& registry);
 void registerLogCommands(CommandRegistry& registry);
+void registerPluginCommands(CommandRegistry& registry);
 
 } // namespace commands
 } // namespace kk

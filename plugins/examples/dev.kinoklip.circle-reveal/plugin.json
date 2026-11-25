@@ -1,0 +1,22 @@
+{
+  "id": "dev.kinoklip.circle-reveal",
+  "name": "Circle Reveal (example plugin)",
+  "version": "1.0.0",
+  "author": "The Kinoklip contributors",
+  "license": "GPL-3.0-or-later",
+  "description": "A new transition written as a plugin, the worked example of docs/plugins/writing-plugins.md: the incoming picture grows from the middle as a circle.",
+  "api": 1,
+  "transitions": [
+    {
+      "id": "circle_reveal",
+      "name": "Circle Reveal",
+      "description": "The incoming picture opens as a circle from the middle",
+      "group": "iris",
+      "file": "circle.glsl",
+      "params": [
+        { "key": "softness", "label": "Softness", "type": "number", "min": 0.01, "max": 0.5, "default": 0.05, "step": 0.01 },
+        { "key": "invert", "label": "Close Instead", "type": "boolean", "default": false }
+      ]
+    }
+  ]
+}

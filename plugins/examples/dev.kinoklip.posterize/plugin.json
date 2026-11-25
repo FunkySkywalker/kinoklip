@@ -1,0 +1,23 @@
+{
+  "id": "dev.kinoklip.posterize",
+  "name": "Posterize (example plugin)",
+  "version": "1.0.0",
+  "author": "The Kinoklip contributors",
+  "license": "GPL-3.0-or-later",
+  "description": "The built-in Posterize effect as a plugin: a template for an effect that writes its own entry function (entry \"main\") and has an integer parameter.",
+  "api": 1,
+  "effects": [
+    {
+      "id": "posterize",
+      "name": "Posterize (plugin)",
+      "description": "Reduces every colour channel to a few levels, written as a plugin",
+      "group": "color",
+      "entry": "main",
+      "ported_from": "posterize",
+      "file": "posterize.glsl",
+      "params": [
+        { "key": "levels", "label": "Levels", "type": "integer", "min": 2, "max": 64, "default": 6 }
+      ]
+    }
+  ]
+}

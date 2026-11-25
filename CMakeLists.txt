@@ -130,6 +130,8 @@ target_link_libraries(kinoklip_core PUBLIC kk_adwaita)
 target_compile_definitions(kinoklip_core PUBLIC
   KK_APP_NAME="${APP_NAME}" KK_APP_ID="${APP_ID}" KK_APP_VERSION="${PROJECT_VERSION}"
 )
+# Where plugins/examples is when running from a build of the source tree (PluginRegistry::examplesDir()).
+target_compile_definitions(kinoklip_core PRIVATE KK_PLUGIN_EXAMPLES_SOURCE_DIR="${CMAKE_SOURCE_DIR}/plugins/examples")
 target_link_libraries(kinoklip_core PUBLIC
   Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Multimedia Qt6::Svg Qt6::SvgWidgets
   Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Concurrent Qt6::DBus Qt6::Network PkgConfig::FFMPEG)
@@ -230,6 +232,10 @@ add_executable(${APP_ID} src/main.cpp)
 target_link_libraries(${APP_ID} PRIVATE kinoklip_core)
 set_target_properties(${APP_ID} PROPERTIES WIN32_EXECUTABLE ON MACOSX_BUNDLE ON)
 install(TARGETS ${APP_ID} RUNTIME DESTINATION bin BUNDLE DESTINATION .)
+# Example plugins and the plugin manifest schema (docs/plugins); bundled plugins go to
+# share/kinoklip/plugins.
+install(DIRECTORY plugins/examples/ DESTINATION share/kinoklip/plugin-examples)
+install(FILES docs/plugins/plugin.schema.json DESTINATION share/kinoklip)
 
 # ---- Tests: every tests/**/test_*.cpp becomes its own executable ----
 enable_testing()

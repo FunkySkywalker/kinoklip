@@ -1434,6 +1434,38 @@
       "contexts": [
         "action:transport.record"
       ]
+    },
+    {
+      "id": "install-and-write-plugins",
+      "title": "Install and write plugins",
+      "file": "install-and-write-plugins.md",
+      "summary": "Install plugins (effects, transitions, presets, scripts) from a file, a folder or by dropping them on the window; switch them on and off; write your own with a shader and a plugin.json, alone or with an AI assistant.",
+      "keywords": [
+        "plugin",
+        "plugins",
+        "extension",
+        "add-on",
+        "addon",
+        "install plugin",
+        "kkplugin",
+        "shader",
+        "glsl",
+        "effect plugin",
+        "transition plugin",
+        "preset",
+        "presets",
+        "animation pack",
+        "script",
+        "scripts",
+        "python",
+        "automation",
+        "write a plugin",
+        "openfx",
+        "fusion"
+      ],
+      "contexts": [
+        "action:settings.plugins"
+      ]
     }
   ]
 }

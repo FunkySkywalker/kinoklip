@@ -65,6 +65,10 @@ private:
     /// The implementation of effect @p id, built on first use; nullptr when the id is not a
     /// GPU effect or its program failed to build (reported once).
     GlEffect* effectFor(const QString& id);
+    /// Drops the compiled plugin effects and transitions (and their failed marks) when the
+    /// plugins changed since the last frame (plugin reload, enable, disable); they build again
+    /// on first use. Called at the start of every frame, never in the middle of one.
+    void refreshPlugins();
 
     /// Probes the DMA-BUF import and, when it works, lets the decoders export VAAPI frames
     /// instead of downloading them (see GlDmaBuf.h). Logs the outcome either way.
@@ -280,6 +284,7 @@ private:
     /// Transitions built so far (a transition builds when first drawn, see transitionFor()).
     QHash<QString, std::shared_ptr<GlTransition>> m_transitions;
     QSet<QString> m_failedTransitions; ///< ids whose program did not build (logged once)
+    quint64 m_pluginGeneration = 0; ///< PluginRegistry::generation() the plugin shaders match
     GlTransition* m_fallbackTransition = nullptr; ///< cross_dissolve for unknown ids
 
     DecoderPool m_decoders;

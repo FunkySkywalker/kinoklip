@@ -13,6 +13,7 @@
 #include "core/SelectionModel.h"
 #include "core/MacroFiles.h"
 #include "core/TitlePresets.h"
+#include "plugins/PluginRegistry.h"
 #include "core/VideoEffectKeys.h"
 #include "ui/common/AppContext.h"
 
@@ -31,6 +32,12 @@ constexpr double kRegionBlurFeather = 8.0; ///< px: a soft edge, as most privacy
 QString tr(const char* text)
 {
     return QCoreApplication::translate("kk::EffectActions", text);
+}
+
+PresetApplier& presetApplier()
+{
+    static PresetApplier applier;
+    return applier;
 }
 
 /// Sets effect parameter @p key of @p effect to @p value.
@@ -254,8 +261,21 @@ QVector<quint64> effectTargets(
     return out;
 }
 
+void setPresetApplier(PresetApplier applier)
+{
+    presetApplier() = std::move(applier);
+}
+
+bool isPresetId(const QString& descriptorId)
+{
+    return descriptorId.startsWith(QLatin1String(plugins::kIdPrefix))
+        && plugins::PluginRegistry::instance().findPreset(descriptorId) != nullptr;
+}
+
 int applyEffect(Project& project, const QVector<quint64>& clipIds, const QString& descriptorId)
 {
+    if (isPresetId(descriptorId))
+        return presetApplier() ? presetApplier()(project, clipIds, descriptorId) : 0;
     const EffectRegistry& registry = EffectRegistry::instance();
     const EffectDescriptor* desc = registry.find(descriptorId);
     if (!desc)
@@ -387,6 +407,10 @@ bool activate(AppContext& ctx, const QString& descriptorId)
             ctx.selection->selectClip(id);
         return id != 0;
     }
+    if (isPresetId(descriptorId))
+        return applyEffect(project, ctx.selection ? ctx.selection->clips() : QVector<quint64> {},
+                   descriptorId)
+            > 0;
     const EffectDescriptor* desc = EffectRegistry::instance().find(descriptorId);
     if (!desc)
         return false;

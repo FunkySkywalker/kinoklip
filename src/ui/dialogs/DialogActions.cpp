@@ -80,6 +80,15 @@ void connectDialogActions(
             KeyboardCustomizationDialog dialog(*ctx.actions, window);
             dialog.exec();
         });
+    QObject::connect(actions.action(QStringLiteral("settings.plugins")), &QAction::triggered,
+        window, [&ctx, window, onPreferencesChanged] {
+            PreferencesDialog dialog(ctx.settingsPages, window);
+            dialog.showSection(QStringLiteral("plugins"));
+            if (onPreferencesChanged)
+                QObject::connect(
+                    &dialog, &PreferencesDialog::preferencesChanged, window, onPreferencesChanged);
+            dialog.exec();
+        });
     QObject::connect(actions.action(QStringLiteral("edit.preferences")), &QAction::triggered,
         window, [&ctx, window, onPreferencesChanged] {
             PreferencesDialog dialog(ctx.settingsPages, window);

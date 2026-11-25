@@ -24,6 +24,7 @@
 #include "matting/MatteService.h"
 #include "media/MediaCache.h"
 #include "pack/ProjectPackage.h"
+#include "plugins/PluginRegistry.h"
 #include "playback/PlaybackEngine.h"
 #include "render/GlApi.h"
 #include "render/RenderFrameCommand.h"
@@ -37,12 +38,15 @@
 #include "ui/common/SettingsPages.h"
 #include "ui/common/StandardActions.h"
 #include "ui/dialogs/AiModelDialog.h"
+#include "ui/dialogs/PluginsPage.h"
 #include "ui/dialogs/PreferencesDialog.h"
 
 #include <QApplication>
 #include <QCoreApplication>
 #include <QGuiApplication>
 #include <QMessageBox>
+#include <QProcess>
+#include <QStandardPaths>
 #include <QSettings>
 #include <QSslSocket>
 #include <QSurfaceFormat>
@@ -150,15 +154,64 @@ void setApplicationIdentity()
     QGuiApplication::setApplicationDisplayName(kk::appinfo::displayName()); // "Kinoklip Dev"
 }
 
+/// plugin.render_preview and the compile check of plugin.validate need an OpenGL context, which
+/// Qt's offscreen platform does not give.
+bool commandNeedsOpenGl(const QStringList& arguments)
+{
+    if (arguments.value(0) != QLatin1String("plugin"))
+        return false;
+    const QString verb = arguments.value(1);
+    return verb == QLatin1String("render_preview")
+        || (verb == QLatin1String("validate") && !arguments.contains(QLatin1String("--static")));
+}
+
+/// Runs this command again under xvfb-run with the xcb platform (the way the GL tests do) when
+/// the session has no display. Returns the exit code, or -1 when that is not possible.
+int rerunUnderXvfb(const QStringList& arguments)
+{
+    if (!qEnvironmentVariableIsEmpty("KK_NO_XVFB"))
+        return -1;
+    const QString xvfb = QStandardPaths::findExecutable(QStringLiteral("xvfb-run"));
+    if (xvfb.isEmpty())
+        return -1;
+    const QByteArray appImage = qgetenv("APPIMAGE");
+    QStringList args {QStringLiteral("-a"), QStringLiteral("env"),
+        QStringLiteral("QT_QPA_PLATFORM=xcb"), QStringLiteral("KK_NO_XVFB=1"),
+        appImage.isEmpty() ? QCoreApplication::applicationFilePath()
+                           : QString::fromLocal8Bit(appImage)};
+    args += arguments;
+    QProcess child;
+    child.setProcessChannelMode(QProcess::ForwardedChannels);
+    child.start(xvfb, args);
+    if (child.waitForStarted() && child.waitForFinished(-1)
+        && child.exitStatus() == QProcess::NormalExit)
+        return child.exitCode();
+    return -1;
+}
+
 /// `kinoklip <command> ...` (app/CliRunner.h): runs one command of the command layer without a
 /// window. A QGuiApplication on Qt's offscreen platform, so no display or desktop session is
 /// needed (rendering uses an offscreen OpenGL context, as in the tests).
 int runCommandLine(int argc, char** argv, const QStringList& arguments)
 {
-    qputenv("QT_QPA_PLATFORM", "offscreen"); // headless whatever the session says
+    const bool hasDisplay = !qEnvironmentVariableIsEmpty("DISPLAY")
+        || !qEnvironmentVariableIsEmpty("WAYLAND_DISPLAY");
+    const bool needsGl = commandNeedsOpenGl(arguments);
+    if (!needsGl || !hasDisplay) {
+        qputenv("QT_QPA_PLATFORM", "offscreen"); // headless whatever the session says
+        // Without a display the OpenGL commands start again under xvfb-run, where a context
+        // exists (the answer, files and exit code are the same).
+        if (needsGl) {
+            QCoreApplication probe(argc, argv);
+            const int code = rerunUnderXvfb(arguments);
+            if (code >= 0)
+                return code;
+        }
+    }
     configureOpenGL();
     QGuiApplication app(argc, argv);
     setApplicationIdentity();
+    kk::plugins::PluginRegistry::instance().load();
     return kk::cli::run(arguments, stdout, stderr);
 }
 
@@ -223,6 +276,7 @@ int main(int argc, char** argv)
     QGuiApplication::setDesktopFileName(QLatin1String(kk::appinfo::desktopId));
     kk::initResources();
     kk::EditBehaviour::migrateSettings();
+    kk::plugins::PluginRegistry::instance().load(); // before any project loads
 
     kk::CommandLineOptions options;
     QString error;
@@ -254,6 +308,7 @@ int main(int argc, char** argv)
     kk::theme::registerSettingsPage(settingsPages, actions);
     kk::registerSettingsTransferPage(settingsPages); // Preferences > Import and Export
     kk::registerAiModelsPage(settingsPages); // Preferences > AI Models (Background Removal)
+    kk::registerPluginsPage(settingsPages); // Preferences > Plugins
     // Program playback: owns the compositor (render thread + GL context) shared by every
     // viewer, follows the project's timeline and media pool.
     kk::applyStartupPreferences(); // before the compositor exists (GPU processing mode)

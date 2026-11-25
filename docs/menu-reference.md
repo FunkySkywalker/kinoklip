@@ -1,4 +1,4 @@
-413 menu entries in 13 menus; 62 panels
+415 menu entries in 13 menus; 62 panels
 
 # Menu and panel reference
 
@@ -465,6 +465,8 @@ Shortcuts are the defaults of the Resolve keymap (Windows); another keyboard pro
 | Reset UI Layout |  | Puts the panels of every page back to their default places and sizes. |
 | Color Theme |  | Lists the colour schemes found on this computer; choosing one changes the colours of the whole window. |
 | Style |  | Lists the widget styles found on this computer; choosing one changes how buttons and panels are drawn. |
+| Plugins… |  | Opens Preferences > Plugins: the installed plugins, install a .kkplugin file or a plugin folder, switch plugins on and off, reload them. |
+| Scripts |  | Lists the scripts of the enabled plugins; choosing one runs it and shows its output. |
 
 ## Help
 
@@ -585,7 +587,7 @@ Shortcuts are the defaults of the Resolve keymap (Windows); another keyboard pro
 
 # Streamlined menu layout
 
-Preferences > UI Settings > Menu layout offers the menus above (Resolve, the default) or this arrangement (Streamlined): 413 commands in 15 tables (menus, page menus and the last table), no menu longer than 12 entries, grouped by task, with plain names. The commands, their keys and descriptions are the same in both. The page menu (Cut, Nodes or Grade) is shown on its page only; the tables below list all three. Commands that are on no menu are in the last table.
+Preferences > UI Settings > Menu layout offers the menus above (Resolve, the default) or this arrangement (Streamlined): 415 commands in 15 tables (menus, page menus and the last table), no menu longer than 12 entries, grouped by task, with plain names. The commands, their keys and descriptions are the same in both. The page menu (Cut, Nodes or Grade) is shown on its page only; the tables below list all three. Commands that are on no menu are in the last table.
 
 ## Streamlined Kinoklip
 
@@ -718,6 +720,8 @@ Preferences > UI Settings > Menu layout offers the menus above (Resolve, the def
 | Reset Layout |  | Puts the panels of every page back to their default places and sizes. |
 | Look > Colour Scheme |  | Lists the colour schemes found on this computer; choosing one changes the colours of the whole window. |
 | Look > Widget Style |  | Lists the widget styles found on this computer; choosing one changes how buttons and panels are drawn. |
+| Plugins… |  | Opens Preferences > Plugins: the installed plugins, install a .kkplugin file or a plugin folder, switch plugins on and off, reload them. |
+| Scripts |  | Lists the scripts of the enabled plugins; choosing one runs it and shows its output. |
 
 ## Streamlined Timeline
 
