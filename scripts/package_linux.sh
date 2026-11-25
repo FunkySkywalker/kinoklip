@@ -407,6 +407,13 @@ else
     log "WARNING: no Noto Color Emoji on this host (install noto-fonts-emoji): emoji in titles need the user's own font"
 fi
 
+# Plugins (docs/plugins): the example plugins people copy from (plugin.copy_builtin, Install Folder)
+# and the folder bundled plugins load from (src/plugins/PluginRegistry.cpp: share/kinoklip/plugins).
+mkdir -p "$APPDIR/usr/share/kinoklip/plugins"
+rm -rf "$APPDIR/usr/share/kinoklip/plugin-examples"
+cp -r "$ROOT/plugins/examples" "$APPDIR/usr/share/kinoklip/plugin-examples"
+install -D -m 644 "$ROOT/docs/plugins/plugin.schema.json" "$APPDIR/usr/share/kinoklip/plugin.schema.json"
+
 # RUNPATHs. They make the bundle work without LD_LIBRARY_PATH for everything except Qt
 # (which the launcher selects per mode). Never include usr/lib/qt in the binary's RUNPATH,
 # or host-Qt mode could not use the system Qt.

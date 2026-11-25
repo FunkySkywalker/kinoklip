@@ -1,0 +1,22 @@
+{
+  "id": "dev.kinoklip.dip-to-color",
+  "name": "Dip to Color (example plugin)",
+  "version": "1.0.0",
+  "author": "The Kinoklip contributors",
+  "license": "GPL-3.0-or-later",
+  "description": "The built-in Dip to Color transition as a plugin: a template for a transition with a colour parameter.",
+  "api": 1,
+  "transitions": [
+    {
+      "id": "dip_to_color",
+      "name": "Dip to Color (plugin)",
+      "description": "Fade through a solid colour, written as a plugin",
+      "group": "dissolve",
+      "ported_from": "dip_to_color",
+      "file": "dip.glsl",
+      "params": [
+        { "key": "color", "label": "Color", "type": "color", "default": "#000000" }
+      ]
+    }
+  ]
+}

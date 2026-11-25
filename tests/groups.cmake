@@ -23,7 +23,7 @@ set(KK_TESTS_FULL
   test_bughunt12 test_inapphelp test_audiopage test_analyzerui test_trackeffectsui test_loudnessui test_trackers test_schemecolors
   test_embeddedmedia test_cli test_voiceover test_pagecommands test_openurl test_audiosync
   test_videodecoder test_polish4shots test_pointtracker test_mediamanagement test_commands
-  test_adjustment test_inputlutui check_menu_reference
+  test_adjustment test_inputlutui check_menu_reference test_pluginrender
 )
 
 # Fast pure-logic and UI tests.

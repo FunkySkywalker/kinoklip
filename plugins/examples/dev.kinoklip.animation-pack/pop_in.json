@@ -1,0 +1,10 @@
+{
+  "commands": [
+    { "command": "keyframe.set", "args": { "clip": "$clip", "param": "opacity", "at": "$start", "value": "0" } },
+    { "command": "keyframe.set", "args": { "clip": "$clip", "param": "opacity", "at": "$start+12", "value": "100" } },
+    { "command": "keyframe.set", "args": { "clip": "$clip", "param": "zoomX", "at": "$start", "value": "0.8" } },
+    { "command": "keyframe.set", "args": { "clip": "$clip", "param": "zoomX", "at": "$start+12", "value": "1", "interp": "easeOut" } },
+    { "command": "keyframe.set", "args": { "clip": "$clip", "param": "zoomY", "at": "$start", "value": "0.8" } },
+    { "command": "keyframe.set", "args": { "clip": "$clip", "param": "zoomY", "at": "$start+12", "value": "1", "interp": "easeOut" } }
+  ]
+}

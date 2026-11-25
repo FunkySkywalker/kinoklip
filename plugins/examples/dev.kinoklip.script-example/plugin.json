@@ -1,0 +1,19 @@
+{
+  "id": "dev.kinoklip.script-example",
+  "name": "Script Example",
+  "version": "1.0.0",
+  "author": "The Kinoklip contributors",
+  "license": "GPL-3.0-or-later",
+  "description": "A script plugin: puts a marker on the first frame of every clip. A template for automation scripts (python3, the command layer of Kinoklip).",
+  "api": 1,
+  "permissions": ["project.read", "project.edit"],
+  "scripts": [
+    {
+      "id": "mark_clip_starts",
+      "name": "Mark the Start of Every Clip",
+      "description": "Adds a marker where each clip of the timeline begins",
+      "file": "mark_clip_starts.py",
+      "permissions": ["project.read", "project.edit"]
+    }
+  ]
+}
