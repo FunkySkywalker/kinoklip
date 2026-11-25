@@ -2149,6 +2149,10 @@ Das Programm wurde wahrscheinlich vom System beendet, weil der Arbeitsspeicher d
         <source>%1: not moved, %2.</source>
         <translation>%1: nicht verschoben, %2.</translation>
     </message>
+    <message>
+        <source>Plugins</source>
+        <translation>Plugins</translation>
+    </message>
 </context>
 <context>
     <name>kk::ActionDescriptions</name>
@@ -2167,6 +2171,10 @@ Das Programm wurde wahrscheinlich vom System beendet, weil der Arbeitsspeicher d
     <message>
         <source>Turns Vim mode on or off: with it on, plain keys are Vim commands (NORMAL mode) and i gives you the usual shortcuts back (INSERT mode). Works with any keyboard profile.</source>
         <translation>Schaltet den Vim-Modus ein oder aus: Wenn er an ist, sind einfache Tasten Vim-Befehle (NORMAL-Modus), und i gibt die üblichen Tastenkürzel zurück (INSERT-Modus). Funktioniert mit jedem Tastaturprofil.</translation>
+    </message>
+    <message>
+        <source>Opens Preferences &gt; Plugins: the installed plugins, install a .kkplugin file or a plugin folder, switch plugins on and off, reload them.</source>
+        <translation>Öffnet Einstellungen &gt; Plugins: die installierten Plugins, eine .kkplugin-Datei oder einen Plugin-Ordner installieren, Plugins ein- und ausschalten, neu laden.</translation>
     </message>
     <message>
         <source>Opens the Preferences window (user settings such as editing, playback, interface and local control).</source>
@@ -17826,6 +17834,10 @@ Danke fürs Zuschauen</translation>
         <translation>Zeitlich</translation>
     </message>
     <message>
+        <source>Plugins</source>
+        <translation>Plugins</translation>
+    </message>
+    <message>
         <source>Dissolve</source>
         <translation>Überblendung</translation>
     </message>
@@ -18277,6 +18289,10 @@ Danke fürs Zuschauen</translation>
         <translation>Löscht die gespeicherte Makrodatei; Titel, die schon auf der Timeline liegen, bleiben unverändert</translation>
     </message>
     <message>
+        <source>Apply to Selected Clips</source>
+        <translation>Auf ausgewählte Clips anwenden</translation>
+    </message>
+    <message>
         <source>Add to Selected Edit Point</source>
         <translation>Zum gewählten Schnittpunkt hinzufügen</translation>
     </message>
@@ -18321,6 +18337,14 @@ Standardübergang dieses Projekts</translation>
     <message>
         <source>Toolbox</source>
         <translation>Toolbox</translation>
+    </message>
+    <message>
+        <source>Presets</source>
+        <translation>Vorgaben</translation>
+    </message>
+    <message>
+        <source>Presets from plugins</source>
+        <translation>Vorgaben aus Plugins</translation>
     </message>
     <message>
         <source>Audio FX</source>
@@ -19539,6 +19563,10 @@ Einen aus der Effekte-Bibliothek ziehen oder Effekt hinzufügen verwenden.</tran
     <message>
         <source>Remove effect</source>
         <translation>Effekt entfernen</translation>
+    </message>
+    <message>
+        <source>Missing plugin: “%1” is not installed or not enabled. The effect is bypassed and its settings are kept.</source>
+        <translation>Fehlendes Plugin: „%1“ ist nicht installiert oder nicht aktiviert. Der Effekt wird übergangen, seine Einstellungen bleiben erhalten.</translation>
     </message>
     <message>
         <source>Unknown effect type “%1”.</source>
@@ -21319,6 +21347,10 @@ Auch ein Doppelklick auf die Kopfzeile oder Herausziehen der Kopfzeile aus dem P
     <message>
         <source>Lists the widget styles found on this computer; choosing one changes how buttons and panels are drawn.</source>
         <translation>Listet die auf diesem Computer gefundenen Widget-Stile; Auswählen ändert, wie Schaltflächen und Panels gezeichnet werden.</translation>
+    </message>
+    <message>
+        <source>Lists the scripts of the enabled plugins; choosing one runs it and shows its output.</source>
+        <translation>Listet die Skripte der aktivierten Plugins; ein Klick führt das Skript aus und zeigt seine Ausgabe.</translation>
     </message>
     <message>
         <source>&amp;Undo %1</source>
@@ -23590,6 +23622,10 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
         <translation>Rückwärts abspielen</translation>
     </message>
     <message>
+        <source>Plugins…</source>
+        <translation>Plugins…</translation>
+    </message>
+    <message>
         <source>Polygon</source>
         <translation>Polygon</translation>
     </message>
@@ -23752,6 +23788,10 @@ Dateien mit %1 importieren oder hier ablegen.</translation>
     <message>
         <source>Save Preset…</source>
         <translation>Preset speichern…</translation>
+    </message>
+    <message>
+        <source>Scripts</source>
+        <translation>Skripte</translation>
     </message>
     <message>
         <source>Select</source>
@@ -28355,6 +28395,210 @@ Auto: Voll, wechselt nur zu Halb, solange die Wiedergabe nicht mithält (pausier
     <message>
         <source>Play every frame at full resolution; frames are skipped if the computer cannot keep up.</source>
         <translation>Jedes Frame in voller Auflösung abspielen; Frames werden übersprungen, wenn der Computer nicht mithält.</translation>
+    </message>
+</context>
+<context>
+    <name>kk::PluginHost</name>
+    <message>
+        <source>Preset</source>
+        <translation>Vorgabe</translation>
+    </message>
+    <message>
+        <source>The preset is not available (its plugin is missing or disabled).</source>
+        <translation>Die Vorgabe ist nicht verfügbar (ihr Plugin fehlt oder ist deaktiviert).</translation>
+    </message>
+    <message>
+        <source>Select a clip to apply this preset to.</source>
+        <translation>Wählen Sie einen Clip aus, auf den die Vorgabe angewendet werden soll.</translation>
+    </message>
+    <message>
+        <source>Apply %1</source>
+        <translation>%1 anwenden</translation>
+    </message>
+    <message>
+        <source>No scripts installed</source>
+        <translation>Keine Skripte installiert</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Stopp</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Schließen</translation>
+    </message>
+    <message>
+        <source>Script: %1</source>
+        <translation>Skript: %1</translation>
+    </message>
+</context>
+<context>
+    <name>kk::PluginsPage</name>
+    <message>
+        <source>Author:</source>
+        <translation>Autor:</translation>
+    </message>
+    <message>
+        <source>Licence:</source>
+        <translation>Lizenz:</translation>
+    </message>
+    <message>
+        <source>Id:</source>
+        <translation>Id:</translation>
+    </message>
+    <message>
+        <source>Bundled with Kinoklip in</source>
+        <translation>Mit Kinoklip mitgeliefert in</translation>
+    </message>
+    <message>
+        <source>Installed in</source>
+        <translation>Installiert in</translation>
+    </message>
+    <message>
+        <source>This plugin has problems and is not used:</source>
+        <translation>Dieses Plugin hat Probleme und wird nicht verwendet:</translation>
+    </message>
+    <message>
+        <source>Effect: </source>
+        <translation>Effekt: </translation>
+    </message>
+    <message>
+        <source>Transition: </source>
+        <translation>Übergang: </translation>
+    </message>
+    <message>
+        <source>Preset: </source>
+        <translation>Vorgabe: </translation>
+    </message>
+    <message>
+        <source>Script: </source>
+        <translation>Skript: </translation>
+    </message>
+    <message>
+        <source>Contains</source>
+        <translation>Enthält</translation>
+    </message>
+    <message>
+        <source>The shader does not compile:</source>
+        <translation>Der Shader lässt sich nicht kompilieren:</translation>
+    </message>
+    <message>
+        <source>It asks to</source>
+        <translation>Es möchte</translation>
+    </message>
+    <message>
+        <source>Scripts are programs (Python 3) that run on this computer when you choose them in Workspace &gt; Scripts, with your rights. Enable only plugins you trust.</source>
+        <translation>Skripte sind Programme (Python 3), die auf diesem Computer mit Ihren Rechten laufen, wenn Sie sie unter Arbeitsbereich &gt; Skripte auswählen. Aktivieren Sie nur Plugins, denen Sie vertrauen.</translation>
+    </message>
+    <message>
+        <source>Plugins add effects, transitions, presets and scripts. They show up in the Effects library and in Workspace &gt; Scripts like the built-in ones. Install a .kkplugin file or a plugin folder; you can also drop a .kkplugin file onto the window.</source>
+        <translation>Plugins fügen Effekte, Übergänge, Vorgaben und Skripte hinzu. Sie erscheinen wie die eingebauten in der Effektbibliothek und unter Arbeitsbereich &gt; Skripte. Installieren Sie eine .kkplugin-Datei oder einen Plugin-Ordner; eine .kkplugin-Datei lässt sich auch auf das Fenster ziehen.</translation>
+    </message>
+    <message>
+        <source>Install…</source>
+        <translation>Installieren…</translation>
+    </message>
+    <message>
+        <source>Install a .kkplugin file</source>
+        <translation>Eine .kkplugin-Datei installieren</translation>
+    </message>
+    <message>
+        <source>Install Folder…</source>
+        <translation>Ordner installieren…</translation>
+    </message>
+    <message>
+        <source>Install a plugin folder (one with a plugin.json)</source>
+        <translation>Einen Plugin-Ordner installieren (mit einer plugin.json)</translation>
+    </message>
+    <message>
+        <source>Uninstall</source>
+        <translation>Deinstallieren</translation>
+    </message>
+    <message>
+        <source>Reload</source>
+        <translation>Neu laden</translation>
+    </message>
+    <message>
+        <source>Read all plugin folders again: edited shaders and manifests take effect at once</source>
+        <translation>Alle Plugin-Ordner neu einlesen: geänderte Shader und Manifeste gelten sofort</translation>
+    </message>
+    <message>
+        <source>Open Plugin Folder</source>
+        <translation>Plugin-Ordner öffnen</translation>
+    </message>
+    <message>
+        <source>Install Plugin</source>
+        <translation>Plugin installieren</translation>
+    </message>
+    <message>
+        <source>Kinoklip plugins (*.kkplugin);;All files (*)</source>
+        <translation>Kinoklip-Plugins (*.kkplugin);;Alle Dateien (*)</translation>
+    </message>
+    <message>
+        <source>Install Plugin Folder</source>
+        <translation>Plugin-Ordner installieren</translation>
+    </message>
+    <message>
+        <source>Uninstall Plugin</source>
+        <translation>Plugin deinstallieren</translation>
+    </message>
+    <message>
+        <source>Delete the plugin &quot;%1&quot;? Projects that use it keep the effect&apos;s settings and show it as a missing plugin.</source>
+        <translation>Das Plugin „%1“ löschen? Projekte, die es verwenden, behalten die Einstellungen des Effekts und zeigen ihn als fehlendes Plugin an.</translation>
+    </message>
+    <message>
+        <source>  (bundled)</source>
+        <translation>  (mitgeliefert)</translation>
+    </message>
+    <message>
+        <source>  (problem)</source>
+        <translation>  (Problem)</translation>
+    </message>
+    <message>
+        <source>No plugins installed.</source>
+        <translation>Keine Plugins installiert.</translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; contains scripts: programs that run on this computer with your rights when you choose them in Workspace &gt; Scripts.
+
+It asks to:
+%2
+
+Only enable plugins from people you trust.</source>
+        <translation>„%1“ enthält Skripte: Programme, die auf diesem Computer mit Ihren Rechten laufen, wenn Sie sie unter Arbeitsbereich &gt; Skripte auswählen.
+
+Es möchte:
+%2
+
+Aktivieren Sie nur Plugins von Personen, denen Sie vertrauen.</translation>
+    </message>
+    <message>
+        <source>- (nothing declared)</source>
+        <translation>- (nichts angegeben)</translation>
+    </message>
+    <message>
+        <source>Enable Scripts</source>
+        <translation>Skripte aktivieren</translation>
+    </message>
+    <message>
+        <source>The plugin could not be installed.
+
+%1</source>
+        <translation>Das Plugin konnte nicht installiert werden.
+
+%1</translation>
+    </message>
+    <message>
+        <source>Installed &quot;%1&quot;.</source>
+        <translation>„%1“ installiert.</translation>
+    </message>
+    <message>
+        <source>It contains scripts, so it is switched off until you enable it in Preferences &gt; Plugins.</source>
+        <translation>Es enthält Skripte und ist daher ausgeschaltet, bis Sie es unter Einstellungen &gt; Plugins aktivieren.</translation>
+    </message>
+    <message>
+        <source>Plugins</source>
+        <translation>Plugins</translation>
     </message>
 </context>
 <context>
@@ -33505,6 +33749,14 @@ Kinoklip neu starten, um sie anzuwenden.</translation>
         <translation>&amp;Stil</translation>
     </message>
     <message>
+        <source>&amp;Plugins…</source>
+        <translation>&amp;Plugins…</translation>
+    </message>
+    <message>
+        <source>S&amp;cripts</source>
+        <translation>S&amp;kripte</translation>
+    </message>
+    <message>
         <source>&amp;Help for This…</source>
         <translation>&amp;Hilfe dazu…</translation>
     </message>
@@ -38102,6 +38354,56 @@ Einen Multicam-Clip aus dem Medienpool öffnen oder den Abspielkopf über einen 
     <message>
         <source>Select a multicam clip to flatten.</source>
         <translation>Einen Multicam-Clip zum Verflachen wählen.</translation>
+    </message>
+</context>
+<context>
+    <name>kk::plugins</name>
+    <message>
+        <source>Read the open project</source>
+        <translation>Das geöffnete Projekt lesen</translation>
+    </message>
+    <message>
+        <source>Change the open project</source>
+        <translation>Das geöffnete Projekt ändern</translation>
+    </message>
+    <message>
+        <source>Read files on this computer</source>
+        <translation>Dateien auf diesem Computer lesen</translation>
+    </message>
+    <message>
+        <source>Write files on this computer</source>
+        <translation>Dateien auf diesem Computer schreiben</translation>
+    </message>
+    <message>
+        <source>Use the network</source>
+        <translation>Das Netzwerk verwenden</translation>
+    </message>
+    <message>
+        <source>Start other programs</source>
+        <translation>Andere Programme starten</translation>
+    </message>
+</context>
+<context>
+    <name>kk::plugins::ScriptRunner</name>
+    <message>
+        <source>Stopped: the script ran longer than %1 minutes.</source>
+        <translation>Gestoppt: Das Skript lief länger als %1 Minuten.</translation>
+    </message>
+    <message>
+        <source>Stopped.</source>
+        <translation>Gestoppt.</translation>
+    </message>
+    <message>
+        <source>python3 could not be started.</source>
+        <translation>python3 konnte nicht gestartet werden.</translation>
+    </message>
+    <message>
+        <source>The script ended with an error (exit code %1).</source>
+        <translation>Das Skript wurde mit einem Fehler beendet (Exit-Code %1).</translation>
+    </message>
+    <message>
+        <source>Done.</source>
+        <translation>Fertig.</translation>
     </message>
 </context>
 <context>
