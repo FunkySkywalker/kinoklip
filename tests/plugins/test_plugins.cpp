@@ -332,11 +332,11 @@ private slots:
             QVERIFY(f.open(QIODevice::ReadOnly));
             bytes = f.readAll();
         }
-        const QByteArray evil = QByteArray(bytes).replace("a.txt", "../x");
+        const QByteArray evil = QByteArray(bytes).replace("a.txt", "../x1");
         writeFile(m_dir.filePath(QStringLiteral("evil.zip")), evil);
         QVERIFY(!zip::extractAll(m_dir.filePath(QStringLiteral("evil.zip")), out, &error));
         QVERIFY2(error.contains("unsafe"), qPrintable(error));
-        QVERIFY(!QFileInfo::exists(m_dir.filePath(QStringLiteral("x"))));
+        QVERIFY(!QFileInfo::exists(m_dir.filePath(QStringLiteral("x1"))));
         // A damaged archive and a wrong checksum are refused.
         QByteArray damaged = bytes;
         damaged[damaged.indexOf("hello")] = 'J';

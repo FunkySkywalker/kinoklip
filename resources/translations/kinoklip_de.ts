@@ -28491,6 +28491,14 @@ Auto: Voll, wechselt nur zu Halb, solange die Wiedergabe nicht mithält (pausier
         <translation>Skripte sind Programme (Python 3), die auf diesem Computer mit Ihren Rechten laufen, wenn Sie sie unter Arbeitsbereich &gt; Skripte auswählen. Aktivieren Sie nur Plugins, denen Sie vertrauen.</translation>
     </message>
     <message>
+        <source>Check</source>
+        <translation>Prüfen</translation>
+    </message>
+    <message>
+        <source>No problems found.</source>
+        <translation>Keine Probleme gefunden.</translation>
+    </message>
+    <message>
         <source>Plugins add effects, transitions, presets and scripts. They show up in the Effects library and in Workspace &gt; Scripts like the built-in ones. Install a .kkplugin file or a plugin folder; you can also drop a .kkplugin file onto the window.</source>
         <translation>Plugins fügen Effekte, Übergänge, Vorgaben und Skripte hinzu. Sie erscheinen wie die eingebauten in der Effektbibliothek und unter Arbeitsbereich &gt; Skripte. Installieren Sie eine .kkplugin-Datei oder einen Plugin-Ordner; eine .kkplugin-Datei lässt sich auch auf das Fenster ziehen.</translation>
     </message>
@@ -28521,6 +28529,10 @@ Auto: Voll, wechselt nur zu Halb, solange die Wiedergabe nicht mithält (pausier
     <message>
         <source>Read all plugin folders again: edited shaders and manifests take effect at once</source>
         <translation>Alle Plugin-Ordner neu einlesen: geänderte Shader und Manifeste gelten sofort</translation>
+    </message>
+    <message>
+        <source>Compile the shaders of the selected plugin for OpenGL 3.3 and OpenGL ES 3.0 and list every problem with its line</source>
+        <translation>Die Shader des gewählten Plugins für OpenGL 3.3 und OpenGL ES 3.0 kompilieren und jedes Problem mit seiner Zeile auflisten</translation>
     </message>
     <message>
         <source>Open Plugin Folder</source>

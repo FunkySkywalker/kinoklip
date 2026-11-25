@@ -28491,6 +28491,14 @@ Automática: Completa, pasando a Mitad solo mientras la reproducción no pueda s
         <translation>Los scripts son programas (Python 3) que se ejecutan en este equipo con sus permisos cuando los elige en Espacio de trabajo &gt; Scripts. Active solo complementos de confianza.</translation>
     </message>
     <message>
+        <source>Check</source>
+        <translation>Comprobar</translation>
+    </message>
+    <message>
+        <source>No problems found.</source>
+        <translation>No se encontraron problemas.</translation>
+    </message>
+    <message>
         <source>Plugins add effects, transitions, presets and scripts. They show up in the Effects library and in Workspace &gt; Scripts like the built-in ones. Install a .kkplugin file or a plugin folder; you can also drop a .kkplugin file onto the window.</source>
         <translation>Los complementos añaden efectos, transiciones, preajustes y scripts. Aparecen en la biblioteca de efectos y en Espacio de trabajo &gt; Scripts como los integrados. Instale un archivo .kkplugin o una carpeta de complemento; también puede arrastrar un archivo .kkplugin a la ventana.</translation>
     </message>
@@ -28521,6 +28529,10 @@ Automática: Completa, pasando a Mitad solo mientras la reproducción no pueda s
     <message>
         <source>Read all plugin folders again: edited shaders and manifests take effect at once</source>
         <translation>Leer de nuevo todas las carpetas de complementos: los shaders y manifiestos editados surten efecto de inmediato</translation>
+    </message>
+    <message>
+        <source>Compile the shaders of the selected plugin for OpenGL 3.3 and OpenGL ES 3.0 and list every problem with its line</source>
+        <translation>Compila los shaders del complemento seleccionado para OpenGL 3.3 y OpenGL ES 3.0 y lista cada problema con su línea</translation>
     </message>
     <message>
         <source>Open Plugin Folder</source>

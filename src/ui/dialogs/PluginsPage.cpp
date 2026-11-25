@@ -5,6 +5,7 @@
 #include "platform/FileDialogs.h"
 #include "platform/OpenUrl.h"
 #include "plugins/PluginRegistry.h"
+#include "render/PluginValidate.h"
 
 #include <QCoreApplication>
 #include <QDir>
@@ -110,6 +111,22 @@ QString PluginsPage::detailsHtml(const QString& pluginId)
     return html;
 }
 
+QString PluginsPage::checkHtml(const QString& dir)
+{
+    const render::PluginValidation v = render::validatePluginFolder(dir, true);
+    QString html = QStringLiteral("<hr><p><b>%1</b></p>").arg(tr("Check"));
+    QStringList lines;
+    for (const plugins::Problem& p : v.problems)
+        lines << QStringLiteral("<li>%1</li>").arg(esc(p.text()));
+    for (const render::ValidatedItem& item : v.items)
+        lines << QStringLiteral("<li>%1: OpenGL 3.3 %2, OpenGL ES 3.0 %3</li>")
+                     .arg(esc(item.fullId), esc(item.desktop), esc(item.gles));
+    if (v.problems.isEmpty())
+        html += QStringLiteral("<p>%1</p>").arg(tr("No problems found."));
+    html += QStringLiteral("<ul>%1</ul>").arg(lines.join(QString()));
+    return html;
+}
+
 PluginsPage::PluginsPage(QWidget* parent)
     : SettingsPage(parent)
 {
@@ -150,9 +167,13 @@ PluginsPage::PluginsPage(QWidget* parent)
     reload->setObjectName(QStringLiteral("PluginReload"));
     reload->setToolTip(
         tr("Read all plugin folders again: edited shaders and manifests take effect at once"));
+    auto* check = new QPushButton(tr("Check"));
+    check->setObjectName(QStringLiteral("PluginCheck"));
+    check->setToolTip(tr("Compile the shaders of the selected plugin for OpenGL 3.3 and OpenGL ES "
+                         "3.0 and list every problem with its line"));
     auto* open = new QPushButton(tr("Open Plugin Folder"));
     open->setObjectName(QStringLiteral("PluginOpenFolder"));
-    for (QPushButton* b : {install, installFolder, m_uninstall, reload, open})
+    for (QPushButton* b : {install, installFolder, m_uninstall, reload, check, open})
         buttons->addWidget(b);
     buttons->addStretch(1);
     layout->addLayout(buttons);
@@ -186,6 +207,14 @@ PluginsPage::PluginsPage(QWidget* parent)
     });
     connect(
         reload, &QPushButton::clicked, this, [] { plugins::PluginRegistry::instance().reload(); });
+    connect(check, &QPushButton::clicked, this, [this] {
+        const plugins::LoadedPlugin* p = plugins::PluginRegistry::instance().find(currentId());
+        if (!p)
+            return;
+        m_checkedId = p->id();
+        m_checkHtml = checkHtml(p->dir);
+        showDetails();
+    });
     connect(open, &QPushButton::clicked, this, [] {
         const QString dir = plugins::PluginRegistry::instance().userDir();
         QDir().mkpath(dir);
@@ -235,8 +264,11 @@ void PluginsPage::refresh()
 void PluginsPage::showDetails()
 {
     const QString id = currentId();
-    m_details->setHtml(id.isEmpty() ? QStringLiteral("<p>%1</p>").arg(tr("No plugins installed."))
-                                    : detailsHtml(id));
+    QString html = id.isEmpty() ? QStringLiteral("<p>%1</p>").arg(tr("No plugins installed."))
+                                : detailsHtml(id);
+    if (!id.isEmpty() && id == m_checkedId)
+        html += m_checkHtml;
+    m_details->setHtml(html);
     const plugins::LoadedPlugin* p = plugins::PluginRegistry::instance().find(id);
     m_uninstall->setEnabled(p && p->source == plugins::PluginSource::User);
 }

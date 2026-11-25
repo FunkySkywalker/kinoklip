@@ -28,6 +28,8 @@ public:
 
     /// Details text of the plugin @p pluginId as HTML (tests, the details pane).
     [[nodiscard]] static QString detailsHtml(const QString& pluginId);
+    /// The result of compiling the plugin in @p dir for both OpenGL APIs, as HTML (Check button).
+    [[nodiscard]] static QString checkHtml(const QString& dir);
 
 private:
     void refresh();
@@ -39,6 +41,8 @@ private:
     QTextBrowser* m_details = nullptr;
     QPushButton* m_uninstall = nullptr;
     bool m_refreshing = false;
+    QString m_checkedId; ///< the plugin the last Check was for
+    QString m_checkHtml;
 };
 
 /// Adds the "Plugins" page to Preferences > User.

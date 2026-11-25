@@ -2613,6 +2613,8 @@ QCoreApplication::translate("kk::PluginsPage", "  (problem)");
 QCoreApplication::translate("kk::PluginsPage", "- (nothing declared)");
 QCoreApplication::translate("kk::PluginsPage", "Author:");
 QCoreApplication::translate("kk::PluginsPage", "Bundled with Kinoklip in");
+QCoreApplication::translate("kk::PluginsPage", "Check");
+QCoreApplication::translate("kk::PluginsPage", "Compile the shaders of the selected plugin for OpenGL 3.3 and OpenGL ES 3.0 and list every problem with its line");
 QCoreApplication::translate("kk::PluginsPage", "Contains");
 QCoreApplication::translate("kk::PluginsPage", "Delete the plugin \"%1\"? Projects that use it keep the effect's settings and show it as a missing plugin.");
 QCoreApplication::translate("kk::PluginsPage", "Effect: ");
@@ -2631,6 +2633,7 @@ QCoreApplication::translate("kk::PluginsPage", "It contains scripts, so it is sw
 QCoreApplication::translate("kk::PluginsPage", "Kinoklip plugins (*.kkplugin);;All files (*)");
 QCoreApplication::translate("kk::PluginsPage", "Licence:");
 QCoreApplication::translate("kk::PluginsPage", "No plugins installed.");
+QCoreApplication::translate("kk::PluginsPage", "No problems found.");
 QCoreApplication::translate("kk::PluginsPage", "Open Plugin Folder");
 QCoreApplication::translate("kk::PluginsPage", "Plugins");
 QCoreApplication::translate("kk::PluginsPage", "Plugins add effects, transitions, presets and scripts. They show up in the Effects library and in Workspace > Scripts like the built-in ones. Install a .kkplugin file or a plugin folder; you can also drop a .kkplugin file onto the window.");

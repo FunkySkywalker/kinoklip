@@ -28512,6 +28512,14 @@ Auto: Full, switching to Half only while playback cannot keep up (paused: Full).
         <translation>Скрипты — это программы (Python 3), которые запускаются на этом компьютере с вашими правами, когда вы выбираете их в меню «Рабочая область &gt; Скрипты». Включайте только плагины, которым доверяете.</translation>
     </message>
     <message>
+        <source>Check</source>
+        <translation>Проверить</translation>
+    </message>
+    <message>
+        <source>No problems found.</source>
+        <translation>Проблем не найдено.</translation>
+    </message>
+    <message>
         <source>Plugins add effects, transitions, presets and scripts. They show up in the Effects library and in Workspace &gt; Scripts like the built-in ones. Install a .kkplugin file or a plugin folder; you can also drop a .kkplugin file onto the window.</source>
         <translation>Плагины добавляют эффекты, переходы, пресеты и скрипты. Они появляются в библиотеке эффектов и в меню «Рабочая область &gt; Скрипты» так же, как встроенные. Установите файл .kkplugin или папку плагина; файл .kkplugin можно также перетащить на окно.</translation>
     </message>
@@ -28542,6 +28550,10 @@ Auto: Full, switching to Half only while playback cannot keep up (paused: Full).
     <message>
         <source>Read all plugin folders again: edited shaders and manifests take effect at once</source>
         <translation>Заново прочитать все папки плагинов: изменённые шейдеры и манифесты вступают в силу сразу</translation>
+    </message>
+    <message>
+        <source>Compile the shaders of the selected plugin for OpenGL 3.3 and OpenGL ES 3.0 and list every problem with its line</source>
+        <translation>Скомпилировать шейдеры выбранного плагина для OpenGL 3.3 и OpenGL ES 3.0 и показать каждую проблему с номером строки</translation>
     </message>
     <message>
         <source>Open Plugin Folder</source>

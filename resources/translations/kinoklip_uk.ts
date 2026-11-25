@@ -28509,11 +28509,19 @@ Auto: Full, switching to Half only while playback cannot keep up (paused: Full).
     </message>
     <message>
         <source>Scripts are programs (Python 3) that run on this computer when you choose them in Workspace &gt; Scripts, with your rights. Enable only plugins you trust.</source>
-        <translation>Скрипти — це програми (Python 3), що запускаються на цьому комп'ютері з вашими правами, коли ви вибираєте їх у меню «Робоча область &gt; Скрипти». Вмикайте лише плагіни, яким довіряєте.</translation>
+        <translation>Скрипти — це програми (Python 3), що запускаються на цьому комп&apos;ютері з вашими правами, коли ви вибираєте їх у меню «Робоча область &gt; Скрипти». Вмикайте лише плагіни, яким довіряєте.</translation>
+    </message>
+    <message>
+        <source>Check</source>
+        <translation>Перевірити</translation>
+    </message>
+    <message>
+        <source>No problems found.</source>
+        <translation>Проблем не знайдено.</translation>
     </message>
     <message>
         <source>Plugins add effects, transitions, presets and scripts. They show up in the Effects library and in Workspace &gt; Scripts like the built-in ones. Install a .kkplugin file or a plugin folder; you can also drop a .kkplugin file onto the window.</source>
-        <translation>Плагіни додають ефекти, переходи, пресети та скрипти. Вони з'являються в бібліотеці ефектів і в меню «Робоча область &gt; Скрипти», як і вбудовані. Встановіть файл .kkplugin або теку плагіна; файл .kkplugin можна також перетягнути на вікно.</translation>
+        <translation>Плагіни додають ефекти, переходи, пресети та скрипти. Вони з&apos;являються в бібліотеці ефектів і в меню «Робоча область &gt; Скрипти», як і вбудовані. Встановіть файл .kkplugin або теку плагіна; файл .kkplugin можна також перетягнути на вікно.</translation>
     </message>
     <message>
         <source>Install…</source>
@@ -28542,6 +28550,10 @@ Auto: Full, switching to Half only while playback cannot keep up (paused: Full).
     <message>
         <source>Read all plugin folders again: edited shaders and manifests take effect at once</source>
         <translation>Заново прочитати всі теки плагінів: змінені шейдери й маніфести діють одразу</translation>
+    </message>
+    <message>
+        <source>Compile the shaders of the selected plugin for OpenGL 3.3 and OpenGL ES 3.0 and list every problem with its line</source>
+        <translation>Скомпілювати шейдери вибраного плагіна для OpenGL 3.3 та OpenGL ES 3.0 і показати кожну проблему з номером рядка</translation>
     </message>
     <message>
         <source>Open Plugin Folder</source>
@@ -28586,7 +28598,7 @@ It asks to:
 %2
 
 Only enable plugins from people you trust.</source>
-        <translation>«%1» містить скрипти: програми, що запускаються на цьому комп'ютері з вашими правами, коли ви вибираєте їх у меню «Робоча область &gt; Скрипти».
+        <translation>«%1» містить скрипти: програми, що запускаються на цьому комп&apos;ютері з вашими правами, коли ви вибираєте їх у меню «Робоча область &gt; Скрипти».
 
 Запитує:
 %2
@@ -38391,11 +38403,11 @@ Open a multicam clip from the media pool or move the playhead over one.</source>
     </message>
     <message>
         <source>Read files on this computer</source>
-        <translation>Читати файли на цьому комп'ютері</translation>
+        <translation>Читати файли на цьому комп&apos;ютері</translation>
     </message>
     <message>
         <source>Write files on this computer</source>
-        <translation>Записувати файли на цьому комп'ютері</translation>
+        <translation>Записувати файли на цьому комп&apos;ютері</translation>
     </message>
     <message>
         <source>Use the network</source>
