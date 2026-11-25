@@ -5,6 +5,7 @@
 #include "compositing/tracking/EffectTrackJob.h"
 #include "compositing/tracking/StabilizeJob.h"
 #include "core/AudioTransitions.h"
+#include "plugins/PluginRegistry.h"
 #include "core/EditOps.h"
 #include "core/MixerOps.h"
 #include "core/ParamKeys.h"
@@ -165,6 +166,9 @@ InspectorPanel::InspectorPanel(AppContext& ctx, QWidget* parent)
     m_stabilizer = new tracking::StabilizeRunner(this);
     connect(m_stabilizer, &tracking::StabilizeRunner::finished, this,
         &InspectorPanel::onStabilizeFinished);
+    // A plugin was reloaded, enabled or removed: the controls of its effects change.
+    connect(&plugins::PluginRegistry::instance(), &plugins::PluginRegistry::changed, this,
+        [this] { rebuild(); }, Qt::QueuedConnection);
 
     auto* content = new QWidget;
     auto* layout = new QVBoxLayout(content);
@@ -1324,9 +1328,16 @@ void InspectorPanel::buildEffectSection(
         connect(remove, &QToolButton::clicked, this,
             [this, clipId, effectId] { removeEffect(clipId, effectId); });
 
-        if (!d) {
-            group->addWidgetRow(
-                {}, createPlaceholderContent(tr("Unknown effect type “%1”.").arg(fx.type)));
+        if (!d || d->unavailable) {
+            // A plugin effect whose plugin is missing, disabled or broken: its settings stay in
+            // the project, the effect is skipped when rendering (bypass).
+            const bool plugin = fx.type.startsWith(QLatin1String("plugin:"));
+            group->addWidgetRow({},
+                createPlaceholderContent(plugin
+                        ? tr("Missing plugin: “%1” is not installed or not enabled. The effect is "
+                             "bypassed and its settings are kept.")
+                              .arg(fx.type)
+                        : tr("Unknown effect type “%1”.").arg(fx.type)));
             continue;
         }
         for (const ParamDescriptor& p : d->params) {

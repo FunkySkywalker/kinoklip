@@ -367,8 +367,24 @@ const ParamDescriptor* NodeDescriptor::param(const QString& key) const
 
 const NodeRegistry& NodeRegistry::instance()
 {
-    static const NodeRegistry registry;
+    static NodeRegistry registry;
     return registry;
+}
+
+void NodeRegistry::registerEffectNode(const EffectDescriptor& e)
+{
+    NodeRegistry& self = const_cast<NodeRegistry&>(instance());
+    NodeDescriptor d = node(effectNodeType(e.id), e.name, shortNameOf(e.name), nameBaseOf(e.name),
+        NodeCategory::Effect, e.description);
+    d.group = e.group;
+    d.effectId = e.id;
+    d.inputs = {inputPort(), maskPort()};
+    d.mainInput = nodeports::Input;
+    d.params = e.params;
+    if (const auto it = self.m_index.constFind(d.id); it != self.m_index.constEnd())
+        self.m_descriptors[*it] = std::move(d);
+    else
+        self.add(std::move(d));
 }
 
 void NodeRegistry::add(NodeDescriptor d)

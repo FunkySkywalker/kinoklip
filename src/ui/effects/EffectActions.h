@@ -55,6 +55,15 @@ namespace effectactions {
 [[nodiscard]] QVector<quint64> effectTargets(
     const Project& project, const QVector<quint64>& selected, quint64 anchor);
 
+/// Runs a plugin preset (plugins/PresetRecipe.h) on @p clips (or at the playhead for a preset
+/// that targets it), as one undo step; returns how many targets it was applied to (0 = it failed
+/// or nothing fitted). Set by the main window, which owns the command layer.
+using PresetApplier
+    = std::function<int(Project& project, const QVector<quint64>& clips, const QString& presetId)>;
+void setPresetApplier(PresetApplier applier);
+/// True if @p descriptorId names a preset of an enabled plugin ("plugin:<id>/<item>").
+[[nodiscard]] bool isPresetId(const QString& descriptorId);
+
 /// Appends a new instance of effect @p descriptorId to every clip in @p clipIds whose track
 /// type fits the effect and is not locked. One undo step. Returns the number of clips changed (0 = nothing done,
 /// e.g. unknown id or no fitting clip).

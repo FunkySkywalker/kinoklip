@@ -116,6 +116,11 @@ struct EffectDescriptor
     /// directly in its category section.
     QString group;
     QVector<ParamDescriptor> params;
+    /// Id of the plugin (plugins/PluginRegistry.h) that provides the entry; empty for built-ins.
+    QString plugin;
+    /// A plugin entry whose plugin is disabled, uninstalled or broken: still found by find() (a
+    /// project can use it: its data is kept and it renders as bypass) but not listed.
+    bool unavailable = false;
 
     /// Parameter descriptor with key @p key, or nullptr.
     [[nodiscard]] const ParamDescriptor* param(const QString& key) const;
@@ -150,6 +155,8 @@ inline constexpr char Revival[] = "revival";
 inline constexpr char Sharpen[] = "sharpen";
 inline constexpr char Refine[] = "refine";
 inline constexpr char Transform[] = "transform";
+/// Folder of the effects and transitions of plugins that name no folder of their own.
+inline constexpr char Plugins[] = "plugins";
 /// Folders of the video transitions (Resolve's Video Transitions bins).
 inline constexpr char Dissolve[] = "dissolve";
 inline constexpr char Iris[] = "iris";
@@ -173,8 +180,14 @@ public:
     /// The global registry with the built-in catalogue (PLAN §5.4).
     static EffectRegistry& instance();
 
-    /// Registers (or replaces) a descriptor.
+    /// Registers (or replaces) a descriptor. A replaced descriptor keeps its place in memory, so
+    /// pointers from find() stay valid (plugin reload).
     void add(EffectDescriptor descriptor);
+    /// Marks the descriptor @p id unavailable (see EffectDescriptor::unavailable); no effect for
+    /// an unknown id.
+    void markUnavailable(const QString& id);
+    /// Marks every descriptor of plugin @p pluginId unavailable.
+    void markPluginUnavailable(const QString& pluginId);
     /// Descriptor with id @p id, or nullptr. O(1), no allocation (called per effect per frame
     /// by the renderer). Pointers stay valid as long as no descriptor is added.
     /// A saved transition preset (id "tpreset:<name>", core/TransitionPresets.h) answers with a

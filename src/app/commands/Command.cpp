@@ -4,11 +4,13 @@
 
 #include "core/Project.h"
 #include "core/Timeline.h"
+#include "plugins/PresetRecipe.h"
 #include "pack/ProjectPackage.h"
 #include "ui/common/TimecodeFormat.h"
 
 #include <QFile>
 #include <QFileInfo>
+#include <QPair>
 #include <QJsonValue>
 
 #include <cmath>
@@ -442,6 +444,43 @@ std::optional<CommandResult> checkLiveArguments(const CommandSpec& spec,
 CommandResult CommandRegistry::executeLive(const QString& name, const QJsonObject& arguments,
     const LiveTarget& target, const ProgressFn& progress) const
 {
+    return runLive(name, arguments, target, progress, false);
+}
+
+CommandResult CommandRegistry::executeLiveBatch(const QString& label,
+    const QVector<QPair<QString, QJsonObject>>& steps, const LiveTarget& target) const
+{
+    Project& project = *target.project;
+    if (project.isEditing())
+        return CommandResult::failure(QStringLiteral("window_busy"),
+            QStringLiteral("the window is in the middle of an edit (%1); try again in a moment")
+                .arg(project.openEditLabel()));
+    // One undo step for all steps: the steps run inside this edit (nested edits only count).
+    project.beginEdit(label);
+    QJsonArray results;
+    qint64 lastEffect = 0;
+    for (const auto& [name, rawArgs] : steps) {
+        const QJsonObject args
+            = plugins::usesLastEffect(rawArgs) ? plugins::substituteResult(rawArgs, lastEffect) : rawArgs;
+        const CommandResult r = runLive(name, args, target, {}, true);
+        if (!r.ok) {
+            project.cancelEdit();
+            return CommandResult::failure(r.errorCode,
+                QStringLiteral("%1 failed: %2").arg(name, r.error));
+        }
+        results.append(r.data);
+        const QJsonValue id = r.data.value(QStringLiteral("effect")).toObject().value(QStringLiteral("id"));
+        if (id.isDouble())
+            lastEffect = qint64(id.toDouble());
+    }
+    project.endEdit();
+    return CommandResult::success({{QStringLiteral("results"), results}},
+        QStringLiteral("%1: %2 command(s)").arg(label).arg(steps.size()));
+}
+
+CommandResult CommandRegistry::runLive(const QString& name, const QJsonObject& arguments,
+    const LiveTarget& target, const ProgressFn& progress, bool nested) const
+{
     const Command* command = find(name);
     if (!command)
         return CommandResult::failure(
@@ -469,7 +508,7 @@ CommandResult CommandRegistry::executeLive(const QString& name, const QJsonObjec
     if (spec.use == ProjectUse::None)
         return command->run(ctx, CommandArgs(typed));
     // The user is in the middle of a drag or a field edit: an outer edit here would swallow it.
-    if (project.isEditing())
+    if (project.isEditing() && !nested)
         return CommandResult::failure(QStringLiteral("window_busy"),
             QStringLiteral("the window is in the middle of an edit (%1); try again in a moment")
                 .arg(project.openEditLabel()));

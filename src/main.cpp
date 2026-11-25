@@ -24,6 +24,7 @@
 #include "matting/MatteService.h"
 #include "media/MediaCache.h"
 #include "pack/ProjectPackage.h"
+#include "plugins/PluginRegistry.h"
 #include "playback/PlaybackEngine.h"
 #include "render/GlApi.h"
 #include "render/RenderFrameCommand.h"
@@ -159,6 +160,7 @@ int runCommandLine(int argc, char** argv, const QStringList& arguments)
     configureOpenGL();
     QGuiApplication app(argc, argv);
     setApplicationIdentity();
+    kk::plugins::PluginRegistry::instance().load();
     return kk::cli::run(arguments, stdout, stderr);
 }
 
@@ -223,6 +225,7 @@ int main(int argc, char** argv)
     QGuiApplication::setDesktopFileName(QLatin1String(kk::appinfo::desktopId));
     kk::initResources();
     kk::EditBehaviour::migrateSettings();
+    kk::plugins::PluginRegistry::instance().load(); // before any project loads
 
     kk::CommandLineOptions options;
     QString error;

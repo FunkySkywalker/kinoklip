@@ -126,7 +126,7 @@ bool VimController::openPicker(const QString& kind)
     } else if (kind == QLatin1String("effects")) {
         title = tr("Find effect, transition, title or generator");
         for (const EffectDescriptor& d : EffectRegistry::instance().all()) {
-            if (d.category == EffectCategory::ClipProperties)
+            if (d.category == EffectCategory::ClipProperties || d.unavailable)
                 continue;
             items.append({d.name, EffectRegistry::categoryName(d.category), d.id,
                 QVariant::fromValue(int(d.category))});

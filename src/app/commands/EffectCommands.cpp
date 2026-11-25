@@ -76,12 +76,12 @@ CommandResult listDescriptors(
     QJsonArray list;
     if (!id.isEmpty()) {
         const EffectDescriptor* d = registry.find(id);
-        if (!d || !categories.contains(d->category))
+        if (!d || !categories.contains(d->category) || d->unavailable)
             return fail("unknown_effect", QStringLiteral("no %1 with id \"%2\"").arg(what, id));
         list.append(descriptorToJson(*d, true));
     } else {
         for (const EffectDescriptor& d : registry.all()) {
-            if (categories.contains(d.category))
+            if (categories.contains(d.category) && !d.unavailable)
                 list.append(descriptorToJson(d, false));
         }
     }
