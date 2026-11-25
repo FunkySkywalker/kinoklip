@@ -70,7 +70,7 @@ jobs:
             libgl-dev libegl-dev libxkbcommon-dev libwayland-dev libva-dev \
             libkf6colorscheme-dev libkf6iconthemes-dev breeze breeze-icon-theme \
             libavformat-dev libavcodec-dev libavutil-dev libswscale-dev libswresample-dev \
-            libavfilter-dev libheif-dev libraw-dev \
+            libavfilter-dev libheif-dev libraw-dev liblilv-dev lv2-dev \
             ffmpeg kde-style-breeze-data
           # ONNX Runtime (Background Removal): Microsoft's release (MIT, CPU), pinned and checked.
           # Debian's libonnxruntime-dev loads onnx twice (libonnx.so + its own copy) and aborts at

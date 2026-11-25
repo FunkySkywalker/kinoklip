@@ -94,7 +94,7 @@ done
 if [ "$DO_BUILD" = 1 ]; then
     log "building Release in $BUILD_DIR"
     cmake -S "$ROOT" -B "$BUILD_DIR" -G Ninja -DCMAKE_BUILD_TYPE=Release >/dev/null
-    cmake --build "$BUILD_DIR" -j"${KK_JOBS:-4}" --target kinoklip kinoklip-ofx-probe
+    cmake --build "$BUILD_DIR" -j"${KK_JOBS:-4}" --target kinoklip kinoklip-ofx-probe kinoklip-audio-probe
 fi
 BIN="$BUILD_DIR/kinoklip"
 [ -x "$BIN" ] || die "no binary at $BIN (run without --no-build)"
@@ -306,6 +306,11 @@ if [ -x "$BUILD_DIR/kinoklip-ofx-probe" ]; then
     install -m 755 "$BUILD_DIR/kinoklip-ofx-probe" "$APPDIR/usr/bin/kinoklip-ofx-probe"
     strip --strip-unneeded "$APPDIR/usr/bin/kinoklip-ofx-probe"
 fi
+# The same for LV2 and CLAP audio plugins (spec 159): Qt Core, lilv when the build has it.
+if [ -x "$BUILD_DIR/kinoklip-audio-probe" ]; then
+    install -m 755 "$BUILD_DIR/kinoklip-audio-probe" "$APPDIR/usr/bin/kinoklip-audio-probe"
+    strip --strip-unneeded "$APPDIR/usr/bin/kinoklip-audio-probe"
+fi
 
 declare -A DEST_OF=() # soname -> bundle-relative dir
 for name in "${!IN_N[@]}" "${!IN_Q[@]}"; do
@@ -432,6 +437,35 @@ if [ -n "${KK_OFX_MISC_DIR:-}" ] && [ -d "$KK_OFX_MISC_DIR/Misc.ofx.bundle" ]; t
         "$APPDIR/usr/share/doc/kinoklip/licenses/openfx-misc-LICENSE.txt"
 fi
 
+# LV2 specifications (about 1 MB): lilv reads them to understand the plugins' descriptions; the AppImage
+# must not depend on /usr/lib/lv2 of the host (src/audioplug/Lv2Host.cpp looks in share/kinoklip/lv2-specs).
+if [ -d /usr/lib/lv2 ] && ls /usr/lib/lv2/lv2core.lv2/manifest.ttl >/dev/null 2>&1; then
+    mkdir -p "$APPDIR/usr/share/kinoklip/lv2-specs"
+    for spec in /usr/lib/lv2/*.lv2; do
+        [ -f "$spec/manifest.ttl" ] && cp -r "$spec" "$APPDIR/usr/share/kinoklip/lv2-specs/"
+    done
+fi
+
+# Free audio plugins (opt-in, spec 159): KK_LV2_BUNDLE_DIR holds *.lv2 folders, KK_CLAP_BUNDLE_DIR *.clap
+# files (for example the LSP plugins, LGPL-3.0-or-later, about 4 MB packed for CLAP; not bundled by default:
+# the upstream release is 38 MB for all formats). They go to the folders
+# bundled plugins load from (src/plugins/AudioPluginRegistry.cpp); each licence text travels with them.
+if [ -n "${KK_LV2_BUNDLE_DIR:-}" ] && ls -d "$KK_LV2_BUNDLE_DIR"/*.lv2 >/dev/null 2>&1; then
+    log "bundling LV2 plugins from $KK_LV2_BUNDLE_DIR"
+    mkdir -p "$APPDIR/usr/share/kinoklip/lv2"
+    cp -r "$KK_LV2_BUNDLE_DIR"/*.lv2 "$APPDIR/usr/share/kinoklip/lv2/"
+    find "$APPDIR/usr/share/kinoklip/lv2" -name '*.so' -exec strip --strip-unneeded {} +
+fi
+if [ -n "${KK_CLAP_BUNDLE_DIR:-}" ] && ls "$KK_CLAP_BUNDLE_DIR"/*.clap >/dev/null 2>&1; then
+    log "bundling CLAP plugins from $KK_CLAP_BUNDLE_DIR"
+    mkdir -p "$APPDIR/usr/share/kinoklip/clap"
+    cp "$KK_CLAP_BUNDLE_DIR"/*.clap "$APPDIR/usr/share/kinoklip/clap/"
+    strip --strip-unneeded "$APPDIR"/usr/share/kinoklip/clap/*.clap
+fi
+if [ -n "${KK_AUDIO_PLUGIN_LICENSES:-}" ] && [ -d "$KK_AUDIO_PLUGIN_LICENSES" ]; then
+    cp "$KK_AUDIO_PLUGIN_LICENSES"/* "$APPDIR/usr/share/doc/kinoklip/licenses/"
+fi
+
 # RUNPATHs. They make the bundle work without LD_LIBRARY_PATH for everything except Qt
 # (which the launcher selects per mode). Never include usr/lib/qt in the binary's RUNPATH,
 # or host-Qt mode could not use the system Qt.
@@ -442,6 +476,9 @@ log "setting RUNPATHs"
     patchelf --set-rpath '$ORIGIN/../lib:$ORIGIN/../lib/fallback-active' "$APPDIR/usr/bin/kinoklip"
     if [ -x "$APPDIR/usr/bin/kinoklip-ofx-probe" ]; then
         patchelf --set-rpath '$ORIGIN/../lib:$ORIGIN/../lib/fallback-active' "$APPDIR/usr/bin/kinoklip-ofx-probe"
+    fi
+    if [ -x "$APPDIR/usr/bin/kinoklip-audio-probe" ]; then
+        patchelf --set-rpath '$ORIGIN/../lib:$ORIGIN/../lib/fallback-active' "$APPDIR/usr/bin/kinoklip-audio-probe"
     fi
     for f in "$APPDIR"/usr/lib/*.so*; do
         patchelf --set-rpath '$ORIGIN:$ORIGIN/fallback-active' "$f"

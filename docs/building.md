@@ -7,7 +7,7 @@ needs Qt >= 6.6 and KDE Frameworks 6, so the main toolchain is the podman contai
 (Arch Linux: latest Qt 6, KF6, Breeze, FFmpeg, clang; the repository is mounted at the same
 path). Packages it needs: `base-devel cmake ninja qt6-base qt6-multimedia qt6-svg
 qt6-multimedia-ffmpeg ffmpeg kcolorscheme kiconthemes breeze breeze-icons libheif libraw
-patchelf zstd xorg-server-xvfb clang`.
+lilv lv2 (LV2 audio plugins, optional: without them the build has no LV2) patchelf zstd xorg-server-xvfb clang`.
 
 ```sh
 podman exec -w "$PWD" kk-arch sh -c 'cmake -S . -B build-arch -G Ninja && cmake --build build-arch -j4'

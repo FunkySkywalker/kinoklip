@@ -46,7 +46,8 @@ with "(problem)"; select it to read what is wrong.
 Kinoklip also runs OpenFX video effects (the free packs of Natron, such as openfx-misc): copy a
 `*.ofx.bundle` folder into `~/.local/share/Kinoklip/ofx` (or `/usr/OFX/Plugins`) and press Reload.
 They appear in the Effects library, folder OpenFX. How, which packs work and what happens with a
-plugin that crashes: [openfx.md](openfx.md).
+plugin that crashes: [openfx.md](openfx.md). Free LV2 and CLAP audio effects (LSP, x42, ZAM, Calf ...)
+work the same way on the Audio page: [audio-plugins.md](audio-plugins.md).
 
 ## Safety
 

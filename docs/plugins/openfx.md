@@ -69,7 +69,9 @@ protects you in two steps:
    `kinoklip-ofx-probe`, in its own process. If that process crashes, hangs (30 s limit) or fails,
    the bundle goes on the bad-plugin list with the reason and Kinoklip never loads it itself. The
    result of every scan is cached (`~/.cache/Kinoklip/ofx-scan.json`, keyed by the binary's size and
-   date), so later starts are quick and only new or changed bundles are probed again.
+   date), so later starts are quick and only new or changed bundles are probed again. New or changed
+   bundles are probed in the background, up to three at a time, so the first window never waits for
+   a probe: the effects library fills when the answers come (spec 159.8).
 2. **At render time** Kinoklip writes a mark before it loads a plugin for the first time and removes
    it after the plugin's first frame. If Kinoklip died in between, the next start lists that bundle
    as bad ("Kinoklip crashed the last time this plugin was loaded").

@@ -57,7 +57,7 @@ short prompt for an AI assistant, [llms.txt](llms.txt).
 - A preset is applied to clips or at the playhead; applying one at an edit point (a transition
   preset) needs a third target.
 - Plugin text is not translated: labels are what the author wrote.
-- No audio plugins yet (see next section).
+- Audio plugins are LV2 and CLAP, hosted as in the next section (spec 159).
 
 ## Ecosystems of other programs (step 6: plan)
 
@@ -103,16 +103,24 @@ OpenGL rendering, regions of definition larger than the clip. The plan below is 
   (5) the transition context. A bad plugin must not take the editor down: run in a helper process.
 - Id scheme: `ofx:<plugin identifier>`; the missing-plugin behaviour of the base already applies.
 
-### 3. LV2 and CLAP (audio effects)
+### 3. LV2 and CLAP (audio effects): done (spec 159, [audio-plugins.md](audio-plugins.md))
 
-- [lilv](https://drobilla.net/software/lilv) and LV2 (ISC) for LV2; the [CLAP](https://cleveraudio.org)
-  headers (MIT) for CLAP. Both fit the Audio page FX: parameters become `ParamDescriptor`s, the
-  processor runs in the mixer's block processing (`render/AudioClipEffects`) at 48 kHz float.
-- Packs worth bundling or pointing to: LSP plugins (LGPL-3.0, LV2 + CLAP), Calf (LGPL-2.1),
-  x42-plugins (GPL-2.0-or-later), Dragonfly reverb (GPL-3.0), Airwindows (MIT). Each needs its
-  licence file in the bundle.
-- New dependency: lilv (Arch/Debian have it; the AppImage and Flatpak builds must add it). CLAP
-  needs only headers.
+What was built: `src/audioplug/` (the hosts: `Lv2Host` through lilv with urid / options / buf-size
+features, `ClapHost` on the vendored MIT headers, a `ChannelAdapter` that fits mono, stereo and
+wider plugins to the mixer's interleaved stereo, `kinoklip-audio-probe` that loads one bundle in its own
+process), `src/plugins/AudioPluginRegistry.*` (scan folders, probe up to three at once in the
+background, cache, bad-plugin list, one `EffectDescriptor` per plugin with the id
+`audio_lv2:<URI>` / `audio_clap:<id>`) and `dsp::PluginClipEffect` in `render/AudioClipEffects.cpp`
+(a `ClipEffect` like the built-in ones, so clip effects, track effects, automation, latency
+compensation, tails, export and undo all work unchanged). The decisions: the effect id starts with
+`audio_` because the mixer recognises audio effects by it; the plugin is looked up lazily by
+registry generation so a missing plugin is a bypass that comes back by itself; LV2 `lilv` is an
+optional build dependency (without it LV2 is reported as unavailable) while CLAP needs only headers.
+Not done: plugin windows, MIDI and instruments, state, side-chain, surround.
+
+- Packs: LSP plugins (LGPL-3.0, LV2 + CLAP), Calf (LGPL-2.1), x42-plugins (GPL-2.0-or-later),
+  ZAM (GPL-2.0-or-later), Dragonfly reverb (GPL-3.0), Airwindows (MIT). A bundled pack needs its
+  licence file in the bundle (`scripts/package_linux.sh`, `KK_LV2_BUNDLE_DIR` / `KK_CLAP_BUNDLE_DIR`).
 
 ### 4. Resolve Fusion macros and fuses
 

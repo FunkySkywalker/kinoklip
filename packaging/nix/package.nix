@@ -12,6 +12,7 @@
 , ffmpeg
 , libheif
 , libraw
+, lilv
 , onnxruntime
 , libva
 , libGL
@@ -53,6 +54,7 @@ stdenv.mkDerivation {
     ffmpeg
     libheif
     libraw
+    lilv
     onnxruntime
     libva
     libGL

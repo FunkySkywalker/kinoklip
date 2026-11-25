@@ -14,6 +14,7 @@
 | `src/render/` | GPU compositor, CPU fallback renderer, masks, retime, audio mixer and mixer DSP (EQ, dynamics, loudness) |
 | `src/plugins/` | the plugin system (docs/plugins): manifest parser, registry (install, enable, hot reload), `.kkplugin` zip reader and writer, preset recipes, the python script runner |
 | `src/ofx/` | the OpenFX host (docs/plugins/openfx.md): property sets and suites, describe and render of image effect plugins, the JSON of their description; its own library `kk_ofx` and the probe program `kinoklip-ofx-probe` (no Kinoklip types in it) |
+| `src/audioplug/` | the LV2 (lilv) and CLAP audio effect hosts (docs/plugins/audio-plugins.md): plugin info as JSON, `Instance` that filters interleaved stereo, channel fitting, the JSON of a bundle; its own library `kk_audioplug` and the probe program `kinoklip-audio-probe` (no Kinoklip types in it) |
 | `src/matting/` | the AI tool Background Removal (spec 78): model catalogue and download, ONNX Runtime session (Robust Video Matting), the matte service (background worker, memory and disk cache) |
 | `src/compositing/tracking/` | tracking for the Tracker and Planar Tracker nodes (template matching, homography maths, runner, track store and link) |
 | `src/playback/` | timeline and source players, audio output, meter readings |
