@@ -417,6 +417,12 @@ private slots:
         target.project = &project;
         PluginHost host(ctx, target, nullptr);
         host.setQuiet(true);
+        const auto errorCode = [](const QJsonObject& reply) {
+            return reply.value(QStringLiteral("error"))
+                .toObject()
+                .value(QStringLiteral("code"))
+                .toString();
+        };
         const auto run
             = [&](const QStringList& perms, const QString& command, const QJsonObject& args) {
                   return host.executeForScript(perms, command, args);
