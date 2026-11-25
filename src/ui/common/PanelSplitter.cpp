@@ -122,15 +122,13 @@ void PanelSplitter::childEvent(QChildEvent* event)
     auto* panel = static_cast<QWidget*>(event->child());
     if (qobject_cast<QSplitterHandle*>(panel))
         return;
-    // A panel's contents set a minimum through its layout (the sum of its controls' minimums);
-    // an explicit minimum replaces it, so a row of panels always fits a small window. A minimum
-    // a page set itself is kept.
-    if (orientation() == Qt::Horizontal) {
-        if (panel->minimumWidth() == 0)
-            panel->setMinimumWidth(kMinPanelPx);
-    } else if (panel->minimumHeight() == 0) {
-        panel->setMinimumHeight(kMinPanelPx);
-    }
+    // A panel's contents set a minimum width through its layout (the sum of its controls'
+    // minimums); an explicit minimum replaces it, so a row of panels always fits a small window.
+    // Rows only: the heights of stacked panels keep what their contents ask for. A minimum a
+    // page set itself, and a fixed-width panel, are kept.
+    if (orientation() == Qt::Horizontal && panel->minimumWidth() == 0
+        && panel->sizePolicy().horizontalPolicy() != QSizePolicy::Fixed)
+        panel->setMinimumWidth(kMinPanelPx);
 }
 
 QSplitterHandle* PanelSplitter::createHandle()
