@@ -392,8 +392,8 @@ kinoklip.log("done", len(clips))
 - **Permissions.** A call that only reads the project needs `project.read` in the script's
   `permissions`; one that changes it needs `project.edit`. Without them the call raises
   `CommandError("permission_denied")`.
-- **Safety.** Python starts with `-I` (no modules from the plugin folder, no `PYTHON*`
-  variables), the working folder is the plugin folder, a run ends after 15 minutes, and a plugin
+- **Safety.** Python starts with `-I` (no `PYTHON*` variables; helper modules next to the
+  script are found after the standard library, so a file there cannot replace it), the working folder is the plugin folder, a run ends after 15 minutes, and a plugin
   with scripts is installed **switched off**: the person switches it on in Preferences > Plugins
   after reading what it asks for. A script is still a program: it runs with the person's rights and
   can read files and use the network. `files.read`, `files.write`, `network` and `processes` are

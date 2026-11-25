@@ -21,12 +21,13 @@ constexpr int kMaxRequests = 100000; ///< a runaway loop stops here
 constexpr int kMaxLineBytes = 8 * 1024 * 1024;
 
 // Starts the script with the bridge folder first on the path. -I (isolated mode) keeps the
-// script's own folder and the PYTHON* variables out of the module search, so a file placed next
-// to the script cannot shadow the standard library.
+// PYTHON* variables and the current folder out of the module search; the script's own folder goes
+// last, so the script can import helper files next to it but a file placed there (json.py) can
+// never shadow the standard library.
 constexpr char kBootstrap[] = "import sys, os, runpy\n"
                               "sdk, script = sys.argv[1], sys.argv[2]\n"
                               "sys.path.insert(0, sdk)\n"
-                              "sys.path.insert(1, os.path.dirname(script))\n"
+                              "sys.path.append(os.path.dirname(script))\n"
                               "sys.argv = sys.argv[2:]\n"
                               "runpy.run_path(script, run_name='__main__')\n";
 
