@@ -137,7 +137,7 @@
     <!-- The Python module plugin scripts import (src/plugins/ScriptRunner.cpp writes it next to the
          script run). -->
     <qresource prefix="/plugin-sdk">
-        <file>plugin-sdk/kinoklip.py</file>
+        <file alias="kinoklip.py">plugin-sdk/kinoklip.py</file>
     </qresource>
     <!-- KColorSchemeManager (KF6) also lists the schemes in this resource directory, so the
          default Kinoklip scheme is found without a copy on disk (src/app/Theme.cpp). -->

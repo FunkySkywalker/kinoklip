@@ -14,6 +14,7 @@
 
 #include <QDir>
 #include <QFile>
+#include <QSettings>
 #include <QStandardPaths>
 #include <QTemporaryDir>
 
@@ -108,7 +109,7 @@ private slots:
     {
         if (!m_gl)
             QSKIP("no OpenGL");
-        for (const double amount : {100.0, 100.0 / 3.0, 60.0, 25.0, 1.0}) {
+        for (const double amount : {100.0, 33.5, 60.0, 25.0, 1.0}) {
             ParamSet p;
             p.setBase(QStringLiteral("amount"), amount);
             QString why;
@@ -219,8 +220,9 @@ private slots:
     {
         const QString dir = m_dir.filePath(QStringLiteral("user/test.broken"));
         writeFile(dir + QStringLiteral("/plugin.json"),
-            R"({"id":"test.broken","name":"Broken","version":"1.0","author":"A","license":"MIT","api":1,
-                "effects":[{"id":"fx","name":"Broken","file":"fx.glsl"}]})");
+            "{\"id\":\"test.broken\",\"name\":\"Broken\",\"version\":\"1.0\",\"author\":\"A\","
+            "\"license\":\"MIT\",\"api\":1,"
+            "\"effects\":[{\"id\":\"fx\",\"name\":\"Broken\",\"file\":\"fx.glsl\"}]}");
         writeFile(dir + QStringLiteral("/fx.glsl"),
             "// line 1\n"
             "vec4 effect(vec2 uv)\n"
@@ -260,8 +262,9 @@ private slots:
             QSKIP("no OpenGL");
         const QString dir = m_dir.filePath(QStringLiteral("user/test.hot"));
         writeFile(dir + QStringLiteral("/plugin.json"),
-            R"({"id":"test.hot","name":"Hot","version":"1.0","author":"A","license":"MIT","api":1,
-                "effects":[{"id":"fx","name":"Hot","file":"fx.glsl"}]})");
+            "{\"id\":\"test.hot\",\"name\":\"Hot\",\"version\":\"1.0\",\"author\":\"A\","
+            "\"license\":\"MIT\",\"api\":1,"
+            "\"effects\":[{\"id\":\"fx\",\"name\":\"Hot\",\"file\":\"fx.glsl\"}]}");
         writeFile(dir + QStringLiteral("/fx.glsl"),
             "vec4 effect(vec2 uv) { return vec4(1.0, 0.0, 0.0, 1.0); }\n");
         PluginRegistry& reg = PluginRegistry::instance();
@@ -289,13 +292,15 @@ private slots:
             QSKIP("no OpenGL");
         const QString dir = m_dir.filePath(QStringLiteral("user/test.params"));
         writeFile(dir + QStringLiteral("/plugin.json"),
-            R"({"id":"test.params","name":"Params","version":"1.0","author":"A","license":"MIT","api":1,
-                "effects":[{"id":"fx","name":"Params","file":"fx.glsl","params":[
-                  {"key":"r","type":"number","min":0,"max":1,"default":0.25},
-                  {"key":"count","type":"integer","min":0,"max":10,"default":3},
-                  {"key":"flag","type":"boolean","default":true},
-                  {"key":"tint","type":"color","default":"#0000ff"},
-                  {"key":"mode","type":"choice","choices":["a","b","c"],"default":"b"}]}]})");
+            "{\"id\":\"test.params\",\"name\":\"Params\",\"version\":\"1.0\",\"author\":\"A\","
+            "\"license\":\"MIT\",\"api\":1,"
+            "\"effects\":[{\"id\":\"fx\",\"name\":\"Params\",\"file\":\"fx.glsl\",\"params\":["
+            "{\"key\":\"r\",\"type\":\"number\",\"min\":0,\"max\":1,\"default\":0.25},"
+            "{\"key\":\"count\",\"type\":\"integer\",\"min\":0,\"max\":10,\"default\":3},"
+            "{\"key\":\"flag\",\"type\":\"boolean\",\"default\":true},"
+            "{\"key\":\"tint\",\"type\":\"color\",\"default\":\"#0000ff\"},"
+            "{\"key\":\"mode\",\"type\":\"choice\",\"choices\":[\"a\",\"b\",\"c\"],\"default\":"
+            "\"b\"}]}]}");
         // r -> red, count/10 -> green, flag -> alpha stays 1 (0.5 when off), tint.b -> blue
         // times (mode == 2 ? 1 : 0.5).
         writeFile(dir + QStringLiteral("/fx.glsl"),

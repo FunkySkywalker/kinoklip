@@ -182,7 +182,7 @@ private slots:
         QVERIFY2(found, qPrintable(v.text));
         // A folder that is not installed can be validated too.
         const QString dir = m_dir.filePath(QStringLiteral("elsewhere"));
-        writeFile(dir + QStringLiteral("/plugin.json"), R"({"id":"x"})");
+        writeFile(dir + QStringLiteral("/plugin.json"), R"({"id":"test.ok"})");
         const CommandResult w = ok("plugin.validate", {{"target", dir}, {"static", true}});
         QVERIFY(!w.data["valid"].toBool());
         QCOMPARE(w.data["problems"][0]["where"].toString(), QString("name"));
