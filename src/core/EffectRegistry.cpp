@@ -54,6 +54,12 @@ void EffectRegistry::markUnavailable(const QString& id)
         m_descriptors[*it].unavailable = true;
 }
 
+void EffectRegistry::markAvailable(const QString& id)
+{
+    if (const auto it = m_index.constFind(id); it != m_index.cend())
+        m_descriptors[*it].unavailable = false;
+}
+
 void EffectRegistry::markPluginUnavailable(const QString& pluginId)
 {
     for (EffectDescriptor& d : m_descriptors) {

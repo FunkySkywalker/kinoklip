@@ -99,6 +99,39 @@ ParamDescriptor toDescriptor(const PluginParam& p)
     return d;
 }
 
+/// True if the two descriptors show the same to the user and to project data.
+bool sameDescriptor(const EffectDescriptor& a, const EffectDescriptor& b)
+{
+    if (a.id != b.id || a.name != b.name || a.category != b.category
+        || a.description != b.description || a.group != b.group || a.plugin != b.plugin
+        || a.params.size() != b.params.size())
+        return false;
+    for (qsizetype i = 0; i < a.params.size(); ++i) {
+        const ParamDescriptor& p = a.params[i];
+        const ParamDescriptor& q = b.params[i];
+        if (p.key != q.key || p.label != q.label || p.type != q.type || p.min != q.min
+            || p.max != q.max || p.def != q.def || p.step != q.step || p.unit != q.unit
+            || p.choices != q.choices || p.choiceLabels != q.choiceLabels
+            || p.defStatic != q.defStatic || p.animatable != q.animatable || p.tooltip != q.tooltip)
+            return false;
+    }
+    return true;
+}
+
+/// Puts @p d in the registry; false when it was already there unchanged. An unchanged descriptor
+/// (the author edited only the shader) is left alone, so the render thread, which reads descriptors
+/// without a lock, never sees one change.
+bool registerDescriptor(EffectRegistry& registry, const EffectDescriptor& d)
+{
+    if (const EffectDescriptor* old = registry.find(d.id); old && sameDescriptor(*old, d)) {
+        if (old->unavailable)
+            registry.markAvailable(d.id);
+        return false;
+    }
+    registry.add(d);
+    return true;
+}
+
 bool readTextFile(const QString& path, qint64 maxBytes, QString* text, QString* error)
 {
     QFile f(path);
@@ -394,8 +427,9 @@ void PluginRegistry::registerAll()
             d.plugin = p.manifest.id;
             for (const PluginParam& param : e.params)
                 d.params.append(toDescriptor(param));
-            registry.add(d);
-            NodeRegistry::registerEffectNode(*registry.find(d.id));
+            const bool changed = registerDescriptor(registry, d);
+            if (changed || !NodeRegistry::instance().find(NodeRegistry::effectNodeType(d.id)))
+                NodeRegistry::registerEffectNode(*registry.find(d.id));
         }
         for (const PluginTransitionDef& t : p.manifest.transitions) {
             if (!addSpec(t.fullId, true, t.file, {}, t.params, 0.0))
@@ -409,7 +443,7 @@ void PluginRegistry::registerAll()
             d.plugin = p.manifest.id;
             for (const PluginParam& param : t.params)
                 d.params.append(toDescriptor(param));
-            registry.add(d);
+            registerDescriptor(registry, d);
         }
         if (!m_registeredPlugins.contains(p.manifest.id))
             m_registeredPlugins.append(p.manifest.id);

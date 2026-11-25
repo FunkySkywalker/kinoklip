@@ -186,6 +186,8 @@ public:
     /// Marks the descriptor @p id unavailable (see EffectDescriptor::unavailable); no effect for
     /// an unknown id.
     void markUnavailable(const QString& id);
+    /// Clears the flag again (the plugin came back with the same descriptor).
+    void markAvailable(const QString& id);
     /// Marks every descriptor of plugin @p pluginId unavailable.
     void markPluginUnavailable(const QString& pluginId);
     /// Descriptor with id @p id, or nullptr. O(1), no allocation (called per effect per frame
