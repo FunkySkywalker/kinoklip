@@ -27,6 +27,7 @@
 #include <QStandardPaths>
 #include <QTemporaryDir>
 #include <QTest>
+#include <QUndoStack>
 
 using namespace kk;
 using namespace kk::commands;
@@ -421,22 +422,19 @@ private slots:
                   return host.executeForScript(perms, command, args);
               };
         // Reading needs project.read.
-        QCOMPARE(
-            run({}, "clip.list", {})["error"]["code"].toString(), QString("permission_denied"));
+        QCOMPARE(errorCode(run({}, "clip.list", {})), QString("permission_denied"));
         QVERIFY(run({"project.read"}, "clip.list", {})["ok"].toBool());
         // Changing needs project.edit; project.read is not enough.
         const QJsonObject marker {{"at", 5}, {"name", "m"}};
-        QCOMPARE(run({"project.read"}, "marker.add", marker)["error"]["code"].toString(),
-            QString("permission_denied"));
+        QCOMPARE(
+            errorCode(run({"project.read"}, "marker.add", marker)), QString("permission_denied"));
         QVERIFY(run({"project.edit"}, "marker.add", marker)["ok"].toBool());
         QCOMPARE(project.timeline()->data().markers.size(), 1);
         // Commands without a project are free; unknown ones are errors, never crashes.
         QVERIFY(run({}, "effect.list", {})["ok"].toBool());
-        QCOMPARE(run({"project.edit"}, "nope.nope", {})["error"]["code"].toString(),
-            QString("unknown_command"));
+        QCOMPARE(errorCode(run({"project.edit"}, "nope.nope", {})), QString("unknown_command"));
         // Commands that only the person may run stay closed.
-        QCOMPARE(
-            run({"project.edit"}, "settings.import", {{"file", "/x"}})["error"]["code"].toString(),
+        QCOMPARE(errorCode(run({"project.edit"}, "settings.import", {{"file", "/x"}})),
             QString("not_allowed"));
         QVERIFY(run({}, "kk.commands", {})["ok"].toBool());
     }
