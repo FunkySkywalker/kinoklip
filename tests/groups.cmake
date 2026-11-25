@@ -52,7 +52,7 @@ set(KK_TESTS_QUICK
   test_medialinks test_mediaorganize test_mediapool test_mediapoolpanel test_membudget test_memoryguard
   test_memoryreport test_mergecontrols test_mixerdata test_mixerdsp test_mixergraph
   test_fusionclip test_fusionclipui test_multicam test_multicamrender test_multicamui test_nested test_nodeeditor test_otio
-  test_panelscreens test_parity test_parity_edit test_pasteaudio test_planartracker
+  test_panelscreens test_pagepanels test_parity test_parity_edit test_pasteaudio test_planartracker
   test_planartrackernode test_playbackengine test_playbacklogic test_playheadscrub test_polish2
   test_polish3 test_polish3shots test_polish4 test_poolfolders test_poolnavigation
   test_poolpaste test_preferences test_projectpresets test_probe test_project test_projectlibrary
