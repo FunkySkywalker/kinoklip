@@ -1,0 +1,24 @@
+{
+  "id": "dev.kinoklip.duotone",
+  "name": "Duotone (example plugin)",
+  "version": "1.0.0",
+  "author": "The Kinoklip contributors",
+  "license": "GPL-3.0-or-later",
+  "description": "A new effect written as a plugin, the worked example of docs/plugins/writing-plugins.md: shadows and highlights take two colours.",
+  "api": 1,
+  "effects": [
+    {
+      "id": "duotone",
+      "name": "Two-Colour Look",
+      "description": "Maps the brightness of the picture to a gradient between two colours",
+      "group": "color",
+      "entry": "color",
+      "file": "duotone.glsl",
+      "params": [
+        { "key": "shadows", "label": "Shadows", "type": "color", "default": "#1b1f3b" },
+        { "key": "highlights", "label": "Highlights", "type": "color", "default": "#ffcf8b" },
+        { "key": "amount", "label": "Amount", "type": "number", "min": 0, "max": 100, "default": 100, "step": 1, "unit": "%" }
+      ]
+    }
+  ]
+}
