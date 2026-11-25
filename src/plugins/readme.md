@@ -10,10 +10,12 @@ how to write one: [writing-plugins.md](../../docs/plugins/writing-plugins.md); d
 |---|---|
 | `PluginManifest.*` | `plugin.json` as types (`PluginManifest`, `PluginEffectDef`, `PluginParam`, ...), `parseManifest()` (every problem with its path, JSON errors with the line), id and path rules, the permissions and their words |
 | `PluginRegistry.*` | the singleton: scans the bundled and user folders, validates, installs (folder or `.kkplugin`, replacing, staging folder + rename), uninstalls, enables and disables (QSettings `plugins/enabled/<id>`; a plugin with scripts defaults to off), reloads (hot reload: registers descriptors in `EffectRegistry` and `NodeRegistry`, publishes immutable `PluginShaderSpec`s for the render thread, bumps `generation()` and `contentKey()`), lists presets and scripts of enabled plugins |
+| `OfxRegistry.*` | the OpenFX side (docs/plugins/openfx.md, spec 158): scans the bundle folders, runs `kinoklip-ofx-probe` per bundle (timeout, crash detection), caches the answers in `<cache>/ofx-scan.json`, keeps the bad-plugin list and the "loading" marks, registers one `EffectDescriptor` per plugin (`ofx:<identifier>`, folder OpenFX) and maps OFX parameters to `ParamDescriptor`s and back (`mapParams()`, `valueFor()`) |
 | `ZipArchive.*` | dependency-free zip reader (stored and deflate; names, sizes and checksums checked) and writer (stored) for `.kkplugin` files |
 | `PresetRecipe.*` | a preset's recipe (list of command calls) with `$clip` / `$start` / `$end` / `$duration` / `$playhead` / `$last_effect` expanded for one target; the application runs the steps (`CommandRegistry::executeLiveBatch()`) |
 | `ScriptRunner.*` | runs a plugin script as `python3 -I` with the bridge module `resources/plugin-sdk/kinoklip.py`; JSON lines over stdin / stdout to a command executor supplied by the application (which applies the script's permissions) |
 
+The OpenFX host itself (no Kinoklip types) is in `src/ofx/` (`OfxHost.*`, `OfxInfo.cpp`, `probe_main.cpp`), the renderer side in `src/render/GlOfxEffect.*`.
 The renderer side is in `src/render/GlPluginEffect.*` and `PluginShader.*`; the window side in
 `src/app/PluginHost.*` and `src/ui/dialogs/PluginsPage.*`; the commands in `src/app/commands/PluginCommands.cpp`.
 

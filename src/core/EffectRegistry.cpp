@@ -188,6 +188,7 @@ QString EffectRegistry::groupName(const QString& group)
         {effectgroups::Temporal, QT_TRANSLATE_NOOP("kk::EffectRegistry", "Temporal")},
         {effectgroups::Transform, QT_TRANSLATE_NOOP("kk::EffectRegistry", "Transform")},
         {effectgroups::Plugins, QT_TRANSLATE_NOOP("kk::EffectRegistry", "Plugins")},
+        {effectgroups::OpenFX, QT_TRANSLATE_NOOP("kk::EffectRegistry", "OpenFX")},
         {effectgroups::Dissolve, QT_TRANSLATE_NOOP("kk::EffectRegistry", "Dissolve")},
         {effectgroups::Iris, QT_TRANSLATE_NOOP("kk::EffectRegistry", "Iris")},
         {effectgroups::Motion, QT_TRANSLATE_NOOP("kk::EffectRegistry", "Motion")},

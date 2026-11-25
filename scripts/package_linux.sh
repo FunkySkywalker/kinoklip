@@ -94,7 +94,7 @@ done
 if [ "$DO_BUILD" = 1 ]; then
     log "building Release in $BUILD_DIR"
     cmake -S "$ROOT" -B "$BUILD_DIR" -G Ninja -DCMAKE_BUILD_TYPE=Release >/dev/null
-    cmake --build "$BUILD_DIR" -j"${KK_JOBS:-4}" --target kinoklip
+    cmake --build "$BUILD_DIR" -j"${KK_JOBS:-4}" --target kinoklip kinoklip-ofx-probe
 fi
 BIN="$BUILD_DIR/kinoklip"
 [ -x "$BIN" ] || die "no binary at $BIN (run without --no-build)"
@@ -301,6 +301,11 @@ mkdir -p "$APPDIR/usr/bin" "$APPDIR/usr/lib/qt/plugins" "$APPDIR/usr/lib/fallbac
 
 install -m 755 "$BIN" "$APPDIR/usr/bin/kinoklip"
 strip --strip-unneeded "$APPDIR/usr/bin/kinoklip"
+# The helper that loads one OpenFX bundle in a process of its own (spec 158): Qt Core only.
+if [ -x "$BUILD_DIR/kinoklip-ofx-probe" ]; then
+    install -m 755 "$BUILD_DIR/kinoklip-ofx-probe" "$APPDIR/usr/bin/kinoklip-ofx-probe"
+    strip --strip-unneeded "$APPDIR/usr/bin/kinoklip-ofx-probe"
+fi
 
 declare -A DEST_OF=() # soname -> bundle-relative dir
 for name in "${!IN_N[@]}" "${!IN_Q[@]}"; do
@@ -422,6 +427,9 @@ log "setting RUNPATHs"
 # shellcheck disable=SC2016  # $ORIGIN is for ld.so, not the shell
 {
     patchelf --set-rpath '$ORIGIN/../lib:$ORIGIN/../lib/fallback-active' "$APPDIR/usr/bin/kinoklip"
+    if [ -x "$APPDIR/usr/bin/kinoklip-ofx-probe" ]; then
+        patchelf --set-rpath '$ORIGIN/../lib:$ORIGIN/../lib/fallback-active' "$APPDIR/usr/bin/kinoklip-ofx-probe"
+    fi
     for f in "$APPDIR"/usr/lib/*.so*; do
         patchelf --set-rpath '$ORIGIN:$ORIGIN/fallback-active' "$f"
     done

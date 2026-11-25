@@ -98,8 +98,22 @@ message(STATUS "libheif: ${LIBHEIF_FOUND} ${LIBHEIF_VERSION}, LibRaw: ${LIBRAW_F
 file(GLOB_RECURSE KK_SOURCES CONFIGURE_DEPENDS
   ${CMAKE_SOURCE_DIR}/src/*.cpp ${CMAKE_SOURCE_DIR}/src/*.h)
 list(FILTER KK_SOURCES EXCLUDE REGEX ".*/src/main\\.cpp$")
+# The OpenFX host is its own small library (below) so the probe program needs no Qt Widgets.
+list(FILTER KK_SOURCES EXCLUDE REGEX ".*/src/ofx/.*")
 
 add_library(kinoklip_core STATIC ${KK_SOURCES})
+
+# OpenFX host (spec 158): headers in third_party/openfx (BSD-3-Clause); Qt Core and dlopen only.
+add_library(kk_ofx STATIC src/ofx/OfxHost.cpp src/ofx/OfxInfo.cpp src/ofx/OfxHost.h)
+target_include_directories(kk_ofx PUBLIC ${CMAKE_SOURCE_DIR}/src
+  PRIVATE ${CMAKE_SOURCE_DIR}/third_party/openfx/include)
+target_link_libraries(kk_ofx PUBLIC Qt6::Core ${CMAKE_DL_LIBS})
+set_target_properties(kk_ofx PROPERTIES POSITION_INDEPENDENT_CODE ON)
+target_link_libraries(kinoklip_core PUBLIC kk_ofx)
+# kinoklip-ofx-probe: loads one OpenFX bundle in a process of its own (bad-plugin detection).
+add_executable(kinoklip-ofx-probe src/ofx/probe_main.cpp)
+target_link_libraries(kinoklip-ofx-probe PRIVATE kk_ofx)
+install(TARGETS kinoklip-ofx-probe RUNTIME DESTINATION bin)
 
 # RNNoise (BSD-3-Clause, third_party/rnnoise/readme.md): the neural noise suppressor of the Noise
 # Reduction audio effect. Plain C, unchanged, built with warnings off.
@@ -262,6 +276,35 @@ foreach(test_src ${KK_TESTS})
     set(KK_TEST_TIMEOUT 3600) # a test property overrides ctest --timeout; sanitized runs are slower
   endif()
   set_tests_properties(${test_name} PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen" TIMEOUT ${KK_TEST_TIMEOUT})
+endforeach()
+
+# Test OpenFX plugins (tests/ofx/kk_test_ofx.cpp): the plain plugin, one that aborts while loading and one that
+# hangs while loading, each as a bundle in <build>/ofx-test (what tests/ofx/test_ofx.cpp and test_ofxrender.cpp scan).
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64")
+  set(KK_OFX_ARCH "Linux-arm-64")
+else()
+  set(KK_OFX_ARCH "Linux-x86-64")
+endif()
+foreach(variant IN ITEMS "" "Crash" "Hang")
+  set(ofx_target "kk_test_ofx${variant}")
+  set(ofx_name "KkTest${variant}")
+  add_library(${ofx_target} MODULE tests/ofx/kk_test_ofx.cpp)
+  target_include_directories(${ofx_target} PRIVATE ${CMAKE_SOURCE_DIR}/third_party/openfx/include)
+  set_target_properties(${ofx_target} PROPERTIES PREFIX "" OUTPUT_NAME "${ofx_name}" SUFFIX ".ofx"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/ofx-test/${ofx_name}.ofx.bundle/Contents/${KK_OFX_ARCH}"
+    CXX_VISIBILITY_PRESET hidden)
+  if(variant STREQUAL "Crash")
+    target_compile_definitions(${ofx_target} PRIVATE KK_OFX_CRASH=1)
+  elseif(variant STREQUAL "Hang")
+    target_compile_definitions(${ofx_target} PRIVATE KK_OFX_HANG=1)
+  endif()
+endforeach()
+foreach(t IN ITEMS test_ofx test_ofxrender)
+  if(TARGET ${t})
+    target_compile_definitions(${t} PRIVATE KK_OFX_TEST_DIR="${CMAKE_BINARY_DIR}/ofx-test"
+      KK_OFX_PROBE_PATH="$<TARGET_FILE:kinoklip-ofx-probe>")
+    add_dependencies(${t} kk_test_ofx kk_test_ofxCrash kk_test_ofxHang kinoklip-ofx-probe)
+  endif()
 endforeach()
 
 # The memory soak (also labelled release below) is a long run of its own: `ctest -L soak` (docs/contributing.md, "Memory leaks").

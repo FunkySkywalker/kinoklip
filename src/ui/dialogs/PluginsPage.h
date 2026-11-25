@@ -7,6 +7,7 @@
 
 #include "ui/common/SettingsPages.h"
 
+class QCheckBox;
 class QListWidget;
 class QListWidgetItem;
 class QPushButton;
@@ -28,6 +29,9 @@ public:
 
     /// Details text of the plugin @p pluginId as HTML (tests, the details pane).
     [[nodiscard]] static QString detailsHtml(const QString& pluginId);
+    /// Details text of the OpenFX bundle folder @p bundlePath as HTML: its plugins, the status
+    /// of each and, for a bad plugin, why (tests, the details pane).
+    [[nodiscard]] static QString ofxDetailsHtml(const QString& bundlePath);
     /// The result of compiling the plugin in @p dir for both OpenGL APIs, as HTML (Check button).
     [[nodiscard]] static QString checkHtml(const QString& dir);
 
@@ -40,6 +44,8 @@ private:
     QListWidget* m_list = nullptr;
     QTextBrowser* m_details = nullptr;
     QPushButton* m_uninstall = nullptr;
+    QPushButton* m_retry = nullptr;
+    QCheckBox* m_ofxEnabled = nullptr;
     bool m_refreshing = false;
     QString m_checkedId; ///< the plugin the last Check was for
     QString m_checkHtml;

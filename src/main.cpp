@@ -24,6 +24,7 @@
 #include "matting/MatteService.h"
 #include "media/MediaCache.h"
 #include "pack/ProjectPackage.h"
+#include "plugins/OfxRegistry.h"
 #include "plugins/PluginRegistry.h"
 #include "playback/PlaybackEngine.h"
 #include "render/GlApi.h"
@@ -212,6 +213,7 @@ int runCommandLine(int argc, char** argv, const QStringList& arguments)
     QGuiApplication app(argc, argv);
     setApplicationIdentity();
     kk::plugins::PluginRegistry::instance().load();
+    kk::plugins::OfxRegistry::instance().load();
     return kk::cli::run(arguments, stdout, stderr);
 }
 
@@ -277,6 +279,7 @@ int main(int argc, char** argv)
     kk::initResources();
     kk::EditBehaviour::migrateSettings();
     kk::plugins::PluginRegistry::instance().load(); // before any project loads
+    kk::plugins::OfxRegistry::instance().load(); // OpenFX bundles (cached; new ones are probed)
 
     kk::CommandLineOptions options;
     QString error;

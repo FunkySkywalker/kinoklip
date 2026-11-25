@@ -157,6 +157,8 @@ inline constexpr char Refine[] = "refine";
 inline constexpr char Transform[] = "transform";
 /// Folder of the effects and transitions of plugins that name no folder of their own.
 inline constexpr char Plugins[] = "plugins";
+/// Folder of the OpenFX plugins (plugins/OfxRegistry.h).
+inline constexpr char OpenFX[] = "openfx";
 /// Folders of the video transitions (Resolve's Video Transitions bins).
 inline constexpr char Dissolve[] = "dissolve";
 inline constexpr char Iris[] = "iris";

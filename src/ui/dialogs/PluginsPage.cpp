@@ -4,9 +4,11 @@
 
 #include "platform/FileDialogs.h"
 #include "platform/OpenUrl.h"
+#include "plugins/OfxRegistry.h"
 #include "plugins/PluginRegistry.h"
 #include "render/PluginValidate.h"
 
+#include <QCheckBox>
 #include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
@@ -24,6 +26,10 @@ namespace kk {
 namespace {
 
 constexpr int kIdRole = Qt::UserRole;
+/// Id prefix of the list entries that are OpenFX bundle folders (the rest of the id is the path).
+constexpr char kOfxBundlePrefix[] = "ofxbundle:";
+/// Where the free plugin packs and how to install them are explained.
+constexpr char kOfxHelpUrl[] = "https://github.com/SeniorMatt/kinoklip/blob/main/docs/plugins/openfx.md";
 constexpr int kListMinHeight = 120;
 
 QString tr(const char* text)
@@ -111,6 +117,41 @@ QString PluginsPage::detailsHtml(const QString& pluginId)
     return html;
 }
 
+QString PluginsPage::ofxDetailsHtml(const QString& bundlePath)
+{
+    const plugins::OfxBundleEntry* b = plugins::OfxRegistry::instance().bundle(bundlePath);
+    if (!b)
+        return {};
+    QString html = QStringLiteral("<h3>%1 <small>(OpenFX)</small></h3>")
+                       .arg(esc(QFileInfo(b->path).fileName()));
+    html += QStringLiteral("<p>%1 <a href=\"file://%2\">%2</a><br>%3 %4</p>")
+                .arg(tr("Found in"), esc(QFileInfo(b->path).absolutePath()), tr("Source:"),
+                    esc(b->source));
+    if (b->bad) {
+        html += QStringLiteral("<p><b>%1</b></p><p>%2</p><p>%3</p>")
+                    .arg(tr("This is a bad plugin: Kinoklip does not load it."), esc(b->reason),
+                        tr("Press Retry to try it again, for example after updating the plugin."));
+        return html;
+    }
+    QString rows;
+    for (const ofx::PluginInfo& p : b->info.plugins) {
+        const QString id = QString::fromLatin1(plugins::kOfxIdPrefix) + p.identifier;
+        QString status = p.error.isEmpty() ? tr("in the Effects library, folder OpenFX")
+                                           : tr("not used: ") + p.error;
+        if (const QString err = plugins::OfxRegistry::instance().renderError(id); !err.isEmpty())
+            status += QStringLiteral(" - ") + tr("last problem: ") + err;
+        rows += QStringLiteral(
+                    "<tr><td>%1</td><td><small>%2</small></td><td>%3.%4</td><td>%5</td></tr>")
+                    .arg(esc(p.label), esc(p.identifier))
+                    .arg(p.major)
+                    .arg(p.minor)
+                    .arg(esc(status));
+    }
+    html += QStringLiteral("<p><b>%1</b></p><table cellspacing=\"6\">%2</table>")
+                .arg(tr("Plugins in this bundle"), rows);
+    return html;
+}
+
 QString PluginsPage::checkHtml(const QString& dir)
 {
     const render::PluginValidation v = render::validatePluginFolder(dir, true);
@@ -138,6 +179,13 @@ PluginsPage::PluginsPage(QWidget* parent)
            "a plugin folder; you can also drop a .kkplugin file onto the window."));
     intro->setWordWrap(true);
     layout->addWidget(intro);
+    m_ofxEnabled = new QCheckBox(tr("Use OpenFX plugins (effects of other programs, such as the "
+                                    "free openfx-misc pack)"));
+    m_ofxEnabled->setObjectName(QStringLiteral("OfxEnabled"));
+    m_ofxEnabled->setChecked(plugins::OfxRegistry::instance().enabled());
+    layout->addWidget(m_ofxEnabled);
+    connect(m_ofxEnabled, &QCheckBox::toggled, this,
+        [](bool on) { plugins::OfxRegistry::instance().setEnabled(on); });
 
     m_list = new QListWidget;
     m_list->setObjectName(QStringLiteral("PluginsList"));
@@ -173,7 +221,17 @@ PluginsPage::PluginsPage(QWidget* parent)
                          "3.0 and list every problem with its line"));
     auto* open = new QPushButton(tr("Open Plugin Folder"));
     open->setObjectName(QStringLiteral("PluginOpenFolder"));
-    for (QPushButton* b : {install, installFolder, m_uninstall, reload, check, open})
+    m_retry = new QPushButton(tr("Retry"));
+    m_retry->setObjectName(QStringLiteral("OfxRetry"));
+    m_retry->setToolTip(tr("Try the selected OpenFX bad plugin again"));
+    auto* openOfx = new QPushButton(tr("Open OpenFX Folder"));
+    openOfx->setObjectName(QStringLiteral("OfxOpenFolder"));
+    openOfx->setToolTip(tr("The folder for OpenFX bundles (*.ofx.bundle)"));
+    auto* packs = new QPushButton(tr("Get Free Plugin Packs"));
+    packs->setObjectName(QStringLiteral("OfxGetPacks"));
+    packs->setToolTip(tr("Which free OpenFX packs work with Kinoklip and how to install them"));
+    for (QPushButton* b :
+        {install, installFolder, m_uninstall, reload, check, open, m_retry, openOfx, packs})
         buttons->addWidget(b);
     buttons->addStretch(1);
     layout->addLayout(buttons);
@@ -205,8 +263,22 @@ PluginsPage::PluginsPage(QWidget* parent)
         if (!plugins::PluginRegistry::instance().uninstall(id, &error))
             QMessageBox::warning(this, tr("Uninstall Plugin"), error);
     });
-    connect(
-        reload, &QPushButton::clicked, this, [] { plugins::PluginRegistry::instance().reload(); });
+    connect(reload, &QPushButton::clicked, this, [] {
+        plugins::PluginRegistry::instance().reload();
+        plugins::OfxRegistry::instance().reload(false);
+    });
+    connect(m_retry, &QPushButton::clicked, this, [this] {
+        const QString id = currentId();
+        if (id.startsWith(QLatin1String(kOfxBundlePrefix)))
+            plugins::OfxRegistry::instance().retry(id.mid(int(sizeof(kOfxBundlePrefix)) - 1));
+    });
+    connect(openOfx, &QPushButton::clicked, this, [] {
+        const QString dir = plugins::OfxRegistry::userDir();
+        QDir().mkpath(dir);
+        platform::openUrl(QUrl::fromLocalFile(dir));
+    });
+    connect(packs, &QPushButton::clicked, this,
+        [] { platform::openUrl(QUrl(QString::fromLatin1(kOfxHelpUrl))); });
     connect(check, &QPushButton::clicked, this, [this] {
         const plugins::LoadedPlugin* p = plugins::PluginRegistry::instance().find(currentId());
         if (!p)
@@ -223,6 +295,8 @@ PluginsPage::PluginsPage(QWidget* parent)
     connect(m_list, &QListWidget::currentItemChanged, this, [this] { showDetails(); });
     connect(m_list, &QListWidget::itemChanged, this, &PluginsPage::onItemChanged);
     connect(&plugins::PluginRegistry::instance(), &plugins::PluginRegistry::changed, this,
+        &PluginsPage::refresh);
+    connect(&plugins::OfxRegistry::instance(), &plugins::OfxRegistry::changed, this,
         &PluginsPage::refresh);
     refresh();
 }
@@ -255,6 +329,20 @@ void PluginsPage::refresh()
         if (p.id() == keep)
             m_list->setCurrentItem(item);
     }
+    for (const plugins::OfxBundleEntry& b : plugins::OfxRegistry::instance().bundles()) {
+        qsizetype usable = 0;
+        for (const ofx::PluginInfo& p : b.info.plugins)
+            usable += p.error.isEmpty() ? 1 : 0;
+        QString text = QFileInfo(b.path).fileName() + tr("  (OpenFX)");
+        text += b.bad ? tr("  (bad plugin)") : tr("  %1 effects").arg(usable);
+        auto* item = new QListWidgetItem(text, m_list);
+        const QString id = QString::fromLatin1(kOfxBundlePrefix) + b.path;
+        item->setData(kIdRole, id);
+        item->setToolTip(b.path);
+        item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        if (id == keep)
+            m_list->setCurrentItem(item);
+    }
     if (!m_list->currentItem() && m_list->count() > 0)
         m_list->setCurrentRow(0);
     m_refreshing = false;
@@ -264,13 +352,19 @@ void PluginsPage::refresh()
 void PluginsPage::showDetails()
 {
     const QString id = currentId();
+    const bool isOfx = id.startsWith(QLatin1String(kOfxBundlePrefix));
+    const QString ofxPath = isOfx ? id.mid(int(sizeof(kOfxBundlePrefix)) - 1) : QString();
     QString html = id.isEmpty() ? QStringLiteral("<p>%1</p>").arg(tr("No plugins installed."))
+        : isOfx                 ? ofxDetailsHtml(ofxPath)
                                 : detailsHtml(id);
     if (!id.isEmpty() && id == m_checkedId)
         html += m_checkHtml;
     m_details->setHtml(html);
     const plugins::LoadedPlugin* p = plugins::PluginRegistry::instance().find(id);
     m_uninstall->setEnabled(p && p->source == plugins::PluginSource::User);
+    const plugins::OfxBundleEntry* bundle
+        = isOfx ? plugins::OfxRegistry::instance().bundle(ofxPath) : nullptr;
+    m_retry->setEnabled(bundle && bundle->bad);
 }
 
 void PluginsPage::onItemChanged(QListWidgetItem* item)

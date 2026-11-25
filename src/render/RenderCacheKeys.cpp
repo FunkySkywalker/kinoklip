@@ -8,6 +8,7 @@
 #include "core/Retime.h"
 #include "core/Serialization.h"
 
+#include "plugins/OfxRegistry.h"
 #include "plugins/PluginRegistry.h"
 
 #include <QCryptographicHash>
@@ -279,6 +280,7 @@ std::vector<CacheChunk> renderCacheChunks(
     header.addData(QByteArrayLiteral("kinoklip-render-cache:"));
     header.addData(QByteArray::number(kRenderCacheVersion));
     header.addData(plugins::PluginRegistry::instance().contentKey()); // shader plugins in use
+    header.addData(plugins::OfxRegistry::instance().contentKey()); // OpenFX plugins installed
     header.addData(QByteArrayLiteral(":" KK_APP_VERSION ":"));
     header.addData(options.format.toUtf8());
     header.addData(':' + QByteArray::number(timeline.width) + 'x'

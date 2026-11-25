@@ -18,6 +18,7 @@
 #include "core/CompOps.h"
 #include "core/OutputBlanking.h"
 #include "core/Sizing.h"
+#include "plugins/OfxRegistry.h"
 #include "plugins/PluginRegistry.h"
 #include "core/NodeRegistry.h"
 #include "core/ParamKeys.h"
@@ -312,7 +313,8 @@ GlEffect* GlRenderer::effectFor(const QString& id)
 
 void GlRenderer::refreshPlugins()
 {
-    const quint64 generation = plugins::PluginRegistry::instance().generation();
+    const quint64 generation = plugins::PluginRegistry::instance().generation()
+        + (plugins::OfxRegistry::instance().generation() << 32);
     if (generation == m_pluginGeneration)
         return;
     m_pluginGeneration = generation;

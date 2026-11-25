@@ -248,7 +248,8 @@ The plugin system: [design](plugins/design.md), [writing plugins](plugins/writin
 - [x] Plugins: commands for the command line and MCP: list, info, create, copy_builtin, validate (errors with file and line, OpenGL 3.3 and ES 3.0), install, uninstall, enable, disable, reload, pack and render_preview (a picture of the result for an AI) (spec 157)
 - [x] Plugins: documentation an AI can write plugins from: reference, installing guide, a short prompt (`llms.txt`) and the manifest JSON Schema
 - [ ] Plugins: point parameters with on-screen handles, a second input and mask inputs, multi-pass effects (a puppet-pin warp, trackers) in plugin API 2
-- [ ] Plugins: OpenFX host for video effects (openfx-misc, G'MIC), see the plan in plugins/design.md
+- [x] Plugins: OpenFX host for video effects: bundles from `/usr/OFX/Plugins`, `~/.OFX/Plugins`, `OFX_PLUGIN_PATH` and the Kinoklip folder, Filter and General contexts, parameters with keyframes, premultiplied float CPU rendering with render scale, plugin thread-safety flags and the multi-thread suite, missing plugin kept as bypass, a probe process and cache with a bad-plugin list and Retry, Preferences > Plugins page, openfx-misc (spec 158, [openfx.md](plugins/openfx.md))
+- [ ] Plugins: OpenFX transition context, several inputs and masks, viewer overlays, regions of definition larger than the clip, G'MIC (openfx-gmic) tested and bundled packs
 - [ ] Plugins: LV2 and CLAP audio effects on the Audio page
 - [ ] Plugins: a bundled pack of gl-transitions (MIT) as plugins
 - [ ] Plugins: presets at an edit point (transition presets) and a Plugins folder in the Compositing node list that follows reloads

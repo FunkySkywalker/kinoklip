@@ -14,11 +14,11 @@
 
 namespace kk::render {
 
-/// The effect for plugin effect @p fullId, or null when no enabled plugin provides it.
+/// The effect for plugin effect @p fullId (an "ofx:" id gives the OpenFX effect), or null when no enabled plugin provides it.
 [[nodiscard]] std::unique_ptr<GlEffect> makePluginEffect(const QString& fullId);
 /// The transition for plugin transition @p fullId, or null.
 [[nodiscard]] std::unique_ptr<GlTransition> makePluginTransition(const QString& fullId);
-/// True for ids of plugin items ("plugin:...").
+/// True for ids of plugin items ("plugin:...", and "ofx:..." of OpenFX effects).
 [[nodiscard]] bool isPluginId(const QString& id);
 
 } // namespace kk::render

@@ -73,7 +73,20 @@ declares them from the manifest; the defaults in its comments become the manifes
 mechanical edit an assistant can make. A pack converted this way can be bundled (MIT is
 GPL-compatible, keep its licence file). Not bundled: Shadertoy shaders (CC BY-NC-SA by default: not GPL-compatible).
 
-### 2. OpenFX (video effects)
+### 2. OpenFX (video effects): done for video effects (spec 158, [openfx.md](openfx.md))
+
+What was built: `src/ofx/` (the host: property sets, parameter / image effect / memory / message /
+multi-thread / progress / timeline suites, Describe and DescribeInContext for the Filter and General
+contexts, CreateInstance, IsIdentity, Render on the CPU), `kinoklip-ofx-probe` (loads one bundle in
+its own process), `src/plugins/OfxRegistry.*` (scan folders, probe, cache, bad-plugin list, one
+`EffectDescriptor` per plugin with the id `ofx:<identifier>`, group OpenFX) and
+`src/render/GlOfxEffect.*` (GPU layer to float RGBA, plugin, back to the GPU). The decisions:
+the probe is a separate small program (not the editor with a flag) so tests and packaging need no
+GUI; the description of every bundle is cached by binary size and date; a plugin is loaded into the
+editor only after its probe worked, and a mark file catches a crash in its first frame; pixels are
+premultiplied float RGBA (8 bit only for plugins without float); points and sizes are stored as
+fractions of the clip size. Still to do: the transition context, several inputs and masks, overlays,
+OpenGL rendering, regions of definition larger than the clip. The plan below is kept for what is not done.
 
 - Headers: [OpenFX](https://openfx.readthedocs.io) (BSD-3-Clause, Academy Software Foundation).
   Reference hosts to study: Natron (GPL-2.0, the complete free host), and the openfx-misc test host.

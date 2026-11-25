@@ -188,7 +188,7 @@ modules:
         CMAKE_PREFIX_PATH: /app
     build-commands:
       - cmake -S . -B _build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/app
-      - cmake --build _build --target kinoklip
+      - cmake --build _build --target kinoklip kinoklip-ofx-probe
       - cmake --install _build
       - |
         set -e

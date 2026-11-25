@@ -3,6 +3,7 @@
 #include "render/GlPluginEffect.h"
 
 #include "plugins/PluginRegistry.h"
+#include "render/GlOfxEffect.h"
 #include "render/GlEffectBase.h"
 #include "render/GlShaderTransition.h"
 #include "render/PluginShader.h"
@@ -167,11 +168,13 @@ private:
 
 bool isPluginId(const QString& id)
 {
-    return id.startsWith(QLatin1String(plugins::kIdPrefix));
+    return id.startsWith(QLatin1String(plugins::kIdPrefix)) || isOfxId(id);
 }
 
 std::unique_ptr<GlEffect> makePluginEffect(const QString& fullId)
 {
+    if (isOfxId(fullId))
+        return makeOfxEffect(fullId);
     const auto spec = plugins::PluginRegistry::instance().shaderSpec(fullId);
     if (!spec || spec->transition)
         return nullptr;

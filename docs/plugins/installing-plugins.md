@@ -41,6 +41,13 @@ it again to bring it back. **Uninstall** deletes a plugin you installed. **Reloa
 folders again: a plugin author's edited shader shows at once. A plugin with a problem is listed
 with "(problem)"; select it to read what is wrong.
 
+## OpenFX plugins
+
+Kinoklip also runs OpenFX video effects (the free packs of Natron, such as openfx-misc): copy a
+`*.ofx.bundle` folder into `~/.local/share/Kinoklip/ofx` (or `/usr/OFX/Plugins`) and press Reload.
+They appear in the Effects library, folder OpenFX. How, which packs work and what happens with a
+plugin that crashes: [openfx.md](openfx.md).
+
 ## Safety
 
 - Effects and transitions are shaders: they run on the graphics card and cannot read your files or

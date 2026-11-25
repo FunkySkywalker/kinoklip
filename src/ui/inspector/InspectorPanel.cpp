@@ -1331,7 +1331,8 @@ void InspectorPanel::buildEffectSection(
         if (!d || d->unavailable) {
             // A plugin effect whose plugin is missing, disabled or broken: its settings stay in
             // the project, the effect is skipped when rendering (bypass).
-            const bool plugin = fx.type.startsWith(QLatin1String("plugin:"));
+            const bool plugin = fx.type.startsWith(QLatin1String("plugin:"))
+                || fx.type.startsWith(QLatin1String("ofx:"));
             group->addWidgetRow({},
                 createPlaceholderContent(plugin
                         ? tr("Missing plugin: “%1” is not installed or not enabled. The effect is "
