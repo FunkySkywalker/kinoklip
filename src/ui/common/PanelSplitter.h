@@ -26,7 +26,14 @@ public:
     /// Width of the handle's grab zone, px (logical).
     static constexpr int kHandleGrabPx = 5;
 
+    /// Smallest extent (px, logical) a panel can be dragged to along the splitter, whatever its
+    /// contents would ask for. Without it a panel with many fixed-size controls (the Audio
+    /// page's meters and analyzer row) lifts the whole page's minimum width above the window:
+    /// the page is clipped, and the handles can no longer be dragged (issue #17).
+    static constexpr int kMinPanelPx = 72;
+
 protected:
+    void childEvent(QChildEvent* event) override;
     QSplitterHandle* createHandle() override;
 };
 

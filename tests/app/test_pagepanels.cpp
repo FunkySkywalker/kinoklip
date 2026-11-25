@@ -134,6 +134,30 @@ private slots:
         QCOMPARE(problems(page, f.window.get()), QString());
     }
 
+    void everyPageFitsAHDWindowWithAllPanelsShown()
+    {
+        const char* pages[] = {"view.page_media", "view.page_cut", "view.page_edit",
+            "view.page_compositing", "view.page_color", "view.page_audio", "view.page_deliver"};
+        QStringList failures;
+        for (const char* pageAction : pages) {
+            Fixture f;
+            if (!f.showPage(pageAction, 1600))
+                QFAIL("window not exposed");
+            for (Page* p : f.window->findChildren<Page*>()) {
+                if (!p->isVisible())
+                    continue;
+                for (PanelId id : kAllPanels)
+                    if (p->hasPanel(id) && !p->isPanelVisible(id))
+                        p->setPanelVisible(id, true);
+                QCoreApplication::processEvents();
+                const QString issue = problems(p, f.window.get());
+                if (!issue.isEmpty())
+                    failures << QStringLiteral("%1: %2").arg(QLatin1String(pageAction), issue);
+            }
+        }
+        QVERIFY2(failures.isEmpty(), qPrintable(failures.join(QLatin1Char('\n'))));
+    }
+
     void audioPageHandlesDragAfterToggle()
     {
         Fixture f;

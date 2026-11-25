@@ -3405,3 +3405,11 @@ Resolve's node editor has more than serial, parallel and layer nodes: Add Node >
 | 155.4 | Tests that need a GPU context skip, without failing, when no context of the requested API can be created. | Done (test_targetpool, test_glviewer) |
 | 155.5 | Not verified on real Raspberry Pi 5 hardware, only on Mesa software EGL. | Open |
 
+
+## 156. Page panels resize inside the window (issue 17)
+
+| # | Behaviour | Status |
+|---|---|---|
+| 156.1 | A panel row (any page splitter) can always be shrunk to a small panel width (72 px per panel) whatever its contents ask for, so a page is never wider than its window: before, the Audio page's viewer, meters and analyzer row asked for 1960 px, so on a smaller window the page was clipped (Mixer and Inspector cut off) and the splitter handles could not be dragged. | Done (test_pagepanels everyPageFitsAHDWindowWithAllPanelsShown, audioPageToggleKeepsLayoutInsideWindow) |
+| 156.2 | Splitter handles keep working after panels are shown or hidden: dragging moves the neighbours. | Done (test_pagepanels audioPageHandlesDragAfterToggle) |
+| 156.3 | Hiding a panel gives its width to the neighbours; showing it again restores the width it had. | Done (test_pagepanels panelWidthIsRestoredAndFreedWidthGoesToNeighbours) |

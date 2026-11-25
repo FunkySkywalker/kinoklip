@@ -2,6 +2,7 @@
 // PanelSplitter implementation: a handle that paints its own hover / press highlight.
 #include "ui/common/PanelSplitter.h"
 
+#include <QChildEvent>
 #include <QMouseEvent>
 #include <QPainter>
 
@@ -111,6 +112,25 @@ PanelSplitter::PanelSplitter(Qt::Orientation orientation, QWidget* parent)
     setObjectName(QStringLiteral("PanelSplitter"));
     setChildrenCollapsible(false);
     setHandleWidth(kHandleGrabPx);
+}
+
+void PanelSplitter::childEvent(QChildEvent* event)
+{
+    QSplitter::childEvent(event);
+    if (event->type() != QEvent::ChildAdded || !event->child()->isWidgetType())
+        return;
+    auto* panel = static_cast<QWidget*>(event->child());
+    if (qobject_cast<QSplitterHandle*>(panel))
+        return;
+    // A panel's contents set a minimum through its layout (the sum of its controls' minimums);
+    // an explicit minimum replaces it, so a row of panels always fits a small window. A minimum
+    // a page set itself is kept.
+    if (orientation() == Qt::Horizontal) {
+        if (panel->minimumWidth() == 0)
+            panel->setMinimumWidth(kMinPanelPx);
+    } else if (panel->minimumHeight() == 0) {
+        panel->setMinimumHeight(kMinPanelPx);
+    }
 }
 
 QSplitterHandle* PanelSplitter::createHandle()
