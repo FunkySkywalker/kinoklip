@@ -238,6 +238,21 @@ User requests first; the open lines of the section above carry over.
 - [x] Metadata panel: "Show All Metadata" in its options menu lists everything in the file (container and stream properties, all tags including non-standard ones such as `com.dji.camera.ColorGammaSxS : D-Log`, chapters, side data), searchable and copyable (user request; spec 148.4)
 - [x] Media Pool: Relink with a preview table that matches files by other case, other extension, a find / replace pattern or the closest name, one undo step (user request; spec 148.5, 148.6)
 
+## Plugins (branch `plugins`, after 1.14.1)
+
+The plugin system: [design](plugins/design.md), [writing plugins](plugins/writing-plugins.md), [installing plugins](plugins/installing-plugins.md), spec 156.
+
+- [x] Plugins: native plugins (a folder or a `.kkplugin` zip with a `plugin.json`): GLSL effects and transitions that behave like built-ins (Inspector, keyframes, undo, project files, proxies, export, Compositing page, OpenGL ES 3 rules), preset packs (recipes of commands, one undo step) in the Effects library, and python3 scripts in Workspace > Scripts (spec 156)
+- [x] Plugins: Preferences > Plugins (list, install a file or a folder, drop a `.kkplugin` on the window, uninstall, enable and disable, reload, open the folder, problems with their lines); a missing plugin keeps the effect and renders as bypass (spec 156)
+- [x] Plugins: example plugins: Invert, Posterize and Dip to Color as plugins that draw exactly what the built-ins draw, a two-colour effect, a circle transition, an animation pack and a script, and `plugin copy_builtin` to start from a built-in (spec 156)
+- [x] Plugins: commands for the command line and MCP: list, info, create, copy_builtin, validate (errors with file and line, OpenGL 3.3 and ES 3.0), install, uninstall, enable, disable, reload, pack and render_preview (a picture of the result for an AI) (spec 156)
+- [x] Plugins: documentation an AI can write plugins from: reference, installing guide, a short prompt (`llms.txt`) and the manifest JSON Schema
+- [ ] Plugins: point parameters with on-screen handles, a second input and mask inputs, multi-pass effects (a puppet-pin warp, trackers) in plugin API 2
+- [ ] Plugins: OpenFX host for video effects (openfx-misc, G'MIC), see the plan in plugins/design.md
+- [ ] Plugins: LV2 and CLAP audio effects on the Audio page
+- [ ] Plugins: a bundled pack of gl-transitions (MIT) as plugins
+- [ ] Plugins: presets at an edit point (transition presets) and a Plugins folder in the Compositing node list that follows reloads
+
 ## Next big release
 
 A large feature, so it gets its own big release. Smaller fix releases will come out before it.

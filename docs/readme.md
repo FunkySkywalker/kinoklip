@@ -9,6 +9,7 @@
 - [releases/](releases/readme.md): release notes
 - [privacy.md](privacy.md): what Kinoklip stores and what a bug report can share
 - [recovery.md](recovery.md): what to do when something breaks (crash recovery, failing tests)
+- [plugins/](plugins/installing-plugins.md): install and write plugins (effects, transitions, presets, scripts); [writing-plugins.md](plugins/writing-plugins.md) is the reference an AI assistant can write plugins from
 - [roadmap.md](roadmap.md): what is planned and what is not, as one checklist
 - [effects-library-status.md](effects-library-status.md): every entry of the usual Effects library and whether Kinoklip has it
 - [legal.md](legal.md): trademarks, clean-room rules, codec patents and the warranty

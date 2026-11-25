@@ -149,6 +149,7 @@ For editing beyond cuts the assistant has, besides the cutting tools:
 | `transition_add`, `transition_set`, `transition_remove` | A transition at a clip's start or end; its length, alignment and settings. |
 | `title_add`, `title_set`, `generator_add` | A text title (text, font, size, colour, bold, italic, alignment, position), a solid colour, gradient, bars or adjustment clip, on a track at a time for a length. |
 | `keyframe_set`, `keyframe_list`, `keyframe_delete` | Animate a number of a clip or an effect (opacity, position, zoom, rotation, crop, volume, an effect's setting) over time. |
+| `plugin_create`, `plugin_validate`, `plugin_render_preview`, `plugin_reload`, `plugin_info`, `plugin_list`, `plugin_copy_builtin`, `plugin_install`, `plugin_uninstall`, `plugin_enable`, `plugin_disable`, `plugin_pack` | Write plugins (effects, transitions, presets, scripts) for Kinoklip: create a working one from a template, edit its files, validate it (every problem with file and line, for OpenGL 3.3 and ES 3.0) and look at a picture of the result; see [Install and write plugins](install-and-write-plugins.md). A plugin with scripts stays off until you switch it on yourself in Preferences > Plugins; the assistant cannot. |
 | `clip_set` | Speed, volume, pan, on or off, name, zoom, position, rotation, opacity and crop of a clip. |
 | `track_list`, `track_add`, `track_set` | Add tracks; mute, lock, solo, enable or rename a track. |
 

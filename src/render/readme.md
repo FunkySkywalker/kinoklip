@@ -483,6 +483,8 @@ comment of `DecoderPool`. `Compositor::prepareStats()` has the counters.
 | `GlKit.*` | GL toolkit: common vertex shader, `GlProgram`, pooled `RenderTarget`s, blit/fill, separable Gaussian and box blur (downscaled for large radii), separable erode / dilate (`morphology()`) |
 | `GlVideo.*` | persistent plane textures (R8/RG8/R16/RG16/RGBA8) + the YUV → RGB shader (crop, rotation, edge antialiasing) |
 | `GlEffects.*` | the eight v0.1 effects and **the registration point** `builtinGlEffects()` (joins the tables of the files below) |
+| `GlPluginEffect.*`, `PluginShader.*` | plugin effects and transitions (docs/plugins): the `GlEffect` / `GlTransition` made of a plugin's GLSL file, the prelude with the standard and parameter uniforms, the shader lint, the compile-log parser; `GlRenderer::refreshPlugins()` drops the compiled plugin shaders when the registry generation changes |
+| `PluginPreview.*`, `PluginValidate.*` | draw one effect or transition on a picture without a timeline (plugin.render_preview, the parity tests); check a whole plugin folder (manifest, files, lint, compile for OpenGL 3.3 and ES 3.0) |
 | `GlEffectBase.h` | internal: `PassEffect`, GLSL helpers, layer geometry for the effect files |
 | `GlKeyers.cpp` / `GlColorEffects.cpp` / `GlBlurEffects.cpp` / `GlStylizeEffects.cpp` / `GlDistortEffects.cpp` | the v4 effects by library folder, each with its factory table |
 | `GlGradeEffects.cpp` / `GlFocusEffects.cpp` / `GlLightEffects.cpp` / `GlLookEffects.cpp` / `GlWarpEffects.cpp` / `GlTimeEffects.cpp` | the second batch: colour (curves, LUT, ...), blur and sharpen, light, stylize, distort and tile, time |
