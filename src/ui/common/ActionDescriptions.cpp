@@ -30,6 +30,8 @@ const Description kDescriptions[] = {
         QT_TRANSLATE_NOOP("kk::ActionDescriptions", "Opens the keyboard settings: pick a keyboard profile, change or clear the key of any command.")},
     {"settings.vim_mode",
         QT_TRANSLATE_NOOP("kk::ActionDescriptions", "Turns Vim mode on or off: with it on, plain keys are Vim commands (NORMAL mode) and i gives you the usual shortcuts back (INSERT mode). Works with any keyboard profile.")},
+    {"settings.plugins",
+        QT_TRANSLATE_NOOP("kk::ActionDescriptions", "Opens Preferences > Plugins: the installed plugins, install a .kkplugin file or a plugin folder, switch plugins on and off, reload them.")},
     {"edit.preferences",
         QT_TRANSLATE_NOOP("kk::ActionDescriptions", "Opens the Preferences window (user settings such as editing, playback, interface and local control).")},
     {"file.quit",

@@ -35,6 +35,7 @@ class ProjectController;
 class ViewerTransport;
 class WelcomeDialog;
 class VimController;
+class PluginHost;
 namespace live {
 class LiveServer;
 }
@@ -86,6 +87,8 @@ public:
     [[nodiscard]] live::LiveServer* liveServer() const { return m_live; }
     /// The vim key layer and its `:` command line (active only with the Vim keyboard profile).
     [[nodiscard]] VimController* vimController() const { return m_vim; }
+    /// Plugin presets, scripts and dropped .kkplugin files (app/PluginHost.h).
+    [[nodiscard]] PluginHost* pluginHost() const { return m_pluginHost; }
     /// Starts or stops the local control server to match Preferences > Local Control. Called
     /// at start-up and when the preferences were saved.
     void applyLocalControlPreference();
@@ -115,6 +118,9 @@ public:
 protected:
     void closeEvent(QCloseEvent* event) override;
     void changeEvent(QEvent* event) override;
+    /// A .kkplugin file dropped on the window installs the plugin (Preferences > Plugins).
+    void dragEnterEvent(QDragEnterEvent* event) override;
+    void dropEvent(QDropEvent* event) override;
 
 private:
     /// Re-reads the stored preferences into the running window (after Preferences or the
@@ -168,6 +174,7 @@ private:
     AutosaveController* m_autosave = nullptr;
     live::LiveServer* m_live = nullptr;
     VimController* m_vim = nullptr;
+    PluginHost* m_pluginHost = nullptr;
     HelpController* m_help = nullptr;
     ViewerTransport* m_transport = nullptr; ///< routes transport actions to the active viewer
     bool m_geometryRestored = false;

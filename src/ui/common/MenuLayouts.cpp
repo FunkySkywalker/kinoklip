@@ -239,6 +239,8 @@ Menu viewMenu()
             C("settings.color_scheme", "Colour Scheme"),
             C("settings.style", "Widget Style"),
         }),
+        A("settings.plugins", "Plugins…"),
+        C("settings.scripts", "Scripts"),
     });
 }
 

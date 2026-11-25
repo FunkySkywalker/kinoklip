@@ -38,6 +38,7 @@
 #include "ui/common/SettingsPages.h"
 #include "ui/common/StandardActions.h"
 #include "ui/dialogs/AiModelDialog.h"
+#include "ui/dialogs/PluginsPage.h"
 #include "ui/dialogs/PreferencesDialog.h"
 
 #include <QApplication>
@@ -257,6 +258,7 @@ int main(int argc, char** argv)
     kk::theme::registerSettingsPage(settingsPages, actions);
     kk::registerSettingsTransferPage(settingsPages); // Preferences > Import and Export
     kk::registerAiModelsPage(settingsPages); // Preferences > AI Models (Background Removal)
+    kk::registerPluginsPage(settingsPages); // Preferences > Plugins
     // Program playback: owns the compositor (render thread + GL context) shared by every
     // viewer, follows the project's timeline and media pool.
     kk::applyStartupPreferences(); // before the compositor exists (GPU processing mode)
