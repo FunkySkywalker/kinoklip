@@ -29,7 +29,9 @@
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
+#ifndef _WIN32
 #include <dlfcn.h>
+#endif
 #include <map>
 #include <mutex>
 #include <set>
@@ -975,6 +977,9 @@ Binary* loadBinary(const QString& path, QString* error)
         g_binaries[path] = std::move(bin);
         return nullptr;
     };
+#ifdef _WIN32
+    return fail(QStringLiteral("OpenFX plugins are only loaded on Linux so far"));
+#else
     bin->dl = dlopen(path.toLocal8Bit().constData(), RTLD_NOW | RTLD_LOCAL);
     if (!bin->dl) {
         const char* e = dlerror();
@@ -994,6 +999,7 @@ Binary* loadBinary(const QString& path, QString* error)
             continue; // another kind of plugin, or one this host does not know
         bin->plugins.push_back(p);
     }
+#endif
     bin->loadedOk.assign(bin->plugins.size(), false);
     for (size_t k = 0; k < bin->plugins.size(); ++k) {
         OfxPlugin* p = bin->plugins[k];

@@ -9,8 +9,12 @@
 #include "core/TimelineData.h"
 #include "ofx/OfxHost.h"
 #include "plugins/OfxRegistry.h"
+#include "ui/dialogs/PluginsPage.h"
 
 #include <QDir>
+#include <QListWidget>
+#include <QPushButton>
+#include <QTextBrowser>
 #include <QFile>
 #include <QSettings>
 #include <QStandardPaths>
@@ -431,6 +435,46 @@ private slots:
         reg.resetForTesting();
         reg.load();
         QVERIFY(!reg.bundle(path)->bad);
+    }
+
+    void thePluginsPageListsBundlesAndTheBadOnesWithRetry()
+    {
+        OfxRegistry& reg = OfxRegistry::instance();
+        const QString dir = m_dir.filePath(QStringLiteral("page"));
+        linkBundles(dir, {QStringLiteral("KkTest"), QStringLiteral("KkTestCrash")});
+        reg.setSearchDirs({dir});
+        reg.setCacheFile(m_dir.filePath(QStringLiteral("cache-page.json")));
+        QFile::remove(m_dir.filePath(QStringLiteral("cache-page.json")));
+        reg.reload();
+        PluginsPage page;
+        auto* list = page.findChild<QListWidget*>(QStringLiteral("PluginsList"));
+        auto* details = page.findChild<QTextBrowser*>(QStringLiteral("PluginDetails"));
+        auto* retry = page.findChild<QPushButton*>(QStringLiteral("OfxRetry"));
+        QVERIFY(list && details && retry);
+        QListWidgetItem* bad = nullptr;
+        QListWidgetItem* good = nullptr;
+        for (int i = 0; i < list->count(); ++i) {
+            if (list->item(i)->text().contains(QStringLiteral("KkTestCrash")))
+                bad = list->item(i);
+            else if (list->item(i)->text().contains(QStringLiteral("KkTest.ofx")))
+                good = list->item(i);
+        }
+        QVERIFY(bad && good);
+        QVERIFY(bad->text().contains(QStringLiteral("bad plugin")));
+        QVERIFY2(good->text().contains(QStringLiteral("1 effects")), qPrintable(good->text()));
+        list->setCurrentItem(bad);
+        QVERIFY(retry->isEnabled());
+        QVERIFY2(details->toPlainText().contains(QStringLiteral("crashed while loading")),
+            qPrintable(details->toPlainText()));
+        QVERIFY(details->toPlainText().contains(QStringLiteral("bad plugin")));
+        list->setCurrentItem(good);
+        QVERIFY(!retry->isEnabled());
+        QVERIFY(details->toPlainText().contains(QStringLiteral("Kinoklip Test Gain")));
+        QVERIFY(details->toPlainText().contains(QStringLiteral("org.kinoklip.test.Gain")));
+        // Retry probes the bad bundle again: it is still bad, and the page is rebuilt
+        list->setCurrentItem(bad);
+        retry->click();
+        QVERIFY(reg.bundle(dir + QStringLiteral("/KkTestCrash.ofx.bundle"))->bad);
     }
 
     void aBundleWithoutABinaryForThisMachineIsReported()
