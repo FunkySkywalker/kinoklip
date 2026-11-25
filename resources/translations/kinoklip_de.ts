@@ -17842,6 +17842,14 @@ Danke fürs Zuschauen</translation>
         <translation>OpenFX</translation>
     </message>
     <message>
+        <source>LV2</source>
+        <translation>LV2</translation>
+    </message>
+    <message>
+        <source>CLAP</source>
+        <translation>CLAP</translation>
+    </message>
+    <message>
         <source>Dissolve</source>
         <translation>Überblendung</translation>
     </message>
@@ -28527,6 +28535,14 @@ Auto: Voll, wechselt nur zu Halb, solange die Wiedergabe nicht mithält (pausier
         <translation>Plugins in diesem Bundle</translation>
     </message>
     <message>
+        <source>Kinoklip is looking at this plugin now.</source>
+        <translation>Kinoklip prüft dieses Plugin gerade.</translation>
+    </message>
+    <message>
+        <source>in the Effects library and the track effects, folder %1</source>
+        <translation>in der Effektbibliothek und bei den Spureffekten, Ordner %1</translation>
+    </message>
+    <message>
         <source>Check</source>
         <translation>Prüfen</translation>
     </message>
@@ -28541,6 +28557,22 @@ Auto: Voll, wechselt nur zu Halb, solange die Wiedergabe nicht mithält (pausier
     <message>
         <source>Use OpenFX plugins (effects of other programs, such as the free openfx-misc pack)</source>
         <translation>OpenFX-Plugins verwenden (Effekte anderer Programme, etwa das freie Paket openfx-misc)</translation>
+    </message>
+    <message>
+        <source>Use LV2 plugins (audio effects, such as the free LSP, x42 and Calf packs)</source>
+        <translation>LV2-Plugins verwenden (Audioeffekte, etwa die freien Pakete LSP, x42 und Calf)</translation>
+    </message>
+    <message>
+        <source>This build of Kinoklip has no LV2 support.</source>
+        <translation>Diese Kinoklip-Version hat keine LV2-Unterstützung.</translation>
+    </message>
+    <message>
+        <source>Use CLAP plugins (audio effects)</source>
+        <translation>CLAP-Plugins verwenden (Audioeffekte)</translation>
+    </message>
+    <message>
+        <source>Looking at new plugins in the background...</source>
+        <translation>Neue Plugins werden im Hintergrund geprüft ...</translation>
     </message>
     <message>
         <source>Install…</source>
@@ -28603,6 +28635,30 @@ Auto: Voll, wechselt nur zu Halb, solange die Wiedergabe nicht mithält (pausier
         <translation>Welche freien OpenFX-Pakete mit Kinoklip funktionieren und wie man sie installiert</translation>
     </message>
     <message>
+        <source>Open LV2 Folder</source>
+        <translation>LV2-Ordner öffnen</translation>
+    </message>
+    <message>
+        <source>The folder for LV2 plugins (*.lv2 folders)</source>
+        <translation>Der Ordner für LV2-Plugins (*.lv2-Ordner)</translation>
+    </message>
+    <message>
+        <source>Open CLAP Folder</source>
+        <translation>CLAP-Ordner öffnen</translation>
+    </message>
+    <message>
+        <source>The folder for CLAP plugins (*.clap files)</source>
+        <translation>Der Ordner für CLAP-Plugins (*.clap-Dateien)</translation>
+    </message>
+    <message>
+        <source>Get Free Audio Plugins</source>
+        <translation>Freie Audio-Plugins holen</translation>
+    </message>
+    <message>
+        <source>Which free LV2 and CLAP plugins work with Kinoklip and how to install them</source>
+        <translation>Welche freien LV2- und CLAP-Plugins mit Kinoklip funktionieren und wie man sie installiert</translation>
+    </message>
+    <message>
         <source>Install Plugin</source>
         <translation>Plugin installieren</translation>
     </message>
@@ -28641,6 +28697,18 @@ Auto: Voll, wechselt nur zu Halb, solange die Wiedergabe nicht mithält (pausier
     <message>
         <source>  %1 effects</source>
         <translation>  %1 Effekte</translation>
+    </message>
+    <message>
+        <source>  (LV2)</source>
+        <translation>  (LV2)</translation>
+    </message>
+    <message>
+        <source>  (CLAP)</source>
+        <translation>  (CLAP)</translation>
+    </message>
+    <message>
+        <source>  (looking...)</source>
+        <translation>  (wird geprüft ...)</translation>
     </message>
     <message>
         <source>No plugins installed.</source>

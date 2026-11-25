@@ -159,6 +159,9 @@ inline constexpr char Transform[] = "transform";
 inline constexpr char Plugins[] = "plugins";
 /// Folder of the OpenFX plugins (plugins/OfxRegistry.h).
 inline constexpr char OpenFX[] = "openfx";
+/// Folders of the LV2 and CLAP audio effects (plugins/AudioPluginRegistry.h).
+inline constexpr char Lv2[] = "lv2";
+inline constexpr char Clap[] = "clap";
 /// Folders of the video transitions (Resolve's Video Transitions bins).
 inline constexpr char Dissolve[] = "dissolve";
 inline constexpr char Iris[] = "iris";

@@ -8,6 +8,8 @@
 #include "core/Preferences.h"
 #include "core/Project.h"
 #include "core/TransitionPresets.h"
+#include "plugins/AudioPluginRegistry.h"
+#include "plugins/OfxRegistry.h"
 #include "plugins/PluginRegistry.h"
 #include "ui/common/AppContext.h"
 #include "ui/common/DragMime.h"
@@ -439,6 +441,11 @@ EffectsLibraryPanel::EffectsLibraryPanel(AppContext& ctx, QWidget* parent)
 
     populate();
     connect(&plugins::PluginRegistry::instance(), &plugins::PluginRegistry::changed, this,
+        &EffectsLibraryPanel::rebuild);
+    // OpenFX, LV2 and CLAP plugins are scanned in the background: their effects appear when done
+    connect(&plugins::OfxRegistry::instance(), &plugins::OfxRegistry::changed, this,
+        &EffectsLibraryPanel::rebuild);
+    connect(&plugins::AudioPluginRegistry::instance(), &plugins::AudioPluginRegistry::changed, this,
         &EffectsLibraryPanel::rebuild);
     if (m_ctx.project) {
         markStandardTransitions();

@@ -84,6 +84,14 @@ endif()
 if(KK_WITH_LIBRAW)
   pkg_check_modules(LIBRAW IMPORTED_TARGET libraw_r) # thread-safe LibRaw build
 endif()
+# Optional LV2 hosting for audio effects (src/audioplug/Lv2Host.cpp, spec 159): lilv (ISC) with serd, sord,
+# sratom, zix and the LV2 headers (all ISC / MIT-style). Without lilv the Plugins page says LV2 is not
+# available in this build; CLAP (vendored MIT headers) needs nothing.
+option(KK_WITH_LV2 "Host LV2 audio effect plugins through lilv (if found)" ON)
+if(KK_WITH_LV2)
+  pkg_check_modules(LILV IMPORTED_TARGET lilv-0 lv2)
+endif()
+message(STATUS "LV2 hosting (lilv): ${LILV_FOUND} ${LILV_VERSION}")
 # Optional AI runtime for Background Removal (src/matting): ONNX Runtime (MIT), CPU. Without it the
 # tool is built but reports itself unavailable (spec 78).
 option(KK_WITH_ONNXRUNTIME "Background Removal: run the model with ONNX Runtime (if found)" ON)
@@ -100,6 +108,7 @@ file(GLOB_RECURSE KK_SOURCES CONFIGURE_DEPENDS
 list(FILTER KK_SOURCES EXCLUDE REGEX ".*/src/main\\.cpp$")
 # The OpenFX host is its own small library (below) so the probe program needs no Qt Widgets.
 list(FILTER KK_SOURCES EXCLUDE REGEX ".*/src/ofx/.*")
+list(FILTER KK_SOURCES EXCLUDE REGEX ".*/src/audioplug/.*")
 
 add_library(kinoklip_core STATIC ${KK_SOURCES})
 
@@ -114,6 +123,25 @@ target_link_libraries(kinoklip_core PUBLIC kk_ofx)
 add_executable(kinoklip-ofx-probe src/ofx/probe_main.cpp)
 target_link_libraries(kinoklip-ofx-probe PRIVATE kk_ofx)
 install(TARGETS kinoklip-ofx-probe RUNTIME DESTINATION bin)
+
+# LV2 / CLAP audio effect host (spec 159): Qt Core, dlopen, lilv when found; CLAP headers in third_party/clap (MIT).
+add_library(kk_audioplug STATIC
+  src/audioplug/AudioPluginInfo.cpp src/audioplug/AudioPluginHost.cpp src/audioplug/Lv2Host.cpp
+  src/audioplug/ClapHost.cpp src/audioplug/AudioPluginInfo.h src/audioplug/AudioPluginHost.h
+  src/audioplug/AudioPluginCore.h src/audioplug/Lv2Host.h src/audioplug/ClapHost.h)
+target_include_directories(kk_audioplug PUBLIC ${CMAKE_SOURCE_DIR}/src
+  PRIVATE ${CMAKE_SOURCE_DIR}/third_party/clap/include)
+target_link_libraries(kk_audioplug PUBLIC Qt6::Core ${CMAKE_DL_LIBS})
+set_target_properties(kk_audioplug PROPERTIES POSITION_INDEPENDENT_CODE ON)
+if(LILV_FOUND)
+  target_link_libraries(kk_audioplug PUBLIC PkgConfig::LILV)
+  target_compile_definitions(kk_audioplug PRIVATE KK_HAVE_LV2=1)
+endif()
+target_link_libraries(kinoklip_core PUBLIC kk_audioplug)
+# kinoklip-audio-probe: loads one LV2 bundle or CLAP file in a process of its own (bad-plugin detection).
+add_executable(kinoklip-audio-probe src/audioplug/probe_main.cpp)
+target_link_libraries(kinoklip-audio-probe PRIVATE kk_audioplug)
+install(TARGETS kinoklip-audio-probe RUNTIME DESTINATION bin)
 
 # RNNoise (BSD-3-Clause, third_party/rnnoise/readme.md): the neural noise suppressor of the Noise
 # Reduction audio effect. Plain C, unchanged, built with warnings off.
@@ -306,6 +334,59 @@ foreach(t IN ITEMS test_ofx test_ofxrender)
     add_dependencies(${t} kk_test_ofx kk_test_ofxCrash kk_test_ofxHang kinoklip-ofx-probe)
   endif()
 endforeach()
+
+# Test audio plugins (tests/audioplug/kk_test_lv2.cpp, kk_test_clap.cpp): a gain, one that aborts while loading and a
+# 32 frame delay that reports its latency, each as an LV2 bundle in <build>/audioplug-test/lv2 and a CLAP file in
+# <build>/audioplug-test/clap (what tests/audioplug/test_audioplug.cpp scans).
+set(KK_AP_DIR "${CMAKE_BINARY_DIR}/audioplug-test")
+foreach(variant IN ITEMS gain crash delay)
+  string(TOUPPER ${variant} VARIANT)
+  add_library(kk_test_clap_${variant} MODULE tests/audioplug/kk_test_clap.cpp)
+  target_include_directories(kk_test_clap_${variant} PRIVATE ${CMAKE_SOURCE_DIR}/third_party/clap/include)
+  target_compile_definitions(kk_test_clap_${variant} PRIVATE KK_CLAP_${VARIANT}=1)
+  if(variant STREQUAL "gain")
+    target_compile_definitions(kk_test_clap_${variant} PRIVATE KK_CLAP_PLAIN=1)
+  endif()
+  set_target_properties(kk_test_clap_${variant} PROPERTIES PREFIX "" OUTPUT_NAME "kk-test-${variant}" SUFFIX ".clap"
+    LIBRARY_OUTPUT_DIRECTORY "${KK_AP_DIR}/clap" CXX_VISIBILITY_PRESET hidden)
+  if(LILV_FOUND)
+    add_library(kk_test_lv2_${variant} MODULE tests/audioplug/kk_test_lv2.cpp)
+    target_link_libraries(kk_test_lv2_${variant} PRIVATE PkgConfig::LILV)
+    target_compile_definitions(kk_test_lv2_${variant} PRIVATE KK_LV2_${VARIANT}=1)
+    set_target_properties(kk_test_lv2_${variant} PROPERTIES PREFIX "" OUTPUT_NAME "kk_test_${variant}"
+      LIBRARY_OUTPUT_DIRECTORY "${KK_AP_DIR}/lv2/kk-test-${variant}.lv2" CXX_VISIBILITY_PRESET hidden)
+    set(uri "urn:kinoklip:test:${variant}")
+    file(WRITE "${KK_AP_DIR}/lv2/kk-test-${variant}.lv2/manifest.ttl"
+"@prefix lv2:  <http://lv2plug.in/ns/lv2core#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+<${uri}> a lv2:Plugin ; lv2:binary <kk_test_${variant}.so> ; rdfs:seeAlso <kk_test_${variant}.ttl> .
+")
+    file(WRITE "${KK_AP_DIR}/lv2/kk-test-${variant}.lv2/kk_test_${variant}.ttl"
+"@prefix lv2:   <http://lv2plug.in/ns/lv2core#> .
+@prefix doap:  <http://usefulinc.com/ns/doap#> .
+@prefix units: <http://lv2plug.in/ns/extensions/units#> .
+<${uri}> a lv2:Plugin , lv2:AmplifierPlugin ;
+  doap:name \"Kinoklip Test ${variant}\" ;
+  lv2:optionalFeature lv2:hardRTCapable ;
+  lv2:port [ a lv2:InputPort , lv2:AudioPort ; lv2:index 0 ; lv2:symbol \"in\" ; lv2:name \"In\" ] ,
+    [ a lv2:OutputPort , lv2:AudioPort ; lv2:index 1 ; lv2:symbol \"out\" ; lv2:name \"Out\" ] ,
+    [ a lv2:InputPort , lv2:ControlPort ; lv2:index 2 ; lv2:symbol \"gain\" ; lv2:name \"Gain\" ;
+      lv2:default 0.0 ; lv2:minimum -60.0 ; lv2:maximum 24.0 ; units:unit units:db ] ,
+    [ a lv2:InputPort , lv2:ControlPort ; lv2:index 3 ; lv2:symbol \"invert\" ; lv2:name \"Invert\" ;
+      lv2:default 0 ; lv2:minimum 0 ; lv2:maximum 1 ; lv2:portProperty lv2:toggled ] ,
+    [ a lv2:OutputPort , lv2:ControlPort ; lv2:index 4 ; lv2:symbol \"latency\" ; lv2:name \"Latency\" ;
+      lv2:designation lv2:latency ; lv2:portProperty lv2:reportsLatency ] .
+")
+  endif()
+endforeach()
+if(TARGET test_audioplug)
+  target_compile_definitions(test_audioplug PRIVATE KK_AUDIOPLUG_TEST_DIR="${KK_AP_DIR}"
+    KK_AUDIO_PROBE_PATH="$<TARGET_FILE:kinoklip-audio-probe>" KK_AUDIOPLUG_HAVE_LV2=$<BOOL:${LILV_FOUND}>)
+  add_dependencies(test_audioplug kinoklip-audio-probe kk_test_clap_gain kk_test_clap_crash kk_test_clap_delay)
+  if(LILV_FOUND)
+    add_dependencies(test_audioplug kk_test_lv2_gain kk_test_lv2_crash kk_test_lv2_delay)
+  endif()
+endif()
 
 # The memory soak (also labelled release below) is a long run of its own: `ctest -L soak` (docs/contributing.md, "Memory leaks").
 if(TARGET test_memorysoak)

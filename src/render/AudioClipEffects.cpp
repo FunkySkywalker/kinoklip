@@ -6,7 +6,9 @@
 #include "render/AudioClipEffects.h"
 
 #include "core/AudioEffectKeys.h"
+#include "audioplug/AudioPluginHost.h"
 #include "core/EffectRegistry.h"
+#include "plugins/AudioPluginRegistry.h"
 #include "render/AudioMixer.h"
 #include "render/Biquad.h"
 #include "render/DeEsser.h"
@@ -484,9 +486,98 @@ private:
     DialogueLeveler m_leveler;
 };
 
+// ---- LV2 / CLAP plugins (plugins/AudioPluginRegistry.h, spec 159) ----
+
+/// An audio plugin as a clip effect. The plugin is looked up (and loaded) from the first
+/// configure() on; while it is missing, bad, switched off or failed to start the effect passes
+/// the sound through (bypass) and the settings stay in the project. Looks for the plugin again
+/// whenever the registry's generation changes (a scan finished, a plugin was installed).
+class PluginClipEffect final : public ClipEffect
+{
+public:
+    explicit PluginClipEffect(QString type)
+        : m_type(std::move(type))
+    { }
+    ~PluginClipEffect() override = default;
+
+    void configure(const ParamSet& p) override
+    {
+        auto& registry = plugins::AudioPluginRegistry::instance();
+        const quint64 generation = registry.generation();
+        if (generation != m_generation) { // the only place that takes the registry's lock
+            m_generation = generation;
+            std::shared_ptr<const plugins::AudioPluginEntry> entry = registry.plugin(m_type);
+            const bool same = entry && m_entry && entry->bundlePath == m_entry->bundlePath
+                && entry->info.id == m_entry->info.id;
+            if (!same) {
+                m_instance.reset();
+                m_failed = false;
+                m_entry = std::move(entry);
+                m_values.assign(m_entry ? size_t(m_entry->info.params.size()) : 0, 0.0);
+            }
+        }
+        if (!m_entry)
+            return;
+        for (size_t i = 0; i < m_values.size(); ++i)
+            m_values[i] = plugins::AudioPluginRegistry::valueFor(m_entry->info.params[int(i)], p);
+        if (!m_instance && !m_failed)
+            start();
+        if (m_instance) {
+            for (size_t i = 0; i < m_values.size(); ++i)
+                m_instance->setParam(int(i), m_values[i]);
+        }
+    }
+    void reset() override
+    {
+        if (m_instance)
+            m_instance->reset();
+    }
+    void process(float* io, int frames) override
+    {
+        if (!m_instance)
+            return;
+        m_instance->process(io, frames);
+        if (!m_confirmed) { // the plugin came through its first block: it is not a crasher
+            m_confirmed = true;
+            plugins::AudioPluginRegistry::instance().markLoaded(m_entry->bundlePath);
+        }
+    }
+    [[nodiscard]] int latencyFrames() const override
+    {
+        return m_instance ? m_instance->latencyFrames() : 0;
+    }
+
+private:
+    void start()
+    {
+        auto& registry = plugins::AudioPluginRegistry::instance();
+        registry.markLoading(m_entry->bundlePath);
+        QString error;
+        m_instance = audioplug::Instance::create(m_entry->info, m_entry->bundlePath, kRate, &error);
+        if (!m_instance) {
+            m_failed = true;
+            registry.markLoaded(m_entry->bundlePath);
+            registry.reportError(m_type, error);
+            return;
+        }
+        m_confirmed = false;
+        registry.reportError(m_type, QString());
+    }
+
+    QString m_type;
+    quint64 m_generation = 0;
+    std::shared_ptr<const plugins::AudioPluginEntry> m_entry;
+    std::unique_ptr<audioplug::Instance> m_instance;
+    std::vector<double> m_values;
+    bool m_failed = false;
+    bool m_confirmed = true;
+};
+
 std::unique_ptr<ClipEffect> create(const QString& type)
 {
     using namespace afxid;
+    if (plugins::AudioPluginRegistry::isPluginType(type))
+        return std::make_unique<PluginClipEffect>(type);
     if (type == QLatin1String(Gain))
         return std::make_unique<GainEffect>();
     if (type == QLatin1String(Eq))
@@ -543,6 +634,10 @@ int effectTail(const EffectInstance& fx)
     namespace k = afxkeys;
     const ParamSet& p = fx.params;
     double frames = 0.0;
+    if (plugins::AudioPluginRegistry::isPluginType(fx.type)) {
+        const auto entry = plugins::AudioPluginRegistry::instance().plugin(fx.type);
+        return entry ? int(std::min<double>(std::ceil(entry->info.tailSeconds * kRate), kMaxTailFrames)) : 0;
+    }
     if (fx.type == QLatin1String(afxid::Reverb)) {
         if (param(p, k::Mix, 25, 0, 100) <= 0.0)
             return 0;

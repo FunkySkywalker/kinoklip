@@ -24,6 +24,7 @@
 #include "matting/MatteService.h"
 #include "media/MediaCache.h"
 #include "pack/ProjectPackage.h"
+#include "plugins/AudioPluginRegistry.h"
 #include "plugins/OfxRegistry.h"
 #include "plugins/PluginRegistry.h"
 #include "playback/PlaybackEngine.h"
@@ -214,6 +215,7 @@ int runCommandLine(int argc, char** argv, const QStringList& arguments)
     setApplicationIdentity();
     kk::plugins::PluginRegistry::instance().load();
     kk::plugins::OfxRegistry::instance().load();
+    kk::plugins::AudioPluginRegistry::instance().load();
     return kk::cli::run(arguments, stdout, stderr);
 }
 
@@ -279,7 +281,10 @@ int main(int argc, char** argv)
     kk::initResources();
     kk::EditBehaviour::migrateSettings();
     kk::plugins::PluginRegistry::instance().load(); // before any project loads
-    kk::plugins::OfxRegistry::instance().load(); // OpenFX bundles (cached; new ones are probed)
+    // OpenFX, LV2 and CLAP bundles: the cache is read now, new or changed bundles are probed in the
+    // background (up to three at once) and the effects library updates when they are done
+    kk::plugins::OfxRegistry::instance().loadAsync();
+    kk::plugins::AudioPluginRegistry::instance().loadAsync();
 
     kk::CommandLineOptions options;
     QString error;

@@ -473,7 +473,8 @@ private slots:
         QVERIFY(details->toPlainText().contains(QStringLiteral("org.kinoklip.test.Gain")));
         // Retry probes the bad bundle again: it is still bad, and the page is rebuilt
         list->setCurrentItem(bad);
-        retry->click();
+        retry->click(); // probes in the background
+        reg.waitForScan();
         QVERIFY(reg.bundle(dir + QStringLiteral("/KkTestCrash.ofx.bundle"))->bad);
     }
 

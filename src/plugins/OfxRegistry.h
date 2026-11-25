@@ -16,6 +16,7 @@
 #include <QObject>
 #include <QString>
 #include <QStringList>
+#include <QThreadPool>
 #include <QVector>
 
 #include <atomic>
@@ -60,6 +61,7 @@ struct OfxBundleEntry
     QString reason; ///< why it is bad
     ofx::BundleInfo info;
     QDateTime probed;
+    bool probing = false; ///< the probe has not answered yet (a background scan is running)
 };
 
 class OfxRegistry : public QObject
@@ -82,19 +84,33 @@ public:
     [[nodiscard]] bool enabled() const;
     void setEnabled(bool on);
 
-    /// Scans once (reads the cache, probes new or changed bundles). Later calls do nothing.
+    /// Scans once and waits (reads the cache, probes new or changed bundles, up to three probes at
+    /// once). Later calls do nothing. For the command line and the tests.
     void load();
+    /// The same scan in the background: returns at once, the plugins of the cache are registered
+    /// immediately, the others when their probe is done (changed() after each stage, scanFinished()
+    /// at the end). The editor starts with this one, so no probe delays the first window.
+    void loadAsync();
     [[nodiscard]] bool isLoaded() const { return m_loaded; }
+    /// True while probes are running in the background.
+    [[nodiscard]] bool isScanning() const { return m_scanning; }
+    /// Probes that run at once (1 to 4, default 3).
+    void setProbeThreads(int n);
+    /// Waits (with the event loop running) until no background scan is running.
+    void waitForScan();
     /// Tests: forgets the scan so the next load() reads the cache file and the loading marks again.
     void resetForTesting()
     {
+        waitForScan();
         m_loaded = false;
         m_bundles.clear();
     }
     /// Scans again; with @p retryBad the bundles on the bad-plugin list are probed again.
     void reload(bool retryBad = false);
+    void reloadAsync(bool retryBad = false);
     /// Probes the bundle @p path again (Retry): clears its bad mark first.
     void retry(const QString& path);
+    void retryAsync(const QString& path);
 
     [[nodiscard]] QVector<OfxBundleEntry> bundles() const;
     [[nodiscard]] const OfxBundleEntry* bundle(const QString& path) const;
@@ -128,13 +144,20 @@ public:
 signals:
     /// Plugins, bundles or the bad list changed.
     void changed();
+    /// A background scan has finished.
+    void scanFinished();
 
 private:
-    OfxRegistry() = default;
-    void scan(bool retryBad, const QString& onlyBundle);
+    OfxRegistry();
+    struct Job;
+    using Jobs = std::shared_ptr<QVector<Job>>;
+    void scan(bool retryBad, const QString& onlyBundle, bool async);
+    Jobs discover(bool retryBad, const QString& onlyBundle);
+    void finishScan(const Jobs& jobs);
     void registerAll();
     void loadCache();
     void saveCache() const;
+    void applyCrashMarkers();
     [[nodiscard]] QString markerDir() const;
     [[nodiscard]] QString cacheFilePath() const;
     ofx::BundleInfo probe(const QString& bundlePath, QString* failure) const;
@@ -145,6 +168,11 @@ private:
     int m_probeTimeoutMs = 30000;
     QString m_cacheFile;
     bool m_loaded = false;
+    std::atomic<bool> m_scanning {false};
+    bool m_rescanPending = false;
+    bool m_rescanRetry = false;
+    QString m_rescanOnly;
+    QThreadPool m_pool;
     QVector<OfxBundleEntry> m_bundles;
     QStringList m_registeredIds;
 

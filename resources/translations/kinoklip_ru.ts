@@ -17855,6 +17855,14 @@ Thank you for watching</source>
         <translation>OpenFX</translation>
     </message>
     <message>
+        <source>LV2</source>
+        <translation>LV2</translation>
+    </message>
+    <message>
+        <source>CLAP</source>
+        <translation>CLAP</translation>
+    </message>
+    <message>
         <source>Dissolve</source>
         <translation>Растворение</translation>
     </message>
@@ -28548,6 +28556,14 @@ Auto: Full, switching to Half only while playback cannot keep up (paused: Full).
         <translation>Плагины в этом бандле</translation>
     </message>
     <message>
+        <source>Kinoklip is looking at this plugin now.</source>
+        <translation>Kinoklip сейчас проверяет этот плагин.</translation>
+    </message>
+    <message>
+        <source>in the Effects library and the track effects, folder %1</source>
+        <translation>в библиотеке эффектов и в эффектах дорожки, папка %1</translation>
+    </message>
+    <message>
         <source>Check</source>
         <translation>Проверить</translation>
     </message>
@@ -28562,6 +28578,22 @@ Auto: Full, switching to Half only while playback cannot keep up (paused: Full).
     <message>
         <source>Use OpenFX plugins (effects of other programs, such as the free openfx-misc pack)</source>
         <translation>Использовать плагины OpenFX (эффекты из других программ, например свободный пакет openfx-misc)</translation>
+    </message>
+    <message>
+        <source>Use LV2 plugins (audio effects, such as the free LSP, x42 and Calf packs)</source>
+        <translation>Использовать плагины LV2 (аудиоэффекты, например свободные наборы LSP, x42 и Calf)</translation>
+    </message>
+    <message>
+        <source>This build of Kinoklip has no LV2 support.</source>
+        <translation>В этой сборке Kinoklip нет поддержки LV2.</translation>
+    </message>
+    <message>
+        <source>Use CLAP plugins (audio effects)</source>
+        <translation>Использовать плагины CLAP (аудиоэффекты)</translation>
+    </message>
+    <message>
+        <source>Looking at new plugins in the background...</source>
+        <translation>Новые плагины проверяются в фоне...</translation>
     </message>
     <message>
         <source>Install…</source>
@@ -28624,6 +28656,30 @@ Auto: Full, switching to Half only while playback cannot keep up (paused: Full).
         <translation>Какие свободные пакеты OpenFX работают с Kinoklip и как их установить</translation>
     </message>
     <message>
+        <source>Open LV2 Folder</source>
+        <translation>Открыть папку LV2</translation>
+    </message>
+    <message>
+        <source>The folder for LV2 plugins (*.lv2 folders)</source>
+        <translation>Папка для плагинов LV2 (папки *.lv2)</translation>
+    </message>
+    <message>
+        <source>Open CLAP Folder</source>
+        <translation>Открыть папку CLAP</translation>
+    </message>
+    <message>
+        <source>The folder for CLAP plugins (*.clap files)</source>
+        <translation>Папка для плагинов CLAP (файлы *.clap)</translation>
+    </message>
+    <message>
+        <source>Get Free Audio Plugins</source>
+        <translation>Получить свободные аудиоплагины</translation>
+    </message>
+    <message>
+        <source>Which free LV2 and CLAP plugins work with Kinoklip and how to install them</source>
+        <translation>Какие свободные плагины LV2 и CLAP работают с Kinoklip и как их установить</translation>
+    </message>
+    <message>
         <source>Install Plugin</source>
         <translation>Установка плагина</translation>
     </message>
@@ -28662,6 +28718,18 @@ Auto: Full, switching to Half only while playback cannot keep up (paused: Full).
     <message>
         <source>  %1 effects</source>
         <translation>  %1 эффектов</translation>
+    </message>
+    <message>
+        <source>  (LV2)</source>
+        <translation>  (LV2)</translation>
+    </message>
+    <message>
+        <source>  (CLAP)</source>
+        <translation>  (CLAP)</translation>
+    </message>
+    <message>
+        <source>  (looking...)</source>
+        <translation>  (проверяется...)</translation>
     </message>
     <message>
         <source>No plugins installed.</source>

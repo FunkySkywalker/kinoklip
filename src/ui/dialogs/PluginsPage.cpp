@@ -4,6 +4,8 @@
 
 #include "platform/FileDialogs.h"
 #include "platform/OpenUrl.h"
+#include "audioplug/AudioPluginHost.h"
+#include "plugins/AudioPluginRegistry.h"
 #include "plugins/OfxRegistry.h"
 #include "plugins/PluginRegistry.h"
 #include "render/PluginValidate.h"
@@ -28,6 +30,15 @@ namespace {
 constexpr int kIdRole = Qt::UserRole;
 /// Id prefix of the list entries that are OpenFX bundle folders (the rest of the id is the path).
 constexpr char kOfxBundlePrefix[] = "ofxbundle:";
+constexpr char kAudioBundlePrefix[] = "audiobundle:"; ///< + "lv2:" / "clap:" + the path
+constexpr char kAudioHelpUrl[] = "https://github.com/SeniorMatt/kinoklip/blob/main/docs/plugins/audio-plugins.md";
+
+/// "audiobundle:lv2:/path" -> "/path"
+QString audioPathOf(const QString& id)
+{
+    const QString rest = id.mid(int(sizeof(kAudioBundlePrefix)) - 1);
+    return rest.mid(rest.indexOf(QLatin1Char(':')) + 1);
+}
 /// Where the free plugin packs and how to install them are explained.
 constexpr char kOfxHelpUrl[] = "https://github.com/SeniorMatt/kinoklip/blob/main/docs/plugins/openfx.md";
 constexpr int kListMinHeight = 120;
@@ -152,6 +163,42 @@ QString PluginsPage::ofxDetailsHtml(const QString& bundlePath)
     return html;
 }
 
+QString PluginsPage::audioDetailsHtml(const QString& bundlePath)
+{
+    const plugins::AudioBundleEntry* b = plugins::AudioPluginRegistry::instance().bundle(bundlePath);
+    if (!b)
+        return {};
+    const bool lv2 = b->format == QLatin1String(audioplug::kFormatLv2);
+    QString html = QStringLiteral("<h3>%1 <small>(%2)</small></h3>")
+                       .arg(esc(QFileInfo(b->path).fileName()), lv2 ? QStringLiteral("LV2") : QStringLiteral("CLAP"));
+    html += QStringLiteral("<p>%1 <a href=\"file://%2\">%2</a><br>%3 %4</p>")
+                .arg(tr("Found in"), esc(QFileInfo(b->path).absolutePath()), tr("Source:"), esc(b->source));
+    if (b->probing) {
+        html += QStringLiteral("<p>%1</p>").arg(tr("Kinoklip is looking at this plugin now."));
+        return html;
+    }
+    if (b->bad) {
+        html += QStringLiteral("<p><b>%1</b></p><p>%2</p><p>%3</p>")
+                    .arg(tr("This is a bad plugin: Kinoklip does not load it."), esc(b->reason),
+                        tr("Press Retry to try it again, for example after updating the plugin."));
+        return html;
+    }
+    QString rows;
+    for (const audioplug::PluginInfo& p : b->info.plugins) {
+        const QString id = QString::fromLatin1(lv2 ? plugins::kLv2IdPrefix : plugins::kClapIdPrefix) + p.id;
+        QString status = p.error.isEmpty() ? tr("in the Effects library and the track effects, folder %1")
+                                                 .arg(lv2 ? QStringLiteral("LV2") : QStringLiteral("CLAP"))
+                                           : tr("not used: ") + p.error;
+        if (const QString err = plugins::AudioPluginRegistry::instance().error(id); !err.isEmpty())
+            status += QStringLiteral(" - ") + tr("last problem: ") + err;
+        rows += QStringLiteral("<tr><td>%1</td><td><small>%2</small></td><td>%3</td><td>%4</td></tr>")
+                    .arg(esc(p.name), esc(p.id), esc(p.version), esc(status));
+    }
+    html += QStringLiteral("<p><b>%1</b></p><table cellspacing=\"6\">%2</table>")
+                .arg(tr("Plugins in this bundle"), rows);
+    return html;
+}
+
 QString PluginsPage::checkHtml(const QString& dir)
 {
     const render::PluginValidation v = render::validatePluginFolder(dir, true);
@@ -186,6 +233,29 @@ PluginsPage::PluginsPage(QWidget* parent)
     layout->addWidget(m_ofxEnabled);
     connect(m_ofxEnabled, &QCheckBox::toggled, this,
         [](bool on) { plugins::OfxRegistry::instance().setEnabled(on); });
+    m_lv2Enabled = new QCheckBox(tr("Use LV2 plugins (audio effects, such as the free LSP, x42 and "
+                                    "Calf packs)"));
+    m_lv2Enabled->setObjectName(QStringLiteral("Lv2Enabled"));
+    m_lv2Enabled->setChecked(plugins::AudioPluginRegistry::instance().enabled(QString::fromLatin1(audioplug::kFormatLv2)));
+    if (!audioplug::lv2Supported()) {
+        m_lv2Enabled->setEnabled(false);
+        m_lv2Enabled->setToolTip(tr("This build of Kinoklip has no LV2 support."));
+    }
+    layout->addWidget(m_lv2Enabled);
+    connect(m_lv2Enabled, &QCheckBox::toggled, this, [](bool on) {
+        plugins::AudioPluginRegistry::instance().setEnabled(QString::fromLatin1(audioplug::kFormatLv2), on);
+    });
+    m_clapEnabled = new QCheckBox(tr("Use CLAP plugins (audio effects)"));
+    m_clapEnabled->setObjectName(QStringLiteral("ClapEnabled"));
+    m_clapEnabled->setChecked(plugins::AudioPluginRegistry::instance().enabled(QString::fromLatin1(audioplug::kFormatClap)));
+    layout->addWidget(m_clapEnabled);
+    connect(m_clapEnabled, &QCheckBox::toggled, this, [](bool on) {
+        plugins::AudioPluginRegistry::instance().setEnabled(QString::fromLatin1(audioplug::kFormatClap), on);
+    });
+    m_scanning = new QLabel(tr("Looking at new plugins in the background..."));
+    m_scanning->setObjectName(QStringLiteral("PluginsScanning"));
+    m_scanning->setVisible(false);
+    layout->addWidget(m_scanning);
 
     m_list = new QListWidget;
     m_list->setObjectName(QStringLiteral("PluginsList"));
@@ -235,6 +305,30 @@ PluginsPage::PluginsPage(QWidget* parent)
         buttons->addWidget(b);
     buttons->addStretch(1);
     layout->addLayout(buttons);
+    auto* audioButtons = new QHBoxLayout;
+    auto* openLv2 = new QPushButton(tr("Open LV2 Folder"));
+    openLv2->setObjectName(QStringLiteral("Lv2OpenFolder"));
+    openLv2->setToolTip(tr("The folder for LV2 plugins (*.lv2 folders)"));
+    auto* openClap = new QPushButton(tr("Open CLAP Folder"));
+    openClap->setObjectName(QStringLiteral("ClapOpenFolder"));
+    openClap->setToolTip(tr("The folder for CLAP plugins (*.clap files)"));
+    auto* audioPacks = new QPushButton(tr("Get Free Audio Plugins"));
+    audioPacks->setObjectName(QStringLiteral("AudioGetPlugins"));
+    audioPacks->setToolTip(tr("Which free LV2 and CLAP plugins work with Kinoklip and how to install them"));
+    for (QPushButton* b : {openLv2, openClap, audioPacks})
+        audioButtons->addWidget(b);
+    audioButtons->addStretch(1);
+    layout->addLayout(audioButtons);
+    for (auto [button, format] : {std::pair{openLv2, QString::fromLatin1(audioplug::kFormatLv2)},
+             std::pair{openClap, QString::fromLatin1(audioplug::kFormatClap)}}) {
+        connect(button, &QPushButton::clicked, this, [format] {
+            const QString dir = plugins::AudioPluginRegistry::userDir(format);
+            QDir().mkpath(dir);
+            platform::openUrl(QUrl::fromLocalFile(dir));
+        });
+    }
+    connect(audioPacks, &QPushButton::clicked, this,
+        [] { platform::openUrl(QUrl(QString::fromLatin1(kAudioHelpUrl))); });
 
     connect(install, &QPushButton::clicked, this, [this] {
         const QString file = platform::getOpenFileName(this, tr("Install Plugin"),
@@ -265,12 +359,15 @@ PluginsPage::PluginsPage(QWidget* parent)
     });
     connect(reload, &QPushButton::clicked, this, [] {
         plugins::PluginRegistry::instance().reload();
-        plugins::OfxRegistry::instance().reload(false);
+        plugins::OfxRegistry::instance().reloadAsync(false); // probes run in the background
+        plugins::AudioPluginRegistry::instance().reloadAsync(false);
     });
     connect(m_retry, &QPushButton::clicked, this, [this] {
         const QString id = currentId();
         if (id.startsWith(QLatin1String(kOfxBundlePrefix)))
-            plugins::OfxRegistry::instance().retry(id.mid(int(sizeof(kOfxBundlePrefix)) - 1));
+            plugins::OfxRegistry::instance().retryAsync(id.mid(int(sizeof(kOfxBundlePrefix)) - 1));
+        else if (id.startsWith(QLatin1String(kAudioBundlePrefix)))
+            plugins::AudioPluginRegistry::instance().retryAsync(audioPathOf(id));
     });
     connect(openOfx, &QPushButton::clicked, this, [] {
         const QString dir = plugins::OfxRegistry::userDir();
@@ -297,6 +394,8 @@ PluginsPage::PluginsPage(QWidget* parent)
     connect(&plugins::PluginRegistry::instance(), &plugins::PluginRegistry::changed, this,
         &PluginsPage::refresh);
     connect(&plugins::OfxRegistry::instance(), &plugins::OfxRegistry::changed, this,
+        &PluginsPage::refresh);
+    connect(&plugins::AudioPluginRegistry::instance(), &plugins::AudioPluginRegistry::changed, this,
         &PluginsPage::refresh);
     refresh();
 }
@@ -343,6 +442,23 @@ void PluginsPage::refresh()
         if (id == keep)
             m_list->setCurrentItem(item);
     }
+    for (const plugins::AudioBundleEntry& b : plugins::AudioPluginRegistry::instance().bundles()) {
+        qsizetype usable = 0;
+        for (const audioplug::PluginInfo& p : b.info.plugins)
+            usable += p.error.isEmpty() ? 1 : 0;
+        const bool lv2 = b.format == QLatin1String(audioplug::kFormatLv2);
+        QString text = QFileInfo(b.path).fileName() + (lv2 ? tr("  (LV2)") : tr("  (CLAP)"));
+        text += b.probing ? tr("  (looking...)") : b.bad ? tr("  (bad plugin)") : tr("  %1 effects").arg(usable);
+        auto* item = new QListWidgetItem(text, m_list);
+        const QString id = QString::fromLatin1(kAudioBundlePrefix) + b.format + QLatin1Char(':') + b.path;
+        item->setData(kIdRole, id);
+        item->setToolTip(b.path);
+        item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        if (id == keep)
+            m_list->setCurrentItem(item);
+    }
+    m_scanning->setVisible(plugins::OfxRegistry::instance().isScanning()
+        || plugins::AudioPluginRegistry::instance().isScanning());
     if (!m_list->currentItem() && m_list->count() > 0)
         m_list->setCurrentRow(0);
     m_refreshing = false;
@@ -354,8 +470,11 @@ void PluginsPage::showDetails()
     const QString id = currentId();
     const bool isOfx = id.startsWith(QLatin1String(kOfxBundlePrefix));
     const QString ofxPath = isOfx ? id.mid(int(sizeof(kOfxBundlePrefix)) - 1) : QString();
+    const bool isAudio = id.startsWith(QLatin1String(kAudioBundlePrefix));
+    const QString audioPath = isAudio ? audioPathOf(id) : QString();
     QString html = id.isEmpty() ? QStringLiteral("<p>%1</p>").arg(tr("No plugins installed."))
         : isOfx                 ? ofxDetailsHtml(ofxPath)
+        : isAudio               ? audioDetailsHtml(audioPath)
                                 : detailsHtml(id);
     if (!id.isEmpty() && id == m_checkedId)
         html += m_checkHtml;
@@ -364,7 +483,9 @@ void PluginsPage::showDetails()
     m_uninstall->setEnabled(p && p->source == plugins::PluginSource::User);
     const plugins::OfxBundleEntry* bundle
         = isOfx ? plugins::OfxRegistry::instance().bundle(ofxPath) : nullptr;
-    m_retry->setEnabled(bundle && bundle->bad);
+    const plugins::AudioBundleEntry* audioBundle
+        = isAudio ? plugins::AudioPluginRegistry::instance().bundle(audioPath) : nullptr;
+    m_retry->setEnabled((bundle && bundle->bad) || (audioBundle && audioBundle->bad));
 }
 
 void PluginsPage::onItemChanged(QListWidgetItem* item)

@@ -5,6 +5,7 @@
 #include "compositing/tracking/EffectTrackJob.h"
 #include "compositing/tracking/StabilizeJob.h"
 #include "core/AudioTransitions.h"
+#include "plugins/AudioPluginRegistry.h"
 #include "plugins/PluginRegistry.h"
 #include "core/EditOps.h"
 #include "core/MixerOps.h"
@@ -1332,7 +1333,8 @@ void InspectorPanel::buildEffectSection(
             // A plugin effect whose plugin is missing, disabled or broken: its settings stay in
             // the project, the effect is skipped when rendering (bypass).
             const bool plugin = fx.type.startsWith(QLatin1String("plugin:"))
-                || fx.type.startsWith(QLatin1String("ofx:"));
+                || fx.type.startsWith(QLatin1String("ofx:"))
+                || plugins::AudioPluginRegistry::isPluginType(fx.type);
             group->addWidgetRow({},
                 createPlaceholderContent(plugin
                         ? tr("Missing plugin: “%1” is not installed or not enabled. The effect is "

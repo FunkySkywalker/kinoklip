@@ -15,7 +15,9 @@
 #include <QJsonDocument>
 #include <QLoggingCategory>
 #include <QMutexLocker>
+#include <QEventLoop>
 #include <QProcess>
+#include <QRunnable>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QTemporaryFile>
@@ -120,6 +122,24 @@ ofx::BundleInfo OfxPluginEntry::bundleInfo() const
     b.bundlePath = bundlePath;
     b.binary = binary;
     return b;
+}
+
+struct OfxRegistry::Job
+{
+    QString path;
+    ofx::BundleInfo result;
+    QString failure;
+};
+
+OfxRegistry::OfxRegistry()
+{
+    m_pool.setMaxThreadCount(3);
+    m_pool.setExpiryTimeout(2000);
+}
+
+void OfxRegistry::setProbeThreads(int n)
+{
+    m_pool.setMaxThreadCount(std::clamp(n, 1, 4));
 }
 
 OfxRegistry& OfxRegistry::instance()
@@ -487,6 +507,8 @@ void OfxRegistry::saveCache() const
         return; // nothing found, nothing to remember (and no cache folder made for it)
     QJsonArray arr;
     for (const OfxBundleEntry& b : m_bundles) {
+        if (b.probing)
+            continue;
         QJsonObject o;
         o[QLatin1String("path")] = b.path;
         o[QLatin1String("binary")] = b.binary;
@@ -513,6 +535,12 @@ void OfxRegistry::load()
         return;
     m_loaded = true;
     loadCache();
+    applyCrashMarkers();
+    scan(false, {}, false);
+}
+
+void OfxRegistry::applyCrashMarkers()
+{
     // A bundle whose plugin was loading when the editor died is a bad plugin now.
     const QDir markers(markerDir());
     for (const QString& name : markers.entryList(QDir::Files)) {
@@ -529,23 +557,118 @@ void OfxRegistry::load()
         f.close();
         QFile::remove(markers.filePath(name));
     }
-    scan(false, {});
+}
+
+void OfxRegistry::loadAsync()
+{
+    if (m_loaded)
+        return;
+    m_loaded = true;
+    loadCache();
+    applyCrashMarkers();
+    scan(false, {}, true);
 }
 
 void OfxRegistry::reload(bool retryBad)
 {
     m_loaded = true;
-    scan(retryBad, {});
+    scan(retryBad, {}, false);
+}
+
+void OfxRegistry::reloadAsync(bool retryBad)
+{
+    m_loaded = true;
+    scan(retryBad, {}, true);
 }
 
 void OfxRegistry::retry(const QString& path)
 {
     markLoaded(path);
-    scan(false, path);
+    scan(false, path, false);
 }
 
-void OfxRegistry::scan(bool retryBad, const QString& onlyBundle)
+void OfxRegistry::retryAsync(const QString& path)
 {
+    markLoaded(path);
+    scan(false, path, true);
+}
+
+void OfxRegistry::waitForScan()
+{
+    if (!m_scanning)
+        return;
+    QEventLoop loop;
+    connect(this, &OfxRegistry::scanFinished, &loop, &QEventLoop::quit);
+    if (m_scanning)
+        loop.exec();
+}
+
+void OfxRegistry::scan(bool retryBad, const QString& onlyBundle, bool async)
+{
+    if (m_scanning) { // one scan at a time: this one follows when the running one is done
+        m_rescanPending = true;
+        m_rescanRetry = m_rescanRetry || retryBad;
+        m_rescanOnly = onlyBundle;
+        if (!async)
+            waitForScan();
+        return;
+    }
+    m_scanning = true;
+    const Jobs jobs = discover(retryBad, onlyBundle);
+    registerAll(); // what the cache knows is there at once
+    emit changed();
+    if (jobs->isEmpty()) {
+        finishScan(jobs);
+        return;
+    }
+    auto remaining = std::make_shared<std::atomic<int>>(int(jobs->size()));
+    for (qsizetype i = 0; i < jobs->size(); ++i) {
+        m_pool.start(QRunnable::create([this, jobs, i, remaining, async] {
+            Job& job = (*jobs)[i];
+            job.result = probe(job.path, &job.failure);
+            if (--*remaining == 0 && async)
+                QMetaObject::invokeMethod(this, [this, jobs] { finishScan(jobs); }, Qt::QueuedConnection);
+        }));
+    }
+    if (!async) {
+        m_pool.waitForDone();
+        finishScan(jobs);
+    }
+}
+
+void OfxRegistry::finishScan(const Jobs& jobs)
+{
+    for (const Job& job : *jobs) {
+        for (OfxBundleEntry& b : m_bundles) {
+            if (b.path != job.path)
+                continue;
+            b.probing = false;
+            b.info = job.result;
+            b.probed = QDateTime::currentDateTime();
+            b.bad = !job.failure.isEmpty();
+            b.reason = job.failure;
+            if (b.bad)
+                qCWarning(lcOfxRegistry).noquote() << "OpenFX bundle" << b.path << "is a bad plugin:" << job.failure;
+        }
+    }
+    registerAll();
+    saveCache();
+    m_scanning = false;
+    emit changed();
+    emit scanFinished();
+    if (m_rescanPending) {
+        m_rescanPending = false;
+        const bool retryBad = m_rescanRetry;
+        m_rescanRetry = false;
+        const QString only = m_rescanOnly;
+        m_rescanOnly.clear();
+        scan(retryBad, only, true);
+    }
+}
+
+OfxRegistry::Jobs OfxRegistry::discover(bool retryBad, const QString& onlyBundle)
+{
+    auto jobs = std::make_shared<QVector<Job>>();
     const QStringList dirs = searchDirs();
     const QString bundledMarker = QString::fromLocal8Bit(qgetenv("KK_OFX_BUNDLED_DIR"));
     QVector<OfxBundleEntry> found;
@@ -604,22 +727,17 @@ void OfxRegistry::scan(bool retryBad, const QString& onlyBundle)
                 entry = *cached;
                 entry.source = source;
             } else {
-                QString failure;
-                entry.info = probe(path, &failure);
-                entry.probed = QDateTime::currentDateTime();
-                if (!failure.isEmpty()) {
-                    entry.bad = true;
-                    entry.reason = failure;
-                    qCWarning(lcOfxRegistry).noquote() << "OpenFX bundle" << path << "is a bad plugin:" << failure;
-                }
+                entry.probing = true; // the answer comes from the probe (finishScan)
+                entry.info.bundlePath = path;
+                Job job;
+                job.path = path;
+                jobs->append(job);
             }
             found.append(entry);
         }
     }
     m_bundles = found;
-    registerAll();
-    saveCache();
-    emit changed();
+    return jobs;
 }
 
 QVector<OfxBundleEntry> OfxRegistry::bundles() const
@@ -663,7 +781,7 @@ void OfxRegistry::registerAll()
     QCryptographicHash hash(QCryptographicHash::Sha1);
     const bool on = enabled();
     for (const OfxBundleEntry& b : std::as_const(m_bundles)) {
-        if (b.bad)
+        if (b.bad || b.probing)
             continue;
         // A bundle may carry several versions of one plugin (Natron's packs keep old ones for old
         // projects): the highest version is the one offered.

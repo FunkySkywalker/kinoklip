@@ -6,6 +6,7 @@
 
 #include <QCoreApplication>
 #include <QFileInfo>
+#include <QReadWriteLock>
 
 #include <algorithm>
 
@@ -13,6 +14,14 @@ namespace kk {
 
 namespace {
 constexpr qsizetype kReservedDescriptors = 4096;
+
+/// Plugin scans run in the background and add descriptors while the renderer calls find(): the
+/// index is guarded (there is one registry per process).
+QReadWriteLock& indexLock()
+{
+    static QReadWriteLock lock;
+    return lock;
+}
 }
 
 const ParamDescriptor* EffectDescriptor::param(const QString& key) const
@@ -40,6 +49,7 @@ EffectRegistry& EffectRegistry::instance()
 
 void EffectRegistry::add(EffectDescriptor descriptor)
 {
+    QWriteLocker lock(&indexLock());
     if (const auto it = m_index.constFind(descriptor.id); it != m_index.cend()) {
         m_descriptors[*it] = std::move(descriptor);
         return;
@@ -50,12 +60,14 @@ void EffectRegistry::add(EffectDescriptor descriptor)
 
 void EffectRegistry::markUnavailable(const QString& id)
 {
+    QReadLocker lock(&indexLock());
     if (const auto it = m_index.constFind(id); it != m_index.cend())
         m_descriptors[*it].unavailable = true;
 }
 
 void EffectRegistry::markAvailable(const QString& id)
 {
+    QReadLocker lock(&indexLock());
     if (const auto it = m_index.constFind(id); it != m_index.cend())
         m_descriptors[*it].unavailable = false;
 }
@@ -91,6 +103,7 @@ const EffectDescriptor* EffectRegistry::find(const QString& id) const
         }
         return cached.get();
     }
+    QReadLocker lock(&indexLock());
     const auto it = m_index.constFind(id);
     return it == m_index.cend() ? nullptr : &m_descriptors[*it];
 }
@@ -189,6 +202,8 @@ QString EffectRegistry::groupName(const QString& group)
         {effectgroups::Transform, QT_TRANSLATE_NOOP("kk::EffectRegistry", "Transform")},
         {effectgroups::Plugins, QT_TRANSLATE_NOOP("kk::EffectRegistry", "Plugins")},
         {effectgroups::OpenFX, QT_TRANSLATE_NOOP("kk::EffectRegistry", "OpenFX")},
+        {effectgroups::Lv2, QT_TRANSLATE_NOOP("kk::EffectRegistry", "LV2")},
+        {effectgroups::Clap, QT_TRANSLATE_NOOP("kk::EffectRegistry", "CLAP")},
         {effectgroups::Dissolve, QT_TRANSLATE_NOOP("kk::EffectRegistry", "Dissolve")},
         {effectgroups::Iris, QT_TRANSLATE_NOOP("kk::EffectRegistry", "Iris")},
         {effectgroups::Motion, QT_TRANSLATE_NOOP("kk::EffectRegistry", "Motion")},
